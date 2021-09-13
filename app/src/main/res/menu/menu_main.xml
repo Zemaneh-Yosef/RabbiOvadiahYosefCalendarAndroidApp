@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/refresh"
+        android:title="@string/refresh"
+        app:showAsAction="always"
+        android:icon="@android:drawable/ic_popup_sync"/>
+    <item
+        android:id="@+id/enterZipcode"
+        android:title="@string/enter_a_zipcode" />
+    <item
+        android:id="@+id/shabbat_mode"
+        android:title="@string/shabbat_mode"
+        android:checkable="true"
+        />
+    <item
+        android:id="@+id/setupChooser"
+        android:title="@string/setup" />
+    <item
+        android:id="@+id/fullSetup"
+        android:title="@string/full_setup" />
+    <item
+    android:id="@+id/molad"
+    android:title="@string/molad_calculator" />
+    <item
+        android:id="@+id/settings"
+        android:title="@string/settings" />
+    <item
+        android:id="@+id/about"
+        android:title="@string/about" />
+    <item
+        android:id="@+id/help"
+        android:title="@string/help" />
+
+</menu>

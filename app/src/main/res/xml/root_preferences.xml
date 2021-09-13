@@ -1,0 +1,41 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory app:title="Zmanim Options" >
+
+        <ListPreference
+            app:title="Candle Lighting Time"
+            app:summary="Enter the amount of minutes for candle lighting."
+            app:key="CandleLightingOffset"
+            app:entries="@array/candle_lighting_entries"
+            app:entryValues="@array/candle_lighting_values"
+            app:defaultValue="20"
+            />
+
+        <EditTextPreference
+            app:title="Tzait Shabbat Time"
+            app:defaultValue="45"
+            app:key="EndOfShabbatOffset"
+            app:summary="Enter the amount of minutes to add after sunset until shabbat ends."
+            />
+
+        <CheckBoxPreference
+            android:title="Add seconds?"
+            android:summary="Choose whether or not to display the seconds of the zmanim"
+            android:key="ShowSeconds"
+            android:defaultValue="true" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/contact_header">
+
+        <Preference
+            app:title="Have questions?"
+            app:selectable="true"
+            app:key="@string/contact_header"
+            app:summary="Contact the developer!"
+            />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

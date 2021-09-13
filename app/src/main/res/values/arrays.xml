@@ -1,0 +1,14 @@
+<resources>
+    <!-- Reply Preference -->
+    <string-array name="candle_lighting_entries">
+        <item>18 Minutes</item>
+        <item>20 Minutes</item>
+        <item>40 Minutes</item>
+    </string-array>
+
+    <string-array name="candle_lighting_values">
+        <item>18</item>
+        <item>20</item>
+        <item>40</item>
+    </string-array>
+</resources>

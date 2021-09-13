@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_alignParentBottom="true"
+    android:layout_centerHorizontal="true"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:background="@color/black"
+    tools:context=".activities.FullSetupActivity">
+
+    <Button
+        android:id="@+id/quickSetup"
+        android:layout_width="match_parent"
+        android:layout_height="260dp"
+        android:layout_margin="8dp"
+        android:background="@drawable/colorful_gradient"
+        android:gravity="center"
+        android:text="@string/quick_setup"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:textAllCaps="false"
+        android:textSize="28sp" />
+
+    <Button
+        android:id="@+id/advancedSetup"
+        android:layout_width="match_parent"
+        android:layout_height="260dp"
+        android:layout_margin="8dp"
+        android:background="@drawable/colorful_gradient"
+        android:gravity="center"
+        android:text="@string/advanced_setup"
+        android:textColor="@color/black"
+        android:textAllCaps="false"
+        android:textStyle="bold"
+        android:textSize="28sp" />
+
+</LinearLayout>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" android:opacity="opaque">
+    <!-- Background Color -->
+    <item
+        android:drawable="@color/gray"/>
+
+    <!-- Logo -->
+    <item
+        android:bottom="200dp">
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/calendar1"/>
+    </item>
+
+    <item
+        android:top="450dp">
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/cooltext392922405046809" />
+    </item>
+
+</layer-list>

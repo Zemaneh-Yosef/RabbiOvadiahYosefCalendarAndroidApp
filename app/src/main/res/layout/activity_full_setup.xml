@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_alignParentBottom="true"
+    android:layout_centerHorizontal="true"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:background="@color/black"
+    tools:context=".activities.FullSetupActivity">
+
+    <Button
+        android:id="@+id/inIsraelButton"
+        android:layout_width="match_parent"
+        android:layout_height="260dp"
+        android:layout_marginTop="1dp"
+        android:background="@drawable/israel_button_background"
+        android:gravity="center"
+        android:text="@string/i_am_in_israel"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:textAllCaps="false"
+        android:textSize="28sp" />
+
+    <TextView
+        android:id="@+id/israel_question"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/are_you_in_israel"
+        android:gravity="center"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:layout_margin="8dp"
+        />
+
+    <Button
+        android:id="@+id/notInIsraelButton"
+        android:layout_width="match_parent"
+        android:layout_height="260dp"
+        android:layout_margin="1dp"
+        android:background="@drawable/regular_button"
+        android:gravity="center"
+        android:text="@string/i_am_not_in_israel"
+        android:textColor="@color/black"
+        android:textAllCaps="false"
+        android:textStyle="bold"
+        android:textSize="28sp" />
+
+</LinearLayout>

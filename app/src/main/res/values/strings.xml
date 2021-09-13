@@ -1,0 +1,102 @@
+<resources>
+    <string name="app_name">Rabbi Ovadiah Yosef Calendar</string>
+    <string name="ok">OK</string>
+    <string name="zipcode">Zipcode</string>
+
+    <string name="title_location_permission">No location permission</string>
+    <string name="text_location_permission">
+        Ideally, this app needs location permissions in order to accurately calculate the zmanim.
+        Therefore, it is better to allow the app to see your location. We do not use your location
+        for any other purpose than to calculate the zmanim.\n\n(Note: As of Android 11, the app can not
+        ask you for location permissions more than once per install. You might need to re-install
+        the app to use your location.) \n\nHowever, if you still do not want to give location
+        permissions, you can choose to enter a zipcode and the app will try to find your location.
+    </string>
+
+    <string name="setup_elevation">Setup Elevation</string>
+    <string name="mishor_request">If you want to use Mishor (Sea Level) Sunset for your calculations
+        of the zmanim, just press the button below:</string>
+    <string name="mishor_sea_level">Mishor (Sea Level)</string>
+    <string name="manual_button">If you want to specify the elevation level (in meters) yourself,
+        press this button:</string>
+    <string name="manual">Manual</string>
+    <string name="chaitables_request">If you want to get this information from chaitables.com,
+        press this button:</string>
+    <string name="chaitables_requestV2">If you want to get this information from chaitables.com,
+        press this button (this will download the visible sunrise tables as well):</string>
+    <string name="chaitables">ChaiTables</string>
+
+    <string name="long_explanation">
+        I have heard from Rabbi Darshan (creator of the Ohr HaChaim Luach in Israel) that Rabbi Ovadiah Yosef ZT\"L held that the actual sunrise/sunset that should be used for calculating zmanim is when sunrise/sunset is seen at the highest point in the city. However, Rabbi David Yosef Shlita writes that many have told him that Rabbi Ovadiah ZT\"L held to use Mishor (Sea Level) sunrise/sunset. Therefore, you can use the buttons below to choose the appropriate settings that you want. (See Halacha Berura vol. 14, in Otzrot Yosef (Kuntrus Ki Ba Hashemesh), Siman 6, Perek 21 for an in depth discussion)
+    </string>
+    <string name="settings">Settings</string>
+
+    <string name="helper_text">Welcome to the Rabbi Ovadiah Yosef Calendar App, this app was made to help you find out the zmanim of the day according to Rabbi Ovadiah Yosef ZT\"L for your own city! There are three steps to setting up the app.
+
+ \n\n1.) Setup elevation and visible sunrise for where you are currently located. In this first step, you should ideally find your city on chaitables.com and download the visible sunrise tables. Through the quick setup, the elevation data will automatically be downloaded as well. This table contains the most accurate times for VISIBLE sunrise, and this is the algorithm that the Ohr HaChaim calendar uses in Israel. However, these tables only go on for 2 years into the future and will need to be updated bi-yearly. If you do not want to use these tables, you can choose not to download them through the advanced menu, and the app will instead use the regular algorithm for sunrise (without elevation included).
+
+ \n\n2.) There are a few different minhagim to choose from in the settings part of the app. Make sure to choose the correct ones for your city/kehila.
+
+ \n\n3.) Lastly, the zmanim will be included with seconds, DO NOT RELY ON THESE SECONDS. The only zman that can be relied on to the second is the visible sunrise time based on chaitables.com. Otherwise, these zmanim are NOT accurate to the second! Always round up or down a minute or two just in case.
+
+ \n\nIn addition to all of this, there are features in place that will tell you when to update the elevation data or the visible sunrise tables. If you leave the city that you currently setup the app for, the app will prompt you to run the setup again. The reason for this feature is because elevation will change based on the city that you are located in and you will have to update it every time you change cities, however, this feature will only turn on if you use elevation. \n\nThere is a similar feature for the visible sunrise tables that will prompt you to update the tables when the Rosh Hashana comes around. This is because the tables use the hebrew calendar and the website only allows you to download the times for the current year and the next year. Therefore, you need to download the new tables every year or two.
+    </string>
+    <string name="contact_header">Contact the developer</string>
+    <string name="about">About</string>
+    <string name="help">Help</string>
+    <string name="enter_a_zipcode">Enter A Zipcode</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+
+    <!-- Preference Titles -->
+    <string name="messages_header">Messages</string>
+    <string name="sync_header">Sync</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Your signature</string>
+    <string name="reply_title">Default reply action</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sync email periodically</string>
+    <string name="attachment_title">Download incoming attachments</string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails
+    </string>
+    <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="full_setup">Full Setup</string>
+    <string name="minhagim">Minhagim</string>
+    <string name="are_you_in_israel">Are you in Israel?</string>
+    <string name="i_am_in_israel">I am in Israel</string>
+    <string name="i_am_not_in_israel">I am not in Israel</string>
+    <string name="quick_setup">Quick Setup</string>
+    <string name="advanced_setup">Advanced Setup</string>
+    <string name="restart">Restart</string>
+    <string name="press_this_button_to_download_the_visible_sunrise_table_and_elevation_data_from_the_chai_tables_website">Press this button to download the visible sunrise table and elevation data from the Chai Tables website:</string>
+    <string name="download">Download</string>
+    <string name="setup_both_elevation_and_visible_sunrise">Setup both elevation and visible sunrise</string>
+    <string name="setup_elevation_only">Setup Elevation Only</string>
+    <string name="setup_visible_sunrise_only">Setup Visible Sunrise Only</string>
+    <string name="do_not_setup_either_uses_mishor_sea_level_sunrise_sunset_for_both_zmanim_and_sunrise">Do Not setup either (Uses Mishor (Sea Level) Sunrise/Sunset for both zmanim and Sunrise)</string>
+    <string name="alternate_download_request">Press this button to download the visible sunrise table from the Chai Tables website:</string>
+    <string name="intro">Welcome!\n\nThe goal of this app is to help you create your own zmanim calendar according to Rabbi Ovadiah Yosef Z\"tl.\n\nThere are two options to setup the calendar. \n\nThe quick setup option will setup the calendar according to the way that the Ohr HaChaim calendar in Israel sets it\'s zmanim. The quick setup will do 2 actions, it will download the elevation data for your city from the ChaiTables website, and it will download a table that lists the times for VISIBLE sunrise throughout the next 2 years. \nNote: This will have to be updated every year or two. \n\nThe advanced setup option allows you to choose whether you want to download the elevation data for your city, or the visible sunrise tables, or neither one. \n\nHowever, know that the elevation data changes for each and every city, and it is not easy to calculate where the highest point of elevation is in your city without detailed information of the entire city\'s elevation level, which is a bit too much data for this app. Therefore, you will need to download the elevation data of your city from the ChaiTables website every time you change cities. \n\nThere is also the option to manually enter the elevation data in meters if you know it. \n\nLastly, if you do not want to use elevation at all, and you just want to use mishor sunrise/sunset, you can do that as well in the advanced setup page. \n\nNote: Not every city will be available through chaitables, however, you should be able to request it to be added to the website.</string>
+    <string name="what_language_would_you_like_the_zmanim_to_be_in">What language would you like the zmanim to be in?</string>
+    <string name="hebrew">Hebrew</string>
+    <string name="english">English</string>
+    <string name="setup">Setup</string>
+    <string name="molad_calculator">Molad Calculator</string>
+    <string name="moon_background">moon background</string>
+    <string name="note_times_are_just_for_reference_you_should_ask_a_rav_if_you_can_say_the_bracha_earlier_or_later">Note: Times are just for reference, you should ask a rav if you can say the bracha earlier or later.</string>
+    <string name="latest_birchat_halevanah_15_days">Latest Birchat Halevanah (15 days):</string>
+    <string name="earliest_birchat_halevanah_7_days">Earliest Birchat Halevanah (7 days):</string>
+    <string name="the_molad_for_this_month_in_your_timezone">The Molad for this month in your timezone:</string>
+    <string name="example_date">September 2021 / Elul 5781</string>
+    <string name="molad_example">Sun Aug 08 4:22:36 AM</string>
+    <string name="molad_example_7_days">Sun Aug 15 4:22:36 AM</string>
+    <string name="molad_example_15_days">Sun Aug 23 4:22:36 AM</string>
+    <string name="change_month">Change Month</string>
+    <string name="the_molad_time_announced">The molad time announced:</string>
+    <string name="_10_34_and_3_chalakim">10:34 and 3 Chalakim</string>
+    <string name="title_activity_shabbat">ShabbatActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="shabbat_mode">Shabbat Mode</string>
+    <string name="refresh">Refresh</string>
+</resources>
