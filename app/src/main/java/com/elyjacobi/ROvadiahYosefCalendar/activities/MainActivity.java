@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     public static final String SHARED_PREF = "MyPrefsFile";
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {//TODO splash and about
+    protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.AppTheme); //splash screen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);

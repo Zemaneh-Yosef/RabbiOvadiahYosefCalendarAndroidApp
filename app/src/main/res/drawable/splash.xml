@@ -2,14 +2,14 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android" android:opacity="opaque">
     <!-- Background Color -->
     <item
-        android:drawable="@color/gray"/>
+        android:drawable="@color/background_gray"/>
 
     <!-- Logo -->
     <item
         android:bottom="200dp">
         <bitmap
             android:gravity="center"
-            android:src="@drawable/calendar1"/>
+            android:src="@drawable/gold_calendar"/>
     </item>
 
     <item

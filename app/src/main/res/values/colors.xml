@@ -15,6 +15,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="dark_gold">#C6AA14</color>
     <color name="gray">#32312C</color>
+    <color name="background_gray">#1e1e1e</color>
     <color name="light_blue">#3458D5</color>
     <color name="dark_blue">#18267C</color>
     <color name="dark_red">#A60202</color>
