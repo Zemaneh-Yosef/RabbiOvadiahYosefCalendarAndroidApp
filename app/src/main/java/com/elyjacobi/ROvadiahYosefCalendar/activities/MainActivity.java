@@ -532,12 +532,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 + ", " +
                 mROZmanimCalendar.getCalendar().get(Calendar.YEAR));
 
+        zmanim.add(jewishDateInfo.getThisWeeksParsha());
+
         zmanim.add(mROZmanimCalendar.getCalendar()
                 .getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault())
                 + " / " +
                 jewishDateInfo.getJewishDayOfWeek());
-
-        zmanim.add(jewishDateInfo.getThisWeeksParsha());
 
         String day = jewishDateInfo.getSpecialDay();
         if (!day.isEmpty()) {

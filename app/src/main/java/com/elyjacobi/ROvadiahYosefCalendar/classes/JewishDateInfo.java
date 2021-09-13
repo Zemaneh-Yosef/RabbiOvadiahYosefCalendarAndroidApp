@@ -54,7 +54,7 @@ public class JewishDateInfo {
     public String getSpecialDay() {
         String result;
         String yomTovOfToday = getYomTov();
-        String yomTovOfNextDay = checkNextDayForSpecialDay();
+        String yomTovOfNextDay = getYomTovForNextDay();
         if (yomTovOfToday.isEmpty() && yomTovOfNextDay.isEmpty()) {//if empty
             result = "";
         } else if (yomTovOfToday.isEmpty() && !yomTovOfNextDay.startsWith("Erev")) {//if next day has yom tov
@@ -112,13 +112,6 @@ public class JewishDateInfo {
                 result = getOrdinal(dayOfOmer) + " day of Omer";
             }
         }
-        return result;
-    }
-
-    private String checkNextDayForSpecialDay() {
-        jewishCalendar.forward(Calendar.DATE, 1);
-        String result = getYomTov();
-        jewishCalendar.setDate(currentDate);
         return result;
     }
 
@@ -189,9 +182,9 @@ public class JewishDateInfo {
                 return "Yom Hashoah";
             case JewishCalendar.YOM_HAZIKARON:
                 return "Yom Hazikaron";
-            case JewishCalendar.YOM_HAATZMAUT:
+            case JewishCalendar.YOM_HAATZMAUT://tachanun is said
                 return "Yom Haatzmaut";
-            case JewishCalendar.YOM_YERUSHALAYIM:
+            case JewishCalendar.YOM_YERUSHALAYIM://tachanun erev before, however, Rav ovadia would not say on the day itself
                 return "Yom Yerushalayim";
             case JewishCalendar.LAG_BAOMER:
                 return "Lag B'Omer";
@@ -200,6 +193,20 @@ public class JewishDateInfo {
             default:
                 return "";
         }
+    }
+
+    private String getYomTovForNextDay() {
+        jewishCalendar.forward(Calendar.DATE, 1);
+        String result = getYomTov();
+        jewishCalendar.setDate(currentDate);
+        return result;
+    }
+
+    private int getYomTovIndexForNextDay() {
+        jewishCalendar.forward(Calendar.DATE, 1);
+        int result = jewishCalendar.getYomTovIndex();
+        jewishCalendar.setDate(currentDate);
+        return result;
     }
 
     /**
@@ -219,41 +226,51 @@ public class JewishDateInfo {
      * All of Chanuka
      * 15th of Shevat
      * 14th and 15th of Adar I and Adar II (and only 14th of Adar I in a leap year)
+     * Every Shabbat
      *
-     * @return a String containing whether or not tachanun is said today, and if only at specific times
+     * Here are the days that we skip tachanun the day before at mincha:
+     * Every Friday
+     * Fast of Esther
+     * Tisha Be'av
+     * Tu Be'Shvat
+     * Lag Ba'Omer
+     * Pesach Sheni
+     * @return a String containing whether or not tachanun is said today, and if only in the morning
      */
     public String getIsTachanunSaid() {
+        int yomTovIndex = jewishCalendar.getYomTovIndex();
         if (jewishCalendar.isRoshChodesh()
-                || jewishCalendar.getJewishMonth() == JewishDate.NISSAN
-                || jewishCalendar.getYomTovIndex() == JewishCalendar.PESACH_SHENI
-                || jewishCalendar.getYomTovIndex() == JewishCalendar.LAG_BAOMER
-                || (jewishCalendar.getJewishMonth() == JewishDate.SIVAN && jewishCalendar.getJewishDayOfMonth() <= 12)
-                || jewishCalendar.getYomTovIndex() == JewishCalendar.TISHA_BEAV
-                || jewishCalendar.getYomTovIndex() == JewishCalendar.TU_BEAV
-                || jewishCalendar.getYomTovIndex() == JewishCalendar.EREV_ROSH_HASHANA
-                || jewishCalendar.getYomTovIndex() == JewishCalendar.ROSH_HASHANA
-                || jewishCalendar.getYomTovIndex() == JewishCalendar.EREV_YOM_KIPPUR
-                || jewishCalendar.getYomTovIndex() == JewishCalendar.YOM_KIPPUR
-                || (jewishCalendar.getJewishMonth() == JewishDate.TISHREI && jewishCalendar.getJewishDayOfMonth() >= 11)
+                || yomTovIndex == JewishCalendar.PESACH_SHENI
+                || yomTovIndex == JewishCalendar.LAG_BAOMER
+                || yomTovIndex == JewishCalendar.TISHA_BEAV
+                || yomTovIndex == JewishCalendar.TU_BEAV
+                || yomTovIndex == JewishCalendar.EREV_ROSH_HASHANA
+                || yomTovIndex == JewishCalendar.ROSH_HASHANA
+                || yomTovIndex == JewishCalendar.EREV_YOM_KIPPUR
+                || yomTovIndex == JewishCalendar.YOM_KIPPUR
+                || yomTovIndex == JewishCalendar.TU_BESHVAT
+                || yomTovIndex == JewishCalendar.PURIM_KATAN
+                || yomTovIndex == JewishCalendar.PURIM
+                || yomTovIndex == JewishCalendar.SHUSHAN_PURIM
+                || yomTovIndex == JewishCalendar.YOM_YERUSHALAYIM
                 || jewishCalendar.isChanukah()
-                || jewishCalendar.getYomTovIndex() == JewishCalendar.TU_BESHVAT
-                || jewishCalendar.getYomTovIndex() == JewishCalendar.PURIM_KATAN
-                || jewishCalendar.getYomTovIndex() == JewishCalendar.PURIM
-                || jewishCalendar.getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM
-                || jewishCalendar.getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
+                || jewishCalendar.getJewishMonth() == JewishDate.NISSAN
+                || (jewishCalendar.getJewishMonth() == JewishDate.SIVAN && jewishCalendar.getJewishDayOfMonth() <= 12)
+                || (jewishCalendar.getJewishMonth() == JewishDate.TISHREI && jewishCalendar.getJewishDayOfMonth() >= 11)) {
             return "There is no Tachanun today";
         }
+        int yomTovIndexForNextDay = getYomTovIndexForNextDay();
         if (jewishCalendar.getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY
-                || jewishCalendar.getYomTovIndex() == JewishCalendar.FAST_OF_ESTHER
-                || checkNextDayForSpecialDay().equals("Tisha Be'Av")
-                || checkNextDayForSpecialDay().equals("Tu Be'Av")
-                || checkNextDayForSpecialDay().equals("Tu Be'Shevat")
-                || checkNextDayForSpecialDay().equals("Lag B'Omer")
-                || checkNextDayForSpecialDay().equals("Pesach Sheni")
-                || checkNextDayForSpecialDay().equals("Erev Shavuot")
-                || checkNextDayForSpecialDay().equals("Tisha Be'Av")
-                || checkNextDayForSpecialDay().equals("Tu Be'Av")) {
-            return "There is no Tachanun in the morning";
+                || yomTovIndex == JewishCalendar.FAST_OF_ESTHER
+                || yomTovIndexForNextDay == JewishCalendar.TISHA_BEAV
+                || yomTovIndexForNextDay == JewishCalendar.TU_BEAV
+                || yomTovIndexForNextDay == JewishCalendar.TU_BESHVAT
+                || yomTovIndexForNextDay == JewishCalendar.LAG_BAOMER
+                || yomTovIndexForNextDay == JewishCalendar.PESACH_SHENI) {
+            return "There is only Tachanun in the morning";
+        }
+        if (currentDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
+            return "צדקתך";
         }
         return "There is Tachanun today";
     }
