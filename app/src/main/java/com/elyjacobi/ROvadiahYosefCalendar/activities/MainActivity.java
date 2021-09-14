@@ -50,6 +50,7 @@ import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.YerushalmiYomiCalculator;
 import com.kosherjava.zmanim.hebrewcalendar.YomiCalculator;
 import com.kosherjava.zmanim.util.GeoLocation;
+import com.kosherjava.zmanim.util.ZmanimFormatter;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -80,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     private JewishDateInfo jewishDateInfo;
     private ChaiTables chaiTables;
     private ROZmanimCalendar mROZmanimCalendar;
+    private final ZmanimFormatter zmanimFormatter = new ZmanimFormatter(TimeZone.getDefault());
     private Calendar mCurrentDate;
     private Runnable mZmanimUpdater;
     private Handler mHandler = null;
@@ -101,6 +103,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         mSettingsPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         geocoder = new Geocoder(this);
+        zmanimFormatter.setTimeFormat(ZmanimFormatter.SEXAGESIMAL_FORMAT);
         initializeSetupResult();
         mShabbatModeBanner = findViewById(R.id.shabbat_mode);
         mShabbatModeBanner.setSelected(true);
@@ -381,7 +384,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     @Override
     protected void onRestart() {
         if (mShabbatMode) {
-            startShabbatMode();//TODO test if needed for the handler to update the list
+            startShabbatMode();//left in just in case thread in shabbatMode stops working
         }
         super.onRestart();
     }
@@ -416,7 +419,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         editor.putString("timezoneID", mCurrentTimeZoneID).apply();
     }
 
-    private void updateNotifications() {//TODO find a good notification layout
+    private void updateNotifications() {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(mROZmanimCalendar.getSunrise().getTime());
         if (calendar.getTime().compareTo(new Date()) < 0) {
@@ -661,16 +664,19 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                     zmanimFormat.format(mROZmanimCalendar.getSolarMidnight()));
         }
         zmanim.add("Additional info:");
+
         zmanim.add("Daf Yomi: " + YomiCalculator.getDafYomiBavli(jewishDateInfo.getJewishCalendar()).getMasechta()
                 + " " +
                 formatHebrewNumber(YomiCalculator.getDafYomiBavli(jewishDateInfo.getJewishCalendar()).getDaf()));
-        zmanim.add("Yerushalmi Yomi: " + YerushalmiYomiCalculator.getDafYomiYerushalmi(
-                jewishDateInfo.getJewishCalendar()).getMasechta()
+
+        zmanim.add("Yerushalmi Yomi: " + YerushalmiYomiCalculator.getDafYomiYerushalmi(jewishDateInfo.getJewishCalendar()).getMasechta()
                 + " " +
-                formatHebrewNumber(YerushalmiYomiCalculator.getDafYomiYerushalmi(
-                        jewishDateInfo.getJewishCalendar()).getDaf()));
-        if (mROZmanimCalendar.getGeoLocation().getTimeZone().inDaylightTime(
-                mROZmanimCalendar.getSeaLevelSunrise())) {
+                formatHebrewNumber(YerushalmiYomiCalculator.getDafYomiYerushalmi(jewishDateInfo.getJewishCalendar()).getDaf()));
+
+        zmanim.add("Shaah Zmanit MG\"A: " + zmanimFormatter.format(mROZmanimCalendar.getShaahZmanis72MinutesZmanis()));
+        zmanim.add("Shaah Zmanit GR\"A: " + zmanimFormatter.format(mROZmanimCalendar.getShaahZmanisGra()));
+
+        if (mROZmanimCalendar.getGeoLocation().getTimeZone().inDaylightTime(mROZmanimCalendar.getSeaLevelSunrise())) {
             zmanim.add("Daylight Savings Time is on");
         } else {
             zmanim.add("Daylight Savings Time is off");
