@@ -39,7 +39,7 @@ public class AdvancedSetupActivity extends AppCompatActivity {
         );
 
         setupElevation.setOnClickListener(v -> {
-            editor.putBoolean("UseTable", false);
+            editor.putBoolean("UseTable", false).apply();
             editor.putBoolean("showMishorSunrise", true).apply();
             startActivity(new Intent(this, SetupElevationActivity.class)
                     .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
@@ -57,7 +57,7 @@ public class AdvancedSetupActivity extends AppCompatActivity {
 
         setupNeither.setOnClickListener(v -> {
             editor.putBoolean("isSetup", true).apply();
-            editor.putBoolean("UseTable", false);
+            editor.putBoolean("UseTable", false).apply();
             editor.putBoolean("showMishorSunrise", true).apply();
             finish();
         });

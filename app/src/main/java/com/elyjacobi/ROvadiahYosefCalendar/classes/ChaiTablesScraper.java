@@ -21,21 +21,6 @@ public class ChaiTablesScraper extends Thread {
     private double mResult;
 
     /**
-     * The amount of progress while downloading the elevation.
-     */
-    private int mElevationProgress = 0;
-
-    /**
-     * The amount of progress while downloading the file.
-     */
-    private int mFileProgress = 0;
-
-    /**
-     * The maximum amount of progress allowed.
-     */
-    private final int MAX_PROGRESS = 100;
-
-    /**
      * The URL to scrape, this must be set before we do any actual work.
      */
     private String mUrl;
@@ -107,22 +92,6 @@ public class ChaiTablesScraper extends Thread {
     }
 
     /**
-     *
-     * @return the current progress of the download
-     */
-    public int getProgress() {
-        if (mExt != null && mUrl != null) {
-            return (mFileProgress + mElevationProgress) / 2;
-        }
-
-        if (mUrl != null) {
-            return mElevationProgress;
-        }
-
-        return 0;
-    }
-
-    /**
      * This is a convenience method that automatically searches the URL passed in and makes sure
      * that the page actually has the elevation data. The chai table website has 6 different options
      * for which type of sunrise/sunset table you can choose from. Astronomical, mishor (sea level,
@@ -142,6 +111,8 @@ public class ChaiTablesScraper extends Thread {
             mUrl = mUrl.replace("&cgi_types=3", "&cgi_types=5");
         } else if (mUrl.contains("&cgi_types=4")) {
             mUrl = mUrl.replace("&cgi_types=4", "&cgi_types=5");
+        } else if (mUrl.contains("&cgi_types=-1")) {
+            mUrl = mUrl.replace("&cgi_types=-1", "&cgi_types=5");
         }
     }
 
@@ -166,6 +137,8 @@ public class ChaiTablesScraper extends Thread {
             mUrl = mUrl.replace("&cgi_types=3", "&cgi_types=0");
         } else if (mUrl.contains("&cgi_types=4")) {
             mUrl = mUrl.replace("&cgi_types=4", "&cgi_types=0");
+        } else if (mUrl.contains("&cgi_types=-1")) {
+            mUrl = mUrl.replace("&cgi_types=-1", "&cgi_types=0");
         }
     }
 
@@ -194,9 +167,6 @@ public class ChaiTablesScraper extends Thread {
             if (i != tableHeaderEles.size() - 1) {
                 stringBuilder.append(',');
             }
-            if (mElevationProgress < MAX_PROGRESS) {
-                mElevationProgress++;
-            }
         }
         stringBuilder.append('\n');
 
@@ -211,11 +181,7 @@ public class ChaiTablesScraper extends Thread {
                 }
             }
             stringBuilder.append('\n');
-            if (mElevationProgress < MAX_PROGRESS) {
-                mElevationProgress++;
-            }
         }
-        mElevationProgress = MAX_PROGRESS;
         return findElevation(stringBuilder.toString());
     }
 
@@ -242,57 +208,44 @@ public class ChaiTablesScraper extends Thread {
         if (!Environment.MEDIA_MOUNTED.equals(state)) {
             throw new IOException("Something went wrong writing to disk");
         }
-        String filename = "visibleSunriseTable" + jewishDate.getJewishYear() +".csv";
+        String filename = "visibleSunriseTable" + jewishDate.getJewishYear() + ".csv";
         File file = new File(mExt, filename);
         FileOutputStream outputStream;
         try {
-            if (file.createNewFile()) {
-                outputStream = new FileOutputStream(file, false);
+            outputStream = new FileOutputStream(file, false);
 
-                Document doc = Jsoup.connect(mUrl)
-                        .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6)" +
-                                " Gecko/20070725 Firefox/2.0.0.6")
-                        .referrer("http://www.google.com").get();
-                Elements tableElement = doc.select("table");
+            Document doc = Jsoup.connect(mUrl)
+                    .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6)" +
+                            " Gecko/20070725 Firefox/2.0.0.6")
+                    .referrer("http://www.google.com").get();
+            Elements tableElement = doc.select("table");
 
-                Elements tableHeaderElements = tableElement.select("thead tr th");
-                for (int i = 0; i < tableHeaderElements.size(); i++) {
-                    outputStream.write(tableHeaderElements.get(i).text().getBytes());
-                    if (i != tableHeaderElements.size() - 1) {
+            Elements tableHeaderElements = tableElement.select("thead tr th");
+            for (int i = 0; i < tableHeaderElements.size(); i++) {
+                outputStream.write(tableHeaderElements.get(i).text().getBytes());
+                if (i != tableHeaderElements.size() - 1) {
+                    outputStream.write(',');
+                }
+            }
+            outputStream.write('\n');
+
+            Elements tableRowElements = tableElement.select(":not(thead) tr");
+
+            for (Element row : tableRowElements) {
+                Elements rowItems = row.select("td");
+                for (int j = 0; j < rowItems.size(); j++) {
+                    outputStream.write(rowItems.get(j).text().getBytes());
+                    if (j != rowItems.size() - 1) {
                         outputStream.write(',');
-                    }
-                    if (mFileProgress < MAX_PROGRESS) {
-                        mFileProgress++;
                     }
                 }
                 outputStream.write('\n');
-
-                Elements tableRowElements = tableElement.select(":not(thead) tr");
-
-                for (Element row : tableRowElements) {
-                    Elements rowItems = row.select("td");
-                    for (int j = 0; j < rowItems.size(); j++) {
-                        outputStream.write(rowItems.get(j).text().getBytes());
-                        if (j != rowItems.size() - 1) {
-                            outputStream.write(',');
-                        }
-                    }
-                    outputStream.write('\n');
-                    if (mFileProgress < MAX_PROGRESS) {
-                        mFileProgress++;
-                    }
-                }
-                outputStream.flush();
-                outputStream.close();
-            } else {
-                if (file.delete()) {
-                    writeZmanimTableToFile();
-                }
             }
-        } catch (Exception e) {
+            outputStream.flush();
+            outputStream.close();
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        mFileProgress = MAX_PROGRESS;
     }
 
     /**

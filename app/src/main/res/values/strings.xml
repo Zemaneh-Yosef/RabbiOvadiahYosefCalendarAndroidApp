@@ -31,13 +31,13 @@
     </string>
     <string name="settings">Settings</string>
 
-    <string name="helper_text">Welcome to the Rabbi Ovadiah Yosef Calendar App, this app was made to help you find out the zmanim of the day according to Rabbi Ovadiah Yosef ZT\"L for your own city! There are three steps to setting up the app.
+    <string name="helper_text">Welcome to the Rabbi Ovadiah Yosef Calendar App, this app was made to help you find out the zmanim of the day according to Rabbi Ovadiah Yosef ZT\"L for your own city! There are a few things to know before using the app.
 
  \n\n1.) Setup elevation and visible sunrise for where you are currently located. In this first step, you should ideally find your city on chaitables.com and download the visible sunrise tables. Through the quick setup, the elevation data will automatically be downloaded as well. This table contains the most accurate times for VISIBLE sunrise, and this is the algorithm that the Ohr HaChaim calendar uses in Israel. However, these tables only go on for 2 years into the future and will need to be updated bi-yearly. If you do not want to use these tables, you can choose not to download them through the advanced menu, and the app will instead use the regular algorithm for sunrise (without elevation included).
 
- \n\n2.) There are a few different minhagim to choose from in the settings part of the app. Make sure to choose the correct ones for your city/kehila.
+ \n\n2.) There are a few different minhagim to choose from in the settings part of the app. Make sure to choose the correct ones for your city/kehila. For example, the default candle lighting time is set to 20 minutes before sunset, and the default end time for is set to 45 minutes after sunset. Please change these settings to your own customs.
 
- \n\n3.) Lastly, the zmanim will be included with seconds, DO NOT RELY ON THESE SECONDS. The only zman that can be relied on to the second is the visible sunrise time based on chaitables.com. Otherwise, these zmanim are NOT accurate to the second! Always round up or down a minute or two just in case.
+ \n\n3.) Lastly, the zmanim will be included with seconds, DO NOT RELY ON THESE SECONDS. The only zman that can be relied on to the second is the visible sunrise time based on chaitables.com. Otherwise, these zmanim are NOT accurate to the second! You should always round up or down a minute or two just in case.
 
  \n\nIn addition to all of this, there are features in place that will tell you when to update the elevation data or the visible sunrise tables. If you leave the city that you currently setup the app for, the app will prompt you to run the setup again. The reason for this feature is because elevation will change based on the city that you are located in and you will have to update it every time you change cities, however, this feature will only turn on if you use elevation. \n\nThere is a similar feature for the visible sunrise tables that will prompt you to update the tables when the Rosh Hashana comes around. This is because the tables use the hebrew calendar and the website only allows you to download the times for the current year and the next year. Therefore, you need to download the new tables every year or two.
     </string>
@@ -99,4 +99,5 @@
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="shabbat_mode">Shabbat Mode</string>
     <string name="refresh">Refresh</string>
+    <string name="full_restart">Full Restart</string>
 </resources>

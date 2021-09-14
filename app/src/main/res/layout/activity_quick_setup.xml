@@ -40,17 +40,4 @@
         android:layout_height="match_parent"
         android:visibility="invisible"/>
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/quickSetupWebView"
-        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-        android:progress="0"
-        android:max="100"
-        android:visibility="invisible"/>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -32,7 +32,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         try {
             ChaiTables chaiTables = new ChaiTables(externalFilesDir, jewishCalendar);
 
-            if (chaiTables.visibleSunriseFileExists()) {
+            if (ChaiTables.visibleSunriseFileExists(externalFilesDir, jewishCalendar)) {
                 String currentVisibleSunrise = chaiTables.getVisibleSunrise();
 
                 int visibleSunriseHour = Integer.parseInt(currentVisibleSunrise.substring(0, 1));
@@ -65,6 +65,11 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         long shaahZmanit = getTemporalHour(getSunrise(), getSunset());
         long dakahZmanit = shaahZmanit / MINUTES_PER_HOUR;
         return getTimeOffset(getTzait(), -(shaahZmanit + (15 * dakahZmanit)));
+    }
+
+    @Override
+    public Date getCandleLighting() {
+        return getTimeOffset(getElevationAdjustedSunset(), -getCandleLightingOffset() * MILLISECONDS_PER_MINUTE);
     }
 
     public Date getTzait() {

@@ -13,14 +13,12 @@ public class ChaiTables {
 
     private static final int ROWS_UNDER_MONTHS = 31;
     private final JewishCalendar jewishCalendar;
-    private final File externalFilesDir;
     private List<String[]> actualVSunriseTable;
 
     public ChaiTables(File externalFilesDir, JewishCalendar jewishCalendar) throws Exception {
         this.jewishCalendar = jewishCalendar;
-        this.externalFilesDir = externalFilesDir;
 
-        if (visibleSunriseFileExists()) {
+        if (visibleSunriseFileExists(externalFilesDir, jewishCalendar)) {
             File file = new File(externalFilesDir, "visibleSunriseTable" + jewishCalendar.getJewishYear() +".csv");
             CSVReader visibleSunriseReader = new CSVReader(new FileReader(file));
 
@@ -81,7 +79,7 @@ public class ChaiTables {
         return actualVSunriseTable.get(jCal.getJewishDayOfMonth())[currentHebrewMonth];
     }
 
-    public boolean visibleSunriseFileExists() {
+    public static boolean visibleSunriseFileExists(File externalFilesDir, JewishCalendar jewishCalendar) {
         File sunriseCSV = new File(externalFilesDir, "visibleSunriseTable" + jewishCalendar.getJewishYear() + ".csv");
         return sunriseCSV.isFile();
     }

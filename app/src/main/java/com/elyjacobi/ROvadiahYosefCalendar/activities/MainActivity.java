@@ -79,7 +79,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     private String mCurrentTimeZoneID;
     private String mCurrentLocationName = "";
     private JewishDateInfo jewishDateInfo;
-    private ChaiTables chaiTables;
     private ROZmanimCalendar mROZmanimCalendar;
     private final ZmanimFormatter zmanimFormatter = new ZmanimFormatter(TimeZone.getDefault());
     private Calendar mCurrentDate;
@@ -111,12 +110,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         jewishDateInfo = new JewishDateInfo(
                 mSharedPreferences.getBoolean("inIsrael", false),
                 true);
-        try {
-            chaiTables = new ChaiTables(getExternalFilesDir(null), jewishDateInfo.getJewishCalendar());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        if (!chaiTables.visibleSunriseFileExists()//it should only not exist the first time running the app
+        if (!ChaiTables.visibleSunriseFileExists(getExternalFilesDir(null), jewishDateInfo.getJewishCalendar())//it should only not exist the first time running the app
                 && mSharedPreferences.getBoolean("UseTable", true)
                 && savedInstanceState == null) {
             setupLauncher.launch(new Intent(this, FullSetupActivity.class));
@@ -166,38 +160,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         saveGeoLocationInfo();
         setupRecyclerView();
         setupButtons();
-        notifyUserAboutEndShabbatTime();
         seeIfTablesNeedToBeUpdated();
         updateNotifications();
-    }
-
-    private void notifyUserAboutEndShabbatTime() {
-        if (mSharedPreferences.getBoolean("hasNotShownShabbatAndSecondsDialog", true)) {
-            new AlertDialog.Builder(this)
-                    .setTitle("Manually set the time for when Shabbat Ends!")
-                    .setMessage("The time for when shabbat ends varies greatly by each community." +
-                            " For example, in Israel some people only wait 20 minutes after " +
-                            "shkia (sunset) until shabbat ends, while others wait 30 minutes. " +
-                            "However, in New York, most sephardic communities wait 50 minutes until " +
-                            "shabbat ends. These customs vary greatly, therefore, I left it up to " +
-                            "the user to manually enter the time until shabbat ends." +
-                            " By default, I made the time for the end of shabbat at 45 minutes" +
-                            " after shkia. Please update this value in the settings menu to " +
-                            "your community's minhag.")
-                    .setPositiveButton("I understand", (dialogInterface, i) ->
-                            new AlertDialog.Builder(this)
-                            .setTitle("Lastly, do not rely on seconds!")
-                            .setMessage("One last thing to note is that these zmanim have seconds included. Do NOT rely on these" +
-                                    " seconds, because these times are NOT 100% accurate for multiple reasons. It is always recommended" +
-                                    " to be machmir (stringent) a minute of two before or after the time listed. \n\nIf you want to remove these" +
-                                    " seconds, you can do so in the settings.")
-                            .setPositiveButton("I understand", (dialogInterface2, i2) ->
-                                    mSharedPreferences.edit().putBoolean("hasNotShownShabbatAndSecondsDialog", false).apply())
-                            .setCancelable(false)
-                            .show())
-                    .setCancelable(false)
-                    .show();
-        }
     }
 
     private void seeIfTablesNeedToBeUpdated() {
@@ -224,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                     " (" + (mROZmanimCalendar.getCalendar().get(Calendar.YEAR) + 1) + ")" + "\n\n" +
                     "Would you like to rerun the setup now?";
 
-            if (chaiTables.visibleSunriseFileExists()) {
+            if (ChaiTables.visibleSunriseFileExists(getExternalFilesDir(null), jewishDateInfo.getJewishCalendar())) {
                 if (mSharedPreferences.getBoolean("askAgainTables", true)) {//only prompt user if he has not asked to be left alone
                     new AlertDialog.Builder(this)
                             .setTitle("Shana Tovah! You should update!")
@@ -439,6 +403,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 new Intent(getApplicationContext(), OmerNotifications.class), 0);
         am.cancel(omerPendingIntent);
         am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), omerPendingIntent);
+
+        try {
+            dailyPendingIntent.send(PendingIntent.FLAG_ONE_SHOT);
+        } catch (PendingIntent.CanceledException e) {
+            e.printStackTrace();
+        }
     }
 
     @SuppressWarnings({"SynchronizeOnNonFinalField"})
@@ -510,16 +480,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
     private List<String> getZmanimList() {
         DateFormat zmanimFormat;
-        DateFormat sunriseFormat; //Create a separate formatter for visible sunrise
         if (mSettingsPreferences.getBoolean("ShowSeconds", true)) {
             zmanimFormat = new SimpleDateFormat("h:mm:ss aa", Locale.getDefault());
-            zmanimFormat.setTimeZone(TimeZone.getTimeZone(mCurrentTimeZoneID)); //set the formatters time zone
-            sunriseFormat = new SimpleDateFormat("h:mm:ss aa", Locale.getDefault());
         } else {
             zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
-            zmanimFormat.setTimeZone(TimeZone.getTimeZone(mCurrentTimeZoneID)); //set the formatters time zone
-            sunriseFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
         }
+        zmanimFormat.setTimeZone(TimeZone.getTimeZone(mCurrentTimeZoneID)); //set the formatters time zone
 
         List<String> zmanim = new ArrayList<>();
 
@@ -560,7 +526,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                     zmanimFormat.format(mROZmanimCalendar.getEarliestTalitTefilin()));
             if (mROZmanimCalendar.getHaNetz() != null
                     && !mSharedPreferences.getBoolean("showMishorSunrise", true)) {
-                zmanim.add("\u05D4\u05E0\u05E5= " + sunriseFormat.format(mROZmanimCalendar.getHaNetz()));
+                zmanim.add("\u05D4\u05E0\u05E5= " + zmanimFormat.format(mROZmanimCalendar.getHaNetz()));
             } else {
                 zmanim.add("\u05D4\u05E0\u05E5 (\u05DE\u05D9\u05E9\u05D5\u05E8)= " +
                         zmanimFormat.format(mROZmanimCalendar.getSeaLevelSunrise()));
@@ -616,7 +582,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             if (mROZmanimCalendar.getHaNetz() != null
                     && !mSharedPreferences.getBoolean("showMishorSunrise", true)) {
                 zmanim.add("HaNetz= " +
-                        sunriseFormat.format(mROZmanimCalendar.getHaNetz()));
+                        zmanimFormat.format(mROZmanimCalendar.getHaNetz()));
             } else {
                 zmanim.add("HaNetz (Mishor)= " +
                         zmanimFormat.format(mROZmanimCalendar.getSeaLevelSunrise()));
@@ -726,8 +692,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 result.append(state);
             }
 
-            if (result.toString().endsWith(",")) {
-                result.deleteCharAt(result.length() - 1);
+            if (result.toString().endsWith(", ")) {
+                result.deleteCharAt(result.length() - 2);
             }
 
             if (city == null && state == null) {
@@ -759,17 +725,19 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                         "Current Location: " + mCurrentLocationName + "\n\n" +
                         "Would you like to rerun the setup now?";
 
-        if (!lastLocation.isEmpty()) {//only check after the app has been setup before
-            mElevation = mSharedPreferences.getFloat("elevation", 0);//get the last value
-            if (!lastLocation.equals(mCurrentLocationName)) {//user should update his elevation in another city
-                if (mSharedPreferences.getBoolean("askagain", true)) {//only prompt user if he has not asked to be left alone
+        if (mSharedPreferences.getBoolean("askagain", true)) {//only prompt user if he has not asked to be left alone
+            if (!lastLocation.isEmpty()) {//only check after the app has been setup before
+                mElevation = mSharedPreferences.getFloat("elevation", 0);//get the last value
+                if (!lastLocation.equals(mCurrentLocationName)) {//user should update his elevation in another city
+
                     new AlertDialog.Builder(this)
                             .setTitle("You are not in the same city as the last time that you " +
                                     "setup the app!")
                             .setMessage(message)
                             .setPositiveButton("Yes", (dialogInterface, i) ->
                                     setupLauncher.launch(new Intent(this, SetupChooserActivity.class)))
-                            .setNegativeButton("No", (dialogInterface, i) -> Toast.makeText(this, "Using visible sunrise and elevation for your last location", Toast.LENGTH_LONG)
+                            .setNegativeButton("No", (dialogInterface, i) -> Toast.makeText(
+                                    this, "Using visible sunrise and elevation for your last location", Toast.LENGTH_LONG)
                                     .show())
                             .setNeutralButton("Do not ask again", (dialogInterface, i) -> {
                                 mSharedPreferences.edit().putBoolean("askagain", false).apply();

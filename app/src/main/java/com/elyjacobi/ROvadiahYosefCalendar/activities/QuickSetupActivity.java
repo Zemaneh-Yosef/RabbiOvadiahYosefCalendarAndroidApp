@@ -15,7 +15,6 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,7 +40,6 @@ public class QuickSetupActivity extends AppCompatActivity {
         JewishDate jewishDate = new JewishDate();
 
         mEditor = getSharedPreferences(SHARED_PREF, MODE_PRIVATE).edit();
-        ProgressBar progressBar = findViewById(R.id.progressBar);
         WebView webView = findViewById(R.id.quickSetupWebView);
 
         TextView textView = findViewById(R.id.quickSetupExplanation);
@@ -61,8 +59,6 @@ public class QuickSetupActivity extends AppCompatActivity {
                     super.onPageFinished(view, url);
                     if (view.getUrl().startsWith("http://chaitables.com/cgi-bin/")) {//this is enough to know that it is showing the table with the info we need
 
-                        showProgressBar(webView, progressBar);
-
                         ChaiTablesScraper scraper = new ChaiTablesScraper();
 
                         scraper.setDownloadSettings(
@@ -71,10 +67,6 @@ public class QuickSetupActivity extends AppCompatActivity {
                                 getIntent().getBooleanExtra("onlyTable", false));
 
                         scraper.start();
-
-                        while (scraper.getProgress() < 100) {
-                            progressBar.setProgress(scraper.getProgress());
-                        }
 
                         try {
                             scraper.join();
@@ -91,15 +83,14 @@ public class QuickSetupActivity extends AppCompatActivity {
                             mEditor.putFloat("elevation", (float) result).apply();
                             returnIntent.putExtra("elevation", result);
                             setResult(Activity.RESULT_OK, returnIntent);
+                            Toast.makeText(QuickSetupActivity.this,
+                                    "Elevation received from ChaiTables!: " + result,
+                                    Toast.LENGTH_LONG).show();
                         } else {
                             setResult(Activity.RESULT_CANCELED, returnIntent);//we don't care about elevation
                         }
                         mEditor.putBoolean("showMishorSunrise", false).apply();
                         mEditor.putBoolean("isSetup", true).apply();
-
-                        Toast.makeText(QuickSetupActivity.this,
-                                "Elevation received from ChaiTables!: " + result,
-                                Toast.LENGTH_LONG).show();
                         finish();
                     }
                 }
@@ -113,8 +104,8 @@ public class QuickSetupActivity extends AppCompatActivity {
                 .setMessage("(I recommend you to visit the website first.) \n\n" +
                         "You only need to fill out steps 1, 2, and the first part of step 6.\n\n" +
                         "Follow the steps of the website until you can generate the times of " +
-                        "sunrise/sunset for the year. Choose your area and any of the 6 " +
-                        "sunrise/sunset tables to calculate. The app will do the rest.")
+                        "sunrise/sunset for the year. Make sure your search radius is big enough as well. " +
+                        "Choose your area and any of the 6 sunrise/sunset tables to calculate. The app will do the rest.")
                 .setPositiveButton("Ok", (dialogInterface, i) -> { })
                 .show();
     }
@@ -123,11 +114,6 @@ public class QuickSetupActivity extends AppCompatActivity {
         textView.setVisibility(View.INVISIBLE);
         downloadButton.setVisibility(View.INVISIBLE);
         webView.setVisibility(View.VISIBLE);
-    }
-
-    private void showProgressBar(WebView webView, ProgressBar progressBar) {
-        webView.setVisibility(View.INVISIBLE);
-        progressBar.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -156,13 +142,8 @@ public class QuickSetupActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (getIntent().getBooleanExtra("onlyTable",false)) {
-            startActivity(new Intent(this, AdvancedSetupActivity.class)
-                    .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
-        } else {
-            startActivity(new Intent(this, SetupChooserActivity.class)
-                    .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
-        }
+        startActivity(new Intent(this, SetupChooserActivity.class)
+                .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
         finish();
         super.onBackPressed();
     }
