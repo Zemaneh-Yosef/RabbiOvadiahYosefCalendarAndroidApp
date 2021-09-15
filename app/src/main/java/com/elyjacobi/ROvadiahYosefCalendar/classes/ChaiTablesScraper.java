@@ -218,6 +218,10 @@ public class ChaiTablesScraper extends Thread {
                     .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6)" +
                             " Gecko/20070725 Firefox/2.0.0.6")
                     .referrer("http://www.google.com").get();
+
+            if (doc.text().contains("You can increase the search radius and try again")) {
+                throw new Exception("search radius is too small!");
+            }
             Elements tableElement = doc.select("table");
 
             Elements tableHeaderElements = tableElement.select("thead tr th");
@@ -243,9 +247,16 @@ public class ChaiTablesScraper extends Thread {
             }
             outputStream.flush();
             outputStream.close();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void changeURLtoNextYear() {
+        int currentJewishYear = jewishDate.getJewishYear();
+        jewishDate.setJewishYear(currentJewishYear + 1);
+        mUrl = mUrl.replace("&cgi_yrheb=" + currentJewishYear,
+                "&cgi_yrheb=" + jewishDate.getJewishYear());
     }
 
     /**
@@ -281,12 +292,5 @@ public class ChaiTablesScraper extends Thread {
                 e.printStackTrace();
             }
         }
-    }
-
-    private void changeURLtoNextYear() {
-        int currentJewishYear = jewishDate.getJewishYear();
-        jewishDate.setJewishYear(currentJewishYear + 1);
-        mUrl = mUrl.replace("&cgi_yrheb=" + currentJewishYear,
-                "&cgi_yrheb=" + jewishDate.getJewishYear());
     }
 }

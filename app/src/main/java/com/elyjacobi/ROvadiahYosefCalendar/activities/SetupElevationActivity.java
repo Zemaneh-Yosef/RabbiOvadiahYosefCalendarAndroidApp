@@ -122,18 +122,21 @@ public class SetupElevationActivity extends AppCompatActivity {
                 @Override public void onPageFinished(WebView view, String url) {
                     super.onPageFinished(view, url);
                     if (view.getUrl().startsWith("http://chaitables.com/cgi-bin/")) {//this is enough to know that it is showing the table with the info we need
-                        ChaiTablesScraper thread = new ChaiTablesScraper();
-                        thread.setUrl(view.getUrl());
-                        if (getIntent().getBooleanExtra("downloadTable",false)) {
-                            thread.setExternalFilesDir(getExternalFilesDir(null));
-                        }
-                        thread.start();
+
+                        ChaiTablesScraper scraper = new ChaiTablesScraper();
+
+                        scraper.setDownloadSettings(
+                                view.getUrl(),
+                                getExternalFilesDir(null),
+                                getIntent().getBooleanExtra("downloadTable", false));
+
+                        scraper.start();
                         try {
-                            thread.join();
+                            scraper.join();
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-                        double result = thread.getResult();
+                        double result = scraper.getResult();
                         SharedPreferences.Editor editor = getSharedPreferences(
                                 SHARED_PREF, MODE_PRIVATE).edit();
                         editor.putFloat("elevation", (float) result).apply();

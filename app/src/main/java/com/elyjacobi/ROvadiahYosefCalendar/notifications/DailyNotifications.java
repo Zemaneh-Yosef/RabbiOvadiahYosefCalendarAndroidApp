@@ -77,7 +77,7 @@ public class DailyNotifications extends BroadcastReceiver {
                             .setContentText("Today is " + jewishDateInfo.getSpecialDay())
                             .setStyle(new NotificationCompat.BigTextStyle()
                                     .setBigContentTitle("Jewish Special Day")
-                                    .setSummaryText("Great Neck, NY"))
+                                    .setSummaryText(c.getGeoLocation().getLocationName()))
                             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                             .setLights(Color.BLUE, 500, 500)
                             .setSound(alarmSound)

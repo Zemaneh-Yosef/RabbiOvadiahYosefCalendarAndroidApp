@@ -384,13 +384,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     }
 
     private void updateNotifications() {
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = (Calendar) mROZmanimCalendar.getCalendar().clone();
         calendar.setTimeInMillis(mROZmanimCalendar.getSunrise().getTime());
         if (calendar.getTime().compareTo(new Date()) < 0) {
             calendar.add(Calendar.DATE, 1);
         }
         PendingIntent dailyPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0,
-                new Intent(getApplicationContext(), DailyNotifications.class), 0);
+                new Intent(getApplicationContext(), DailyNotifications.class), PendingIntent.FLAG_IMMUTABLE);
         AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
         am.cancel(dailyPendingIntent);
         am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), dailyPendingIntent);
@@ -400,15 +400,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             calendar.add(Calendar.DATE, 1);
         }
         PendingIntent omerPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0,
-                new Intent(getApplicationContext(), OmerNotifications.class), 0);
+                new Intent(getApplicationContext(), OmerNotifications.class), PendingIntent.FLAG_IMMUTABLE);
         am.cancel(omerPendingIntent);
         am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), omerPendingIntent);
-
-        try {
-            dailyPendingIntent.send(PendingIntent.FLAG_ONE_SHOT);
-        } catch (PendingIntent.CanceledException e) {
-            e.printStackTrace();
-        }
     }
 
     @SuppressWarnings({"SynchronizeOnNonFinalField"})
@@ -639,7 +633,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 + " " +
                 formatHebrewNumber(YerushalmiYomiCalculator.getDafYomiYerushalmi(jewishDateInfo.getJewishCalendar()).getDaf()));
 
-        zmanim.add("Shaah Zmanit MG\"A: " + zmanimFormatter.format(mROZmanimCalendar.getShaahZmanis72MinutesZmanis()));
         zmanim.add("Shaah Zmanit GR\"A: " + zmanimFormatter.format(mROZmanimCalendar.getShaahZmanisGra()));
 
         if (mROZmanimCalendar.getGeoLocation().getTimeZone().inDaylightTime(mROZmanimCalendar.getSeaLevelSunrise())) {
