@@ -180,11 +180,11 @@ public class SetupElevationActivity extends AppCompatActivity {
     private void showDialogBox() {
         new AlertDialog.Builder(this)
                 .setTitle("How to get info from chaitables.com")
-                .setMessage("(I recommend that you visit the website first) \n " +
-                        "You only need to fill out steps 1, 2, and the first part of step 6." +
-                        "Follow the steps of the website until you can generate the times of " +
-                        "sunrise/sunset for the year. Choose your area and any of the 6 " +
-                        "sunrise/sunset tables to calculate. The app will do the rest.")
+                .setMessage("(I recommend you to visit the website first.) \n\n" +
+                        "Choose your area and on the next page all you need to do is to fill out steps " +
+                        "1 and 2, and click the button to calculate the tables on the bottom of the page.\n\n" +
+                        "Make sure your search radius is big enough and leave the jewish year alone. " +
+                        "The app will do the rest.")
                 .setPositiveButton("Ok", (dialogInterface, i) -> { })
                 .show();
     }

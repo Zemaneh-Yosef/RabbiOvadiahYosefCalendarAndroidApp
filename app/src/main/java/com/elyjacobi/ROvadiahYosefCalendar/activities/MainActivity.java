@@ -69,28 +69,28 @@ import us.dustinj.timezonemap.TimeZoneMap;
 
 public class MainActivity extends AppCompatActivity implements LocationListener {
 
+    private boolean mNetworkLocationServiceIsDisabled;
+    private boolean mGPSLocationServiceIsDisabled;
     private boolean initialized = false;
     private boolean mShabbatMode;
-    private boolean mGPSLocationServiceIsDisabled;
-    private boolean mNetworkLocationServiceIsDisabled;
+    private double mElevation = 0;
     private double mLatitude;
     private double mLongitude;
-    private double mElevation = 0;
-    private String mCurrentTimeZoneID;
-    private String mCurrentLocationName = "";
-    private JewishDateInfo jewishDateInfo;
-    private ROZmanimCalendar mROZmanimCalendar;
-    private final ZmanimFormatter zmanimFormatter = new ZmanimFormatter(TimeZone.getDefault());
+    private Geocoder geocoder;
     private Calendar mCurrentDate;
-    private Runnable mZmanimUpdater;
+    private Button mCalendarButton;
     private Handler mHandler = null;
-    private ActivityResultLauncher<Intent> setupLauncher;
+    private Runnable mZmanimUpdater;
+    private String mCurrentTimeZoneID;
+    private TextView mShabbatModeBanner;
+    private JewishDateInfo jewishDateInfo;
+    private RecyclerView mMainRecyclerView;
+    private String mCurrentLocationName = "";
+    private ROZmanimCalendar mROZmanimCalendar;
     private SharedPreferences mSharedPreferences;
     private SharedPreferences mSettingsPreferences;
-    private Geocoder geocoder;
-    private TextView mShabbatModeBanner;
-    private RecyclerView mMainRecyclerView;
-    private Button mCalendarButton;
+    private ActivityResultLauncher<Intent> mSetupLauncher;
+    private final ZmanimFormatter zmanimFormatter = new ZmanimFormatter(TimeZone.getDefault());
     private static final int TWENTY_FOUR_HOURS_IN_MILLI = 86_400_000;
     public static final String SHARED_PREF = "MyPrefsFile";
 
@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         if (!ChaiTables.visibleSunriseFileExists(getExternalFilesDir(null), jewishDateInfo.getJewishCalendar())//it should only not exist the first time running the app
                 && mSharedPreferences.getBoolean("UseTable", true)
                 && savedInstanceState == null) {
-            setupLauncher.launch(new Intent(this, FullSetupActivity.class));
+            mSetupLauncher.launch(new Intent(this, FullSetupActivity.class));
         }
         if (mGPSLocationServiceIsDisabled && mNetworkLocationServiceIsDisabled) {
             Toast.makeText(MainActivity.this, "Please Enable GPS", Toast.LENGTH_SHORT)
@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
      * SetupActivity. This is a new way of getting results back from activities.
      */
     private void initializeSetupResult() {
-        setupLauncher = registerForActivityResult(
+        mSetupLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     SharedPreferences.Editor editor = mSharedPreferences.edit();
@@ -155,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     private void initializeMainView() {
         initialized = true;
         setTimeZoneID();
-        startSetupIfNeeded();
+        getAndAffirmLastElevationData();
         instantiateZmanimCalendar();
         saveGeoLocationInfo();
         setupRecyclerView();
@@ -194,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                             .setTitle("Shana Tovah! You should update!")
                             .setMessage(message)
                             .setPositiveButton("Yes", (dialogInterface, i) ->
-                                    setupLauncher.launch(new Intent(this, SetupChooserActivity.class)))
+                                    mSetupLauncher.launch(new Intent(this, SetupChooserActivity.class)))
                             .setNegativeButton("Ask next year", (dialogInterface, i) ->
                                     mSharedPreferences.edit().putBoolean("askNextYear", true).apply())
                             .setNeutralButton("Do not ask again", (dialogInterface, i) ->
@@ -371,7 +371,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         jewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false), true);
         jewishDateInfo.setCalendar(mCurrentDate);
         mMainRecyclerView.setAdapter(new ZmanAdapter(getZmanimList()));
-        startSetupIfNeeded();
+        getAndAffirmLastElevationData();
         super.onResume();
     }
 
@@ -554,7 +554,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                     zmanimFormat.format(mROZmanimCalendar.getSunset()));
             zmanim.add("\u05E6\u05D0\u05EA \u05D4\u05DB\u05D5\u05DB\u05D1\u05D9\u05DD= " +
                     zmanimFormat.format(mROZmanimCalendar.getTzait()));
-            if (jewishDateInfo.getJewishCalendar().isTaanis()) {
+            if (jewishDateInfo.getJewishCalendar().isTaanis()
+                    && jewishDateInfo.getJewishCalendar().getYomTovIndex() != JewishCalendar.YOM_KIPPUR) {
                 zmanim.add("\u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA= " +
                         zmanimFormat.format(mROZmanimCalendar.getTzaitTaanit()));
                 zmanim.add("\u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA \u05DC\u05D7\u05D5\u05DE\u05E8\u05D4= " +
@@ -607,7 +608,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             }
             zmanim.add("Shkia= " + zmanimFormat.format(mROZmanimCalendar.getSunset()));
             zmanim.add("Tzait Hacochavim= " + zmanimFormat.format(mROZmanimCalendar.getTzait()));
-            if (jewishDateInfo.getJewishCalendar().isTaanis()) {
+            if (jewishDateInfo.getJewishCalendar().isTaanis()
+                    && jewishDateInfo.getJewishCalendar().getYomTovIndex() != JewishCalendar.YOM_KIPPUR) {
                 zmanim.add("Tzait Taanit= " +
                         zmanimFormat.format(mROZmanimCalendar.getTzaitTaanit()));
                 zmanim.add("Tzait Taanit L'Chumra= " +
@@ -707,7 +709,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
      *
      * @see #getLocationAsName()
      */
-    private void startSetupIfNeeded() {
+    private void getAndAffirmLastElevationData() {
         String lastLocation = mSharedPreferences.getString("lastLocation", "");
 
         String message =
@@ -728,7 +730,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                                     "setup the app!")
                             .setMessage(message)
                             .setPositiveButton("Yes", (dialogInterface, i) ->
-                                    setupLauncher.launch(new Intent(this, SetupChooserActivity.class)))
+                                    mSetupLauncher.launch(new Intent(this, SetupChooserActivity.class)))
                             .setNegativeButton("No", (dialogInterface, i) -> Toast.makeText(
                                     this, "Using visible sunrise and elevation for your last location", Toast.LENGTH_LONG)
                                     .show())
@@ -926,7 +928,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                             setTimeZoneID();
                             instantiateZmanimCalendar();
                             mMainRecyclerView.setAdapter(new ZmanAdapter(getZmanimList()));
-                            startSetupIfNeeded();
+                            getAndAffirmLastElevationData();
                         }
                     }
                 })
@@ -937,7 +939,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                     setTimeZoneID();
                     instantiateZmanimCalendar();
                     mMainRecyclerView.setAdapter(new ZmanAdapter(getZmanimList()));
-                    startSetupIfNeeded();
+                    getAndAffirmLastElevationData();
                 })
                 .create()
                 .show();
@@ -1009,7 +1011,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             setTimeZoneID();
             instantiateZmanimCalendar();
             mMainRecyclerView.setAdapter(new ZmanAdapter(getZmanimList()));
-            startSetupIfNeeded();
+            getAndAffirmLastElevationData();
             return true;
         } else if (id == R.id.enterZipcode) {
             createZipcodeDialog();
@@ -1024,14 +1026,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             }
             return true;
         } else if (id == R.id.molad) {
-            setupLauncher.launch(new Intent(this, MoladActivity.class));
+            mSetupLauncher.launch(new Intent(this, MoladActivity.class));
             return true;
         } else if (id == R.id.setupChooser) {
-            setupLauncher.launch(new Intent(this, SetupChooserActivity.class)
+            mSetupLauncher.launch(new Intent(this, SetupChooserActivity.class)
                     .putExtra("fromMenu",true));
             return true;
         } else if (id == R.id.fullSetup) {
-            setupLauncher.launch(new Intent(this, FullSetupActivity.class));
+            mSetupLauncher.launch(new Intent(this, FullSetupActivity.class));
             return true;
         } else if (id == R.id.settings) {
             startActivity(new Intent(MainActivity.this, SettingsActivity.class));

@@ -65,7 +65,7 @@ public class DailyNotifications extends BroadcastReceiver {
                 notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
                 PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,
-                        notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                        notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
 
                 Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
@@ -101,7 +101,7 @@ public class DailyNotifications extends BroadcastReceiver {
             calendar.add(Calendar.DATE, 1);
         }
         PendingIntent dailyPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
-                0, new Intent(context.getApplicationContext(), DailyNotifications.class), 0);
+                0, new Intent(context.getApplicationContext(), DailyNotifications.class), PendingIntent.FLAG_IMMUTABLE);
         am.cancel(dailyPendingIntent);
         am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), dailyPendingIntent);
     }

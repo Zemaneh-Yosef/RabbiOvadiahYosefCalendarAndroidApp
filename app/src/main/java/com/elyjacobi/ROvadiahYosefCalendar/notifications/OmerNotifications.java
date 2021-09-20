@@ -1,5 +1,9 @@
 package com.elyjacobi.ROvadiahYosefCalendar.notifications;
 
+import static android.content.Context.ALARM_SERVICE;
+import static android.content.Context.MODE_PRIVATE;
+import static com.elyjacobi.ROvadiahYosefCalendar.activities.MainActivity.SHARED_PREF;
+
 import android.app.AlarmManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -13,8 +17,8 @@ import android.net.Uri;
 
 import androidx.core.app.NotificationCompat;
 
-import com.elyjacobi.ROvadiahYosefCalendar.activities.MainActivity;
 import com.elyjacobi.ROvadiahYosefCalendar.R;
+import com.elyjacobi.ROvadiahYosefCalendar.activities.MainActivity;
 import com.kosherjava.zmanim.ComplexZmanimCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.util.GeoLocation;
@@ -22,10 +26,6 @@ import com.kosherjava.zmanim.util.GeoLocation;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
-
-import static android.content.Context.ALARM_SERVICE;
-import static android.content.Context.MODE_PRIVATE;
-import static com.elyjacobi.ROvadiahYosefCalendar.activities.MainActivity.SHARED_PREF;
 
 public class OmerNotifications extends BroadcastReceiver {
 
@@ -63,7 +63,7 @@ public class OmerNotifications extends BroadcastReceiver {
                 notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
                 PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,
-                        notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                        notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
 
                 Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
@@ -97,7 +97,7 @@ public class OmerNotifications extends BroadcastReceiver {
             calendar.add(Calendar.DATE, 1);
         }
         PendingIntent omerPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
-                0, new Intent(context.getApplicationContext(), OmerNotifications.class), 0);
+                0, new Intent(context.getApplicationContext(), OmerNotifications.class), PendingIntent.FLAG_IMMUTABLE);
         am.cancel(omerPendingIntent);
         am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), omerPendingIntent);
     }

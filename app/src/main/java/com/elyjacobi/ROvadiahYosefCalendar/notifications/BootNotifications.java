@@ -1,5 +1,9 @@
 package com.elyjacobi.ROvadiahYosefCalendar.notifications;
 
+import static android.content.Context.ALARM_SERVICE;
+import static android.content.Context.MODE_PRIVATE;
+import static com.elyjacobi.ROvadiahYosefCalendar.activities.MainActivity.SHARED_PREF;
+
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -14,10 +18,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 import java.util.TimeZone;
-
-import static android.content.Context.ALARM_SERVICE;
-import static android.content.Context.MODE_PRIVATE;
-import static com.elyjacobi.ROvadiahYosefCalendar.activities.MainActivity.SHARED_PREF;
 
 public class BootNotifications extends BroadcastReceiver {
 
@@ -40,7 +40,7 @@ public class BootNotifications extends BroadcastReceiver {
                     calendar.add(Calendar.DATE, 1);
                 }
                 PendingIntent dailyPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
-                        0, new Intent(context, DailyNotifications.class), 0);
+                        0, new Intent(context, DailyNotifications.class), PendingIntent.FLAG_IMMUTABLE);
                 am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), dailyPendingIntent);
 
                 calendar.setTimeInMillis(c.getSunset().getTime());
@@ -48,7 +48,7 @@ public class BootNotifications extends BroadcastReceiver {
                     calendar.add(Calendar.DATE, 1);
                 }
                 PendingIntent omerPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
-                        0, new Intent(context, OmerNotifications.class), 0);
+                        0, new Intent(context, OmerNotifications.class), PendingIntent.FLAG_IMMUTABLE);
                 am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), omerPendingIntent);
             }
         }
