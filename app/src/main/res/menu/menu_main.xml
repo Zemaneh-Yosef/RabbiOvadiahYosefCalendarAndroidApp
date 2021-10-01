@@ -4,26 +4,31 @@
 
     <item
         android:id="@+id/refresh"
+        android:icon="@android:drawable/ic_popup_sync"
         android:title="@string/refresh"
-        app:showAsAction="always"
-        android:icon="@android:drawable/ic_popup_sync"/>
-    <item
-        android:id="@+id/enterZipcode"
-        android:title="@string/enter_a_zipcode" />
+        app:showAsAction="always" />
+
+    <group android:id="@+id/group_divider">
+
+        <item
+            android:id="@+id/setupChooser"
+            android:title="@string/setup" />
+        <item
+            android:id="@+id/fullSetup"
+            android:title="@string/full_setup" />
+        <item
+            android:id="@+id/enterZipcode"
+            android:title="@string/enter_a_zipcode" />
+
+    </group>
+
     <item
         android:id="@+id/shabbat_mode"
         android:title="@string/shabbat_mode"
-        android:checkable="true"
-        />
+        android:checkable="true" />
     <item
-        android:id="@+id/setupChooser"
-        android:title="@string/setup" />
-    <item
-        android:id="@+id/fullSetup"
-        android:title="@string/full_setup" />
-    <item
-    android:id="@+id/molad"
-    android:title="@string/molad_calculator" />
+        android:id="@+id/molad"
+        android:title="@string/molad_calculator" />
     <item
         android:id="@+id/settings"
         android:title="@string/settings" />
