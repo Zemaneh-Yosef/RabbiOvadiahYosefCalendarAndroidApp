@@ -438,20 +438,24 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     private void startScrollingThread() {
         Thread scrollingThread = new Thread(() -> {
                 synchronized (mMainRecyclerView) {//never properly tested, however, I assumed that you need the recyclerView to be synchronized or else an error will be thrown when the recyclerView is being updated and scrolled through at the same time.
-                    for (int i = 0; i < Objects.requireNonNull(mMainRecyclerView.getAdapter()).getItemCount() - 1; i++) {
+                    while (mMainRecyclerView.canScrollVertically(1)) {
                         if (!mShabbatMode) break;
-                        mMainRecyclerView.smoothScrollToPosition(i);
-                        try {
-                            Thread.sleep(500);
+                        if (mMainRecyclerView.canScrollVertically(1)) {
+                            mMainRecyclerView.smoothScrollBy(0,5);
+                        }
+                        try {//must have these busy waits for scrolling to work properly. I assume it breaks because it is currently animating something. Will have to fix this in the future, but it works for now.
+                            Thread.sleep(100);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
                     }
-                    for (int i = mMainRecyclerView.getAdapter().getItemCount() - 1; i > 0; i--) {
+                    while (mMainRecyclerView.canScrollVertically(-1)) {
                         if (!mShabbatMode) break;
-                        mMainRecyclerView.smoothScrollToPosition(i);
+                        if (mMainRecyclerView.canScrollVertically(-1)) {
+                            mMainRecyclerView.smoothScrollBy(0,-5);
+                        }
                         try {
-                            Thread.sleep(500);
+                            Thread.sleep(100);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -903,10 +907,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                                 if (!mNetworkLocationServiceIsDisabled) {
                                     location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                                 }
+                                if (location != null) {
+                                    mLatitude = location.getLatitude();
+                                    mLongitude = location.getLongitude();
+                                }
                                 if (!mGPSLocationServiceIsDisabled) {
                                     location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                                 }
-                                if (location != null) {
+                                if (location != null && (mLatitude == 0 && mLongitude == 0)) {
                                     mLatitude = location.getLatitude();
                                     mLongitude = location.getLongitude();
                                 }
