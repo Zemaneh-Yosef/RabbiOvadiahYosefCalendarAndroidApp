@@ -50,12 +50,20 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
                 "etc...";
         english.setText(englishText);
 
-        hebrew.setOnClickListener(v -> saveInfoAndStartActivity(true));
-        english.setOnClickListener(v -> saveInfoAndStartActivity(false));
+        hebrew.setOnClickListener(v -> saveInfoAndStartActivity(true, false));
+        english.setOnClickListener(v -> new AlertDialog.Builder(this)
+                .setTitle("Translate english zmanim?")
+                .setMessage("Would you like to have the zmanim translated? \n\nFor Example: \"Alot Hashachar\" will become \"Dawn\"")
+                .setPositiveButton("Yes", (dialogInterface, i) ->
+                        saveInfoAndStartActivity(false, true))
+                .setNegativeButton("No", (dialogInterface, i) ->
+                        saveInfoAndStartActivity(false, false))
+                .show());
     }
 
-    private void saveInfoAndStartActivity(boolean b) {
-        mSharedPreferences.edit().putBoolean("isZmanimInHebrew", b).apply();
+    private void saveInfoAndStartActivity(boolean isHebrew, boolean isTranslated) {
+        mSharedPreferences.edit().putBoolean("isZmanimInHebrew", isHebrew).apply();
+        mSharedPreferences.edit().putBoolean("isZmanimEnglishTranslated", isTranslated).apply();
         startActivity(new Intent(this, SetupChooserActivity.class).setFlags(
                 Intent.FLAG_ACTIVITY_FORWARD_RESULT));
         finish();

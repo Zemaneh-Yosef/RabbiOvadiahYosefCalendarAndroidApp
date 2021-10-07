@@ -515,116 +515,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         }
 
         if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
-            zmanim.add("\u05E2\u05DC\u05D5\u05EA \u05D4\u05E9\u05D7\u05E8= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getAlos72Zmanis())));
-            zmanim.add("\u05D8\u05DC\u05D9\u05EA \u05D5\u05EA\u05E4\u05D9\u05DC\u05D9\u05DF= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getEarliestTalitTefilin())));
-            if (mROZmanimCalendar.getHaNetz() != null
-                    && !mSharedPreferences.getBoolean("showMishorSunrise", true)) {
-                zmanim.add("\u05D4\u05E0\u05E5= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getHaNetz())));
-            } else {
-                zmanim.add("\u05D4\u05E0\u05E5 (\u05DE\u05D9\u05E9\u05D5\u05E8)= " +
-                        zmanimFormat.format(checkNull(mROZmanimCalendar.getSeaLevelSunrise())));
-            }
-            if (jewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.EREV_PESACH) {
-                zmanim.add("\u05E1\u05D5\u05E3 \u05D6\u05DE\u05DF \u05D0\u05DB\u05D9\u05DC\u05EA \u05D7\u05DE\u05E5= "
-                        + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanTfilaMGA72MinutesZmanis())));
-                zmanim.add("\u05E1\u05D5\u05E3 \u05D6\u05DE\u05DF \u05D1\u05D9\u05E2\u05D5\u05E8 \u05D7\u05DE\u05E5= "
-                        + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanBiurChametzGRA())));//TODO double check this, maybe we go like MGA getTimeOffset(getAlos72Zmanis(), getShaahZmanisMGA() * 5)
-            }
-            zmanim.add("\u05E1\u05D5\u05E3 \u05D6\u05DE\u05DF \u05E9\u05DE\u05E2 \u05DE\u05D2\"\u05D0= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanShmaMGA72MinutesZmanis())));
-            zmanim.add("\u05E1\u05D5\u05E3 \u05D6\u05DE\u05DF \u05E9\u05DE\u05E2 \u05D2\u05E8\"\u05D0= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanShmaGRA())));
-            zmanim.add("\u05E1\u05D5\u05E3 \u05D6\u05DE\u05DF \u05D1\u05E8\u05DB\u05D5\u05EA \u05E9\u05DE\u05E2= "
-                    + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanTfilaGRA())));
-            zmanim.add("\u05D7\u05E6\u05D5\u05EA= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getChatzot())));
-            zmanim.add("\u05DE\u05E0\u05D7\u05D4 \u05D2\u05D3\u05D5\u05DC\u05D4= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getMinchaGedolaGreaterThan30())));
-            zmanim.add("\u05DE\u05E0\u05D7\u05D4 \u05E7\u05D8\u05E0\u05D4= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getMinchaKetana())));
-            zmanim.add("\u05E4\u05DC\u05D2 \u05D4\u05DE\u05E0\u05D7\u05D4= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getPlagHamincha())));
-            if (jewishDateInfo.getJewishCalendar().hasCandleLighting()) {
-                zmanim.add("\u05D4\u05D3\u05DC\u05E7\u05EA \u05E0\u05E8\u05D5\u05EA (" +
-                        (int) mROZmanimCalendar.getCandleLightingOffset() + ")= " +
-                        zmanimFormat.format(checkNull(mROZmanimCalendar.getCandleLighting())));
-            }
-            zmanim.add("\u05E9\u05E7\u05D9\u05E2\u05D4= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getSunset())));
-            zmanim.add("\u05E6\u05D0\u05EA \u05D4\u05DB\u05D5\u05DB\u05D1\u05D9\u05DD= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getTzait())));
-            if (jewishDateInfo.getJewishCalendar().isTaanis()
-                    && jewishDateInfo.getJewishCalendar().getYomTovIndex() != JewishCalendar.YOM_KIPPUR) {
-                zmanim.add("\u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA= " +
-                        zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaitTaanit())));
-                zmanim.add("\u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA \u05DC\u05D7\u05D5\u05DE\u05E8\u05D4= " +
-                        zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaitTaanitLChumra())));
-            }
-            if (jewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
-                zmanim.add("\u05E6\u05D0\u05EA \u05E9\u05D1\u05EA/\u05D7\u05D2 " +
-                        "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + "=" +
-                        zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
-                zmanim.add("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD= " +
-                        zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
-            }
-            zmanim.add("\u05D7\u05E6\u05D5\u05EA \u05DC\u05D9\u05DC\u05D4= " + zmanimFormat.format(mROZmanimCalendar.getSolarMidnight()));
-        } else {//Default to English//TODO add english translation
-            zmanim.add("Alot Hashachar= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getAlos72Zmanis())));
-            zmanim.add("Earliest Talit/Tefilin= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getEarliestTalitTefilin())));
-            if (mROZmanimCalendar.getHaNetz() != null
-                    && !mSharedPreferences.getBoolean("showMishorSunrise", true)) {
-                zmanim.add("HaNetz= " +
-                        zmanimFormat.format(checkNull(mROZmanimCalendar.getHaNetz())));
-            } else {
-                zmanim.add("HaNetz (Mishor)= " +
-                        zmanimFormat.format(checkNull(mROZmanimCalendar.getSeaLevelSunrise())));
-            }
-            if (jewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.EREV_PESACH) {
-                zmanim.add("Sof Zman Achilat Chametz= " +
-                        zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanTfilaMGA72MinutesZmanis())));
-                zmanim.add("Sof Zman Biur Chametz= " +
-                        zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanBiurChametzGRA())));//TODO double check this, maybe we go like MGA getTimeOffset(getAlos72Zmanis(), getShaahZmanisMGA() * 5)
-            }
-            zmanim.add("Sof Zman Shma Mg'a= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanShmaMGA72MinutesZmanis())));
-            zmanim.add("Sof Zman Shma Gr'a= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanShmaGRA())));
-            zmanim.add("Sof Zman Brachot Shma= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanTfilaGRA())));
-            zmanim.add("Chatzot= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getChatzot())));
-            zmanim.add("Mincha Gedola= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getMinchaGedolaGreaterThan30())));
-            zmanim.add("Mincha Ketana= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getMinchaKetana())));
-            zmanim.add("Plag HaMincha= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getPlagHamincha())));
-            if (jewishDateInfo.getJewishCalendar().hasCandleLighting()) {
-                zmanim.add("Candle Lighting (" + (int) mROZmanimCalendar.getCandleLightingOffset()
-                        + ")= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getCandleLighting())));
-            }
-            zmanim.add("Shkia= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSunset())));
-            zmanim.add("Tzait Hacochavim= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzait())));
-            if (jewishDateInfo.getJewishCalendar().isTaanis()
-                    && jewishDateInfo.getJewishCalendar().getYomTovIndex() != JewishCalendar.YOM_KIPPUR) {
-                zmanim.add("Tzait Taanit= " +
-                        zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaitTaanit())));
-                zmanim.add("Tzait Taanit L'Chumra= " +
-                        zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaitTaanitLChumra())));
-            }
-            if (jewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
-                zmanim.add("Tzait Shabbat/Chag "
-                        + "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + "= " +
-                        zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
-                zmanim.add("Rabbeinu Tam= " +
-                        zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
-            }
-            zmanim.add("Chatzot Layla= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getSolarMidnight())));
+            addHebrewZmanim(zmanimFormat, zmanim);
+        } else if (mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false)) {
+            addTranslatedEnglishZmanim(zmanimFormat, zmanim);
+        } else {
+            addEnglishZmanim(zmanimFormat, zmanim);
         }
 
         zmanim.add("Additional info:");
@@ -646,6 +541,178 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         }
         zmanim.add(jewishDateInfo.isJewishLeapYear());
         return zmanim;
+    }
+
+    private void addEnglishZmanim(DateFormat zmanimFormat, List<String> zmanim) {
+        zmanim.add("Alot Hashachar= " +
+                zmanimFormat.format(checkNull(mROZmanimCalendar.getAlos72Zmanis())));
+        zmanim.add("Earliest Talit/Tefilin= " +
+                zmanimFormat.format(checkNull(mROZmanimCalendar.getEarliestTalitTefilin())));
+        if (mROZmanimCalendar.getHaNetz() != null
+                && !mSharedPreferences.getBoolean("showMishorSunrise", true)) {
+            zmanim.add("HaNetz= " +
+                    zmanimFormat.format(checkNull(mROZmanimCalendar.getHaNetz())));
+        } else {
+            zmanim.add("HaNetz (Mishor)= " +
+                    zmanimFormat.format(checkNull(mROZmanimCalendar.getSeaLevelSunrise())));
+        }
+        if (jewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.EREV_PESACH) {
+            zmanim.add("Sof Zman Achilat Chametz= " +
+                    zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanTfilaMGA72MinutesZmanis())));
+            zmanim.add("Sof Zman Biur Chametz= " +
+                    zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanBiurChametzGRA())));//TODO double check this, maybe we go like MGA getTimeOffset(getAlos72Zmanis(), getShaahZmanisMGA() * 5)
+        }
+        zmanim.add("Sof Zman Shma Mg'a= " +
+                zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanShmaMGA72MinutesZmanis())));
+        zmanim.add("Sof Zman Shma Gr'a= " +
+                zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanShmaGRA())));
+        zmanim.add("Sof Zman Brachot Shma= " +
+                zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanTfilaGRA())));
+        zmanim.add("Chatzot= " +
+                zmanimFormat.format(checkNull(mROZmanimCalendar.getChatzot())));
+        zmanim.add("Mincha Gedola= " +
+                zmanimFormat.format(checkNull(mROZmanimCalendar.getMinchaGedolaGreaterThan30())));
+        zmanim.add("Mincha Ketana= " +
+                zmanimFormat.format(checkNull(mROZmanimCalendar.getMinchaKetana())));
+        zmanim.add("Plag HaMincha= " +
+                zmanimFormat.format(checkNull(mROZmanimCalendar.getPlagHamincha())));
+        if (jewishDateInfo.getJewishCalendar().hasCandleLighting()) {
+            zmanim.add("Candle Lighting (" + (int) mROZmanimCalendar.getCandleLightingOffset()
+                    + ")= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getCandleLighting())));
+        }
+        zmanim.add("Shkia= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSunset())));
+        zmanim.add("Tzait Hacochavim= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzait())));
+        if (jewishDateInfo.getJewishCalendar().isTaanis()
+                && jewishDateInfo.getJewishCalendar().getYomTovIndex() != JewishCalendar.YOM_KIPPUR) {
+            zmanim.add("Tzait Taanit= " +
+                    zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaitTaanit())));
+            zmanim.add("Tzait Taanit L'Chumra= " +
+                    zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaitTaanitLChumra())));
+        }
+        if (jewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
+            zmanim.add("Tzait Shabbat/Chag "
+                    + "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + "= " +
+                    zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
+            zmanim.add("Rabbeinu Tam= " +
+                    zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+        }
+        zmanim.add("Chatzot Layla= " +
+                zmanimFormat.format(checkNull(mROZmanimCalendar.getSolarMidnight())));
+    }
+
+    private void addTranslatedEnglishZmanim(DateFormat zmanimFormat, List<String> zmanim) {
+        zmanim.add("Dawn= " +
+                zmanimFormat.format(checkNull(mROZmanimCalendar.getAlos72Zmanis())));
+        zmanim.add("Earliest Talit/Tefilin= " +
+                zmanimFormat.format(checkNull(mROZmanimCalendar.getEarliestTalitTefilin())));
+        if (mROZmanimCalendar.getHaNetz() != null
+                && !mSharedPreferences.getBoolean("showMishorSunrise", true)) {
+            zmanim.add("Sunrise= " +
+                    zmanimFormat.format(checkNull(mROZmanimCalendar.getHaNetz())));
+        } else {
+            zmanim.add("Sunrise (Sea Level)= " +
+                    zmanimFormat.format(checkNull(mROZmanimCalendar.getSeaLevelSunrise())));
+        }
+        if (jewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.EREV_PESACH) {
+            zmanim.add("Latest Achilat Chametz= " +
+                    zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanTfilaMGA72MinutesZmanis())));
+            zmanim.add("Latest Biur Chametz= " +
+                    zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanBiurChametzGRA())));//TODO double check this, maybe we go like MGA getTimeOffset(getAlos72Zmanis(), getShaahZmanisMGA() * 5)
+        }
+        zmanim.add("Latest Shma Mg'a= " +
+                zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanShmaMGA72MinutesZmanis())));
+        zmanim.add("Latest Shma Gr'a= " +
+                zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanShmaGRA())));
+        zmanim.add("Latest Brachot Shma= " +
+                zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanTfilaGRA())));
+        zmanim.add("Midday= " +
+                zmanimFormat.format(checkNull(mROZmanimCalendar.getChatzot())));
+        zmanim.add("Mincha Gedola= " +
+                zmanimFormat.format(checkNull(mROZmanimCalendar.getMinchaGedolaGreaterThan30())));
+        zmanim.add("Mincha Ketana= " +
+                zmanimFormat.format(checkNull(mROZmanimCalendar.getMinchaKetana())));
+        zmanim.add("Plag HaMincha= " +
+                zmanimFormat.format(checkNull(mROZmanimCalendar.getPlagHamincha())));
+        if (jewishDateInfo.getJewishCalendar().hasCandleLighting()) {
+            zmanim.add("Candle Lighting (" + (int) mROZmanimCalendar.getCandleLightingOffset()
+                    + ")= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getCandleLighting())));
+        }
+        zmanim.add("Sunset= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSunset())));
+        zmanim.add("Nightfall= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzait())));
+        if (jewishDateInfo.getJewishCalendar().isTaanis()
+                && jewishDateInfo.getJewishCalendar().getYomTovIndex() != JewishCalendar.YOM_KIPPUR) {
+            zmanim.add("End of Fast= " +
+                    zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaitTaanit())));
+            zmanim.add("End of Fast (Stringent)= " +
+                    zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaitTaanitLChumra())));
+        }
+        if (jewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
+            zmanim.add("End of Shabbat/Chag "
+                    + "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + "= " +
+                    zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
+            zmanim.add("Rabbeinu Tam= " +
+                    zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+        }
+        zmanim.add("Midnight= " +
+                zmanimFormat.format(checkNull(mROZmanimCalendar.getSolarMidnight())));
+    }
+
+    private void addHebrewZmanim(DateFormat zmanimFormat, List<String> zmanim) {
+        zmanim.add("\u05E2\u05DC\u05D5\u05EA \u05D4\u05E9\u05D7\u05E8= " +
+                zmanimFormat.format(checkNull(mROZmanimCalendar.getAlos72Zmanis())));
+        zmanim.add("\u05D8\u05DC\u05D9\u05EA \u05D5\u05EA\u05E4\u05D9\u05DC\u05D9\u05DF= " +
+                zmanimFormat.format(checkNull(mROZmanimCalendar.getEarliestTalitTefilin())));
+        if (mROZmanimCalendar.getHaNetz() != null
+                && !mSharedPreferences.getBoolean("showMishorSunrise", true)) {
+            zmanim.add("\u05D4\u05E0\u05E5= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getHaNetz())));
+        } else {
+            zmanim.add("\u05D4\u05E0\u05E5 (\u05DE\u05D9\u05E9\u05D5\u05E8)= " +
+                    zmanimFormat.format(checkNull(mROZmanimCalendar.getSeaLevelSunrise())));
+        }
+        if (jewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.EREV_PESACH) {
+            zmanim.add("\u05E1\u05D5\u05E3 \u05D6\u05DE\u05DF \u05D0\u05DB\u05D9\u05DC\u05EA \u05D7\u05DE\u05E5= "
+                    + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanTfilaMGA72MinutesZmanis())));
+            zmanim.add("\u05E1\u05D5\u05E3 \u05D6\u05DE\u05DF \u05D1\u05D9\u05E2\u05D5\u05E8 \u05D7\u05DE\u05E5= "
+                    + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanBiurChametzGRA())));//TODO double check this, maybe we go like MGA getTimeOffset(getAlos72Zmanis(), getShaahZmanisMGA() * 5)
+        }
+        zmanim.add("\u05E1\u05D5\u05E3 \u05D6\u05DE\u05DF \u05E9\u05DE\u05E2 \u05DE\u05D2\"\u05D0= " +
+                zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanShmaMGA72MinutesZmanis())));
+        zmanim.add("\u05E1\u05D5\u05E3 \u05D6\u05DE\u05DF \u05E9\u05DE\u05E2 \u05D2\u05E8\"\u05D0= " +
+                zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanShmaGRA())));
+        zmanim.add("\u05E1\u05D5\u05E3 \u05D6\u05DE\u05DF \u05D1\u05E8\u05DB\u05D5\u05EA \u05E9\u05DE\u05E2= "
+                + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanTfilaGRA())));
+        zmanim.add("\u05D7\u05E6\u05D5\u05EA= " +
+                zmanimFormat.format(checkNull(mROZmanimCalendar.getChatzot())));
+        zmanim.add("\u05DE\u05E0\u05D7\u05D4 \u05D2\u05D3\u05D5\u05DC\u05D4= " +
+                zmanimFormat.format(checkNull(mROZmanimCalendar.getMinchaGedolaGreaterThan30())));
+        zmanim.add("\u05DE\u05E0\u05D7\u05D4 \u05E7\u05D8\u05E0\u05D4= " +
+                zmanimFormat.format(checkNull(mROZmanimCalendar.getMinchaKetana())));
+        zmanim.add("\u05E4\u05DC\u05D2 \u05D4\u05DE\u05E0\u05D7\u05D4= " +
+                zmanimFormat.format(checkNull(mROZmanimCalendar.getPlagHamincha())));
+        if (jewishDateInfo.getJewishCalendar().hasCandleLighting()) {
+            zmanim.add("\u05D4\u05D3\u05DC\u05E7\u05EA \u05E0\u05E8\u05D5\u05EA (" +
+                    (int) mROZmanimCalendar.getCandleLightingOffset() + ")= " +
+                    zmanimFormat.format(checkNull(mROZmanimCalendar.getCandleLighting())));
+        }
+        zmanim.add("\u05E9\u05E7\u05D9\u05E2\u05D4= " +
+                zmanimFormat.format(checkNull(mROZmanimCalendar.getSunset())));
+        zmanim.add("\u05E6\u05D0\u05EA \u05D4\u05DB\u05D5\u05DB\u05D1\u05D9\u05DD= " +
+                zmanimFormat.format(checkNull(mROZmanimCalendar.getTzait())));
+        if (jewishDateInfo.getJewishCalendar().isTaanis()
+                && jewishDateInfo.getJewishCalendar().getYomTovIndex() != JewishCalendar.YOM_KIPPUR) {
+            zmanim.add("\u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA= " +
+                    zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaitTaanit())));
+            zmanim.add("\u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA \u05DC\u05D7\u05D5\u05DE\u05E8\u05D4= " +
+                    zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaitTaanitLChumra())));
+        }
+        if (jewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
+            zmanim.add("\u05E6\u05D0\u05EA \u05E9\u05D1\u05EA/\u05D7\u05D2 " +
+                    "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + "=" +
+                    zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
+            zmanim.add("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD= " +
+                    zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+        }
+        zmanim.add("\u05D7\u05E6\u05D5\u05EA \u05DC\u05D9\u05DC\u05D4= " + zmanimFormat.format(mROZmanimCalendar.getSolarMidnight()));
     }
 
     /**
@@ -815,8 +882,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                                                 mLongitude = location.getLongitude();
                                             }
                                         });
-                                Toast.makeText(this, "Trying to acquire your location...", Toast.LENGTH_SHORT)
-                                        .show();//show a toast in order for the user to know that the app is working
                                 long tenSeconds = System.currentTimeMillis() + 10000;
                                 while ((mLatitude == 0 && mLongitude == 0) && System.currentTimeMillis() < tenSeconds) {
                                     Thread.sleep(0);//we MUST wait for the location data to be set or else the app will crash
@@ -834,10 +899,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                                     }
                                 }
                             } else {//older implementation
-                                Location location;//location might be old
+                                Location location = null;//location might be old
                                 if (!mNetworkLocationServiceIsDisabled) {
                                     location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                                } else {
+                                }
+                                if (!mGPSLocationServiceIsDisabled) {
                                     location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                                 }
                                 if (location != null) {
