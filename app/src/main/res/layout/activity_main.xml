@@ -77,7 +77,7 @@
         android:singleLine="true"
         android:padding="5dp"
         android:scrollHorizontally="true"
-        android:text="SHABBAT MODE                SHABBAT MODE               SHABBAT MODE           SHABBAT MODE             SHABBAT MODE"
+        android:text="SHABBAT/CHAG MODE                SHABBAT/CHAG MODE               SHABBAT/CHAG MODE           SHABBAT/CHAG MODE             SHABBAT/CHAG MODE"
         android:textColor="#FF9E9E"
         android:textSize="22sp"
         android:textStyle="bold"

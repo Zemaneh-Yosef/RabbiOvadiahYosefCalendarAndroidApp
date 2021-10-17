@@ -33,6 +33,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull @NotNull ZmanViewHolder holder, int position) {
+        holder.setIsRecyclable(false);
         if (zmanim.get(position).contains("=")) {
             String[] zmanAndTime = zmanim.get(position).split("=");
             holder.mLeftTextView.setText(zmanAndTime[0]);//zman

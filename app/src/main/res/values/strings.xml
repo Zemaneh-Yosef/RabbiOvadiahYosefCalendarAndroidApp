@@ -2,7 +2,6 @@
     <string name="app_name">Rabbi Ovadiah Yosef Calendar</string>
     <string name="ok">OK</string>
     <string name="zipcode">Zipcode</string>
-
     <string name="title_location_permission">No location permission</string>
     <string name="text_location_permission">
         Ideally, this app needs location permissions in order to accurately calculate the zmanim.
@@ -45,22 +44,7 @@
     <string name="about">About</string>
     <string name="help">Help</string>
     <string name="enter_a_zipcode">Enter A Zipcode</string>
-    <string name="title_activity_settings">SettingsActivity</string>
-
-    <!-- Preference Titles -->
-    <string name="messages_header">Messages</string>
-    <string name="sync_header">Sync</string>
-
-    <!-- Messages Preferences -->
-    <string name="signature_title">Your signature</string>
-    <string name="reply_title">Default reply action</string>
-
-    <!-- Sync Preferences -->
-    <string name="sync_title">Sync email periodically</string>
-    <string name="attachment_title">Download incoming attachments</string>
-    <string name="attachment_summary_on">Automatically download attachments for incoming emails
-    </string>
-    <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="title_activity_settings">Settings</string>
     <string name="full_setup">Full Setup</string>
     <string name="minhagim">Minhagim</string>
     <string name="are_you_in_israel">Are you in Israel?</string>
@@ -97,7 +81,7 @@
     <string name="title_activity_shabbat">ShabbatActivity</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
-    <string name="shabbat_mode">Shabbat Mode</string>
+    <string name="shabbat_mode">Shabbat/Chag Mode</string>
     <string name="refresh">Refresh</string>
     <string name="full_restart">Full Restart</string>
 </resources>

@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     public static final String SHARED_PREF = "MyPrefsFile";
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {//TODO back button to close app after two presses
         setTheme(R.style.AppTheme); //splash screen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -372,7 +372,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         jewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false), true);
         jewishDateInfo.setCalendar(mCurrentDate);
         mMainRecyclerView.setAdapter(new ZmanAdapter(getZmanimList()));
-        getAndAffirmLastElevationData();
+        if (!initialized) {
+            getAndAffirmLastElevationData();
+        }
         super.onResume();
     }
 
@@ -406,7 +408,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), omerPendingIntent);
     }
 
-    @SuppressWarnings({"SynchronizeOnNonFinalField"})
     private void startShabbatMode() {
         if (!mShabbatMode) {
             mShabbatMode = true;
@@ -419,9 +420,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 calendar.setTimeInMillis(new Date().getTime());
                 mROZmanimCalendar.setCalendar(calendar);
                 jewishDateInfo.setCalendar(calendar);
-                synchronized (mMainRecyclerView) {
-                    mMainRecyclerView.setAdapter(new ZmanAdapter(getZmanimList()));
-                }
+                mMainRecyclerView.setAdapter(new ZmanAdapter(getZmanimList()));
                 mHandler.removeCallbacks(mZmanimUpdater);
                 mHandler.postDelayed(mZmanimUpdater, TWENTY_FOUR_HOURS_IN_MILLI);//run the update in 24 hours
             };
@@ -434,10 +433,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         }
     }
 
-    @SuppressWarnings({"SynchronizeOnNonFinalField", "BusyWait"})
+    @SuppressWarnings({"BusyWait"})
     private void startScrollingThread() {
         Thread scrollingThread = new Thread(() -> {
-                synchronized (mMainRecyclerView) {//never properly tested, however, I assumed that you need the recyclerView to be synchronized or else an error will be thrown when the recyclerView is being updated and scrolled through at the same time.
                     while (mMainRecyclerView.canScrollVertically(1)) {
                         if (!mShabbatMode) break;
                         if (mMainRecyclerView.canScrollVertically(1)) {
@@ -448,6 +446,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
+                    }
+                    try {//must have these waits or else the RecyclerView will have corrupted info
+                        Thread.sleep(3000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
                     while (mMainRecyclerView.canScrollVertically(-1)) {
                         if (!mShabbatMode) break;
@@ -460,7 +463,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                             e.printStackTrace();
                         }
                     }
-                }
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 if (mShabbatMode) {
                     startScrollingThread();
                 }
