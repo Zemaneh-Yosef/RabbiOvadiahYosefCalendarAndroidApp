@@ -1,4 +1,4 @@
-# Rabbi_Ovadiah_Yosef_Calendar_App
+# Rabbi Ovadiah Yosef Calendar App
 This is a passion project that I created while in college.
 The goal was to create an android app that would be able to calculate the zmanim/times for the day according to Rabbi Ovadia Yosef ZT"L.
 
