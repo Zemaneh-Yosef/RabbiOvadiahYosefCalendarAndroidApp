@@ -3,14 +3,14 @@ plugins {
 }
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
 
     defaultConfig {
         applicationId "com.EJ.ROvadiahYosefCalendar"
         minSdkVersion 23
-        targetSdkVersion 30
-        versionCode 7
-        versionName "1.6"
+        targetSdkVersion 31
+        versionCode 8
+        versionName "1.7"
 
         ndk { debugSymbolLevel 'FULL' }
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

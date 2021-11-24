@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.elyjacobi.ROvadiahYosefCalendar" >
+    package="com.ej.rovadiahyosefcalendar" >
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -17,42 +17,44 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:usesCleartextTraffic="true" >
+        android:usesCleartextTraffic="true"
+        android:allowBackup="true">
         <activity
-            android:name=".activities.MoladActivity"
+            android:name="com.ej.rovadiahyosefcalendar.activities.MoladActivity"
             android:exported="true" />
         <activity
-            android:name=".activities.ZmanimLanguageActivity"
+            android:name="com.ej.rovadiahyosefcalendar.activities.ZmanimLanguageActivity"
             android:exported="true" />
         <activity
-            android:name=".activities.AdvancedSetupActivity"
+            android:name="com.ej.rovadiahyosefcalendar.activities.AdvancedSetupActivity"
             android:exported="true" />
         <activity
-            android:name=".activities.QuickSetupActivity"
+            android:name="com.ej.rovadiahyosefcalendar.activities.QuickSetupActivity"
             android:exported="true" />
         <activity
-            android:name=".activities.SetupChooserActivity"
+            android:name="com.ej.rovadiahyosefcalendar.activities.SetupChooserActivity"
             android:exported="true" />
-        <activity android:name=".activities.FullSetupActivity" />
+        <activity android:name="com.ej.rovadiahyosefcalendar.activities.FullSetupActivity" />
         <activity
-            android:name=".activities.SettingsActivity"
+            android:name="com.ej.rovadiahyosefcalendar.activities.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:theme="@style/PreferenceScreen" />
-        <activity android:name=".activities.SetupElevationActivity" />
+        <activity android:name="com.ej.rovadiahyosefcalendar.activities.SetupElevationActivity" />
         <activity
-            android:name=".activities.MainActivity"
+            android:name="com.ej.rovadiahyosefcalendar.activities.MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/SplashTheme" >
+            android:theme="@style/SplashTheme"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <receiver android:name=".notifications.DailyNotifications" />
-        <receiver android:name=".notifications.OmerNotifications" />
-        <receiver android:name=".notifications.BootNotifications" >
+        <receiver android:name="com.ej.rovadiahyosefcalendar.notifications.DailyNotifications" />
+        <receiver android:name="com.ej.rovadiahyosefcalendar.notifications.OmerNotifications" />
+        <receiver android:name="com.ej.rovadiahyosefcalendar.notifications.BootNotifications"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>

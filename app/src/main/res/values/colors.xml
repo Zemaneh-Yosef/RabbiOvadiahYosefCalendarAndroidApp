@@ -3,8 +3,9 @@
 
     <color name="colorPrimary">@color/gray</color>
     <color name="colorPrimaryDark">@color/black</color>
+    <color name="colorAccentDark">@color/dark_gold</color>
     <color name="colorAccent">@color/dark_gold</color>
-    <color name="colorAccentLight">@color/white</color>
+    <color name="colorAccentLight">#F3E3C5</color>
 
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
@@ -24,4 +25,8 @@
     <color name="light_blue_A200">#FF40C4FF</color>
     <color name="light_blue_A400">#FF00B0FF</color>
     <color name="black_overlay">#66000000</color>
+    <color name="orange">#FF9800</color>
+    <color name="darkblue">#0020F3</color>
+    <color name="darkestblue">#0004FF</color>
+    <color name="colorAccentDarker">#F1DBB0</color>
 </resources>

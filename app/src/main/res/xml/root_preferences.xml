@@ -5,7 +5,7 @@
 
         <ListPreference
             app:title="Candle Lighting Time"
-            app:summary="Enter the amount of minutes for candle lighting."
+            app:summary="Enter the amount of minutes for candle lighting"
             app:key="CandleLightingOffset"
             app:entries="@array/candle_lighting_entries"
             app:entryValues="@array/candle_lighting_values"
@@ -13,10 +13,10 @@
             />
 
         <EditTextPreference
-            app:title="Tzait Shabbat Time"
+            app:title="End Shabbat Time"
             app:defaultValue="45"
             app:key="EndOfShabbatOffset"
-            app:summary="Enter the amount of minutes to add after sunset until shabbat ends."
+            app:summary="Enter the amount of minutes to add after sunset until shabbat ends"
             />
 
         <CheckBoxPreference
@@ -24,6 +24,20 @@
             android:summary="Choose whether or not to display the seconds of the zmanim"
             android:key="ShowSeconds"
             android:defaultValue="true" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="Appearance">
+
+        <ListPreference
+            app:title="Theme"
+            app:selectable="true"
+            app:key="theme"
+            app:entries="@array/theme_entries"
+            app:entryValues="@array/theme_values"
+            android:defaultValue="Auto (Follow System Theme)"
+            app:summary="Choose a theme for the app"
+            />
 
     </PreferenceCategory>
 
