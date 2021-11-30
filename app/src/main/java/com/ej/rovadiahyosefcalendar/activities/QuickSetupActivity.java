@@ -15,6 +15,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -51,6 +52,7 @@ public class QuickSetupActivity extends AppCompatActivity {
         downloadButton.setOnClickListener(v -> {
             showDialogBox();
             showWebView(webView, textView, downloadButton);
+            ProgressBar progressBar = findViewById(R.id.progress_bar);
             WebSettings webSettings = webView.getSettings();
             webSettings.setJavaScriptEnabled(true);
             webView.loadUrl(mChaiTablesURL);
@@ -58,6 +60,8 @@ public class QuickSetupActivity extends AppCompatActivity {
                 @Override public void onPageFinished(WebView view, String url) {
                     super.onPageFinished(view, url);
                     if (view.getUrl().startsWith("http://chaitables.com/cgi-bin/")) {//this is enough to know that it is showing the table with the info we need
+
+                        progressBar.setVisibility(View.VISIBLE);
 
                         ChaiTablesScraper scraper = new ChaiTablesScraper();
 
@@ -76,21 +80,26 @@ public class QuickSetupActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
 
-                        double result = scraper.getResult();
-
-                        Intent returnIntent = new Intent();
-                        if (!getIntent().getBooleanExtra("onlyTable",false)) {
-                            mEditor.putFloat("elevation", (float) result).apply();
-                            returnIntent.putExtra("elevation", result);
-                            setResult(Activity.RESULT_OK, returnIntent);
-                            Toast.makeText(QuickSetupActivity.this,
-                                    "Elevation received from ChaiTables!: " + result,
-                                    Toast.LENGTH_LONG).show();
+                        if (scraper.isSearchRadiusTooSmall()) {
+                            Toast.makeText(getApplicationContext(), "Your search radius is too small! Try again!", Toast.LENGTH_SHORT).show();
+                            startActivity(getIntent());
                         } else {
-                            setResult(Activity.RESULT_CANCELED, returnIntent);//we don't care about elevation
+                            double result = scraper.getResult();
+
+                            Intent returnIntent = new Intent();
+                            if (!getIntent().getBooleanExtra("onlyTable",false)) {
+                                mEditor.putFloat("elevation", (float) result).apply();
+                                returnIntent.putExtra("elevation", result);
+                                setResult(Activity.RESULT_OK, returnIntent);
+                                Toast.makeText(QuickSetupActivity.this,
+                                        "Elevation received from ChaiTables!: " + result,
+                                        Toast.LENGTH_LONG).show();
+                            } else {
+                                setResult(Activity.RESULT_CANCELED, returnIntent);//we don't care about elevation
+                            }
+                            mEditor.putBoolean("showMishorSunrise", false).apply();
+                            mEditor.putBoolean("isSetup", true).apply();
                         }
-                        mEditor.putBoolean("showMishorSunrise", false).apply();
-                        mEditor.putBoolean("isSetup", true).apply();
                         finish();
                     }
                 }

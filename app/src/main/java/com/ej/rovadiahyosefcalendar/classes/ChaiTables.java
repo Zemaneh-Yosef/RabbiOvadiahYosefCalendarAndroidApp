@@ -37,7 +37,8 @@ public class ChaiTables {
         int lastRow = 0;
         ListIterator<String[]> listIterator = csvBody.listIterator();
         while (listIterator.hasNext()) {
-            if (Arrays.toString(listIterator.next()).contains("Tishrey")) {
+            String currentRow = Arrays.toString(listIterator.next());
+            if (currentRow.contains("Tishrey, Chesvan, Kislev, Teves, Shvat, Adar I, Adar II, Nisan, Iyar, Sivan, Tamuz, Av, Elul")) {
                 startingRow = listIterator.nextIndex()-1;
                 lastRow = startingRow + ROWS_UNDER_MONTHS;
             }

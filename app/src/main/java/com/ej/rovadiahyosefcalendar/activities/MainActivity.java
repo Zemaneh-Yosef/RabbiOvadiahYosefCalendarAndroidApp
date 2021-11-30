@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
     private int mCurrentPosition;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {//TODO remove overlays, test notifications
+    protected void onCreate(Bundle savedInstanceState) {//TODO test notifications
         setTheme(R.style.AppTheme); //splash screen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -153,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
                         mElevation = 0;
                         editor.putBoolean("askagain", false).apply();//If he doesn't care about elevation, we shouldn't bother him
                     }
+                    acquireLatitudeAndLongitude();//TODO check and test
                     editor.putString("lastLocation", mCurrentLocationName).apply();
                     if (mCurrentTimeZoneID == null) return;
                     instantiateZmanimCalendar();
@@ -623,9 +624,9 @@ public class MainActivity extends AppCompatActivity {
             zmanim.add("Sof Zman Biur Chametz= " +
                     zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanBiurChametzGRA())));//TODO double check this, maybe we go like MGA getTimeOffset(getAlos72Zmanis(), getShaahZmanisMGA() * 5)
         }
-        zmanim.add("Sof Zman Shma Mg'a= " +
+        zmanim.add("Sof Zman Shma MG\"A= " +
                 zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanShmaMGA72MinutesZmanis())));
-        zmanim.add("Sof Zman Shma Gr'a= " +
+        zmanim.add("Sof Zman Shma GR\"A= " +
                 zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanShmaGRA())));
         zmanim.add("Sof Zman Brachot Shma= " +
                 zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanTfilaGRA())));
@@ -680,9 +681,9 @@ public class MainActivity extends AppCompatActivity {
             zmanim.add("Latest Biur Chametz= " +
                     zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanBiurChametzGRA())));//TODO double check this, maybe we go like MGA getTimeOffset(getAlos72Zmanis(), getShaahZmanisMGA() * 5)
         }
-        zmanim.add("Latest Shma Mg'a= " +
+        zmanim.add("Latest Shma MG\"A= " +
                 zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanShmaMGA72MinutesZmanis())));
-        zmanim.add("Latest Shma Gr'a= " +
+        zmanim.add("Latest Shma GR\"A= " +
                 zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanShmaGRA())));
         zmanim.add("Latest Brachot Shma= " +
                 zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanTfilaGRA())));
@@ -856,8 +857,7 @@ public class MainActivity extends AppCompatActivity {
     private void getAndAffirmLastElevationData() {
         String lastLocation = mSharedPreferences.getString("lastLocation", "");
 
-        String message =
-                "The elevation and visible sunrise data change depending on the city you are in. " +
+        String message = "The elevation and visible sunrise data change depending on the city you are in. " +
                         "Therefore, it is recommended that you update your elevation and visible sunrise" +
                         " data according to your current location. " + "\n\n" +
                         "Last Location: " + lastLocation + "\n" +
@@ -868,7 +868,6 @@ public class MainActivity extends AppCompatActivity {
             if (!lastLocation.isEmpty()) {//only check after the app has been setup before
                 mElevation = mSharedPreferences.getFloat("elevation", 0);//get the last value
                 if (!lastLocation.equals(mCurrentLocationName)) {//user should update his elevation in another city
-
                     new AlertDialog.Builder(this)
                             .setTitle("You are not in the same city as the last time that you " +
                                     "setup the app!")
@@ -919,7 +918,16 @@ public class MainActivity extends AppCompatActivity {
                         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                             mGPSLocationServiceIsDisabled = true;
                         }
-                        LocationListener locationListener = location -> { };
+                        LocationListener locationListener = new LocationListener() {
+                            @Override
+                            public void onLocationChanged(@NonNull Location location) { }
+                            @Override
+                            public void onProviderEnabled(@NonNull String provider) { }
+                            @Override
+                            public void onProviderDisabled(@NonNull String provider) { }
+                            @Override
+                            public void onStatusChanged(String provider, int status, Bundle extras) { }
+                        };
                         if (!mNetworkLocationServiceIsDisabled) {
                             locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, locationListener, null);
                         }

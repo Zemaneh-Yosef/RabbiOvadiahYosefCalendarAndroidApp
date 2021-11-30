@@ -33,14 +33,22 @@ public class ChaiTablesScraper extends Thread {
      */
     private File mExt;
 
+    /**
+     * Jewish Date to check the time of the tables
+     */
     private final JewishDate jewishDate = new JewishDate();
 
     /**
      * Boolean that you can set to only download the tables and not the elevation data
-     *
      * @see #writeZmanimTableToFile()
      */
     private boolean mOnlyDownloadTable;
+
+    /**
+     * Boolean that you can set to only download the tables and not the elevation data
+     * @see #writeZmanimTableToFile()
+     */
+    private boolean isSearchRadiusTooSmall;
 
     /**
      * The setter method for the URL to scrape.
@@ -192,9 +200,12 @@ public class ChaiTablesScraper extends Thread {
      * @return a double containing the highest elevation of the city in meters
      */
     private double findElevation(String s) {
-        return Double.parseDouble(
-                s.substring(s.indexOf("height:"), s.indexOf("m\n"))//This is probably not future proof
-                        .replaceAll("[^\\d.]", ""));//get rid of all the letters
+        if (!isSearchRadiusTooSmall) {
+            return Double.parseDouble(
+                    s.substring(s.indexOf("height:"), s.indexOf("m\n"))//This is probably not future proof
+                            .replaceAll("[^\\d.]", ""));//get rid of all the letters
+        }
+        return 0;
     }
 
     /**
@@ -220,7 +231,7 @@ public class ChaiTablesScraper extends Thread {
                     .referrer("http://www.google.com").get();
 
             if (doc.text().contains("You can increase the search radius and try again")) {
-                throw new Exception("search radius is too small!");
+                isSearchRadiusTooSmall = true;
             }
             Elements tableElement = doc.select("table");
 
@@ -292,5 +303,9 @@ public class ChaiTablesScraper extends Thread {
                 e.printStackTrace();
             }
         }
+    }
+
+    public boolean isSearchRadiusTooSmall() {
+        return isSearchRadiusTooSmall;
     }
 }
