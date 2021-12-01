@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,7 +45,7 @@ public class QuickSetupActivity extends AppCompatActivity {
         WebView webView = findViewById(R.id.quickSetupWebView);
 
         TextView textView = findViewById(R.id.quickSetupExplanation);
-        if (getIntent().getBooleanExtra("onlyTable",false)) {
+        if (getIntent().getBooleanExtra("onlyTable", false)) {
             textView.setText(R.string.alternate_download_request);
         }
 
@@ -57,9 +58,10 @@ public class QuickSetupActivity extends AppCompatActivity {
             webSettings.setJavaScriptEnabled(true);
             webView.loadUrl(mChaiTablesURL);
             webView.setWebViewClient(new WebViewClient() {
-                @Override public void onPageFinished(WebView view, String url) {
-                    super.onPageFinished(view, url);
-                    if (view.getUrl().startsWith("http://chaitables.com/cgi-bin/")) {//this is enough to know that it is showing the table with the info we need
+                @Override
+                public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                    super.onPageStarted(view, url, favicon);
+                    if (view.getUrl().startsWith("http://chaitables.com/cgi-bin/")) {
 
                         progressBar.setVisibility(View.VISIBLE);
 
@@ -74,8 +76,8 @@ public class QuickSetupActivity extends AppCompatActivity {
 
                         try {
                             scraper.join();
-                            mEditor.putInt("firstYearOfTables",jewishDate.getJewishYear());
-                            mEditor.putInt("secondYearOfTables",jewishDate.getJewishYear()+1);
+                            mEditor.putInt("firstYearOfTables", jewishDate.getJewishYear());
+                            mEditor.putInt("secondYearOfTables", jewishDate.getJewishYear() + 1);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -87,7 +89,7 @@ public class QuickSetupActivity extends AppCompatActivity {
                             double result = scraper.getResult();
 
                             Intent returnIntent = new Intent();
-                            if (!getIntent().getBooleanExtra("onlyTable",false)) {
+                            if (!getIntent().getBooleanExtra("onlyTable", false)) {
                                 mEditor.putFloat("elevation", (float) result).apply();
                                 returnIntent.putExtra("elevation", result);
                                 setResult(Activity.RESULT_OK, returnIntent);

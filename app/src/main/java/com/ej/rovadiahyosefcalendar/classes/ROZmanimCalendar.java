@@ -1,6 +1,7 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
 import com.kosherjava.zmanim.ComplexZmanimCalendar;
+import com.kosherjava.zmanim.ZmanimCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.util.GeoLocation;
 
@@ -84,6 +85,15 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
 
     public Date getTzaitTaanitLChumra() {
         return getTimeOffset(getSunset(), (30 * MILLISECONDS_PER_MINUTE));
+    }
+
+    @Override
+    public Date getSolarMidnight() {
+        ZmanimCalendar clonedCal = (ZmanimCalendar) clone();
+        clonedCal.getCalendar().add(Calendar.DAY_OF_MONTH, 1);
+        Date sunset = getSunset();
+        Date sunrise = clonedCal.getSunrise();
+        return getTimeOffset(sunset, getTemporalHour(sunset, sunrise) * 6);
     }
 
     public void setExternalFilesDir(File externalFilesDir) {

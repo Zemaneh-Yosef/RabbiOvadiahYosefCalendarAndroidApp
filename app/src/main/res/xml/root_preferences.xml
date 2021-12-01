@@ -25,6 +25,12 @@
             android:key="ShowSeconds"
             android:defaultValue="true" />
 
+        <CheckBoxPreference
+            android:title="Always show mishor sunrise?"
+            android:summary="Choose whether or not to display sea level sunrise even if visible sunrise is setup as well"
+            android:key="ShowMishorAlways"
+            android:defaultValue="false" />
+
     </PreferenceCategory>
 
     <PreferenceCategory app:title="Appearance">

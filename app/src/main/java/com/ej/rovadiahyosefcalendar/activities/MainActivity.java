@@ -610,13 +610,15 @@ public class MainActivity extends AppCompatActivity {
                 zmanimFormat.format(checkNull(mROZmanimCalendar.getAlos72Zmanis())));
         zmanim.add("Earliest Talit/Tefilin= " +
                 zmanimFormat.format(checkNull(mROZmanimCalendar.getEarliestTalitTefilin())));
-        if (mROZmanimCalendar.getHaNetz() != null
-                && !mSharedPreferences.getBoolean("showMishorSunrise", true)) {
-            zmanim.add("HaNetz= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getHaNetz())));
+        if (mROZmanimCalendar.getHaNetz() != null && !mSharedPreferences.getBoolean("showMishorSunrise", true)) {
+            zmanim.add("HaNetz= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getHaNetz())));
         } else {
-            zmanim.add("HaNetz (Mishor)= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getSeaLevelSunrise())));
+            zmanim.add("HaNetz (Mishor)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSeaLevelSunrise())));
+        }
+        if (mROZmanimCalendar.getHaNetz() != null &&
+                !mSharedPreferences.getBoolean("showMishorSunrise", true) &&
+                mSettingsPreferences.getBoolean("ShowMishorAlways", false)) {
+            zmanim.add("HaNetz (Mishor)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSeaLevelSunrise())));
         }
         if (jewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.EREV_PESACH) {
             zmanim.add("Sof Zman Achilat Chametz= " +
@@ -663,17 +665,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void addTranslatedEnglishZmanim(DateFormat zmanimFormat, List<String> zmanim) {
-        zmanim.add("Dawn= " +
-                zmanimFormat.format(checkNull(mROZmanimCalendar.getAlos72Zmanis())));
-        zmanim.add("Earliest Talit/Tefilin= " +
-                zmanimFormat.format(checkNull(mROZmanimCalendar.getEarliestTalitTefilin())));
-        if (mROZmanimCalendar.getHaNetz() != null
-                && !mSharedPreferences.getBoolean("showMishorSunrise", true)) {
-            zmanim.add("Sunrise= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getHaNetz())));
+        zmanim.add("Dawn= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getAlos72Zmanis())));
+        zmanim.add("Earliest Talit/Tefilin= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getEarliestTalitTefilin())));
+        if (mROZmanimCalendar.getHaNetz() != null && !mSharedPreferences.getBoolean("showMishorSunrise", true)) {
+            zmanim.add("Sunrise= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getHaNetz())));
         } else {
-            zmanim.add("Sunrise (Sea Level)= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getSeaLevelSunrise())));
+            zmanim.add("Sunrise (Sea Level)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSeaLevelSunrise())));
+        }
+        if (mROZmanimCalendar.getHaNetz() != null &&
+                !mSharedPreferences.getBoolean("showMishorSunrise", true) &&
+                mSettingsPreferences.getBoolean("ShowMishorAlways", false)) {
+            zmanim.add("Sunrise (Sea Level)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSeaLevelSunrise())));
         }
         if (jewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.EREV_PESACH) {
             zmanim.add("Latest Achilat Chametz= " +
@@ -724,12 +726,15 @@ public class MainActivity extends AppCompatActivity {
                 zmanimFormat.format(checkNull(mROZmanimCalendar.getAlos72Zmanis())));
         zmanim.add("\u05D8\u05DC\u05D9\u05EA \u05D5\u05EA\u05E4\u05D9\u05DC\u05D9\u05DF= " +
                 zmanimFormat.format(checkNull(mROZmanimCalendar.getEarliestTalitTefilin())));
-        if (mROZmanimCalendar.getHaNetz() != null
-                && !mSharedPreferences.getBoolean("showMishorSunrise", true)) {
+        if (mROZmanimCalendar.getHaNetz() != null && !mSharedPreferences.getBoolean("showMishorSunrise", true)) {
             zmanim.add("\u05D4\u05E0\u05E5= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getHaNetz())));
         } else {
-            zmanim.add("\u05D4\u05E0\u05E5 (\u05DE\u05D9\u05E9\u05D5\u05E8)= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getSeaLevelSunrise())));
+            zmanim.add("\u05D4\u05E0\u05E5 (\u05DE\u05D9\u05E9\u05D5\u05E8)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSeaLevelSunrise())));
+        }
+        if (mROZmanimCalendar.getHaNetz() != null &&
+                !mSharedPreferences.getBoolean("showMishorSunrise", true) &&
+                mSettingsPreferences.getBoolean("ShowMishorAlways", false)) {
+            zmanim.add("\u05D4\u05E0\u05E5 (\u05DE\u05D9\u05E9\u05D5\u05E8)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSeaLevelSunrise())));
         }
         if (jewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.EREV_PESACH) {
             zmanim.add("\u05E1\u05D5\u05E3 \u05D6\u05DE\u05DF \u05D0\u05DB\u05D9\u05DC\u05EA \u05D7\u05DE\u05E5= "
