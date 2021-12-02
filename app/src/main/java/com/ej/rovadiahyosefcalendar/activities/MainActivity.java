@@ -75,12 +75,16 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean mNetworkLocationServiceIsDisabled;
     private boolean mGPSLocationServiceIsDisabled;
+    private boolean mBackHasBeenPressed = false;
     private boolean initialized = false;
     private boolean mShabbatMode;
+    private int mCurrentPosition;
     private double mElevation = 0;
     private double mLatitude;
     private double mLongitude;
+    private Button mNextDate;
     private Geocoder geocoder;
+    private Button mPreviousDate;
     private Calendar mCurrentDate;
     private Button mCalendarButton;
     private Handler mHandler = null;
@@ -89,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView mShabbatModeBanner;
     private JewishDateInfo jewishDateInfo;
     private RecyclerView mMainRecyclerView;
+    private GestureDetector mGestureDetector;
     private String mCurrentLocationName = "";
     private ROZmanimCalendar mROZmanimCalendar;
     private SharedPreferences mSharedPreferences;
@@ -97,11 +102,6 @@ public class MainActivity extends AppCompatActivity {
     private final ZmanimFormatter zmanimFormatter = new ZmanimFormatter(TimeZone.getDefault());
     private static final int TWENTY_FOUR_HOURS_IN_MILLI = 86_400_000;
     public static final String SHARED_PREF = "MyPrefsFile";
-    private boolean mBackHasBeenPressed = false;
-    private Button mNextDate;
-    private Button mPreviousDate;
-    private GestureDetector mGestureDetector;
-    private int mCurrentPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {//TODO test notifications
@@ -153,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
                         mElevation = 0;
                         editor.putBoolean("askagain", false).apply();//If he doesn't care about elevation, we shouldn't bother him
                     }
-                    acquireLatitudeAndLongitude();//TODO check and test
+                    acquireLatitudeAndLongitude();
                     editor.putString("lastLocation", mCurrentLocationName).apply();
                     if (mCurrentTimeZoneID == null) return;
                     instantiateZmanimCalendar();

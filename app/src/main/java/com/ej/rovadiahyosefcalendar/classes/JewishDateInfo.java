@@ -58,10 +58,11 @@ public class JewishDateInfo {
     }
 
     public String getSpecialDay() {
-        String result;
+        String result = "";
         String yomTovOfToday = getYomTov();
         String yomTovOfNextDay = getYomTovForNextDay();
-        if (yomTovOfToday.isEmpty() && yomTovOfNextDay.isEmpty()) {//if empty
+
+        if (yomTovOfToday.isEmpty() && yomTovOfNextDay.isEmpty()) {//NEEDED if both empty
             result = "";
         } else if (yomTovOfToday.isEmpty() && !yomTovOfNextDay.startsWith("Erev")) {//if next day has yom tov
             result = "Erev " + yomTovOfNextDay;
@@ -70,49 +71,69 @@ public class JewishDateInfo {
                 && !yomTovOfToday.endsWith(yomTovOfNextDay)) {//if today and the next day have yom tov
             result = yomTovOfToday + " / Erev " + yomTovOfNextDay;
         } else {
-            if (jewishCalendar.isChanukah()) {
-                int dayOfChanukah = jewishCalendar.getDayOfChanukah();
-                yomTovOfToday = yomTovOfToday + " " + dayOfChanukah;
-            }
             result = yomTovOfToday;
         }
-        if (pesachFallsOnMotzeiShabbat()) {
-            if (jewishCalendar.getJewishMonth() == 1 && jewishCalendar.getJewishDayOfMonth() == 11) {
-                result = "Erev Ta'anit Bechorot";
-            }
-            if (jewishCalendar.getJewishMonth() == 1 && jewishCalendar.getJewishDayOfMonth() == 12) {
-                result = "Ta'anit Bechorot";
-            }
-        } else {
-            if (yomTovOfNextDay.contains("Erev Pesach")) {
-                result = "Erev Ta'anit Bechorot";
-            } else if (yomTovOfToday.contains("Erev Pesach")) {
-                result += " / Ta'anit Bechorot";
-            }
-        }
-        if (!getRoshChodeshOrErevRoshChodesh().isEmpty()) {
-            if (result.isEmpty()) {
-                result = getRoshChodeshOrErevRoshChodesh();
-            } else {
-                result = getRoshChodeshOrErevRoshChodesh() + " / " + result;
-            }
-        }
+
+        result = addTaanitBechorot(result);
+        result = addRoshChodesh(result);
         result = addDayOfOmer(result);
+        result = addDayOfChanukah(result);
         return result;
     }
 
-    private boolean pesachFallsOnMotzeiShabbat() {
-        boolean result;
-        jewishCalendar.setJewishDate(jewishCalendar.getJewishYear(),1,15);
-        result = jewishCalendar.getDayOfWeek() == Calendar.SUNDAY;
+    private String addTaanitBechorot(String result) {
+        if (tomorrowIsTaanitBechorot()) {//edge case
+            if (result.isEmpty()) {
+                result = "Erev Ta'anit Bechorot";
+            } else {
+                result = "Erev Ta'anit Bechorot / " + result;
+            }
+        }
+        if (jewishCalendar.isTaanisBechoros()) {
+            if (result.isEmpty()) {
+                result = "Ta'anit Bechorot";
+            } else {
+                result = "Ta'anit Bechorot / " + result;
+            }
+        }
+        return result;
+    }
+
+    private boolean tomorrowIsTaanitBechorot() {
+        jewishCalendar.forward(Calendar.DATE, 1);
+        boolean result = jewishCalendar.isTaanisBechoros();
         jewishCalendar.setDate(currentDate);
+        return result;
+    }
+
+    private String addRoshChodesh(String result) {
+        String roshChodeshOrErevRoshChodesh = getRoshChodeshOrErevRoshChodesh();
+        if (!roshChodeshOrErevRoshChodesh.isEmpty()) {
+            if (!result.isEmpty()) {
+                result = getRoshChodeshOrErevRoshChodesh() + " / " + result;
+            } else {
+                result = getRoshChodeshOrErevRoshChodesh();
+            }
+        }
+        return result;
+    }
+
+    private String addDayOfChanukah(String result) {
+        int dayOfChanukah = jewishCalendar.getDayOfChanukah();
+        if (dayOfChanukah != -1){
+            if (!result.isEmpty()){
+                result += " / " + getOrdinal(dayOfChanukah) + " day of Chanukah";
+            } else {
+                result = getOrdinal(dayOfChanukah) + " day of Chanukah";
+            }
+        }
         return result;
     }
 
     private String addDayOfOmer(String result) {
         int dayOfOmer = jewishCalendar.getDayOfOmer();
-        if (dayOfOmer != -1){
-            if (!result.isEmpty()){
+        if (dayOfOmer != -1) {
+            if (!result.isEmpty()) {
                 result += " / " + getOrdinal(dayOfOmer) + " day of Omer";
             } else {
                 result = getOrdinal(dayOfOmer) + " day of Omer";
