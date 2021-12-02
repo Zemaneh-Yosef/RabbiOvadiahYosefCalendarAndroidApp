@@ -40,10 +40,9 @@ public class JewishDateInfo {
             }
             result = roshChodesh;
         } else if (jewishCalendar.isErevRoshChodesh()) {
-            JewishCalendar temp = new JewishCalendar();
-            temp.setDate(jewishCalendar.getGregorianCalendar());
-            temp.forward(Calendar.DATE,1);
-            String hebrewMonth = hebrewDateFormatter.formatRoshChodesh(temp);
+            jewishCalendar.forward(Calendar.DATE,1);
+            String hebrewMonth = hebrewDateFormatter.formatRoshChodesh(jewishCalendar);
+            jewishCalendar.setDate(currentDate);
             if (hebrewMonth.contains("Teves")) {
                 hebrewMonth = "Rosh Chodesh Tevet";
             }
