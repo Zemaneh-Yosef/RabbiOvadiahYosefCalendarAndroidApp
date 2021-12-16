@@ -67,6 +67,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TimeZone;
 
 import us.dustinj.timezonemap.TimeZoneMap;
@@ -146,12 +147,8 @@ public class MainActivity extends AppCompatActivity {
                     SharedPreferences.Editor editor = mSharedPreferences.edit();
                     if (result.getResultCode() == Activity.RESULT_OK) {
                         if (result.getData() != null) {
-                            mElevation = result.getData()
-                                    .getDoubleExtra("elevation", 0);
+                            mElevation = result.getData().getDoubleExtra("elevation", 0);
                         }
-                    } else if (result.getResultCode() == Activity.RESULT_CANCELED) {
-                        mElevation = 0;
-                        editor.putBoolean("askagain", false).apply();//If he doesn't care about elevation, we shouldn't bother him
                     }
                     acquireLatitudeAndLongitude();
                     editor.putString("lastLocation", mCurrentLocationName).apply();
@@ -165,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
     private void initializeMainView() {
         initialized = true;
         setTimeZoneID();
-        getAndAffirmLastElevationData();
+        getAndConfirmLastElevationAndVisibleSunriseData();
         instantiateZmanimCalendar();
         saveGeoLocationInfo();
         setupRecyclerView();
@@ -180,26 +177,41 @@ public class MainActivity extends AppCompatActivity {
 
             int firstYearOfTables = mSharedPreferences.getInt("firstYearOfTables", 0);
             int secondYearOfTables = mSharedPreferences.getInt("secondYearOfTables", 0);
+            int firstYearOfTablesGreg = mSharedPreferences.getInt("firstYearOfTablesGregorian", 0);
+            int secondYearOfTablesGreg = mSharedPreferences.getInt("secondYearOfTablesGregorian", 0);
 
             if (firstYearOfTables == jewishDateInfo.getJewishCalendar().getJewishYear())
                 return;//We don't want to ask during the first year
 
-            if (mSharedPreferences.getBoolean("askNextYear", false)) {
-                if (!(secondYearOfTables < jewishDateInfo.getJewishCalendar().getJewishYear()))
-                    return;//only prompt if the current year is after the second year
+            if (mSharedPreferences.getBoolean("askNextYear", false) &&
+                    mSharedPreferences.getBoolean("askAgainTables", true)) {
+                if (secondYearOfTables < jewishDateInfo.getJewishCalendar().getJewishYear()) {//if we are past 2 years
+                    String message = "The visible sunrise tables need to be updated now. " +
+                            "If you do not want to update them, you can always choose to show mishor sunrise." + "\n\n" +
+                            "Here are the current years for the tables:" + "\n\n" +
+                            "First Year: " + firstYearOfTables + " (" + firstYearOfTablesGreg + ")" + "\n" +
+                            "Second Year: " + secondYearOfTables + " (" + secondYearOfTablesGreg + ")" + "\n\n" +
+                            "Would you like to rerun the setup now?";
+                    new AlertDialog.Builder(this)
+                            .setTitle("Shana Tovah! You should update!")
+                            .setMessage(message)
+                            .setPositiveButton("Yes", (dialogInterface, i) ->
+                                    mSetupLauncher.launch(new Intent(this, SetupChooserActivity.class)))
+                            .setNeutralButton("Do not ask again", (dialogInterface, i) ->
+                                    mSharedPreferences.edit().putBoolean("askAgainTables", false).apply())
+                            .show();
+                }
+                return;//only prompt if the current year is after the second year
             }
-
-            String message = "Shana Tovah! The visible sunrise tables need to be updated at least " +
-                    "once every two years. You can choose to update them now or next year." + "\n\n" +
-                    "Here are the current years for the tables:" + "\n\n" +
-                    "First Year: " + firstYearOfTables +
-                    " (" + mROZmanimCalendar.getCalendar().get(Calendar.YEAR) + ")" + "\n" +
-                    "Second Year: " + secondYearOfTables +
-                    " (" + (mROZmanimCalendar.getCalendar().get(Calendar.YEAR) + 1) + ")" + "\n\n" +
-                    "Would you like to rerun the setup now?";
 
             if (ChaiTables.visibleSunriseFileExists(getExternalFilesDir(null), jewishDateInfo.getJewishCalendar())) {
                 if (mSharedPreferences.getBoolean("askAgainTables", true)) {//only prompt user if he has not asked to be left alone
+                    String message = "Shana Tovah! The visible sunrise tables need to be updated at least " +
+                            "once every two years. You can choose to update them now or next year." + "\n\n" +
+                            "Here are the current years for the tables:" + "\n\n" +
+                            "First Year: " + firstYearOfTables + " (" + firstYearOfTablesGreg + ")" + "\n" +
+                            "Second Year: " + secondYearOfTables + " (" + secondYearOfTablesGreg + ")" + "\n\n" +
+                            "Would you like to rerun the setup now?";
                     new AlertDialog.Builder(this)
                             .setTitle("Shana Tovah! You should update!")
                             .setMessage(message)
@@ -209,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
                                     mSharedPreferences.edit().putBoolean("askNextYear", true).apply())
                             .setNeutralButton("Do not ask again", (dialogInterface, i) ->
                                     mSharedPreferences.edit().putBoolean("askAgainTables", false).apply())
-                            .show();
+                            .create();
                 }
             }
         }
@@ -384,11 +396,13 @@ public class MainActivity extends AppCompatActivity {
         if (mMainRecyclerView != null) {
             mCurrentPosition = ((LinearLayoutManager)mMainRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
         }
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         super.onPause();
     }
 
     @Override
     protected void onResume() {
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         if (mCurrentTimeZoneID == null) {
             super.onResume();
             return;
@@ -399,7 +413,7 @@ public class MainActivity extends AppCompatActivity {
         mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
         mMainRecyclerView.scrollToPosition(mCurrentPosition);
         if (!initialized) {
-            getAndAffirmLastElevationData();
+            getAndConfirmLastElevationAndVisibleSunriseData();
         }
         resetTheme();
         super.onResume();
@@ -462,7 +476,6 @@ public class MainActivity extends AppCompatActivity {
     private void startShabbatMode() {
         if (!mShabbatMode) {
             mShabbatMode = true;
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             mShabbatModeBanner.setVisibility(View.VISIBLE);
             Calendar calendar = Calendar.getInstance();
             Calendar calendar2 = (Calendar) calendar.clone();
@@ -529,7 +542,6 @@ public class MainActivity extends AppCompatActivity {
     private void endShabbatMode() {
         if (mShabbatMode) {
             mShabbatMode = false;
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             mShabbatModeBanner.setVisibility(View.GONE);
             mHandler.removeCallbacksAndMessages(mZmanimUpdater);
         }
@@ -537,7 +549,7 @@ public class MainActivity extends AppCompatActivity {
 
     private List<String> getZmanimList() {
         DateFormat zmanimFormat;
-        if (mSettingsPreferences.getBoolean("ShowSeconds", true)) {
+        if (mSettingsPreferences.getBoolean("ShowSeconds", false)) {
             zmanimFormat = new SimpleDateFormat("h:mm:ss aa", Locale.getDefault());
         } else {
             zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
@@ -572,6 +584,11 @@ public class MainActivity extends AppCompatActivity {
 
         zmanim.add(jewishDateInfo.getIsTachanunSaid());
 
+        String tonightStartOrEndBirchatLevana = jewishDateInfo.getIsTonightStartOrEndBirchatLevana();
+        if (!tonightStartOrEndBirchatLevana.isEmpty()) {
+            zmanim.add(tonightStartOrEndBirchatLevana);
+        }
+
         if (jewishDateInfo.getJewishCalendar().isBirkasHachamah()) {
             zmanim.add("Birchat HaChamah is said today");
         }
@@ -594,14 +611,19 @@ public class MainActivity extends AppCompatActivity {
                 + " " +
                 formatHebrewNumber(YerushalmiYomiCalculator.getDafYomiYerushalmi(jewishDateInfo.getJewishCalendar()).getDaf()));
 
-        zmanim.add("Shaah Zmanit GR\"A: " + zmanimFormatter.format(mROZmanimCalendar.getShaahZmanisGra()));
+        zmanim.add("Shaah Zmanit GR\"A: " + zmanimFormatter.format(mROZmanimCalendar.getShaahZmanisGra()) +
+                " MG\"A: " + zmanimFormatter.format(mROZmanimCalendar.getShaahZmanis72MinutesZmanis()));
+
+        zmanim.add("Elevation: " + mElevation);
+
+        zmanim.add(jewishDateInfo.isJewishLeapYear());
 
         if (mROZmanimCalendar.getGeoLocation().getTimeZone().inDaylightTime(mROZmanimCalendar.getSeaLevelSunrise())) {
             zmanim.add("Daylight Savings Time is on");
         } else {
             zmanim.add("Daylight Savings Time is off");
         }
-        zmanim.add(jewishDateInfo.isJewishLeapYear());
+
         return zmanim;
     }
 
@@ -643,6 +665,18 @@ public class MainActivity extends AppCompatActivity {
         if (jewishDateInfo.getJewishCalendar().hasCandleLighting()) {
             zmanim.add("Candle Lighting (" + (int) mROZmanimCalendar.getCandleLightingOffset()
                     + ")= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getCandleLighting())));
+            if (mSettingsPreferences.getBoolean("ShowWhenShabbatChagEnds", false)) {
+                Set<String> stringSet = mSettingsPreferences.getStringSet("displayRTOrShabbatRegTime",null);
+                if (stringSet.contains("Show Regular Minutes")) {
+                    zmanim.add("Tzait Shabbat/Chag (Tom)"
+                            + "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + "= " +
+                            zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
+                }
+                if (stringSet.contains("Show Rabbeinu Tam")) {
+                    zmanim.add("Rabbeinu Tam (Tom)= " +
+                            zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+                }
+            }
         }
         zmanim.add("Shkia= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSunset())));
         zmanim.add("Tzait Hacochavim= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzait())));
@@ -700,6 +734,18 @@ public class MainActivity extends AppCompatActivity {
         if (jewishDateInfo.getJewishCalendar().hasCandleLighting()) {
             zmanim.add("Candle Lighting (" + (int) mROZmanimCalendar.getCandleLightingOffset()
                     + ")= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getCandleLighting())));
+            if (mSettingsPreferences.getBoolean("ShowWhenShabbatChagEnds", false)) {
+                Set<String> stringSet = mSettingsPreferences.getStringSet("displayRTOrShabbatRegTime",null);
+                if (stringSet.contains("Show Regular Minutes")) {
+                    zmanim.add("Shabbat/Chag Ends (Tom)"
+                            + "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + "= " +
+                            zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
+                }
+                if (stringSet.contains("Show Rabbeinu Tam")) {
+                    zmanim.add("Rabbeinu Tam (Tom)= " +
+                            zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+                }
+            }
         }
         zmanim.add("Sunset= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSunset())));
         zmanim.add("Nightfall= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzait())));
@@ -760,6 +806,18 @@ public class MainActivity extends AppCompatActivity {
             zmanim.add("\u05D4\u05D3\u05DC\u05E7\u05EA \u05E0\u05E8\u05D5\u05EA (" +
                     (int) mROZmanimCalendar.getCandleLightingOffset() + ")= " +
                     zmanimFormat.format(checkNull(mROZmanimCalendar.getCandleLighting())));
+            if (mSettingsPreferences.getBoolean("ShowWhenShabbatChagEnds", false)) {
+                Set<String> stringSet = mSettingsPreferences.getStringSet("displayRTOrShabbatRegTime",null);
+                if (stringSet.contains("Show Regular Minutes")) {
+                    zmanim.add("\u05E6\u05D0\u05EA \u05E9\u05D1\u05EA/\u05D7\u05D2 (\u05DE\u05D7\u05E8)"
+                            + "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + "= " +
+                            zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
+                }
+                if (stringSet.contains("Show Rabbeinu Tam")) {
+                    zmanim.add("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD (\u05DE\u05D7\u05E8)= " +
+                            zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+                }
+            }
         }
         zmanim.add("\u05E9\u05E7\u05D9\u05E2\u05D4= " +
                 zmanimFormat.format(checkNull(mROZmanimCalendar.getSunset())));
@@ -810,11 +868,9 @@ public class MainActivity extends AppCompatActivity {
      * This method uses the Geocoder class to try and get the current location's name. I have
      * tried to make my results similar to the zmanim app by JGindin on the Play Store. In america,
      * it will get the current location by state and city. Whereas, in other areas of the world, it
-     * will get the country and the city. Note that the Geocoder class might give weird results,
-     * even in the same city.
+     * will get the country and the city.
      *
-     * @return a string containing the name of the current city and state/country that the user
-     * is located in.
+     * @return a string containing the name of the current city and state/country that the user is located in.
      * @see Geocoder
      */
     private String getLocationAsName() {
@@ -850,21 +906,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * This method checks if the user has already setup the elevation from the last time he started
-     * the app. If he has not, it will startup the setup activity. If he has setup the elevation
-     * amount, then it checks if the user is in the same city as the last time he setup the app
-     * based on the getLocationAsName method. If the user is in the same city, all is good. If the
-     * user is in another city, we make an AlertDialog to warn the user that the elevation data
-     * MIGHT not be accurate.
+     * This method checks if the user has already setup the elevation and visible sunrise from the last time he started
+     * the app. If he has setup the elevation and visible sunrise, then it checks if the user is in the
+     * same city as the last time he setup the app based on the getLocationAsName method. If the user is in the same city,
+     * all is good. If the user is in another city, we create an AlertDialog to warn the user that the elevation data
+     * and visible sunrise data are not accurate.
      *
      * @see #getLocationAsName()
      */
-    private void getAndAffirmLastElevationData() {
+    private void getAndConfirmLastElevationAndVisibleSunriseData() {
         String lastLocation = mSharedPreferences.getString("lastLocation", "");
 
         String message = "The elevation and visible sunrise data change depending on the city you are in. " +
-                        "Therefore, it is recommended that you update your elevation and visible sunrise" +
-                        " data according to your current location. " + "\n\n" +
+                        "Therefore, it is recommended that you update your elevation and visible sunrise " +
+                        "data according to your current location." + "\n\n" +
                         "Last Location: " + lastLocation + "\n" +
                         "Current Location: " + mCurrentLocationName + "\n\n" +
                         "Would you like to rerun the setup now?";
@@ -884,8 +939,8 @@ public class MainActivity extends AppCompatActivity {
                                     .show())
                             .setNeutralButton("Do not ask again", (dialogInterface, i) -> {
                                 mSharedPreferences.edit().putBoolean("askagain", false).apply();
-                                Toast.makeText(this, "Your current elevation is: " + mElevation,
-                                        Toast.LENGTH_LONG).show();
+                                Toast.makeText(this, "Your current elevation is: " + mElevation, Toast.LENGTH_LONG)
+                                        .show();
                             })
                             .show();
                 }
@@ -1089,7 +1144,7 @@ public class MainActivity extends AppCompatActivity {
                             setTimeZoneID();
                             instantiateZmanimCalendar();
                             mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
-                            getAndAffirmLastElevationData();
+                            getAndConfirmLastElevationAndVisibleSunriseData();
                         }
                     }
                 })
@@ -1100,7 +1155,7 @@ public class MainActivity extends AppCompatActivity {
                     setTimeZoneID();
                     instantiateZmanimCalendar();
                     mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
-                    getAndAffirmLastElevationData();
+                    getAndConfirmLastElevationAndVisibleSunriseData();
                 })
                 .create()
                 .show();
@@ -1184,7 +1239,7 @@ public class MainActivity extends AppCompatActivity {
             setTimeZoneID();
             instantiateZmanimCalendar();
             mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
-            getAndAffirmLastElevationData();
+            getAndConfirmLastElevationAndVisibleSunriseData();
             return true;
         } else if (id == R.id.enterZipcode) {
             createZipcodeDialog();
@@ -1199,20 +1254,18 @@ public class MainActivity extends AppCompatActivity {
             }
             return true;
         } else if (id == R.id.molad) {
-            mSetupLauncher.launch(new Intent(this, MoladActivity.class));
+            startActivity(new Intent(this, MoladActivity.class));
             return true;
         } else if (id == R.id.setupChooser) {
             mSetupLauncher.launch(new Intent(this, SetupChooserActivity.class)
                     .putExtra("fromMenu",true));
             return true;
         } else if (id == R.id.fullSetup) {
-            mSetupLauncher.launch(new Intent(this, FullSetupActivity.class));
+            mSetupLauncher.launch(new Intent(this, FullSetupActivity.class)
+                    .putExtra("fromMenu",true));
             return true;
         } else if (id == R.id.settings) {
             startActivity(new Intent(MainActivity.this, SettingsActivity.class));
-            return true;
-        } else if (id == R.id.about) {
-            //startActivity(new Intent(MainActivity.this, AboutActivity.class));//TODO
             return true;
         } else if (id == R.id.help) {
             new AlertDialog.Builder(this, R.style.Theme_AppCompat_DayNight)

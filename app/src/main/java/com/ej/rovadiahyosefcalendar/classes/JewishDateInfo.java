@@ -4,6 +4,8 @@ import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
 
+import org.apache.commons.lang3.time.DateUtils;
+
 import java.util.Calendar;
 
 public class JewishDateInfo {
@@ -407,5 +409,23 @@ public class JewishDateInfo {
                 break;
         }
         return result.toString();
+    }
+
+    public String getIsTonightStartOrEndBirchatLevana() {//TODO this method might need fixing
+        Calendar sevenDays = Calendar.getInstance();
+        sevenDays.setTime(jewishCalendar.getTchilasZmanKidushLevana7Days());
+
+        Calendar fifteenDays = Calendar.getInstance();
+        fifteenDays.setTime(jewishCalendar.getSofZmanKidushLevana15Days());
+        fifteenDays.add(Calendar.DATE, -1);
+
+        if (DateUtils.isSameDay(jewishCalendar.getGregorianCalendar(), sevenDays)) {
+            return "Birchat HeLevana starts tonight";
+        }
+
+        if (DateUtils.isSameDay(jewishCalendar.getGregorianCalendar(), fifteenDays)) {
+            return "Last night for Birchat HaLevana";
+        }
+        return "";
     }
 }

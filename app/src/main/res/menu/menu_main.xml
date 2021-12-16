@@ -9,17 +9,15 @@
         app:showAsAction="always" />
 
     <group android:id="@+id/group_divider">
-
-        <item
-            android:id="@+id/setupChooser"
-            android:title="@string/setup" />
         <item
             android:id="@+id/fullSetup"
             android:title="@string/full_setup" />
         <item
+            android:id="@+id/setupChooser"
+            android:title="@string/setup" />
+        <item
             android:id="@+id/enterZipcode"
             android:title="@string/enter_a_zipcode" />
-
     </group>
 
     <item
@@ -32,9 +30,6 @@
     <item
         android:id="@+id/settings"
         android:title="@string/settings" />
-    <item
-        android:id="@+id/about"
-        android:title="@string/about" />
     <item
         android:id="@+id/help"
         android:title="@string/help" />

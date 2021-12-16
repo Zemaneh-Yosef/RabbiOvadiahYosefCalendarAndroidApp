@@ -30,7 +30,7 @@
     </string>
     <string name="settings">Settings</string>
 
-    <string name="helper_text">Welcome to the Rabbi Ovadiah Yosef Calendar App, this app was made to help you find out the zmanim of the day according to Rabbi Ovadiah Yosef ZT\"L for your own city! There are a few things to know before using the app.
+    <string name="helper_text">Welcome to the Rabbi Ovadiah Yosef Calendar App, this app was made to help you find out the most accurate zmanim of the day according to Rabbi Ovadiah Yosef ZT\"L for your own city! There are a few things to know before using the app.
 
  \n\n1.) Setup elevation and visible sunrise for where you are currently located. In this first step, you should ideally find your city on chaitables.com and download the visible sunrise tables. Through the quick setup, the elevation data will automatically be downloaded as well. This table contains the most accurate times for VISIBLE sunrise, and this is the algorithm that the Ohr HaChaim calendar uses in Israel. However, these tables only go on for 2 years into the future and will need to be updated bi-yearly. If you do not want to use these tables, you can choose not to download them through the advanced menu, and the app will instead use the regular algorithm for sunrise (without elevation included).
 
@@ -58,9 +58,9 @@
     <string name="setup_both_elevation_and_visible_sunrise">Setup both elevation and visible sunrise</string>
     <string name="setup_elevation_only">Setup Elevation Only</string>
     <string name="setup_visible_sunrise_only">Setup Visible Sunrise Only</string>
-    <string name="do_not_setup_either_uses_mishor_sea_level_sunrise_sunset_for_both_zmanim_and_sunrise">Do Not setup either (Uses Mishor (Sea Level) Sunrise/Sunset for both zmanim and Sunrise)</string>
+    <string name="do_not_setup_either_uses_mishor_sea_level_sunrise_sunset_for_both_zmanim_and_sunrise">Do Not setup either (Uses Mishor/Sea Level Sunrise and Sunset for both zmanim and Sunrise)</string>
     <string name="alternate_download_request">Press this button to download the visible sunrise table from the Chai Tables website:</string>
-    <string name="intro">Welcome!\n\nThe goal of this app is to help you create your own zmanim calendar according to Rabbi Ovadiah Yosef Z\"tl.\n\nThere are two options to setup the calendar. \n\nThe quick setup option will setup the calendar according to the way that the Ohr HaChaim calendar in Israel sets it\'s zmanim. The quick setup will do 2 actions, it will download the elevation data for your city from the ChaiTables website, and it will download a table that lists the times for VISIBLE sunrise throughout the next 2 years. \nNote: This will have to be updated every year or two. \n\nThe advanced setup option allows you to choose whether you want to download the elevation data for your city, or the visible sunrise tables, or neither one. \n\nHowever, know that the elevation data changes for each and every city, and it is not easy to calculate where the highest point of elevation is in your city without detailed information of the entire city\'s elevation level, which is a bit too much data for this app. Therefore, you will need to download the elevation data of your city from the ChaiTables website every time you change cities. \n\nThere is also the option to manually enter the elevation data in meters if you know it. \n\nLastly, if you do not want to use elevation at all, and you just want to use mishor sunrise/sunset, you can do that as well in the advanced setup page. \n\nNote: Not every city will be available through chaitables, however, you should be able to request it to be added to the website.</string>
+    <string name="intro">Welcome!\n\nThe goal of this app is to help you create your own zmanim calendar according to Rabbi Ovadiah Yosef Z\"tl as accurately as possible. This app was made to teach people how zmanim are calculated and therefore it might seem confusing/not user friendly at first, however, I wanted to make sure people were getting what they wanted.\n\nThere are 2 options in order to setup the zmanim.\n\nThe \"Quick Setup\" option will setup the calendar according to the way that the Ohr HaChaim calendar, in Israel, sets it\'s zmanim. Pressing the Quick Setup button will take you to a button that will do 2 things. It will take you to a website that has a list of cities to calculate zmanim. Once you choose your city, it will download the elevation data for your city from the website. It will also download a table that lists the times for VISIBLE sunrise throughout the next 2 years.\n\nThe \"Advanced Setup\" option allows you to choose whether you want to download the elevation data for your city, or the visible sunrise tables, or neither one.\n\nKnow that the elevation data changes for each and every city and you will need to download the elevation data of your city from the ChaiTables website every time you change cities.\n\n\Why is the website needed? Because it is not easy to calculate the highest point of elevation in your city without detailed information of the entire city\'s elevation level, which would be too much data for this app. \n\nNote: Not every city will be available through chaitables, however, you should be able to request it to be added to the website if needed.</string>
     <string name="what_language_would_you_like_the_zmanim_to_be_in">What language would you like the zmanim to be in?</string>
     <string name="hebrew">Hebrew</string>
     <string name="english">English</string>
@@ -84,4 +84,11 @@
     <string name="shabbat_mode">Shabbat/Chag Mode</string>
     <string name="refresh">Refresh</string>
     <string name="full_restart">Full Restart</string>
+    <string name="translated_english">Translated English</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="show_introduction">Show Introduction?</string>
+    <string name="ohr_hachaim_nmode">Ohr HaChaim\nSetup</string>
+    <string name="if_you_want_to_make_your_zmanim_like_the_ohr_hachaim_calendar_in_israel">If you want to make your zmanim like the Ohr HaChaim calendar in Israel:</string>
+    <string name="if_you_want_to_specify_what_to_setup">If you want to specify what to setup:</string>
 </resources>

@@ -29,6 +29,7 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
 
         Button hebrew = findViewById(R.id.hebrew);
         Button english = findViewById(R.id.english);
+        Button englishTranslated = findViewById(R.id.englishTranslated);
 
         String hebrewText = "\u05E2\u05DC\u05D5\u05EA \u05D4\u05E9\u05D7\u05E8" + "\n" +
                 "\u05D8\u05DC\u05D9\u05EA \u05D5\u05EA\u05E4\u05D9\u05DC\u05D9\u05DF" + "\n" +
@@ -50,22 +51,26 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
                 "etc...";
         english.setText(englishText);
 
+        String englishTranslatedText = "Dawn" + "\n" +
+                "Earliest Talit/Tefilin" + "\n" +
+                "Sunrise" + "\n" +
+                "Latest Shma Mg'a" + "\n" +
+                "Latest Shma Gr'a" + "\n" +
+                "Latest Brachot Shma" + "\n" +
+                "Mid-Day" + "\n" +
+                "etc...";
+        englishTranslated.setText(englishTranslatedText);
+
         hebrew.setOnClickListener(v -> saveInfoAndStartActivity(true, false));
-        english.setOnClickListener(v -> new AlertDialog.Builder(this)
-                .setTitle("Translate english zmanim?")
-                .setMessage("Would you like to have the zmanim translated? \n\nFor Example: \"Alot Hashachar\" will become \"Dawn\"")
-                .setPositiveButton("Yes", (dialogInterface, i) ->
-                        saveInfoAndStartActivity(false, true))
-                .setNegativeButton("No", (dialogInterface, i) ->
-                        saveInfoAndStartActivity(false, false))
-                .show());
+        english.setOnClickListener(v -> saveInfoAndStartActivity(false, false));
+        englishTranslated.setOnClickListener(v -> saveInfoAndStartActivity(false, true));
     }
 
     private void saveInfoAndStartActivity(boolean isHebrew, boolean isTranslated) {
         mSharedPreferences.edit().putBoolean("isZmanimInHebrew", isHebrew).apply();
         mSharedPreferences.edit().putBoolean("isZmanimEnglishTranslated", isTranslated).apply();
-        startActivity(new Intent(this, SetupChooserActivity.class).setFlags(
-                Intent.FLAG_ACTIVITY_FORWARD_RESULT));
+        startActivity(new Intent(this, SetupChooserActivity.class)
+                .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
         finish();
     }
     @Override

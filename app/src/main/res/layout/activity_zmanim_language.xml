@@ -1,80 +1,115 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black"
+    android:background="?android:attr/colorBackground"
+    android:orientation="vertical"
     tools:context=".activities.ZmanimLanguageActivity">
 
     <TextView
+        android:id="@+id/textView9"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/what_language_would_you_like_the_zmanim_to_be_in"
-        android:textColor="@color/white"
-        android:textSize="28sp"
-        android:textStyle="bold"
         android:padding="12dp"
-        app:layout_constraintBottom_toTopOf="@+id/textView"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/hebrew"
-        android:textColor="@color/white"
+        android:text="@string/what_language_would_you_like_the_zmanim_to_be_in"
+        android:textColor="?android:attr/textColorPrimary"
         android:textSize="28sp"
         android:textStyle="bold"
-        android:gravity="center"
-        app:layout_constraintHorizontal_weight="1"
-        app:layout_constraintBottom_toTopOf="@+id/hebrew"
-        app:layout_constraintEnd_toStartOf="@id/textView2"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:layout_gravity="center"
+        android:layout_margin="28dp"/>
 
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/english"
-        android:textColor="@color/white"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        app:layout_constraintHorizontal_weight="1"
-        app:layout_constraintBottom_toTopOf="@+id/english"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textView"/>
+        android:padding="8dp">
 
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="4dp"
+            android:layout_gravity="bottom"
+            android:layout_weight="1"
+            android:text="@string/hebrew"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_gravity="bottom"
+            android:layout_weight="1"
+            android:padding="4dp"
+            android:text="@string/english"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_gravity="top"
+            android:padding="4dp"
+            android:layout_weight="1"
+            android:text="@string/translated_english"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="bottom"
+        android:gravity="bottom"
+        android:orientation="horizontal">
     <Button
         android:id="@+id/hebrew"
         android:layout_width="0dp"
-        android:layout_height="400dp"
-        android:backgroundTint="@color/colorAccentDark"
+        android:layout_height="match_parent"
+        android:background="@drawable/colorful_gradient_square"
+        android:layout_margin="4dp"
+        android:padding="2dp"
         android:text="@string/hebrew"
         android:textAllCaps="false"
         android:textColor="@color/black"
-        android:textSize="18sp"
+        android:textSize="14sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/english"
-        app:layout_constraintHorizontal_weight="1"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:layout_weight="1" />
 
     <Button
         android:id="@+id/english"
         android:layout_width="0dp"
-        android:layout_height="400dp"
-        android:backgroundTint="@color/colorAccentDark"
+        android:layout_height="match_parent"
+        android:background="@drawable/colorful_gradient_square"
+        android:layout_margin="4dp"
+        android:padding="2dp"
         android:text="@string/english"
         android:textAllCaps="false"
         android:textColor="@color/black"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_weight="1"
-        app:layout_constraintStart_toEndOf="@+id/hebrew" />
+        android:textSize="14sp"
+        android:layout_weight="1" />
 
+    <Button
+        android:id="@+id/englishTranslated"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:background="@drawable/colorful_gradient_square"
+        android:layout_margin="4dp"
+        android:padding="2dp"
+        android:text="@string/translated_english"
+        android:textAllCaps="false"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        android:layout_weight="1" />
+    </LinearLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

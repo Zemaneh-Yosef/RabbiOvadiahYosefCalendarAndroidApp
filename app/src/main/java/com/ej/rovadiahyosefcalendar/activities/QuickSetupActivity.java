@@ -78,6 +78,8 @@ public class QuickSetupActivity extends AppCompatActivity {
                             scraper.join();
                             mEditor.putInt("firstYearOfTables", jewishDate.getJewishYear());
                             mEditor.putInt("secondYearOfTables", jewishDate.getJewishYear() + 1);
+                            mEditor.putInt("firstYearOfTablesGregorian", jewishDate.getGregorianYear());
+                            mEditor.putInt("secondYearOfTablesGregorian", jewishDate.getGregorianYear() + 1);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }

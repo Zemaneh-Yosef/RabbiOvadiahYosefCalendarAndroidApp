@@ -23,13 +23,27 @@
             android:title="Add seconds?"
             android:summary="Choose whether or not to display the seconds of the zmanim"
             android:key="ShowSeconds"
-            android:defaultValue="true" />
+            android:defaultValue="false" />
 
         <CheckBoxPreference
             android:title="Always show mishor sunrise?"
             android:summary="Choose whether or not to display sea level sunrise even if visible sunrise is setup as well"
             android:key="ShowMishorAlways"
             android:defaultValue="false" />
+
+        <CheckBoxPreference
+            android:title="Show Tzait Shabbat the day before?"
+            android:summary="Choose whether or not to display when Shabbat or Chag ends the day before after the candle lighting time"
+            android:key="ShowWhenShabbatChagEnds"
+            android:defaultValue="false" />
+
+        <MultiSelectListPreference
+            app:entries="@array/shabbat_entries"
+            android:entryValues="@array/shabbat_entries"
+            android:title="Choose which zmanim to display"
+            app:summary="Choose whether to display Rabbeinu tam or regular shabbat end times"
+            android:key="displayRTOrShabbatRegTime"
+            android:dependency="ShowWhenShabbatChagEnds" />
 
     </PreferenceCategory>
 

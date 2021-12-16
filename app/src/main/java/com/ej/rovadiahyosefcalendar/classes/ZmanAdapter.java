@@ -64,6 +64,9 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             } else {
                 checkEnglishZmanimForDialog(position);
             }
+            if (zmanim.get(position).contains("Elevation")) {
+                showElevationDialog();
+            }
         });
     }
 
@@ -391,7 +394,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void showTzeitShabbatDialog() {
-        mDialogBuilder.setTitle("Shabbat/Chag Ends - \u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA \u05DC\u05D7\u05D5\u05DE\u05E8\u05D4 - Tzeit Shabbat/Chag")
+        mDialogBuilder.setTitle("Shabbat/Chag Ends - \u05E6\u05D0\u05EA \u05E9\u05D1\u05EA/\u05D7\u05D2 - Tzeit Shabbat/Chag")
                 .setMessage("This is the time that Shabbat/Chag ends.\n\n" +
                         "Note that there are many customs on when shabbat ends, by default, I set it to 45 regular minutes after sunset (elevation " +
                         "included), however, you can change the time in the settings.\n\n" +
@@ -422,6 +425,17 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         "This time is calculated as 6 zmaniyot/seasonal hours after sunset. " +
                         "The GR\"A calculates a zmaniyot/seasonal hour by taking the time between sunrise and sunset (elevation included) and " +
                         "divides it into 12 equal parts.\n\n")
+                .show();
+    }
+
+    private void showElevationDialog() {
+        mDialogBuilder.setTitle("Current Elevation")
+                .setMessage("This number represents the highest point that you can see sunrise/sunset in your current city in meters. If the number" +
+                        " is set to 0, then you are calculating the zmanim by mishor/sea level sunrise and sunset.\n\n" +
+                        "There is a debate as to what Rabbi Ovadiah Yosef Z\"TL " +
+                        "held about using elevation for zmanim. (See Halacha Berura vol. 14, in Otzrot Yosef (Kuntrus Ki Ba Hashemesh), Siman 6, " +
+                        "Perek 21 for an in depth discussion) The Ohr HaChaim calendar uses elevation for their zmanim, however, I also added the " +
+                        "ability to not use elevation for those that do not want to use it.")
                 .show();
     }
 }
