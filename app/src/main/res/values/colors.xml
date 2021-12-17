@@ -28,5 +28,6 @@
     <color name="orange">#FF9800</color>
     <color name="darkblue">#0020F3</color>
     <color name="darkestblue">#0004FF</color>
-    <color name="colorAccentDarker">#F1DBB0</color>
+    <color name="lightYellow">#F1DBB0</color>
+    <color name="green">#4CAF50</color>
 </resources>

@@ -27,7 +27,7 @@ public class MoladActivity extends AppCompatActivity {
     private TextView mMoladDate15Days;
     private final Calendar mUserChosenDate = Calendar.getInstance();
     private final JewishCalendar mJewishCalendar = new JewishCalendar();
-    private final SimpleDateFormat mSDF = new SimpleDateFormat("EEE MMM d H:mm:ss aa", Locale.getDefault());
+    private final SimpleDateFormat mSDF = new SimpleDateFormat("EEE MMM d h:mm:ss aa", Locale.getDefault());
     private final String[] mHebrewMonths = { "Nissan", "Iyar", "Sivan", "Tammuz", "Av",
             "Elul", "Tishrei", "Cheshvan", "Kislev", "Tevet", "Shevat", "Adar", "Adar II", "Adar I"};
 
