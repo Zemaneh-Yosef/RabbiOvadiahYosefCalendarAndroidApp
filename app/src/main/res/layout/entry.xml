@@ -16,6 +16,7 @@
         android:paddingEnd="0dp"
         android:textColor="?android:attr/textColorPrimary"
         android:textSize="22sp"
+        android:textDirection="ltr"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/zmanRightTextView"
         app:layout_constraintHorizontal_bias="0.0"

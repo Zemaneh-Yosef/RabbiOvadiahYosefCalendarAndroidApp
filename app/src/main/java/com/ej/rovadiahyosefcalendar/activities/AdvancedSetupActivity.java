@@ -33,7 +33,8 @@ public class AdvancedSetupActivity extends AppCompatActivity {
         setupBoth.setOnClickListener(v -> {
                     startActivity(new Intent(this, SetupElevationActivity.class)
                             .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-                            .putExtra("downloadTable", true));
+                            .putExtra("downloadTable", true)
+                            .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
                     finish();
                 }
         );
@@ -42,7 +43,8 @@ public class AdvancedSetupActivity extends AppCompatActivity {
             editor.putBoolean("UseTable", false).apply();
             editor.putBoolean("showMishorSunrise", true).apply();
             startActivity(new Intent(this, SetupElevationActivity.class)
-                    .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
+                    .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+                    .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
             finish();
                 }
         );
@@ -50,7 +52,8 @@ public class AdvancedSetupActivity extends AppCompatActivity {
         setupVisibleSunrise.setOnClickListener(v -> {
                     startActivity(new Intent(this, QuickSetupActivity.class)
                             .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-                            .putExtra("onlyTable",true));
+                            .putExtra("onlyTable",true)
+                            .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
                     finish();
                 }
         );
@@ -66,7 +69,8 @@ public class AdvancedSetupActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         startActivity(new Intent(this, SetupChooserActivity.class)
-                .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
+                .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+                .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
         finish();
         super.onBackPressed();
     }

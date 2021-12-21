@@ -67,7 +67,8 @@ public class SetupElevationActivity extends AppCompatActivity {
             setResult(Activity.RESULT_CANCELED, returnIntent);
             if (getIntent().getBooleanExtra("downloadTable",false)) {
                 startActivity(new Intent(this, QuickSetupActivity.class)
-                        .putExtra("onlyTable",true));
+                        .putExtra("onlyTable",true)
+                        .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
             } else {
                 editor.putBoolean("isSetup", true).apply();
             }
@@ -97,7 +98,8 @@ public class SetupElevationActivity extends AppCompatActivity {
                     setResult(Activity.RESULT_OK, returnIntent);
                     if (getIntent().getBooleanExtra("downloadTable",false)) {
                         startActivity(new Intent(this, QuickSetupActivity.class)
-                                .putExtra("onlyTable",true));
+                                .putExtra("onlyTable",true)
+                                .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
                     } else {
                         editor.putBoolean("isSetup", true).apply();
                     }
@@ -228,5 +230,14 @@ public class SetupElevationActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        startActivity(new Intent(this, AdvancedSetupActivity.class)
+                .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+                .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
+        finish();
+        super.onBackPressed();
     }
 }

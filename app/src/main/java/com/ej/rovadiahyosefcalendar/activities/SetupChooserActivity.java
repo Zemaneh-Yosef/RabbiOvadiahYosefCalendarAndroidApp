@@ -49,14 +49,16 @@ public class SetupChooserActivity extends AppCompatActivity {
 
         quickSetupButton.setOnClickListener(v -> {
             startActivity(new Intent(this, QuickSetupActivity.class)
-                    .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
+                    .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+                    .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
             finish();
         });
 
         advancedSetupButton.setOnClickListener(v -> {
             startActivity(
-                    new Intent(this, AdvancedSetupActivity.class).setFlags(
-                            Intent.FLAG_ACTIVITY_FORWARD_RESULT));
+                    new Intent(this, AdvancedSetupActivity.class)
+                            .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+                            .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
             finish();
         });
 

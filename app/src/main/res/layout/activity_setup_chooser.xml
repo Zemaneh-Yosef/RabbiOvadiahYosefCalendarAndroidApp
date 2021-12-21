@@ -10,22 +10,22 @@
     android:background="?android:attr/colorBackground"
     tools:context=".activities.FullSetupActivity">
 
-    <TextView
-        android:id="@+id/showIntro"
+    <ImageView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="@string/show_introduction"
-        android:textStyle="bold"
-        android:layout_marginBottom="80dp"/>
+        android:layout_height="100dp"
+        android:layout_gravity="top"
+        android:scaleType="fitXY"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/yalkut_yosef_quote"
+        android:src="@drawable/yalkut_yosef_quote"
+        android:layout_marginBottom="50dp"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center"
-        android:layout_gravity="center|bottom"
-        android:layout_marginBottom="40sp">
+        android:layout_gravity="center">
 
         <TextView
             android:layout_width="wrap_content"
@@ -70,5 +70,14 @@
             android:textSize="28sp"
             android:textStyle="bold" />
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/showIntro"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="bottom"
+        android:text="@string/show_introduction"
+        android:textStyle="bold"
+        android:layout_marginTop="40dp"/>
 
 </LinearLayout>

@@ -155,8 +155,15 @@ public class QuickSetupActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        startActivity(new Intent(this, SetupChooserActivity.class)
-                .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
+        if (getIntent().getBooleanExtra("onlyTable", false)) {
+            startActivity(new Intent(this, AdvancedSetupActivity.class)
+                    .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+                    .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
+        } else {
+            startActivity(new Intent(this, SetupChooserActivity.class)
+                    .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+                    .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
+        }
         finish();
         super.onBackPressed();
     }
