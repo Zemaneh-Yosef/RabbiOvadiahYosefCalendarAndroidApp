@@ -119,9 +119,7 @@ public class MainActivity extends AppCompatActivity {
         mShabbatModeBanner = findViewById(R.id.shabbat_mode);
         mShabbatModeBanner.setSelected(true);
         acquireLatitudeAndLongitude();
-        mJewishDateInfo = new JewishDateInfo(
-                mSharedPreferences.getBoolean("inIsrael", false),
-                true);
+        mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false), true);
         if (!ChaiTables.visibleSunriseFileExists(getExternalFilesDir(null), mJewishDateInfo.getJewishCalendar())//it should only not exist the first time running the app
                 && mSharedPreferences.getBoolean("UseTable", true)
                 && savedInstanceState == null) {
@@ -477,16 +475,17 @@ public class MainActivity extends AppCompatActivity {
     private void startShabbatMode() {
         if (!mShabbatMode) {
             mShabbatMode = true;
-            setShabbatBannersText(true);
+            //setShabbatBannersText(true);
             mShabbatModeBanner.setVisibility(View.VISIBLE);
             Calendar calendar = Calendar.getInstance();
             Calendar calendar2 = (Calendar) calendar.clone();
             mHandler = new Handler(getMainLooper());
             mZmanimUpdater = () -> {
                 calendar.setTimeInMillis(new Date().getTime());
+                mCurrentDate.setTimeInMillis(new Date().getTime());
                 mROZmanimCalendar.setCalendar(calendar);
                 mJewishDateInfo.setCalendar(calendar);
-                setShabbatBannersText(false);
+                //setShabbatBannersText(false);
                 mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
                 mHandler.removeCallbacks(mZmanimUpdater);
                 mHandler.postDelayed(mZmanimUpdater, TWENTY_FOUR_HOURS_IN_MILLI);//run the update in 24 hours
@@ -501,7 +500,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @SuppressLint("SetTextI18n")
-    private void setShabbatBannersText(boolean isFirstTime) {
+    private void setShabbatBannersText(boolean isFirstTime) {//TODO
         if (isFirstTime) {
             mCurrentDate.add(Calendar.DATE,1);
             mJewishDateInfo.setCalendar(mCurrentDate);
@@ -738,9 +737,10 @@ public class MainActivity extends AppCompatActivity {
                     + ")= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getCandleLighting())));
             if (mSettingsPreferences.getBoolean("ShowWhenShabbatChagEnds", false)) {
                 mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
+                mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
                 Set<String> stringSet = mSettingsPreferences.getStringSet("displayRTOrShabbatRegTime",null);
                 if (stringSet.contains("Show Regular Minutes")) {
-                    zmanim.add("Tzait Shabbat/Chag (Tom)"
+                    zmanim.add("Tzait " + getShabbatAndOrChag() + " (Tom) "
                             + "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + "= " +
                             zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
                 }
@@ -749,6 +749,7 @@ public class MainActivity extends AppCompatActivity {
                             zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
                 }
                 mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);
+                mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
             }
         }
         zmanim.add("Shkia= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSunset())));
@@ -809,9 +810,10 @@ public class MainActivity extends AppCompatActivity {
                     + ")= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getCandleLighting())));
             if (mSettingsPreferences.getBoolean("ShowWhenShabbatChagEnds", false)) {
                 mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
+                mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
                 Set<String> stringSet = mSettingsPreferences.getStringSet("displayRTOrShabbatRegTime",null);
                 if (stringSet.contains("Show Regular Minutes")) {
-                    zmanim.add("Shabbat/Chag Ends (Tom)"
+                    zmanim.add(getShabbatAndOrChag() + " Ends (Tom) "
                             + "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + "= " +
                             zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
                 }
@@ -820,6 +822,7 @@ public class MainActivity extends AppCompatActivity {
                             zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
                 }
                 mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);
+                mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
             }
         }
         zmanim.add("Sunset= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSunset())));
@@ -883,9 +886,10 @@ public class MainActivity extends AppCompatActivity {
                     zmanimFormat.format(checkNull(mROZmanimCalendar.getCandleLighting())));
             if (mSettingsPreferences.getBoolean("ShowWhenShabbatChagEnds", false)) {
                 mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
+                mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
                 Set<String> stringSet = mSettingsPreferences.getStringSet("displayRTOrShabbatRegTime",null);
                 if (stringSet.contains("Show Regular Minutes")) {
-                    zmanim.add("\u05E6\u05D0\u05EA \u05E9\u05D1\u05EA/\u05D7\u05D2 (\u05DE\u05D7\u05E8)"
+                    zmanim.add("\u05E6\u05D0\u05EA " + getShabbatAndOrChag() + " (\u05DE\u05D7\u05E8) "
                             + "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + "= " +
                             zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
                 }
@@ -894,6 +898,7 @@ public class MainActivity extends AppCompatActivity {
                             zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
                 }
                 mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);
+                mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
             }
         }
         zmanim.add("\u05E9\u05E7\u05D9\u05E2\u05D4= " +
@@ -1346,6 +1351,7 @@ public class MainActivity extends AppCompatActivity {
             return true;
         } else if (id == R.id.shabbat_mode) {
             if (!mShabbatMode) {
+                mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
                 startShabbatMode();
                 item.setChecked(true);
             } else {
@@ -1380,7 +1386,7 @@ public class MainActivity extends AppCompatActivity {
 
     private class ZmanimGestureListener extends GestureDetector.SimpleOnGestureListener {
 
-        private static final int SWIPE_MIN_DISTANCE = 120;
+        private static final int SWIPE_MIN_DISTANCE = 180;
 
         @Override
         public boolean onFling(MotionEvent startMotionEvent, MotionEvent endMotionEvent, float xVelocity, float yVelocity) {

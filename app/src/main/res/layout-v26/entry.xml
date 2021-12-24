@@ -38,6 +38,8 @@
         android:autoSizeMaxTextSize="22sp"
         android:autoSizeMinTextSize="8sp"
         android:maxLines="1"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
