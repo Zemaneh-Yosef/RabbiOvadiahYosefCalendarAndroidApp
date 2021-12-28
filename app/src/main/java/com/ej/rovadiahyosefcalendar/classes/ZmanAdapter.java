@@ -350,7 +350,9 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                 .setMessage("This is the best time for a person to light the candles before shabbat/chag starts.\n\n" +
                         "This time is calculated as " +
                         PreferenceManager.getDefaultSharedPreferences(mContext).getString("CandleLightingOffset", "20") + " " +
-                        "regular minutes before sunset (elevation included).")
+                        "regular minutes before sunset (elevation included).\n\n" +
+                        "When there is candle lighting on a day that is yom tov/shabbat before another day that is yom tov/shabbat, " +
+                        "the candles are lit after Tzeit/Nightfall.")
                 .show();
     }
 

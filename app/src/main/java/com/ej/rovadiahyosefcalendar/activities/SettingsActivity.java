@@ -1,5 +1,6 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -82,6 +83,26 @@ public class SettingsActivity extends AppCompatActivity {
                             requireActivity().recreate();
                             break;
                     }
+                    return false;
+                });
+            }
+
+            Preference showSecondsPref = findPreference("ShowSeconds");
+
+            if (showSecondsPref != null) {
+                showSecondsPref.setOnPreferenceClickListener(preference  -> {
+                    boolean isOn = preference.getSharedPreferences().getBoolean("ShowSeconds",false);
+                        if (isOn) {
+                            new AlertDialog.Builder(getContext())
+                                    .setTitle("Do NOT rely on the seconds!")
+                                    .setMessage("DO NOT RELY ON THESE SECONDS. " +
+                                            "The only zman that can be relied on to the second is the visible sunrise time based on chaitables.com. " +
+                                            "Otherwise, these zmanim are NOT accurate to the second! You should always round up or down a minute " +
+                                            "or two just in case.")
+                                    .setPositiveButton("Ok", (dialogInterface, i) -> { })
+                                    .create()
+                                    .show();
+                        }
                     return false;
                 });
             }
