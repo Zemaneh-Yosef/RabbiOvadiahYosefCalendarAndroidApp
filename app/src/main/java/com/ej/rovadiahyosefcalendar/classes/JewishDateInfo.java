@@ -411,7 +411,7 @@ public class JewishDateInfo {
         return result.toString();
     }
 
-    public String getIsTonightStartOrEndBirchatLevana() {//TODO this method might need fixing
+    public String getIsTonightStartOrEndBirchatLevana() {//TODO check if this method might need fixing
         Calendar sevenDays = Calendar.getInstance();
         sevenDays.setTime(jewishCalendar.getTchilasZmanKidushLevana7Days());
 
@@ -425,6 +425,28 @@ public class JewishDateInfo {
 
         if (DateUtils.isSameDay(jewishCalendar.getGregorianCalendar(), fifteenDays)) {
             return "Last night for Birchat HaLevana";
+        }
+        return "";
+    }
+
+    public String getIsMashivHaruchOrMoridHatalSaid() {
+        if (jewishCalendar.isMashivHaruachRecited()) {
+            return "משיב הרוח";
+        }
+
+        if (jewishCalendar.isMoridHatalRecited()) {
+            return "מוריד הטל";
+        }
+        return "";
+    }
+
+    public String getIsBarcheinuOrBarechAleinuSaid() {
+        if (jewishCalendar.isVeseinBerachaRecited()) {
+            return "ברכנו";
+        }
+
+        if (jewishCalendar.isVeseinTalUmatarRecited()) {
+            return "ברך עלינו";
         }
         return "";
     }

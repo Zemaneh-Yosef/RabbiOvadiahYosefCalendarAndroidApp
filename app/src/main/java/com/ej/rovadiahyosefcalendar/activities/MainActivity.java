@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String SHARED_PREF = "MyPrefsFile";
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {//TODO test notifications
+    protected void onCreate(Bundle savedInstanceState) {//TODO test notifications, themes, calendar, and mashiv haruach
         setTheme(R.style.AppTheme); //splash screen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -707,10 +707,12 @@ public class MainActivity extends AppCompatActivity {
                 + " " +
                 formatHebrewNumber(YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getDaf()));
 
+        zmanim.add(mJewishDateInfo.getIsMashivHaruchOrMoridHatalSaid()
+                + " / "
+                + mJewishDateInfo.getIsBarcheinuOrBarechAleinuSaid());
+
         zmanim.add("Shaah Zmanit GR\"A: " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanisGra()) +
                 " MG\"A: " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanis72MinutesZmanis()));
-
-        zmanim.add("Elevation: " + mElevation);
 
         zmanim.add(mJewishDateInfo.isJewishLeapYear());
 
@@ -719,6 +721,8 @@ public class MainActivity extends AppCompatActivity {
         } else {
             zmanim.add("Daylight Savings Time is off");
         }
+
+        zmanim.add("Elevation: " + mElevation);
 
         return zmanim;
     }
