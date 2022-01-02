@@ -65,6 +65,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -88,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
     private Geocoder mGeocoder;
     private Button mPreviousDate;
     private final Calendar mCurrentDate = Calendar.getInstance();
-    private Calendar mCurrentDateShown;
+    private Calendar mCurrentDateShown = Calendar.getInstance();
     private Button mCalendarButton;
     private Handler mHandler = null;
     private Runnable mZmanimUpdater;
@@ -102,12 +103,14 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences mSharedPreferences;
     private SharedPreferences mSettingsPreferences;
     private ActivityResultLauncher<Intent> mSetupLauncher;
+    private final static Calendar dafYomiYerushalmiStartDate = new GregorianCalendar(1980, Calendar.FEBRUARY, 2);
+    private final static Calendar dafYomiStartDate = new GregorianCalendar(1923, Calendar.SEPTEMBER, 11);
     private final ZmanimFormatter mZmanimFormatter = new ZmanimFormatter(TimeZone.getDefault());
     private static final int TWENTY_FOUR_HOURS_IN_MILLI = 86_400_000;
     public static final String SHARED_PREF = "MyPrefsFile";
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {//TODO test notifications, themes, calendar, and mashiv haruach
+    protected void onCreate(Bundle savedInstanceState) {//TODO test notifications, themes, hebrew calendar
         setTheme(R.style.AppTheme); //splash screen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -268,7 +271,7 @@ public class MainActivity extends AppCompatActivity {
     private void setupNextDayButton() {
         mNextDate = findViewById(R.id.next_day);
         mNextDate.setOnClickListener(v -> {
-            mCurrentDateShown = mROZmanimCalendar.getCalendar();
+            mCurrentDateShown = (Calendar) mROZmanimCalendar.getCalendar().clone();
             mCurrentDateShown.add(Calendar.DATE, 1);
             mROZmanimCalendar.setCalendar(mCurrentDateShown);
             mJewishDateInfo.setCalendar(mCurrentDateShown);
@@ -284,7 +287,7 @@ public class MainActivity extends AppCompatActivity {
             mUserChosenDate.set(year, month, day);
             mROZmanimCalendar.setCalendar(mUserChosenDate);
             mJewishDateInfo.setCalendar(mUserChosenDate);
-            mCurrentDateShown = mROZmanimCalendar.getCalendar();
+            mCurrentDateShown = (Calendar) mROZmanimCalendar.getCalendar().clone();
             mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
             mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable());
         },
@@ -298,13 +301,14 @@ public class MainActivity extends AppCompatActivity {
                     mROZmanimCalendar.getCalendar().get(Calendar.DAY_OF_MONTH));
             dialog.show();
         });
+
         mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable());
     }
 
     private void setupPreviousDayButton() {
         mPreviousDate = findViewById(R.id.prev_day);
         mPreviousDate.setOnClickListener(v -> {
-            mCurrentDateShown = mROZmanimCalendar.getCalendar();
+            mCurrentDateShown = (Calendar) mROZmanimCalendar.getCalendar().clone();
             mCurrentDateShown.add(Calendar.DATE, -1);
             mROZmanimCalendar.setCalendar(mCurrentDateShown);
             mJewishDateInfo.setCalendar(mCurrentDateShown);
@@ -699,13 +703,16 @@ public class MainActivity extends AppCompatActivity {
 
         zmanim.add("Additional info:");
 
-        zmanim.add("Daf Yomi: " + YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getMasechta()
-                + " " +
-                formatHebrewNumber(YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getDaf()));
-
-        zmanim.add("Yerushalmi Yomi: " + YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getMasechta()
-                + " " +
-                formatHebrewNumber(YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getDaf()));
+        if (!mCurrentDateShown.before(dafYomiStartDate)) {
+            zmanim.add("Daf Yomi: " + YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getMasechta()
+                    + " " +
+                    formatHebrewNumber(YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getDaf()));
+        }
+        if (!mCurrentDateShown.before(dafYomiYerushalmiStartDate)) {
+            zmanim.add("Yerushalmi Yomi: " + YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getMasechta()
+                    + " " +
+                    formatHebrewNumber(YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getDaf()));
+        }
 
         zmanim.add(mJewishDateInfo.getIsMashivHaruchOrMoridHatalSaid()
                 + " / "

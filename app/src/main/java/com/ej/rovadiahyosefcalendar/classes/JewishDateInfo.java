@@ -111,9 +111,9 @@ public class JewishDateInfo {
         String roshChodeshOrErevRoshChodesh = getRoshChodeshOrErevRoshChodesh();
         if (!roshChodeshOrErevRoshChodesh.isEmpty()) {
             if (!result.isEmpty()) {
-                result = getRoshChodeshOrErevRoshChodesh() + " / " + result;
+                result = roshChodeshOrErevRoshChodesh + " / " + result;
             } else {
-                result = getRoshChodeshOrErevRoshChodesh();
+                result = roshChodeshOrErevRoshChodesh;
             }
         }
         return result;
@@ -258,6 +258,7 @@ public class JewishDateInfo {
      *
      * Here are the days that we skip tachanun the day before at mincha:
      * Every Friday
+     * Every Erev Rosh Chodesh
      * Fast of Esther
      * Tisha Be'av
      * Tu Be'Shvat
@@ -294,7 +295,8 @@ public class JewishDateInfo {
                 || yomTovIndexForNextDay == JewishCalendar.TU_BEAV
                 || yomTovIndexForNextDay == JewishCalendar.TU_BESHVAT
                 || yomTovIndexForNextDay == JewishCalendar.LAG_BAOMER
-                || yomTovIndexForNextDay == JewishCalendar.PESACH_SHENI) {
+                || yomTovIndexForNextDay == JewishCalendar.PESACH_SHENI
+                || jewishCalendar.isErevRoshChodesh()) {
             return "There is only Tachanun in the morning";
         }
         if (currentDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
