@@ -88,8 +88,6 @@ public class MainActivity extends AppCompatActivity {
     private Button mNextDate;
     private Geocoder mGeocoder;
     private Button mPreviousDate;
-    private final Calendar mCurrentDate = Calendar.getInstance();
-    private Calendar mCurrentDateShown = Calendar.getInstance();
     private Button mCalendarButton;
     private Handler mHandler = null;
     private Runnable mZmanimUpdater;
@@ -103,14 +101,16 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences mSharedPreferences;
     private SharedPreferences mSettingsPreferences;
     private ActivityResultLauncher<Intent> mSetupLauncher;
-    private final static Calendar dafYomiYerushalmiStartDate = new GregorianCalendar(1980, Calendar.FEBRUARY, 2);
-    private final static Calendar dafYomiStartDate = new GregorianCalendar(1923, Calendar.SEPTEMBER, 11);
-    private final ZmanimFormatter mZmanimFormatter = new ZmanimFormatter(TimeZone.getDefault());
-    private static final int TWENTY_FOUR_HOURS_IN_MILLI = 86_400_000;
     public static final String SHARED_PREF = "MyPrefsFile";
+    private Calendar mCurrentDateShown = Calendar.getInstance();
+    private final Calendar mCurrentDate = Calendar.getInstance();
+    private static final int TWENTY_FOUR_HOURS_IN_MILLI = 86_400_000;
+    private final ZmanimFormatter mZmanimFormatter = new ZmanimFormatter(TimeZone.getDefault());
+    private final static Calendar dafYomiStartDate = new GregorianCalendar(1923, Calendar.SEPTEMBER, 11);
+    private final static Calendar dafYomiYerushalmiStartDate = new GregorianCalendar(1980, Calendar.FEBRUARY, 2);
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {//TODO test notifications, themes, hebrew calendar
+    protected void onCreate(Bundle savedInstanceState) {//TODO themes, hebrew calendar
         setTheme(R.style.AppTheme); //splash screen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);

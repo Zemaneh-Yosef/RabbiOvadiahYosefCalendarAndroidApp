@@ -126,7 +126,9 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             showTzeitTaanitDialog();
         } else if (zmanim.get(position).contains("\u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA \u05DC\u05D7\u05D5\u05DE\u05E8\u05D4")) {
             showTzeitTaanitLChumraDialog();
-        } else if (zmanim.get(position).contains("\u05E6\u05D0\u05EA \u05E9\u05D1\u05EA/\u05D7\u05D2")) {
+        } else if (zmanim.get(position).contains("\u05E6\u05D0\u05EA \u05E9\u05D1\u05EA/\u05D7\u05D2")
+                ||zmanim.get(position).contains("\u05E6\u05D0\u05EA \u05E9\u05D1\u05EA")
+                ||zmanim.get(position).contains("\u05E6\u05D0\u05EA \u05D7\u05D2")) {
             showTzeitShabbatDialog();
         } else if (zmanim.get(position).contains("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD")) {
             showRTDialog();
@@ -170,7 +172,9 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             showTzeitTaanitDialog();
         } else if (zmanim.get(position).contains("Fast Ends (Stringent)")) {
             showTzeitTaanitLChumraDialog();
-        } else if (zmanim.get(position).contains("Shabbat/Chag Ends")) {
+        } else if (zmanim.get(position).contains("Shabbat/Chag Ends")
+                || zmanim.get(position).contains("Shabbat Ends")
+                || zmanim.get(position).contains("Chag Ends")) {
             showTzeitShabbatDialog();
         } else if (zmanim.get(position).contains("Rabbeinu Tam")) {
             showRTDialog();
@@ -214,7 +218,9 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             showTzeitTaanitDialog();
         } else if (zmanim.get(position).contains("Tzait Taanit L'Chumra")) {
             showTzeitTaanitLChumraDialog();
-        } else if (zmanim.get(position).contains("Tzait Shabbat/Chag")) {
+        } else if (zmanim.get(position).contains("Tzait Shabbat/Chag")
+                || zmanim.get(position).contains("Tzait Chag")
+                || zmanim.get(position).contains("Tzait Shabbat")) {
             showTzeitShabbatDialog();
         } else if (zmanim.get(position).contains("Rabbeinu Tam")) {
             showRTDialog();
@@ -228,8 +234,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                 .setMessage("In Tanach this time is called Alot HaShachar (בראשית לב:כה), whereas in the gemara it is called Amud HaShachar.\n\n" +
                         "This is the time when the day begins according to halacha. " +
                         "Most mitzvot (commandments), Arvit for example, that take place at night are not allowed " +
-                        "to be done after this time. After this time, mitzvot that must be done in the daytime are " +
-                        "allowed to be done B'dieved (after the fact) or B'shaat hadachak (in a strenuous time). However, one should ideally wait " +
+                        "to be done after this time.\nAfter this time, mitzvot that must be done in the daytime are " +
+                        "allowed to be done B'dieved (after the fact) or B'shaat hadachak (in a time of need). However, one should ideally wait " +
                         "until sunrise to do them L'chatchila (optimally).\n\n" +
                         "This time is calculated as 72 zmaniyot/seasonal minutes (according to the GR\"A) before sunrise. Both sunrise and sunset " +
                         "have elevation included.")
@@ -273,15 +279,16 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
     private void showBiurChametzDialog() {
         mDialogBuilder.setTitle("Burning Chametz - \u05D1\u05D9\u05E2\u05D5\u05E8 \u05D7\u05DE\u05E5 - Biur Chametz")
-                .setMessage("This is the latest time a person can own chametz before pesach begins in the night time.\n\n" +//TODO check how to calculate
-                        "This is calculated as 5 zmaniyot/seasonal hours, according to the Magen Avraham, after Alot HaShachar (Dawn) with " +
-                        "elevation included.")
+                .setMessage("This is the latest time a person can own chametz before pesach begins. You should get rid of all chametz in your" +
+                        "possession by this time.\n\n" +
+                        "This is calculated as 5 zmaniyot/seasonal hours, according to the GR\"A, after Alot HaShachar (Dawn) with " +
+                        "elevation included.")//TODO check how to calculate
                 .show();
     }
 
     private void showShmaMGADialog() {
         mDialogBuilder.setTitle("Latest time for Shma (MG\"A) - \u05E9\u05DE\u05E2 \u05DE\u05D2\"\u05D0 - Shma MG\"A")
-                .setMessage("This is the latest time a person can say Shma according to the Magen Avraham.\n\n" +
+                .setMessage("This is the latest time a person can fulfill his obligation to say Shma everyday according to the Magen Avraham.\n\n" +
                         "The Magen Avraham/Terumat HeDeshen calculate this time as 3 zmaniyot/seasonal hours after Alot HaShachar (Dawn). " +
                         "They calculate a zmaniyot/seasonal hour by taking the time between Alot HaShachar (Dawn) and Tzeit Hachocavim (Nightfall) " +
                         "of Rabbeinu Tam and divide it into 12 equal parts.")
@@ -290,8 +297,10 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
     private void showShmaGRADialog() {
         mDialogBuilder.setTitle("Latest time for Shma (GR\"A) - \u05E9\u05DE\u05E2 \u05D2\u05E8\"\u05D0 - Shma GR\"A")
-                .setMessage("This is the latest time a person can say Shma according to the GR\"A.\n\n" +
-                        "The GR\"A calculates this time as 3 zmaniyot/seasonal hours after sunrise. " +
+                .setMessage("This is the latest time a person can fulfill his obligation to say Shma everyday according to the GR\"A " +
+                        "(HaGaon Rabbeinu Eliyahu)" +
+                        "\n\n" +
+                        "The GR\"A calculates this time as 3 zmaniyot/seasonal hours after sunrise (elevation included). " +
                         "The GR\"A calculates a zmaniyot/seasonal hour by taking the time between sunrise and sunset (elevation included) and " +
                         "divides it into 12 equal parts.")
                 .show();
@@ -299,8 +308,9 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
     private void showBrachotShmaDialog() {
         mDialogBuilder.setTitle("Brachot Shma - \u05D1\u05E8\u05DB\u05D5\u05EA \u05E9\u05DE\u05E2 - Brachot Shma")
-                .setMessage("This is the latest time a person can say the Brachot Shma according to the GR\"A.\n\n" +
-                        "The GR\"A calculates this time as 4 zmaniyot/seasonal hours after sunrise. " +
+                .setMessage("This is the latest time a person can say the Brachot Shma according to the GR\"A. However, a person can still say " +
+                        "Pisukei D'Zimra until Chatzot.\n\n" +
+                        "The GR\"A calculates this time as 4 zmaniyot/seasonal hours after sunrise (elevation included). " +
                         "The GR\"A calculates a zmaniyot/seasonal hour by taking the time between sunrise and sunset (elevation included) and " +
                         "divides it into 12 equal parts.")
                 .show();
@@ -308,19 +318,26 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
     private void showChatzotDialog() {
         mDialogBuilder.setTitle("Mid-Day - \u05D7\u05E6\u05D5\u05EA - Chatzot")
-                .setMessage("This is the middle of the halachic day, when the sun is exactly in the middle of the sky.\n\n" +
+                .setMessage("This is the middle of the halachic day, when the sun is exactly in the middle of the sky relative to the length of the" +
+                        " day. It should be noted, that the sun can only be directly above every person, such that they don't even have shadows, " +
+                        "in the Tropic of Cancer and the Tropic of Capricorn. Everywhere else, the sun will be at an angle even in the middle of " +
+                        "the day.\n" +
+                        "After this time, you can no longer say the Amidah prayer of Shacharit, and you should preferably say Musaf before this " +
+                        "time.\n\n" +
                         "This time is calculated as 6 zmaniyot/seasonal hours after sunrise. " +
                         "The GR\"A calculates a zmaniyot/seasonal hour by taking the time between sunrise and sunset (elevation included) and " +
-                        "divides it into 12 equal parts.\n\n" +
-                        "After this time, you can no longer say the Amidah of Shacharit, and you should say Musaf before this time.")
+                        "divides it into 12 equal parts.\n\n")
                 .show();
     }
 
     private void showMinchaGedolaDialog() {
         mDialogBuilder.setTitle("Earliest Mincha - \u05DE\u05E0\u05D7\u05D4 \u05D2\u05D3\u05D5\u05DC\u05D4 - Mincha Gedolah")
-                .setMessage("This is the earliest time a person can say Mincha.\n\n Korbanot should ideally also be said AFTER this time.\n\n" +
-                        "This time is calculated as 30 regular minutes after Chatzot (Mid-Day). If the zmaniyot/seasonal minutes are longer, we use " +
-                        "those minutes instead to be stringent." +
+                .setMessage("Mincha Gedolah, literally \"Greater Mincha\", is the earliest time a person can say Mincha." +
+                        "It is also the best time a person can say Mincha according to some poskim.\n" +
+                        "It is called Mincha Gedolah because there is a lot of time left until sunset.\n" +
+                        "A person should ideally start saying Korbanot AFTER this time.\n\n" +
+                        "This time is calculated as 30 regular minutes after Chatzot (Mid-Day). However, if the zmaniyot/seasonal minutes are longer," +
+                        " we use those minutes instead to be stringent. " +
                         "The GR\"A calculates a zmaniyot/seasonal hour by taking the time between sunrise and sunset (elevation included) and " +
                         "divides it into 12 equal parts. Then we divide one of those 12 parts into 60 to get a zmaniyot/seasonal minute.")
                 .show();
@@ -328,7 +345,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
     private void showMinchaKetanaDialog() {
         mDialogBuilder.setTitle("Mincha Ketana - \u05DE\u05E0\u05D7\u05D4 \u05E7\u05D8\u05E0\u05D4")
-                .setMessage("This is the best time a person can say Mincha according to some poskim.\n\n" +
+                .setMessage("Mincha Ketana, literally \"Lesser Mincha\", is the best time a person can say Mincha according to some poskim.\n" +
+                        "It is called Mincha Ketana because there is less time left until sunset.\n\n" +
                         "This time is calculated as 9 and a half zmaniyot/seasonal hours after sunrise. " +
                         "The GR\"A calculates a zmaniyot/seasonal hour by taking the time between sunrise and sunset (elevation included) and " +
                         "divides it into 12 equal parts. Then we divide one of those 12 parts into 60 to get a zmaniyot/seasonal minute.")
@@ -337,8 +355,12 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
     private void showPlagDialog() {
         mDialogBuilder.setTitle("Plag HaMincha - \u05E4\u05DC\u05D2 \u05D4\u05DE\u05E0\u05D7\u05D4")
-                .setMessage("This is the best time a person can say Mincha according to some poskim (Rambam and others).\n\n" +
-                        "This time is calculated as 9 and a half zmaniyot/seasonal hours after sunrise. " +
+                .setMessage("Plag HaMincha, literally \"Half of Mincha\", is the midpoint between Mincha Ketana and sunset. Since Mincha Ketana is " +
+                        "2 and a half hours before sunset, Plag is half of that at an hour and 15 minutes before sunset.\n" +
+                        "You can start saying arvit by this time according to Rabbi Yehuda in (ברכות כ'ו ע'א).\n" +
+                        "A person should not accept shabbat before this time as well.\n" +
+                        "This time is usually calculated as 10 and 3/4th zmaniyot/seasonal hours after sunrise, however, yalkut yosef says to " +
+                        "calculate it as 1 hour and 15 zmaniyot/seasonal minutes before tzeit. " +
                         "The GR\"A calculates a zmaniyot/seasonal hour by taking the time between sunrise and sunset (elevation included) and " +
                         "divides it into 12 equal parts. Then we divide one of those 12 parts into 60 to get a zmaniyot/seasonal minute.")
                 .show();
@@ -346,18 +368,18 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
     private void showCandleLightingDialog() {
         mDialogBuilder.setTitle("Candle Lighting - \u05D4\u05D3\u05DC\u05E7\u05EA \u05E0\u05E8\u05D5\u05EA")
-                .setMessage("This is the best time for a person to light the candles before shabbat/chag starts.\n\n" +
+                .setMessage("This is the ideal time for a person to light the candles before shabbat/chag starts.\n" +
+                        "When there is candle lighting on a day that is Yom tov/Shabbat before another day that is Yom tov, " +
+                        "the candles are lit after Tzeit/Nightfall. However, if the next day is Shabbat, the candles are lit at their usual time.\n\n" +
                         "This time is calculated as " +
                         PreferenceManager.getDefaultSharedPreferences(mContext).getString("CandleLightingOffset", "20") + " " +
-                        "regular minutes before sunset (elevation included).\n\n" +
-                        "When there is candle lighting on a day that is Yom tov/Shabbat before another day that is Yom tov, " +
-                        "the candles are lit after Tzeit/Nightfall. However, if the next day is Shabbat, the candles are lit at their usual time")
+                        "regular minutes before sunset (elevation included).\n\n")
                 .show();
     }
 
     private void showShkiaDialog() {
         mDialogBuilder.setTitle("Sunset - \u05E9\u05E7\u05D9\u05E2\u05D4 - Shkia")
-                .setMessage("This is the time that the day starts to transition into the next day according to halacha.\n\n" +
+                .setMessage("This is the time of the day that the day starts to transition into the next day according to halacha.\n\n" +
                         "Halachic sunset is defined as the moment when the top edge of the sun disappears on the " +
                         "horizon while setting (elevation included). Whereas, the gentiles define sunset as the moment when the sun is halfway " +
                         "through the horizon.\n\n" +
@@ -365,16 +387,16 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         "the sun continues to set for another 58.5 minutes and only after that Bein Hashmashot starts for another 13.5 minutes.\n\n" +
                         "It should be noted that many poskim, like the Mishna Berura, say that a person should ideally say mincha BEFORE sunset " +
                         "and not before Tzeit/Nightfall.\n\n" +
-                        "Most mitzvot that are to be done during the day should be done before this time.")
+                        "Most mitzvot that are to be done during the day should ideally be done before this time.")
                 .show();
     }
 
     private void showTzeitDialog() {
         mDialogBuilder.setTitle("Nightfall - \u05E6\u05D0\u05EA \u05D4\u05DB\u05D5\u05DB\u05D1\u05D9\u05DD - Tzeit Hacochavim")
-                .setMessage("This is the latest time a person can say Mincha according Rav Ovadiah Yosef Z\"TL. A person should FINISH mincha at " +
+                .setMessage("Tzeit/Nightfall is the time when the next halachic day starts after Bein Hashmashot/twilight finishes.\n\n" +
+                        "This is the latest time a person can say Mincha according Rav Ovadiah Yosef Z\"TL. A person should start mincha at " +
                         "least 2 minutes before this time.\n\n" +
-                        "Tzeit/Nightfall is the time when the next halachic day starts after Bein Hashmashot/twilight finishes.\n\n" +
-                        "This time is calculated as 13 and a half zmaniyot/seasonal minutes after sunset. " +
+                        "This time is calculated as 13 and a half zmaniyot/seasonal minutes after sunset (elevation included). " +
                         "The GR\"A calculates a zmaniyot/seasonal hour by taking the time between sunrise and sunset (elevation included) and " +
                         "divides it into 12 equal parts. Then we divide one of those 12 parts into 60 to get a zmaniyot/seasonal minute.")
                 .show();
