@@ -46,6 +46,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTables;
+import com.ej.rovadiahyosefcalendar.classes.CustomDatePickerDialog;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
 import com.ej.rovadiahyosefcalendar.classes.ZmanAdapter;
@@ -151,7 +152,11 @@ public class MainActivity extends AppCompatActivity {
                     if (result.getResultCode() == Activity.RESULT_OK) {
                         if (result.getData() != null) {
                             mElevation = result.getData().getDoubleExtra("elevation", 0);
+                        } else {
+                            mElevation = 0;
                         }
+                    } else {
+                        mElevation = 0;
                     }
                     acquireLatitudeAndLongitude();
                     editor.putString("lastLocation", mCurrentLocationName).apply();
@@ -282,18 +287,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupCalendarButton() {
         mCalendarButton = findViewById(R.id.calendar);
-        DatePickerDialog dialog = new DatePickerDialog(this, (view, year, month, day) -> {
-            Calendar mUserChosenDate = Calendar.getInstance();
-            mUserChosenDate.set(year, month, day);
-            mROZmanimCalendar.setCalendar(mUserChosenDate);
-            mJewishDateInfo.setCalendar(mUserChosenDate);
-            mCurrentDateShown = (Calendar) mROZmanimCalendar.getCalendar().clone();
-            mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
-            mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable());
-        },
-                mROZmanimCalendar.getCalendar().get(Calendar.YEAR),
-                mROZmanimCalendar.getCalendar().get(Calendar.MONTH),
-                mROZmanimCalendar.getCalendar().get(Calendar.DAY_OF_MONTH));
+        DatePickerDialog dialog = createDialog();
 
         mCalendarButton.setOnClickListener(v -> {
             dialog.updateDate(mROZmanimCalendar.getCalendar().get(Calendar.YEAR),
@@ -303,6 +297,31 @@ public class MainActivity extends AppCompatActivity {
         });
 
         mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable());
+    }
+
+    private DatePickerDialog createDialog() {
+        DatePickerDialog.OnDateSetListener onDateSetListener = (view, year, month, day) -> {
+            Calendar mUserChosenDate = Calendar.getInstance();
+            mUserChosenDate.set(year, month, day);
+            mROZmanimCalendar.setCalendar(mUserChosenDate);
+            mJewishDateInfo.setCalendar(mUserChosenDate);
+            mCurrentDateShown = (Calendar) mROZmanimCalendar.getCalendar().clone();
+            mMainRecyclerView.setAdapter(new ZmanAdapter(MainActivity.this, MainActivity.this.getZmanimList()));
+            mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, MainActivity.this.getCurrentCalendarDrawable());
+        };
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            return new CustomDatePickerDialog(this, onDateSetListener,
+                    mROZmanimCalendar.getCalendar().get(Calendar.YEAR),
+                    mROZmanimCalendar.getCalendar().get(Calendar.MONTH),
+                    mROZmanimCalendar.getCalendar().get(Calendar.DAY_OF_MONTH),
+                    mJewishDateInfo.getJewishCalendar());
+        } else {
+            return new DatePickerDialog(this, onDateSetListener,
+                    mROZmanimCalendar.getCalendar().get(Calendar.YEAR),
+                    mROZmanimCalendar.getCalendar().get(Calendar.MONTH),
+                    mROZmanimCalendar.getCalendar().get(Calendar.DAY_OF_MONTH));
+        }
     }
 
     private void setupPreviousDayButton() {

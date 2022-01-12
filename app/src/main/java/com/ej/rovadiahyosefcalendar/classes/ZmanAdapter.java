@@ -121,15 +121,15 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         } else if (zmanim.get(position).contains("\u05E9\u05E7\u05D9\u05E2\u05D4")) {
             showShkiaDialog();
         } else if (zmanim.get(position).contains("\u05E6\u05D0\u05EA \u05D4\u05DB\u05D5\u05DB\u05D1\u05D9\u05DD")) {
-            showTzeitDialog();
+            showTzaitDialog();
         } else if (zmanim.get(position).contains("\u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA")) {
-            showTzeitTaanitDialog();
+            showTzaitTaanitDialog();
         } else if (zmanim.get(position).contains("\u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA \u05DC\u05D7\u05D5\u05DE\u05E8\u05D4")) {
-            showTzeitTaanitLChumraDialog();
+            showTzaitTaanitLChumraDialog();
         } else if (zmanim.get(position).contains("\u05E6\u05D0\u05EA \u05E9\u05D1\u05EA/\u05D7\u05D2")
                 ||zmanim.get(position).contains("\u05E6\u05D0\u05EA \u05E9\u05D1\u05EA")
                 ||zmanim.get(position).contains("\u05E6\u05D0\u05EA \u05D7\u05D2")) {
-            showTzeitShabbatDialog();
+            showTzaitShabbatDialog();
         } else if (zmanim.get(position).contains("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD")) {
             showRTDialog();
         } else if (zmanim.get(position).contains("\u05D7\u05E6\u05D5\u05EA \u05DC\u05D9\u05DC\u05D4")) {
@@ -167,15 +167,15 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         } else if (zmanim.get(position).contains("Sunset")) {
             showShkiaDialog();
         } else if (zmanim.get(position).contains("Nightfall")) {
-            showTzeitDialog();
+            showTzaitDialog();
         } else if (zmanim.get(position).contains("Fast Ends")) {
-            showTzeitTaanitDialog();
+            showTzaitTaanitDialog();
         } else if (zmanim.get(position).contains("Fast Ends (Stringent)")) {
-            showTzeitTaanitLChumraDialog();
+            showTzaitTaanitLChumraDialog();
         } else if (zmanim.get(position).contains("Shabbat/Chag Ends")
                 || zmanim.get(position).contains("Shabbat Ends")
                 || zmanim.get(position).contains("Chag Ends")) {
-            showTzeitShabbatDialog();
+            showTzaitShabbatDialog();
         } else if (zmanim.get(position).contains("Rabbeinu Tam")) {
             showRTDialog();
         } else if (zmanim.get(position).contains("Midnight")) {
@@ -213,15 +213,15 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         } else if (zmanim.get(position).contains("Shkia")) {
             showShkiaDialog();
         } else if (zmanim.get(position).contains("Tzait Hacochavim")) {
-            showTzeitDialog();
+            showTzaitDialog();
         } else if (zmanim.get(position).contains("Tzait Taanit")) {
-            showTzeitTaanitDialog();
+            showTzaitTaanitDialog();
         } else if (zmanim.get(position).contains("Tzait Taanit L'Chumra")) {
-            showTzeitTaanitLChumraDialog();
+            showTzaitTaanitLChumraDialog();
         } else if (zmanim.get(position).contains("Tzait Shabbat/Chag")
                 || zmanim.get(position).contains("Tzait Chag")
                 || zmanim.get(position).contains("Tzait Shabbat")) {
-            showTzeitShabbatDialog();
+            showTzaitShabbatDialog();
         } else if (zmanim.get(position).contains("Rabbeinu Tam")) {
             showRTDialog();
         } else if (zmanim.get(position).contains("Chatzot Layla")) {
@@ -357,8 +357,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         mDialogBuilder.setTitle("Plag HaMincha - \u05E4\u05DC\u05D2 \u05D4\u05DE\u05E0\u05D7\u05D4")
                 .setMessage("Plag HaMincha, literally \"Half of Mincha\", is the midpoint between Mincha Ketana and sunset. Since Mincha Ketana is " +
                         "2 and a half hours before sunset, Plag is half of that at an hour and 15 minutes before sunset.\n" +
-                        "You can start saying arvit by this time according to Rabbi Yehuda in (ברכות כ'ו ע'א).\n" +
-                        "A person should not accept shabbat before this time as well.\n" +
+                        "You can start saying arvit by this time according to Rabbi Yehuda in (ברכות כ'ו ע'א).\n\n" +
+                        "A person should not accept shabbat before this time as well.\n\n" +
                         "This time is usually calculated as 10 and 3/4th zmaniyot/seasonal hours after sunrise, however, yalkut yosef says to " +
                         "calculate it as 1 hour and 15 zmaniyot/seasonal minutes before tzeit. " +
                         "The GR\"A calculates a zmaniyot/seasonal hour by taking the time between sunrise and sunset (elevation included) and " +
@@ -391,7 +391,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                 .show();
     }
 
-    private void showTzeitDialog() {
+    private void showTzaitDialog() {
         mDialogBuilder.setTitle("Nightfall - \u05E6\u05D0\u05EA \u05D4\u05DB\u05D5\u05DB\u05D1\u05D9\u05DD - Tzeit Hacochavim")
                 .setMessage("Tzeit/Nightfall is the time when the next halachic day starts after Bein Hashmashot/twilight finishes.\n\n" +
                         "This is the latest time a person can say Mincha according Rav Ovadiah Yosef Z\"TL. A person should start mincha at " +
@@ -402,21 +402,21 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                 .show();
     }
 
-    private void showTzeitTaanitDialog() {
+    private void showTzaitTaanitDialog() {
         mDialogBuilder.setTitle("Fast Ends - \u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA - Tzeit Taanit")
                 .setMessage("This is the time that the fast/taanit ends.\n\n" +
                         "This time is calculated as 20 regular minutes after sunset (elevation included).")
                 .show();
     }
 
-    private void showTzeitTaanitLChumraDialog() {
+    private void showTzaitTaanitLChumraDialog() {
         mDialogBuilder.setTitle("Fast Ends (Stringent) - \u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA \u05DC\u05D7\u05D5\u05DE\u05E8\u05D4 - Tzeit Taanit L'Chumra")
                 .setMessage("This is the more stringent time that the fast/taanit ends.\n\n" +
                         "This time is calculated as 30 regular minutes after sunset (elevation included).")
                 .show();
     }
 
-    private void showTzeitShabbatDialog() {
+    private void showTzaitShabbatDialog() {
         mDialogBuilder.setTitle("Shabbat/Chag Ends - \u05E6\u05D0\u05EA \u05E9\u05D1\u05EA/\u05D7\u05D2 - Tzeit Shabbat/Chag")
                 .setMessage("This is the time that Shabbat/Chag ends.\n\n" +
                         "Note that there are many customs on when shabbat ends, by default, I set it to 45 regular minutes after sunset (elevation " +
