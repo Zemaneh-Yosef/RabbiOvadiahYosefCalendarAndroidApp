@@ -63,6 +63,9 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             } else {
                 checkEnglishZmanimForDialog(position);
             }
+            if (zmanim.get(position).contains("וּלְכַפָּרַת פֶּשַׁע")) {
+                showUlChaparatPeshaDialog();
+            }
             if (zmanim.get(position).contains("Elevation")) {
                 showElevationDialog();
             }
@@ -448,6 +451,13 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         "This time is calculated as 6 zmaniyot/seasonal hours after sunset. " +
                         "The GR\"A calculates a zmaniyot/seasonal hour by taking the time between sunrise and sunset (elevation included) and " +
                         "divides it into 12 equal parts.\n\n")
+                .show();
+    }
+
+    private void showUlChaparatPeshaDialog() {
+        mDialogBuilder.setTitle("וּלְכַפָּרַת פֶּשַׁע")
+                .setMessage("When Rosh Chodesh happens during a leap year, we add the words, \"וּלְכַפָּרַת פֶּשַׁע\" during Musaf. We only add these words " +
+                        "from Tishri until the second month of Adar. However, for the rest of the year and during non leap years we do not say it.")
                 .show();
     }
 

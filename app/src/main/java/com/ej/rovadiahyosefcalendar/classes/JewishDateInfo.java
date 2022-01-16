@@ -42,7 +42,7 @@ public class JewishDateInfo {
             }
             result = roshChodesh;
         } else if (jewishCalendar.isErevRoshChodesh()) {
-            jewishCalendar.forward(Calendar.DATE,1);
+            jewishCalendar.forward(Calendar.DATE, 1);
             String hebrewMonth = hebrewDateFormatter.formatRoshChodesh(jewishCalendar);
             jewishCalendar.setDate(currentDate);
             if (hebrewMonth.contains("Teves")) {
@@ -121,8 +121,8 @@ public class JewishDateInfo {
 
     private String addDayOfChanukah(String result) {
         int dayOfChanukah = jewishCalendar.getDayOfChanukah();
-        if (dayOfChanukah != -1){
-            if (!result.isEmpty()){
+        if (dayOfChanukah != -1) {
+            if (!result.isEmpty()) {
                 result += " / " + getOrdinal(dayOfChanukah) + " day of Chanukah";
             } else {
                 result = getOrdinal(dayOfChanukah) + " day of Chanukah";
@@ -189,7 +189,7 @@ public class JewishDateInfo {
                 }
             case JewishCalendar.SIMCHAS_TORAH:
                 return "Simchat Torah";
-                //20 was erev chanuka which was deleted
+            //20 was erev chanuka which was deleted
             case JewishCalendar.CHANUKAH:
                 return "Chanuka";
             case JewishCalendar.TENTH_OF_TEVES:
@@ -240,7 +240,7 @@ public class JewishDateInfo {
     /**
      * This method will return a string containing when to say tachanun for the current date.
      * Here are a list of holidays that it will return a string for no tachanun:
-     *
+     * <p>
      * Rosh Chodesh
      * The entire month of Nissan
      * Pesach Sheni (14th of Iyar)
@@ -255,7 +255,7 @@ public class JewishDateInfo {
      * 15th of Shevat
      * 14th and 15th of Adar I and Adar II (and only 14th of Adar I in a leap year)
      * Every Shabbat
-     *
+     * <p>
      * Here are the days that we skip tachanun the day before at mincha:
      * Every Friday
      * Every Erev Rosh Chodesh
@@ -264,6 +264,7 @@ public class JewishDateInfo {
      * Tu Be'Shvat
      * Lag Ba'Omer
      * Pesach Sheni
+     *
      * @return a String containing whether or not tachanun is said today, and if only in the morning
      */
     public String getIsTachanunSaid() {
@@ -306,7 +307,7 @@ public class JewishDateInfo {
     }
 
     public String getJewishDate() {
-        return jewishCalendar.toString().replace("Teves","Tevet");
+        return jewishCalendar.toString().replace("Teves", "Tevet");
     }
 
     public String isJewishLeapYear() {
@@ -322,7 +323,7 @@ public class JewishDateInfo {
         currentDate = jewishCalendar.getGregorianCalendar();
         Calendar parshaCalendar = jewishCalendar.getGregorianCalendar();
 
-        while (parshaCalendar.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY){
+        while (parshaCalendar.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY) {
             parshaCalendar.add(Calendar.DATE, 1);
         }
 
@@ -335,7 +336,7 @@ public class JewishDateInfo {
 
         jewishCalendar.setDate(currentDate);
 
-        if (parsha.isEmpty() && specialParsha.isEmpty()){
+        if (parsha.isEmpty() && specialParsha.isEmpty()) {
             return "No Parsha this week";
         } else if (specialParsha.isEmpty()) {
             return parsha;
@@ -345,7 +346,7 @@ public class JewishDateInfo {
     }
 
     private String getOrdinal(int i) {
-        String[] suffixes = new String[] { "th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th" };
+        String[] suffixes = new String[]{"th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th"};
         switch (i % 100) {
             case 11:
             case 12:
@@ -367,10 +368,10 @@ public class JewishDateInfo {
     public static String formatHebrewNumber(int num) {
         if (num <= 0 || num >= 6000) return null;// should refactor
 
-        String[] let1000 = { " א'", " ב'", " ג'", " ד'", " ה'" };
-        String[] let100 = { "ק", "ר", "ש", "ת" };
-        String[] let10 = { "י", "כ", "ל", "מ", "נ", "ס", "ע", "פ", "צ" };
-        String[] let1 = { "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט" };
+        String[] let1000 = {" א'", " ב'", " ג'", " ד'", " ה'"};
+        String[] let100 = {"ק", "ר", "ש", "ת"};
+        String[] let10 = {"י", "כ", "ל", "מ", "נ", "ס", "ע", "פ", "צ"};
+        String[] let1 = {"א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט"};
 
         StringBuilder result = new StringBuilder();
 
@@ -449,6 +450,27 @@ public class JewishDateInfo {
 
         if (jewishCalendar.isVeseinTalUmatarRecited()) {
             return "ברך עלינו";
+        }
+        return "";
+    }
+
+    public String getIsUlChaparatPeshaSaid() {
+        if (jewishCalendar.isRoshChodesh()) {
+            if (jewishCalendar.isJewishLeapYear()) {
+                int month = jewishCalendar.getJewishMonth();
+                if (month == JewishCalendar.CHESHVAN ||
+                        month == JewishCalendar.KISLEV ||
+                        month == JewishCalendar.TEVES ||
+                        month == JewishCalendar.SHEVAT ||
+                        month == JewishCalendar.ADAR ||
+                        month == JewishCalendar.ADAR_II) {
+                    return "Say וּלְכַפָּרַת פֶּשַׁע";
+                } else {
+                    return "Do not say וּלְכַפָּרַת פֶּשַׁע";
+                }
+            } else {
+                return "Do not say וּלְכַפָּרַת פֶּשַׁע";
+            }
         }
         return "";
     }

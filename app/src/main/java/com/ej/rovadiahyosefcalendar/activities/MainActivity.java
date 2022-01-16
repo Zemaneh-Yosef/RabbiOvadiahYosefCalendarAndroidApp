@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
     private final static Calendar dafYomiYerushalmiStartDate = new GregorianCalendar(1980, Calendar.FEBRUARY, 2);
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {//TODO themes, hebrew calendar
+    protected void onCreate(Bundle savedInstanceState) {//TODO themes
         setTheme(R.style.AppTheme); //splash screen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -701,6 +701,11 @@ public class MainActivity extends AppCompatActivity {
             zmanim.add(day);
         }
 
+        String ulChaparatPesha = mJewishDateInfo.getIsUlChaparatPeshaSaid();
+        if (!ulChaparatPesha.isEmpty()) {
+            zmanim.add(ulChaparatPesha);
+        }
+
         zmanim.add(mJewishDateInfo.getIsTachanunSaid());
 
         String tonightStartOrEndBirchatLevana = mJewishDateInfo.getIsTonightStartOrEndBirchatLevana();
@@ -740,15 +745,21 @@ public class MainActivity extends AppCompatActivity {
         zmanim.add("Shaah Zmanit GR\"A: " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanisGra()) +
                 " MG\"A: " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanis72MinutesZmanis()));
 
-        zmanim.add(mJewishDateInfo.isJewishLeapYear());
-
-        if (mROZmanimCalendar.getGeoLocation().getTimeZone().inDaylightTime(mROZmanimCalendar.getSeaLevelSunrise())) {
-            zmanim.add("Daylight Savings Time is on");
-        } else {
-            zmanim.add("Daylight Savings Time is off");
+        if (mSettingsPreferences.getBoolean("ShowLeapYear", false)) {
+            zmanim.add(mJewishDateInfo.isJewishLeapYear());
         }
 
-        zmanim.add("Elevation: " + mElevation);
+        if (mSettingsPreferences.getBoolean("ShowDST", false)) {
+            if (mROZmanimCalendar.getGeoLocation().getTimeZone().inDaylightTime(mROZmanimCalendar.getSeaLevelSunrise())) {
+                zmanim.add("Daylight Savings Time is on");
+            } else {
+                zmanim.add("Daylight Savings Time is off");
+            }
+        }
+
+        if (mSettingsPreferences.getBoolean("ShowElevation", false)) {
+            zmanim.add("Elevation: " + mElevation);
+        }
 
         return zmanim;
     }
@@ -758,6 +769,9 @@ public class MainActivity extends AppCompatActivity {
                 zmanimFormat.format(checkNull(mROZmanimCalendar.getAlos72Zmanis())));
         zmanim.add("Earliest Talit/Tefilin= " +
                 zmanimFormat.format(checkNull(mROZmanimCalendar.getEarliestTalitTefilin())));
+        if (mSettingsPreferences.getBoolean("ShowElevatedSunrise", false)) {
+            zmanim.add("HaNetz (Elevated)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSunrise())));
+        }
         if (mROZmanimCalendar.getHaNetz() != null && !mSharedPreferences.getBoolean("showMishorSunrise", true)) {
             zmanim.add("HaNetz= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getHaNetz())));
         } else {
@@ -798,8 +812,12 @@ public class MainActivity extends AppCompatActivity {
                                 zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
                     }
                     if (stringSet.contains("Show Rabbeinu Tam")) {
-                        zmanim.add("Rabbeinu Tam (Tom)= " +
-                                zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+                        if (mSettingsPreferences.getBoolean("RoundUpRT", false)) {
+                            DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+                            zmanim.add("Rabbeinu Tam (Tom)= " + roundUpFormat.format(checkNull(roundUpZman(mROZmanimCalendar.getTzais72Zmanis()))));
+                        } else {
+                            zmanim.add("Rabbeinu Tam (Tom)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+                        }
                     }
                 }
                 mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);
@@ -823,8 +841,12 @@ public class MainActivity extends AppCompatActivity {
             zmanim.add("Tzait " + getShabbatAndOrChag() + " "
                     + "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + "= " +
                     zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
-            zmanim.add("Rabbeinu Tam= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+            if (mSettingsPreferences.getBoolean("RoundUpRT", false)) {
+                DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+                zmanim.add("Rabbeinu Tam = " + roundUpFormat.format(checkNull(roundUpZman(mROZmanimCalendar.getTzais72Zmanis()))));
+            } else {
+                zmanim.add("Rabbeinu Tam = " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+            }
         }
         zmanim.add("Chatzot Layla= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSolarMidnight())));
     }
@@ -832,6 +854,9 @@ public class MainActivity extends AppCompatActivity {
     private void addTranslatedEnglishZmanim(DateFormat zmanimFormat, List<String> zmanim) {
         zmanim.add("Dawn= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getAlos72Zmanis())));
         zmanim.add("Earliest Talit/Tefilin= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getEarliestTalitTefilin())));
+        if (mSettingsPreferences.getBoolean("ShowElevatedSunrise", false)) {
+            zmanim.add("Sunrise (Elevated)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSunrise())));
+        }
         if (mROZmanimCalendar.getHaNetz() != null && !mSharedPreferences.getBoolean("showMishorSunrise", true)) {
             zmanim.add("Sunrise= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getHaNetz())));
         } else {
@@ -872,8 +897,12 @@ public class MainActivity extends AppCompatActivity {
                                 zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
                     }
                     if (stringSet.contains("Show Rabbeinu Tam")) {
-                        zmanim.add("Rabbeinu Tam (Tom)= " +
-                                zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+                        if (mSettingsPreferences.getBoolean("RoundUpRT", false)) {
+                            DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+                            zmanim.add("Rabbeinu Tam (Tom)= " + roundUpFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+                        } else {
+                            zmanim.add("Rabbeinu Tam (Tom)= " + zmanimFormat.format(checkNull(roundUpZman(mROZmanimCalendar.getTzais72Zmanis()))));
+                        }
                     }
                 }
                 mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);
@@ -897,8 +926,12 @@ public class MainActivity extends AppCompatActivity {
             zmanim.add(getShabbatAndOrChag() + " Ends "
                     + "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + "= " +
                     zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
-            zmanim.add("Rabbeinu Tam= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+            if (mSettingsPreferences.getBoolean("RoundUpRT", false)) {
+                DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+                zmanim.add("Rabbeinu Tam = " + roundUpFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+            } else {
+                zmanim.add("Rabbeinu Tam = " + zmanimFormat.format(checkNull(roundUpZman(mROZmanimCalendar.getTzais72Zmanis()))));
+            }
         }
         zmanim.add("Midnight= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSolarMidnight())));
     }
@@ -908,6 +941,9 @@ public class MainActivity extends AppCompatActivity {
                 zmanimFormat.format(checkNull(mROZmanimCalendar.getAlos72Zmanis())));
         zmanim.add("\u05D8\u05DC\u05D9\u05EA \u05D5\u05EA\u05E4\u05D9\u05DC\u05D9\u05DF= " +
                 zmanimFormat.format(checkNull(mROZmanimCalendar.getEarliestTalitTefilin())));
+        if (mSettingsPreferences.getBoolean("ShowElevatedSunrise", false)) {
+            zmanim.add("\u05D4\u05E0\u05E5 (גבוה)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSunrise())));
+        }
         if (mROZmanimCalendar.getHaNetz() != null && !mSharedPreferences.getBoolean("showMishorSunrise", true)) {
             zmanim.add("\u05D4\u05E0\u05E5= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getHaNetz())));
         } else {
@@ -957,8 +993,14 @@ public class MainActivity extends AppCompatActivity {
                                 zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
                     }
                     if (stringSet.contains("Show Rabbeinu Tam")) {
-                        zmanim.add("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD (\u05DE\u05D7\u05E8)= " +
-                                zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+                        if (mSettingsPreferences.getBoolean("RoundUpRT", false)) {
+                            DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+                            zmanim.add("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD (\u05DE\u05D7\u05E8)= " +
+                                    roundUpFormat.format(checkNull(roundUpZman(mROZmanimCalendar.getTzais72Zmanis()))));
+                        } else {
+                            zmanim.add("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD (\u05DE\u05D7\u05E8)= " +
+                                    zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+                        }
                     }
                 }
                 mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);
@@ -987,9 +1029,23 @@ public class MainActivity extends AppCompatActivity {
             zmanim.add("\u05E6\u05D0\u05EA " + getShabbatAndOrChag() + " " +
                     "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + "=" +
                     zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
-            zmanim.add("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+            if (mSettingsPreferences.getBoolean("RoundUpRT", false)) {
+                DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+                zmanim.add("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD = " +
+                        roundUpFormat.format(checkNull(roundUpZman(mROZmanimCalendar.getTzais72Zmanis()))));
+            } else {
+                zmanim.add("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD = " +
+                        zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+            }
         }
         zmanim.add("\u05D7\u05E6\u05D5\u05EA \u05DC\u05D9\u05DC\u05D4= " + zmanimFormat.format(mROZmanimCalendar.getSolarMidnight()));
+    }
+
+    private Date roundUpZman(Date date) {
+        if (date == null) {
+            return null;
+        }
+        return new Date(date.getTime() + 60_000);
     }
 
     /**
@@ -999,7 +1055,7 @@ public class MainActivity extends AppCompatActivity {
      * @param date the date object to check if it is null
      * @return the given date if not null or a string if null
      */
-    private Object checkNull(Date date) {
+    private Object checkNull(Object date) {
         if (date != null) {
             return date;
         } else {
