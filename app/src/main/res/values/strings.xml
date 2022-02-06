@@ -93,4 +93,6 @@
     <string name="if_you_want_to_specify_what_to_setup">If you want to specify what to setup:</string>
     <string name="yalkut_yosef_quote">yalkut yosef quote</string>
     <string name="cancel">cancel</string>
+    <string name="left">left</string>
+    <string name="right">right</string>
 </resources>

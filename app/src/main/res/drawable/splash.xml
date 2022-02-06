@@ -6,15 +6,13 @@
     <item android:drawable="@color/background_gray"/>
 
     <!-- Logo -->
-    <item
-        android:bottom="200dp">
+    <item android:bottom="40dp">
         <bitmap
             android:gravity="center"
             android:src="@drawable/gold_calendar"/>
     </item>
 
-    <item
-        android:top="450dp">
+    <item android:top="250dp">
         <bitmap
             android:gravity="center"
             android:src="@drawable/cooltext392922405046809" />
