@@ -849,6 +849,16 @@ public class MainActivity extends AppCompatActivity {
                 zmanim.add("Rabbeinu Tam = " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
             }
         }
+        if (mSettingsPreferences.getBoolean("AlwaysShowRT", false)) {
+            if (!(mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting())) {//if we want to always show the zman for RT, we can just NOT the previous cases where we do show it
+                if (mSettingsPreferences.getBoolean("RoundUpRT", false)) {
+                    DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//just to remove the seconds
+                    zmanim.add("Rabbeinu Tam = " + roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
+                } else {
+                    zmanim.add("Rabbeinu Tam = " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+                }
+            }
+        }
         zmanim.add("Chatzot Layla= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSolarMidnight())));
     }
 
@@ -932,6 +942,16 @@ public class MainActivity extends AppCompatActivity {
                 zmanim.add("Rabbeinu Tam = " + roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
             } else {
                 zmanim.add("Rabbeinu Tam = " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+            }
+        }
+        if (mSettingsPreferences.getBoolean("AlwaysShowRT", false)) {
+            if (!(mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting())) {//if we want to always show the zman for RT, we can just NOT the previous cases where we do show it
+                if (mSettingsPreferences.getBoolean("RoundUpRT", false)) {
+                    DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//just to remove the seconds
+                    zmanim.add("Rabbeinu Tam = " + roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
+                } else {
+                    zmanim.add("Rabbeinu Tam = " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+                }
             }
         }
         zmanim.add("Midnight= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSolarMidnight())));
@@ -1037,6 +1057,16 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 zmanim.add("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD = " +
                         zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+            }
+        }
+        if (mSettingsPreferences.getBoolean("AlwaysShowRT", false)) {
+            if (!(mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting())) {//if we want to always show the zman for RT, we can just NOT the previous cases where we do show it
+                if (mSettingsPreferences.getBoolean("RoundUpRT", false)) {
+                    DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//just to remove the seconds
+                    zmanim.add("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD = " + roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
+                } else {
+                    zmanim.add("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD = " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+                }
             }
         }
         zmanim.add("\u05D7\u05E6\u05D5\u05EA \u05DC\u05D9\u05DC\u05D4= " + zmanimFormat.format(mROZmanimCalendar.getSolarMidnight()));

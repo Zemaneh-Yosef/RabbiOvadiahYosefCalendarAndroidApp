@@ -26,6 +26,12 @@
             android:defaultValue="false" />
 
         <CheckBoxPreference
+            android:title="Show Rabbeinu Tam everyday?"
+            android:summary="Choose whether or not to display Rabbeinu Tam's nightfall everyday"
+            android:key="AlwaysShowRT"
+            android:defaultValue="false" />
+
+        <CheckBoxPreference
             android:title="Round up Rabbeinu Tam?"
             android:summary="Choose whether or not to round up the zman of Rabbeinu Tam up to the nearest minute"
             android:key="RoundUpRT"
