@@ -14,7 +14,7 @@
 
         <EditTextPreference
             app:title="End Shabbat Time"
-            app:defaultValue="45"
+            app:defaultValue="40"
             app:key="EndOfShabbatOffset"
             app:summary="Enter the amount of minutes to add after sunset until shabbat ends"
             />

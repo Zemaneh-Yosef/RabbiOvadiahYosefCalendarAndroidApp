@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
     private final static Calendar dafYomiYerushalmiStartDate = new GregorianCalendar(1980, Calendar.FEBRUARY, 2);
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {//TODO themes
+    protected void onCreate(Bundle savedInstanceState) {//TODO themes, always show RT
         setTheme(R.style.AppTheme); //splash screen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -244,7 +244,7 @@ public class MainActivity extends AppCompatActivity {
                 TimeZone.getTimeZone(mCurrentTimeZoneID)));
         mROZmanimCalendar.setExternalFilesDir(getExternalFilesDir(null));
         mROZmanimCalendar.setCandleLightingOffset(Double.parseDouble(mSettingsPreferences.getString("CandleLightingOffset", "20")));
-        mROZmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(mSettingsPreferences.getString("EndOfShabbatOffset", "45")));
+        mROZmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(mSettingsPreferences.getString("EndOfShabbatOffset", "40")));
     }
 
     private void setupRecyclerView() {
@@ -431,6 +431,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         if (mCurrentDateShown != null) {
+            instantiateZmanimCalendar();
             mROZmanimCalendar.setCalendar(mCurrentDateShown);
             mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false), true);
             mJewishDateInfo.setCalendar(mCurrentDateShown);
@@ -813,8 +814,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                     if (stringSet.contains("Show Rabbeinu Tam")) {
                         if (mSettingsPreferences.getBoolean("RoundUpRT", false)) {
-                            DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
-                            zmanim.add("Rabbeinu Tam (Tom)= " + roundUpFormat.format(checkNull(roundUpZman(mROZmanimCalendar.getTzais72Zmanis()))));
+                            DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//just to remove the seconds
+                            zmanim.add("Rabbeinu Tam (Tom)= " + roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
                         } else {
                             zmanim.add("Rabbeinu Tam (Tom)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
                         }
@@ -842,8 +843,8 @@ public class MainActivity extends AppCompatActivity {
                     + "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + "= " +
                     zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
             if (mSettingsPreferences.getBoolean("RoundUpRT", false)) {
-                DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
-                zmanim.add("Rabbeinu Tam = " + roundUpFormat.format(checkNull(roundUpZman(mROZmanimCalendar.getTzais72Zmanis()))));
+                DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//just to remove the seconds
+                zmanim.add("Rabbeinu Tam = " + roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
             } else {
                 zmanim.add("Rabbeinu Tam = " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
             }
@@ -898,10 +899,10 @@ public class MainActivity extends AppCompatActivity {
                     }
                     if (stringSet.contains("Show Rabbeinu Tam")) {
                         if (mSettingsPreferences.getBoolean("RoundUpRT", false)) {
-                            DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
-                            zmanim.add("Rabbeinu Tam (Tom)= " + roundUpFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+                            DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//just to remove the seconds
+                            zmanim.add("Rabbeinu Tam (Tom)= " + roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
                         } else {
-                            zmanim.add("Rabbeinu Tam (Tom)= " + zmanimFormat.format(checkNull(roundUpZman(mROZmanimCalendar.getTzais72Zmanis()))));
+                            zmanim.add("Rabbeinu Tam (Tom)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
                         }
                     }
                 }
@@ -927,10 +928,10 @@ public class MainActivity extends AppCompatActivity {
                     + "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + "= " +
                     zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
             if (mSettingsPreferences.getBoolean("RoundUpRT", false)) {
-                DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
-                zmanim.add("Rabbeinu Tam = " + roundUpFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+                DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//just to remove the seconds
+                zmanim.add("Rabbeinu Tam = " + roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
             } else {
-                zmanim.add("Rabbeinu Tam = " + zmanimFormat.format(checkNull(roundUpZman(mROZmanimCalendar.getTzais72Zmanis()))));
+                zmanim.add("Rabbeinu Tam = " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
             }
         }
         zmanim.add("Midnight= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSolarMidnight())));
@@ -994,9 +995,9 @@ public class MainActivity extends AppCompatActivity {
                     }
                     if (stringSet.contains("Show Rabbeinu Tam")) {
                         if (mSettingsPreferences.getBoolean("RoundUpRT", false)) {
-                            DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+                            DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//just to remove the seconds
                             zmanim.add("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD (\u05DE\u05D7\u05E8)= " +
-                                    roundUpFormat.format(checkNull(roundUpZman(mROZmanimCalendar.getTzais72Zmanis()))));
+                                    roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
                         } else {
                             zmanim.add("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD (\u05DE\u05D7\u05E8)= " +
                                     zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
@@ -1030,9 +1031,9 @@ public class MainActivity extends AppCompatActivity {
                     "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + "=" +
                     zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
             if (mSettingsPreferences.getBoolean("RoundUpRT", false)) {
-                DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+                DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//just to remove the seconds
                 zmanim.add("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD = " +
-                        roundUpFormat.format(checkNull(roundUpZman(mROZmanimCalendar.getTzais72Zmanis()))));
+                        roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
             } else {
                 zmanim.add("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD = " +
                         zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
@@ -1041,7 +1042,14 @@ public class MainActivity extends AppCompatActivity {
         zmanim.add("\u05D7\u05E6\u05D5\u05EA \u05DC\u05D9\u05DC\u05D4= " + zmanimFormat.format(mROZmanimCalendar.getSolarMidnight()));
     }
 
-    private Date roundUpZman(Date date) {
+    /**
+     * This is a simple convenience method to check if the given date it null or not. If the date is not null,
+     * it will return a the same date with a minute added to it.
+     * Otherwise, if the date is null, it will return null.
+     * @param date the date object to add a minute to
+     * @return the given date a minute ahead if not null
+     */
+    private Date addMinuteToZman(Date date) {
         if (date == null) {
             return null;
         }

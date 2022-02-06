@@ -425,7 +425,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         "Note that there are many customs on when shabbat ends, by default, I set it to 45 regular minutes after sunset (elevation " +
                         "included), however, you can change the time in the settings.\n\n" +
                         "This time is calculated as " +
-                        PreferenceManager.getDefaultSharedPreferences(mContext).getString("EndOfShabbatOffset", "45") + " " +
+                        PreferenceManager.getDefaultSharedPreferences(mContext).getString("EndOfShabbatOffset", "40") + " " +
                         "regular minutes after sunset (elevation included).")
                 .show();
     }
