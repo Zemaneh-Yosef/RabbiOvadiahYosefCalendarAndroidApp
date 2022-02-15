@@ -280,6 +280,7 @@ public class JewishDateInfo {
                 || yomTovIndex == JewishCalendar.YOM_KIPPUR
                 || yomTovIndex == JewishCalendar.TU_BESHVAT
                 || yomTovIndex == JewishCalendar.PURIM_KATAN
+                || yomTovIndex == JewishCalendar.SHUSHAN_PURIM_KATAN
                 || yomTovIndex == JewishCalendar.PURIM
                 || yomTovIndex == JewishCalendar.SHUSHAN_PURIM
                 || yomTovIndex == JewishCalendar.YOM_YERUSHALAYIM
@@ -297,6 +298,7 @@ public class JewishDateInfo {
                 || yomTovIndexForNextDay == JewishCalendar.TU_BESHVAT
                 || yomTovIndexForNextDay == JewishCalendar.LAG_BAOMER
                 || yomTovIndexForNextDay == JewishCalendar.PESACH_SHENI
+                || yomTovIndexForNextDay == JewishCalendar.PURIM_KATAN
                 || jewishCalendar.isErevRoshChodesh()) {
             return "There is only Tachanun in the morning";
         }

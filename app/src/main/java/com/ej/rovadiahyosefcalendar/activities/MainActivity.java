@@ -13,6 +13,10 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -109,12 +113,14 @@ public class MainActivity extends AppCompatActivity {
     private final ZmanimFormatter mZmanimFormatter = new ZmanimFormatter(TimeZone.getDefault());
     private final static Calendar dafYomiStartDate = new GregorianCalendar(1923, Calendar.SEPTEMBER, 11);
     private final static Calendar dafYomiYerushalmiStartDate = new GregorianCalendar(1980, Calendar.FEBRUARY, 2);
+    private View mLayout;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {//TODO themes, always show RT
+    protected void onCreate(Bundle savedInstanceState) {//TODO themes
         setTheme(R.style.AppTheme); //splash screen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mLayout = findViewById(R.id.main_layout);
         mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         mSettingsPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         mGeocoder = new Geocoder(this);
@@ -442,6 +448,18 @@ public class MainActivity extends AppCompatActivity {
             getAndConfirmLastElevationAndVisibleSunriseData();
         }
         resetTheme();
+        if (mSharedPreferences.getBoolean("useImage", false)) {
+            Bitmap bitmap = BitmapFactory.decodeFile(mSharedPreferences.getString("imageLocation", ""));
+            Drawable drawable = new BitmapDrawable(getResources(), bitmap);
+            mLayout.setBackground(drawable);
+        } else {
+            mLayout.setBackgroundResource(R.color.black);
+        }
+        if (mSharedPreferences.getBoolean("useDefaultCalButtonColor", true)) {
+            mCalendarButton.setBackgroundColor(getColor(R.color.dark_blue));
+        } else {
+            mCalendarButton.setBackgroundColor(mSettingsPreferences.getInt("calendarButtonColor", 0x18267C));
+        }
         super.onResume();
     }
 

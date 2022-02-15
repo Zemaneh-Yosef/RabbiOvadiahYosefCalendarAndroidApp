@@ -71,6 +71,39 @@
             app:summary="Choose a theme for the app"
             />
 
+        <com.rarepebble.colorpicker.ColorPreference
+            app:title="Set Background Color"
+            app:selectable="true"
+            app:key="backgroundColor"
+            app:summary="Choose the color of the background"
+            android:defaultValue="#32312C"
+            app:colorpicker_selectNoneButtonText="Default"
+            />
+
+        <Preference
+            app:title="Set Background From Image"
+            app:selectable="true"
+            app:key="background"
+            app:summary="Choose your own image as the app's background"
+            />
+
+        <com.rarepebble.colorpicker.ColorPreference
+            app:title="Set Text Color"
+            app:selectable="true"
+            app:key="textColor"
+            app:summary="Choose the color of the text"
+            android:defaultValue="#FFFFFFFF"
+            />
+
+        <com.rarepebble.colorpicker.ColorPreference
+            app:title="Set Calendar Button Color"
+            app:selectable="true"
+            app:key="calendarButtonColor"
+            app:summary="Choose the color of the calendar button"
+            android:defaultValue="@color/dark_blue"
+            app:colorpicker_selectNoneButtonText="Default"
+            />
+
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/contact_header">

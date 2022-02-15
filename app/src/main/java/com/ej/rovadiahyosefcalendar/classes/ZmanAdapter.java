@@ -70,6 +70,17 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                 showElevationDialog();
             }
         });
+        if (mSharedPreferences.getBoolean("useImage", false)) {
+            holder.itemView.setBackgroundResource(0);
+        } else if (mSharedPreferences.getBoolean("customBackgroundColor", false) &&
+                !mSharedPreferences.getBoolean("useDefaultBackgroundColor", false)) {
+            holder.itemView.setBackgroundColor(mSharedPreferences.getInt("bColor", 0x32312C));
+        }
+        if (mSharedPreferences.getBoolean("customTextColor", false)) {
+            holder.mLeftTextView.setTextColor(mSharedPreferences.getInt("tColor", 0xFFFFFFFF));
+            holder.mMiddleTextView.setTextColor(mSharedPreferences.getInt("tColor", 0xFFFFFFFF));
+            holder.mRightTextView.setTextColor(mSharedPreferences.getInt("tColor", 0xFFFFFFFF));
+        }
     }
 
     @Override

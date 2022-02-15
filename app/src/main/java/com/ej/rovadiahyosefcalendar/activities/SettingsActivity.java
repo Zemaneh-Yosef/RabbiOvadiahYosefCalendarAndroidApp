@@ -1,14 +1,21 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
+import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
+
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.OpenableColumns;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,6 +25,11 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
 import com.ej.rovadiahyosefcalendar.R;
+import com.rarepebble.colorpicker.ColorPreference;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -60,6 +72,9 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     public static class SettingsFragment extends PreferenceFragmentCompat {
+
+        private ActivityResultLauncher<Intent> mResultLauncher;
+
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
@@ -88,29 +103,79 @@ public class SettingsActivity extends AppCompatActivity {
             }
 
             Preference showSecondsPref = findPreference("ShowSeconds");
-
             if (showSecondsPref != null) {
                 showSecondsPref.setOnPreferenceClickListener(preference  -> {
                     boolean isOn = preference.getSharedPreferences().getBoolean("ShowSeconds",false);
-                        if (isOn) {
-                            new AlertDialog.Builder(getContext())
-                                    .setTitle("Do NOT rely on the seconds!")
-                                    .setMessage("DO NOT RELY ON THESE SECONDS. " +
-                                            "The only zman that can be relied on to the second is the visible sunrise time based on chaitables.com. " +
-                                            "Otherwise, these zmanim are NOT accurate to the second! You should always round up or down a minute " +
-                                            "or two just in case.")
-                                    .setPositiveButton("Ok", (dialogInterface, i) -> { })
-                                    .create()
-                                    .show();
-                        }
+                    if (isOn) {
+                        new AlertDialog.Builder(getContext())
+                                .setTitle("Do NOT rely on the seconds!")
+                                .setMessage("DO NOT RELY ON THESE SECONDS. " +
+                                        "The only zman that can be relied on to the second is the visible sunrise time based on chaitables.com. " +
+                                        "Otherwise, these zmanim are NOT accurate to the second! You should always round up or down a minute " +
+                                        "or two just in case.")
+                                .setPositiveButton("Ok", (dialogInterface, i) -> { })
+                                .create()
+                                .show();
+                    }
                     return false;
                 });
             }
 
+            Preference backgroundPref = findPreference("background");
+            if (backgroundPref != null) {
+                backgroundPref.setOnPreferenceClickListener(preference -> {
+                    Intent intent = new Intent();
+                    intent.setType("image/*");
+                    intent.setAction(Intent.ACTION_GET_CONTENT);
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                    mResultLauncher.launch(intent);
+                    return false;
+                });
+            }
+
+            mResultLauncher = registerForActivityResult(
+                    new ActivityResultContracts.StartActivityForResult(),
+                    result -> {
+                        if (result.getResultCode() == RESULT_OK) {
+                            if (result.getData() != null) {
+                                Intent picture = result.getData();
+                                Uri selectedImage = picture.getData();
+                                Cursor returnCursor = requireContext().getContentResolver()
+                                        .query(selectedImage, null, null, null, null);
+                                int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                                returnCursor.moveToFirst();
+                                String name = (returnCursor.getString(nameIndex));
+                                File file = new File(requireContext().getFilesDir(), name);
+                                try {
+                                    InputStream inputStream = requireContext().getContentResolver().openInputStream(selectedImage);
+                                    FileOutputStream outputStream = new FileOutputStream(file);
+                                    int read = 0;
+                                    int maxBufferSize = 1024 * 1024;
+                                    int bytesAvailable = inputStream.available();
+                                    int bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                                    final byte[] buffers = new byte[bufferSize];
+                                    while ((read = inputStream.read(buffers)) != -1) {
+                                        outputStream.write(buffers, 0, read);
+                                    }
+                                    inputStream.close();
+                                    outputStream.close();
+                                    returnCursor.close();
+                                } catch (Exception e) {
+                                    Log.e("Exception", e.getMessage());
+                                }
+
+                                requireContext().getSharedPreferences(SHARED_PREF, MODE_PRIVATE)
+                                        .edit()
+                                        .putString("imageLocation", file.getPath())
+                                        .putBoolean("useImage", true)
+                                        .apply();
+                            }
+                        }
+                    }
+            );
+
             Preference contactUsPref = findPreference(getResources().getString(R.string.contact_header));
-
             PackageManager packageManager = requireActivity().getPackageManager();
-
             if (contactUsPref != null) {
                 contactUsPref.setOnPreferenceClickListener(v -> {
                     Intent email = new Intent(Intent.ACTION_SENDTO);
@@ -127,6 +192,46 @@ public class SettingsActivity extends AppCompatActivity {
                     }
                     return false;
                 });
+            }
+        }
+
+        public void onDisplayPreferenceDialog(Preference preference) {
+            if (preference instanceof ColorPreference) {
+                ColorPreference colorPreference = ((ColorPreference) preference);
+                colorPreference.showDialog(this, 0);
+                SharedPreferences.Editor editor = requireContext().getSharedPreferences(SHARED_PREF, MODE_PRIVATE).edit();
+                colorPreference.setOnPreferenceChangeListener((preference1, newValue) -> {
+                    switch (preference1.getKey()) {
+                        case "backgroundColor":
+                            if (newValue == null) {
+                                newValue = 0x32312C;//random gray hex
+                                editor.putBoolean("useDefaultBackgroundColor", true)
+                                        .putInt("bColor", (Integer) newValue)
+                                        .apply();
+                            } else {
+                                editor.putBoolean("useDefaultBackgroundColor", false)
+                                        .putInt("bColor", (Integer) newValue)
+                                        .apply();
+                            }
+                            editor.putBoolean("useImage", false)
+                                    .putBoolean("customBackgroundColor", true)
+                                    .putInt("bColor", (Integer) newValue)
+                                    .apply();
+                            break;
+                        case "textColor":
+                            editor.putBoolean("customTextColor", true)
+                                    .putInt("tColor", (Integer) newValue)
+                                    .apply();
+                            break;
+                        case "calendarButtonColor":
+                            editor.putBoolean("useDefaultCalButtonColor", newValue != null);
+                            break;
+                    }
+                    colorPreference.setColor((Integer) newValue);
+                    return false;
+                });
+            } else {
+                super.onDisplayPreferenceDialog(preference);
             }
         }
     }
