@@ -202,7 +202,7 @@ public class SettingsActivity extends AppCompatActivity {
                 SharedPreferences.Editor editor = requireContext().getSharedPreferences(SHARED_PREF, MODE_PRIVATE).edit();
                 colorPreference.setOnPreferenceChangeListener((preference1, newValue) -> {
                     switch (preference1.getKey()) {
-                        case "backgroundColor":
+                        case "backgroundColor"://FIXME there is a bug with the dialog that will make the color transparent by default. Only happens for the background
                             if (newValue == null) {
                                 newValue = 0x32312C;//default gray hex
                                 editor.putBoolean("useDefaultBackgroundColor", true)

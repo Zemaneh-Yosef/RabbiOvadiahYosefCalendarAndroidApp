@@ -26,6 +26,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -1145,10 +1146,14 @@ public class MainActivity extends AppCompatActivity {
      * uses the TimeZoneMap to get the current timezone ID based on the latitude and longitude
      */
     private void setTimeZoneID() {
-        TimeZoneMap timeZoneMap = TimeZoneMap.forRegion(
-                Math.floor(mLatitude), Math.floor(mLongitude),
-                Math.ceil(mLatitude), Math.ceil(mLongitude));//trying to avoid using the forEverywhere() method
-        mCurrentTimeZoneID = Objects.requireNonNull(timeZoneMap.getOverlappingTimeZone(mLatitude, mLongitude)).getZoneId();
+        if (mLatitude != 0 && mLongitude != 0) {
+            TimeZoneMap timeZoneMap = TimeZoneMap.forRegion(
+                    Math.floor(mLatitude), Math.floor(mLongitude),
+                    Math.ceil(mLatitude), Math.ceil(mLongitude));//trying to avoid using the forEverywhere() method
+            mCurrentTimeZoneID = Objects.requireNonNull(timeZoneMap.getOverlappingTimeZone(mLatitude, mLongitude)).getZoneId();
+        } else {
+            mCurrentTimeZoneID = TimeZone.getDefault().getID();
+        }
     }
 
     /**
@@ -1409,6 +1414,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void createZipcodeDialog() {
         final EditText input = new EditText(this);
+        input.setGravity(Gravity.CENTER_HORIZONTAL);
         new AlertDialog.Builder(this)
                 .setTitle("Enter a Zipcode")
                 .setMessage("WARNING! Zmanim will NOT be accurate! Using a Zipcode will give " +
