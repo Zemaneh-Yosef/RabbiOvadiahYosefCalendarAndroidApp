@@ -9,8 +9,8 @@ android {
         applicationId "com.EJ.ROvadiahYosefCalendar"
         minSdkVersion 23
         targetSdkVersion 31
-        versionCode 21
-        versionName "3.0"
+        versionCode 22
+        versionName "3.1"
 
         ndk { debugSymbolLevel 'FULL' }
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

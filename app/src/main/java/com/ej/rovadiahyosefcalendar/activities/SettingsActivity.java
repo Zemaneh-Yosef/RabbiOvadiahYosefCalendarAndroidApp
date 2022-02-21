@@ -145,7 +145,7 @@ public class SettingsActivity extends AppCompatActivity {
                                 int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
                                 returnCursor.moveToFirst();
                                 String name = (returnCursor.getString(nameIndex));
-                                File file = new File(requireContext().getFilesDir(), name);
+                                File file = new File(requireContext().getFilesDir(), "background");
                                 try {
                                     InputStream inputStream = requireContext().getContentResolver().openInputStream(selectedImage);
                                     FileOutputStream outputStream = new FileOutputStream(file);
@@ -204,7 +204,7 @@ public class SettingsActivity extends AppCompatActivity {
                     switch (preference1.getKey()) {
                         case "backgroundColor":
                             if (newValue == null) {
-                                newValue = 0x32312C;//random gray hex
+                                newValue = 0x32312C;//default gray hex
                                 editor.putBoolean("useDefaultBackgroundColor", true)
                                         .putInt("bColor", (Integer) newValue)
                                         .apply();
@@ -224,7 +224,15 @@ public class SettingsActivity extends AppCompatActivity {
                                     .apply();
                             break;
                         case "calendarButtonColor":
-                            editor.putBoolean("useDefaultCalButtonColor", newValue != null);
+                            if (newValue != null) {
+                                editor.putBoolean("useDefaultCalButtonColor", false)
+                                        .apply();
+                                editor.putInt("CalButtonColor", (Integer) newValue)
+                                        .apply();
+                            } else {
+                                editor.putBoolean("useDefaultCalButtonColor", true)
+                                        .apply();
+                            }
                             break;
                     }
                     colorPreference.setColor((Integer) newValue);

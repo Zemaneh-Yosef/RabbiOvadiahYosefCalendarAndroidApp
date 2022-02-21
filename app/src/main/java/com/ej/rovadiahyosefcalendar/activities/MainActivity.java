@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
     private View mLayout;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {//TODO themes
+    protected void onCreate(Bundle savedInstanceState) {//TODO banner themes
         setTheme(R.style.AppTheme); //splash screen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -458,7 +458,7 @@ public class MainActivity extends AppCompatActivity {
         if (mSharedPreferences.getBoolean("useDefaultCalButtonColor", true)) {
             mCalendarButton.setBackgroundColor(getColor(R.color.dark_blue));
         } else {
-            mCalendarButton.setBackgroundColor(mSettingsPreferences.getInt("calendarButtonColor", 0x18267C));
+            mCalendarButton.setBackgroundColor(mSharedPreferences.getInt("CalButtonColor", 0x18267C));
         }
         super.onResume();
     }

@@ -76,7 +76,7 @@
             app:selectable="true"
             app:key="backgroundColor"
             app:summary="Choose the color of the background"
-            android:defaultValue="#32312C"
+            android:defaultValue="@color/colorPrimary"
             app:colorpicker_selectNoneButtonText="Default"
             />
 
