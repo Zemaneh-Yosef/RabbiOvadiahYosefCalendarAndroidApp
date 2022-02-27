@@ -1218,8 +1218,8 @@ public class MainActivity extends AppCompatActivity {
 
         if (mSharedPreferences.getBoolean("askagain", true)) {//only prompt user if he has not asked to be left alone
             if (!lastLocation.isEmpty()) {//only check after the app has been setup before
-                mElevation = mSharedPreferences.getFloat("elevation", 0);//get the last value
-                if (!lastLocation.equals(mCurrentLocationName)) {//user should update his elevation in another city
+                mElevation = mSharedPreferences.getFloat("elevation", 0);//get and set the last value
+                if (!lastLocation.equals(mCurrentLocationName) && mElevation != 0) {//user should update his elevation in another city
                     new AlertDialog.Builder(this)
                             .setTitle("You are not in the same city as the last time that you " +
                                     "setup the app!")

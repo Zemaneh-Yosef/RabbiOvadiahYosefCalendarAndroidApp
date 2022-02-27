@@ -11,6 +11,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.ej.rovadiahyosefcalendar.R;
+import com.ej.rovadiahyosefcalendar.classes.CustomDatePickerDialog;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
 
@@ -49,17 +50,38 @@ public class MoladActivity extends AppCompatActivity {
 
         updateMoladDates();
 
-        DatePickerDialog dialog = new DatePickerDialog(this, (view, year, month, day) -> {
+        Button moladButton = findViewById(R.id.molad_button);
+        DatePickerDialog dialog = createDialog();
+
+        moladButton.setOnClickListener(v -> {
+            dialog.updateDate(mUserChosenDate.get(Calendar.YEAR),
+                    mUserChosenDate.get(Calendar.MONTH),
+                    mUserChosenDate.get(Calendar.DAY_OF_MONTH));
+            dialog.show();
+        });
+
+
+    }
+
+    private DatePickerDialog createDialog() {
+        DatePickerDialog.OnDateSetListener onDateSetListener = (view, year, month, day) -> {
             mUserChosenDate.set(year, month, day);
             mJewishCalendar.setDate(mUserChosenDate);
             updateMoladDates();
-        },
-                mUserChosenDate.get(Calendar.YEAR),
-                mUserChosenDate.get(Calendar.MONTH),
-                mUserChosenDate.get(Calendar.DAY_OF_MONTH));
+        };
 
-        Button moladButton = findViewById(R.id.molad_button);
-        moladButton.setOnClickListener(v -> dialog.show());
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            return new CustomDatePickerDialog(this, onDateSetListener,
+                    mUserChosenDate.get(Calendar.YEAR),
+                    mUserChosenDate.get(Calendar.MONTH),
+                    mUserChosenDate.get(Calendar.DAY_OF_MONTH),
+                    mJewishCalendar);
+        } else {
+            return new DatePickerDialog(this, onDateSetListener,
+                    mUserChosenDate.get(Calendar.YEAR),
+                    mUserChosenDate.get(Calendar.MONTH),
+                    mUserChosenDate.get(Calendar.DAY_OF_MONTH));
+        }
     }
 
     private void updateMoladDates() {
