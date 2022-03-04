@@ -293,10 +293,10 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
     private void showBiurChametzDialog() {
         mDialogBuilder.setTitle("Burning Chametz - \u05D1\u05D9\u05E2\u05D5\u05E8 \u05D7\u05DE\u05E5 - Biur Chametz")
-                .setMessage("This is the latest time a person can own chametz before pesach begins. You should get rid of all chametz in your" +
+                .setMessage("This is the latest time a person can own chametz before pesach begins. You should get rid of all chametz in your " +
                         "possession by this time.\n\n" +
-                        "This is calculated as 5 zmaniyot/seasonal hours, according to the GR\"A, after Alot HaShachar (Dawn) with " +
-                        "elevation included.")//TODO check how to calculate
+                        "This is calculated as 5 zmaniyot/seasonal hours, according to the MG\"A, after Alot HaShachar (Dawn) with " +
+                        "elevation included.")
                 .show();
     }
 

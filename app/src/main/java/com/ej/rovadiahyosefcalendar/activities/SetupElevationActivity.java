@@ -141,7 +141,7 @@ public class SetupElevationActivity extends AppCompatActivity {
                         double result = scraper.getResult();
                         SharedPreferences.Editor editor = getSharedPreferences(
                                 SHARED_PREF, MODE_PRIVATE).edit();
-                        editor.putFloat("elevation", (float) result).apply();
+                        editor.putString("elevation", result + "").apply();
                         editor.putBoolean("isElevationSetup", true).apply();
 
                         if (!getIntent().getBooleanExtra("downloadTable",false)) {

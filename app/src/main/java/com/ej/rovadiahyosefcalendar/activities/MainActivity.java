@@ -804,10 +804,12 @@ public class MainActivity extends AppCompatActivity {
         }
         zmanim.add("Sof Zman Shma MG\"A= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanShmaMGA72MinutesZmanis())));
         zmanim.add("Sof Zman Shma GR\"A= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanShmaGRA())));
-        zmanim.add("Sof Zman Brachot Shma= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanTfilaGRA())));
         if (mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.EREV_PESACH) {
             zmanim.add("Sof Zman Achilat Chametz= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanTfilaMGA72MinutesZmanis())));
-            zmanim.add("Sof Zman Biur Chametz= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanBiurChametzGRA())));//TODO double check this, maybe we go like MGA getTimeOffset(getAlos72Zmanis(), getShaahZmanisMGA() * 5)
+            zmanim.add("Sof Zman Brachot Shma= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanTfilaGRA())));
+            zmanim.add("Sof Zman Biur Chametz= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanBiurChametzMGA())));
+        } else {
+            zmanim.add("Sof Zman Brachot Shma= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanTfilaGRA())));
         }
         zmanim.add("Chatzot= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getChatzot())));
         zmanim.add("Mincha Gedola= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getMinchaGedolaGreaterThan30())));
@@ -899,10 +901,12 @@ public class MainActivity extends AppCompatActivity {
         }
         zmanim.add("Latest Shma MG\"A= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanShmaMGA72MinutesZmanis())));
         zmanim.add("Latest Shma GR\"A= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanShmaGRA())));
-        zmanim.add("Latest Brachot Shma= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanTfilaGRA())));
         if (mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.EREV_PESACH) {
             zmanim.add("Latest Achilat Chametz= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanTfilaMGA72MinutesZmanis())));
-            zmanim.add("Latest Biur Chametz= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanBiurChametzGRA())));//TODO double check this, maybe we go like MGA getTimeOffset(getAlos72Zmanis(), getShaahZmanisMGA() * 5)
+            zmanim.add("Latest Brachot Shma= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanTfilaGRA())));
+            zmanim.add("Latest Biur Chametz= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanBiurChametzMGA())));
+        } else {
+            zmanim.add("Latest Brachot Shma= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanTfilaGRA())));
         }
         zmanim.add("Mid-Day= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getChatzot())));
         zmanim.add("Mincha Gedola= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getMinchaGedolaGreaterThan30())));
@@ -998,13 +1002,16 @@ public class MainActivity extends AppCompatActivity {
                 zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanShmaMGA72MinutesZmanis())));
         zmanim.add("\u05E1\u05D5\u05E3 \u05D6\u05DE\u05DF \u05E9\u05DE\u05E2 \u05D2\u05E8\"\u05D0= " +
                 zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanShmaGRA())));
-        zmanim.add("\u05E1\u05D5\u05E3 \u05D6\u05DE\u05DF \u05D1\u05E8\u05DB\u05D5\u05EA \u05E9\u05DE\u05E2= "
-                + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanTfilaGRA())));
         if (mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.EREV_PESACH) {
             zmanim.add("\u05E1\u05D5\u05E3 \u05D6\u05DE\u05DF \u05D0\u05DB\u05D9\u05DC\u05EA \u05D7\u05DE\u05E5= "
                     + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanTfilaMGA72MinutesZmanis())));
+            zmanim.add("\u05E1\u05D5\u05E3 \u05D6\u05DE\u05DF \u05D1\u05E8\u05DB\u05D5\u05EA \u05E9\u05DE\u05E2= "
+                    + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanTfilaGRA())));
             zmanim.add("\u05E1\u05D5\u05E3 \u05D6\u05DE\u05DF \u05D1\u05D9\u05E2\u05D5\u05E8 \u05D7\u05DE\u05E5= "
-                    + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanBiurChametzGRA())));//TODO double check this, maybe we go like MGA getTimeOffset(getAlos72Zmanis(), getShaahZmanisMGA() * 5)
+                    + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanBiurChametzMGA())));
+        } else {
+            zmanim.add("\u05E1\u05D5\u05E3 \u05D6\u05DE\u05DF \u05D1\u05E8\u05DB\u05D5\u05EA \u05E9\u05DE\u05E2= "
+                    + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanTfilaGRA())));
         }
         zmanim.add("\u05D7\u05E6\u05D5\u05EA= " +
                 zmanimFormat.format(checkNull(mROZmanimCalendar.getChatzot())));
@@ -1218,7 +1225,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (mSharedPreferences.getBoolean("askagain", true)) {//only prompt user if he has not asked to be left alone
             if (!lastLocation.isEmpty()) {//only check after the app has been setup before
-                mElevation = mSharedPreferences.getFloat("elevation", 0);//get and set the last value
+                mElevation = Double.parseDouble(mSharedPreferences.getString("elevation", "0"));//get and set the last value
                 if (!lastLocation.equals(mCurrentLocationName) && mElevation != 0) {//user should update his elevation in another city
                     new AlertDialog.Builder(this)
                             .setTitle("You are not in the same city as the last time that you " +

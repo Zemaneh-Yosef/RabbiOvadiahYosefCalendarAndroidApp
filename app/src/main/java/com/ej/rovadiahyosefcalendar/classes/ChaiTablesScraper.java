@@ -265,6 +265,9 @@ public class ChaiTablesScraper extends Thread {
 
     private void changeURLtoNextYear() {
         int currentJewishYear = jewishDate.getJewishYear();
+        if (jewishDate.isJewishLeapYear() && jewishDate.getJewishMonth() == JewishDate.ADAR_II) {
+            jewishDate.setJewishMonth(JewishDate.ADAR);//edge case
+        }
         jewishDate.setJewishYear(currentJewishYear + 1);
         mUrl = mUrl.replace("&cgi_yrheb=" + currentJewishYear,
                 "&cgi_yrheb=" + jewishDate.getJewishYear());

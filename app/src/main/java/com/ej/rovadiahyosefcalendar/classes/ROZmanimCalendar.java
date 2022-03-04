@@ -57,6 +57,11 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         return visibleSunriseDate;
     }
 
+    public Date getSofZmanBiurChametzMGA() {
+        long shaahZmanit = getTemporalHour(getAlos72Zmanis(), getTzais72Zmanis());
+        return getTimeOffset(getAlos72Zmanis(), shaahZmanit * 5);
+    }
+
     public Date getChatzot() {
         return getSunTransit(getSunrise(), getSunset());
     }

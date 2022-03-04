@@ -92,7 +92,7 @@ public class QuickSetupActivity extends AppCompatActivity {
 
                             Intent returnIntent = new Intent();
                             if (!getIntent().getBooleanExtra("onlyTable", false)) {
-                                mEditor.putFloat("elevation", (float) result).apply();
+                                mEditor.putString("elevation", result + "").apply();
                                 returnIntent.putExtra("elevation", result);
                                 setResult(Activity.RESULT_OK, returnIntent);
                                 Toast.makeText(QuickSetupActivity.this,
