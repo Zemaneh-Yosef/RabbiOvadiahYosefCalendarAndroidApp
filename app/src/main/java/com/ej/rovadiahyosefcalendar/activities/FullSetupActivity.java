@@ -20,7 +20,7 @@ import org.jetbrains.annotations.NotNull;
 public class FullSetupActivity extends AppCompatActivity {
 
     private SharedPreferences mSharedPreferences;
-    private float mElevationBackup;
+    private String mElevationBackup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,8 +29,8 @@ public class FullSetupActivity extends AppCompatActivity {
         mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         if (getIntent().getBooleanExtra("fromMenu", false)) {
             mSharedPreferences.edit().putBoolean("isSetup", false).apply();
-            mElevationBackup = mSharedPreferences.getFloat("elevation", 0);
-            mSharedPreferences.edit().putFloat("elevation", 0).apply();
+            mElevationBackup = mSharedPreferences.getString("elevation", "0");
+            mSharedPreferences.edit().putString("elevation", "0").apply();
         }
 
         Button inIsraelButton = findViewById(R.id.inIsraelButton);
@@ -75,7 +75,7 @@ public class FullSetupActivity extends AppCompatActivity {
     public void onBackPressed() {
         if (getIntent().getBooleanExtra("fromMenu", false)) {
             getSharedPreferences(SHARED_PREF, MODE_PRIVATE).edit().putBoolean("isSetup", true).apply();//undo what we did in the onCreate method
-            getSharedPreferences(SHARED_PREF, MODE_PRIVATE).edit().putFloat("elevation", mElevationBackup).apply();
+            getSharedPreferences(SHARED_PREF, MODE_PRIVATE).edit().putString("elevation", mElevationBackup).apply();
             finish();
         }
         super.onBackPressed();

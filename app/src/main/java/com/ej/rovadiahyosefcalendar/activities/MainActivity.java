@@ -721,6 +721,11 @@ public class MainActivity extends AppCompatActivity {
             zmanim.add(day);
         }
 
+        String isOKToListenToMusic = mJewishDateInfo.isOKToListenToMusic();
+        if (!isOKToListenToMusic.isEmpty()) {
+            zmanim.add(isOKToListenToMusic);
+        }
+
         String ulChaparatPesha = mJewishDateInfo.getIsUlChaparatPeshaSaid();
         if (!ulChaparatPesha.isEmpty()) {
             zmanim.add(ulChaparatPesha);
@@ -1232,7 +1237,8 @@ public class MainActivity extends AppCompatActivity {
                                     "setup the app!")
                             .setMessage(message)
                             .setPositiveButton("Yes", (dialogInterface, i) ->
-                                    mSetupLauncher.launch(new Intent(this, SetupChooserActivity.class)))
+                                    mSetupLauncher.launch(new Intent(this, SetupChooserActivity.class)
+                                            .putExtra("fromMenu",true)))
                             .setNegativeButton("No", (dialogInterface, i) -> Toast.makeText(
                                     this, "Using visible sunrise and elevation for your last location", Toast.LENGTH_LONG)
                                     .show())

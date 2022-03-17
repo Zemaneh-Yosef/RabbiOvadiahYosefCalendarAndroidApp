@@ -24,7 +24,7 @@ public class SetupChooserActivity extends AppCompatActivity {
     private SharedPreferences.Editor mEditor;
     private boolean mBackupSetting;
     private AlertDialog mAlertDialog;
-    private float mElevationBackup;
+    private String mElevationBackup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +68,7 @@ public class SetupChooserActivity extends AppCompatActivity {
         }
         if (getIntent().getBooleanExtra("fromMenu", false)) {
             mEditor.putBoolean("isSetup", false).apply();//reset the preferences
-            mElevationBackup = sharedPreferences.getFloat("elevation", 0);
+            mElevationBackup = sharedPreferences.getString("elevation", "0");
             mEditor.putFloat("elevation", 0).apply();
             mBackupSetting = sharedPreferences.getBoolean("askagain", true);//save what the user set
             mEditor.putBoolean("askagain", true).apply();//if the user is re-running the setup, reset the preferences for asking whether to change the city
@@ -80,7 +80,7 @@ public class SetupChooserActivity extends AppCompatActivity {
         if (getIntent().getBooleanExtra("fromMenu", false)) {
             mEditor.putBoolean("isSetup", true).apply();//undo the preferences changes in onCreate
             mEditor.putBoolean("askagain", mBackupSetting).apply();
-            mEditor.putFloat("elevation", mElevationBackup).apply();
+            mEditor.putString("elevation", mElevationBackup).apply();
             finish();
             super.onBackPressed();
             return;

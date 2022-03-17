@@ -476,4 +476,19 @@ public class JewishDateInfo {
         }
         return "";
     }
+
+    public String isOKToListenToMusic() {
+        if (jewishCalendar.getDayOfOmer() > 8 && jewishCalendar.getDayOfOmer() <= 33) {
+            return "No Music";
+        } else if (jewishCalendar.getJewishMonth() == JewishDate.TAMMUZ) {
+            if (jewishCalendar.getJewishDayOfMonth() >= 17) {
+                return "No Music";
+            }
+        } else if (jewishCalendar.getJewishMonth() == JewishDate.AV) {
+            if (jewishCalendar.getJewishDayOfMonth() <= 9) {
+                return "No Music";
+            }
+        }
+        return "";
+    }
 }
