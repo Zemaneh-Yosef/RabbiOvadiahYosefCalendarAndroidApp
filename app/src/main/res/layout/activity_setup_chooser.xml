@@ -14,8 +14,7 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="100dp"
-        android:layout_gravity="top"
-        android:scaleType="fitXY"
+        android:layout_gravity="top|center"
         android:adjustViewBounds="false"
         android:contentDescription="@string/yalkut_yosef_quote"
         android:src="@drawable/yalkut_yosef_quote"
@@ -72,6 +71,11 @@
             android:textStyle="bold" />
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
     <TextView
         android:id="@+id/showIntro"
         android:layout_width="wrap_content"
@@ -79,6 +83,19 @@
         android:gravity="bottom"
         android:text="@string/show_introduction"
         android:textStyle="bold"
-        android:layout_marginTop="40dp"/>
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="20dp"/>
+
+    <TextView
+        android:id="@+id/skipForNow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="bottom"
+        android:text="@string/skip_for_now"
+        android:textStyle="bold"
+        android:layout_marginTop="40dp"
+        android:layout_marginStart="20dp"/>
+
+    </LinearLayout>
 
 </LinearLayout>

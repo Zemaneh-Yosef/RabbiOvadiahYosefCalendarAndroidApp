@@ -53,12 +53,12 @@
     <string name="quick_setup">Quick Setup</string>
     <string name="advanced_setup">Advanced Setup</string>
     <string name="restart">Restart</string>
-    <string name="press_this_button_to_download_the_visible_sunrise_table_and_elevation_data_from_the_chai_tables_website">Press this button to download the visible sunrise table and elevation data from the Chai Tables website:</string>
+    <string name="press_this_button_to_download_the_visible_sunrise_table_and_elevation_data_from_the_chai_tables_website">Press this button to download the visible sunrise tables and elevation data from the Chai Tables website:</string>
     <string name="download">Download</string>
     <string name="setup_both_elevation_and_visible_sunrise">Setup both elevation and visible sunrise (advanced)</string>
     <string name="setup_elevation_only">Setup Elevation Only</string>
     <string name="setup_visible_sunrise_only">Setup Visible Sunrise Only</string>
-    <string name="do_not_setup_either_uses_mishor_sea_level_sunrise_sunset_for_both_zmanim_and_sunrise">Do Not setup either\n(Uses Mishor/Sea Level Sunrise and Sunset for both zmanim and Sunrise)</string>
+    <string name="do_not_setup_either_uses_mishor_sea_level_sunrise_sunset_for_both_zmanim_and_sunrise">Do Not setup anything\n\n(Uses Mishor/Sea Level Sunrise and Sunset for both zmanim and Sunrise)</string>
     <string name="alternate_download_request">Press this button to download the visible sunrise table from the Chai Tables website:</string>
     <string name="intro">Welcome!\n\nThe goal of this app is to help you create your own zmanim calendar according to Rabbi Ovadiah Yosef Z\"tl as accurately as possible. This app was made to teach people how zmanim are calculated and therefore it might seem confusing/not user friendly at first, however, I wanted to make sure people were getting what they wanted.\n\nThere are 2 options in order to setup the zmanim.\n\nThe \"Quick Setup\" option will setup the calendar according to the way that the Ohr HaChaim calendar, in Israel, sets it\'s zmanim. Pressing the Quick Setup button will take you to a button that will do 2 things. It will take you to a website that has a list of cities to calculate zmanim. Once you choose your city, it will download the elevation data for your city from the website. It will also download a table that lists the times for VISIBLE sunrise throughout the next 2 years.\n\nThe \"Advanced Setup\" option allows you to choose whether you want to download the elevation data for your city, or the visible sunrise tables, or neither one.\n\nKnow that the elevation data changes for each and every city and you will need to download the elevation data of your city from the ChaiTables website every time you change cities.\n\n\Why is the website needed? Because it is not easy to calculate the highest point of elevation in your city without detailed information of the entire city\'s elevation level, which would be too much data for this app. \n\nNote: Not every city will be available through chaitables, however, you should be able to request it to be added to the website if needed.</string>
     <string name="what_language_would_you_like_the_zmanim_to_be_in">What language would you like the zmanim to be in?</string>
@@ -95,4 +95,5 @@
     <string name="cancel">cancel</string>
     <string name="left">left</string>
     <string name="right">right</string>
+    <string name="skip_for_now">Skip For Now?</string>
 </resources>

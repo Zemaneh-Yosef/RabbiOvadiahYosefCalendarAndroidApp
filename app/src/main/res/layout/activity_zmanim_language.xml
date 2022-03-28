@@ -70,6 +70,7 @@
         android:layout_gravity="bottom"
         android:gravity="bottom"
         android:orientation="horizontal">
+
     <Button
         android:id="@+id/hebrew"
         android:layout_width="0dp"
@@ -80,9 +81,10 @@
         android:text="@string/hebrew"
         android:textAllCaps="false"
         android:textColor="@color/black"
-        android:textSize="14sp"
+        android:textSize="18sp"
         android:textStyle="bold"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        style="?android:attr/buttonBarButtonStyle" />
 
     <Button
         android:id="@+id/english"
@@ -94,8 +96,9 @@
         android:text="@string/english"
         android:textAllCaps="false"
         android:textColor="@color/black"
-        android:textSize="14sp"
-        android:layout_weight="1" />
+        android:textSize="18sp"
+        android:layout_weight="1"
+        style="?android:attr/buttonBarButtonStyle" />
 
     <Button
         android:id="@+id/englishTranslated"
@@ -107,8 +110,9 @@
         android:text="@string/translated_english"
         android:textAllCaps="false"
         android:textColor="@color/black"
-        android:textSize="14sp"
-        android:layout_weight="1" />
+        android:textSize="18sp"
+        android:layout_weight="1"
+        style="?android:attr/buttonBarButtonStyle" />
     </LinearLayout>
 
 </LinearLayout>

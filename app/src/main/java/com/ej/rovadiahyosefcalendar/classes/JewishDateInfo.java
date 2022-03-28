@@ -158,7 +158,7 @@ public class JewishDateInfo {
             case JewishCalendar.SHAVUOS:
                 return "Shavuot";
             case JewishCalendar.SEVENTEEN_OF_TAMMUZ:
-                return "Seventeenth of Tammuz";
+                return "Fast of the Seventeenth of Tammuz";
             case JewishCalendar.TISHA_BEAV:
                 return "Tisha Be'Av";
             case JewishCalendar.TU_BEAV:
@@ -477,8 +477,8 @@ public class JewishDateInfo {
         return "";
     }
 
-    public String isOKToListenToMusic() {
-        if (jewishCalendar.getDayOfOmer() > 8 && jewishCalendar.getDayOfOmer() <= 33) {
+    public String isOKToListenToMusic() {//TODO check dates
+        if (jewishCalendar.getDayOfOmer() >= 8 && jewishCalendar.getDayOfOmer() <= 33) {
             return "No Music";
         } else if (jewishCalendar.getJewishMonth() == JewishDate.TAMMUZ) {
             if (jewishCalendar.getJewishDayOfMonth() >= 17) {

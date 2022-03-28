@@ -44,6 +44,10 @@ public class SetupChooserActivity extends AppCompatActivity {
         showIntro.setPaintFlags(showIntro.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         showIntro.setOnClickListener(v -> mAlertDialog.show());
 
+        TextView skip = findViewById(R.id.skipForNow);
+        skip.setPaintFlags(showIntro.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        skip.setOnClickListener(v -> finish());
+
         Button quickSetupButton = findViewById(R.id.quickSetup);
         Button advancedSetupButton = findViewById(R.id.advancedSetup);
 
@@ -69,7 +73,7 @@ public class SetupChooserActivity extends AppCompatActivity {
         if (getIntent().getBooleanExtra("fromMenu", false)) {
             mEditor.putBoolean("isSetup", false).apply();//reset the preferences
             mElevationBackup = sharedPreferences.getString("elevation", "0");
-            mEditor.putFloat("elevation", 0).apply();
+            mEditor.putString("elevation", "0").apply();
             mBackupSetting = sharedPreferences.getBoolean("askagain", true);//save what the user set
             mEditor.putBoolean("askagain", true).apply();//if the user is re-running the setup, reset the preferences for asking whether to change the city
         }

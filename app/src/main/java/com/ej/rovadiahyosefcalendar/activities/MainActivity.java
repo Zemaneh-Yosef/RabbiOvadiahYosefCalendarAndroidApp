@@ -91,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
     private double mElevation = 0;
     private double mLatitude;
     private double mLongitude;
+    private View mLayout;
     private Button mNextDate;
     private Geocoder mGeocoder;
     private Button mPreviousDate;
@@ -114,7 +115,6 @@ public class MainActivity extends AppCompatActivity {
     private final ZmanimFormatter mZmanimFormatter = new ZmanimFormatter(TimeZone.getDefault());
     private final static Calendar dafYomiStartDate = new GregorianCalendar(1923, Calendar.SEPTEMBER, 11);
     private final static Calendar dafYomiYerushalmiStartDate = new GregorianCalendar(1980, Calendar.FEBRUARY, 2);
-    private View mLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {//TODO banner themes
@@ -159,14 +159,14 @@ public class MainActivity extends AppCompatActivity {
                     if (result.getResultCode() == Activity.RESULT_OK) {
                         if (result.getData() != null) {
                             mElevation = result.getData().getDoubleExtra("elevation", 0);
+                            editor.putString("lastLocation", mCurrentLocationName).apply();
                         } else {
-                            mElevation = 0;
+                            mElevation = Double.parseDouble(mSharedPreferences.getString("elevation", "0"));
                         }
                     } else {
-                        mElevation = 0;
+                        mElevation = Double.parseDouble(mSharedPreferences.getString("elevation", "0"));
                     }
                     acquireLatitudeAndLongitude();
-                    editor.putString("lastLocation", mCurrentLocationName).apply();
                     if (mCurrentTimeZoneID == null) return;
                     instantiateZmanimCalendar();
                     mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
@@ -445,9 +445,7 @@ public class MainActivity extends AppCompatActivity {
         }
         mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
         mMainRecyclerView.scrollToPosition(mCurrentPosition);
-        if (!mInitialized) {
-            getAndConfirmLastElevationAndVisibleSunriseData();
-        }
+        getAndConfirmLastElevationAndVisibleSunriseData();
         resetTheme();
         if (mSharedPreferences.getBoolean("useImage", false)) {
             Bitmap bitmap = BitmapFactory.decodeFile(mSharedPreferences.getString("imageLocation", ""));
@@ -1230,7 +1228,16 @@ public class MainActivity extends AppCompatActivity {
 
         if (mSharedPreferences.getBoolean("askagain", true)) {//only prompt user if he has not asked to be left alone
             if (!lastLocation.isEmpty()) {//only check after the app has been setup before
-                mElevation = Double.parseDouble(mSharedPreferences.getString("elevation", "0"));//get and set the last value
+                try {//TODO this needs to be removed but cannot be removed for now because it is needed for people who have setup the app before
+                    mElevation = Double.parseDouble(mSharedPreferences.getString("elevation", "0"));//get and set the last value
+                } catch (Exception e) {
+                    try {
+                        mElevation = mSharedPreferences.getFloat("elevation", 0);//get and set the last value
+                    } catch (Exception e1) {
+                        mElevation = 0;
+                        e1.printStackTrace();
+                    }
+                }
                 if (!lastLocation.equals(mCurrentLocationName) && mElevation != 0) {//user should update his elevation in another city
                     new AlertDialog.Builder(this)
                             .setTitle("You are not in the same city as the last time that you " +
