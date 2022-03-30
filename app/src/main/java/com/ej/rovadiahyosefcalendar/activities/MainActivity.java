@@ -99,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
     private Handler mHandler = null;
     private Runnable mZmanimUpdater;
     private String mCurrentTimeZoneID;
+    private AlertDialog mAlertDialog;
     private TextView mShabbatModeBanner;
     private JewishDateInfo mJewishDateInfo;
     private RecyclerView mMainRecyclerView;
@@ -127,9 +128,9 @@ public class MainActivity extends AppCompatActivity {
         mGeocoder = new Geocoder(this);
         mGestureDetector = new GestureDetector(MainActivity.this, new ZmanimGestureListener());
         mZmanimFormatter.setTimeFormat(ZmanimFormatter.SEXAGESIMAL_FORMAT);
+        createAlertDialog();
         initializeSetupResult();
-        mShabbatModeBanner = findViewById(R.id.shabbat_mode);
-        mShabbatModeBanner.setSelected(true);
+        setupShabbatModeBanner();
         acquireLatitudeAndLongitude();
         mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false), true);
         if (!ChaiTables.visibleSunriseFileExists(getExternalFilesDir(null), mJewishDateInfo.getJewishCalendar())//it should only not exist the first time running the app
@@ -274,12 +275,27 @@ public class MainActivity extends AppCompatActivity {
         return mGestureDetector.onTouchEvent(ev);
     }
 
+    private void setupShabbatModeBanner() {
+        mShabbatModeBanner = findViewById(R.id.shabbat_mode);
+        mShabbatModeBanner.setSelected(true);
+        mShabbatModeBanner.setOnClickListener(v -> {
+            if (v.getVisibility() == View.VISIBLE) {
+                v.setVisibility(View.GONE);
+            } else {
+                v.setVisibility(View.VISIBLE);
+            }
+        });
+    }
+
     private void setupButtons() {
         setupPreviousDayButton();
         setupCalendarButton();
         setupNextDayButton();
     }
 
+    /**
+     * Sets up the previous day button
+     */
     private void setupNextDayButton() {
         mNextDate = findViewById(R.id.next_day);
         mNextDate.setOnClickListener(v -> {
@@ -292,6 +308,9 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Setup the calendar button.
+     */
     private void setupCalendarButton() {
         mCalendarButton = findViewById(R.id.calendar);
         DatePickerDialog dialog = createDialog();
@@ -306,6 +325,11 @@ public class MainActivity extends AppCompatActivity {
         mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable());
     }
 
+    /**
+     * Sets up the dialog for the calendar button. Added a custom date picker to the dialog as well.
+     * @return The dialog.
+     * @see CustomDatePickerDialog for more information.
+     */
     private DatePickerDialog createDialog() {
         DatePickerDialog.OnDateSetListener onDateSetListener = (view, year, month, day) -> {
             Calendar mUserChosenDate = Calendar.getInstance();
@@ -331,6 +355,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Sets up the previous day button
+     */
     private void setupPreviousDayButton() {
         mPreviousDate = findViewById(R.id.prev_day);
         mPreviousDate.setOnClickListener(v -> {
@@ -343,6 +370,9 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * returns the current calendar drawable depending on the current day of the month.
+     */
     private int getCurrentCalendarDrawable() {
         switch (mROZmanimCalendar.getCalendar().get(Calendar.DATE)) {
             case (1):
@@ -477,6 +507,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     *
+     */
     private void saveGeoLocationInfo() {//needed for notifications
         SharedPreferences.Editor editor = getSharedPreferences(SHARED_PREF, MODE_PRIVATE).edit();
         editor.putString("name", mCurrentLocationName).apply();
@@ -485,6 +518,11 @@ public class MainActivity extends AppCompatActivity {
         editor.putString("timezoneID", mCurrentTimeZoneID).apply();
     }
 
+    /**
+     * This method will called every time the user opens the app. It will reset the notifications every time the app is opened since the user might
+     * have changed his location.
+     * @see #saveGeoLocationInfo()
+     */
     private void updateNotifications() {
         Calendar calendar = (Calendar) mROZmanimCalendar.getCalendar().clone();
         calendar.setTimeInMillis(mROZmanimCalendar.getSunrise().getTime());
@@ -507,6 +545,9 @@ public class MainActivity extends AppCompatActivity {
         am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), omerPendingIntent);
     }
 
+    /**
+     * Override this method to make sure nothing is blocking the app over shabbat/yom tov
+     */
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
@@ -516,6 +557,12 @@ public class MainActivity extends AppCompatActivity {
             }
     }
 
+    /**
+     * This method is called when the user clicks on shabbat mode. The main point of this method is to automatically scroll through the list of zmanim
+     * and update the date when the time reaches the next date at 12:00:02am. It will also update the shabbat banner to reflect the next day's date.
+     * @see #startScrollingThread() to start the thread that will scroll through the list of zmanim
+     * @see #setShabbatBannersText(boolean) to set the text of the shabbat banners
+     */
     private void startShabbatMode() {
         if (!mShabbatMode) {
             mShabbatMode = true;
@@ -544,6 +591,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Sets the text of the shabbat banners based on the NEXT day's date, since most people will start shabbat mode before shabbat/chag starts.
+     * @param isFirstTime if true, the text will be set based on the next day's date, otherwise it will be set based on the current date.
+     *                    Since it will be called at 12:00:02am the next day, we are already one day ahead of the date we want to show.
+     */
     @SuppressLint("SetTextI18n")
     private void setShabbatBannersText(boolean isFirstTime) {//TODO mix colors for shabbat
         if (isFirstTime) {
@@ -634,6 +686,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * This method is called when the user clicks on shabbat mode. It will create another thread that will constantly try to scroll the recycler view
+     * up and down.
+     */
     @SuppressWarnings({"BusyWait"})
     private void startScrollingThread() {
         Thread scrollingThread = new Thread(() -> {
@@ -676,6 +732,12 @@ public class MainActivity extends AppCompatActivity {
         scrollingThread.start();
     }
 
+    /**
+     * This method is called when the user wants to end shabbat mode. It will hide the banner and remove the automatic zmanim updater queued task
+     * from the handler.
+     * @see #startScrollingThread()
+     * @see #startShabbatMode()
+     */
     private void endShabbatMode() {
         if (mShabbatMode) {
             mShabbatMode = false;
@@ -684,6 +746,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * This method is the main method for updating the Zmanim in the recyclerview. It is called everytime the user changes the dateo or updates
+     * any settings. This method returns a list of Zmanim strings, which are then added to the recyclerview.
+     * @return the updated information and Zmanim for the current day in a List of Strings with the following format:
+     * zman= 12:00(:00) (seconds are optional)
+     */
     private List<String> getZmanimList() {
         DateFormat zmanimFormat;
         if (mSettingsPreferences.getBoolean("ShowSeconds", false)) {
@@ -1130,6 +1198,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * This is a simple convenience method to check if the given date is on shabbat or yom tov or both
+     * @return a string that says whether it is shabbat and chag or just shabbat or just chag (in Hebrew or English)
+     */
     private String getShabbatAndOrChag() {
         if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
             if (mJewishDateInfo.getJewishCalendar().isYomTov() &&
@@ -1153,7 +1225,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * uses the TimeZoneMap to get the current timezone ID based on the latitude and longitude
+     * This method uses the TimeZoneMap to get the current timezone ID based on the latitude and longitude of the device.
+     * If the latitude and longitude are not known, it will use the default timezone ID.
      */
     private void setTimeZoneID() {
         if (mLatitude != 0 && mLongitude != 0) {
@@ -1214,12 +1287,13 @@ public class MainActivity extends AppCompatActivity {
      * all is good. If the user is in another city, we create an AlertDialog to warn the user that the elevation data
      * and visible sunrise data are not accurate.
      *
+     * @see #createAlertDialog()
      * @see #getLocationAsName()
      */
     private void getAndConfirmLastElevationAndVisibleSunriseData() {
         String lastLocation = mSharedPreferences.getString("lastLocation", "");
 
-        String message = "The elevation and visible sunrise data change depending on the city you are in. " +
+        String message ="The elevation and visible sunrise data change depending on the city you are in. " +
                         "Therefore, it is recommended that you update your elevation and visible sunrise " +
                         "data according to your current location." + "\n\n" +
                         "Last Location: " + lastLocation + "\n" +
@@ -1239,25 +1313,34 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 if (!lastLocation.equals(mCurrentLocationName) && mElevation != 0) {//user should update his elevation in another city
-                    new AlertDialog.Builder(this)
-                            .setTitle("You are not in the same city as the last time that you " +
-                                    "setup the app!")
-                            .setMessage(message)
-                            .setPositiveButton("Yes", (dialogInterface, i) ->
-                                    mSetupLauncher.launch(new Intent(this, SetupChooserActivity.class)
-                                            .putExtra("fromMenu",true)))
-                            .setNegativeButton("No", (dialogInterface, i) -> Toast.makeText(
-                                    this, "Using visible sunrise and elevation for your last location", Toast.LENGTH_LONG)
-                                    .show())
-                            .setNeutralButton("Do not ask again", (dialogInterface, i) -> {
-                                mSharedPreferences.edit().putBoolean("askagain", false).apply();
-                                Toast.makeText(this, "Your current elevation is: " + mElevation, Toast.LENGTH_LONG)
-                                        .show();
-                            })
-                            .show();
+                    mAlertDialog.setMessage(message);
+                    mAlertDialog.show();
                 }
             }
         }
+    }
+
+    /**
+     * This method creates the AlertDialog that will be shown to the user if the user is in another city and he has setup the app before.
+     * The AlertDialog will have two buttons: "Yes" and "No". If the user clicks "Yes", then the user will be taken to the
+     * elevation and visible sunrise setup activity. If the user clicks "No", then the user will be taken to the main activity.
+     * @see #getAndConfirmLastElevationAndVisibleSunriseData()
+     */
+    private void createAlertDialog() {
+        mAlertDialog = new AlertDialog.Builder(this)
+                .setTitle("You are not in the same city as the last time that you " +
+                        "setup the app!")
+                .setPositiveButton("Yes", (dialogInterface, i) ->
+                        mSetupLauncher.launch(new Intent(this, SetupChooserActivity.class)
+                                .putExtra("fromMenu",true)))
+                .setNegativeButton("No", (dialogInterface, i) -> Toast.makeText(
+                        this, "Using visible sunrise and elevation for your last location", Toast.LENGTH_LONG)
+                        .show())
+                .setNeutralButton("Do not ask again", (dialogInterface, i) -> {
+                    mSharedPreferences.edit().putBoolean("askagain", false).apply();
+                    Toast.makeText(this, "Your current elevation is: " + mElevation, Toast.LENGTH_LONG)
+                            .show();
+                }).create();
     }
 
     /**
@@ -1367,6 +1450,10 @@ public class MainActivity extends AppCompatActivity {
         resolveCurrentLocationName();
     }
 
+    /**
+     * Resolves the current location name to be a latitude and longitude if mCurrentLocationName is empty
+     * @see #mCurrentLocationName
+     */
     private void resolveCurrentLocationName() {
         mCurrentLocationName = getLocationAsName();
         if (mCurrentLocationName.isEmpty()) {
@@ -1393,8 +1480,7 @@ public class MainActivity extends AppCompatActivity {
      * create an Alert Dialog box to ask the user to accept the permission again or enter a zipcode.
      */
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull @NotNull String[] permissions,
-                                           @NonNull @NotNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull @NotNull String[] permissions, @NonNull @NotNull int[] grantResults) {
         if (requestCode == 1) {
             if (permissions.length > 0 && grantResults[0] == PERMISSION_GRANTED) {
                 acquireLatitudeAndLongitude();
@@ -1597,6 +1683,9 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * This class is used to change the date in the main activity if the user swipes left or right.
+     */
     private class ZmanimGestureListener extends GestureDetector.SimpleOnGestureListener {
 
         private static final int SWIPE_MIN_DISTANCE = 180;

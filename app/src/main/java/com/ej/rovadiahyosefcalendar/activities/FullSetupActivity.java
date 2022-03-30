@@ -29,7 +29,16 @@ public class FullSetupActivity extends AppCompatActivity {
         mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         if (getIntent().getBooleanExtra("fromMenu", false)) {
             mSharedPreferences.edit().putBoolean("isSetup", false).apply();
-            mElevationBackup = mSharedPreferences.getString("elevation", "0");
+            try {
+                mElevationBackup = mSharedPreferences.getString("elevation", "0");
+            } catch (Exception e) {
+                try {
+                    mElevationBackup = String.valueOf(mSharedPreferences.getFloat("elevation", 0));
+                } catch (Exception e1) {
+                    mElevationBackup = "0";
+                    e1.printStackTrace();
+                }
+            }
             mSharedPreferences.edit().putString("elevation", "0").apply();
         }
 
