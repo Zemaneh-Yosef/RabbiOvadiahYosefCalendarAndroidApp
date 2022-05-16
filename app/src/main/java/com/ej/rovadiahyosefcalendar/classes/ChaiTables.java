@@ -13,13 +13,17 @@ public class ChaiTables {
 
     private static final int ROWS_UNDER_MONTHS = 31;
     private final JewishCalendar jewishCalendar;
+    private final File externalFilesDir;
+    private final String currentLocation;
     private List<String[]> actualVSunriseTable;
 
-    public ChaiTables(File externalFilesDir, JewishCalendar jewishCalendar) throws Exception {
+    public ChaiTables(File externalFilesDir, String currentLocation, JewishCalendar jewishCalendar) throws Exception {
+        this.externalFilesDir = externalFilesDir;
+        this.currentLocation = currentLocation;
         this.jewishCalendar = jewishCalendar;
 
-        if (visibleSunriseFileExists(externalFilesDir, jewishCalendar)) {
-            File file = new File(externalFilesDir, "visibleSunriseTable" + jewishCalendar.getJewishYear() +".csv");
+        if (visibleSunriseFileExists(externalFilesDir, currentLocation, jewishCalendar)) {
+            File file = new File(externalFilesDir, "visibleSunriseTable"+ currentLocation + jewishCalendar.getJewishYear() +".csv");
             CSVReader visibleSunriseReader = new CSVReader(new FileReader(file));
 
             List<String[]> visibleSunriseCSVBody = visibleSunriseReader.readAll();
@@ -38,7 +42,8 @@ public class ChaiTables {
         ListIterator<String[]> listIterator = csvBody.listIterator();
         while (listIterator.hasNext()) {
             String currentRow = Arrays.toString(listIterator.next());
-            if (currentRow.contains("Tishrey, Chesvan, Kislev, Teves, Shvat, Adar I, Adar II, Nisan, Iyar, Sivan, Tamuz, Av, Elul")) {
+            if (currentRow.contains("Tishrey, Chesvan, Kislev, Teves, Shvat, Adar I, Adar II, Nisan, Iyar, Sivan, Tamuz, Av, Elul")
+                    || currentRow.contains("Tishrey, Chesvan, Kislev, Teves, Shvat, Adar, Nisan, Iyar, Sivan, Tamuz, Av, Elul")) {
                 startingRow = listIterator.nextIndex()-1;
                 lastRow = startingRow + ROWS_UNDER_MONTHS;
             }
@@ -46,7 +51,9 @@ public class ChaiTables {
             listIterator.next();
         }
         if (startingRow == 0 && lastRow == 0) {
-            throw new Exception("Table not recognized!");
+            File file = new File(externalFilesDir, "visibleSunriseTable"+ currentLocation + jewishCalendar.getJewishYear() +".csv");
+            file.delete();
+            throw new Exception("The file is corrupted. Deleting it...");
         } else {
             return csvBody.subList(startingRow, lastRow);
         }
@@ -80,8 +87,13 @@ public class ChaiTables {
         return actualVSunriseTable.get(jCal.getJewishDayOfMonth())[currentHebrewMonth];
     }
 
-    public static boolean visibleSunriseFileExists(File externalFilesDir, JewishCalendar jewishCalendar) {
-        File sunriseCSV = new File(externalFilesDir, "visibleSunriseTable" + jewishCalendar.getJewishYear() + ".csv");
+    public boolean visibleSunriseFileExists() {
+        File sunriseCSV = new File(externalFilesDir, "visibleSunriseTable" + currentLocation + jewishCalendar.getJewishYear() + ".csv");
+        return sunriseCSV.isFile();
+    }
+
+    public static boolean visibleSunriseFileExists(File externalFilesDir, String currentLocation, JewishCalendar jewishCalendar) {
+        File sunriseCSV = new File(externalFilesDir, "visibleSunriseTable" + currentLocation + jewishCalendar.getJewishYear() + ".csv");
         return sunriseCSV.isFile();
     }
 

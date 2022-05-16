@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:attr/colorBackground"
+    android:orientation="vertical"
+    android:layout_gravity="center"
+    android:gravity="center"
+    tools:context=".activities.SetupElevationActivity">
+
+    <ProgressBar
+        android:id="@+id/progressBarElevation"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:layout_margin="10dp"
+        android:visibility="gone"
+        />
+
+    <TextView
+        android:id="@+id/setup_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="8dp"
+        android:text="@string/setup_elevation"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:padding="4dp"
+        android:text="@string/long_explanation"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:padding="4dp"
+        android:text="@string/mishor_request"
+        />
+
+    <Button
+        android:id="@+id/mishor"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:padding="8dp"
+        android:gravity="center"
+        android:text="@string/mishor_sea_level"
+        android:background="@drawable/colorful_gradient_square"
+        android:textColor="@color/black"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="center"
+        android:padding="4dp"
+        android:text="@string/manual_button"
+        />
+
+    <Button
+        android:id="@+id/manual"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/colorful_gradient_square"
+        android:textColor="@color/black"
+        android:gravity="center"
+        android:text="@string/manual"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="center"
+        android:padding="4dp"
+        android:text="@string/geonames_request"
+        />
+
+    <Button
+        android:id="@+id/geonamesButton"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/geonames"
+        android:background="@drawable/colorful_gradient_square"
+        android:textColor="@color/black"
+        android:layout_marginTop="8dp"
+        />
+
+</LinearLayout>

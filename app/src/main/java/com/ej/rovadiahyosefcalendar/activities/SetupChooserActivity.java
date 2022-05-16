@@ -45,31 +45,26 @@ public class SetupChooserActivity extends AppCompatActivity {
         showIntro.setOnClickListener(v -> mAlertDialog.show());
 
         TextView skip = findViewById(R.id.skipForNow);
-        skip.setPaintFlags(showIntro.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        skip.setPaintFlags(skip.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         skip.setOnClickListener(v -> finish());
 
         Button quickSetupButton = findViewById(R.id.quickSetup);
         Button advancedSetupButton = findViewById(R.id.advancedSetup);
 
         quickSetupButton.setOnClickListener(v -> {
-            startActivity(new Intent(this, QuickSetupActivity.class)
+            startActivity(new Intent(this, SimpleSetupActivity.class)
                     .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
                     .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
             finish();
         });
 
         advancedSetupButton.setOnClickListener(v -> {
-            startActivity(
-                    new Intent(this, AdvancedSetupActivity.class)
+            startActivity(new Intent(this, AdvancedSetupActivity.class)
                             .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
                             .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
             finish();
         });
 
-        if (!sharedPreferences.getBoolean("introShown",false)) {//if the introduction has not been shown
-            mAlertDialog.show();
-            mEditor.putBoolean("introShown", true).apply();
-        }
         if (getIntent().getBooleanExtra("fromMenu", false)) {
             mEditor.putBoolean("isSetup", false).apply();//reset the preferences
             try {

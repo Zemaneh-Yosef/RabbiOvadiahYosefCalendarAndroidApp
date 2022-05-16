@@ -17,6 +17,7 @@ import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ej.rovadiahyosefcalendar.R;
+import com.ej.rovadiahyosefcalendar.activities.MainActivity;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -55,27 +56,34 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         } else {
             holder.mMiddleTextView.setText(zmanim.get(position));
         }
+
         holder.itemView.setOnClickListener(v -> {
-            if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
-                checkHebrewZmanimForDialog(position);
-            } else if (mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false)) {
-                checkTranslatedEnglishZmanimForDialog(position);
-            } else {
-                checkEnglishZmanimForDialog(position);
-            }
-            if (zmanim.get(position).contains("וּלְכַפָּרַת פֶּשַׁע")) {
-                showUlChaparatPeshaDialog();
-            }
-            if (zmanim.get(position).contains("Elevation")) {
-                showElevationDialog();
+            if (!MainActivity.sShabbatMode) {
+                if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
+                    checkHebrewZmanimForDialog(position);
+                } else if (mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false)) {
+                    checkTranslatedEnglishZmanimForDialog(position);
+                } else {
+                    checkEnglishZmanimForDialog(position);
+                }
+
+                if (zmanim.get(position).contains("וּלְכַפָּרַת פֶּשַׁע")) {
+                    showUlChaparatPeshaDialog();
+                }
+
+                if (zmanim.get(position).contains("Elevation")) {
+                    showElevationDialog();
+                }
             }
         });
+
         if (mSharedPreferences.getBoolean("useImage", false)) {
             holder.itemView.setBackgroundResource(0);
         } else if (mSharedPreferences.getBoolean("customBackgroundColor", false) &&
                 !mSharedPreferences.getBoolean("useDefaultBackgroundColor", false)) {
             holder.itemView.setBackgroundColor(mSharedPreferences.getInt("bColor", 0x32312C));
         }
+
         if (mSharedPreferences.getBoolean("customTextColor", false)) {
             holder.mLeftTextView.setTextColor(mSharedPreferences.getInt("tColor", 0xFFFFFFFF));
             holder.mMiddleTextView.setTextColor(mSharedPreferences.getInt("tColor", 0xFFFFFFFF));

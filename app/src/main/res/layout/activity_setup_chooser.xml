@@ -42,19 +42,13 @@
             android:background="@drawable/colorful_gradient"
             android:gravity="center"
             android:padding="20dp"
-            android:text="@string/quick_setup"
+            android:text="@string/simple_setup"
             android:textAllCaps="false"
             android:textColor="@color/black"
             android:textSize="28sp"
             android:textStyle="bold" />
 
-        <TextView
-            android:layout_marginTop="40dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/if_you_want_to_specify_what_to_setup"
-            android:gravity="center"
-            android:padding="8dp"/>
+
 
         <Button
             android:id="@+id/advancedSetup"

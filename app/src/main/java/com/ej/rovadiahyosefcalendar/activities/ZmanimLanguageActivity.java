@@ -1,5 +1,7 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
 
 import android.app.AlertDialog;
@@ -12,6 +14,7 @@ import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
 
@@ -69,8 +72,12 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
     private void saveInfoAndStartActivity(boolean isHebrew, boolean isTranslated) {
         mSharedPreferences.edit().putBoolean("isZmanimInHebrew", isHebrew).apply();
         mSharedPreferences.edit().putBoolean("isZmanimEnglishTranslated", isTranslated).apply();
-        startActivity(new Intent(this, SetupChooserActivity.class)
-                .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(), ACCESS_FINE_LOCATION) != PERMISSION_GRANTED ||
+                mSharedPreferences.getBoolean("useZipcode", false)) {
+            startActivity(new Intent(this, CurrentLocationActivity.class).setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
+        } else {//skip CurrentLocationActivity and go straight to SetupActivity
+            startActivity(new Intent(this, SetupChooserActivity.class).setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
+        }
         finish();
     }
     @Override

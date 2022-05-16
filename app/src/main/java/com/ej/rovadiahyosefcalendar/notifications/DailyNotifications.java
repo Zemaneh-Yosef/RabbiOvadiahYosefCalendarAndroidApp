@@ -20,10 +20,10 @@ import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
 
-import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.MainActivity;
-import com.kosherjava.zmanim.ComplexZmanimCalendar;
+import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
+import com.kosherjava.zmanim.AstronomicalCalendar;
 import com.kosherjava.zmanim.util.GeoLocation;
 
 import java.util.Calendar;
@@ -40,21 +40,21 @@ public class DailyNotifications extends BroadcastReceiver {
         JewishDateInfo jewishDateInfo = new JewishDateInfo(
                 sp.getBoolean("inIsrael",false), true);
         if (sp.getBoolean("isSetup",false)) {
-            ComplexZmanimCalendar c = new ComplexZmanimCalendar(new GeoLocation(
+            AstronomicalCalendar calendar = new AstronomicalCalendar(new GeoLocation(
                     sp.getString("name", ""),
                     Double.longBitsToDouble(sp.getLong("lat", 0)),
                     Double.longBitsToDouble(sp.getLong("long", 0)),
                     TimeZone.getTimeZone(sp.getString("timezoneID", ""))));
 
             if (!jewishDateInfo.getSpecialDay().isEmpty()) {
-                long when = c.getSunrise().getTime();
+                long when = calendar.getSunrise().getTime();
                 NotificationManager notificationManager =
                         (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     NotificationChannel channel = new NotificationChannel("Jewish Special Day",
                             "Daily Notifications",
-                            NotificationManager.IMPORTANCE_DEFAULT);
+                            NotificationManager.IMPORTANCE_HIGH);
                     channel.setDescription("This notification will check daily if there is a " +
                             "special jewish day and display it at sunrise.");
                     channel.enableLights(true);
@@ -82,12 +82,11 @@ public class DailyNotifications extends BroadcastReceiver {
                             .setContentText("Today is " + jewishDateInfo.getSpecialDay())
                             .setStyle(new NotificationCompat.BigTextStyle()
                                     .setBigContentTitle("Jewish Special Day")
-                                    .setSummaryText(c.getGeoLocation().getLocationName())
+                                    .setSummaryText(calendar.getGeoLocation().getLocationName())
                                     .bigText("Today is " + jewishDateInfo.getSpecialDay()))
                             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                             .setCategory(NotificationCompat.CATEGORY_REMINDER)
                             .setPriority(NotificationCompat.PRIORITY_HIGH)
-                            .setLights(Color.YELLOW, 500, 500)
                             .setSound(alarmSound)
                             .setColor(context.getColor(R.color.dark_gold))
                             .setAutoCancel(true)
@@ -95,14 +94,14 @@ public class DailyNotifications extends BroadcastReceiver {
                             .setContentIntent(pendingIntent);
                     notificationManager.notify(MID, mNotifyBuilder.build());
                     MID++;
-                    sp.edit().putString("lastKnownDay", jewishDateInfo.getJewishDate()).apply();//TODO make sure logic works
+                    sp.edit().putString("lastKnownDay", jewishDateInfo.getJewishDate()).apply();
                 }
             }
-            updateAlarm(context, c);
+            updateAlarm(context, calendar);
         }
     }
 
-    private void updateAlarm(Context context, ComplexZmanimCalendar c) {
+    private void updateAlarm(Context context, AstronomicalCalendar c) {
         Calendar calendar = Calendar.getInstance();
         AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
         calendar.setTimeInMillis(c.getSunrise().getTime());

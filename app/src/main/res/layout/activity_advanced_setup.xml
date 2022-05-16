@@ -1,78 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?android:attr/colorBackground"
-    tools:context=".activities.AdvancedSetupActivity">
+    android:orientation="vertical"
+    android:gravity="center"
+    tools:context=".activities.SimpleSetupActivity">
 
-    <Button
-        android:id="@+id/setup_both"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="@drawable/colorful_gradient_square"
-        android:textColor="@color/black"
-        android:layout_margin="12dp"
-        android:text="@string/setup_both_elevation_and_visible_sunrise"
-        app:layout_constraintBottom_toTopOf="@+id/guideline3"
-        app:layout_constraintEnd_toStartOf="@+id/guideline4"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:text="@string/chaitables_instructions"
+        android:padding="12dp"
+        android:gravity="center"
+        />
 
-    <Button
-        android:id="@+id/setup_elevation"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="@drawable/colorful_gradient_square"
-        android:textColor="@color/black"
-        android:text="@string/setup_elevation_only"
-        android:layout_margin="12dp"
-        app:layout_constraintBottom_toTopOf="@+id/guideline3"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/guideline4"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline4"
+    <EditText
+        android:id="@+id/tableLink"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.50" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline3"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.50" />
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:layout_gravity="center"
+        android:inputType="text"
+        android:hint="@string/table_link"
+        android:textSize="20sp"
+        android:textColor="?android:attr/textColorPrimary"
+        />
 
     <Button
-        android:id="@+id/setup_visible_sunrise"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:id="@+id/set_link_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableEnd="@android:drawable/ic_menu_today"
+        android:text="@string/set_link"
         android:background="@drawable/colorful_gradient_square"
-        android:padding="20dp"
-        android:layout_margin="12dp"
         android:textColor="@color/black"
-        android:text="@string/setup_visible_sunrise_only"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/guideline4"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guideline3" />
+        android:padding="16dp"
+        android:layout_marginBottom="16dp"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:padding="20dp"
+        android:text="@string/or" />
 
     <Button
-        android:id="@+id/neither_button"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:id="@+id/chaitables_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/go_to_the_website_in_the_app"
+        android:drawableEnd="@drawable/ic_baseline_ad_units_24"
         android:background="@drawable/colorful_gradient_square"
-        android:padding="20dp"
         android:textColor="@color/black"
-        android:layout_margin="12dp"
-        android:text="@string/do_not_setup_either_uses_mishor_sea_level_sunrise_sunset_for_both_zmanim_and_sunrise"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/guideline4"
-        app:layout_constraintTop_toTopOf="@+id/guideline3" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:padding="16dp"
+        android:layout_marginBottom="16dp"
+        />
+
+    <TextView
+        android:id="@+id/skip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/skip"
+        android:textSize="18sp"
+        android:padding="8dp"
+        android:gravity="center"
+        />
+
+</LinearLayout>

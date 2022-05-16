@@ -1,5 +1,7 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
+import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sCurrentLocationName;
+
 import com.kosherjava.zmanim.ComplexZmanimCalendar;
 import com.kosherjava.zmanim.ZmanimCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
@@ -31,9 +33,9 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
 
     public Date getHaNetz() {
         try {
-            ChaiTables chaiTables = new ChaiTables(externalFilesDir, jewishCalendar);
+            ChaiTables chaiTables = new ChaiTables(externalFilesDir, sCurrentLocationName, jewishCalendar);
 
-            if (ChaiTables.visibleSunriseFileExists(externalFilesDir, jewishCalendar)) {
+            if (chaiTables.visibleSunriseFileExists()) {
                 String currentVisibleSunrise = chaiTables.getVisibleSunrise();
 
                 int visibleSunriseHour = Integer.parseInt(currentVisibleSunrise.substring(0, 1));

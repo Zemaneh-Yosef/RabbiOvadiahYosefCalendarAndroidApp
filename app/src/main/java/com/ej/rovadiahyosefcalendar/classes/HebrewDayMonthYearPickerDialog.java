@@ -122,7 +122,7 @@ public class HebrewDayMonthYearPickerDialog extends DialogFragment {
                     listener.onDateSet(null,
                             mJewishCalendar.getGregorianYear(), mJewishCalendar.getGregorianMonth(), mJewishCalendar.getGregorianDayOfMonth());
                 })
-                .setNegativeButton(R.string.cancel, (dialog2, id) -> Objects.requireNonNull(HebrewDayMonthYearPickerDialog.this.getDialog()).cancel())
+                .setNegativeButton("Cancel", (dialog2, id) -> Objects.requireNonNull(HebrewDayMonthYearPickerDialog.this.getDialog()).cancel())
                 .setNeutralButton("                Switch Calendar", (dialog3, which) -> {
                     mCustomDatePickerDialog.create();
                     mCustomDatePickerDialog.show();

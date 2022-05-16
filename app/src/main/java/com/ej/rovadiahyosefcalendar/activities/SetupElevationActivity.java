@@ -1,22 +1,21 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sCurrentLocationName;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Paint;
 import android.os.Bundle;
-import android.view.KeyEvent;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,59 +24,44 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesScraper;
+import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 
 import org.jetbrains.annotations.NotNull;
 
 public class SetupElevationActivity extends AppCompatActivity {
 
-    private double mElevation = 0;
-    private final String mChaiTablesURL = "http://chaitables.com";
-    private WebView mWebView;
-    private Button mMishorButton;
-    private Button mManualButton;
-    private Button mChaitablesButton;
-    private TextView mSetupHeader;
-    private TextView mElevationInfo;
-    private TextView mMishorRequest;
-    private TextView mManualRequest;
-    private TextView mChaitablesRequest;
+    private String mElevation = "0";
 
-    @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_setup);
-        mSetupHeader = findViewById(R.id.setup_header);
-        mElevationInfo = findViewById(R.id.elevation_info);
-        mMishorRequest = findViewById(R.id.mishor_request);
-        mManualRequest = findViewById(R.id.manual_request);
-        mChaitablesRequest = findViewById(R.id.chaiTables_request);
-        if (getIntent().getBooleanExtra("downloadTable",false)) {
-            mChaitablesRequest.setText(R.string.chaitables_requestV2);
-        }
-        mWebView = findViewById(R.id.web_view);
+        setContentView(R.layout.activity_setup_elevation);
+        LocationResolver locationResolver = new LocationResolver(this, this);
+        locationResolver.acquireLatitudeAndLongitude();
+        locationResolver.setTimeZoneID();
 
-        SharedPreferences.Editor editor = getSharedPreferences(SHARED_PREF, MODE_PRIVATE).edit();
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        TextView setupHeader = findViewById(R.id.setup_header);
+        setupHeader.setPaintFlags(setupHeader.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
 
-        mMishorButton = findViewById(R.id.mishor);
-        mMishorButton.setOnClickListener(v -> {
-            editor.putFloat("elevation", (float)mElevation).apply();
-            editor.putBoolean("isElevationSetup", true).apply();
+        Button mishorButton = findViewById(R.id.mishor);
+        mishorButton.setOnClickListener(v -> {
+            editor.putString("elevation" + sCurrentLocationName, mElevation).apply();
+            editor.putBoolean("isSetup", true).apply();
             Intent returnIntent = new Intent();
             setResult(Activity.RESULT_CANCELED, returnIntent);
             if (getIntent().getBooleanExtra("downloadTable",false)) {
-                startActivity(new Intent(this, QuickSetupActivity.class)
-                        .putExtra("onlyTable",true)
-                        .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
+                downloadTablesAndFinish(sharedPreferences);
             } else {
-                editor.putBoolean("isSetup", true).apply();
+                finish();
             }
-            finish();
         });
 
-        mManualButton = findViewById(R.id.manual);
-        mManualButton.setOnClickListener(v -> {
+        Button manualButton = findViewById(R.id.manual);
+        manualButton.setOnClickListener(v -> {
             final EditText input = new EditText(this);
+            input.setGravity(Gravity.CENTER_HORIZONTAL);
 
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Enter elevation in meters:");
@@ -85,25 +69,21 @@ public class SetupElevationActivity extends AppCompatActivity {
             builder.setPositiveButton("OK", (dialog, which) -> {
                 if (input.getText().toString().isEmpty() ||
                         !input.getText().toString().matches("[0-9]+.?[0-9]*")) {//regex to check for a proper number input
-                    Toast.makeText(
-                            SetupElevationActivity.this,
-                            "Please Enter a valid value, for example: 30 or 30.0",
-                            Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Please Enter a valid value, for example: 30 or 30.0", Toast.LENGTH_SHORT)
+                            .show();
                 } else {
-                    mElevation = Double.parseDouble(input.getText().toString());
-                    editor.putFloat("elevation", (float) mElevation).apply();
+                    mElevation = input.getText().toString();
+                    editor.putString("elevation" + sCurrentLocationName, mElevation).apply();
+                    editor.putBoolean("isSetup", true).apply();
                     editor.putBoolean("isElevationSetup", true).apply();
                     Intent returnIntent = new Intent();
                     returnIntent.putExtra("elevation", mElevation);
                     setResult(Activity.RESULT_OK, returnIntent);
                     if (getIntent().getBooleanExtra("downloadTable",false)) {
-                        startActivity(new Intent(this, QuickSetupActivity.class)
-                                .putExtra("onlyTable",true)
-                                .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
+                        downloadTablesAndFinish(sharedPreferences);
                     } else {
-                        editor.putBoolean("isSetup", true).apply();
+                        finish();
                     }
-                    finish();
                 }
             });
             builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
@@ -111,105 +91,47 @@ public class SetupElevationActivity extends AppCompatActivity {
             builder.show();
         });
 
-        mChaitablesButton = findViewById(R.id.chaiTables);
-        mChaitablesButton.setOnClickListener(v -> {
-            showDialogBox();
-            setVisibilityOfViews(View.INVISIBLE);
-            mWebView.setVisibility(View.VISIBLE);
-
-            WebSettings webSettings = mWebView.getSettings();
-            webSettings.setJavaScriptEnabled(true);
-            mWebView.loadUrl(mChaiTablesURL);
-            mWebView.setWebViewClient(new WebViewClient() {
-                @Override public void onPageFinished(WebView view, String url) {
-                    super.onPageFinished(view, url);
-                    if (view.getUrl().startsWith("http://chaitables.com/cgi-bin/")) {//this is enough to know that it is showing the table with the info we need
-
-                        ChaiTablesScraper scraper = new ChaiTablesScraper();
-
-                        scraper.setDownloadSettings(
-                                view.getUrl(),
-                                getExternalFilesDir(null),
-                                getIntent().getBooleanExtra("downloadTable", false));
-
-                        scraper.start();
-                        try {
-                            scraper.join();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        double result = scraper.getResult();
-                        SharedPreferences.Editor editor = getSharedPreferences(
-                                SHARED_PREF, MODE_PRIVATE).edit();
-                        editor.putString("elevation", result + "").apply();
-                        editor.putBoolean("isElevationSetup", true).apply();
-
-                        if (!getIntent().getBooleanExtra("downloadTable",false)) {
-                            editor.putBoolean("isSetup", true).apply();
-                        }
-
-                        Intent returnIntent = new Intent();
-                        returnIntent.putExtra("elevation", result);
-                        setResult(Activity.RESULT_OK, returnIntent);
-
-                        Toast.makeText(SetupElevationActivity.this,
-                                "Elevation received from ChaiTables!: " + result,
-                                Toast.LENGTH_LONG).show();
-
-                        finish();
-                    }
-                }
-            });
+        Button geoNamesButton = findViewById(R.id.geonamesButton);
+        geoNamesButton.setOnClickListener(view -> {
+            if (getIntent().getBooleanExtra("downloadTable",false)) {
+                locationResolver.start();
+                editor.putBoolean("isElevationSetup", true).apply();
+                editor.putBoolean("isSetup", true).apply();
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("elevation", sharedPreferences.getString("elevation" + sCurrentLocationName, "0"));
+                setResult(Activity.RESULT_OK, returnIntent);
+                downloadTablesAndFinish(sharedPreferences);
+            } else {
+                finish();
+            }
         });
     }
 
-    /**
-     * Self explanatory convenience method to hide all the views except the WebView.
-     * @param visibility either values of visibilities mentioned in the {@link View} class.
-     * @see View
-     */
-    private void setVisibilityOfViews(int visibility) {
-        mMishorButton.setVisibility(visibility);
-        mManualButton.setVisibility(visibility);
-        mChaitablesButton.setVisibility(visibility);
-        mSetupHeader.setVisibility(visibility);
-        mElevationInfo.setVisibility(visibility);
-        mMishorRequest.setVisibility(visibility);
-        mManualRequest.setVisibility(visibility);
-        mChaitablesRequest.setVisibility(visibility);
-    }
-
-    private void showDialogBox() {
-        new AlertDialog.Builder(this)
-                .setTitle("How to get info from chaitables.com")
-                .setMessage("(I recommend you to visit the website first.) \n\n" +
-                        "Choose your area and on the next page all you need to do is to fill out steps " +
-                        "1 and 2, and click the button to calculate the tables on the bottom of the page.\n\n" +
-                        "Make sure your search radius is big enough and leave the jewish year alone. " +
-                        "The app will do the rest.")
-                .setPositiveButton("Ok", (dialogInterface, i) -> { })
-                .show();
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (event.getAction() == KeyEvent.ACTION_DOWN) {
-            if (keyCode == KeyEvent.KEYCODE_BACK) {
-                if (mWebView.canGoBack()) {
-                    mWebView.goBack();
-                } else if (mWebView.getVisibility() == View.INVISIBLE) {
-                    startActivity(
-                            new Intent(this, AdvancedSetupActivity.class)
-                                    .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
-                    finish();
-                } else {
-                    setVisibilityOfViews(View.VISIBLE);
-                    mWebView.setVisibility(View.INVISIBLE);
-                }
-                return true;
+    private void downloadTablesAndFinish(SharedPreferences sharedPreferences) {
+        ProgressBar progressBar = findViewById(R.id.progressBarElevation);
+        progressBar.setVisibility(View.VISIBLE);
+        if (sharedPreferences.getBoolean("UseTable", true)) {
+            int userID = sharedPreferences.getInt("USER_ID", 10000);
+            ChaiTablesScraper scraper = new ChaiTablesScraper();
+            String link = getSharedPreferences(SHARED_PREF, MODE_PRIVATE).getString("chaitablesLink" + sCurrentLocationName, "");
+            scraper.setUrl(link);
+            scraper.setExternalFilesDir(getExternalFilesDir(null));
+            scraper.start();
+            try {
+                scraper.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            if (scraper.isSearchRadiusTooSmall()) {
+                Toast.makeText(getApplicationContext(), "Something went wrong. Is the link correct?", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(this, AdvancedSetupActivity.class));
+            } else {
+                Toast.makeText(getApplicationContext(), "Success!", Toast.LENGTH_SHORT).show();
+                userID++;
+                sharedPreferences.edit().putInt("USER_ID", userID).apply();
             }
         }
-        return super.onKeyDown(keyCode, event);
+        finish();
     }
 
     @Override

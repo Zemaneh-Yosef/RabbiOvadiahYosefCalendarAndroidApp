@@ -2,6 +2,7 @@ package com.ej.rovadiahyosefcalendar.classes;
 
 import android.os.Environment;
 
+import com.ej.rovadiahyosefcalendar.activities.MainActivity;
 import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
 
 import org.jsoup.Jsoup;
@@ -17,6 +18,7 @@ public class ChaiTablesScraper extends Thread {
 
     /**
      * The result of the highest point of elevation from the chai tables website.
+     * @deprecated This is no longer used.
      */
     private double mResult;
 
@@ -72,6 +74,7 @@ public class ChaiTablesScraper extends Thread {
      * The setter method for whether or not to download only the table.
      *
      * @param onlyDownloadTable boolean whether you want to only download the table
+     * @deprecated This is no longer needed.
      */
     public void setOnlyDownloadTable(boolean onlyDownloadTable) {
         mOnlyDownloadTable = onlyDownloadTable;
@@ -82,18 +85,17 @@ public class ChaiTablesScraper extends Thread {
      *
      * @param url the url of the chai tables website
      * @param externalFilesDir the directory where to save the tables
-     * @param onlyDownloadTable boolean whether you want to only download the table
      */
-    public void setDownloadSettings(String url, File externalFilesDir, boolean onlyDownloadTable) {
+    public void setDownloadSettings(String url, File externalFilesDir) {
         setUrl(url);
         setExternalFilesDir(externalFilesDir);
-        setOnlyDownloadTable(onlyDownloadTable);
     }
 
     /**
      * The getter for the result of the elevation
      *
      * @return the double value of the result from the tables
+     * @deprecated This is no longer used.
      */
     public double getResult() {
         return mResult;
@@ -107,6 +109,7 @@ public class ChaiTablesScraper extends Thread {
      * tables contain the elevation data for whatever reason. Therefore, to help the user out, I
      * simply understood that I can replace whatever option they choose with the correct webpage.
      * All they need to do is choose the city, and it doesn't matter which table they choose.
+     * @deprecated This is no longer used because the elevation on the chai tables website is NOT the highest point of elevation in the city.
      */
     private void assertElevationURL() {
         if (mUrl.contains("&cgi_types=0")) {
@@ -132,7 +135,7 @@ public class ChaiTablesScraper extends Thread {
      * sunrise tables contain the data that we need. Therefore, to help the user out, I
      * simply understood that I can replace whatever option they choose with the correct webpage.
      * All they need to do is choose the city, and it doesn't matter which table they choose, this
-     * code will correct their mistakes.
+     * code will correct their mistakes. 0 is the value for the visible sunrise table.
      */
     private void assertVisibleSunriseURL() {
         if (mUrl.contains("&cgi_types=5")) {
@@ -160,6 +163,7 @@ public class ChaiTablesScraper extends Thread {
      *
      * @return a double containing the highest elevation of the city in meters
      * @throws IOException because of the Jsoup API if an error occurs
+     * @deprecated This is no longer used because the elevation on the chai tables website is NOT the highest point of elevation in the city.
      */
     public double getElevationData() throws IOException {
         assertElevationURL();
@@ -198,6 +202,7 @@ public class ChaiTablesScraper extends Thread {
      *
      * @param s a string containing the chai tables webpage
      * @return a double containing the highest elevation of the city in meters
+     * @deprecated This is no longer used because the elevation on the chai tables website is NOT the highest point of elevation in the city.
      */
     private double findElevation(String s) {
         if (!isSearchRadiusTooSmall) {
@@ -219,7 +224,7 @@ public class ChaiTablesScraper extends Thread {
         if (!Environment.MEDIA_MOUNTED.equals(state)) {
             throw new IOException("Something went wrong writing to disk");
         }
-        String filename = "visibleSunriseTable" + jewishDate.getJewishYear() + ".csv";
+        String filename = "visibleSunriseTable" + MainActivity.sCurrentLocationName + jewishDate.getJewishYear() + ".csv";
         File file = new File(mExt, filename);
         FileOutputStream outputStream;
         try {
@@ -263,6 +268,9 @@ public class ChaiTablesScraper extends Thread {
         }
     }
 
+    /**
+     * This method finds the value of the cgi_yrheb in the URL and replaces it with the next year.
+     */
     private void changeURLtoNextYear() {
         int currentJewishYear = jewishDate.getJewishYear();
         if (jewishDate.isJewishLeapYear() && jewishDate.getJewishMonth() == JewishDate.ADAR_II) {
@@ -276,15 +284,11 @@ public class ChaiTablesScraper extends Thread {
     /**
      * This method should be called through the {@link #start()} method. If the URL and file
      * directory have been set, this method will get the tables from the URL and save them to that
-     * directory and get the elevation data unless the use has explicitly set the boolean to not
-     * download the elevation data. If only the URL has been specified, then this method
-     * will just find the elevation data from the webpage.
+     * directory.
      *
      * @see #setUrl(String)
      * @see #setExternalFilesDir(File)
      * @see #setOnlyDownloadTable(boolean)
-     * @see #setDownloadSettings(String, File, boolean)
-     * @see #getElevationData()
      * @see #writeZmanimTableToFile()
      */
     @Override
@@ -299,13 +303,13 @@ public class ChaiTablesScraper extends Thread {
             }
         }
 
-        if (mUrl != null && !mOnlyDownloadTable) {
-            try {
-                mResult = getElevationData();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+//        if (mUrl != null && !mOnlyDownloadTable) {
+//            try {
+//                mResult = getElevationData();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
     }
 
     public boolean isSearchRadiusTooSmall() {

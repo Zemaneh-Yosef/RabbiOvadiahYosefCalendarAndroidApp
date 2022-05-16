@@ -20,14 +20,17 @@
         <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/layout-land/splash.xml" value="0.31040564373897706" />
         <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/layout-v26/entry.xml" value="0.34148550724637683" />
         <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/layout-v28/activity_molad.xml" value="0.36666666666666664" />
-        <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/layout/activity_advanced_setup.xml" value="0.25294650951949227" />
+        <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/layout/activity_advanced_setup.xml" value="0.33" />
+        <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/layout/activity_current_location.xml" value="0.3009833262077811" />
         <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/layout/activity_full_setup.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/layout/activity_main.xml" value="0.32019927536231885" />
         <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/layout/activity_molad.xml" value="0.25294650951949227" />
-        <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/layout/activity_quick_setup.xml" value="0.25294650951949227" />
+        <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/layout/activity_quick_setup.xml" value="0.25883952855847686" />
         <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/layout/activity_setup.xml" value="0.32019927536231885" />
         <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/layout/activity_setup_chooser.xml" value="0.33" />
+        <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/layout/activity_setup_elevation.xml" value="0.14709569577935647" />
         <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/layout/activity_shabbat.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/layout/activity_simple_setup.xml" value="0.3009833262077811" />
         <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/layout/activity_zmanim_language.xml" value="0.25294650951949227" />
         <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/layout/entry.xml" value="0.34556159420289856" />
         <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/layout/hebrew_date_picker_dialog.xml" value="0.30932971014492755" />
@@ -36,7 +39,7 @@
         <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/menu/menu_about.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/menu/menu_calc_explanations.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/menu/menu_elevation_setup.xml" value="0.36666666666666664" />
-        <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/menu/menu_main.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/menu/menu_main.xml" value="0.28174235403151066" />
         <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/menu/setup_menu.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/mipmap-anydpi-v26/arrow_left.xml" value="0.3828125" />
         <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/mipmap-anydpi-v26/arrow_left_round.xml" value="0.3828125" />
@@ -60,6 +63,7 @@
         <entry key="..\:/Users/Elyahu/AppData/Local/Android/Sdk/platforms/android-31/data/res/layout/dialog_title_icons_holo.xml" value="0.33061594202898553" />
         <entry key="..\:/Users/Elyahu/AppData/Local/Android/Sdk/platforms/android-31/data/res/layout/dialog_title_icons_material.xml" value="0.33061594202898553" />
         <entry key="..\:/Users/Elyahu/AppData/Local/Android/Sdk/platforms/android-31/data/res/layout/dialog_title_material.xml" value="0.33061594202898553" />
+        <entry key="..\:/Users/Elyahu/AppData/Local/Android/Sdk/platforms/android-31/data/res/layout/simple_spinner_dropdown_item.xml" value="0.3009833262077811" />
       </map>
     </option>
   </component>
