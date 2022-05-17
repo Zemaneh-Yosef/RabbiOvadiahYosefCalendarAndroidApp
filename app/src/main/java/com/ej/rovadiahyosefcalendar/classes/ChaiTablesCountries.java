@@ -1,5 +1,11 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
+/**
+ * This class is used to store the countries and their corresponding names for the Chai table links.
+ * @author E.J.
+ * @version 1.0
+ * @see ChaiTablesOptionsList
+ */
 public enum ChaiTablesCountries {
 
     ARGENTINA("Argentina"), 
@@ -39,6 +45,10 @@ public enum ChaiTablesCountries {
 
     public final String label;
 
+    /**
+     * Constructor for the enum.
+     * @param label The label of the country in the link (e.g. "Argentina" for the link "http://chaitables.com/cgi-bin/ChaiTables.cgi/?cgi_TableType=Chai&cgi_country=Argentina").
+     */
     ChaiTablesCountries(String label) {
         this.label = label;
     }

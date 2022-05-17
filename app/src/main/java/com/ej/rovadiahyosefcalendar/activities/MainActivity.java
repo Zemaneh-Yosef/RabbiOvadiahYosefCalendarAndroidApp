@@ -109,9 +109,10 @@ public class MainActivity extends AppCompatActivity {
     private final ZmanimFormatter mZmanimFormatter = new ZmanimFormatter(TimeZone.getDefault());
     private final static Calendar dafYomiStartDate = new GregorianCalendar(1923, Calendar.SEPTEMBER, 11);
     private final static Calendar dafYomiYerushalmiStartDate = new GregorianCalendar(1980, Calendar.FEBRUARY, 2);
+    private boolean updateTablesDialogShown;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {//TODO tekufa time to not drink water and fix spinner size
         setTheme(R.style.AppTheme); //splash screen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -159,18 +160,26 @@ public class MainActivity extends AppCompatActivity {
                             mElevation = Double.parseDouble(result.getData().getStringExtra("elevation"));
                             editor.putString("lastLocation", sCurrentLocationName).apply();
                         } else {
-                            mElevation = Double.parseDouble(mSharedPreferences.getString("elevation", "0"));
+                            mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));
                         }
                     } else {
-                        mElevation = Double.parseDouble(mSharedPreferences.getString("elevation", "0"));
+                        mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));
                     }
-                    if (sCurrentTimeZoneID == null) return;
+                    if (mElevation == 0) {
+                        mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));
+                    }
+                    if (!mInitialized) {
+                        initializeMainView();
+                    }
                     instantiateZmanimCalendar();
                     mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
                 }
         );
     }
 
+    /**
+     * This method initializes the main view. This method should only be called when we are able to initialize the @{link mROZmanimCalendar} object.
+     */
     private void initializeMainView() {
         mInitialized = true;
         mLocationResolver.setTimeZoneID();
@@ -179,44 +188,49 @@ public class MainActivity extends AppCompatActivity {
         saveGeoLocationInfo();
         setupRecyclerView();
         setupButtons();
-        seeIfTablesNeedToBeUpdated();
         updateNotifications();
     }
 
     /**
      * This method will automatically update the tables if the user has setup the app before for the current location.
+     * @param fromButton if the method is called from the buttons, it will not ask more than once if the user wants to update the tables.
      */
-    private void seeIfTablesNeedToBeUpdated() {
+    private void seeIfTablesNeedToBeUpdated(boolean fromButton) {
         if (mSharedPreferences.getBoolean("isSetup", false) //only check after the app has been setup before
                 && mSharedPreferences.getBoolean("UseTable", false)) { //and only if the tables are being used
 
             if (!ChaiTables.visibleSunriseFileExists(getExternalFilesDir(null), sCurrentLocationName, mJewishDateInfo.getJewishCalendar())) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Update Tables?");
-                builder.setMessage("The visible sunrise tables for the current location need to be updated.\n\n" +
-                        "Do you want to update the tables now?");
-                builder.setPositiveButton("Yes", (dialog, which) -> {
-                    String chaitablesURL = mSharedPreferences.getString("chaitablesLink" + sCurrentLocationName, "");
-                    if (!chaitablesURL.isEmpty()) {//it should not be empty if the user has set up the app, but it is good to check
-                        String hebrewYear = String.valueOf(mJewishDateInfo.getJewishCalendar().getJewishYear());
-                        Pattern pattern = Pattern.compile("&cgi_yrheb=\\d{4}");
-                        Matcher matcher = pattern.matcher(chaitablesURL);
-                        if (matcher.find()) {
-                            chaitablesURL = chaitablesURL.replace(matcher.group(), "&cgi_yrheb=" + hebrewYear);//replace the year in the URL with the current year
+                if (!updateTablesDialogShown) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle("Update Tables?");
+                    builder.setMessage("The visible sunrise tables for the current location and year need to be updated.\n\n" +
+                            "Do you want to update the tables now?");
+                    builder.setPositiveButton("Yes", (dialog, which) -> {
+                        String chaitablesURL = mSharedPreferences.getString("chaitablesLink" + sCurrentLocationName, "");
+                        if (!chaitablesURL.isEmpty()) {//it should not be empty if the user has set up the app, but it is good to check
+                            String hebrewYear = String.valueOf(mJewishDateInfo.getJewishCalendar().getJewishYear());
+                            Pattern pattern = Pattern.compile("&cgi_yrheb=\\d{4}");
+                            Matcher matcher = pattern.matcher(chaitablesURL);
+                            if (matcher.find()) {
+                                chaitablesURL = chaitablesURL.replace(matcher.group(), "&cgi_yrheb=" + hebrewYear);//replace the year in the URL with the current year
+                            }
+                            ChaiTablesScraper scraper = new ChaiTablesScraper();
+                            scraper.setDownloadSettings(chaitablesURL, getExternalFilesDir(null));
+                            scraper.start();
+                            try {
+                                scraper.join();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
                         }
-                        ChaiTablesScraper scraper = new ChaiTablesScraper();
-                        scraper.setDownloadSettings(chaitablesURL, getExternalFilesDir(null));
-                        scraper.start();
-                        try {
-                            scraper.join();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                    });
+                    builder.setNegativeButton("No", (dialog, which) -> dialog.dismiss());
+                    builder.show();
+                    if (fromButton) {
+                        updateTablesDialogShown = true;
                     }
-                });
-                builder.setNegativeButton("No", (dialog, which) -> dialog.dismiss());
-                builder.show();
+                }
             }
         }
     }
@@ -287,12 +301,13 @@ public class MainActivity extends AppCompatActivity {
                 mJewishDateInfo.setCalendar(mCurrentDateShown);
                 mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
                 mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable());
+                seeIfTablesNeedToBeUpdated(true);
             }
         });
     }
 
     /**
-     * Sets up the previous day button
+     * Sets up the next day button
      */
     private void setupNextDayButton() {
         mNextDate = findViewById(R.id.next_day);
@@ -304,6 +319,7 @@ public class MainActivity extends AppCompatActivity {
                 mJewishDateInfo.setCalendar(mCurrentDateShown);
                 mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
                 mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable());
+                seeIfTablesNeedToBeUpdated(true);
             }
         });
     }
@@ -341,6 +357,7 @@ public class MainActivity extends AppCompatActivity {
             mCurrentDateShown = (Calendar) mROZmanimCalendar.getCalendar().clone();
             mMainRecyclerView.setAdapter(new ZmanAdapter(MainActivity.this, MainActivity.this.getZmanimList()));
             mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, MainActivity.this.getCurrentCalendarDrawable());
+            seeIfTablesNeedToBeUpdated(true);
         };
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
@@ -479,6 +496,9 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
     }
 
+    /**
+     * sets the theme of the app according to the user's preferences.
+     */
     private void resetTheme() {
         String theme = mSettingsPreferences.getString("theme", "Auto (Follow System Theme)");
         switch (theme) {
@@ -1251,23 +1271,27 @@ public class MainActivity extends AppCompatActivity {
                         "Current Location: " + sCurrentLocationName + "\n\n" +
                         "Would you like to rerun the setup now?";
 
+        try {//TODO this needs to be removed but cannot be removed for now because it is needed for people who have setup the app before we changed data types
+            mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));//get and set the last value
+        } catch (Exception e) {
+            try {
+                mElevation = mSharedPreferences.getFloat("elevation", 0);//legacy
+            } catch (Exception e1) {
+                mElevation = 0;
+                e1.printStackTrace();
+            }
+        }
         if (mSharedPreferences.getBoolean("askagain", true)) {//only prompt user if he has not asked to be left alone
-            if (!lastLocation.isEmpty() && mSharedPreferences.getBoolean("isElevationSetup", false)) {//only check after the app has been setup before
-                try {//TODO this needs to be removed but cannot be removed for now because it is needed for people who have setup the app before we changed data types
-                    mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));//get and set the last value
-                } catch (Exception e) {
-                    try {
-                        mElevation = mSharedPreferences.getFloat("elevation", 0);//legacy
-                    } catch (Exception e1) {
-                        mElevation = 0;
-                        e1.printStackTrace();
-                    }
-                }
-                if (!lastLocation.equals(sCurrentLocationName) && mElevation != 0) {//user should update his elevation in another city
+            if (!lastLocation.isEmpty() && mSharedPreferences.getBoolean("isElevationSetup", false)) {//only ask after the app has been setup before
+                if (mSharedPreferences.getString("chaitablesLink" + sCurrentLocationName, "").isEmpty()) {//user should update his chaitables in another city
                     mAlertDialog.setMessage(message);
                     mAlertDialog.show();
+                } else {//if the user has already setup the tables, then we just need to check if his tables need to be updated
+                    seeIfTablesNeedToBeUpdated(false);
                 }
             }
+        } else {
+            seeIfTablesNeedToBeUpdated(false);
         }
     }
 
@@ -1309,44 +1333,50 @@ public class MainActivity extends AppCompatActivity {
                 .setView(input)
                 .setPositiveButton(R.string.ok, (dialog, which) -> {
                     if (input.getText().toString().isEmpty()) {// I would have loved to use a regex to validate the zipcode, however, it seems like zip codes are not uniform.
-                        Toast.makeText(MainActivity.this, "Please Enter a valid value, for example: 11024", Toast.LENGTH_SHORT)
+                        Toast.makeText(this, "Please Enter a valid value, for example: 11024", Toast.LENGTH_SHORT)
                                 .show();
                         createZipcodeDialog();
                     } else {
                         SharedPreferences.Editor editor = mSharedPreferences.edit();
                         editor.putBoolean("useZipcode", true).apply();
                         editor.putString("Zipcode", input.getText().toString()).apply();
+                        mLocationResolver = new LocationResolver(this, this);
                         mLocationResolver.getLatitudeAndLongitudeFromZipcode();
-                        mLocationResolver.start();
-                        try {
-                            mLocationResolver.join();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                        if (mSharedPreferences.getBoolean("isElevationSetup", true)) {
+                            mLocationResolver.start();
+                            try {
+                                mLocationResolver.join();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
                         }
                         if (!mInitialized) {
                             initializeMainView();
                         } else {
                             mLocationResolver.setTimeZoneID();
+                            getAndConfirmLastElevationAndVisibleSunriseData();
                             instantiateZmanimCalendar();
                             mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
-                            getAndConfirmLastElevationAndVisibleSunriseData();
                         }
                     }
                 })
                 .setNeutralButton("Use location", (dialog, which) -> {
                     SharedPreferences.Editor editor = mSharedPreferences.edit();
                     editor.putBoolean("useZipcode", false).apply();
+                    mLocationResolver = new LocationResolver(this, this);
                     mLocationResolver.acquireLatitudeAndLongitude();
                     mLocationResolver.setTimeZoneID();
-                    mLocationResolver.start();
-                    try {
-                        mLocationResolver.join();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                    if (mSharedPreferences.getBoolean("isElevationSetup", true)) {
+                        mLocationResolver.start();
+                        try {
+                            mLocationResolver.join();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
+                    getAndConfirmLastElevationAndVisibleSunriseData();
                     instantiateZmanimCalendar();
                     mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
-                    getAndConfirmLastElevationAndVisibleSunriseData();
                 })
                 .create()
                 .show();
@@ -1375,13 +1405,16 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.refresh) {
+            mLocationResolver = new LocationResolver(this, this);
             mLocationResolver.acquireLatitudeAndLongitude();
             mLocationResolver.setTimeZoneID();
-            mLocationResolver.start();
-            try {
-                mLocationResolver.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            if (mSharedPreferences.getBoolean("isElevationSetup", true)) {
+                mLocationResolver.start();
+                try {
+                    mLocationResolver.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
             mCurrentDate.setTimeInMillis(new Date().getTime());
             mCurrentDateShown.setTime(mCurrentDate.getTime());

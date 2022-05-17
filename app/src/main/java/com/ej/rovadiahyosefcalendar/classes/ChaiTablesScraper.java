@@ -18,12 +18,12 @@ public class ChaiTablesScraper extends Thread {
 
     /**
      * The result of the highest point of elevation from the chai tables website.
-     * @deprecated This is no longer used.
+     * @deprecated This is no longer used because the chai tables website did not provide the highest point of elevation.
      */
     private double mResult;
 
     /**
-     * The URL to scrape, this must be set before we do any actual work.
+     * The URL to scrape, this must be set before we can scrape any webpage.
      */
     private String mUrl;
 
@@ -43,6 +43,7 @@ public class ChaiTablesScraper extends Thread {
     /**
      * Boolean that you can set to only download the tables and not the elevation data
      * @see #writeZmanimTableToFile()
+     * @deprecated This is no longer used because the chai tables website did not provide the highest point of elevation.
      */
     private boolean mOnlyDownloadTable;
 

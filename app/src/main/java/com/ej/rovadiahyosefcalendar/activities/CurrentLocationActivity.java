@@ -76,6 +76,13 @@ public class CurrentLocationActivity extends AppCompatActivity {
                 .show();
     }
 
+    /**
+     * This method will be called when the user has given permission to use their location.
+     *
+     * @param requestCode The request code that was passed to the Activity.
+     * @param permissions The permissions that were requested.
+     * @param grantResults The grant results for the corresponding permissions.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);

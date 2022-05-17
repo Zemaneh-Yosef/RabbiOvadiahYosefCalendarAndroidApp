@@ -28,10 +28,10 @@ import java.util.Objects;
 
 public class HebrewDayMonthYearPickerDialog extends DialogFragment {
 
-    private int MIN_YEAR;
-    private int MAX_YEAR;
+    private final int MIN_YEAR;
+    private final int MAX_YEAR;
     private DatePickerDialog.OnDateSetListener listener;
-    private CustomDatePickerDialog mCustomDatePickerDialog;
+    private final CustomDatePickerDialog mCustomDatePickerDialog;
     private final JewishCalendar mJewishCalendar;
     private final String[] mHebrewMonths = {"Nissan", "Iyar", "Sivan", "Tammuz", "Av",
             "Elul", "Tishrei", "Cheshvan", "Kislev", "Tevet", "Shevat", "Adar"};

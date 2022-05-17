@@ -9,6 +9,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
 
+/**
+ * This class is used to read the chai tables from a CSV file after the chai tables are downloaded from the web.
+ * @author Elyahu Jacobi
+ */
 public class ChaiTables {
 
     private static final int ROWS_UNDER_MONTHS = 31;
@@ -17,6 +21,12 @@ public class ChaiTables {
     private final String currentLocation;
     private List<String[]> actualVSunriseTable;
 
+    /**
+     * Constructor for the ChaiTables class.
+     * @param jewishCalendar The JewishCalendar object that is used to get the current year.
+     * @param externalFilesDir The external files directory of the application.
+     * @param currentLocation The current location of the user/table.
+     */
     public ChaiTables(File externalFilesDir, String currentLocation, JewishCalendar jewishCalendar) throws Exception {
         this.externalFilesDir = externalFilesDir;
         this.currentLocation = currentLocation;
@@ -36,6 +46,11 @@ public class ChaiTables {
 //        writer.close();
     }
 
+    /**
+     * This method is used to check if the visible sunrise table exists in the external files directory and if it does, it will initialize the
+     * actual visible sunrise table to a list of strings.
+     * @param csvBody The whole body of the CSV file.
+     */
     public List<String[]> formatToTheActualTable(List<String[]> csvBody) throws Exception {
         int startingRow = 0;
         int lastRow = 0;
@@ -59,6 +74,10 @@ public class ChaiTables {
         }
     }
 
+    /**
+     * This method gets the time of the visible sunrise for the current day that was set in the constructor.
+     * @return The time of the visible sunrise for the current day as a string.
+     */
     public String getVisibleSunrise() {
         int currentHebrewMonth = jewishCalendar.getJewishMonth();
 
@@ -73,25 +92,19 @@ public class ChaiTables {
         return actualVSunriseTable.get(jewishCalendar.getJewishDayOfMonth())[currentHebrewMonth];
     }
 
-    public String getVisibleSunrise(JewishCalendar jCal) {
-        int currentHebrewMonth = jCal.getJewishMonth();
-
-        currentHebrewMonth -= 6;
-        if (currentHebrewMonth < 1) {
-            if (jCal.isJewishLeapYear()){
-                currentHebrewMonth += 13;
-            } else {
-                currentHebrewMonth += 12;
-            }
-        }
-        return actualVSunriseTable.get(jCal.getJewishDayOfMonth())[currentHebrewMonth];
-    }
-
+    /**
+     * This method checks if the visible sunrise fie exists in the external files directory.
+     * @return True if the visible sunrise file exists in the external files directory, false otherwise.
+     */
     public boolean visibleSunriseFileExists() {
         File sunriseCSV = new File(externalFilesDir, "visibleSunriseTable" + currentLocation + jewishCalendar.getJewishYear() + ".csv");
         return sunriseCSV.isFile();
     }
 
+    /**
+     * This method checks is a static version the previous method @see visibleSunriseFileExists(). It will check if the file exists in the external files directory.
+     * @return True if the visible sunrise file exists in the external files directory, false otherwise.
+     */
     public static boolean visibleSunriseFileExists(File externalFilesDir, String currentLocation, JewishCalendar jewishCalendar) {
         File sunriseCSV = new File(externalFilesDir, "visibleSunriseTable" + currentLocation + jewishCalendar.getJewishYear() + ".csv");
         return sunriseCSV.isFile();

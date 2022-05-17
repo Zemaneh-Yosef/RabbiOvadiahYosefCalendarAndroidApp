@@ -151,7 +151,6 @@ public class SimpleSetupActivity extends AppCompatActivity {
             ChaiTablesScraper scraper = new ChaiTablesScraper();
             String link = ChaiTablesOptionsList.getChaiTablesLink(sLatitude, sLongitude, -5, 8, 0, jewishDate.getJewishYear(), userID, true);
             scraper.setUrl(link);
-            Log.d("link", link);
             scraper.setExternalFilesDir(getExternalFilesDir(null));
             locationResolver.start();
             scraper.start();

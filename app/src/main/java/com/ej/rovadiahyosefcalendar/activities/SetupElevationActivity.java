@@ -48,6 +48,7 @@ public class SetupElevationActivity extends AppCompatActivity {
         Button mishorButton = findViewById(R.id.mishor);
         mishorButton.setOnClickListener(v -> {
             editor.putString("elevation" + sCurrentLocationName, mElevation).apply();
+            editor.putBoolean("isElevationSetup", false).apply();
             editor.putBoolean("isSetup", true).apply();
             Intent returnIntent = new Intent();
             setResult(Activity.RESULT_CANCELED, returnIntent);
@@ -95,6 +96,11 @@ public class SetupElevationActivity extends AppCompatActivity {
         geoNamesButton.setOnClickListener(view -> {
             if (getIntent().getBooleanExtra("downloadTable",false)) {
                 locationResolver.start();
+                try {
+                    locationResolver.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 editor.putBoolean("isElevationSetup", true).apply();
                 editor.putBoolean("isSetup", true).apply();
                 Intent returnIntent = new Intent();

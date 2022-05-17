@@ -8,12 +8,26 @@ import org.apache.commons.lang3.time.DateUtils;
 
 import java.util.Calendar;
 
+/**
+ * This class is used to get the information about the Jewish date. It is a helper class to manipulate the classes in the kosherjava library.
+ * @author Elyahu Jacobi
+ * @version 1.0
+ * @since 1.0
+ * @see com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter
+ * @see com.kosherjava.zmanim.hebrewcalendar.JewishCalendar
+ * @see com.kosherjava.zmanim.hebrewcalendar.JewishDate
+ */
 public class JewishDateInfo {
 
     private final JewishCalendar jewishCalendar;
     private final HebrewDateFormatter hebrewDateFormatter;
     private Calendar currentDate = Calendar.getInstance();
 
+    /**
+     * Constructor of the class.
+     * @param inIsrael boolean value that indicates if the user is in Israel or not
+     * @param useModernHoliday boolean value to indicate whether or not to use modern holidays
+     */
     public JewishDateInfo(boolean inIsrael, boolean useModernHoliday) {
         hebrewDateFormatter = new HebrewDateFormatter();
         jewishCalendar = new JewishCalendar();
@@ -21,15 +35,27 @@ public class JewishDateInfo {
         jewishCalendar.setUseModernHolidays(useModernHoliday);
     }
 
+    /**
+     * This method is used to get the current date.
+     * @return the current jewish calendar object
+     */
     public JewishCalendar getJewishCalendar() {
         return this.jewishCalendar;
     }
 
+    /**
+     * This method is used to set the current date.
+     * @param calendar the calendar to change the current date
+     */
     public void setCalendar(Calendar calendar) {
         currentDate = calendar;
         jewishCalendar.setDate(currentDate);
     }
 
+    /**
+     * This method is used to get the current Rosh Chodesh or Erev Rosh Chodesh.
+     * @return a string containing the current Rosh Chodesh or Erev Rosh Chodesh
+     */
     private String getRoshChodeshOrErevRoshChodesh() {
         String result;
         if (jewishCalendar.isRoshChodesh()) {
@@ -58,6 +84,10 @@ public class JewishDateInfo {
         return result;
     }
 
+    /**
+     * This method is a super method used to get the current holiday or special day.
+     * @return a string containing the current holiday
+     */
     public String getSpecialDay() {
         String result = "";
         String yomTovOfToday = getYomTov();
@@ -82,6 +112,10 @@ public class JewishDateInfo {
         return result;
     }
 
+    /**
+     * This method is used to add the Taanit Bechorot to the current holiday if it is on the current day.
+     * @return a string containing taanit bechorot or erev taanit bechorot
+     */
     private String addTaanitBechorot(String result) {
         if (tomorrowIsTaanitBechorot()) {//edge case
             if (result.isEmpty()) {
@@ -100,6 +134,10 @@ public class JewishDateInfo {
         return result;
     }
 
+    /**
+     * This method is used to check if the next day is Taanit Bechorot.
+     * @return a boolean value indicating if the next day is Taanit Bechorot
+     */
     private boolean tomorrowIsTaanitBechorot() {
         jewishCalendar.forward(Calendar.DATE, 1);
         boolean result = jewishCalendar.isTaanisBechoros();
@@ -107,6 +145,10 @@ public class JewishDateInfo {
         return result;
     }
 
+    /**
+     * This method is used to add the Rosh Chodesh to the current holiday if it is on the current day.
+     * @return a string containing Rosh Chodesh or Erev Rosh Chodesh and the current holiday
+     */
     private String addRoshChodesh(String result) {
         String roshChodeshOrErevRoshChodesh = getRoshChodeshOrErevRoshChodesh();
         if (!roshChodeshOrErevRoshChodesh.isEmpty()) {
@@ -119,6 +161,10 @@ public class JewishDateInfo {
         return result;
     }
 
+    /**
+     * This method is used to add the Day of Chanuka to the current holiday if it is on the current day.
+     * @return a string containing the Day of Chanuka and the current holiday
+     */
     private String addDayOfChanukah(String result) {
         int dayOfChanukah = jewishCalendar.getDayOfChanukah();
         if (dayOfChanukah != -1) {
@@ -131,6 +177,10 @@ public class JewishDateInfo {
         return result;
     }
 
+    /**
+     * This method is used to add the Day of Omer to the current holiday if it is on the current day.
+     * @return a string containing the Day of Omer and the current holiday
+     */
     private String addDayOfOmer(String result) {
         int dayOfOmer = jewishCalendar.getDayOfOmer();
         if (dayOfOmer != -1) {
@@ -143,6 +193,10 @@ public class JewishDateInfo {
         return result;
     }
 
+    /**
+     * This method is used to get the holiday for the current day in the form of a string.
+     * @return a string containing the current holiday
+     */
     private String getYomTov() {
         switch (jewishCalendar.getYomTovIndex()) {
             case JewishCalendar.EREV_PESACH:
@@ -223,6 +277,10 @@ public class JewishDateInfo {
         }
     }
 
+    /**
+     * This method is used to get the holiday for the next day in the form of a string.
+     * @return a string containing the next day's holiday
+     */
     private String getYomTovForNextDay() {
         jewishCalendar.forward(Calendar.DATE, 1);
         String result = getYomTov();
@@ -230,6 +288,10 @@ public class JewishDateInfo {
         return result;
     }
 
+    /**
+     * This method is used to get the holiday for the next day in the form of a int as the index in the @see JewishCalendar.getYomTovIndex()
+     * @return an int containing the next day's holiday as an index
+     */
     private int getYomTovIndexForNextDay() {
         jewishCalendar.forward(Calendar.DATE, 1);
         int result = jewishCalendar.getYomTovIndex();
@@ -308,10 +370,18 @@ public class JewishDateInfo {
         return "There is Tachanun today";
     }
 
+    /**
+     * This method will return the jewish date as a string.
+     * @return a string containing the jewish date. The format is: 15, Iyar 5782
+     */
     public String getJewishDate() {
         return jewishCalendar.toString().replace("Teves", "Tevet");
     }
 
+    /**
+     * This method will return whether or not this jewish year is a leap year.
+     * @return true if the jewish year is a leap year, false otherwise
+     */
     public String isJewishLeapYear() {
         if (jewishCalendar.isJewishLeapYear()) {
             return "This year is a jewish leap year!";
@@ -320,6 +390,10 @@ public class JewishDateInfo {
         }
     }
 
+    /**
+     * This method will return the parsha of the current week by rolling the calendar to saturday.
+     * @return a string containing the parsha of the current week
+     */
     public String getThisWeeksParsha() {
 
         currentDate = jewishCalendar.getGregorianCalendar();
@@ -347,18 +421,26 @@ public class JewishDateInfo {
         }
     }
 
-    private String getOrdinal(int i) {
+    /**
+     * This method will return ordinal number of a number. For example, the number 1 will return 1st.
+     * @param number the number to get the ordinal number of
+     */
+    private String getOrdinal(int number) {
         String[] suffixes = new String[]{"th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th"};
-        switch (i % 100) {
+        switch (number % 100) {
             case 11:
             case 12:
             case 13:
-                return i + "th";
+                return number + "th";
             default:
-                return i + suffixes[i % 10];
+                return number + suffixes[number % 10];
         }
     }
 
+    /**
+     * This method will return the day of the week of the current date as a string in Hebrew.
+     * @return a string containing the day of the week of the current date in Hebrew
+     */
     public String getJewishDayOfWeek() {
         hebrewDateFormatter.setHebrewFormat(true);
         String result = "\u05D9\u05D5\u05DD ";//this says יוֹם
@@ -367,6 +449,11 @@ public class JewishDateInfo {
         return result;
     }
 
+    /**
+     * This method will take a number and return the number in Hebrew.
+     * @param num the number to convert to Hebrew
+     * @return a string containing the number in Hebrew
+     */
     public static String formatHebrewNumber(int num) {
         if (num <= 0 || num >= 6000) return null;// should refactor
 
@@ -416,6 +503,10 @@ public class JewishDateInfo {
         return result.toString();
     }
 
+    /**
+     * This method will return whether or not the current date is the end time or start time for birkat levana
+     * @return a string containing whether or not the current date is the end time or start time for birkat levana
+     */
     public String getIsTonightStartOrEndBirchatLevana() {//TODO check if this method might need fixing
         Calendar sevenDays = Calendar.getInstance();
         sevenDays.setTime(jewishCalendar.getTchilasZmanKidushLevana7Days());
@@ -434,6 +525,10 @@ public class JewishDateInfo {
         return "";
     }
 
+    /**
+     * This method returns if Mashiv Haruach Umorid Hageshem is recited.
+     * @return a string containing whether or not Mashiv Haruach Umorid Hageshem is recited
+     */
     public String getIsMashivHaruchOrMoridHatalSaid() {
         if (jewishCalendar.isMashivHaruachRecited()) {
             return "משיב הרוח";
@@ -445,6 +540,10 @@ public class JewishDateInfo {
         return "";
     }
 
+    /**
+     * This method returns if Barcheinu or Barech Aleinu is recited.
+     * @return a string containing whether or not Barcheinu or Barech Aleinu is recited
+     */
     public String getIsBarcheinuOrBarechAleinuSaid() {
         if (jewishCalendar.isVeseinBerachaRecited()) {
             return "ברכנו";
@@ -456,6 +555,10 @@ public class JewishDateInfo {
         return "";
     }
 
+    /**
+     * This method returns true if ulchaparat pesha is said in musaf on rosh chodesh.
+     * @return a string containing whether or not to say ulchaparat pesha in musaf on rosh chodesh
+     */
     public String getIsUlChaparatPeshaSaid() {
         if (jewishCalendar.isRoshChodesh()) {
             if (jewishCalendar.isJewishLeapYear()) {
@@ -477,6 +580,11 @@ public class JewishDateInfo {
         return "";
     }
 
+    /**
+     * This method returns a string containing the words No Music if you are not allowed to listen to music on the current day.
+     * (Pesach to lag baomer and the three weeks)
+     * @return a string containing whether or not you are allowed to listen to music on the current day
+     */
     public String isOKToListenToMusic() {//TODO check dates
         if (jewishCalendar.getDayOfOmer() >= 8 && jewishCalendar.getDayOfOmer() <= 33) {
             return "No Music";
