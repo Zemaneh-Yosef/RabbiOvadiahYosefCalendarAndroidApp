@@ -11,7 +11,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -152,6 +151,7 @@ public class SimpleSetupActivity extends AppCompatActivity {
             String link = ChaiTablesOptionsList.getChaiTablesLink(sLatitude, sLongitude, -5, 8, 0, jewishDate.getJewishYear(), userID, true);
             scraper.setUrl(link);
             scraper.setExternalFilesDir(getExternalFilesDir(null));
+            scraper.setJewishDate(jewishDate);
             locationResolver.start();
             scraper.start();
             try {

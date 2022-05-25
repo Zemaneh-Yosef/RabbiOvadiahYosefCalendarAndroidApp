@@ -25,6 +25,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesScraper;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
+import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -122,6 +123,7 @@ public class SetupElevationActivity extends AppCompatActivity {
             String link = getSharedPreferences(SHARED_PREF, MODE_PRIVATE).getString("chaitablesLink" + sCurrentLocationName, "");
             scraper.setUrl(link);
             scraper.setExternalFilesDir(getExternalFilesDir(null));
+            scraper.setJewishDate(new JewishDate());
             scraper.start();
             try {
                 scraper.join();

@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean updateTablesDialogShown;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {//TODO tekufa time to not drink water and fix spinner size
+    protected void onCreate(Bundle savedInstanceState) {//TODO tekufa time to not drink water
         setTheme(R.style.AppTheme); //splash screen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -215,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
                                 chaitablesURL = chaitablesURL.replace(matcher.group(), "&cgi_yrheb=" + hebrewYear);//replace the year in the URL with the current year
                             }
                             ChaiTablesScraper scraper = new ChaiTablesScraper();
-                            scraper.setDownloadSettings(chaitablesURL, getExternalFilesDir(null));
+                            scraper.setDownloadSettings(chaitablesURL, getExternalFilesDir(null), mJewishDateInfo.getJewishCalendar());
                             scraper.start();
                             try {
                                 scraper.join();
@@ -542,7 +542,7 @@ public class MainActivity extends AppCompatActivity {
         am.cancel(dailyPendingIntent);
         am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), dailyPendingIntent);
 
-        calendar.setTimeInMillis(mROZmanimCalendar.getSunset().getTime());
+        calendar.setTimeInMillis(mROZmanimCalendar.getTzait().getTime());
         if (calendar.getTime().compareTo(new Date()) < 0) {
             calendar.add(Calendar.DATE, 1);
         }

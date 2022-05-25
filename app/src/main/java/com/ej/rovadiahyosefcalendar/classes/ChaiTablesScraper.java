@@ -38,7 +38,7 @@ public class ChaiTablesScraper extends Thread {
     /**
      * Jewish Date to check the time of the tables
      */
-    private final JewishDate jewishDate = new JewishDate();
+    private JewishDate jewishDate;
 
     /**
      * Boolean that you can set to only download the tables and not the elevation data
@@ -86,10 +86,21 @@ public class ChaiTablesScraper extends Thread {
      *
      * @param url the url of the chai tables website
      * @param externalFilesDir the directory where to save the tables
+     * @param jewishDate the jewish date/year to save the tables
      */
-    public void setDownloadSettings(String url, File externalFilesDir) {
+    public void setDownloadSettings(String url, File externalFilesDir, JewishDate jewishDate) {
+        setJewishDate(jewishDate);
         setUrl(url);
         setExternalFilesDir(externalFilesDir);
+    }
+
+    /**
+     * The setter method for the Jewish Date to save the tables for.
+     *
+     * @param jewishDate The Jewish Date to save the tables for
+     */
+    public void setJewishDate(JewishDate jewishDate) {
+        this.jewishDate = jewishDate;
     }
 
     /**

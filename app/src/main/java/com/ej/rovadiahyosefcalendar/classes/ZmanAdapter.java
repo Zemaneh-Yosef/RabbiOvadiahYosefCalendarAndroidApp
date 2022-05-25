@@ -58,7 +58,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         }
 
         holder.itemView.setOnClickListener(v -> {
-            if (!MainActivity.sShabbatMode) {
+            if (!MainActivity.sShabbatMode && PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean("showZmanDialogs", true)) {
                 if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
                     checkHebrewZmanimForDialog(position);
                 } else if (mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false)) {
@@ -343,7 +343,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                 .setMessage("This is the middle of the halachic day, when the sun is exactly in the middle of the sky relative to the length of the" +
                         " day. It should be noted, that the sun can only be directly above every person, such that they don't even have shadows, " +
                         "in the Tropic of Cancer and the Tropic of Capricorn. Everywhere else, the sun will be at an angle even in the middle of " +
-                        "the day.\n" +
+                        "the day.\n\n" +
                         "After this time, you can no longer say the Amidah prayer of Shacharit, and you should preferably say Musaf before this " +
                         "time.\n\n" +
                         "This time is calculated as 6 zmaniyot/seasonal hours after sunrise. " +
@@ -354,9 +354,9 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
     private void showMinchaGedolaDialog() {
         mDialogBuilder.setTitle("Earliest Mincha - \u05DE\u05E0\u05D7\u05D4 \u05D2\u05D3\u05D5\u05DC\u05D4 - Mincha Gedolah")
-                .setMessage("Mincha Gedolah, literally \"Greater Mincha\", is the earliest time a person can say Mincha." +
-                        "It is also the best time a person can say Mincha according to some poskim.\n" +
-                        "It is called Mincha Gedolah because there is a lot of time left until sunset.\n" +
+                .setMessage("Mincha Gedolah, literally \"Greater Mincha\", is the earliest time a person can say Mincha. " +
+                        "It is also the preferred time a person should say Mincha according to some poskim.\n\n" +
+                        "It is called Mincha Gedolah because there is a lot of time left until sunset.\n\n" +
                         "A person should ideally start saying Korbanot AFTER this time.\n\n" +
                         "This time is calculated as 30 regular minutes after Chatzot (Mid-Day). However, if the zmaniyot/seasonal minutes are longer," +
                         " we use those minutes instead to be stringent. " +
@@ -367,7 +367,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
     private void showMinchaKetanaDialog() {
         mDialogBuilder.setTitle("Mincha Ketana - \u05DE\u05E0\u05D7\u05D4 \u05E7\u05D8\u05E0\u05D4")
-                .setMessage("Mincha Ketana, literally \"Lesser Mincha\", is the best time a person can say Mincha according to some poskim.\n" +
+                .setMessage("Mincha Ketana, literally \"Lesser Mincha\", is the most preferred time a person can say Mincha according to some poskim.\n\n" +
                         "It is called Mincha Ketana because there is less time left until sunset.\n\n" +
                         "This time is calculated as 9 and a half zmaniyot/seasonal hours after sunrise. " +
                         "The GR\"A calculates a zmaniyot/seasonal hour by taking the time between sunrise and sunset (elevation included) and " +
@@ -451,7 +451,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
     private void showRTDialog() {
         mDialogBuilder.setTitle("Rabbeinu Tam - \u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD")
-                .setMessage("This time is Tzeit/Nightfall according Rabbeinu Tam.\n\n" +
+                .setMessage("This time is Tzeit/Nightfall according to Rabbeinu Tam.\n\n" +
                         "Tzeit/Nightfall is the time when the next halachic day starts after Bein Hashmashot/twilight finishes.\n\n" +
                         "This time is calculated as 72 zmaniyot/seasonal minutes after sunset (elevation included). " +
                         "According to Rabbeinu Tam, these 72 minutes are made up of 2 parts. The first part is 58 and a half minutes until the " +
@@ -482,12 +482,12 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
     private void showElevationDialog() {
         mDialogBuilder.setTitle("Current Elevation")
-                .setMessage("This number represents the highest point that you can see sunrise/sunset in your current city in meters. If the number" +
-                        " is set to 0, then you are calculating the zmanim by mishor/sea level sunrise and sunset.\n\n" +
+                .setMessage("This number represents the amount of elevation that you are applying to your zmanim to see sunrise/sunset in your current city in meters." +
+                        " If the number is set to 0, then you are calculating the zmanim by mishor/sea level sunrise and sunset.\n\n" +
                         "There is a debate as to what Rabbi Ovadiah Yosef Z\"TL " +
                         "held about using elevation for zmanim. (See Halacha Berura vol. 14, in Otzrot Yosef (Kuntrus Ki Ba Hashemesh), Siman 6, " +
-                        "Perek 21 for an in depth discussion) The Ohr HaChaim calendar uses elevation for their zmanim, however, I also added the " +
-                        "ability to not use elevation for those that do not want to use it.")
+                        "Perek 21 for an in depth discussion) The Ohr HaChaim calendar uses elevation for their zmanim, however, Rabbi David Yosef " +
+                        "Z\"TL holds that the elevation is not used for zmanim.")
                 .show();
     }
 }
