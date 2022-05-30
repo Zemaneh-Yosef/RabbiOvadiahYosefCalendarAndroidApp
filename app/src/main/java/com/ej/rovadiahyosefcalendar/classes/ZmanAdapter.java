@@ -74,6 +74,10 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                 if (zmanim.get(position).contains("Elevation")) {
                     showElevationDialog();
                 }
+
+                if (zmanim.get(position).contains("Tekufa")) {
+                    showTekufaDialog();
+                }
             }
         });
 
@@ -488,6 +492,16 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         "held about using elevation for zmanim. (See Halacha Berura vol. 14, in Otzrot Yosef (Kuntrus Ki Ba Hashemesh), Siman 6, " +
                         "Perek 21 for an in depth discussion) The Ohr HaChaim calendar uses elevation for their zmanim, however, Rabbi David Yosef " +
                         "Z\"TL holds that the elevation is not used for zmanim.")
+                .show();
+    }
+    private void showTekufaDialog() {
+        mDialogBuilder.setTitle("Tekufa - Season")
+                .setMessage("This is the time that the tekufa (season) changes.\n\nThere are 4 tekufas every year: Tishri (autumn), Tevet (winter), " +
+                        "Nissan (spring), and Tammuz (summer). Each Tekufa happens 91.3125 (365.25 / 4) days after the previous Tekufa.\n\n" +
+                        "The Achronim write that a person should not drink water when the seasons change. Rabbi Ovadiah Yosef Z\"TL writes " +
+                        "(in Halichot Olam, Chelek 7, Page 183, Halacha 8) that a person should not drink water from a half hour before this time " +
+                        "till a half hour after this time unless there is a piece of iron in the water.\n\nNOTE: This only applies to water, not " +
+                        "to other drinks.")
                 .show();
     }
 }

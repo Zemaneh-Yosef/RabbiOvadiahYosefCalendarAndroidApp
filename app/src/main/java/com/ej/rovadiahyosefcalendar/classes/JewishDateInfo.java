@@ -30,7 +30,7 @@ public class JewishDateInfo {
      */
     public JewishDateInfo(boolean inIsrael, boolean useModernHoliday) {
         hebrewDateFormatter = new HebrewDateFormatter();
-        jewishCalendar = new JewishCalendar();
+        jewishCalendar = new JewishCalendarWithTekufaMethods();
         jewishCalendar.setInIsrael(inIsrael);
         jewishCalendar.setUseModernHolidays(useModernHoliday);
     }
@@ -39,8 +39,8 @@ public class JewishDateInfo {
      * This method is used to get the current date.
      * @return the current jewish calendar object
      */
-    public JewishCalendar getJewishCalendar() {
-        return this.jewishCalendar;
+    public JewishCalendarWithTekufaMethods getJewishCalendar() {
+        return (JewishCalendarWithTekufaMethods) this.jewishCalendar;
     }
 
     /**

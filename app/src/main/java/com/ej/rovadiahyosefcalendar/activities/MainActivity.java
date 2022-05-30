@@ -60,6 +60,8 @@ import com.kosherjava.zmanim.hebrewcalendar.YomiCalculator;
 import com.kosherjava.zmanim.util.GeoLocation;
 import com.kosherjava.zmanim.util.ZmanimFormatter;
 
+import org.apache.commons.lang3.time.DateUtils;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -103,7 +105,13 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences mSettingsPreferences;
     public static final String SHARED_PREF = "MyPrefsFile";
     private ActivityResultLauncher<Intent> mSetupLauncher;
+    /**
+     * The current date shown in the main activity. This calendar can be manipulated to change the date if needed.
+     */
     private Calendar mCurrentDateShown = Calendar.getInstance();
+    /**
+     * The current date of the device. Do not modify this date directly, only use is to reset the date of other objects
+     */
     private final Calendar mCurrentDate = Calendar.getInstance();
     private static final int TWENTY_FOUR_HOURS_IN_MILLI = 86_400_000;
     private final ZmanimFormatter mZmanimFormatter = new ZmanimFormatter(TimeZone.getDefault());
@@ -112,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean updateTablesDialogShown;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {//TODO tekufa time to not drink water
+    protected void onCreate(Bundle savedInstanceState) {//TODO make sure tekufa notifs are working
         setTheme(R.style.AppTheme); //splash screen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -835,6 +843,8 @@ public class MainActivity extends AppCompatActivity {
             zmanim.add("Birchat HaChamah is said today");
         }
 
+        addTekufaTime(zmanimFormat, zmanim);
+
         if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
             addHebrewZmanim(zmanimFormat, zmanim);
         } else if (mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false)) {
@@ -932,7 +942,7 @@ public class MainActivity extends AppCompatActivity {
                                 zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
                     }
                     if (stringSet.contains("Show Rabbeinu Tam")) {
-                        if (mSettingsPreferences.getBoolean("RoundUpRT", false)) {
+                        if (mSettingsPreferences.getBoolean("RoundUpRT", true)) {
                             DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//just to remove the seconds
                             zmanim.add("Rabbeinu Tam (Tom)= " + roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
                         } else {
@@ -961,7 +971,7 @@ public class MainActivity extends AppCompatActivity {
             zmanim.add("Tzait " + getShabbatAndOrChag() + " "
                     + "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + "= " +
                     zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
-            if (mSettingsPreferences.getBoolean("RoundUpRT", false)) {
+            if (mSettingsPreferences.getBoolean("RoundUpRT", true)) {
                 DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//just to remove the seconds
                 zmanim.add("Rabbeinu Tam = " + roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
             } else {
@@ -970,7 +980,7 @@ public class MainActivity extends AppCompatActivity {
         }
         if (mSettingsPreferences.getBoolean("AlwaysShowRT", false)) {
             if (!(mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting())) {//if we want to always show the zman for RT, we can just NOT the previous cases where we do show it
-                if (mSettingsPreferences.getBoolean("RoundUpRT", false)) {
+                if (mSettingsPreferences.getBoolean("RoundUpRT", true)) {
                     DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//just to remove the seconds
                     zmanim.add("Rabbeinu Tam = " + roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
                 } else {
@@ -1029,7 +1039,7 @@ public class MainActivity extends AppCompatActivity {
                                 zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
                     }
                     if (stringSet.contains("Show Rabbeinu Tam")) {
-                        if (mSettingsPreferences.getBoolean("RoundUpRT", false)) {
+                        if (mSettingsPreferences.getBoolean("RoundUpRT", true)) {
                             DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//just to remove the seconds
                             zmanim.add("Rabbeinu Tam (Tom)= " + roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
                         } else {
@@ -1058,7 +1068,7 @@ public class MainActivity extends AppCompatActivity {
             zmanim.add(getShabbatAndOrChag() + " Ends "
                     + "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + "= " +
                     zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
-            if (mSettingsPreferences.getBoolean("RoundUpRT", false)) {
+            if (mSettingsPreferences.getBoolean("RoundUpRT", true)) {
                 DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//just to remove the seconds
                 zmanim.add("Rabbeinu Tam = " + roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
             } else {
@@ -1067,7 +1077,7 @@ public class MainActivity extends AppCompatActivity {
         }
         if (mSettingsPreferences.getBoolean("AlwaysShowRT", false)) {
             if (!(mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting())) {//if we want to always show the zman for RT, we can just NOT the previous cases where we do show it
-                if (mSettingsPreferences.getBoolean("RoundUpRT", false)) {
+                if (mSettingsPreferences.getBoolean("RoundUpRT", true)) {
                     DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//just to remove the seconds
                     zmanim.add("Rabbeinu Tam = " + roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
                 } else {
@@ -1138,7 +1148,7 @@ public class MainActivity extends AppCompatActivity {
                                 zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
                     }
                     if (stringSet.contains("Show Rabbeinu Tam")) {
-                        if (mSettingsPreferences.getBoolean("RoundUpRT", false)) {
+                        if (mSettingsPreferences.getBoolean("RoundUpRT", true)) {
                             DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//just to remove the seconds
                             zmanim.add("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD (\u05DE\u05D7\u05E8)= " +
                                     roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
@@ -1174,7 +1184,7 @@ public class MainActivity extends AppCompatActivity {
             zmanim.add("\u05E6\u05D0\u05EA " + getShabbatAndOrChag() + " " +
                     "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + "=" +
                     zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
-            if (mSettingsPreferences.getBoolean("RoundUpRT", false)) {
+            if (mSettingsPreferences.getBoolean("RoundUpRT", true)) {
                 DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//just to remove the seconds
                 zmanim.add("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD = " +
                         roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
@@ -1185,7 +1195,7 @@ public class MainActivity extends AppCompatActivity {
         }
         if (mSettingsPreferences.getBoolean("AlwaysShowRT", false)) {
             if (!(mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting())) {//if we want to always show the zman for RT, we can just NOT the previous cases where we do show it
-                if (mSettingsPreferences.getBoolean("RoundUpRT", false)) {
+                if (mSettingsPreferences.getBoolean("RoundUpRT", true)) {
                     DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//just to remove the seconds
                     zmanim.add("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD = " + roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
                 } else {
@@ -1248,6 +1258,30 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 return "Chag";
             }
+        }
+    }
+
+    /**
+     * This method will check if the tekufa happens today or the next day and it will add the tekufa to the list of zmanim passed in.
+     * @param zmanimFormat the format to use for the zmanim
+     * @param zmanim the list of zmanim to add to
+     */
+    private void addTekufaTime(DateFormat zmanimFormat, List<String> zmanim) {
+        mCurrentDateShown.add(Calendar.DATE,1);//check next day for tekufa, because the tekufa time can go back a day
+        mJewishDateInfo.setCalendar(mCurrentDateShown);
+        mCurrentDateShown.add(Calendar.DATE,-1);
+        if (mJewishDateInfo.getJewishCalendar().getTekufa() != null &&
+                DateUtils.isSameDay(mCurrentDateShown.getTime(), mJewishDateInfo.getJewishCalendar().getTekufaAsDate())) {
+            zmanim.add("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " is today at " +
+                    zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate()));
+        }
+        mJewishDateInfo.setCalendar(mCurrentDateShown);//reset
+
+        //else the tekufa time is on the same day as the current date, so we can add it normally
+        if (mJewishDateInfo.getJewishCalendar().getTekufa() != null &&
+                DateUtils.isSameDay(mCurrentDateShown.getTime(), mJewishDateInfo.getJewishCalendar().getTekufaAsDate())) {
+            zmanim.add("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " is today at " +
+                    zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate()));
         }
     }
 

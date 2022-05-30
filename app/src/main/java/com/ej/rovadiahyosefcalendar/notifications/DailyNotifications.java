@@ -26,6 +26,8 @@ import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.kosherjava.zmanim.AstronomicalCalendar;
 import com.kosherjava.zmanim.util.GeoLocation;
 
+import org.apache.commons.lang3.time.DateUtils;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -37,8 +39,7 @@ public class DailyNotifications extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         SharedPreferences sp = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
-        JewishDateInfo jewishDateInfo = new JewishDateInfo(
-                sp.getBoolean("inIsrael",false), true);
+        JewishDateInfo jewishDateInfo = new JewishDateInfo(sp.getBoolean("inIsrael",false), true);
         if (sp.getBoolean("isSetup",false)) {
             AstronomicalCalendar calendar = new AstronomicalCalendar(new GeoLocation(
                     sp.getString("name", ""),
@@ -48,8 +49,7 @@ public class DailyNotifications extends BroadcastReceiver {
 
             if (!jewishDateInfo.getSpecialDay().isEmpty()) {
                 long when = calendar.getSunrise().getTime();
-                NotificationManager notificationManager =
-                        (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     NotificationChannel channel = new NotificationChannel("Jewish Special Day",
@@ -97,20 +97,47 @@ public class DailyNotifications extends BroadcastReceiver {
                     sp.edit().putString("lastKnownDay", jewishDateInfo.getJewishDate()).apply();
                 }
             }
-            updateAlarm(context, calendar);
+            Calendar cal = Calendar.getInstance();
+            checkIfTekufaIsToday(context, jewishDateInfo, cal);
+            updateAlarm(context, calendar, cal);
         }
     }
 
-    private void updateAlarm(Context context, AstronomicalCalendar c) {
-        Calendar calendar = Calendar.getInstance();
+    private void checkIfTekufaIsToday(Context context, JewishDateInfo jewishDateInfo, Calendar cal) {
+        cal.add(Calendar.DATE, 1);
+        jewishDateInfo.setCalendar(cal);
+        cal.add(Calendar.DATE, -1);
+        if (jewishDateInfo.getJewishCalendar().getTekufa() != null &&
+                DateUtils.isSameDay(cal.getTime(), jewishDateInfo.getJewishCalendar().getTekufaAsDate())) {//if next day hebrew has tekufa today
+            setupTekufaNotification(context, cal, jewishDateInfo);
+        }
+
+        jewishDateInfo.setCalendar(cal);//reset
+        if (jewishDateInfo.getJewishCalendar().getTekufa() != null &&
+                DateUtils.isSameDay(cal.getTime(), jewishDateInfo.getJewishCalendar().getTekufaAsDate())) {//if today hebrew has tekufa today
+            setupTekufaNotification(context, cal, jewishDateInfo);
+        }
+    }
+
+    private void setupTekufaNotification(Context context, Calendar cal, JewishDateInfo jewishDateInfo) {
+        Calendar tekufaCal = (Calendar) cal.clone();
         AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
-        calendar.setTimeInMillis(c.getSunrise().getTime());
-        if (calendar.getTime().compareTo(new Date()) < 0) {
-            calendar.add(Calendar.DATE, 1);
+        tekufaCal.setTimeInMillis(DateUtils.addHours(jewishDateInfo.getJewishCalendar().getTekufaAsDate(), -1).getTime());
+        PendingIntent dailyPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
+                0, new Intent(context.getApplicationContext(), TekufaNotifications.class), PendingIntent.FLAG_IMMUTABLE);
+        am.cancel(dailyPendingIntent);
+        am.setExact(AlarmManager.RTC_WAKEUP, tekufaCal.getTimeInMillis(), dailyPendingIntent);
+    }
+
+    private void updateAlarm(Context context, AstronomicalCalendar c, Calendar cal) {
+        AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
+        cal.setTimeInMillis(c.getSunrise().getTime());
+        if (cal.getTime().compareTo(new Date()) < 0) {
+            cal.add(Calendar.DATE, 1);
         }
         PendingIntent dailyPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
                 0, new Intent(context.getApplicationContext(), DailyNotifications.class), PendingIntent.FLAG_IMMUTABLE);
         am.cancel(dailyPendingIntent);
-        am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), dailyPendingIntent);
+        am.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), dailyPendingIntent);
     }
 }
