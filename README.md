@@ -15,6 +15,7 @@ The only zman/time that could not be computed by the KosherJava API is the sunri
 Click this link to download the app from the Google Play Store!: https://play.google.com/store/apps/details?id=com.EJ.ROvadiahYosefCalendar
 
 Introduction to the calendar in Israel:
+
 <img src="https://i.imgur.com/udfwy3R.jpg" height="650">
 <img src="https://i.imgur.com/ureV4p4.jpg" height="650">
 <img src="https://i.imgur.com/HXEzXvr.jpg" height="650">
