@@ -10,6 +10,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -169,10 +170,31 @@ public class SimpleSetupActivity extends AppCompatActivity {
                 mSharedPreferences.edit().putInt("USER_ID", userID).apply();
                 mSharedPreferences.edit().putString("chaitablesLink" + sCurrentLocationName, link).apply();//save the link for this location to automatically download again next time
             }
-            mSharedPreferences.edit().putBoolean("UseTable", true).apply();
-            mSharedPreferences.edit().putBoolean("showMishorSunrise", false).apply();
+            mSharedPreferences.edit().putBoolean("UseTable" + sCurrentLocationName, true).apply();
+            mSharedPreferences.edit().putBoolean("showMishorSunrise" + sCurrentLocationName, false).apply();
             mSharedPreferences.edit().putBoolean("isSetup", true).apply();
-            mSharedPreferences.edit().putBoolean("isElevationSetup", true).apply();
+            mSharedPreferences.edit().putBoolean("isElevationSetup" + sCurrentLocationName, true).apply();
+            Intent returnIntent = new Intent();
+            returnIntent.putExtra("elevation", mSharedPreferences.getString("elevation" + sCurrentLocationName, ""));
+            setResult(Activity.RESULT_OK, returnIntent);
+            finish();
+        });
+
+        TextView areaNotListedButton = findViewById(R.id.notListedArea);
+        areaNotListedButton.setPaintFlags(areaNotListedButton.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        areaNotListedButton.setOnClickListener(v -> {
+            ProgressBar progressBar = findViewById(R.id.progress_bar);
+            progressBar.setVisibility(View.VISIBLE);
+            mSharedPreferences.edit().putBoolean("UseTable" + sCurrentLocationName, false).apply();
+            mSharedPreferences.edit().putBoolean("showMishorSunrise" + sCurrentLocationName, true).apply();
+            mSharedPreferences.edit().putBoolean("isSetup", true).apply();
+            mSharedPreferences.edit().putBoolean("isElevationSetup" + sCurrentLocationName, true).apply();
+            locationResolver.start();
+            try {
+                locationResolver.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             Intent returnIntent = new Intent();
             returnIntent.putExtra("elevation", mSharedPreferences.getString("elevation" + sCurrentLocationName, ""));
             setResult(Activity.RESULT_OK, returnIntent);

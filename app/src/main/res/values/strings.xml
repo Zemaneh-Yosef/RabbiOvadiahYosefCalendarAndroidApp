@@ -32,11 +32,11 @@
 
  \n\n1.) Setup elevation and visible sunrise for where you are currently located. In this first step, you should ideally choose your city and download the visible sunrise tables. Through the simple setup, the elevation data will automatically be downloaded as well. This table contains the most accurate times for VISIBLE sunrise, and this is the algorithm that the Ohr HaChaim calendar uses in Israel. However, these tables only go on for 2 years into the future and will need to be updated bi-yearly. If you do not want to use these tables, you can choose not to download them through the advanced menu, and the app will instead use the regular algorithm for sunrise (without elevation included).
 
- \n\n2.) There are a few different minhagim to choose from in the settings part of the app. Make sure to choose the correct ones for your city/kehila. For example, the default candle lighting time is set to 20 minutes before sunset, and the default end time for is set to 45 minutes after sunset. Please change these settings to your own customs.
+ \n\n2.) There are a few different minhagim to choose from in the settings part of the app. Make sure to choose the correct ones for your city/kehila. For example, the default candle lighting time is set to 20 minutes before sunset, and the default end time for shabbat is set to 40 minutes after sunset. Please change these settings to your own customs.
 
  \n\n3.) Lastly, the zmanim can be included with seconds, DO NOT RELY ON THESE SECONDS. The only zman that can be relied on to the second is the visible sunrise time based on chaitables.com. Otherwise, these zmanim are NOT accurate to the second! You should always round up or down a minute or two just in case.
 
- \n\nIn addition to all of this, there are features in place that will automatically update the elevation data or the visible sunrise tables. If you leave the city that you currently setup the app for, the app will prompt you to run the setup again. The reason for this feature is because elevation will change based on the city that you are located in and you will have to update it every time you change cities, however, this feature will only turn on if you use elevation.
+ \n\nIn addition to all of this, there are features in place that will automatically tell you to update the elevation data or the visible sunrise tables. If you leave the city that you currently setup the app for, the app will prompt you to run the setup again. The reason for this feature is because elevation will change based on the city that you are located in and you will have to update it every time you change cities, however, this feature will only turn on if you use elevation.
     </string>
     <string name="contact_header">Contact the developer</string>
     <string name="about">About</string>
@@ -105,4 +105,5 @@
     <string name="table_link">Table link</string>
     <string name="skip">Skip?</string>
     <string name="geonames">GeoNames</string>
+    <string name="area_not_listed">Area not listed?</string>
 </resources>

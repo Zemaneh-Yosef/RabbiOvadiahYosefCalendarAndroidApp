@@ -56,6 +56,7 @@ public class SetupElevationActivity extends AppCompatActivity {
             if (getIntent().getBooleanExtra("downloadTable",false)) {
                 downloadTablesAndFinish(sharedPreferences);
             } else {
+                editor.putBoolean("showMishorSunrise" + sCurrentLocationName, true).apply();
                 finish();
             }
         });
@@ -77,9 +78,9 @@ public class SetupElevationActivity extends AppCompatActivity {
                     mElevation = input.getText().toString();
                     editor.putString("elevation" + sCurrentLocationName, mElevation).apply();
                     editor.putBoolean("isSetup", true).apply();
-                    editor.putBoolean("isElevationSetup", true).apply();
+                    editor.putBoolean("isElevationSetup" + sCurrentLocationName, true).apply();
                     Intent returnIntent = new Intent();
-                    returnIntent.putExtra("elevation", mElevation);
+                    returnIntent.putExtra("elevation" + sCurrentLocationName, mElevation);
                     setResult(Activity.RESULT_OK, returnIntent);
                     if (getIntent().getBooleanExtra("downloadTable",false)) {
                         downloadTablesAndFinish(sharedPreferences);
@@ -95,18 +96,18 @@ public class SetupElevationActivity extends AppCompatActivity {
 
         Button geoNamesButton = findViewById(R.id.geonamesButton);
         geoNamesButton.setOnClickListener(view -> {
+            editor.putBoolean("isElevationSetup" + sCurrentLocationName, true).apply();
+            editor.putBoolean("isSetup", true).apply();
+            locationResolver.start();
+            try {
+                locationResolver.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            Intent returnIntent = new Intent();
+            returnIntent.putExtra("elevation" + sCurrentLocationName, sharedPreferences.getString("elevation" + sCurrentLocationName, "0"));
+            setResult(Activity.RESULT_OK, returnIntent);
             if (getIntent().getBooleanExtra("downloadTable",false)) {
-                locationResolver.start();
-                try {
-                    locationResolver.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                editor.putBoolean("isElevationSetup", true).apply();
-                editor.putBoolean("isSetup", true).apply();
-                Intent returnIntent = new Intent();
-                returnIntent.putExtra("elevation", sharedPreferences.getString("elevation" + sCurrentLocationName, "0"));
-                setResult(Activity.RESULT_OK, returnIntent);
                 downloadTablesAndFinish(sharedPreferences);
             } else {
                 finish();
@@ -117,7 +118,7 @@ public class SetupElevationActivity extends AppCompatActivity {
     private void downloadTablesAndFinish(SharedPreferences sharedPreferences) {
         ProgressBar progressBar = findViewById(R.id.progressBarElevation);
         progressBar.setVisibility(View.VISIBLE);
-        if (sharedPreferences.getBoolean("UseTable", true)) {
+        if (sharedPreferences.getBoolean("UseTable" + sCurrentLocationName, true)) {
             int userID = sharedPreferences.getInt("USER_ID", 10000);
             ChaiTablesScraper scraper = new ChaiTablesScraper();
             String link = getSharedPreferences(SHARED_PREF, MODE_PRIVATE).getString("chaitablesLink" + sCurrentLocationName, "");

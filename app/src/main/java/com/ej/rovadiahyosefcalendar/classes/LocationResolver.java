@@ -288,25 +288,58 @@ public class LocationResolver extends Thread {
     public void getElevationFromWebService() throws IOException {
         WebService.setUserName("Elyahu41");
         ArrayList<Integer> elevations = new ArrayList<>();
-        int e1 = WebService.srtm3(sLatitude, sLongitude);
-        if (e1 > 0) {
-            elevations.add(e1);
-        }
-        int e2 = WebService.astergdem(sLatitude, sLongitude);
-        if (e2 > 0) {
-            elevations.add(e2);
-        }
-        int e3 = WebService.gtopo30(sLatitude, sLongitude);
-        if (e3 > 0) {
-            elevations.add(e3);
-        }
         int sum = 0;
-        for (int e : elevations) {
-            sum += e;
-        }
-        int size = elevations.size();
-        if (size == 0) {
-            size = 1;//edge case if no elevation data is available
+        int size;
+        try {
+            int e1 = WebService.srtm3(sLatitude, sLongitude);
+            if (e1 > 0) {
+                elevations.add(e1);
+            }
+            int e2 = WebService.astergdem(sLatitude, sLongitude);
+            if (e2 > 0) {
+                elevations.add(e2);
+            }
+            int e3 = WebService.gtopo30(sLatitude, sLongitude);
+            if (e3 > 0) {
+                elevations.add(e3);
+            }
+
+            for (int e : elevations) {
+                sum += e;
+            }
+            size = elevations.size();
+            if (size == 0) {
+                size = 1;//edge case if no elevation data is available
+            }
+        } catch (NumberFormatException ex) {//and error occurred getting the elevation, probably because too many requests were made
+            try {
+                WebService.setUserName("graviton57");//another user api key that I found online
+                int e1 = WebService.srtm3(sLatitude, sLongitude);
+                if (e1 > 0) {
+                    elevations.add(e1);
+                }
+                int e2 = WebService.astergdem(sLatitude, sLongitude);
+                if (e2 > 0) {
+                    elevations.add(e2);
+                }
+                int e3 = WebService.gtopo30(sLatitude, sLongitude);
+                if (e3 > 0) {
+                    elevations.add(e3);
+                }
+
+                for (int e : elevations) {
+                    sum += e;
+                }
+                size = elevations.size();
+                if (size == 0) {
+                    size = 1;//edge case if no elevation data is available
+                }
+            } catch (NumberFormatException ex1) {
+                Toast.makeText(mContext, "Elevation not updated. Too many requests. Try again later.", Toast.LENGTH_LONG).show();
+                ex.printStackTrace();
+                ex1.printStackTrace();
+                return;
+            }
         }
         mSharedPreferences.edit().putString("elevation" + sCurrentLocationName, String.valueOf(sum / size)).apply();
     }

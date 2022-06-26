@@ -80,44 +80,62 @@ public class MainActivity extends AppCompatActivity {
     public static boolean sShabbatMode;
     public static boolean sNetworkLocationServiceIsDisabled;
     public static boolean sGPSLocationServiceIsDisabled;
+    public static boolean sUserIsOffline;
     private boolean mBackHasBeenPressed = false;
+    private boolean updateTablesDialogShown;
     private boolean mInitialized = false;
     private int mCurrentPosition;
     private double mElevation = 0;
     public static double sLatitude;
     public static double sLongitude;
+    private static final int TWENTY_FOUR_HOURS_IN_MILLI = 86_400_000;
+
+    //android views:
     private View mLayout;
     private Button mNextDate;
     private Button mPreviousDate;
     private Button mCalendarButton;
+    private TextView mShabbatModeBanner;
+    private RecyclerView mMainRecyclerView;
+    /**
+     * This string is used to display the name of the current location in the app. We also use this string to save the elevation of a location to the SharedPreferences, and
+     * we save the chai tables as well with this string.
+     */
+    public static String sCurrentLocationName = "";
+    public static String sCurrentTimeZoneID;
+
+    //Custom classes/kosherjava classes:
+    private LocationResolver mLocationResolver;
+    private ROZmanimCalendar mROZmanimCalendar;
+    private JewishDateInfo mJewishDateInfo;
+    private final ZmanimFormatter mZmanimFormatter = new ZmanimFormatter(TimeZone.getDefault());
+
+    //android classes:
     private Handler mHandler = null;
     private Runnable mZmanimUpdater;
     private AlertDialog mAlertDialog;
-    private TextView mShabbatModeBanner;
-    private JewishDateInfo mJewishDateInfo;
-    private RecyclerView mMainRecyclerView;
-    public static String sCurrentTimeZoneID;
     private GestureDetector mGestureDetector;
-    private LocationResolver mLocationResolver;
-    private ROZmanimCalendar mROZmanimCalendar;
     private SharedPreferences mSharedPreferences;
-    public static String sCurrentLocationName = "";
     private SharedPreferences mSettingsPreferences;
     public static final String SHARED_PREF = "MyPrefsFile";
     private ActivityResultLauncher<Intent> mSetupLauncher;
+
     /**
      * The current date shown in the main activity. This calendar can be manipulated to change the date if needed.
      */
     private Calendar mCurrentDateShown = Calendar.getInstance();
+
     /**
-     * The current date of the device. Do not modify this date directly, only use is to reset the date of other objects
+     * The current date of the device. This calendar is not to be modified directly, only use is to reset the date of other objects
      */
     private final Calendar mCurrentDate = Calendar.getInstance();
-    private static final int TWENTY_FOUR_HOURS_IN_MILLI = 86_400_000;
-    private final ZmanimFormatter mZmanimFormatter = new ZmanimFormatter(TimeZone.getDefault());
+
+    /**
+     * These calendars are used to know when daf/yerushalmi yomi started
+     */
     private final static Calendar dafYomiStartDate = new GregorianCalendar(1923, Calendar.SEPTEMBER, 11);
     private final static Calendar dafYomiYerushalmiStartDate = new GregorianCalendar(1980, Calendar.FEBRUARY, 2);
-    private boolean updateTablesDialogShown;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {//TODO make sure tekufa notifs are working
@@ -135,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
         mLocationResolver = new LocationResolver(this, this);
         mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false), true);
         if (!ChaiTables.visibleSunriseFileExists(getExternalFilesDir(null), sCurrentLocationName, mJewishDateInfo.getJewishCalendar())
-                && mSharedPreferences.getBoolean("UseTable", true)
+                && mSharedPreferences.getBoolean("UseTable" + sCurrentLocationName, true)
                 && !mSharedPreferences.getBoolean("isSetup", false)
                 && savedInstanceState == null) {//it should only not exist the first time running the app and only if the user has not set up the app
             mSetupLauncher.launch(new Intent(this, FullSetupActivity.class));
@@ -163,18 +181,11 @@ public class MainActivity extends AppCompatActivity {
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     SharedPreferences.Editor editor = mSharedPreferences.edit();
+                    mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));
                     if (result.getResultCode() == Activity.RESULT_OK) {
                         if (result.getData() != null) {
-                            mElevation = Double.parseDouble(result.getData().getStringExtra("elevation"));
                             editor.putString("lastLocation", sCurrentLocationName).apply();
-                        } else {
-                            mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));
                         }
-                    } else {
-                        mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));
-                    }
-                    if (mElevation == 0) {
-                        mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));
                     }
                     if (!mInitialized) {
                         initializeMainView();
@@ -205,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void seeIfTablesNeedToBeUpdated(boolean fromButton) {
         if (mSharedPreferences.getBoolean("isSetup", false) //only check after the app has been setup before
-                && mSharedPreferences.getBoolean("UseTable", false)) { //and only if the tables are being used
+                && mSharedPreferences.getBoolean("UseTable" + sCurrentLocationName, false)) { //and only if the tables are being used
 
             if (!ChaiTables.visibleSunriseFileExists(getExternalFilesDir(null), sCurrentLocationName, mJewishDateInfo.getJewishCalendar())) {
                 if (!updateTablesDialogShown) {
@@ -455,7 +466,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onRestart() {
         if (sShabbatMode) {
-            startShabbatMode();//left in just in case thread in shabbatMode stops working
+            startShabbatMode();//left in just in case app is restarted while in shabbat mode.
         }
         super.onRestart();
     }
@@ -534,7 +545,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * This method will called every time the user opens the app. It will reset the notifications every time the app is opened since the user might
+     * This method will be called every time the user opens the app. It will reset the notifications every time the app is opened since the user might
      * have changed his location.
      * @see #saveGeoLocationInfo()
      */
@@ -575,6 +586,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * This method is called when the user clicks on shabbat mode. The main point of this method is to automatically scroll through the list of zmanim
      * and update the date when the time reaches the next date at 12:00:02am. It will also update the shabbat banner to reflect the next day's date.
+     * (The reason why I chose 12:00:02am is to avoid a hiccup if the device is too fast to update the time, although it is probably not a big deal.)
      * @see #startScrollingThread() to start the thread that will scroll through the list of zmanim
      * @see #setShabbatBannersText(boolean) to set the text of the shabbat banners
      */
@@ -584,8 +596,7 @@ public class MainActivity extends AppCompatActivity {
             setShabbatBannersText(true);
             mShabbatModeBanner.setVisibility(View.VISIBLE);
             int orientation;
-            int rotation = ((WindowManager) getSystemService(
-                    Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation();
+            int rotation = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation();
             switch (rotation) {
                 case Surface.ROTATION_90:
                 case Surface.ROTATION_270:
@@ -652,6 +663,7 @@ public class MainActivity extends AppCompatActivity {
                 mShabbatModeBanner.setText(sb.toString());
                 mShabbatModeBanner.setBackgroundColor(getColor(R.color.lightYellow));
                 mShabbatModeBanner.setTextColor(getColor(R.color.black));
+                mCalendarButton.setBackgroundColor(getColor(R.color.lightYellow));
                 break;
             case JewishCalendar.SHAVUOS:
                 for (int i = 0; i < 4; i++) {
@@ -664,6 +676,7 @@ public class MainActivity extends AppCompatActivity {
                 mShabbatModeBanner.setText(sb.toString());
                 mShabbatModeBanner.setBackgroundColor(getColor(R.color.light_blue));
                 mShabbatModeBanner.setTextColor(getColor(R.color.white));
+                mCalendarButton.setBackgroundColor(getColor(R.color.light_blue));
                 break;
             case JewishCalendar.SUCCOS:
             case JewishCalendar.SHEMINI_ATZERES:
@@ -678,6 +691,7 @@ public class MainActivity extends AppCompatActivity {
                 mShabbatModeBanner.setText(sb.toString());
                 mShabbatModeBanner.setBackgroundColor(getColor(R.color.green));
                 mShabbatModeBanner.setTextColor(getColor(R.color.black));
+                mCalendarButton.setBackgroundColor(getColor(R.color.green));
                 break;
             case JewishCalendar.ROSH_HASHANA:
                 for (int i = 0; i < 4; i++) {
@@ -690,6 +704,7 @@ public class MainActivity extends AppCompatActivity {
                 mShabbatModeBanner.setText(sb.toString());
                 mShabbatModeBanner.setBackgroundColor(getColor(R.color.dark_red));
                 mShabbatModeBanner.setTextColor(getColor(R.color.white));
+                mCalendarButton.setBackgroundColor(getColor(R.color.dark_red));
                 break;
             case JewishCalendar.YOM_KIPPUR:
                 for (int i = 0; i < 4; i++) {
@@ -702,6 +717,7 @@ public class MainActivity extends AppCompatActivity {
                 mShabbatModeBanner.setText(sb.toString());
                 mShabbatModeBanner.setBackgroundColor(getColor(R.color.white));
                 mShabbatModeBanner.setTextColor(getColor(R.color.black));
+                mCalendarButton.setBackgroundColor(getColor(R.color.white));
                 break;
             default:
                 mShabbatModeBanner.setText("SHABBAT MODE                " +
@@ -711,6 +727,7 @@ public class MainActivity extends AppCompatActivity {
                         "SHABBAT MODE");
                 mShabbatModeBanner.setBackgroundColor(getColor(R.color.dark_blue));
                 mShabbatModeBanner.setTextColor(getColor(R.color.white));
+                mCalendarButton.setBackgroundColor(getColor(R.color.dark_blue));
         }
 
         if (isFirstTime) {
@@ -767,7 +784,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * This method is called when the user wants to end shabbat mode. It will hide the banner and remove the automatic zmanim updater queued task
-     * from the handler.
+     * from the handler. I will also reset the color of the calendar button to the default color.
      * @see #startScrollingThread()
      * @see #startShabbatMode()
      */
@@ -777,13 +794,14 @@ public class MainActivity extends AppCompatActivity {
             mShabbatModeBanner.setVisibility(View.GONE);
             mHandler.removeCallbacksAndMessages(mZmanimUpdater);
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+            mCalendarButton.setBackgroundColor(mSharedPreferences.getInt("CalButtonColor", 0x18267C));
         }
     }
 
     /**
      * This is the main method for updating the Zmanim in the recyclerview. It is called everytime the user changes the date or updates
-     * any settings. This method returns a list of strings which are added to the recyclerview. The strings that are zmanim are in the
-     * following format: "Zman= 12:00:00 AM"
+     * any setting that affects the zmanim. This method returns a list of strings which are added to the recyclerview.
+     * The strings that are zmanim are in the following format: "Zman= 12:00:00 AM" (seconds are optional). We parse the strings in @link{ZmanAdapter}
      * @return the updated information and Zmanim for the current day in a List of Strings with the following format: zman= 12:00:00 AM
      * (seconds are optional)
      */
@@ -853,8 +871,6 @@ public class MainActivity extends AppCompatActivity {
             addEnglishZmanim(zmanimFormat, zmanim);
         }
 
-        zmanim.add("Additional info:");
-
         if (!mCurrentDateShown.before(dafYomiStartDate)) {
             zmanim.add("Daf Yomi: " + YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getMasechta()
                     + " " +
@@ -900,13 +916,13 @@ public class MainActivity extends AppCompatActivity {
         if (mSettingsPreferences.getBoolean("ShowElevatedSunrise", false)) {
             zmanim.add("HaNetz (Elevated)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSunrise())));
         }
-        if (mROZmanimCalendar.getHaNetz() != null && !mSharedPreferences.getBoolean("showMishorSunrise", true)) {
+        if (mROZmanimCalendar.getHaNetz() != null && !mSharedPreferences.getBoolean("showMishorSunrise" + sCurrentLocationName, true)) {
             zmanim.add("HaNetz= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getHaNetz())));
         } else {
             zmanim.add("HaNetz (Mishor)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSeaLevelSunrise())));
         }
         if (mROZmanimCalendar.getHaNetz() != null &&
-                !mSharedPreferences.getBoolean("showMishorSunrise", true) &&
+                !mSharedPreferences.getBoolean("showMishorSunrise" + sCurrentLocationName, true) &&
                 mSettingsPreferences.getBoolean("ShowMishorAlways", false)) {
             zmanim.add("HaNetz (Mishor)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSeaLevelSunrise())));
         }
@@ -997,13 +1013,13 @@ public class MainActivity extends AppCompatActivity {
         if (mSettingsPreferences.getBoolean("ShowElevatedSunrise", false)) {
             zmanim.add("Sunrise (Elevated)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSunrise())));
         }
-        if (mROZmanimCalendar.getHaNetz() != null && !mSharedPreferences.getBoolean("showMishorSunrise", true)) {
+        if (mROZmanimCalendar.getHaNetz() != null && !mSharedPreferences.getBoolean("showMishorSunrise" + sCurrentLocationName, true)) {
             zmanim.add("Sunrise= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getHaNetz())));
         } else {
             zmanim.add("Sunrise (Sea Level)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSeaLevelSunrise())));
         }
         if (mROZmanimCalendar.getHaNetz() != null &&
-                !mSharedPreferences.getBoolean("showMishorSunrise", true) &&
+                !mSharedPreferences.getBoolean("showMishorSunrise" + sCurrentLocationName, true) &&
                 mSettingsPreferences.getBoolean("ShowMishorAlways", false)) {
             zmanim.add("Sunrise (Sea Level)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSeaLevelSunrise())));
         }
@@ -1096,13 +1112,13 @@ public class MainActivity extends AppCompatActivity {
         if (mSettingsPreferences.getBoolean("ShowElevatedSunrise", false)) {
             zmanim.add("\u05D4\u05E0\u05E5 (גבוה)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSunrise())));
         }
-        if (mROZmanimCalendar.getHaNetz() != null && !mSharedPreferences.getBoolean("showMishorSunrise", true)) {
+        if (mROZmanimCalendar.getHaNetz() != null && !mSharedPreferences.getBoolean("showMishorSunrise" + sCurrentLocationName, true)) {
             zmanim.add("\u05D4\u05E0\u05E5= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getHaNetz())));
         } else {
             zmanim.add("\u05D4\u05E0\u05E5 (\u05DE\u05D9\u05E9\u05D5\u05E8)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSeaLevelSunrise())));
         }
         if (mROZmanimCalendar.getHaNetz() != null &&
-                !mSharedPreferences.getBoolean("showMishorSunrise", true) &&
+                !mSharedPreferences.getBoolean("showMishorSunrise" + sCurrentLocationName, true) &&
                 mSettingsPreferences.getBoolean("ShowMishorAlways", false)) {
             zmanim.add("\u05D4\u05E0\u05E5 (\u05DE\u05D9\u05E9\u05D5\u05E8)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSeaLevelSunrise())));
         }
@@ -1207,9 +1223,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * This is a simple convenience method to check if the given date object is null or not. If the date is not null,
+     * This is a simple convenience method to add a minute to a date object. If the date is not null,
      * it will return the same date with a minute added to it. Otherwise, if the date is null, it will return null.
-     *
      * @param date the date object to add a minute to
      * @return the given date a minute ahead if not null
      */
@@ -1222,8 +1237,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * This is a simple convenience method to check if the given date is null or not. If the date is not null,
-     * it will return exactly what was given.
-     * However, if the date is null, it will change the date to a string that says "N/A" (Not Available).
+     * it will return exactly what was given. However, if the date is null, it will change the date to a string that says "N/A" (Not Available).
      * @param date the date object to check if it is null
      * @return the given date if not null or a string if null
      */
@@ -1236,7 +1250,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * This is a simple convenience method to check if the given date is on shabbat or yom tov or both
+     * This is a simple convenience method to check if the current date is on shabbat or yom tov or both and return the correct string.
      * @return a string that says whether it is shabbat and chag or just shabbat or just chag (in Hebrew or English)
      */
     private String getShabbatAndOrChag() {
@@ -1262,7 +1276,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * This method will check if the tekufa happens today or the next day and it will add the tekufa to the list of zmanim passed in.
+     * This method will check if the tekufa happens within the next 48 hours and it will add the tekufa to the list of zmanim passed in if it happens
+     * on the current date.
      * @param zmanimFormat the format to use for the zmanim
      * @param zmanim the list of zmanim to add to
      */
@@ -1306,25 +1321,35 @@ public class MainActivity extends AppCompatActivity {
                         "Would you like to rerun the setup now?";
 
         try {//TODO this needs to be removed but cannot be removed for now because it is needed for people who have setup the app before we changed data types
-            mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));//get and set the last value
+            if (sCurrentLocationName.contains("Lat:") && sCurrentLocationName.contains("Long:")) {
+                sUserIsOffline = true;
+                mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mSharedPreferences.getString("name", ""), "0"));//lastKnownLocation
+            } else {//user is online
+                mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));//get the last value of the current location or 0 if it doesn't exist
+            }
         } catch (Exception e) {
-            try {
-                mElevation = mSharedPreferences.getFloat("elevation", 0);//legacy
+            try {//legacy
+                mElevation = mSharedPreferences.getFloat("elevation", 0);
             } catch (Exception e1) {
                 mElevation = 0;
                 e1.printStackTrace();
             }
         }
+
         if (mSharedPreferences.getBoolean("askagain", true)) {//only prompt user if he has not asked to be left alone
-            if (!lastLocation.isEmpty() && mSharedPreferences.getBoolean("isElevationSetup", false)) {//only ask after the app has been setup before
-                if (mSharedPreferences.getString("chaitablesLink" + sCurrentLocationName, "").isEmpty()) {//user should update his chaitables in another city
+            if (!lastLocation.isEmpty() && !sCurrentLocationName.isEmpty() && //location name should never be empty. It either has the name or it has Lat: and Long:
+                    !lastLocation.equals(sCurrentLocationName) &&
+                    !sUserIsOffline) {//don't ask if the user is offline
+
+                if (!mSharedPreferences.getBoolean("isElevationSetup" + sCurrentLocationName, false)) {//user should update his elevation in another city
                     mAlertDialog.setMessage(message);
                     mAlertDialog.show();
-                } else {//if the user has already setup the tables, then we just need to check if his tables need to be updated
+                } else {//if the user is in the same place, then we just need to check if his tables need to be updated
                     seeIfTablesNeedToBeUpdated(false);
                 }
+
             }
-        } else {
+        } else {//if the user has asked to be left alone for elevation, then we just need to check if his tables need to be updated
             seeIfTablesNeedToBeUpdated(false);
         }
     }
@@ -1333,6 +1358,7 @@ public class MainActivity extends AppCompatActivity {
      * This method initializes the AlertDialog that will be shown to the user if the user is in another city and he has setup the app before.
      * The AlertDialog will have two buttons: "Yes" and "No". If the user clicks "Yes", then the user will be taken to the
      * elevation and visible sunrise setup activity. If the user clicks "No", then the user will be taken to the main activity.
+     * There is also a "Do not ask again" button that will stop the user from being prompted again.
      * @see #getAndConfirmLastElevationAndVisibleSunriseData()
      */
     private void initAlertDialog() {
@@ -1343,7 +1369,7 @@ public class MainActivity extends AppCompatActivity {
                         mSetupLauncher.launch(new Intent(this, SetupChooserActivity.class)
                                 .putExtra("fromMenu",true)))
                 .setNegativeButton("No", (dialogInterface, i) -> Toast.makeText(
-                        this, "Using visible sunrise and elevation for your last location", Toast.LENGTH_LONG)
+                        this, "Using mishor/sea level values", Toast.LENGTH_LONG)
                         .show())
                 .setNeutralButton("Do not ask again", (dialogInterface, i) -> {
                     mSharedPreferences.edit().putBoolean("askagain", false).apply();
@@ -1376,7 +1402,7 @@ public class MainActivity extends AppCompatActivity {
                         editor.putString("Zipcode", input.getText().toString()).apply();
                         mLocationResolver = new LocationResolver(this, this);
                         mLocationResolver.getLatitudeAndLongitudeFromZipcode();
-                        if (mSharedPreferences.getBoolean("isElevationSetup", true)) {
+                        if (mSharedPreferences.getBoolean("isElevationSetup" + sCurrentLocationName, true)) {
                             mLocationResolver.start();
                             try {
                                 mLocationResolver.join();
@@ -1400,7 +1426,7 @@ public class MainActivity extends AppCompatActivity {
                     mLocationResolver = new LocationResolver(this, this);
                     mLocationResolver.acquireLatitudeAndLongitude();
                     mLocationResolver.setTimeZoneID();
-                    if (mSharedPreferences.getBoolean("isElevationSetup", true)) {
+                    if (mSharedPreferences.getBoolean("isElevationSetup" + sCurrentLocationName, true)) {
                         mLocationResolver.start();
                         try {
                             mLocationResolver.join();
@@ -1442,7 +1468,7 @@ public class MainActivity extends AppCompatActivity {
             mLocationResolver = new LocationResolver(this, this);
             mLocationResolver.acquireLatitudeAndLongitude();
             mLocationResolver.setTimeZoneID();
-            if (mSharedPreferences.getBoolean("isElevationSetup", true)) {
+            if (mSharedPreferences.getBoolean("isElevationSetup" + sCurrentLocationName, true)) {
                 mLocationResolver.start();
                 try {
                     mLocationResolver.join();

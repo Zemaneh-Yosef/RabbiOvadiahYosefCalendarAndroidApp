@@ -49,7 +49,7 @@ public class AdvancedSetupActivity extends AppCompatActivity {
             } else {
                 String link = tableLink.getText().toString();
                 editor.putString("chaitablesLink" + sCurrentLocationName, link);
-                editor.putBoolean("UseTable", true).apply();
+                editor.putBoolean("UseTable" + sCurrentLocationName, true).apply();
                 startActivity(new Intent(this, SetupElevationActivity.class)
                         .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
                         .putExtra("downloadTable", true)
@@ -73,8 +73,8 @@ public class AdvancedSetupActivity extends AppCompatActivity {
                     if (url.startsWith("http://www.chaitables.com/cgi-bin/")) {
                         String visibleURL = getVisibleURL(url);
                         editor.putString("chaitablesLink" + sCurrentLocationName, visibleURL);
-                        editor.putBoolean("UseTable", true).apply();
-                        editor.putBoolean("showMishorSunrise", false).apply();
+                        editor.putBoolean("UseTable" + sCurrentLocationName, true).apply();
+                        editor.putBoolean("showMishorSunrise" + sCurrentLocationName, false).apply();
                         editor.putBoolean("isSetup", true).apply();
                         alertDialog.dismiss();
                         startActivity(new Intent(getApplicationContext(), SetupElevationActivity.class)
@@ -92,8 +92,8 @@ public class AdvancedSetupActivity extends AppCompatActivity {
 
         skip.setPaintFlags(skip.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         skip.setOnClickListener(v -> {
-            editor.putBoolean("UseTable", false).apply();
-            editor.putBoolean("showMishorSunrise", true).apply();
+            editor.putBoolean("UseTable" + sCurrentLocationName, false).apply();
+            editor.putBoolean("showMishorSunrise" + sCurrentLocationName, true).apply();
             startActivity(new Intent(this, SetupElevationActivity.class)
                     .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
                     .putExtra("downloadTable", false)

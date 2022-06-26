@@ -507,7 +507,7 @@ public class JewishDateInfo {
      * This method will return whether or not the current date is the end time or start time for birkat levana
      * @return a string containing whether or not the current date is the end time or start time for birkat levana
      */
-    public String getIsTonightStartOrEndBirchatLevana() {//TODO check if this method might need fixing
+    public String getIsTonightStartOrEndBirchatLevana() {//TODO check if this method might need fixing for proper dates
         Calendar sevenDays = Calendar.getInstance();
         sevenDays.setTime(jewishCalendar.getTchilasZmanKidushLevana7Days());
 

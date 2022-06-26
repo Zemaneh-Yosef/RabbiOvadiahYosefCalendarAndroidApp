@@ -103,7 +103,7 @@ public class MoladActivity extends AppCompatActivity {
         int moladMinutes = molad.getMoladMinutes();
         int moladChalakim = molad.getMoladChalakim();
 
-        String moladTime = moladHours + ":" + moladMinutes + " and " + moladChalakim + " Chalakim";
+        String moladTime = moladHours + "h:" + moladMinutes + "m and " + moladChalakim + " Chalakim";
 
         mMoladAnnouncementTime.setText(moladTime);
         mMoladDate.setText(mSDF.format(mJewishCalendar.getMoladAsDate()));

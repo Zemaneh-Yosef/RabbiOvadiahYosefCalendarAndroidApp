@@ -102,21 +102,23 @@
         android:layout_height="wrap_content"
         android:drawableEnd="@android:drawable/stat_sys_download"
         android:text="@string/download"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/selectCountry"
-        app:layout_constraintHorizontal_bias="0.506"
-        app:layout_constraintStart_toStartOf="@+id/selectCountry"
-        app:layout_constraintTop_toBottomOf="@+id/selectCountry"
-        app:layout_constraintVertical_bias="0.894" />
+        />
+
+    <TextView
+        android:id="@+id/notListedArea"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:gravity="center"
+        android:padding="8dp"
+        android:text="@string/area_not_listed"
+        android:textSize="16sp"
+        android:textColor="?android:attr/textColorPrimary" />
 
     <ProgressBar
         android:id="@+id/progress_bar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         android:visibility="gone"/>
 
 </LinearLayout>
