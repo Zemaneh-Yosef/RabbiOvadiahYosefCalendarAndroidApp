@@ -208,6 +208,59 @@ public class MainActivity extends AppCompatActivity {
         setupRecyclerView();
         setupButtons();
         updateNotifications();
+        checkIfUserIsInIsraelOrNot();
+    }
+
+    private void checkIfUserIsInIsraelOrNot() {
+        if (mSharedPreferences.getBoolean("neverAskInIsraelOrNot", false)) {return;}
+
+        if (sCurrentTimeZoneID.equals("Asia/Jerusalem")) {//user is in or near israel now
+            mSharedPreferences.edit().putBoolean("askedNotInIsrael", false).apply();//reset that we asked outside israel for next time
+            if (!mSharedPreferences.getBoolean("inIsrael", false) && //user was not in israel before
+                    !mSharedPreferences.getBoolean("askedInIsrael", false)) {//and we did not ask already
+                new AlertDialog.Builder(this)
+                        .setTitle("Are you in Israel now?")
+                        .setMessage("If you are in Israel now, please confirm below. Otherwise, ignore this message. (This setting only affects the holidays).")
+                        .setPositiveButton("Yes, I am in Israel", (dialog, which) -> {
+                            mSharedPreferences.edit().putBoolean("inIsrael", true).apply();
+                            mJewishDateInfo = new JewishDateInfo(true, true);
+                            Toast.makeText(this, "Settings updated", Toast.LENGTH_SHORT).show();
+                            mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                        })
+                        .setNegativeButton("No, I am not in Israel", (dialog, which) -> {
+                            mSharedPreferences.edit().putBoolean("askedInIsrael", true).apply();//save that we asked already
+                            dialog.dismiss();
+                        })
+                        .setNeutralButton("Do not ask me again", (dialog, which) -> {
+                            mSharedPreferences.edit().putBoolean("neverAskInIsraelOrNot", true).apply();//save that we should never ask again
+                            dialog.dismiss();
+                        })
+                        .show();
+            }
+        } else {//user is not in israel
+            mSharedPreferences.edit().putBoolean("askedInIsrael", false).apply();//reset that we asked in israel
+            if (mSharedPreferences.getBoolean("inIsrael", false) && //user was in israel before
+                    !mSharedPreferences.getBoolean("askedInNotIsrael", false)) {//and we did not ask already
+                new AlertDialog.Builder(this)
+                        .setTitle("Have you left Israel?")
+                        .setMessage("If you are not in Israel now, please confirm below. Otherwise, ignore this message. (This setting only affects the holidays).")
+                        .setPositiveButton("Yes, I have left Israel", (dialog, which) -> {
+                            mSharedPreferences.edit().putBoolean("inIsrael", false).apply();
+                            mJewishDateInfo = new JewishDateInfo(false, true);
+                            Toast.makeText(this, "Settings updated", Toast.LENGTH_SHORT).show();
+                            mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                        })
+                        .setNegativeButton("No, I have not left Israel", (dialog, which) -> {
+                            mSharedPreferences.edit().putBoolean("askedInNotIsrael", true).apply();//save that we asked
+                            dialog.dismiss();
+                        })
+                        .setNeutralButton("Do not ask me again", (dialog, which) -> {
+                            mSharedPreferences.edit().putBoolean("neverAskInIsraelOrNot", true).apply();//save that we should never ask again
+                            dialog.dismiss();
+                        })
+                        .show();
+            }
+        }
     }
 
     /**
