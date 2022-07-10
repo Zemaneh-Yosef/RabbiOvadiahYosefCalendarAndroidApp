@@ -207,7 +207,7 @@ public class MainActivity extends AppCompatActivity {
         saveGeoLocationInfo();
         setupRecyclerView();
         setupButtons();
-        updateNotifications();
+        setNotifications();
         checkIfUserIsInIsraelOrNot();
     }
 
@@ -587,7 +587,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     *
+     * This method saves the information needed to restore a GeoLocation object in the notification classes.
      */
     private void saveGeoLocationInfo() {//needed for notifications
         SharedPreferences.Editor editor = getSharedPreferences(SHARED_PREF, MODE_PRIVATE).edit();
@@ -602,7 +602,7 @@ public class MainActivity extends AppCompatActivity {
      * have changed his location.
      * @see #saveGeoLocationInfo()
      */
-    private void updateNotifications() {
+    private void setNotifications() {
         Calendar calendar = (Calendar) mROZmanimCalendar.getCalendar().clone();
         calendar.setTimeInMillis(mROZmanimCalendar.getSunrise().getTime());
         if (calendar.getTime().compareTo(new Date()) < 0) {
@@ -622,6 +622,8 @@ public class MainActivity extends AppCompatActivity {
                 new Intent(getApplicationContext(), OmerNotifications.class), PendingIntent.FLAG_IMMUTABLE);
         am.cancel(omerPendingIntent);
         am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), omerPendingIntent);
+        //TODO test notification for tekufa
+
     }
 
     /**
@@ -847,7 +849,11 @@ public class MainActivity extends AppCompatActivity {
             mShabbatModeBanner.setVisibility(View.GONE);
             mHandler.removeCallbacksAndMessages(mZmanimUpdater);
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-            mCalendarButton.setBackgroundColor(mSharedPreferences.getInt("CalButtonColor", 0x18267C));
+            if (mSharedPreferences.getBoolean("useDefaultCalButtonColor", true)) {
+                mCalendarButton.setBackgroundColor(getColor(R.color.dark_blue));
+            } else {
+                mCalendarButton.setBackgroundColor(mSharedPreferences.getInt("CalButtonColor", 0x18267C));
+            }
         }
     }
 
