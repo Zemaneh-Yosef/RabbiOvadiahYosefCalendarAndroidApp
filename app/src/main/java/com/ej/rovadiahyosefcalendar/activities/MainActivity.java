@@ -622,8 +622,6 @@ public class MainActivity extends AppCompatActivity {
                 new Intent(getApplicationContext(), OmerNotifications.class), PendingIntent.FLAG_IMMUTABLE);
         am.cancel(omerPendingIntent);
         am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), omerPendingIntent);
-        //TODO test notification for tekufa
-
     }
 
     /**

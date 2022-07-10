@@ -104,7 +104,7 @@ public class DailyNotifications extends BroadcastReceiver {
     }
 
     private void checkIfTekufaIsToday(Context context, JewishDateInfo jewishDateInfo, Calendar cal) {
-        cal.add(Calendar.DATE, 1);
+        cal.add(Calendar.DATE, 1);//start checking from tomorrow
         jewishDateInfo.setCalendar(cal);
         if (jewishDateInfo.getJewishCalendar().getTekufa() != null &&
                 DateUtils.isSameDay(cal.getTime(), jewishDateInfo.getJewishCalendar().getTekufaAsDate())) {//if next day hebrew has tekufa today
@@ -120,18 +120,13 @@ public class DailyNotifications extends BroadcastReceiver {
     }
 
     private void setupTekufaNotification(Context context, Calendar cal, JewishDateInfo jewishDateInfo) {
-        Calendar tekufaCal = (Calendar) cal.clone();
+        Calendar tekufaCal = (Calendar) cal.clone();//clone to avoid changing the original calendar
         AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
         tekufaCal.setTimeInMillis(DateUtils.addHours(jewishDateInfo.getJewishCalendar().getTekufaAsDate(), -1).getTime());
         PendingIntent tekufaPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
                 0, new Intent(context.getApplicationContext(), TekufaNotifications.class), PendingIntent.FLAG_IMMUTABLE);
         am.cancel(tekufaPendingIntent);
         am.set(AlarmManager.RTC_WAKEUP, tekufaCal.getTimeInMillis(), tekufaPendingIntent);
-        try {
-            tekufaPendingIntent.send();
-        } catch (PendingIntent.CanceledException e) {
-            e.printStackTrace();
-        }
     }
 
     private void updateAlarm(Context context, AstronomicalCalendar c, Calendar cal) {
