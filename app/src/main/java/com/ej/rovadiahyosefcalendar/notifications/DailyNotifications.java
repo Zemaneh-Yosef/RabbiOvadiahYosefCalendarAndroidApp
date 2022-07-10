@@ -106,12 +106,12 @@ public class DailyNotifications extends BroadcastReceiver {
     private void checkIfTekufaIsToday(Context context, JewishDateInfo jewishDateInfo, Calendar cal) {
         cal.add(Calendar.DATE, 1);
         jewishDateInfo.setCalendar(cal);
-        cal.add(Calendar.DATE, -1);
         if (jewishDateInfo.getJewishCalendar().getTekufa() != null &&
                 DateUtils.isSameDay(cal.getTime(), jewishDateInfo.getJewishCalendar().getTekufaAsDate())) {//if next day hebrew has tekufa today
             setupTekufaNotification(context, cal, jewishDateInfo);
         }
 
+        cal.add(Calendar.DATE, -1);
         jewishDateInfo.setCalendar(cal);//reset
         if (jewishDateInfo.getJewishCalendar().getTekufa() != null &&
                 DateUtils.isSameDay(cal.getTime(), jewishDateInfo.getJewishCalendar().getTekufaAsDate())) {//if today hebrew has tekufa today
@@ -123,10 +123,15 @@ public class DailyNotifications extends BroadcastReceiver {
         Calendar tekufaCal = (Calendar) cal.clone();
         AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
         tekufaCal.setTimeInMillis(DateUtils.addHours(jewishDateInfo.getJewishCalendar().getTekufaAsDate(), -1).getTime());
-        PendingIntent dailyPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
+        PendingIntent tekufaPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
                 0, new Intent(context.getApplicationContext(), TekufaNotifications.class), PendingIntent.FLAG_IMMUTABLE);
-        am.cancel(dailyPendingIntent);
-        am.setExact(AlarmManager.RTC_WAKEUP, tekufaCal.getTimeInMillis(), dailyPendingIntent);
+        am.cancel(tekufaPendingIntent);
+        am.set(AlarmManager.RTC_WAKEUP, tekufaCal.getTimeInMillis(), tekufaPendingIntent);
+        try {
+            tekufaPendingIntent.send();
+        } catch (PendingIntent.CanceledException e) {
+            e.printStackTrace();
+        }
     }
 
     private void updateAlarm(Context context, AstronomicalCalendar c, Calendar cal) {
