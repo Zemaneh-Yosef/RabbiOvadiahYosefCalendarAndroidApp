@@ -46,7 +46,10 @@ public class SetupChooserActivity extends AppCompatActivity {
 
         TextView skip = findViewById(R.id.skipForNow);
         skip.setPaintFlags(skip.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-        skip.setOnClickListener(v -> finish());
+        skip.setOnClickListener(v -> {
+            mEditor.putBoolean("isSetup", true).apply();
+            finish();
+        });
 
         Button quickSetupButton = findViewById(R.id.quickSetup);
         Button advancedSetupButton = findViewById(R.id.advancedSetup);

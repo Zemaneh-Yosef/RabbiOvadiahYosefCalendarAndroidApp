@@ -148,10 +148,10 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             showShkiaDialog();
         } else if (zmanim.get(position).contains("\u05E6\u05D0\u05EA \u05D4\u05DB\u05D5\u05DB\u05D1\u05D9\u05DD")) {
             showTzaitDialog();
-        } else if (zmanim.get(position).contains("\u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA")) {
-            showTzaitTaanitDialog();
         } else if (zmanim.get(position).contains("\u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA \u05DC\u05D7\u05D5\u05DE\u05E8\u05D4")) {
             showTzaitTaanitLChumraDialog();
+        } else if (zmanim.get(position).contains("\u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA")) {
+            showTzaitTaanitDialog();
         } else if (zmanim.get(position).contains("\u05E6\u05D0\u05EA \u05E9\u05D1\u05EA/\u05D7\u05D2")
                 ||zmanim.get(position).contains("\u05E6\u05D0\u05EA \u05E9\u05D1\u05EA")
                 ||zmanim.get(position).contains("\u05E6\u05D0\u05EA \u05D7\u05D2")) {
@@ -194,10 +194,10 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             showShkiaDialog();
         } else if (zmanim.get(position).contains("Nightfall")) {
             showTzaitDialog();
-        } else if (zmanim.get(position).contains("Fast Ends")) {
-            showTzaitTaanitDialog();
         } else if (zmanim.get(position).contains("Fast Ends (Stringent)")) {
             showTzaitTaanitLChumraDialog();
+        } else if (zmanim.get(position).contains("Fast Ends")) {
+            showTzaitTaanitDialog();
         } else if (zmanim.get(position).contains("Shabbat/Chag Ends")
                 || zmanim.get(position).contains("Shabbat Ends")
                 || zmanim.get(position).contains("Chag Ends")) {
@@ -240,10 +240,10 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             showShkiaDialog();
         } else if (zmanim.get(position).contains("Tzait Hacochavim")) {
             showTzaitDialog();
-        } else if (zmanim.get(position).contains("Tzait Taanit")) {
-            showTzaitTaanitDialog();
         } else if (zmanim.get(position).contains("Tzait Taanit L'Chumra")) {
             showTzaitTaanitLChumraDialog();
+        } else if (zmanim.get(position).contains("Tzait Taanit")) {
+            showTzaitTaanitDialog();
         } else if (zmanim.get(position).contains("Tzait Shabbat/Chag")
                 || zmanim.get(position).contains("Tzait Chag")
                 || zmanim.get(position).contains("Tzait Shabbat")) {

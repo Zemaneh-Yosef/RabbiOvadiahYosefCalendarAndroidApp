@@ -581,11 +581,11 @@ public class JewishDateInfo {
     }
 
     /**
-     * This method returns a string containing the words No Music if you are not allowed to listen to music on the current day.
-     * (Pesach to lag baomer and the three weeks)
+     * This method returns a string containing the words "No Music" if you are not allowed to listen to music on the current day. (Pesach to lag
+     * baomer and the three weeks)
      * @return a string containing whether or not you are allowed to listen to music on the current day
      */
-    public String isOKToListenToMusic() {//TODO check dates
+    public String isOKToListenToMusic() {
         if (jewishCalendar.getDayOfOmer() >= 8 && jewishCalendar.getDayOfOmer() <= 33) {
             return "No Music";
         } else if (jewishCalendar.getJewishMonth() == JewishDate.TAMMUZ) {

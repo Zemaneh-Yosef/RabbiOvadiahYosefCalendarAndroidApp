@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {//TODO make sure tekufa notifs are working
+    protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.AppTheme); //splash screen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -151,6 +151,10 @@ public class MainActivity extends AppCompatActivity {
         initializeSetupResult();
         setupShabbatModeBanner();
         mLocationResolver = new LocationResolver(this, this);
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(), ACCESS_FINE_LOCATION) != PERMISSION_GRANTED ||
+                mSharedPreferences.getBoolean("useZipcode", false)) {
+            mLocationResolver.acquireLatitudeAndLongitude();
+        }
         mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false), true);
         if (!ChaiTables.visibleSunriseFileExists(getExternalFilesDir(null), sCurrentLocationName, mJewishDateInfo.getJewishCalendar())
                 && mSharedPreferences.getBoolean("UseTable" + sCurrentLocationName, true)
