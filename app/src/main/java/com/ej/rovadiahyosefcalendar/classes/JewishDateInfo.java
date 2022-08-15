@@ -362,6 +362,9 @@ public class JewishDateInfo {
                 || yomTovIndexForNextDay == JewishCalendar.PESACH_SHENI
                 || yomTovIndexForNextDay == JewishCalendar.PURIM_KATAN
                 || jewishCalendar.isErevRoshChodesh()) {
+            if (jewishCalendar.getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
+                return "There is no Tachanun today";
+            }
             return "There is only Tachanun in the morning";
         }
         if (currentDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {

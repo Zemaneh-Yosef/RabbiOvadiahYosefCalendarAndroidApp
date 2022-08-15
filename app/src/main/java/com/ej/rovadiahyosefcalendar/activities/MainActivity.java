@@ -938,9 +938,14 @@ public class MainActivity extends AppCompatActivity {
                     formatHebrewNumber(YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getDaf()));
         }
         if (!mCurrentDateShown.before(dafYomiYerushalmiStartDate)) {
-            zmanim.add("Yerushalmi Yomi: " + YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getMasechta()
-                    + " " +
-                    formatHebrewNumber(YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getDaf()));
+            String masechta = YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getMasechta();
+            String daf = formatHebrewNumber(YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getDaf());
+            if (daf == null) {
+                daf = "No Yerushalmi Daf Yomi";
+                zmanim.add(daf);
+            } else {
+                zmanim.add("Yerushalmi Yomi: " + masechta + " " + daf);
+            }
         }
 
         zmanim.add(mJewishDateInfo.getIsMashivHaruchOrMoridHatalSaid()
@@ -1013,17 +1018,19 @@ public class MainActivity extends AppCompatActivity {
                 mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
                 if (!mJewishDateInfo.getJewishCalendar().isTomorrowShabbosOrYomTov()) {
                     Set<String> stringSet = mSettingsPreferences.getStringSet("displayRTOrShabbatRegTime", null);
-                    if (stringSet.contains("Show Regular Minutes")) {
-                        zmanim.add("Tzait " + getShabbatAndOrChag() + " (Tom) "
-                                + "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + "= " +
-                                zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
-                    }
-                    if (stringSet.contains("Show Rabbeinu Tam")) {
-                        if (mSettingsPreferences.getBoolean("RoundUpRT", true)) {
-                            DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//just to remove the seconds
-                            zmanim.add("Rabbeinu Tam (Tom)= " + roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
-                        } else {
-                            zmanim.add("Rabbeinu Tam (Tom)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+                    if (stringSet != null) {
+                        if (stringSet.contains("Show Regular Minutes")) {
+                            zmanim.add("Tzait " + getShabbatAndOrChag() + " (Tom) "
+                                    + "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + "= " +
+                                    zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
+                        }
+                        if (stringSet.contains("Show Rabbeinu Tam")) {
+                            if (mSettingsPreferences.getBoolean("RoundUpRT", true)) {
+                                DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//just to remove the seconds
+                                zmanim.add("Rabbeinu Tam (Tom)= " + roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
+                            } else {
+                                zmanim.add("Rabbeinu Tam (Tom)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+                            }
                         }
                     }
                 }
@@ -1110,17 +1117,19 @@ public class MainActivity extends AppCompatActivity {
                 mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
                 if (!mJewishDateInfo.getJewishCalendar().isTomorrowShabbosOrYomTov()) {
                     Set<String> stringSet = mSettingsPreferences.getStringSet("displayRTOrShabbatRegTime", null);
-                    if (stringSet.contains("Show Regular Minutes")) {
-                        zmanim.add(getShabbatAndOrChag() + " Ends (Tom) "
-                                + "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + "= " +
-                                zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
-                    }
-                    if (stringSet.contains("Show Rabbeinu Tam")) {
-                        if (mSettingsPreferences.getBoolean("RoundUpRT", true)) {
-                            DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//just to remove the seconds
-                            zmanim.add("Rabbeinu Tam (Tom)= " + roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
-                        } else {
-                            zmanim.add("Rabbeinu Tam (Tom)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+                    if (stringSet != null) {
+                        if (stringSet.contains("Show Regular Minutes")) {
+                            zmanim.add(getShabbatAndOrChag() + " Ends (Tom) "
+                                    + "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + "= " +
+                                    zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
+                        }
+                        if (stringSet.contains("Show Rabbeinu Tam")) {
+                            if (mSettingsPreferences.getBoolean("RoundUpRT", true)) {
+                                DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//just to remove the seconds
+                                zmanim.add("Rabbeinu Tam (Tom)= " + roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
+                            } else {
+                                zmanim.add("Rabbeinu Tam (Tom)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+                            }
                         }
                     }
                 }
@@ -1219,19 +1228,21 @@ public class MainActivity extends AppCompatActivity {
                 mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
                 if (!mJewishDateInfo.getJewishCalendar().isTomorrowShabbosOrYomTov()) {
                     Set<String> stringSet = mSettingsPreferences.getStringSet("displayRTOrShabbatRegTime", null);
-                    if (stringSet.contains("Show Regular Minutes")) {
-                        zmanim.add("\u05E6\u05D0\u05EA " + getShabbatAndOrChag() + " (\u05DE\u05D7\u05E8) "
-                                + "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + "= " +
-                                zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
-                    }
-                    if (stringSet.contains("Show Rabbeinu Tam")) {
-                        if (mSettingsPreferences.getBoolean("RoundUpRT", true)) {
-                            DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//just to remove the seconds
-                            zmanim.add("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD (\u05DE\u05D7\u05E8)= " +
-                                    roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
-                        } else {
-                            zmanim.add("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD (\u05DE\u05D7\u05E8)= " +
-                                    zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+                    if (stringSet != null) {
+                        if (stringSet.contains("Show Regular Minutes")) {
+                            zmanim.add("\u05E6\u05D0\u05EA " + getShabbatAndOrChag() + " (\u05DE\u05D7\u05E8) "
+                                    + "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + "= " +
+                                    zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
+                        }
+                        if (stringSet.contains("Show Rabbeinu Tam")) {
+                            if (mSettingsPreferences.getBoolean("RoundUpRT", true)) {
+                                DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//just to remove the seconds
+                                zmanim.add("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD (\u05DE\u05D7\u05E8)= " +
+                                        roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
+                            } else {
+                                zmanim.add("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD (\u05DE\u05D7\u05E8)= " +
+                                        zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+                            }
                         }
                     }
                 }
