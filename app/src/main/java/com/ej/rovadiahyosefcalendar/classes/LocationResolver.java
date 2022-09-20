@@ -275,7 +275,15 @@ public class LocationResolver extends Thread {
      * If the latitude and longitude are not known, it will use the default timezone ID.
      */
     public void setTimeZoneID() {
-        if (sLatitude != 0 && sLongitude != 0) {
+//        if (sLatitude != 0 && sLongitude != 0) {
+//            TimeZoneMap timeZoneMap = TimeZoneMap.forRegion(
+//                    Math.floor(sLatitude), Math.floor(sLongitude),
+//                    Math.ceil(sLatitude), Math.ceil(sLongitude));//trying to avoid using the forEverywhere() method
+//            MainActivity.sCurrentTimeZoneID = Objects.requireNonNull(timeZoneMap.getOverlappingTimeZone(sLatitude, sLongitude)).getZoneId();
+//        } else {
+//            MainActivity.sCurrentTimeZoneID = TimeZone.getDefault().getID();
+//        }
+        if (mSharedPreferences.getBoolean("useZipcode", false)) {
             TimeZoneMap timeZoneMap = TimeZoneMap.forRegion(
                     Math.floor(sLatitude), Math.floor(sLongitude),
                     Math.ceil(sLatitude), Math.ceil(sLongitude));//trying to avoid using the forEverywhere() method

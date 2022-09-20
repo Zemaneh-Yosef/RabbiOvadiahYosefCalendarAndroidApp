@@ -50,6 +50,15 @@ public class BootNotifications extends BroadcastReceiver {
                 PendingIntent omerPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
                         0, new Intent(context, OmerNotifications.class), PendingIntent.FLAG_IMMUTABLE);
                 am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), omerPendingIntent);
+
+                Intent zmanIntent = new Intent(context.getApplicationContext(), ZmanimNotifications.class);
+                sp.edit().putBoolean("findNextZman", true).apply();
+                PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),0,zmanIntent,PendingIntent.FLAG_IMMUTABLE);
+                try {
+                    zmanimPendingIntent.send();
+                } catch (PendingIntent.CanceledException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

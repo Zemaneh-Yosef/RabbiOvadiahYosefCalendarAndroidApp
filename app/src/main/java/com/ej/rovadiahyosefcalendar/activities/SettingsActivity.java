@@ -79,6 +79,15 @@ public class SettingsActivity extends AppCompatActivity {
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
 
+            Preference notificationPreference = findPreference("zmanim_notifications_settings");
+            if (notificationPreference != null) {
+                notificationPreference.setOnPreferenceClickListener(preference -> {
+                    Intent intent = new Intent(getActivity(), NotificationSettingsActivity.class);
+                    startActivity(intent);
+                    return true;
+                });
+            }
+
             Preference themePref = findPreference("theme");
             if (themePref != null) {
                 themePref.setOnPreferenceChangeListener((preference, newValue) -> {

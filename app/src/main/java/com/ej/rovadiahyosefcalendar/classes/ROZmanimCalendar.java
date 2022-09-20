@@ -72,7 +72,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     public Date getPlagHamincha() {
         long shaahZmanit = getTemporalHour(getSunrise(), getSunset());
         long dakahZmanit = shaahZmanit / MINUTES_PER_HOUR;
-        return getTimeOffset(getTzait(), -(shaahZmanit + (15 * dakahZmanit)));
+        return getTimeOffset(getTzeit(), -(shaahZmanit + (15 * dakahZmanit)));
     }
 
     @Override
@@ -80,7 +80,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         return getTimeOffset(getElevationAdjustedSunset(), -getCandleLightingOffset() * MILLISECONDS_PER_MINUTE);
     }
 
-    public Date getTzait() {
+    public Date getTzeit() {
         long shaahZmanit = getTemporalHour(getSunrise(), getSunset());
         long dakahZmanit = shaahZmanit / MINUTES_PER_HOUR;
         return getTimeOffset(getSunset(),(13 * dakahZmanit) + (dakahZmanit / 2));

@@ -95,4 +95,11 @@ public class CurrentLocationActivity extends AppCompatActivity {
                 finish();
             }
     }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        startActivity(new Intent(this, ZmanimLanguageActivity.class).setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
+        finish();
+    }
 }

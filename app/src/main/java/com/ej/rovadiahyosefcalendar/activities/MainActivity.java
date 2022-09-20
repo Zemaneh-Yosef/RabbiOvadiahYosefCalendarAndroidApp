@@ -54,6 +54,7 @@ import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
 import com.ej.rovadiahyosefcalendar.classes.ZmanAdapter;
 import com.ej.rovadiahyosefcalendar.notifications.DailyNotifications;
 import com.ej.rovadiahyosefcalendar.notifications.OmerNotifications;
+import com.ej.rovadiahyosefcalendar.notifications.ZmanimNotifications;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.YerushalmiYomiCalculator;
 import com.kosherjava.zmanim.hebrewcalendar.YomiCalculator;
@@ -90,6 +91,11 @@ public class MainActivity extends AppCompatActivity {
     public static double sLongitude;
     private static final int TWENTY_FOUR_HOURS_IN_MILLI = 86_400_000;
 
+//  This string is used to display the name of the current location in the app. We also use this string to save the elevation of a location to the
+//  SharedPreferences, and we save the chai tables as well under this string.
+    public static String sCurrentLocationName = "";
+    public static String sCurrentTimeZoneID;
+
     //android views:
     private View mLayout;
     private Button mNextDate;
@@ -97,14 +103,8 @@ public class MainActivity extends AppCompatActivity {
     private Button mCalendarButton;
     private TextView mShabbatModeBanner;
     private RecyclerView mMainRecyclerView;
-    /**
-     * This string is used to display the name of the current location in the app. We also use this string to save the elevation of a location to the SharedPreferences, and
-     * we save the chai tables as well with this string.
-     */
-    public static String sCurrentLocationName = "";
-    public static String sCurrentTimeZoneID;
 
-    //Custom classes/kosherjava classes:
+    //custom classes/kosherjava classes:
     private LocationResolver mLocationResolver;
     private ROZmanimCalendar mROZmanimCalendar;
     private JewishDateInfo mJewishDateInfo;
@@ -136,7 +136,6 @@ public class MainActivity extends AppCompatActivity {
     private final static Calendar dafYomiStartDate = new GregorianCalendar(1923, Calendar.SEPTEMBER, 11);
     private final static Calendar dafYomiYerushalmiStartDate = new GregorianCalendar(1980, Calendar.FEBRUARY, 2);
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.AppTheme); //splash screen
@@ -148,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
         mGestureDetector = new GestureDetector(MainActivity.this, new ZmanimGestureListener());
         mZmanimFormatter.setTimeFormat(ZmanimFormatter.SEXAGESIMAL_FORMAT);
         initAlertDialog();
-        initializeSetupResult();
+        initSetupResult();
         setupShabbatModeBanner();
         mLocationResolver = new LocationResolver(this, this);
         if (ActivityCompat.checkSelfPermission(getApplicationContext(), ACCESS_FINE_LOCATION) != PERMISSION_GRANTED ||
@@ -169,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             if ((!mInitialized && ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) == PERMISSION_GRANTED)
                     || mSharedPreferences.getBoolean("useZipcode", false)) {
-                initializeMainView();
+                initMainView();
             }
         }
     }
@@ -180,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
      * data and set the SharedPreferences to indicate that the user has set up the app.
      * It will also reinitialize the main view with the updated settings.
      */
-    private void initializeSetupResult() {
+    private void initSetupResult() {
         mSetupLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -192,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                     if (!mInitialized) {
-                        initializeMainView();
+                        initMainView();
                     }
                     instantiateZmanimCalendar();
                     mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
@@ -201,9 +200,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * This method initializes the main view. This method should only be called when we are able to initialize the @{link mROZmanimCalendar} object.
+     * This method initializes the main view. This method should only be called when we are able to initialize the @{link mROZmanimCalendar} object
+     * with the correct latitude, longitude, elevation, and timezone.
      */
-    private void initializeMainView() {
+    private void initMainView() {
         mInitialized = true;
         mLocationResolver.setTimeZoneID();
         getAndConfirmLastElevationAndVisibleSunriseData();
@@ -569,6 +569,14 @@ public class MainActivity extends AppCompatActivity {
         } else {
             mCalendarButton.setBackgroundColor(mSharedPreferences.getInt("CalButtonColor", 0x18267C));
         }
+        Intent zmanIntent = new Intent(getApplicationContext(), ZmanimNotifications.class);//this is to update the zmanim notifications if the user changed the settings to start showing them
+        mSharedPreferences.edit().putBoolean("findNextZman", true).apply();
+        PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(getApplicationContext(),0,zmanIntent,PendingIntent.FLAG_IMMUTABLE);
+        try {
+            zmanimPendingIntent.send();
+        } catch (PendingIntent.CanceledException e) {
+            e.printStackTrace();
+        }
         super.onResume();
     }
 
@@ -604,7 +612,6 @@ public class MainActivity extends AppCompatActivity {
     /**
      * This method will be called every time the user opens the app. It will reset the notifications every time the app is opened since the user might
      * have changed his location.
-     * @see #saveGeoLocationInfo()
      */
     private void setNotifications() {
         Calendar calendar = (Calendar) mROZmanimCalendar.getCalendar().clone();
@@ -615,17 +622,27 @@ public class MainActivity extends AppCompatActivity {
         PendingIntent dailyPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0,
                 new Intent(getApplicationContext(), DailyNotifications.class), PendingIntent.FLAG_IMMUTABLE);
         AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
-        am.cancel(dailyPendingIntent);
+        am.cancel(dailyPendingIntent);//cancel any previous alarms
         am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), dailyPendingIntent);
 
-        calendar.setTimeInMillis(mROZmanimCalendar.getTzait().getTime());
+        calendar.setTimeInMillis(mROZmanimCalendar.getTzeit().getTime());
         if (calendar.getTime().compareTo(new Date()) < 0) {
             calendar.add(Calendar.DATE, 1);
         }
         PendingIntent omerPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0,
                 new Intent(getApplicationContext(), OmerNotifications.class), PendingIntent.FLAG_IMMUTABLE);
-        am.cancel(omerPendingIntent);
+        am.cancel(omerPendingIntent);//cancel any previous alarms
         am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), omerPendingIntent);
+
+        //zmanim notifications are set in the onResume method, doing it twice will cause the preferences to be reset to true mid way through
+//        Intent zmanIntent = new Intent(getApplicationContext(), ZmanimNotifications.class);
+//        mSharedPreferences.edit().putBoolean("findNextZman", true).apply();
+//        PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(getApplicationContext(),0,zmanIntent,PendingIntent.FLAG_IMMUTABLE);
+//        try {
+//            zmanimPendingIntent.send();
+//        } catch (PendingIntent.CanceledException e) {
+//            e.printStackTrace();
+//        }
     }
 
     /**
@@ -1039,11 +1056,11 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         zmanim.add("Shkia= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSunset())));
-        zmanim.add("Tzait Hacochavim= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzait())));
+        zmanim.add("Tzait Hacochavim= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzeit())));
         if (mJewishDateInfo.getJewishCalendar().hasCandleLighting() &&
                 mJewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
             if (mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) != Calendar.FRIDAY) {
-                zmanim.add("Candle Lighting= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzait())));
+                zmanim.add("Candle Lighting= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzeit())));
             }
         }
         if (mJewishDateInfo.getJewishCalendar().isTaanis()
@@ -1138,11 +1155,11 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         zmanim.add("Sunset= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSunset())));
-        zmanim.add("Nightfall= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzait())));
+        zmanim.add("Nightfall= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzeit())));
         if (mJewishDateInfo.getJewishCalendar().hasCandleLighting() &&
                 mJewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
             if (mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) != Calendar.FRIDAY) {
-                zmanim.add("Candle Lighting= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzait())));
+                zmanim.add("Candle Lighting= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzeit())));
             }
         }
         if (mJewishDateInfo.getJewishCalendar().isTaanis()
@@ -1253,12 +1270,12 @@ public class MainActivity extends AppCompatActivity {
         zmanim.add("\u05E9\u05E7\u05D9\u05E2\u05D4= " +
                 zmanimFormat.format(checkNull(mROZmanimCalendar.getSunset())));
         zmanim.add("\u05E6\u05D0\u05EA \u05D4\u05DB\u05D5\u05DB\u05D1\u05D9\u05DD= " +
-                zmanimFormat.format(checkNull(mROZmanimCalendar.getTzait())));
+                zmanimFormat.format(checkNull(mROZmanimCalendar.getTzeit())));
         if (mJewishDateInfo.getJewishCalendar().hasCandleLighting() &&
                 mJewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
             if (mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) != Calendar.FRIDAY) {
                 zmanim.add("\u05D4\u05D3\u05DC\u05E7\u05EA \u05E0\u05E8\u05D5\u05EA= " +
-                        zmanimFormat.format(checkNull(mROZmanimCalendar.getTzait())));
+                        zmanimFormat.format(checkNull(mROZmanimCalendar.getTzeit())));
             }
         }
         if (mJewishDateInfo.getJewishCalendar().isTaanis()
@@ -1483,7 +1500,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                         if (!mInitialized) {
-                            initializeMainView();
+                            initMainView();
                         } else {
                             mLocationResolver.setTimeZoneID();
                             getAndConfirmLastElevationAndVisibleSunriseData();

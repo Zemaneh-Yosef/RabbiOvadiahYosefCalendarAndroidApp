@@ -4,6 +4,7 @@ import static android.content.Context.ALARM_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -18,10 +19,12 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.MainActivity;
+import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.util.GeoLocation;
@@ -38,6 +41,7 @@ public class OmerNotifications extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         JewishCalendar jewishCalendar = new JewishCalendar();
         SharedPreferences sp = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
+
         if (sp.getBoolean("isSetup",false)) {
             ROZmanimCalendar c = new ROZmanimCalendar(new GeoLocation(
                     sp.getString("name", ""),
@@ -47,7 +51,7 @@ public class OmerNotifications extends BroadcastReceiver {
 
             int day = jewishCalendar.getDayOfOmer();
             if (day != -1 && day != 49) {//we don't want to send a notification right before shavuot
-                long when = c.getTzait().getTime();
+                long when = c.getTzeit().getTime();
                 NotificationManager notificationManager =
                         (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -116,7 +120,7 @@ public class OmerNotifications extends BroadcastReceiver {
     private void updateAlarm(Context context, ROZmanimCalendar c) {
         Calendar calendar = Calendar.getInstance();
         AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
-        calendar.setTimeInMillis(c.getTzait().getTime());
+        calendar.setTimeInMillis(c.getTzeit().getTime());
         if (calendar.getTime().compareTo(new Date()) < 0) {
             calendar.add(Calendar.DATE, 1);
         }

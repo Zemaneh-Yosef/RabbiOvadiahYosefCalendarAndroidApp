@@ -86,7 +86,7 @@
     <string name="no">No</string>
     <string name="show_introduction">Show Introduction?</string>
     <string name="ohr_hachaim_nmode">Ohr HaChaim\nSetup</string>
-    <string name="if_you_want_to_make_your_zmanim_like_the_ohr_hachaim_calendar_in_israel">If you want to make your zmanim like the Ohr HaChaim calendar in Israel, press on simple setup. Otherwise, you can choose the advanced setup.</string>
+    <string name="if_you_want_to_make_your_zmanim_like_the_ohr_hachaim_calendar_in_israel">If you want to make your zmanim like the Ohr HaChaim calendar in Israel, you can press on this button. Otherwise, you can choose the advanced setup.</string>
     <string name="if_you_want_to_specify_what_to_setup">If you want to specify what to setup:</string>
     <string name="yalkut_yosef_quote">yalkut yosef quote</string>
     <string name="left">left</string>
@@ -106,4 +106,7 @@
     <string name="skip">Skip?</string>
     <string name="geonames">GeoNames</string>
     <string name="area_not_listed">Area not listed?</string>
+    <string name="setup_your_city">Setup your city!</string>
+    <string name="title_activity_notification_settings">NotificationSettingsActivity</string>
+    <string name="min">min</string>
 </resources>

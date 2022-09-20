@@ -34,6 +34,7 @@
         <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/layout/activity_zmanim_language.xml" value="0.25294650951949227" />
         <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/layout/entry.xml" value="0.34556159420289856" />
         <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/layout/hebrew_date_picker_dialog.xml" value="0.30932971014492755" />
+        <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/layout/preference_seekbar.xml" value="0.3009833262077811" />
         <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/layout/settings_activity.xml" value="0.3007246376811594" />
         <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/layout/spinner_date_picker_dialog.xml" value="0.30932971014492755" />
         <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/menu/menu_about.xml" value="0.36666666666666664" />
@@ -45,10 +46,12 @@
         <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/mipmap-anydpi-v26/arrow_left_round.xml" value="0.3828125" />
         <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/mipmap-anydpi-v26/arrow_right.xml" value="0.3828125" />
         <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/mipmap-anydpi-v26/calendar.xml" value="0.3828125" />
+        <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/mipmap-anydpi-v26/ic_channel.xml" value="0.3095" />
         <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.3828125" />
         <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.3828125" />
         <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/mipmap-anydpi-v26/splash_text.xml" value="0.22135416666666666" />
         <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/xml/root_preferences.xml" value="0.25883952855847686" />
+        <entry key="..\:/Users/Elyahu/AndroidStudioProjects/RabbiOvadiahYosefCalendar/app/src/main/res/xml/zmanim_preferences.xml" value="0.21441523118767" />
         <entry key="..\:/Users/Elyahu/AppData/Local/Android/Sdk/platforms/android-31/android.jar!/res/layout/date_picker_dialog.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/Elyahu/AppData/Local/Android/Sdk/platforms/android-31/data/res/layout/date_picker_dialog.xml" value="0.33061594202898553" />
         <entry key="..\:/Users/Elyahu/AppData/Local/Android/Sdk/platforms/android-31/data/res/layout/date_picker_header_material.xml" value="0.33061594202898553" />
