@@ -1,23 +1,27 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
-import android.util.Pair;
-
 import androidx.annotation.NonNull;
 
 import java.util.Date;
 
 public class ZmanInformationHolder {
 
-    private Pair<String, Date> nameDatePair;
-    private int notificationDelay;
+    private final String zmanName;
+    private final Date zmanDate;
+    private final int notificationDelay;
 
-    public ZmanInformationHolder(Pair<String, Date> nameDatePair, int notificationDelay) {
-        this.nameDatePair = nameDatePair;
+    public ZmanInformationHolder(String zmanName, Date zmanDate, int notificationDelay) {
+        this.zmanName = zmanName;
+        this.zmanDate = zmanDate;
         this.notificationDelay = notificationDelay;
     }
 
-    public Pair<String, Date> getNameDatePair() {
-        return nameDatePair;
+    public String getZmanName() {
+        return zmanName;
+    }
+
+    public Date getZmanDate() {
+        return zmanDate;
     }
 
     public int getNotificationDelay() {
@@ -27,8 +31,10 @@ public class ZmanInformationHolder {
     @NonNull
     public String toString() {
         return "ZmanInformationHolder{" +
-                "nameDatePair=" + nameDatePair +
+                "name=" + zmanName +
+                ", date=" + zmanDate +
                 ", notificationDelay=" + notificationDelay +
                 '}';
     }
+
 }

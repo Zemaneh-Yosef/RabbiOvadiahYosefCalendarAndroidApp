@@ -42,6 +42,10 @@ public class LocationResolver extends Thread {
     private final Activity mActivity;
     private final Geocoder mGeocoder;
     private final SharedPreferences mSharedPreferences;
+    private String mLocationName;
+    private double mLatitude;
+    private double mLongitude;
+    private TimeZone mTimeZone;
 
     public LocationResolver(Context context, Activity activity) {
         mContext = context;
@@ -80,13 +84,20 @@ public class LocationResolver extends Thread {
                         }
                         LocationListener locationListener = new LocationListener() {
                             @Override
-                            public void onLocationChanged(@NonNull Location location) { }
+                            public void onLocationChanged(@NonNull Location location) {
+                            }
+
                             @Override
-                            public void onProviderEnabled(@NonNull String provider) { }
+                            public void onProviderEnabled(@NonNull String provider) {
+                            }
+
                             @Override
-                            public void onProviderDisabled(@NonNull String provider) { }
+                            public void onProviderDisabled(@NonNull String provider) {
+                            }
+
                             @Override
-                            public void onStatusChanged(String provider, int status, Bundle extras) { }
+                            public void onStatusChanged(String provider, int status, Bundle extras) {
+                            }
                         };
                         if (!sNetworkLocationServiceIsDisabled) {
                             locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, locationListener, null);
@@ -288,8 +299,10 @@ public class LocationResolver extends Thread {
                     Math.floor(sLatitude), Math.floor(sLongitude),
                     Math.ceil(sLatitude), Math.ceil(sLongitude));//trying to avoid using the forEverywhere() method
             MainActivity.sCurrentTimeZoneID = Objects.requireNonNull(timeZoneMap.getOverlappingTimeZone(sLatitude, sLongitude)).getZoneId();
+            mTimeZone = TimeZone.getTimeZone(Objects.requireNonNull(timeZoneMap.getOverlappingTimeZone(sLatitude, sLongitude)).getZoneId());
         } else {
             MainActivity.sCurrentTimeZoneID = TimeZone.getDefault().getID();
+            mTimeZone = TimeZone.getDefault();
         }
     }
 
@@ -359,5 +372,148 @@ public class LocationResolver extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void getRealtimeNotificationData() {
+        StringBuilder result = new StringBuilder();
+        List<Address> addresses = null;
+        try {
+            addresses = mGeocoder.getFromLocation(mLatitude, mLongitude, 1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (addresses != null && addresses.size() > 0) {
+
+            String city = addresses.get(0).getLocality();
+            if (city != null) {
+                result.append(city).append(", ");
+            }
+
+            String state = addresses.get(0).getAdminArea();
+            if (state != null) {
+                result.append(state);
+            }
+
+            if (result.toString().endsWith(", ")) {
+                result.deleteCharAt(result.length() - 2);
+            }
+
+            if (city == null && state == null) {
+                String country = addresses.get(0).getCountryName();
+                result.append(country);
+            }
+        }
+        mLocationName = result.toString().trim();
+
+        if (ActivityCompat.checkSelfPermission(mContext, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(mActivity, new String[]{ACCESS_FINE_LOCATION}, 1);
+        } else {
+            try {
+                LocationManager locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+                if (locationManager != null) {
+                    if (!locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                        sNetworkLocationServiceIsDisabled = true;
+                    }
+                    if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                        sGPSLocationServiceIsDisabled = true;
+                    }
+                    LocationListener locationListener = new LocationListener() {
+                        @Override
+                        public void onLocationChanged(@NonNull Location location) {
+                        }
+
+                        @Override
+                        public void onProviderEnabled(@NonNull String provider) {
+                        }
+
+                        @Override
+                        public void onProviderDisabled(@NonNull String provider) {
+                        }
+
+                        @Override
+                        public void onStatusChanged(String provider, int status, Bundle extras) {
+                        }
+                    };
+                    if (!sNetworkLocationServiceIsDisabled) {
+                        locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, locationListener, null);
+                    }
+                    if (!sGPSLocationServiceIsDisabled) {
+                        locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
+                    }
+                    if (!sNetworkLocationServiceIsDisabled || !sGPSLocationServiceIsDisabled) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {//newer implementation
+                            locationManager.getCurrentLocation(LocationManager.NETWORK_PROVIDER,
+                                    null, Runnable::run,
+                                    location -> {
+                                        if (location != null) {
+                                            mLatitude = location.getLatitude();
+                                            mLongitude = location.getLongitude();
+                                        }
+                                    });
+                            locationManager.getCurrentLocation(LocationManager.GPS_PROVIDER,
+                                    null, Runnable::run,
+                                    location -> {
+                                        if (location != null) {
+                                            mLatitude = location.getLatitude();
+                                            mLongitude = location.getLongitude();
+                                        }
+                                    });
+                            long tenSeconds = System.currentTimeMillis() + 10000;
+                            while ((mLatitude == 0 && mLongitude == 0) && System.currentTimeMillis() < tenSeconds) {
+                                Thread.sleep(0);//we MUST wait for the location data to be set or else the app will crash
+                            }
+                            if (mLatitude == 0 && mLongitude == 0) {//if 10 seconds passed and we still don't have the location, use the older implementation
+                                Location location;//location might be old
+                                if (!sNetworkLocationServiceIsDisabled) {
+                                    location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                                } else {
+                                    location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                                }
+                                if (location != null) {
+                                    mLatitude = location.getLatitude();
+                                    mLongitude = location.getLongitude();
+                                }
+                            }
+                        } else {//older implementation
+                            Location location = null;//location might be old
+                            if (!sNetworkLocationServiceIsDisabled) {
+                                location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                            }
+                            if (location != null) {
+                                mLatitude = location.getLatitude();
+                                mLongitude = location.getLongitude();
+                            }
+                            if (!sGPSLocationServiceIsDisabled) {
+                                location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                            }
+                            if (location != null && (mLatitude == 0 && mLongitude == 0)) {
+                                mLatitude = location.getLatitude();
+                                mLongitude = location.getLongitude();
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        setTimeZoneID();
+    }
+
+    public String getLocationName() {
+        return mLocationName;
+    }
+
+    public double getLatitude() {
+        return mLatitude;
+    }
+
+    public double getLongitude() {
+        return mLongitude;
+    }
+
+    public TimeZone getTimeZone() {
+        return mTimeZone;
     }
 }

@@ -11,12 +11,14 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:text=""
-      android:layout_marginStart="4dp"
+      android:layout_marginStart="12dp"
       android:textStyle="bold"
       android:textSize="16sp"
       android:maxLines="1" />
 
   <LinearLayout
+      android:paddingStart="18dp"
+      android:paddingEnd="18dp"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:gravity="center_vertical">

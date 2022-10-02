@@ -1,7 +1,9 @@
 package com.ej.rovadiahyosefcalendar.notifications;
 
+import static android.Manifest.permission.ACCESS_BACKGROUND_LOCATION;
 import static android.content.Context.ALARM_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
 
 import android.app.Activity;
@@ -20,6 +22,7 @@ import android.net.Uri;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
@@ -36,18 +39,17 @@ import java.util.TimeZone;
 public class OmerNotifications extends BroadcastReceiver {
 
     private static int MID = 1;
+    private LocationResolver mLocationResolver;
+    private SharedPreferences mSharedPreferences;
 
     @Override
     public void onReceive(Context context, Intent intent) {
         JewishCalendar jewishCalendar = new JewishCalendar();
-        SharedPreferences sp = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
+        mLocationResolver = new LocationResolver(context, new Activity());
+        mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
 
-        if (sp.getBoolean("isSetup",false)) {
-            ROZmanimCalendar c = new ROZmanimCalendar(new GeoLocation(
-                    sp.getString("name", ""),
-                    Double.longBitsToDouble(sp.getLong("lat", 0)),
-                    Double.longBitsToDouble(sp.getLong("long", 0)),
-                    TimeZone.getTimeZone(sp.getString("timezoneID", ""))));
+        if (mSharedPreferences.getBoolean("isSetup",false)) {
+            ROZmanimCalendar c = getROZmanimCalendar(context);
 
             int day = jewishCalendar.getDayOfOmer();
             if (day != -1 && day != 49) {//we don't want to send a notification right before shavuot
@@ -86,7 +88,7 @@ public class OmerNotifications extends BroadcastReceiver {
                 gc.add(Calendar.DATE, -1);
                 jewishCalendar.setDate(gc);
 
-                if (!sp.getString("lastKnownDayOmer", "").equals(jewishCalendar.toString())) {//We only want 1 notification a day.
+                if (!mSharedPreferences.getString("lastKnownDayOmer", "").equals(jewishCalendar.toString())) {//We only want 1 notification a day.
                     NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "Omer")
                             .setSmallIcon(R.drawable.calendar_foreground)
                             .setContentTitle("Day of Omer")
@@ -110,11 +112,54 @@ public class OmerNotifications extends BroadcastReceiver {
                             .setContentIntent(pendingIntent);
                     notificationManager.notify(MID, mNotifyBuilder.build());
                     MID++;
-                    sp.edit().putString("lastKnownDayOmer", jewishCalendar.toString()).apply();
+                    mSharedPreferences.edit().putString("lastKnownDayOmer", jewishCalendar.toString()).apply();
                 }
             }
             updateAlarm(context, c);
         }
+    }
+
+    @NonNull
+    private ROZmanimCalendar getROZmanimCalendar(Context context) {
+        if (ActivityCompat.checkSelfPermission(context, ACCESS_BACKGROUND_LOCATION) == PERMISSION_GRANTED) {
+            mLocationResolver.getRealtimeNotificationData();
+            if (mLocationResolver.getLatitude() == 0 && mLocationResolver.getLongitude() == 0) {
+                return new ROZmanimCalendar(new GeoLocation(
+                        mSharedPreferences.getString("name", ""),
+                        Double.longBitsToDouble(mSharedPreferences.getLong("lat", 0)),
+                        Double.longBitsToDouble(mSharedPreferences.getLong("long", 0)),
+                        getLastKnownElevation(),
+                        TimeZone.getTimeZone(mSharedPreferences.getString("timezoneID", ""))));
+            } else {
+                return new ROZmanimCalendar(new GeoLocation(
+                        mLocationResolver.getLocationName(),
+                        mLocationResolver.getLatitude(),
+                        mLocationResolver.getLongitude(),
+                        getLastKnownElevation(),
+                        mLocationResolver.getTimeZone()));
+            }
+        }
+        return new ROZmanimCalendar(new GeoLocation(
+                mSharedPreferences.getString("name", ""),
+                Double.longBitsToDouble(mSharedPreferences.getLong("lat", 0)),
+                Double.longBitsToDouble(mSharedPreferences.getLong("long", 0)),
+                getLastKnownElevation(),
+                TimeZone.getTimeZone(mSharedPreferences.getString("timezoneID", ""))));
+    }
+
+    private double getLastKnownElevation() {
+        double elevation = 0;
+        try {//TODO this needs to be removed but cannot be removed for now because it is needed for people who have setup the app before we changed data types
+            //get the last value of the current location or 0 if it doesn't exist
+            elevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mSharedPreferences.getString("name", ""), "0"));//lastKnownLocation
+        } catch (Exception e) {
+            try {//legacy
+                elevation = mSharedPreferences.getFloat("elevation", 0);
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+        }
+        return elevation;
     }
 
     private void updateAlarm(Context context, ROZmanimCalendar c) {

@@ -59,6 +59,35 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         return visibleSunriseDate;
     }
 
+
+    public Date getHaNetz(String locationName) {
+        try {
+            ChaiTables chaiTables = new ChaiTables(externalFilesDir, locationName, jewishCalendar);
+
+            if (chaiTables.visibleSunriseFileExists()) {
+                String currentVisibleSunrise = chaiTables.getVisibleSunrise();
+
+                int visibleSunriseHour = Integer.parseInt(currentVisibleSunrise.substring(0, 1));
+                int visibleSunriseMinutes = Integer.parseInt(currentVisibleSunrise.substring(2, 4));
+
+                Calendar tempCal = getCalendar();
+                tempCal.set(Calendar.HOUR_OF_DAY, visibleSunriseHour);
+                tempCal.set(Calendar.MINUTE, visibleSunriseMinutes);
+
+                if (currentVisibleSunrise.length() == 7) {
+                    int visibleSunriseSeconds = Integer.parseInt(currentVisibleSunrise.substring(5, 7));
+                    tempCal.set(Calendar.SECOND, visibleSunriseSeconds);
+                }
+                visibleSunriseDate = tempCal.getTime();
+            } else {
+                visibleSunriseDate = null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return visibleSunriseDate;
+    }
+
     public Date getSofZmanBiurChametzMGA() {
         long shaahZmanit = getTemporalHour(getAlos72Zmanis(), getTzais72Zmanis());
         return getTimeOffset(getAlos72Zmanis(), shaahZmanit * 5);

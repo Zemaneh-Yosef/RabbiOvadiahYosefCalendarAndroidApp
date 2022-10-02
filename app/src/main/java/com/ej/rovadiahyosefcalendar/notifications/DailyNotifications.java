@@ -1,9 +1,12 @@
 package com.ej.rovadiahyosefcalendar.notifications;
 
+import static android.Manifest.permission.ACCESS_BACKGROUND_LOCATION;
 import static android.content.Context.ALARM_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -18,11 +21,15 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.MainActivity;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
+import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
+import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
 import com.kosherjava.zmanim.AstronomicalCalendar;
 import com.kosherjava.zmanim.util.GeoLocation;
 
@@ -35,17 +42,16 @@ import java.util.TimeZone;
 public class DailyNotifications extends BroadcastReceiver {
 
     private static int MID = 50;
+    private LocationResolver mLocationResolver;
+    private SharedPreferences mSharedPreferences;
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        SharedPreferences sp = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
-        JewishDateInfo jewishDateInfo = new JewishDateInfo(sp.getBoolean("inIsrael",false), true);
-        if (sp.getBoolean("isSetup",false)) {
-            AstronomicalCalendar calendar = new AstronomicalCalendar(new GeoLocation(
-                    sp.getString("name", ""),
-                    Double.longBitsToDouble(sp.getLong("lat", 0)),
-                    Double.longBitsToDouble(sp.getLong("long", 0)),
-                    TimeZone.getTimeZone(sp.getString("timezoneID", ""))));
+        mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
+        JewishDateInfo jewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael",false), true);
+        mLocationResolver = new LocationResolver(context, new Activity());
+        if (mSharedPreferences.getBoolean("isSetup",false)) {
+            AstronomicalCalendar calendar = getROZmanimCalendar(context);
 
             if (!jewishDateInfo.getSpecialDay().isEmpty()) {
                 long when = calendar.getSunrise().getTime();
@@ -75,7 +81,7 @@ public class DailyNotifications extends BroadcastReceiver {
 
                 Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
-                if (!sp.getString("lastKnownDay","").equals(jewishDateInfo.getJewishDate())) {//We only want 1 notification a day.
+                if (!mSharedPreferences.getString("lastKnownDay","").equals(jewishDateInfo.getJewishDate())) {//We only want 1 notification a day.
                     NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context,
                             "Jewish Special Day").setSmallIcon(R.drawable.calendar_foreground)
                             .setContentTitle("Jewish Special Day")
@@ -94,12 +100,67 @@ public class DailyNotifications extends BroadcastReceiver {
                             .setContentIntent(pendingIntent);
                     notificationManager.notify(MID, mNotifyBuilder.build());
                     MID++;
-                    sp.edit().putString("lastKnownDay", jewishDateInfo.getJewishDate()).apply();
+                    mSharedPreferences.edit().putString("lastKnownDay", jewishDateInfo.getJewishDate()).apply();
                 }
             }
             Calendar cal = Calendar.getInstance();
             checkIfTekufaIsToday(context, jewishDateInfo, cal);
             updateAlarm(context, calendar, cal);
+            startUpDailyZmanim(context, mSharedPreferences);//we need to start the zmanim service every day because there might be a person who will just want to see candle lighting time every week or a similar case by pesach zmanim.
+        }
+    }
+
+    @NonNull
+    private ROZmanimCalendar getROZmanimCalendar(Context context) {
+        if (ActivityCompat.checkSelfPermission(context, ACCESS_BACKGROUND_LOCATION) == PERMISSION_GRANTED) {
+            mLocationResolver.getRealtimeNotificationData();
+            if (mLocationResolver.getLatitude() == 0 && mLocationResolver.getLongitude() == 0) {
+                return new ROZmanimCalendar(new GeoLocation(
+                        mSharedPreferences.getString("name", ""),
+                        Double.longBitsToDouble(mSharedPreferences.getLong("lat", 0)),
+                        Double.longBitsToDouble(mSharedPreferences.getLong("long", 0)),
+                        getLastKnownElevation(),
+                        TimeZone.getTimeZone(mSharedPreferences.getString("timezoneID", ""))));
+            } else {
+                return new ROZmanimCalendar(new GeoLocation(
+                        mLocationResolver.getLocationName(),
+                        mLocationResolver.getLatitude(),
+                        mLocationResolver.getLongitude(),
+                        getLastKnownElevation(),
+                        mLocationResolver.getTimeZone()));
+            }
+        }
+        return new ROZmanimCalendar(new GeoLocation(
+                mSharedPreferences.getString("name", ""),
+                Double.longBitsToDouble(mSharedPreferences.getLong("lat", 0)),
+                Double.longBitsToDouble(mSharedPreferences.getLong("long", 0)),
+                getLastKnownElevation(),
+                TimeZone.getTimeZone(mSharedPreferences.getString("timezoneID", ""))));
+    }
+
+    private double getLastKnownElevation() {
+        double elevation = 0;
+        try {//TODO this needs to be removed but cannot be removed for now because it is needed for people who have setup the app before we changed data types
+            //get the last value of the current location or 0 if it doesn't exist
+            elevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mSharedPreferences.getString("name", ""), "0"));//lastKnownLocation
+        } catch (Exception e) {
+            try {//legacy
+                elevation = mSharedPreferences.getFloat("elevation", 0);
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+        }
+        return elevation;
+    }
+
+    private void startUpDailyZmanim(Context context, SharedPreferences sp) {
+        Intent zmanIntent = new Intent(context.getApplicationContext(), ZmanimNotifications.class);
+        sp.edit().putBoolean("fromThisNotification", false).apply();
+        PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),0,zmanIntent,PendingIntent.FLAG_IMMUTABLE);
+        try {
+            zmanimPendingIntent.send();
+        } catch (PendingIntent.CanceledException e) {
+            e.printStackTrace();
         }
     }
 

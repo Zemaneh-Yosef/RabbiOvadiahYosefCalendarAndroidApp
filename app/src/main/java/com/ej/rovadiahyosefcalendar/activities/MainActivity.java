@@ -1,5 +1,6 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
+import static android.Manifest.permission.ACCESS_BACKGROUND_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.classes.JewishDateInfo.formatHebrewNumber;
@@ -18,6 +19,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.GestureDetector;
@@ -160,6 +162,7 @@ public class MainActivity extends AppCompatActivity {
                 && !mSharedPreferences.getBoolean("isSetup", false)
                 && savedInstanceState == null) {//it should only not exist the first time running the app and only if the user has not set up the app
             mSetupLauncher.launch(new Intent(this, FullSetupActivity.class));
+            initZmanimNotificationDefaults();
         } else {
             mLocationResolver.acquireLatitudeAndLongitude();
         }
@@ -171,6 +174,30 @@ public class MainActivity extends AppCompatActivity {
                 initMainView();
             }
         }
+    }
+
+    private void initZmanimNotificationDefaults() {
+        mSettingsPreferences.edit().putBoolean("zmanim_notifications", true).apply();
+        mSettingsPreferences.edit().putInt("Alot", -1).apply();
+        mSettingsPreferences.edit().putInt("TalitTefilin", 15).apply();
+        mSettingsPreferences.edit().putInt("HaNetz", -1).apply();
+        mSettingsPreferences.edit().putInt("SofZmanShmaMGA", 15).apply();
+        mSettingsPreferences.edit().putInt("SofZmanShmaGRA", -1).apply();
+        mSettingsPreferences.edit().putInt("SofZmanTefila", 15).apply();
+        mSettingsPreferences.edit().putInt("SofZmanAchilatChametz", 15).apply();
+        mSettingsPreferences.edit().putInt("SofZmanBiurChametz", 15).apply();
+        mSettingsPreferences.edit().putInt("Chatzot", -1).apply();
+        mSettingsPreferences.edit().putInt("MinchaGedola", -1).apply();
+        mSettingsPreferences.edit().putInt("MinchaKetana", -1).apply();
+        mSettingsPreferences.edit().putInt("PlagHaMincha", 15).apply();
+        mSettingsPreferences.edit().putInt("CandleLighting", 15).apply();
+        mSettingsPreferences.edit().putInt("Shkia", 15).apply();
+        mSettingsPreferences.edit().putInt("TzeitHacochavim", 15).apply();
+        mSettingsPreferences.edit().putInt("FastEnd", 15).apply();
+        mSettingsPreferences.edit().putInt("FastEndStringent", 15).apply();
+        mSettingsPreferences.edit().putInt("ShabbatEnd", -1).apply();
+        mSettingsPreferences.edit().putInt("RT", -1).apply();
+        mSettingsPreferences.edit().putInt("NightChatzot", -1).apply();
     }
 
     /**
@@ -213,6 +240,30 @@ public class MainActivity extends AppCompatActivity {
         setupButtons();
         setNotifications();
         checkIfUserIsInIsraelOrNot();
+        askForBackgroundLocationPermission();
+    }
+
+    private void askForBackgroundLocationPermission() {
+        if (!mSharedPreferences.getBoolean("askedForRealtimeNotifications", false)
+                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Would you like to receive real-time notifications for zmanim?");
+            builder.setMessage("If you would like to receive real-time notifications for zmanim, " +
+                    "please navigate to the settings page and enable location services all the time for this app. " +
+                    "Would you like to do this now?");
+            builder.setCancelable(false);
+            builder.setPositiveButton("Yes", (dialog, which) -> {
+                if (ActivityCompat.checkSelfPermission(this, ACCESS_BACKGROUND_LOCATION) != PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this, new String[]{ACCESS_BACKGROUND_LOCATION}, 1);
+                }
+                mSharedPreferences.edit().putBoolean("askedForRealtimeNotifications", true).apply();
+            });
+            builder.setNegativeButton("No", (dialog, which) -> {
+                mSharedPreferences.edit().putBoolean("askedForRealtimeNotifications", true).apply();
+                dialog.dismiss();
+            });
+            builder.show();
+        }
     }
 
     private void checkIfUserIsInIsraelOrNot() {
@@ -570,7 +621,7 @@ public class MainActivity extends AppCompatActivity {
             mCalendarButton.setBackgroundColor(mSharedPreferences.getInt("CalButtonColor", 0x18267C));
         }
         Intent zmanIntent = new Intent(getApplicationContext(), ZmanimNotifications.class);//this is to update the zmanim notifications if the user changed the settings to start showing them
-        mSharedPreferences.edit().putBoolean("findNextZman", true).apply();
+        mSharedPreferences.edit().putBoolean("fromThisNotification", false).apply();
         PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(getApplicationContext(),0,zmanIntent,PendingIntent.FLAG_IMMUTABLE);
         try {
             zmanimPendingIntent.send();
@@ -636,7 +687,7 @@ public class MainActivity extends AppCompatActivity {
 
         //zmanim notifications are set in the onResume method, doing it twice will cause the preferences to be reset to true mid way through
 //        Intent zmanIntent = new Intent(getApplicationContext(), ZmanimNotifications.class);
-//        mSharedPreferences.edit().putBoolean("findNextZman", true).apply();
+//        mSharedPreferences.edit().putBoolean("fromThisNotification", false).apply();
 //        PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(getApplicationContext(),0,zmanIntent,PendingIntent.FLAG_IMMUTABLE);
 //        try {
 //            zmanimPendingIntent.send();

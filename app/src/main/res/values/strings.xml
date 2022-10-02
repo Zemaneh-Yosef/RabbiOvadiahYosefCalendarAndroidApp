@@ -107,6 +107,6 @@
     <string name="geonames">GeoNames</string>
     <string name="area_not_listed">Area not listed?</string>
     <string name="setup_your_city">Setup your city!</string>
-    <string name="title_activity_notification_settings">NotificationSettingsActivity</string>
+    <string name="title_activity_notification_settings">Notification Settings</string>
     <string name="min">min</string>
 </resources>

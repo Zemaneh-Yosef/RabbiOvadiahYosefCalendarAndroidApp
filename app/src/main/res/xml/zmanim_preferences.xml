@@ -1,7 +1,14 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory app:title="Zmanim Options" android:summary="Minutes before the zman you want the notification to go off">
+    <PreferenceCategory app:title="Zmanim Notifications Settings"
+        android:summary="Minutes before the zman for notifications">
+
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="zmanim_notifications_on_shabbat"
+            android:summary="Show zmanim notifications on shabbat/yom tov?"
+            android:title="Notifications on Shabbat and Yom Tov?" />
 
         <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
             android:key="Alot"
