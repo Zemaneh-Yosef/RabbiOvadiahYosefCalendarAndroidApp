@@ -428,7 +428,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
 
     private String getShabbatAndOrChag(JewishCalendar jewishCalendar) {
         if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
-            if (jewishCalendar.isAssurBemelacha() &&
+            if (jewishCalendar.isYomTovAssurBemelacha() &&
                     jewishCalendar.getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
                 return "\u05E9\u05D1\u05EA/\u05D7\u05D2";
             } else if (jewishCalendar.getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
@@ -437,7 +437,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
                 return "\u05D7\u05D2";
             }
         } else {
-            if (jewishCalendar.isAssurBemelacha() &&
+            if (jewishCalendar.isYomTovAssurBemelacha() &&
                     jewishCalendar.getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
                 return "Shabbat/Chag";
             } else if (jewishCalendar.getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
