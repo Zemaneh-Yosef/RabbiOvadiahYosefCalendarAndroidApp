@@ -97,6 +97,10 @@ public class ZmanimNotifications extends BroadcastReceiver {
         return elevation;
     }
 
+    /**
+     * This method will set an alarm to the next zman that is coming up.
+     * FIXME this method is not working properly, it is not setting the alarm to the next zman if there is a zman within the minutes before the zman afterwards.
+     */
     private void setAlarmToNextZman(Context context, ROZmanimCalendar c, JewishCalendar jewishCalendar) {
         mSharedPreferences.edit().putString("zman", "").apply();//clear the last zman
 
