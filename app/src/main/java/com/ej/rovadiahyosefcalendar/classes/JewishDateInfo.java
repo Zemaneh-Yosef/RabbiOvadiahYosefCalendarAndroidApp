@@ -85,8 +85,8 @@ public class JewishDateInfo {
     }
 
     /**
-     * This method is a super method used to get the current holiday or special day.
-     * @return a string containing the current holiday
+     * This method is the main method used to get the current holiday or special day and the next holiday or special day if there is one.
+     * @return a string containing the current holiday and the next holiday if there is one
      */
     public String getSpecialDay() {
         String result = "";
@@ -242,7 +242,11 @@ public class JewishDateInfo {
                     return "Shemini Atzeret";
                 }
             case JewishCalendar.SIMCHAS_TORAH:
-                return "Simchat Torah";
+                if (!jewishCalendar.getInIsrael()) {
+                    return "Shemini Atzeret / Simchat Torah";
+                } else {
+                    return "Shemini Atzeret";
+                }
             //20 was erev chanuka which was deleted
             case JewishCalendar.CHANUKAH:
                 return "Chanuka";

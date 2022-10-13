@@ -87,16 +87,18 @@ public class MainActivity extends AppCompatActivity {
     private boolean mBackHasBeenPressed = false;
     private boolean updateTablesDialogShown;
     private boolean mInitialized = false;
-    private int mCurrentPosition;
+    private int mCurrentPosition;//current position in the RecyclerView list of zmanim to return to when the user returns to the main screen
     private double mElevation = 0;
     public static double sLatitude;
     public static double sLongitude;
     private static final int TWENTY_FOUR_HOURS_IN_MILLI = 86_400_000;
 
-//  This string is used to display the name of the current location in the app. We also use this string to save the elevation of a location to the
-//  SharedPreferences, and we save the chai tables as well under this string.
+    /**
+     * This string is used to display the name of the current location in the app. We also use this string to save the elevation of a location to the
+     * SharedPreferences, and we save the chai tables files under this name as well.
+     */
     public static String sCurrentLocationName = "";
-    public static String sCurrentTimeZoneID;
+    public static String sCurrentTimeZoneID;//e.g. "America/New_York"
 
     //android views:
     private View mLayout;
@@ -128,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
     private Calendar mCurrentDateShown = Calendar.getInstance();
 
     /**
-     * The current date of the device. This calendar is not to be modified directly, only use is to reset the date of other objects
+     * The current date of the device. This calendar is not to be modified directly, it's only use is to reset the date of other objects
      */
     private final Calendar mCurrentDate = Calendar.getInstance();
 
@@ -139,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
     private final static Calendar dafYomiYerushalmiStartDate = new GregorianCalendar(1980, Calendar.FEBRUARY, 2);
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {//TODO add weekly view option,
         setTheme(R.style.AppTheme); //splash screen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -244,6 +246,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void askForBackgroundLocationPermission() {
+        if (mSharedPreferences.getBoolean("useZipcode", false)) {
+            return;//if the user is using a zipcode, we don't need to ask for background location permission as we don't use the device's location
+        }
         if (!mSharedPreferences.getBoolean("askedForRealtimeNotifications", false)
                 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -1395,7 +1400,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private String getShabbatAndOrChag() {
         if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
-            if (mJewishDateInfo.getJewishCalendar().isYomTov() &&
+            if (mJewishDateInfo.getJewishCalendar().isYomTovAssurBemelacha() &&
                     mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
                 return "\u05E9\u05D1\u05EA/\u05D7\u05D2";
             } else if (mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
@@ -1404,7 +1409,7 @@ public class MainActivity extends AppCompatActivity {
                 return "\u05D7\u05D2";
             }
         } else {
-            if (mJewishDateInfo.getJewishCalendar().isYomTov() &&
+            if (mJewishDateInfo.getJewishCalendar().isYomTovAssurBemelacha() &&
                     mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
                 return "Shabbat/Chag";
             } else if (mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
@@ -1605,29 +1610,37 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.refresh) {
-            mLocationResolver = new LocationResolver(this, this);
-            mLocationResolver.acquireLatitudeAndLongitude();
-            mLocationResolver.setTimeZoneID();
-            if (mSharedPreferences.getBoolean("isElevationSetup" + sCurrentLocationName, true)) {
-                mLocationResolver.start();
-                try {
-                    mLocationResolver.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+            if (mLocationResolver != null) {
+                mLocationResolver = new LocationResolver(this, this);
+                mLocationResolver.acquireLatitudeAndLongitude();
+                mLocationResolver.setTimeZoneID();
+                if (mSharedPreferences.getBoolean("isElevationSetup" + sCurrentLocationName, true)) {
+                    mLocationResolver.start();
+                    try {
+                        mLocationResolver.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
-            mCurrentDate.setTimeInMillis(new Date().getTime());
-            mCurrentDateShown.setTime(mCurrentDate.getTime());
-            mJewishDateInfo.setCalendar(mCurrentDate);
-            mROZmanimCalendar.setCalendar(mCurrentDate);
-            mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
-            getAndConfirmLastElevationAndVisibleSunriseData();
+            if (mCurrentDate != null
+                    && mCurrentDateShown != null
+                    && mJewishDateInfo != null
+                    && mROZmanimCalendar != null
+                    && mMainRecyclerView != null) {// Some users were getting a crash here, so I added this check.
+                mCurrentDate.setTimeInMillis(new Date().getTime());
+                mCurrentDateShown.setTime(mCurrentDate.getTime());
+                mJewishDateInfo.setCalendar(mCurrentDate);
+                mROZmanimCalendar.setCalendar(mCurrentDate);
+                mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                getAndConfirmLastElevationAndVisibleSunriseData();
+            }
             return true;
         } else if (id == R.id.enterZipcode) {
             createZipcodeDialog();
             return true;
         } else if (id == R.id.shabbat_mode) {
-            if (!sShabbatMode) {
+            if (!sShabbatMode && mJewishDateInfo != null && mROZmanimCalendar != null && mMainRecyclerView != null) {
                 mJewishDateInfo.setCalendar(mCurrentDate);
                 mROZmanimCalendar.setCalendar(mCurrentDate);
                 mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));

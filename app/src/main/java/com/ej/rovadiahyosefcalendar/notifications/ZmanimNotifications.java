@@ -13,7 +13,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -45,7 +44,6 @@ public class ZmanimNotifications extends BroadcastReceiver {
             JewishCalendar jewishCalendar = new JewishCalendar();
             ROZmanimCalendar zmanimCalendar = getROZmanimCalendar(context);
             mSharedPreferences.edit().putString("locationNameFN", zmanimCalendar.getGeoLocation().getLocationName()).apply();
-            Log.d("ZmanimNotifications", "Calling setAlarmToNextZman method");
             setAlarmToNextZman(context, zmanimCalendar, jewishCalendar);
         }
     }
@@ -430,7 +428,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
 
     private String getShabbatAndOrChag(JewishCalendar jewishCalendar) {
         if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
-            if (jewishCalendar.isYomTov() &&
+            if (jewishCalendar.isAssurBemelacha() &&
                     jewishCalendar.getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
                 return "\u05E9\u05D1\u05EA/\u05D7\u05D2";
             } else if (jewishCalendar.getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
@@ -439,7 +437,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
                 return "\u05D7\u05D2";
             }
         } else {
-            if (jewishCalendar.isYomTov() &&
+            if (jewishCalendar.isAssurBemelacha() &&
                     jewishCalendar.getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
                 return "Shabbat/Chag";
             } else if (jewishCalendar.getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {

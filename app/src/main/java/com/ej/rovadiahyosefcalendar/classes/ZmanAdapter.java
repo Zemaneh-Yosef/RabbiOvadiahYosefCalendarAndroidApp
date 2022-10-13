@@ -35,7 +35,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         this.mContext = context;
         mSharedPreferences = mContext.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         mDialogBuilder = new AlertDialog.Builder(mContext);
-        mDialogBuilder.setPositiveButton("Dismiss", (dialog, which) -> {});
+        mDialogBuilder.setPositiveButton("Dismiss", (dialog, which) -> dialog.dismiss());
         mDialogBuilder.create();
     }
 
@@ -494,6 +494,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         "Z\"TL holds that the elevation is not used for zmanim.")
                 .show();
     }
+
     private void showTekufaDialog() {
         mDialogBuilder.setTitle("Tekufa - Season")
                 .setMessage("This is the time that the tekufa (season) changes.\n\nThere are 4 tekufas every year: Tishri (autumn), Tevet (winter), " +
