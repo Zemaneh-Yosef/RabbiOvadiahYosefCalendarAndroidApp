@@ -15,6 +15,8 @@ First view implemented was the daily view of the app:
 
 Since version 6.0, the weekly view of the original calendar has been impemented:
 
+![alt text](https://play-lh.googleusercontent.com/NbOtQFdOia2iwFb1GQJk68j_WvLwhnMOzRnE-sbLzfuqZTrybFcuM1cCypHgL8odg4N8=w2560-h1440-rw)
+
 Click this link to download the app from the [Google Play Store!](https://play.google.com/store/apps/details?id=com.EJ.ROvadiahYosefCalendar)
 
 # Explanation of how the zmanim are calculated:
