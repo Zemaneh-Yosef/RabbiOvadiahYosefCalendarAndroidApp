@@ -237,13 +237,13 @@ public class JewishDateInfo {
                 return "7th day of Sukkot (Hoshana Rabba)";
             case JewishCalendar.SHEMINI_ATZERES:
                 if (jewishCalendar.getInIsrael()) {
-                    return "Shemini Atzeret / Simchat Torah";
+                    return "Shemini Atzeret & Simchat Torah";
                 } else {
                     return "Shemini Atzeret";
                 }
             case JewishCalendar.SIMCHAS_TORAH:
                 if (!jewishCalendar.getInIsrael()) {
-                    return "Shemini Atzeret / Simchat Torah";
+                    return "Shemini Atzeret & Simchat Torah";
                 } else {
                     return "Shemini Atzeret";
                 }

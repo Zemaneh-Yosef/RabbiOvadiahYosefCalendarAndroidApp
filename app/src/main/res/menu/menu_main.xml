@@ -15,6 +15,10 @@
         android:title="@string/shabbat_mode"
         android:checkable="true" />
         <item
+            android:id="@+id/weekly_mode"
+            android:title="@string/weekly_view"
+            android:checkable="true" />
+        <item
             android:id="@+id/molad"
             android:title="@string/molad_calculator" />
 

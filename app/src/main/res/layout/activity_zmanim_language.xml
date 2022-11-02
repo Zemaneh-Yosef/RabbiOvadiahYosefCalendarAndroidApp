@@ -13,6 +13,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="12dp"
+        android:gravity="center"
         android:text="@string/what_language_would_you_like_the_zmanim_to_be_in"
         android:textColor="?android:attr/textColorPrimary"
         android:textSize="28sp"

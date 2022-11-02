@@ -4,8 +4,7 @@
         <!-- Customize your theme here. -->
     </style>
 
-    <style name="PreferenceScreen" parent="Theme.AppCompat.DayNight">
-    </style>
+    <style name="MaterialTheme" parent="Theme.MaterialComponents.DayNight" />
 
     <style name="SplashTheme" parent="AppTheme">
         <item name="android:windowBackground">@drawable/splash</item>

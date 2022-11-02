@@ -24,6 +24,7 @@
         android:usesCleartextTraffic="true">
         <activity
             android:name=".activities.NotificationSettingsActivity"
+            android:theme="@style/MaterialTheme"
             android:exported="false"
             android:label="@string/title_activity_notification_settings" />
         <activity
@@ -31,6 +32,8 @@
             android:exported="false" />
         <activity
             android:name=".activities.MoladActivity"
+            android:label="Molad Calculator"
+            android:theme="@style/MaterialTheme"
             android:exported="true" />
         <activity
             android:name=".activities.ZmanimLanguageActivity"
@@ -48,7 +51,7 @@
         <activity
             android:name=".activities.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:theme="@style/PreferenceScreen" />
+            android:theme="@style/MaterialTheme" />
         <activity android:name=".activities.SetupElevationActivity" />
         <activity
             android:name=".activities.MainActivity"

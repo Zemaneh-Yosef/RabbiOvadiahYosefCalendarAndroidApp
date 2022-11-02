@@ -30,8 +30,11 @@ import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,9 +57,11 @@ import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
 import com.ej.rovadiahyosefcalendar.classes.ZmanAdapter;
+import com.ej.rovadiahyosefcalendar.classes.ZmanListEntry;
 import com.ej.rovadiahyosefcalendar.notifications.DailyNotifications;
 import com.ej.rovadiahyosefcalendar.notifications.OmerNotifications;
 import com.ej.rovadiahyosefcalendar.notifications.ZmanimNotifications;
+import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.YerushalmiYomiCalculator;
 import com.kosherjava.zmanim.hebrewcalendar.YomiCalculator;
@@ -68,6 +73,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -84,8 +90,11 @@ public class MainActivity extends AppCompatActivity {
     public static boolean sNetworkLocationServiceIsDisabled;
     public static boolean sGPSLocationServiceIsDisabled;
     public static boolean sUserIsOffline;
+    public static boolean sFromSettings;
+    private boolean mIsZmanimInHebrew;
+    private boolean mIsZmanimEnglishTranslated;
     private boolean mBackHasBeenPressed = false;
-    private boolean updateTablesDialogShown;
+    private boolean mUpdateTablesDialogShown;
     private boolean mInitialized = false;
     private int mCurrentPosition;//current position in the RecyclerView list of zmanim to return to when the user returns to the main screen
     private double mElevation = 0;
@@ -108,6 +117,24 @@ public class MainActivity extends AppCompatActivity {
     private TextView mShabbatModeBanner;
     private RecyclerView mMainRecyclerView;
 
+    //android views for weekly zmanim:
+    private TextView mEnglishMonthYear;//E.G. "June 2021 - 2022"
+    private TextView mLocationName;//E.G. "New York, NY"
+    private TextView mHebrewMonthYear;//E.G. "Sivan 5781 - 5782"
+    private final ListView[] mListViews = new ListView[7];//one for each day of the week
+    private final TextView[] mSunday = new TextView[6];
+    private final TextView[] mMonday = new TextView[6];
+    private final TextView[] mTuesday = new TextView[6];
+    private final TextView[] mWednesday = new TextView[6];
+    private final TextView[] mThursday = new TextView[6];
+    private final TextView[] mFriday = new TextView[6];
+    private final TextView[] mSaturday = new TextView[6];
+    private TextView mWeeklyParsha;
+    private TextView mWeeklyDafs;
+
+    //This array holds the zmanim that we want to display in the announcements section of the weekly view:
+    private ArrayList<String> mZmanimForAnnouncements;
+
     //custom classes/kosherjava classes:
     private LocationResolver mLocationResolver;
     private ROZmanimCalendar mROZmanimCalendar;
@@ -125,14 +152,14 @@ public class MainActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> mSetupLauncher;
 
     /**
-     * The current date shown in the main activity. This calendar can be manipulated to change the date if needed.
+     * The current date shown in the main activity.
      */
     private Calendar mCurrentDateShown = Calendar.getInstance();
 
     /**
-     * The current date of the device. This calendar is not to be modified directly, it's only use is to reset the date of other objects
+     * The zman that is coming up next.
      */
-    private final Calendar mCurrentDate = Calendar.getInstance();
+    public static Date sNextUpcomingZman = null;
 
     /**
      * These calendars are used to know when daf/yerushalmi yomi started
@@ -141,11 +168,12 @@ public class MainActivity extends AppCompatActivity {
     private final static Calendar dafYomiYerushalmiStartDate = new GregorianCalendar(1980, Calendar.FEBRUARY, 2);
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {//TODO add weekly view option,
+    protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.AppTheme); //splash screen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mLayout = findViewById(R.id.main_layout);
+        mHandler = new Handler(getMainLooper());
         mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         mSettingsPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         mGestureDetector = new GestureDetector(MainActivity.this, new ZmanimGestureListener());
@@ -168,6 +196,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             mLocationResolver.acquireLatitudeAndLongitude();
         }
+        findAllWeeklyViews();
         if (sGPSLocationServiceIsDisabled && sNetworkLocationServiceIsDisabled) {
             Toast.makeText(MainActivity.this, "Please Enable GPS", Toast.LENGTH_SHORT).show();
         } else {
@@ -223,9 +252,124 @@ public class MainActivity extends AppCompatActivity {
                         initMainView();
                     }
                     instantiateZmanimCalendar();
-                    mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                    if (mSharedPreferences.getBoolean("weeklyMode", false)) {
+                        updateWeeklyZmanim();
+                    } else {
+                        mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                    }
                 }
         );
+    }
+
+    private void showWeeklyTextViews() {
+        TextView englishMonthYear = findViewById(R.id.englishMonthYear);
+        TextView locationName = findViewById(R.id.location_name);
+        TextView hebrewMonthYear = findViewById(R.id.hebrewMonthYear);
+        LinearLayout sunday = findViewById(R.id.sunday);
+        LinearLayout monday = findViewById(R.id.monday);
+        LinearLayout tuesday = findViewById(R.id.tuesday);
+        LinearLayout wednesday = findViewById(R.id.wednesday);
+        LinearLayout thursday = findViewById(R.id.thursday);
+        LinearLayout friday = findViewById(R.id.friday);
+        LinearLayout saturday = findViewById(R.id.saturday);
+        TextView weeklyParsha = findViewById(R.id.weeklyParsha);
+        TextView weeklyDafs = findViewById(R.id.weeklyDafs);
+
+        englishMonthYear.setVisibility(View.VISIBLE);
+        locationName.setVisibility(View.VISIBLE);
+        hebrewMonthYear.setVisibility(View.VISIBLE);
+        sunday.setVisibility(View.VISIBLE);
+        monday.setVisibility(View.VISIBLE);
+        tuesday.setVisibility(View.VISIBLE);
+        wednesday.setVisibility(View.VISIBLE);
+        thursday.setVisibility(View.VISIBLE);
+        friday.setVisibility(View.VISIBLE);
+        saturday.setVisibility(View.VISIBLE);
+        weeklyParsha.setVisibility(View.VISIBLE);
+        weeklyDafs.setVisibility(View.VISIBLE);
+        mMainRecyclerView.setVisibility(View.GONE);
+    }
+
+    private void hideWeeklyTextViews() {
+        LinearLayout sunday = findViewById(R.id.sunday);
+        LinearLayout monday = findViewById(R.id.monday);
+        LinearLayout tuesday = findViewById(R.id.tuesday);
+        LinearLayout wednesday = findViewById(R.id.wednesday);
+        LinearLayout thursday = findViewById(R.id.thursday);
+        LinearLayout friday = findViewById(R.id.friday);
+        LinearLayout saturday = findViewById(R.id.saturday);
+
+        mEnglishMonthYear.setVisibility(View.GONE);
+        mLocationName.setVisibility(View.GONE);
+        mHebrewMonthYear.setVisibility(View.GONE);
+        sunday.setVisibility(View.GONE);
+        monday.setVisibility(View.GONE);
+        tuesday.setVisibility(View.GONE);
+        wednesday.setVisibility(View.GONE);
+        thursday.setVisibility(View.GONE);
+        friday.setVisibility(View.GONE);
+        saturday.setVisibility(View.GONE);
+        mWeeklyParsha.setVisibility(View.GONE);
+        mWeeklyDafs.setVisibility(View.GONE);
+        mMainRecyclerView.setVisibility(View.VISIBLE);
+    }
+
+    private void findAllWeeklyViews() {
+        mEnglishMonthYear = findViewById(R.id.englishMonthYear);
+        mLocationName = findViewById(R.id.location_name);
+        mHebrewMonthYear = findViewById(R.id.hebrewMonthYear);
+        //there are 7 of these sets of views
+        mListViews[0] = findViewById(R.id.zmanim);
+        mSunday[1] = findViewById(R.id.announcements);
+        mSunday[2] = findViewById(R.id.hebrewDay);
+        mSunday[3] = findViewById(R.id.hebrewDate);
+        mSunday[4] = findViewById(R.id.englishDay);
+        mSunday[5] = findViewById(R.id.englishDateNumber);
+
+        mListViews[1] = findViewById(R.id.zmanim2);
+        mMonday[1] = findViewById(R.id.announcements2);
+        mMonday[2] = findViewById(R.id.hebrewDay2);
+        mMonday[3] = findViewById(R.id.hebrewDate2);
+        mMonday[4] = findViewById(R.id.englishDay2);
+        mMonday[5] = findViewById(R.id.englishDateNumber2);
+
+        mListViews[2] = findViewById(R.id.zmanim3);
+        mTuesday[1] = findViewById(R.id.announcements3);
+        mTuesday[2] = findViewById(R.id.hebrewDay3);
+        mTuesday[3] = findViewById(R.id.hebrewDate3);
+        mTuesday[4] = findViewById(R.id.englishDay3);
+        mTuesday[5] = findViewById(R.id.englishDateNumber3);
+
+        mListViews[3] = findViewById(R.id.zmanim4);
+        mWednesday[1] = findViewById(R.id.announcements4);
+        mWednesday[2] = findViewById(R.id.hebrewDay4);
+        mWednesday[3] = findViewById(R.id.hebrewDate4);
+        mWednesday[4] = findViewById(R.id.englishDay4);
+        mWednesday[5] = findViewById(R.id.englishDateNumber4);
+
+        mListViews[4] = findViewById(R.id.zmanim5);
+        mThursday[1] = findViewById(R.id.announcements5);
+        mThursday[2] = findViewById(R.id.hebrewDay5);
+        mThursday[3] = findViewById(R.id.hebrewDate5);
+        mThursday[4] = findViewById(R.id.englishDay5);
+        mThursday[5] = findViewById(R.id.englishDateNumber5);
+
+        mListViews[5] = findViewById(R.id.zmanim6);
+        mFriday[1] = findViewById(R.id.announcements6);
+        mFriday[2] = findViewById(R.id.hebrewDay6);
+        mFriday[3] = findViewById(R.id.hebrewDate6);
+        mFriday[4] = findViewById(R.id.englishDay6);
+        mFriday[5] = findViewById(R.id.englishDateNumber6);
+
+        mListViews[6] = findViewById(R.id.zmanim7);
+        mSaturday[1] = findViewById(R.id.announcements7);
+        mSaturday[2] = findViewById(R.id.hebrewDay7);
+        mSaturday[3] = findViewById(R.id.hebrewDate7);
+        mSaturday[4] = findViewById(R.id.englishDay7);
+        mSaturday[5] = findViewById(R.id.englishDateNumber7);
+
+        mWeeklyParsha = findViewById(R.id.weeklyParsha);
+        mWeeklyDafs = findViewById(R.id.weeklyDafs);
     }
 
     /**
@@ -238,11 +382,27 @@ public class MainActivity extends AppCompatActivity {
         getAndConfirmLastElevationAndVisibleSunriseData();
         instantiateZmanimCalendar();
         saveGeoLocationInfo();
-        setupRecyclerView();
+        setZmanimLanguageBools();
+        setNextUpcomingZman();
+        setupRecyclerViewAndTextViews();
+        createBackgroundThreadForNextUpcomingZman();
         setupButtons();
         setNotifications();
         checkIfUserIsInIsraelOrNot();
         askForBackgroundLocationPermission();
+    }
+
+    private void setZmanimLanguageBools() {
+        if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
+            mIsZmanimInHebrew = true;
+            mIsZmanimEnglishTranslated = false;
+        } else if (mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false)) {
+            mIsZmanimInHebrew = false;
+            mIsZmanimEnglishTranslated = true;
+        } else {
+            mIsZmanimInHebrew = false;
+            mIsZmanimEnglishTranslated = false;
+        }
     }
 
     private void askForBackgroundLocationPermission() {
@@ -253,7 +413,7 @@ public class MainActivity extends AppCompatActivity {
                 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Would you like to receive real-time notifications for zmanim?");
-            builder.setMessage("If you would like to receive real-time notifications for zmanim, " +
+            builder.setMessage("If you would like to receive real-time zmanim notifications for your current location, " +
                     "please navigate to the settings page and enable location services all the time for this app. " +
                     "Would you like to do this now?");
             builder.setCancelable(false);
@@ -285,7 +445,11 @@ public class MainActivity extends AppCompatActivity {
                             mSharedPreferences.edit().putBoolean("inIsrael", true).apply();
                             mJewishDateInfo = new JewishDateInfo(true, true);
                             Toast.makeText(this, "Settings updated", Toast.LENGTH_SHORT).show();
-                            mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                            if (mSharedPreferences.getBoolean("weeklyMode", false)) {
+                                updateWeeklyZmanim();
+                            } else {
+                                mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                            }
                         })
                         .setNegativeButton("No, I am not in Israel", (dialog, which) -> {
                             mSharedPreferences.edit().putBoolean("askedInIsrael", true).apply();//save that we asked already
@@ -308,7 +472,11 @@ public class MainActivity extends AppCompatActivity {
                             mSharedPreferences.edit().putBoolean("inIsrael", false).apply();
                             mJewishDateInfo = new JewishDateInfo(false, true);
                             Toast.makeText(this, "Settings updated", Toast.LENGTH_SHORT).show();
-                            mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                            if (mSharedPreferences.getBoolean("weeklyMode", false)) {
+                                updateWeeklyZmanim();
+                            } else {
+                                mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                            }
                         })
                         .setNegativeButton("No, I have not left Israel", (dialog, which) -> {
                             mSharedPreferences.edit().putBoolean("askedInNotIsrael", true).apply();//save that we asked
@@ -332,7 +500,7 @@ public class MainActivity extends AppCompatActivity {
                 && mSharedPreferences.getBoolean("UseTable" + sCurrentLocationName, false)) { //and only if the tables are being used
 
             if (!ChaiTables.visibleSunriseFileExists(getExternalFilesDir(null), sCurrentLocationName, mJewishDateInfo.getJewishCalendar())) {
-                if (!updateTablesDialogShown) {
+                if (!mUpdateTablesDialogShown) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
                     builder.setTitle("Update Tables?");
                     builder.setMessage("The visible sunrise tables for the current location and year need to be updated.\n\n" +
@@ -354,13 +522,17 @@ public class MainActivity extends AppCompatActivity {
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
-                            mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                            if (mSharedPreferences.getBoolean("weeklyMode", false)) {
+                                updateWeeklyZmanim();
+                            } else {
+                                mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                            }
                         }
                     });
                     builder.setNegativeButton("No", (dialog, which) -> dialog.dismiss());
                     builder.show();
                     if (fromButton) {
-                        updateTablesDialogShown = true;
+                        mUpdateTablesDialogShown = true;
                     }
                 }
             }
@@ -379,13 +551,19 @@ public class MainActivity extends AppCompatActivity {
         mROZmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(mSettingsPreferences.getString("EndOfShabbatOffset", "40")));
     }
 
-    private void setupRecyclerView() {
+    private void setupRecyclerViewAndTextViews() {
         mMainRecyclerView = findViewById(R.id.mainRV);
         mMainRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mMainRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
         mMainRecyclerView.setOnTouchListener((view, motionEvent) -> mGestureDetector.onTouchEvent(motionEvent));
         findViewById(R.id.main_layout).setOnTouchListener((view, motionEvent) -> mGestureDetector.onTouchEvent(motionEvent));
+        if (mSharedPreferences.getBoolean("weeklyMode", false)) {
+            showWeeklyTextViews();
+            updateWeeklyZmanim();
+        } else {
+            hideWeeklyTextViews();
+            mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+        }
     }
 
     @Override
@@ -400,7 +578,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * This method sets up the functionality of hiding the banner when the user taps on it.
+     * This method initializes the shabbat mode banner and sets up the functionality of hiding the banner when the user taps on it.
      */
     private void setupShabbatModeBanner() {
         mShabbatModeBanner = findViewById(R.id.shabbat_mode);
@@ -427,11 +605,19 @@ public class MainActivity extends AppCompatActivity {
         mPreviousDate = findViewById(R.id.prev_day);
         mPreviousDate.setOnClickListener(v -> {
             if (!sShabbatMode) {
-                mCurrentDateShown = (Calendar) mROZmanimCalendar.getCalendar().clone();
-                mCurrentDateShown.add(Calendar.DATE, -1);
+                mCurrentDateShown = (Calendar) mROZmanimCalendar.getCalendar().clone();//just get a calendar object with the same date as the current one
+                if (mSharedPreferences.getBoolean("weeklyMode", false)) {
+                    mCurrentDateShown.add(Calendar.DATE, -7);//subtract seven days
+                } else {
+                    mCurrentDateShown.add(Calendar.DATE, -1);//subtract one day
+                }
                 mROZmanimCalendar.setCalendar(mCurrentDateShown);
                 mJewishDateInfo.setCalendar(mCurrentDateShown);
-                mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                if (mSharedPreferences.getBoolean("weeklyMode", false)) {
+                    updateWeeklyZmanim();
+                } else {
+                    mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                }
                 mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable());
                 seeIfTablesNeedToBeUpdated(true);
             }
@@ -446,10 +632,18 @@ public class MainActivity extends AppCompatActivity {
         mNextDate.setOnClickListener(v -> {
             if (!sShabbatMode) {
                 mCurrentDateShown = (Calendar) mROZmanimCalendar.getCalendar().clone();
-                mCurrentDateShown.add(Calendar.DATE, 1);
+                if (mSharedPreferences.getBoolean("weeklyMode", false)) {
+                    mCurrentDateShown.add(Calendar.DATE, 7);//add seven days
+                } else {
+                    mCurrentDateShown.add(Calendar.DATE, 1);//add one day
+                }
                 mROZmanimCalendar.setCalendar(mCurrentDateShown);
                 mJewishDateInfo.setCalendar(mCurrentDateShown);
-                mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                if (mSharedPreferences.getBoolean("weeklyMode", false)) {
+                    updateWeeklyZmanim();
+                } else {
+                    mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                }
                 mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable());
                 seeIfTablesNeedToBeUpdated(true);
             }
@@ -487,7 +681,11 @@ public class MainActivity extends AppCompatActivity {
             mROZmanimCalendar.setCalendar(mUserChosenDate);
             mJewishDateInfo.setCalendar(mUserChosenDate);
             mCurrentDateShown = (Calendar) mROZmanimCalendar.getCalendar().clone();
-            mMainRecyclerView.setAdapter(new ZmanAdapter(MainActivity.this, MainActivity.this.getZmanimList()));
+            if (mSharedPreferences.getBoolean("weeklyMode", false)) {
+                updateWeeklyZmanim();
+            } else {
+                mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+            }
             mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, MainActivity.this.getCurrentCalendarDrawable());
             seeIfTablesNeedToBeUpdated(true);
         };
@@ -507,7 +705,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * returns the current calendar drawable depending on the current day of the month.
+     * Returns the current calendar drawable depending on the current day of the month.
      */
     private int getCurrentCalendarDrawable() {
         switch (mROZmanimCalendar.getCalendar().get(Calendar.DATE)) {
@@ -577,14 +775,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onRestart() {
-        if (sShabbatMode) {
-            startShabbatMode();//left in just in case app is restarted while in shabbat mode.
-        }
-        super.onRestart();
-    }
-
-    @Override
     protected void onPause() {
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         if (sShabbatMode) {
@@ -603,22 +793,27 @@ public class MainActivity extends AppCompatActivity {
             super.onResume();
             return;
         }
-        if (mCurrentDateShown != null) {
+        mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false), true);
+        mJewishDateInfo.setCalendar(mCurrentDateShown);
+        setNextUpcomingZman();
+        setZmanimLanguageBools();
+        if (sFromSettings) {
+            sFromSettings = false;
             instantiateZmanimCalendar();
             mROZmanimCalendar.setCalendar(mCurrentDateShown);
-            mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false), true);
-            mJewishDateInfo.setCalendar(mCurrentDateShown);
+            if (mSharedPreferences.getBoolean("weeklyMode", false)) {
+                updateWeeklyZmanim();
+            } else {
+                mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                mMainRecyclerView.scrollToPosition(mCurrentPosition);
+            }
         }
-        mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
-        mMainRecyclerView.scrollToPosition(mCurrentPosition);
         getAndConfirmLastElevationAndVisibleSunriseData();
         resetTheme();
         if (mSharedPreferences.getBoolean("useImage", false)) {
             Bitmap bitmap = BitmapFactory.decodeFile(mSharedPreferences.getString("imageLocation", ""));
             Drawable drawable = new BitmapDrawable(getResources(), bitmap);
             mLayout.setBackground(drawable);
-        } else {
-            mLayout.setBackgroundResource(R.color.black);
         }
         if (mSharedPreferences.getBoolean("useDefaultCalButtonColor", true)) {
             mCalendarButton.setBackgroundColor(getColor(R.color.dark_blue));
@@ -741,18 +936,20 @@ public class MainActivity extends AppCompatActivity {
                     break;
             }
             setRequestedOrientation(orientation);
-
             Calendar calendar = Calendar.getInstance();
             Calendar calendar2 = (Calendar) calendar.clone();
-            mHandler = new Handler(getMainLooper());
             mZmanimUpdater = () -> {
                 calendar.setTimeInMillis(new Date().getTime());
-                mCurrentDate.setTimeInMillis(calendar.getTime().getTime());
                 mCurrentDateShown.setTimeInMillis(calendar.getTime().getTime());
                 mROZmanimCalendar.setCalendar(calendar);
                 mJewishDateInfo.setCalendar(calendar);
                 setShabbatBannersText(false);
-                mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                if (mSharedPreferences.getBoolean("weeklyMode", false)) {
+                    updateWeeklyZmanim();
+                } else {
+                    mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                }
+                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable());
                 mHandler.removeCallbacks(mZmanimUpdater);
                 mHandler.postDelayed(mZmanimUpdater, TWENTY_FOUR_HOURS_IN_MILLI);//run the update in 24 hours
             };
@@ -773,11 +970,11 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("SetTextI18n")
     private void setShabbatBannersText(boolean isFirstTime) {
         if (isFirstTime) {
-            mCurrentDate.add(Calendar.DATE,1);
-            mJewishDateInfo.setCalendar(mCurrentDate);
+            mCurrentDateShown.add(Calendar.DATE,1);
+            mJewishDateInfo.setCalendar(mCurrentDateShown);
         }
 
-        boolean isShabbat = mCurrentDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY;
+        boolean isShabbat = mCurrentDateShown.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY;
 
         StringBuilder sb = new StringBuilder();
 
@@ -810,6 +1007,18 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case JewishCalendar.SUCCOS:
             case JewishCalendar.SHEMINI_ATZERES:
+                for (int i = 0; i < 4; i++) {
+                    sb.append("SHEMINI ATZERET");
+                    if (isShabbat) {
+                        sb.append("/SHABBAT");
+                    }
+                    sb.append(" MODE                ");
+                }
+                mShabbatModeBanner.setText(sb.toString());
+                mShabbatModeBanner.setBackgroundColor(getColor(R.color.light_green));
+                mShabbatModeBanner.setTextColor(getColor(R.color.black));
+                mCalendarButton.setBackgroundColor(getColor(R.color.light_green));
+                break;
             case JewishCalendar.SIMCHAS_TORAH:
                 for (int i = 0; i < 4; i++) {
                     sb.append("SUCCOT");
@@ -861,8 +1070,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (isFirstTime) {
-            mCurrentDate.add(Calendar.DATE,-1);
-            mJewishDateInfo.setCalendar(mCurrentDate);
+            mCurrentDateShown.add(Calendar.DATE,-1);
+            mJewishDateInfo.setCalendar(mCurrentDateShown);
         }
     }
 
@@ -939,7 +1148,7 @@ public class MainActivity extends AppCompatActivity {
      * @return the updated information and Zmanim for the current day in a List of Strings with the following format: zman= 12:00:00 AM
      * (seconds are optional)
      */
-    private List<String> getZmanimList() {
+    private List<ZmanListEntry> getZmanimList() {
         DateFormat zmanimFormat;
         if (mSettingsPreferences.getBoolean("ShowSeconds", false)) {
             zmanimFormat = new SimpleDateFormat("h:mm:ss aa", Locale.getDefault());
@@ -948,354 +1157,493 @@ public class MainActivity extends AppCompatActivity {
         }
         zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID)); //set the formatters time zone
 
-        List<String> zmanim = new ArrayList<>();
+        List<ZmanListEntry> zmanim = new ArrayList<>();
 
-        zmanim.add(mROZmanimCalendar.getGeoLocation().getLocationName());
+        zmanim.add(new ZmanListEntry(mROZmanimCalendar.getGeoLocation().getLocationName()));
 
-        zmanim.add(mJewishDateInfo.getJewishCalendar().toString()
-                .replace("Teves", "Tevet").replace("Tishrei", "Tishri")
-                + "      " +
-                mROZmanimCalendar.getCalendar().get(Calendar.DATE)
-                + " " +
-                mROZmanimCalendar.getCalendar().getDisplayName(
-                        Calendar.MONTH, Calendar.SHORT, Locale.getDefault())
-                + ", " +
-                mROZmanimCalendar.getCalendar().get(Calendar.YEAR));
+        StringBuilder sb = new StringBuilder();
+        sb.append(mJewishDateInfo.getJewishCalendar().toString()
+                .replace("Teves", "Tevet").replace("Tishrei", "Tishri"));
+        if (DateUtils.isSameDay(mROZmanimCalendar.getCalendar().getTime(), new Date())) {
+            sb.append("   ▼   ");//add a down arrow to indicate that this is the current day
+        } else {
+            sb.append("      ");
+        }
+        sb.append(mROZmanimCalendar.getCalendar().get(Calendar.DATE));
+        sb.append(" ");
+        sb.append(mROZmanimCalendar.getCalendar().getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault()));
+        sb.append(", ");
+        sb.append(mROZmanimCalendar.getCalendar().get(Calendar.YEAR));
+        zmanim.add(new ZmanListEntry(sb.toString()));
 
-        zmanim.add(mJewishDateInfo.getThisWeeksParsha());
+        zmanim.add(new ZmanListEntry(mJewishDateInfo.getThisWeeksParsha()));
 
-        zmanim.add(mROZmanimCalendar.getCalendar()
+        zmanim.add(new ZmanListEntry(mROZmanimCalendar.getCalendar()
                 .getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault())
                 + " / " +
-                mJewishDateInfo.getJewishDayOfWeek());
+                mJewishDateInfo.getJewishDayOfWeek()));
 
         String day = mJewishDateInfo.getSpecialDay();
         if (!day.isEmpty()) {
-            zmanim.add(day);
+            zmanim.add(new ZmanListEntry(day));
         }
 
         String isOKToListenToMusic = mJewishDateInfo.isOKToListenToMusic();
         if (!isOKToListenToMusic.isEmpty()) {
-            zmanim.add(isOKToListenToMusic);
+            zmanim.add(new ZmanListEntry(isOKToListenToMusic));
         }
 
         String ulChaparatPesha = mJewishDateInfo.getIsUlChaparatPeshaSaid();
         if (!ulChaparatPesha.isEmpty()) {
-            zmanim.add(ulChaparatPesha);
+            zmanim.add(new ZmanListEntry(ulChaparatPesha));
         }
 
-        zmanim.add(mJewishDateInfo.getIsTachanunSaid());
+        zmanim.add(new ZmanListEntry(mJewishDateInfo.getIsTachanunSaid()));
 
         String tonightStartOrEndBirchatLevana = mJewishDateInfo.getIsTonightStartOrEndBirchatLevana();
         if (!tonightStartOrEndBirchatLevana.isEmpty()) {
-            zmanim.add(tonightStartOrEndBirchatLevana);
+            zmanim.add(new ZmanListEntry(tonightStartOrEndBirchatLevana));
         }
 
         if (mJewishDateInfo.getJewishCalendar().isBirkasHachamah()) {
-            zmanim.add("Birchat HaChamah is said today");
+            zmanim.add(new ZmanListEntry("Birchat HaChamah is said today"));
         }
 
-        addTekufaTime(zmanimFormat, zmanim);
+        addTekufaTime(zmanimFormat, zmanim, false);
 
-        if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
-            addHebrewZmanim(zmanimFormat, zmanim);
-        } else if (mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false)) {
-            addTranslatedEnglishZmanim(zmanimFormat, zmanim);
-        } else {
-            addEnglishZmanim(zmanimFormat, zmanim);
-        }
+        addZmanim(zmanim, false);
 
         if (!mCurrentDateShown.before(dafYomiStartDate)) {
-            zmanim.add("Daf Yomi: " + YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getMasechta()
+            zmanim.add(new ZmanListEntry("Daf Yomi: " + YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getMasechta()
                     + " " +
-                    formatHebrewNumber(YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getDaf()));
+                    formatHebrewNumber(YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getDaf())));
         }
         if (!mCurrentDateShown.before(dafYomiYerushalmiStartDate)) {
             String masechta = YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getMasechta();
             String daf = formatHebrewNumber(YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getDaf());
             if (daf == null) {
-                daf = "No Yerushalmi Daf Yomi";
-                zmanim.add(daf);
+                zmanim.add(new ZmanListEntry("No Daf Yomi Yerushalmi"));
             } else {
-                zmanim.add("Yerushalmi Yomi: " + masechta + " " + daf);
+                zmanim.add(new ZmanListEntry("Yerushalmi Yomi: " + masechta + " " + daf));
             }
         }
 
-        zmanim.add(mJewishDateInfo.getIsMashivHaruchOrMoridHatalSaid()
+        zmanim.add(new ZmanListEntry(mJewishDateInfo.getIsMashivHaruchOrMoridHatalSaid()
                 + " / "
-                + mJewishDateInfo.getIsBarcheinuOrBarechAleinuSaid());
+                + mJewishDateInfo.getIsBarcheinuOrBarechAleinuSaid()));
 
-        zmanim.add("Shaah Zmanit GR\"A: " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanisGra()) +
-                " MG\"A: " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanis72MinutesZmanis()));
+        zmanim.add(new ZmanListEntry("Shaah Zmanit GR\"A: " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanisGra()) +
+                " MG\"A: " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanis72MinutesZmanis())));
 
         if (mSettingsPreferences.getBoolean("ShowLeapYear", false)) {
-            zmanim.add(mJewishDateInfo.isJewishLeapYear());
+            zmanim.add(new ZmanListEntry(mJewishDateInfo.isJewishLeapYear()));
         }
 
         if (mSettingsPreferences.getBoolean("ShowDST", false)) {
             if (mROZmanimCalendar.getGeoLocation().getTimeZone().inDaylightTime(mROZmanimCalendar.getSeaLevelSunrise())) {
-                zmanim.add("Daylight Savings Time is on");
+                zmanim.add(new ZmanListEntry("Daylight Savings Time is on"));
             } else {
-                zmanim.add("Daylight Savings Time is off");
+                zmanim.add(new ZmanListEntry("Daylight Savings Time is off"));
             }
         }
 
         if (mSettingsPreferences.getBoolean("ShowElevation", false)) {
-            zmanim.add("Elevation: " + mElevation);
+            zmanim.add(new ZmanListEntry("Elevation: " + mElevation + " meters"));
         }
 
         return zmanim;
     }
 
-    private void addEnglishZmanim(DateFormat zmanimFormat, List<String> zmanim) {
-        zmanim.add("Alot Hashachar= " +
-                zmanimFormat.format(checkNull(mROZmanimCalendar.getAlos72Zmanis())));
-        zmanim.add("Earliest Talit/Tefilin= " +
-                zmanimFormat.format(checkNull(mROZmanimCalendar.getEarliestTalitTefilin())));
-        if (mSettingsPreferences.getBoolean("ShowElevatedSunrise", false)) {
-            zmanim.add("HaNetz (Elevated)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSunrise())));
-        }
-        if (mROZmanimCalendar.getHaNetz() != null && !mSharedPreferences.getBoolean("showMishorSunrise" + sCurrentLocationName, true)) {
-            zmanim.add("HaNetz= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getHaNetz())));
-        } else {
-            zmanim.add("HaNetz (Mishor)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSeaLevelSunrise())));
-        }
-        if (mROZmanimCalendar.getHaNetz() != null &&
-                !mSharedPreferences.getBoolean("showMishorSunrise" + sCurrentLocationName, true) &&
-                mSettingsPreferences.getBoolean("ShowMishorAlways", false)) {
-            zmanim.add("HaNetz (Mishor)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSeaLevelSunrise())));
-        }
-        zmanim.add("Sof Zman Shma MG\"A= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanShmaMGA72MinutesZmanis())));
-        zmanim.add("Sof Zman Shma GR\"A= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanShmaGRA())));
-        if (mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.EREV_PESACH) {
-            zmanim.add("Sof Zman Achilat Chametz= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanTfilaMGA72MinutesZmanis())));
-            zmanim.add("Sof Zman Brachot Shma= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanTfilaGRA())));
-            zmanim.add("Sof Zman Biur Chametz= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanBiurChametzMGA())));
-        } else {
-            zmanim.add("Sof Zman Brachot Shma= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanTfilaGRA())));
-        }
-        zmanim.add("Chatzot= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getChatzot())));
-        zmanim.add("Mincha Gedola= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getMinchaGedolaGreaterThan30())));
-        zmanim.add("Mincha Ketana= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getMinchaKetana())));
-        zmanim.add("Plag HaMincha= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getPlagHamincha())));
-        if ((mJewishDateInfo.getJewishCalendar().hasCandleLighting() &&
-                !mJewishDateInfo.getJewishCalendar().isAssurBemelacha()) ||
-                mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY) {
-            zmanim.add("Candle Lighting (" +
-                    (int) mROZmanimCalendar.getCandleLightingOffset() + ")= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getCandleLighting())));
-        }
-        if (mSettingsPreferences.getBoolean("ShowWhenShabbatChagEnds", false)) {
-            if (mJewishDateInfo.getJewishCalendar().isTomorrowShabbosOrYomTov()) {
-                mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
-                mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
-                if (!mJewishDateInfo.getJewishCalendar().isTomorrowShabbosOrYomTov()) {
-                    Set<String> stringSet = mSettingsPreferences.getStringSet("displayRTOrShabbatRegTime", null);
-                    if (stringSet != null) {
-                        if (stringSet.contains("Show Regular Minutes")) {
-                            zmanim.add("Tzait " + getShabbatAndOrChag() + " (Tom) "
-                                    + "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + "= " +
-                                    zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
-                        }
-                        if (stringSet.contains("Show Rabbeinu Tam")) {
-                            if (mSettingsPreferences.getBoolean("RoundUpRT", true)) {
-                                DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//just to remove the seconds
-                                zmanim.add("Rabbeinu Tam (Tom)= " + roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
-                            } else {
-                                zmanim.add("Rabbeinu Tam (Tom)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
-                            }
-                        }
-                    }
-                }
-                mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);
-                mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
+
+    private void createBackgroundThreadForNextUpcomingZman() {
+        Runnable nextZmanUpdater = () -> {
+            setNextUpcomingZman();
+            if (mMainRecyclerView != null && !mSharedPreferences.getBoolean("weeklyMode", false)) {
+                mCurrentPosition = ((LinearLayoutManager)mMainRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+                mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                mMainRecyclerView.smoothScrollToPosition(mCurrentPosition);
             }
+            createBackgroundThreadForNextUpcomingZman();//start a new thread to update the next upcoming zman
+        };
+        if (sNextUpcomingZman != null) {
+            mHandler.postDelayed(nextZmanUpdater,sNextUpcomingZman.getTime() - new Date().getTime() + 1_000);//add 1 second to make sure we don't get the same zman again
         }
-        zmanim.add("Shkia= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSunset())));
-        zmanim.add("Tzait Hacochavim= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzeit())));
-        if (mJewishDateInfo.getJewishCalendar().hasCandleLighting() &&
-                mJewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
-            if (mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) != Calendar.FRIDAY) {
-                zmanim.add("Candle Lighting= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzeit())));
-            }
-        }
-        if (mJewishDateInfo.getJewishCalendar().isTaanis()
-                && mJewishDateInfo.getJewishCalendar().getYomTovIndex() != JewishCalendar.YOM_KIPPUR) {
-            zmanim.add("Tzait Taanit= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaitTaanit())));
-            zmanim.add("Tzait Taanit L'Chumra= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaitTaanitLChumra())));
-        }
-        if (mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting()) {
-            zmanim.add("Tzait " + getShabbatAndOrChag() + " "
-                    + "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + "= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
-            if (mSettingsPreferences.getBoolean("RoundUpRT", true)) {
-                DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//just to remove the seconds
-                zmanim.add("Rabbeinu Tam = " + roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
-            } else {
-                zmanim.add("Rabbeinu Tam = " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
-            }
-        }
-        if (mSettingsPreferences.getBoolean("AlwaysShowRT", false)) {
-            if (!(mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting())) {//if we want to always show the zman for RT, we can just NOT the previous cases where we do show it
-                if (mSettingsPreferences.getBoolean("RoundUpRT", true)) {
-                    DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//just to remove the seconds
-                    zmanim.add("Rabbeinu Tam = " + roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
-                } else {
-                    zmanim.add("Rabbeinu Tam = " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
-                }
-            }
-        }
-        zmanim.add("Chatzot Layla= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSolarMidnight())));
     }
 
-    private void addTranslatedEnglishZmanim(DateFormat zmanimFormat, List<String> zmanim) {
-        zmanim.add("Dawn= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getAlos72Zmanis())));
-        zmanim.add("Earliest Talit/Tefilin= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getEarliestTalitTefilin())));
-        if (mSettingsPreferences.getBoolean("ShowElevatedSunrise", false)) {
-            zmanim.add("Sunrise (Elevated)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSunrise())));
-        }
-        if (mROZmanimCalendar.getHaNetz() != null && !mSharedPreferences.getBoolean("showMishorSunrise" + sCurrentLocationName, true)) {
-            zmanim.add("Sunrise= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getHaNetz())));
-        } else {
-            zmanim.add("Sunrise (Sea Level)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSeaLevelSunrise())));
-        }
-        if (mROZmanimCalendar.getHaNetz() != null &&
-                !mSharedPreferences.getBoolean("showMishorSunrise" + sCurrentLocationName, true) &&
-                mSettingsPreferences.getBoolean("ShowMishorAlways", false)) {
-            zmanim.add("Sunrise (Sea Level)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSeaLevelSunrise())));
-        }
-        zmanim.add("Latest Shma MG\"A= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanShmaMGA72MinutesZmanis())));
-        zmanim.add("Latest Shma GR\"A= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanShmaGRA())));
-        if (mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.EREV_PESACH) {
-            zmanim.add("Latest Achilat Chametz= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanTfilaMGA72MinutesZmanis())));
-            zmanim.add("Latest Brachot Shma= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanTfilaGRA())));
-            zmanim.add("Latest Biur Chametz= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanBiurChametzMGA())));
-        } else {
-            zmanim.add("Latest Brachot Shma= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanTfilaGRA())));
-        }
-        zmanim.add("Mid-Day= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getChatzot())));
-        zmanim.add("Mincha Gedola= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getMinchaGedolaGreaterThan30())));
-        zmanim.add("Mincha Ketana= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getMinchaKetana())));
-        zmanim.add("Plag HaMincha= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getPlagHamincha())));
-        if ((mJewishDateInfo.getJewishCalendar().hasCandleLighting() &&
-                !mJewishDateInfo.getJewishCalendar().isAssurBemelacha()) ||
-                mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY) {
-            zmanim.add("Candle Lighting (" +
-                    (int) mROZmanimCalendar.getCandleLightingOffset() + ")= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getCandleLighting())));
-        }
-        if (mSettingsPreferences.getBoolean("ShowWhenShabbatChagEnds", false)) {
-            if (mJewishDateInfo.getJewishCalendar().isTomorrowShabbosOrYomTov()) {
-                mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
-                mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
-                if (!mJewishDateInfo.getJewishCalendar().isTomorrowShabbosOrYomTov()) {
-                    Set<String> stringSet = mSettingsPreferences.getStringSet("displayRTOrShabbatRegTime", null);
-                    if (stringSet != null) {
-                        if (stringSet.contains("Show Regular Minutes")) {
-                            zmanim.add(getShabbatAndOrChag() + " Ends (Tom) "
-                                    + "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + "= " +
-                                    zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
-                        }
-                        if (stringSet.contains("Show Rabbeinu Tam")) {
-                            if (mSettingsPreferences.getBoolean("RoundUpRT", true)) {
-                                DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//just to remove the seconds
-                                zmanim.add("Rabbeinu Tam (Tom)= " + roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
-                            } else {
-                                zmanim.add("Rabbeinu Tam (Tom)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
-                            }
-                        }
-                    }
-                }
-                mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);
-                mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
+    public void setNextUpcomingZman() {
+        Date theZman = null;
+        List<Date> zmanim = new ArrayList<>();
+        mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);
+        addZmanimDates(zmanim);//for the previous day
+        mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
+        addZmanimDates(zmanim);//for the current day
+        mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
+        addZmanimDates(zmanim);//for the next day
+        mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);//return to the current day
+        //find the next upcoming zman that is after the current time and before all the other zmanim
+        for (Date zman : zmanim) {
+            if (zman != null && zman.after(new Date()) && (theZman == null || zman.before(theZman))) {
+                theZman = zman;
             }
         }
-        zmanim.add("Sunset= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSunset())));
-        zmanim.add("Nightfall= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzeit())));
-        if (mJewishDateInfo.getJewishCalendar().hasCandleLighting() &&
-                mJewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
-            if (mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) != Calendar.FRIDAY) {
-                zmanim.add("Candle Lighting= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzeit())));
-            }
-        }
-        if (mJewishDateInfo.getJewishCalendar().isTaanis()
-                && mJewishDateInfo.getJewishCalendar().getYomTovIndex() != JewishCalendar.YOM_KIPPUR) {
-            zmanim.add("Fast Ends= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaitTaanit())));
-            zmanim.add("Fast Ends (Stringent)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaitTaanitLChumra())));
-        }
-        if (mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting()) {
-            zmanim.add(getShabbatAndOrChag() + " Ends "
-                    + "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + "= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
-            if (mSettingsPreferences.getBoolean("RoundUpRT", true)) {
-                DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//just to remove the seconds
-                zmanim.add("Rabbeinu Tam = " + roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
-            } else {
-                zmanim.add("Rabbeinu Tam = " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
-            }
-        }
-        if (mSettingsPreferences.getBoolean("AlwaysShowRT", false)) {
-            if (!(mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting())) {//if we want to always show the zman for RT, we can just NOT the previous cases where we do show it
-                if (mSettingsPreferences.getBoolean("RoundUpRT", true)) {
-                    DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//just to remove the seconds
-                    zmanim.add("Rabbeinu Tam = " + roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
-                } else {
-                    zmanim.add("Rabbeinu Tam = " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
-                }
-            }
-        }
-        zmanim.add("Midnight= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSolarMidnight())));
+        sNextUpcomingZman = theZman;
     }
 
-    private void addHebrewZmanim(DateFormat zmanimFormat, List<String> zmanim) {
-        zmanim.add("\u05E2\u05DC\u05D5\u05EA \u05D4\u05E9\u05D7\u05E8= " +
-                zmanimFormat.format(checkNull(mROZmanimCalendar.getAlos72Zmanis())));
-        zmanim.add("\u05D8\u05DC\u05D9\u05EA \u05D5\u05EA\u05E4\u05D9\u05DC\u05D9\u05DF= " +
-                zmanimFormat.format(checkNull(mROZmanimCalendar.getEarliestTalitTefilin())));
+    private void addZmanimDates(List<Date> zmanim) {
+        zmanim.add(mROZmanimCalendar.getAlos72Zmanis());
+        zmanim.add(mROZmanimCalendar.getEarliestTalitTefilin());
         if (mSettingsPreferences.getBoolean("ShowElevatedSunrise", false)) {
-            zmanim.add("\u05D4\u05E0\u05E5 (גבוה)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSunrise())));
+            zmanim.add(mROZmanimCalendar.getSunrise());
         }
         if (mROZmanimCalendar.getHaNetz() != null && !mSharedPreferences.getBoolean("showMishorSunrise" + sCurrentLocationName, true)) {
-            zmanim.add("\u05D4\u05E0\u05E5= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getHaNetz())));
+            zmanim.add(mROZmanimCalendar.getHaNetz());
         } else {
-            zmanim.add("\u05D4\u05E0\u05E5 (\u05DE\u05D9\u05E9\u05D5\u05E8)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSeaLevelSunrise())));
+            zmanim.add(mROZmanimCalendar.getSeaLevelSunrise());
         }
         if (mROZmanimCalendar.getHaNetz() != null &&
                 !mSharedPreferences.getBoolean("showMishorSunrise" + sCurrentLocationName, true) &&
                 mSettingsPreferences.getBoolean("ShowMishorAlways", false)) {
-            zmanim.add("\u05D4\u05E0\u05E5 (\u05DE\u05D9\u05E9\u05D5\u05E8)= " + zmanimFormat.format(checkNull(mROZmanimCalendar.getSeaLevelSunrise())));
+            zmanim.add(mROZmanimCalendar.getSeaLevelSunrise());
         }
-        zmanim.add("\u05E1\u05D5\u05E3 \u05D6\u05DE\u05DF \u05E9\u05DE\u05E2 \u05DE\u05D2\"\u05D0= " +
-                zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanShmaMGA72MinutesZmanis())));
-        zmanim.add("\u05E1\u05D5\u05E3 \u05D6\u05DE\u05DF \u05E9\u05DE\u05E2 \u05D2\u05E8\"\u05D0= " +
-                zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanShmaGRA())));
+        zmanim.add(mROZmanimCalendar.getSofZmanShmaMGA72MinutesZmanis());
+        zmanim.add(mROZmanimCalendar.getSofZmanShmaGRA());
         if (mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.EREV_PESACH) {
-            zmanim.add("\u05E1\u05D5\u05E3 \u05D6\u05DE\u05DF \u05D0\u05DB\u05D9\u05DC\u05EA \u05D7\u05DE\u05E5= "
-                    + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanTfilaMGA72MinutesZmanis())));
-            zmanim.add("\u05E1\u05D5\u05E3 \u05D6\u05DE\u05DF \u05D1\u05E8\u05DB\u05D5\u05EA \u05E9\u05DE\u05E2= "
-                    + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanTfilaGRA())));
-            zmanim.add("\u05E1\u05D5\u05E3 \u05D6\u05DE\u05DF \u05D1\u05D9\u05E2\u05D5\u05E8 \u05D7\u05DE\u05E5= "
-                    + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanBiurChametzMGA())));
+            zmanim.add(mROZmanimCalendar.getSofZmanTfilaMGA72MinutesZmanis());
+            zmanim.add(mROZmanimCalendar.getSofZmanTfilaGRA());
+            zmanim.add(mROZmanimCalendar.getSofZmanBiurChametzMGA());
         } else {
-            zmanim.add("\u05E1\u05D5\u05E3 \u05D6\u05DE\u05DF \u05D1\u05E8\u05DB\u05D5\u05EA \u05E9\u05DE\u05E2= "
-                    + zmanimFormat.format(checkNull(mROZmanimCalendar.getSofZmanTfilaGRA())));
+            zmanim.add(mROZmanimCalendar.getSofZmanTfilaGRA());
         }
-        zmanim.add("\u05D7\u05E6\u05D5\u05EA= " +
-                zmanimFormat.format(checkNull(mROZmanimCalendar.getChatzot())));
-        zmanim.add("\u05DE\u05E0\u05D7\u05D4 \u05D2\u05D3\u05D5\u05DC\u05D4= " +
-                zmanimFormat.format(checkNull(mROZmanimCalendar.getMinchaGedolaGreaterThan30())));
-        zmanim.add("\u05DE\u05E0\u05D7\u05D4 \u05E7\u05D8\u05E0\u05D4= " +
-                zmanimFormat.format(checkNull(mROZmanimCalendar.getMinchaKetana())));
-        zmanim.add("\u05E4\u05DC\u05D2 \u05D4\u05DE\u05E0\u05D7\u05D4= " +
-                zmanimFormat.format(checkNull(mROZmanimCalendar.getPlagHamincha())));
+        zmanim.add(mROZmanimCalendar.getChatzot());
+        zmanim.add(mROZmanimCalendar.getMinchaGedolaGreaterThan30());
+        zmanim.add(mROZmanimCalendar.getMinchaKetana());
+        zmanim.add(mROZmanimCalendar.getPlagHamincha());
         if ((mJewishDateInfo.getJewishCalendar().hasCandleLighting() &&
                 !mJewishDateInfo.getJewishCalendar().isAssurBemelacha()) ||
                 mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY) {
-            zmanim.add("\u05D4\u05D3\u05DC\u05E7\u05EA \u05E0\u05E8\u05D5\u05EA (" +
-                    (int) mROZmanimCalendar.getCandleLightingOffset() + ")= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getCandleLighting())));
+            zmanim.add(mROZmanimCalendar.getCandleLighting());
         }
-        if (mSettingsPreferences.getBoolean("ShowWhenShabbatChagEnds", false)) {
+        zmanim.add(mROZmanimCalendar.getSunset());
+        zmanim.add(mROZmanimCalendar.getTzeit());
+        if (mJewishDateInfo.getJewishCalendar().hasCandleLighting() &&
+                mJewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
+            if (mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) != Calendar.FRIDAY) {
+                zmanim.add(mROZmanimCalendar.getTzeit());
+            }
+        }
+        if (mJewishDateInfo.getJewishCalendar().isTaanis()
+                && mJewishDateInfo.getJewishCalendar().getYomTovIndex() != JewishCalendar.YOM_KIPPUR) {
+            zmanim.add(mROZmanimCalendar.getTzaitTaanit());
+            zmanim.add(mROZmanimCalendar.getTzaitTaanitLChumra());
+        }
+        if (mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting()) {
+            zmanim.add(mROZmanimCalendar.getTzaisAteretTorah());
+            if (mSettingsPreferences.getBoolean("RoundUpRT", true)) {
+                zmanim.add(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()));
+            } else {
+                zmanim.add(mROZmanimCalendar.getTzais72Zmanis());
+            }
+        }
+        if (mSettingsPreferences.getBoolean("AlwaysShowRT", false)) {
+            if (!(mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting())) {//if we want to always show the zman for RT, we can just NOT the previous cases where we do show it
+                if (mSettingsPreferences.getBoolean("RoundUpRT", true)) {
+                    zmanim.add(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()));
+                } else {
+                    zmanim.add(mROZmanimCalendar.getTzais72Zmanis());
+                }
+            }
+        }
+        zmanim.add(mROZmanimCalendar.getSolarMidnight());
+    }
+
+    private String getAnnouncements() {
+        StringBuilder announcements = new StringBuilder();
+
+        String day = mJewishDateInfo.getSpecialDay();
+        if (!day.isEmpty()) {
+            announcements.append(day.replace("/ ","\n")).append("\n");
+        }
+
+        String isOKToListenToMusic = mJewishDateInfo.isOKToListenToMusic();
+        if (!isOKToListenToMusic.isEmpty()) {
+            announcements.append(isOKToListenToMusic).append("\n");
+        }
+
+        String ulChaparatPesha = mJewishDateInfo.getIsUlChaparatPeshaSaid();
+        if (!ulChaparatPesha.isEmpty()) {
+            announcements.append(ulChaparatPesha).append("\n");
+        }
+
+        String tachanun = mJewishDateInfo.getIsTachanunSaid();
+        if (!tachanun.equals("There is Tachanun today")) {
+            announcements.append(tachanun).append("\n");
+        }
+
+        String tonightStartOrEndBirchatLevana = mJewishDateInfo.getIsTonightStartOrEndBirchatLevana();
+        if (!tonightStartOrEndBirchatLevana.isEmpty()) {
+            announcements.append(tonightStartOrEndBirchatLevana).append("\n");
+        }
+
+        if (mJewishDateInfo.getJewishCalendar().isBirkasHachamah()) {
+            announcements.append("Birchat HaChamah is said today").append("\n");
+        }
+        List<ZmanListEntry> tekufa = new ArrayList<>();
+        addTekufaTime(new SimpleDateFormat("h:mm aa", Locale.getDefault()), tekufa, true);
+        if (!tekufa.isEmpty()) {
+            announcements.append(tekufa.get(0).getTitle()).append("\n");
+        }
+
+        if (!mCurrentDateShown.before(dafYomiYerushalmiStartDate)) {
+            String daf = formatHebrewNumber(YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getDaf());
+            if (daf == null) {
+                announcements.append("No Daf Yomi Yerushalmi").append("\n");
+            }
+        }
+
+        //TODO: add the weekly announcements
+        //these are shown once:
+//        announcements.add(mJewishDateInfo.getIsMashivHaruchOrMoridHatalSaid()
+//                + " / "
+//                + mJewishDateInfo.getIsBarcheinuOrBarechAleinuSaid());
+//
+//        if (mSettingsPreferences.getBoolean("ShowLeapYear", false)) {
+//            announcements.add(mJewishDateInfo.isJewishLeapYear());
+//        }
+//
+//        if (mSettingsPreferences.getBoolean("ShowDST", false)) {
+//            if (mROZmanimCalendar.getGeoLocation().getTimeZone().inDaylightTime(mROZmanimCalendar.getSeaLevelSunrise())) {
+//                announcements.add("Daylight Savings Time is on");
+//            } else {
+//                announcements.add("Daylight Savings Time is off");
+//            }
+//        }
+//
+//        if (mSettingsPreferences.getBoolean("ShowElevation", false)) {
+//            announcements.add("Elevation: " + mElevation);
+//        }
+
+        return announcements.toString();
+    }
+
+    private void updateWeeklyZmanim() {
+        Calendar backupCal = (Calendar) mCurrentDateShown.clone();
+        while (mCurrentDateShown.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
+            mCurrentDateShown.add(Calendar.DATE, -1);
+        }
+        mROZmanimCalendar.setCalendar(mCurrentDateShown);//set the calendar to the sunday of that week
+        mJewishDateInfo.setCalendar(mCurrentDateShown);
+
+        HebrewDateFormatter hebrewDateFormatter = new HebrewDateFormatter();
+        List<TextView[]> weeklyInfo = Arrays.asList(mSunday, mMonday, mTuesday, mWednesday, mThursday, mFriday, mSaturday);
+
+        String month = mCurrentDateShown.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
+        String year = String.valueOf(mCurrentDateShown.get(Calendar.YEAR));
+
+        String hebrewMonth = hebrewDateFormatter.formatMonth(mJewishDateInfo.getJewishCalendar())
+                .replace("Tishrei", "Tishri")
+                .replace("Teves", "Tevet");
+        String hebrewYear = String.valueOf(mJewishDateInfo.getJewishCalendar().getJewishYear());
+
+        String masechta = "";
+        String yerushalmiMasechta = "";
+        String daf = "";
+        String yerushalmiDaf = "";
+
+        if (!mCurrentDateShown.before(dafYomiStartDate)) {
+            masechta = YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getMasechta();
+            daf = formatHebrewNumber(YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getDaf());
+        }
+        if (!mCurrentDateShown.before(dafYomiYerushalmiStartDate)) {
+            yerushalmiMasechta = YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getMasechta();
+            yerushalmiDaf = formatHebrewNumber(YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getDaf());
+        }
+
+        for (int i = 0; i < 7; i++) {
+            if (DateUtils.isSameDay(mROZmanimCalendar.getCalendar().getTime(), new Date())) {
+                weeklyInfo.get(i)[4].setBackgroundColor(getColor(R.color.dark_gold));
+            } else {
+                weeklyInfo.get(i)[4].setBackground(null);
+            }
+            StringBuilder announcements = new StringBuilder();
+            mZmanimForAnnouncements = new ArrayList<>();//clear the list - this is for RT, end shabbat, etc.
+            mListViews[i].setAdapter(new ArrayAdapter<>(this, R.layout.zman_list_view, getShortZmanim()));//E.G. "Sunrise: 5:45 AM, Sunset: 8:30 PM, etc."
+            if (!mZmanimForAnnouncements.isEmpty()) {
+                for (String zman : mZmanimForAnnouncements) {
+                    announcements.append(zman).append("\n");
+                }
+            }
+            announcements.append(getAnnouncements());
+            weeklyInfo.get(i)[1].setText(announcements.toString());//E.G. "Yom Tov, Yom Kippur, etc."
+            weeklyInfo.get(i)[2].setText(mJewishDateInfo.getJewishDayOfWeek());//E.G. "יום ראשון"
+            weeklyInfo.get(i)[3].setText(formatHebrewNumber(mJewishDateInfo.getJewishCalendar().getJewishDayOfMonth()));//E.G. "א"
+            weeklyInfo.get(i)[4].setText(mROZmanimCalendar.getCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, Locale.getDefault()));//E.G. "Sun"
+            weeklyInfo.get(i)[5].setText(String.valueOf(mROZmanimCalendar.getCalendar().get(Calendar.DAY_OF_MONTH)));//E.G. "6"
+            if (i != 6) {
+                mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
+                mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
+            }
+        }
+        if (month != null && !month.equals(mROZmanimCalendar.getCalendar().getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()))) {
+            month += " - " + mROZmanimCalendar.getCalendar().getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
+        }
+        if (!year.equals(String.valueOf(mROZmanimCalendar.getCalendar().get(Calendar.YEAR)))) {
+            year += " / " + mROZmanimCalendar.getCalendar().get(Calendar.YEAR);
+        }
+        if (!hebrewMonth.equals(hebrewDateFormatter.formatMonth(mJewishDateInfo.getJewishCalendar())
+                        .replace("Tishrei", "Tishri")
+                        .replace("Teves", "Tevet"))) {
+            hebrewMonth += " - " + hebrewDateFormatter.formatMonth(mJewishDateInfo.getJewishCalendar())
+                    .replace("Tishrei", "Tishri")
+                    .replace("Teves", "Tevet");
+        }
+        if (!hebrewYear.equals(String.valueOf(mJewishDateInfo.getJewishCalendar().getJewishYear()))) {
+            hebrewYear += " / " + mJewishDateInfo.getJewishCalendar().getJewishYear();
+        }
+        if (!masechta.equals(YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getMasechta())) {
+            masechta += " " + daf + " - " + YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getMasechta() + " " +
+                    formatHebrewNumber(YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getDaf());
+        } else {
+            masechta += " " + daf + " - " + formatHebrewNumber(YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getDaf());
+        }
+        if (!yerushalmiMasechta.equals(YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getMasechta())) {
+            if (YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getDaf() == 0) {
+                mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);
+                mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
+            }
+            yerushalmiMasechta += " " + yerushalmiDaf + " - " + YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getMasechta() + " " +
+                    formatHebrewNumber(YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getDaf());
+        } else {
+            yerushalmiMasechta += " " + yerushalmiDaf + " - " + formatHebrewNumber(YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getDaf());
+        }
+        String dafs = "Daf Yomi: " + masechta + "       Yerushalmi Yomi: " + yerushalmiMasechta;
+        String monthYear = month + " " + year;
+        mEnglishMonthYear.setText(monthYear);
+        mLocationName.setText(sCurrentLocationName);
+        String hebrewMonthYear = hebrewMonth + " " + hebrewYear;
+        mHebrewMonthYear.setText(hebrewMonthYear);
+        mWeeklyDafs.setText(dafs);
+        mWeeklyParsha.setText(mJewishDateInfo.getThisWeeksParsha());
+        mROZmanimCalendar.getCalendar().setTimeInMillis(backupCal.getTimeInMillis());
+        mJewishDateInfo.setCalendar(backupCal);
+        mCurrentDateShown = backupCal;
+    }
+
+    private String[] getShortZmanim() {
+        List<ZmanListEntry> zmanim = new ArrayList<>();
+        addZmanim(zmanim, true);
+        DateFormat zmanimFormat;
+        if (mSettingsPreferences.getBoolean("ShowSeconds", false)) {
+            zmanimFormat = new SimpleDateFormat("h:mm:ss aa", Locale.getDefault());
+        } else {
+            zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+        }
+        zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
+
+        List<ZmanListEntry> zmansToRemove = new ArrayList<>();
+        if (mIsZmanimInHebrew) {
+            for (ZmanListEntry zman : zmanim) {
+                if (zman.isNoteworthyZman()) {
+                    if (zman.isRTZman() && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("RoundUpRT", false)) {
+                        DateFormat rtFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+                        rtFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
+                        mZmanimForAnnouncements.add(rtFormat.format(zman.getZman()) + ":" + zman.getTitle().replaceAll("\\(.*\\)", "").trim());
+                    } else {
+                        mZmanimForAnnouncements.add(zmanimFormat.format(zman.getZman()) + ":" + zman.getTitle().replaceAll("\\(.*\\)", "").trim());
+                    }
+                    zmansToRemove.add(zman);
+                }
+            }
+        } else {
+            for (ZmanListEntry zman : zmanim) {
+                if (zman.isNoteworthyZman()) {
+                    if (zman.isRTZman() && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("RoundUpRT", false)) {
+                        DateFormat rtFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+                        rtFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
+                        mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + ":" + rtFormat.format(zman.getZman()));
+                    } else {
+                        mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + ":" + zmanimFormat.format(zman.getZman()));
+                    }
+                    zmansToRemove.add(zman);
+                }
+            }
+        }
+        zmanim.removeAll(zmansToRemove);
+
+        String[] shortZmanim = new String[zmanim.size()];
+        if (mIsZmanimInHebrew) {
+            for (ZmanListEntry zman : zmanim) {
+                if (zman.isRTZman() && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("RoundUpRT", false)) {
+                    DateFormat rtFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+                    rtFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
+                    shortZmanim[zmanim.indexOf(zman)] = rtFormat.format(zman.getZman()) + ":" + zman.getTitle();
+                } else {
+                    shortZmanim[zmanim.indexOf(zman)] = zmanimFormat.format(zman.getZman()) + ":" + zman.getTitle()
+                            .replace("סוף זמן", "");
+                }
+            }
+        } else {
+            for (ZmanListEntry zman : zmanim) {
+                if (zman.isRTZman() && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("RoundUpRT", false)) {
+                    DateFormat rtFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+                    rtFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
+                    shortZmanim[zmanim.indexOf(zman)] = zman.getTitle() + ":" + rtFormat.format(zman.getZman());
+                } else {
+                    shortZmanim[zmanim.indexOf(zman)] = zman.getTitle()
+                            .replace("Earliest ","")
+                            .replace("Sof Zman ", "")
+                            .replace("Hacochavim", "")
+                            .replace("Latest ", "")
+                            + ":" + zmanimFormat.format(zman.getZman());
+                }
+            }
+        }
+        return shortZmanim;
+    }
+
+    private void addZmanim(List<ZmanListEntry> zmanim, boolean isForWeeklyZmanim) {
+        zmanim.add(new ZmanListEntry(getAlotString(), mROZmanimCalendar.getAlos72Zmanis(), true));
+        zmanim.add(new ZmanListEntry(getTalitTefilinString(), mROZmanimCalendar.getEarliestTalitTefilin(), true));
+        if (mSettingsPreferences.getBoolean("ShowElevatedSunrise", false)) {
+            zmanim.add(new ZmanListEntry(getHaNetzString() + " " + getElevatedString(), mROZmanimCalendar.getSunrise(), true));
+        }
+        if (mROZmanimCalendar.getHaNetz() != null && !mSharedPreferences.getBoolean("showMishorSunrise" + sCurrentLocationName, true)) {
+            zmanim.add(new ZmanListEntry(getHaNetzString(), mROZmanimCalendar.getHaNetz(), true));
+        } else {
+            zmanim.add(new ZmanListEntry(getHaNetzString() + " (" + getMishorString() + ")", mROZmanimCalendar.getSeaLevelSunrise(), true));
+        }
+        if (mROZmanimCalendar.getHaNetz() != null &&
+                !mSharedPreferences.getBoolean("showMishorSunrise" + sCurrentLocationName, true) &&
+                mSettingsPreferences.getBoolean("ShowMishorAlways", false)) {
+            zmanim.add(new ZmanListEntry(getHaNetzString() + " (" + getMishorString() + ")", mROZmanimCalendar.getSeaLevelSunrise(), true));
+        }
+        zmanim.add(new ZmanListEntry(getShmaMgaString(), mROZmanimCalendar.getSofZmanShmaMGA72MinutesZmanis(), true));
+        zmanim.add(new ZmanListEntry(getShmaGraString(), mROZmanimCalendar.getSofZmanShmaGRA(), true));
+        if (mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.EREV_PESACH) {
+            ZmanListEntry zman = new ZmanListEntry(getAchilatChametzString(), mROZmanimCalendar.getSofZmanTfilaMGA72MinutesZmanis(), true);
+            zman.setNoteworthyZman(true);
+            zmanim.add(zman);
+            zmanim.add(new ZmanListEntry(getBrachotShmaString(), mROZmanimCalendar.getSofZmanTfilaGRA(), true));
+            zman = new ZmanListEntry(getBiurChametzString(), mROZmanimCalendar.getSofZmanBiurChametzMGA(), true);
+            zman.setNoteworthyZman(true);
+            zmanim.add(zman);
+        } else {
+            zmanim.add(new ZmanListEntry(getBrachotShmaString(), mROZmanimCalendar.getSofZmanTfilaGRA(), true));
+        }
+        zmanim.add(new ZmanListEntry(getChatzotString(), mROZmanimCalendar.getChatzot(), true));
+        zmanim.add(new ZmanListEntry(getMinchaGedolaString(), mROZmanimCalendar.getMinchaGedolaGreaterThan30(), true));
+        zmanim.add(new ZmanListEntry(getMinchaKetanaString(), mROZmanimCalendar.getMinchaKetana(), true));
+        zmanim.add(new ZmanListEntry(getPlagHaminchaString(), mROZmanimCalendar.getPlagHamincha(), true));
+        if ((mJewishDateInfo.getJewishCalendar().hasCandleLighting() &&
+                !mJewishDateInfo.getJewishCalendar().isAssurBemelacha()) ||
+                mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY) {
+            ZmanListEntry candleLightingZman = new ZmanListEntry(
+                    getCandleLightingString() + " (" + (int) mROZmanimCalendar.getCandleLightingOffset() + ")",
+                    mROZmanimCalendar.getCandleLighting(),
+                    true);
+            candleLightingZman.setNoteworthyZman(true);
+            zmanim.add(candleLightingZman);
+        }
+        if (mSettingsPreferences.getBoolean("ShowWhenShabbatChagEnds", false) && !isForWeeklyZmanim) {
             if (mJewishDateInfo.getJewishCalendar().isTomorrowShabbosOrYomTov()) {
                 mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
                 mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
@@ -1303,18 +1651,18 @@ public class MainActivity extends AppCompatActivity {
                     Set<String> stringSet = mSettingsPreferences.getStringSet("displayRTOrShabbatRegTime", null);
                     if (stringSet != null) {
                         if (stringSet.contains("Show Regular Minutes")) {
-                            zmanim.add("\u05E6\u05D0\u05EA " + getShabbatAndOrChag() + " (\u05DE\u05D7\u05E8) "
-                                    + "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + "= " +
-                                    zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
+                            zmanim.add(new ZmanListEntry(getTzaitString() + getShabbatAndOrChag() + getEndsString() + getMacharString()
+                                    + "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")", mROZmanimCalendar.getTzaisAteretTorah(), true));
                         }
                         if (stringSet.contains("Show Rabbeinu Tam")) {
                             if (mSettingsPreferences.getBoolean("RoundUpRT", true)) {
-                                DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//just to remove the seconds
-                                zmanim.add("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD (\u05DE\u05D7\u05E8)= " +
-                                        roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
+                                ZmanListEntry rt = new ZmanListEntry(getRTString() + getMacharString(), addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()), true);
+                                rt.setRTZman(true);
+                                zmanim.add(rt);
                             } else {
-                                zmanim.add("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD (\u05DE\u05D7\u05E8)= " +
-                                        zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+                                ZmanListEntry rt = new ZmanListEntry(getRTString() + getMacharString(), mROZmanimCalendar.getTzais72Zmanis(), true);
+                                rt.setRTZman(true);
+                                zmanim.add(rt);
                             }
                         }
                     }
@@ -1323,48 +1671,53 @@ public class MainActivity extends AppCompatActivity {
                 mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
             }
         }
-        zmanim.add("\u05E9\u05E7\u05D9\u05E2\u05D4= " +
-                zmanimFormat.format(checkNull(mROZmanimCalendar.getSunset())));
-        zmanim.add("\u05E6\u05D0\u05EA \u05D4\u05DB\u05D5\u05DB\u05D1\u05D9\u05DD= " +
-                zmanimFormat.format(checkNull(mROZmanimCalendar.getTzeit())));
+        zmanim.add(new ZmanListEntry(getSunsetString(), mROZmanimCalendar.getSunset(), true));
+        zmanim.add(new ZmanListEntry(getTzaitHacochavimString(), mROZmanimCalendar.getTzeit(), true));
         if (mJewishDateInfo.getJewishCalendar().hasCandleLighting() &&
                 mJewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
             if (mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) != Calendar.FRIDAY) {
-                zmanim.add("\u05D4\u05D3\u05DC\u05E7\u05EA \u05E0\u05E8\u05D5\u05EA= " +
-                        zmanimFormat.format(checkNull(mROZmanimCalendar.getTzeit())));
+                zmanim.add(new ZmanListEntry(getCandleLightingString(), mROZmanimCalendar.getTzeit(), true));
             }
         }
-        if (mJewishDateInfo.getJewishCalendar().isTaanis()
-                && mJewishDateInfo.getJewishCalendar().getYomTovIndex() != JewishCalendar.YOM_KIPPUR) {
-            zmanim.add("\u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaitTaanit())));
-            zmanim.add("\u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA \u05DC\u05D7\u05D5\u05DE\u05E8\u05D4= " +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaitTaanitLChumra())));
+        if (mJewishDateInfo.getJewishCalendar().isTaanis() && mJewishDateInfo.getJewishCalendar().getYomTovIndex() != JewishCalendar.YOM_KIPPUR) {
+            ZmanListEntry fastEnds = new ZmanListEntry(getTzaitString() + getTaanitString() + getEndsString(), mROZmanimCalendar.getTzaitTaanit(), true);
+            fastEnds.setNoteworthyZman(true);
+            zmanim.add(fastEnds);
+            fastEnds = new ZmanListEntry(getTzaitString() + getTaanitString() + getEndsString() + " " + getLChumraString(), mROZmanimCalendar.getTzaitTaanitLChumra(), true);
+            fastEnds.setNoteworthyZman(true);
+            zmanim.add(fastEnds);
         }
         if (mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting()) {
-            zmanim.add("\u05E6\u05D0\u05EA " + getShabbatAndOrChag() + " " +
-                    "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + "=" +
-                    zmanimFormat.format(checkNull(mROZmanimCalendar.getTzaisAteretTorah())));
+            ZmanListEntry endShabbat = new ZmanListEntry(getTzaitString() + getShabbatAndOrChag() + getEndsString()
+                    + " (" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")", mROZmanimCalendar.getTzaisAteretTorah(), true);
+            endShabbat.setNoteworthyZman(true);
+            zmanim.add(endShabbat);
             if (mSettingsPreferences.getBoolean("RoundUpRT", true)) {
-                DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//just to remove the seconds
-                zmanim.add("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD = " +
-                        roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
+                ZmanListEntry rt = new ZmanListEntry(getRTString(), addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()), true);
+                rt.setRTZman(true);
+                rt.setNoteworthyZman(true);
+                zmanim.add(rt);
             } else {
-                zmanim.add("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD = " +
-                        zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+                ZmanListEntry rt = new ZmanListEntry(getRTString(), mROZmanimCalendar.getTzais72Zmanis(), true);
+                rt.setRTZman(true);
+                rt.setNoteworthyZman(true);
+                zmanim.add(rt);
             }
         }
         if (mSettingsPreferences.getBoolean("AlwaysShowRT", false)) {
             if (!(mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting())) {//if we want to always show the zman for RT, we can just NOT the previous cases where we do show it
                 if (mSettingsPreferences.getBoolean("RoundUpRT", true)) {
-                    DateFormat roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//just to remove the seconds
-                    zmanim.add("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD = " + roundUpFormat.format(checkNull(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()))));
+                    ZmanListEntry rt = new ZmanListEntry(getRTString(), addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()), true);
+                    rt.setRTZman(true);
+                    zmanim.add(rt);
                 } else {
-                    zmanim.add("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD = " + zmanimFormat.format(checkNull(mROZmanimCalendar.getTzais72Zmanis())));
+                    ZmanListEntry rt = new ZmanListEntry(getRTString(), mROZmanimCalendar.getTzais72Zmanis(), true);
+                    rt.setRTZman(true);
+                    zmanim.add(rt);
                 }
             }
         }
-        zmanim.add("\u05D7\u05E6\u05D5\u05EA \u05DC\u05D9\u05DC\u05D4= " + zmanimFormat.format(mROZmanimCalendar.getSolarMidnight()));
+        zmanim.add(new ZmanListEntry(getChatzotLaylaString(), mROZmanimCalendar.getSolarMidnight(), true));
     }
 
     /**
@@ -1378,20 +1731,6 @@ public class MainActivity extends AppCompatActivity {
             return null;
         }
         return new Date(date.getTime() + 60_000);
-    }
-
-    /**
-     * This is a simple convenience method to check if the given date is null or not. If the date is not null,
-     * it will return exactly what was given. However, if the date is null, it will change the date to a string that says "N/A" (Not Available).
-     * @param date the date object to check if it is null
-     * @return the given date if not null or a string if null
-     */
-    private Object checkNull(Object date) {
-        if (date != null) {
-            return date;
-        } else {
-            return "N/A";
-        }
     }
 
     /**
@@ -1421,27 +1760,38 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * This method will check if the tekufa happens within the next 48 hours and it will add the tekufa to the list of zmanim passed in if it happens
+     * This method will check if the tekufa happens within the next 48 hours and it will add the tekufa to the list passed in if it happens
      * on the current date.
      * @param zmanimFormat the format to use for the zmanim
      * @param zmanim the list of zmanim to add to
+     * @param shortStyle if the tekufa should be added as Tekufa NAME : TIME or Tekufa NAME is today at TIME
      */
-    private void addTekufaTime(DateFormat zmanimFormat, List<String> zmanim) {
+    private void addTekufaTime(DateFormat zmanimFormat, List<ZmanListEntry> zmanim, boolean shortStyle) {
         mCurrentDateShown.add(Calendar.DATE,1);//check next day for tekufa, because the tekufa time can go back a day
         mJewishDateInfo.setCalendar(mCurrentDateShown);
         mCurrentDateShown.add(Calendar.DATE,-1);
         if (mJewishDateInfo.getJewishCalendar().getTekufa() != null &&
                 DateUtils.isSameDay(mCurrentDateShown.getTime(), mJewishDateInfo.getJewishCalendar().getTekufaAsDate())) {
-            zmanim.add("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " is today at " +
-                    zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate()));
+            if (shortStyle) {
+                zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
+                        zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
+            } else {
+                zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " is today at " +
+                        zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
+            }
         }
         mJewishDateInfo.setCalendar(mCurrentDateShown);//reset
 
         //else the tekufa time is on the same day as the current date, so we can add it normally
         if (mJewishDateInfo.getJewishCalendar().getTekufa() != null &&
                 DateUtils.isSameDay(mCurrentDateShown.getTime(), mJewishDateInfo.getJewishCalendar().getTekufaAsDate())) {
-            zmanim.add("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " is today at " +
-                    zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate()));
+            if (shortStyle) {
+                zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
+                        zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
+            } else {
+                zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " is today at " +
+                        zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
+            }
         }
     }
 
@@ -1561,7 +1911,11 @@ public class MainActivity extends AppCompatActivity {
                             mLocationResolver.setTimeZoneID();
                             getAndConfirmLastElevationAndVisibleSunriseData();
                             instantiateZmanimCalendar();
-                            mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                            if (mSharedPreferences.getBoolean("weeklyMode", false)) {
+                                updateWeeklyZmanim();
+                            } else {
+                                mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                            }
                         }
                     }
                 })
@@ -1581,7 +1935,11 @@ public class MainActivity extends AppCompatActivity {
                     }
                     getAndConfirmLastElevationAndVisibleSunriseData();
                     instantiateZmanimCalendar();
-                    mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                    if (mSharedPreferences.getBoolean("weeklyMode", false)) {
+                        updateWeeklyZmanim();
+                    } else {
+                        mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                    }
                 })
                 .create()
                 .show();
@@ -1606,33 +1964,34 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        menu.findItem(R.id.weekly_mode).setChecked(mSharedPreferences.getBoolean("weeklyMode", false));
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
         if (id == R.id.refresh) {
-            if (mLocationResolver != null) {
+            if (mLocationResolver == null) {
                 mLocationResolver = new LocationResolver(this, this);
-                mLocationResolver.acquireLatitudeAndLongitude();
-                mLocationResolver.setTimeZoneID();
-                if (mSharedPreferences.getBoolean("isElevationSetup" + sCurrentLocationName, true)) {
-                    mLocationResolver.start();
-                    try {
-                        mLocationResolver.join();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
             }
-            if (mCurrentDate != null
-                    && mCurrentDateShown != null
+            mLocationResolver.acquireLatitudeAndLongitude();
+            mLocationResolver.setTimeZoneID();
+            if (mCurrentDateShown != null
                     && mJewishDateInfo != null
                     && mROZmanimCalendar != null
                     && mMainRecyclerView != null) {// Some users were getting a crash here, so I added this check.
-                mCurrentDate.setTimeInMillis(new Date().getTime());
-                mCurrentDateShown.setTime(mCurrentDate.getTime());
-                mJewishDateInfo.setCalendar(mCurrentDate);
-                mROZmanimCalendar.setCalendar(mCurrentDate);
-                mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                mCurrentDateShown.setTime(new Date());
+                mJewishDateInfo.setCalendar(new GregorianCalendar());
+                mROZmanimCalendar.setCalendar(new GregorianCalendar());
+                if (mSharedPreferences.getBoolean("weeklyMode", false)) {
+                    updateWeeklyZmanim();
+                } else {
+                    mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                }
                 getAndConfirmLastElevationAndVisibleSunriseData();
             }
             return true;
@@ -1641,14 +2000,33 @@ public class MainActivity extends AppCompatActivity {
             return true;
         } else if (id == R.id.shabbat_mode) {
             if (!sShabbatMode && mJewishDateInfo != null && mROZmanimCalendar != null && mMainRecyclerView != null) {
-                mJewishDateInfo.setCalendar(mCurrentDate);
-                mROZmanimCalendar.setCalendar(mCurrentDate);
-                mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                mCurrentDateShown.setTime(new Date());
+                mJewishDateInfo.setCalendar(new GregorianCalendar());
+                mROZmanimCalendar.setCalendar(new GregorianCalendar());
+                if (mSharedPreferences.getBoolean("weeklyMode", false)) {
+                    updateWeeklyZmanim();
+                } else {
+                    mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                }
                 startShabbatMode();
                 item.setChecked(true);
             } else {
                 endShabbatMode();
                 item.setChecked(false);
+            }
+            return true;
+        } else if (id == R.id.weekly_mode) {
+            mSharedPreferences.edit().putBoolean("weeklyMode", !mSharedPreferences.getBoolean("weeklyMode", false)).apply();
+            item.setChecked(mSharedPreferences.getBoolean("weeklyMode", false));//save the state of the menu item
+            if (mMainRecyclerView == null) {
+                return true;// This is to prevent a crash
+            }
+            if (mSharedPreferences.getBoolean("weeklyMode", false)) {
+                showWeeklyTextViews();
+                updateWeeklyZmanim();
+            } else {
+                hideWeeklyTextViews();
+                mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
             }
             return true;
         } else if (id == R.id.molad) {
@@ -1710,6 +2088,228 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public boolean onDown(MotionEvent e) {
             return true;
+        }
+    }
+
+    private String getChatzotLaylaString() {
+        if (mIsZmanimInHebrew) {
+            return "חצות לילה";
+        } else if (mIsZmanimEnglishTranslated) {
+            return "Midnight";
+        } else {
+            return "Chatzot Layla";
+        }
+    }
+
+    private String getLChumraString() {
+        if (mIsZmanimInHebrew) {
+            return "לחומרה";
+        } else if (mIsZmanimEnglishTranslated) {
+            return "(Stringent)";
+        } else {
+            return "L'Chumra";
+        }
+    }
+
+    private String getTaanitString() {
+        if (mIsZmanimInHebrew) {
+            return "תענית";
+        } else if (mIsZmanimEnglishTranslated) {
+            return "Fast";
+        } else {
+            return "Taanit";
+        }
+    }
+
+    private String getTzaitHacochavimString() {
+        if (mIsZmanimInHebrew) {
+            return "צאת הכוכבים";
+        } else if (mIsZmanimEnglishTranslated) {
+            return "Nightfall";
+        } else {
+            return "Tzait Hacochavim";
+        }
+    }
+
+    private String getSunsetString() {
+        if (mIsZmanimInHebrew) {
+            return "שקיעה";
+        } else if (mIsZmanimEnglishTranslated) {
+            return "Sunset";
+        } else {
+            return "Shkia";
+        }
+    }
+
+    private String getRTString() {
+        if (mIsZmanimInHebrew) {
+            return "רבינו תם";
+        } else {
+            return "Rabbeinu Tam";
+        }
+    }
+
+    private String getMacharString() {
+        if (mIsZmanimInHebrew) {
+            return " (מחר) ";
+        } else {
+            return " (Tom) ";
+        }
+    }
+
+    private String getEndsString() {
+        if (mIsZmanimEnglishTranslated) {
+            return " Ends";
+        } else {
+            return "";
+        }
+    }
+
+    private String getTzaitString() {
+        if (mIsZmanimInHebrew) {
+            return "צאת ";
+        } else if (!mIsZmanimEnglishTranslated) {
+            return "Tzait ";
+        } else {
+            return "";//if we are translating to English, we don't want to show the word Tzait first, just {Zman} Ends
+        }
+    }
+
+    private String getCandleLightingString() {
+        if (mIsZmanimInHebrew) {
+            return "הדלקת נרות";
+        } else {
+            return "Candle Lighting";
+        }
+    }
+
+    private String getPlagHaminchaString() {
+        if (mIsZmanimInHebrew) {
+            return "פלג המנחה";
+        } else {
+            return "Plag HaMincha";
+        }
+    }
+
+    private String getMinchaKetanaString() {
+        if (mIsZmanimInHebrew) {
+            return "מנחה קטנה";
+        } else {
+            return "Mincha Ketana";
+        }
+    }
+
+    private String getMinchaGedolaString() {
+        if (mIsZmanimInHebrew) {
+            return "מנחה גדולה";
+        } else {
+            return "Mincha Gedola";
+        }
+    }
+
+    private String getChatzotString() {
+        if (mIsZmanimInHebrew) {
+            return "חצות";
+        } else if (mIsZmanimEnglishTranslated) {
+            return "Mid-day";
+        } else {
+            return "Chatzot";
+        }
+    }
+
+    private String getBiurChametzString() {
+        if (mIsZmanimInHebrew) {
+            return "סוף זמן ביעור חמץ";
+        } else if (mIsZmanimEnglishTranslated) {
+            return "Latest time to burn Chametz";
+        } else {
+            return "Sof Zman Biur Chametz";
+        }
+    }
+
+    private String getBrachotShmaString() {
+        if (mIsZmanimInHebrew) {
+            return "סוף זמן ברכות שמע";
+        } else if (mIsZmanimEnglishTranslated) {
+            return "Latest Brachot Shma";
+        } else {
+            return "Sof Zman Brachot Shma";
+        }
+    }
+
+    private String getAchilatChametzString() {
+        if (mIsZmanimInHebrew) {
+            return "סוף זמן אכילת חמץ";
+        } else if (mIsZmanimEnglishTranslated) {
+            return "Latest time to eat Chametz";
+        } else {
+            return "Sof Zman Achilat Chametz";
+        }
+    }
+
+    private String getShmaGraString() {
+        if (mIsZmanimInHebrew) {
+            return "סוף זמן שמע גר\"א";
+        } else if (mIsZmanimEnglishTranslated) {
+            return "Latest Shma GR\"A";
+        } else {
+            return "Sof Zman Shma GR\"A";
+        }
+    }
+
+    private String getShmaMgaString() {
+        if (mIsZmanimInHebrew) {
+            return "סוף זמן שמע מג\"א";
+        } else if (mIsZmanimEnglishTranslated) {
+            return "Latest Shma MG\"A";
+        } else {
+            return "Sof Zman Shma MG\"A";
+        }
+    }
+
+    private String getMishorString() {
+        if (mIsZmanimInHebrew) {
+            return "מישור";
+        } else if (mIsZmanimEnglishTranslated) {
+            return "Sea Level";
+        } else {
+            return "Mishor";
+        }
+    }
+
+    private String getElevatedString() {
+        if (mIsZmanimInHebrew) {
+            return "(גבוה)";
+        } else {
+            return "(Elevated)";
+        }
+    }
+
+    private String getHaNetzString() {
+        if (mIsZmanimInHebrew) {
+            return "הנץ";
+        } else if (mIsZmanimEnglishTranslated) {
+            return "Sunrise";
+        } else {
+            return "HaNetz";
+        }
+    }
+
+    private String getTalitTefilinString() {
+        if (mIsZmanimInHebrew) {
+            return "טלית ותפילין";
+        } else {
+            return "Earliest Talit/Tefilin";
+        }
+    }
+
+    private String getAlotString() {
+        if (mIsZmanimInHebrew) {
+            return "עלות השחר";
+        } else if (mIsZmanimEnglishTranslated) {
+            return "Dawn";
+        } else {
+            return "Alot Hashachar";
         }
     }
 }

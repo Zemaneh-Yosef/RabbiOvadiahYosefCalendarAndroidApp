@@ -2,6 +2,8 @@ package com.ej.rovadiahyosefcalendar.classes;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sCurrentTimeZoneID;
+import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sNextUpcomingZman;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -21,44 +23,69 @@ import com.ej.rovadiahyosefcalendar.activities.MainActivity;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder> {
 
-    private final List<String> zmanim;
+    private final List<ZmanListEntry> zmanim;
     private final SharedPreferences mSharedPreferences;
-    private final Context mContext;
-    private final AlertDialog.Builder mDialogBuilder;
+    private final Context context;
+    private final AlertDialog.Builder dialogBuilder;
+    private final DateFormat zmanimFormat;
+    private final DateFormat roundUpFormat;
+    private final boolean roundUpRt;
 
-    public ZmanAdapter(Context context, List<String> zmanim) {
+    public ZmanAdapter(Context context, List<ZmanListEntry> zmanim) {
         this.zmanim = zmanim;
-        this.mContext = context;
-        mSharedPreferences = mContext.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
-        mDialogBuilder = new AlertDialog.Builder(mContext);
-        mDialogBuilder.setPositiveButton("Dismiss", (dialog, which) -> dialog.dismiss());
-        mDialogBuilder.create();
+        this.context = context;
+        mSharedPreferences = this.context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
+        if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowSeconds", false)) {
+            zmanimFormat = new SimpleDateFormat("h:mm:ss aa", Locale.getDefault());
+        } else {
+            zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+        }
+        zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
+        roundUpRt = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("RoundUpRT", false);
+        roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+        dialogBuilder = new AlertDialog.Builder(this.context);
+        dialogBuilder.setPositiveButton("Dismiss", (dialog, which) -> dialog.dismiss());
+        dialogBuilder.create();
     }
 
     @NotNull
     @Override
     public ZmanViewHolder onCreateViewHolder(@NonNull @NotNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.entry, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.daily_entry, parent, false);
         return new ZmanViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull @NotNull ZmanViewHolder holder, int position) {
         holder.setIsRecyclable(false);
-        if (zmanim.get(position).contains("=")) {
-            String[] zmanAndTime = zmanim.get(position).split("=");
-            holder.mLeftTextView.setText(zmanAndTime[0]);//zman
-            holder.mRightTextView.setText(zmanAndTime[1]);//time
+        if (zmanim.get(position).isZman()) {
+            holder.mLeftTextView.setText(zmanim.get(position).getTitle());//zman name
+
+            String zmanTime = "➤";
+            if (!zmanim.get(position).getZman().equals(sNextUpcomingZman)) {
+                zmanTime = "";//remove arrow
+            }
+
+            if (zmanim.get(position).isRTZman() && roundUpRt) {
+                zmanTime += roundUpFormat.format(checkNull(zmanim.get(position).getZman()));
+            } else {
+                zmanTime += zmanimFormat.format(checkNull(zmanim.get(position).getZman()));
+            }
+            holder.mRightTextView.setText(zmanTime);
         } else {
-            holder.mMiddleTextView.setText(zmanim.get(position));
+            holder.mMiddleTextView.setText(zmanim.get(position).getTitle());
         }
 
         holder.itemView.setOnClickListener(v -> {
-            if (!MainActivity.sShabbatMode && PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean("showZmanDialogs", true)) {
+            if (!MainActivity.sShabbatMode && PreferenceManager.getDefaultSharedPreferences(context).getBoolean("showZmanDialogs", true)) {
                 if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
                     checkHebrewZmanimForDialog(position);
                 } else if (mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false)) {
@@ -67,15 +94,15 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     checkEnglishZmanimForDialog(position);
                 }
 
-                if (zmanim.get(position).contains("וּלְכַפָּרַת פֶּשַׁע")) {
+                if (zmanim.get(position).getTitle().contains("וּלְכַפָּרַת פֶּשַׁע")) {
                     showUlChaparatPeshaDialog();
                 }
 
-                if (zmanim.get(position).contains("Elevation")) {
+                if (zmanim.get(position).getTitle().contains("Elevation")) {
                     showElevationDialog();
                 }
 
-                if (zmanim.get(position).contains("Tekufa")) {
+                if (zmanim.get(position).getTitle().contains("Tekufa")) {
                     showTekufaDialog();
                 }
             }
@@ -116,147 +143,160 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         }
     }
 
+    /**
+     * This is a simple convenience method to check if the given date is null or not. If the date is not null,
+     * it will return exactly what was given. However, if the date is null, it will change the date to a string that says "N/A" (Not Available).
+     * @param date the date object to check if it is null
+     * @return the given date if not null or a string if null
+     */
+    private Object checkNull(Object date) {
+        if (date != null) {
+            return date;
+        } else {
+            return "N/A";
+        }
+    }
 
     private void checkHebrewZmanimForDialog(int position) {
-        if (zmanim.get(position).contains("\u05E2\u05DC\u05D5\u05EA \u05D4\u05E9\u05D7\u05E8")) {
+        if (zmanim.get(position).getTitle().contains("\u05E2\u05DC\u05D5\u05EA \u05D4\u05E9\u05D7\u05E8")) {
             showDawnDialog();
-        } else if (zmanim.get(position).contains("\u05D8\u05DC\u05D9\u05EA \u05D5\u05EA\u05E4\u05D9\u05DC\u05D9\u05DF")) {
+        } else if (zmanim.get(position).getTitle().contains("\u05D8\u05DC\u05D9\u05EA \u05D5\u05EA\u05E4\u05D9\u05DC\u05D9\u05DF")) {
             showEarliestTalitTefilinDialog();
-        } else if (zmanim.get(position).contains("\u05D4\u05E0\u05E5")) {
+        } else if (zmanim.get(position).getTitle().contains("\u05D4\u05E0\u05E5")) {
             showSunriseDialog();
-        } else if (zmanim.get(position).contains("\u05D0\u05DB\u05D9\u05DC\u05EA \u05D7\u05DE\u05E5")) {
+        } else if (zmanim.get(position).getTitle().contains("\u05D0\u05DB\u05D9\u05DC\u05EA \u05D7\u05DE\u05E5")) {
             showAchilatChametzDialog();
-        } else if (zmanim.get(position).contains("\u05D1\u05D9\u05E2\u05D5\u05E8 \u05D7\u05DE\u05E5")) {
+        } else if (zmanim.get(position).getTitle().contains("\u05D1\u05D9\u05E2\u05D5\u05E8 \u05D7\u05DE\u05E5")) {
             showBiurChametzDialog();
-        } else if (zmanim.get(position).contains("\u05E9\u05DE\u05E2 \u05DE\u05D2\"\u05D0")) {
+        } else if (zmanim.get(position).getTitle().contains("\u05E9\u05DE\u05E2 \u05DE\u05D2\"\u05D0")) {
             showShmaMGADialog();
-        } else if (zmanim.get(position).contains("\u05E9\u05DE\u05E2 \u05D2\u05E8\"\u05D0")) {
+        } else if (zmanim.get(position).getTitle().contains("\u05E9\u05DE\u05E2 \u05D2\u05E8\"\u05D0")) {
             showShmaGRADialog();
-        } else if (zmanim.get(position).contains("\u05D1\u05E8\u05DB\u05D5\u05EA \u05E9\u05DE\u05E2")) {
+        } else if (zmanim.get(position).getTitle().contains("\u05D1\u05E8\u05DB\u05D5\u05EA \u05E9\u05DE\u05E2")) {
             showBrachotShmaDialog();
-        } else if (zmanim.get(position).contains("\u05D7\u05E6\u05D5\u05EA")) {
+        } else if (zmanim.get(position).getTitle().contains("\u05D7\u05E6\u05D5\u05EA")) {
             showChatzotDialog();
-        } else if (zmanim.get(position).contains("\u05DE\u05E0\u05D7\u05D4 \u05D2\u05D3\u05D5\u05DC\u05D4")) {
+        } else if (zmanim.get(position).getTitle().contains("\u05DE\u05E0\u05D7\u05D4 \u05D2\u05D3\u05D5\u05DC\u05D4")) {
             showMinchaGedolaDialog();
-        } else if (zmanim.get(position).contains("\u05DE\u05E0\u05D7\u05D4 \u05E7\u05D8\u05E0\u05D4")) {
+        } else if (zmanim.get(position).getTitle().contains("\u05DE\u05E0\u05D7\u05D4 \u05E7\u05D8\u05E0\u05D4")) {
             showMinchaKetanaDialog();
-        } else if (zmanim.get(position).contains("\u05E4\u05DC\u05D2 \u05D4\u05DE\u05E0\u05D7\u05D4")) {
+        } else if (zmanim.get(position).getTitle().contains("\u05E4\u05DC\u05D2 \u05D4\u05DE\u05E0\u05D7\u05D4")) {
             showPlagDialog();
-        } else if (zmanim.get(position).contains("\u05D4\u05D3\u05DC\u05E7\u05EA \u05E0\u05E8\u05D5\u05EA")) {
+        } else if (zmanim.get(position).getTitle().contains("\u05D4\u05D3\u05DC\u05E7\u05EA \u05E0\u05E8\u05D5\u05EA")) {
             showCandleLightingDialog();
-        } else if (zmanim.get(position).contains("\u05E9\u05E7\u05D9\u05E2\u05D4")) {
+        } else if (zmanim.get(position).getTitle().contains("\u05E9\u05E7\u05D9\u05E2\u05D4")) {
             showShkiaDialog();
-        } else if (zmanim.get(position).contains("\u05E6\u05D0\u05EA \u05D4\u05DB\u05D5\u05DB\u05D1\u05D9\u05DD")) {
+        } else if (zmanim.get(position).getTitle().contains("\u05E6\u05D0\u05EA \u05D4\u05DB\u05D5\u05DB\u05D1\u05D9\u05DD")) {
             showTzaitDialog();
-        } else if (zmanim.get(position).contains("\u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA \u05DC\u05D7\u05D5\u05DE\u05E8\u05D4")) {
+        } else if (zmanim.get(position).getTitle().contains("\u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA \u05DC\u05D7\u05D5\u05DE\u05E8\u05D4")) {
             showTzaitTaanitLChumraDialog();
-        } else if (zmanim.get(position).contains("\u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA")) {
+        } else if (zmanim.get(position).getTitle().contains("\u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA")) {
             showTzaitTaanitDialog();
-        } else if (zmanim.get(position).contains("\u05E6\u05D0\u05EA \u05E9\u05D1\u05EA/\u05D7\u05D2")
-                ||zmanim.get(position).contains("\u05E6\u05D0\u05EA \u05E9\u05D1\u05EA")
-                ||zmanim.get(position).contains("\u05E6\u05D0\u05EA \u05D7\u05D2")) {
+        } else if (zmanim.get(position).getTitle().contains("\u05E6\u05D0\u05EA \u05E9\u05D1\u05EA/\u05D7\u05D2")
+                ||zmanim.get(position).getTitle().contains("\u05E6\u05D0\u05EA \u05E9\u05D1\u05EA")
+                ||zmanim.get(position).getTitle().contains("\u05E6\u05D0\u05EA \u05D7\u05D2")) {
             showTzaitShabbatDialog();
-        } else if (zmanim.get(position).contains("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD")) {
+        } else if (zmanim.get(position).getTitle().contains("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD")) {
             showRTDialog();
-        } else if (zmanim.get(position).contains("\u05D7\u05E6\u05D5\u05EA \u05DC\u05D9\u05DC\u05D4")) {
+        } else if (zmanim.get(position).getTitle().contains("\u05D7\u05E6\u05D5\u05EA \u05DC\u05D9\u05DC\u05D4")) {
             showChatzotLaylaDialog();
         }
     }
 
     private void checkTranslatedEnglishZmanimForDialog(int position) {
-        if (zmanim.get(position).contains("Dawn")) {
+        if (zmanim.get(position).getTitle().contains("Dawn")) {
             showDawnDialog();
-        } else if (zmanim.get(position).contains("Earliest Talit/Tefilin")) {
+        } else if (zmanim.get(position).getTitle().contains("Earliest Talit/Tefilin")) {
             showEarliestTalitTefilinDialog();
-        } else if (zmanim.get(position).contains("Sunrise")) {
+        } else if (zmanim.get(position).getTitle().contains("Sunrise")) {
             showSunriseDialog();
-        } else if (zmanim.get(position).contains("Achilat Chametz")) {
+        } else if (zmanim.get(position).getTitle().contains("Achilat Chametz")) {
             showAchilatChametzDialog();
-        } else if (zmanim.get(position).contains("Biur Chametz")) {
+        } else if (zmanim.get(position).getTitle().contains("Biur Chametz")) {
             showBiurChametzDialog();
-        } else if (zmanim.get(position).contains("Shma MG\"A")) {
+        } else if (zmanim.get(position).getTitle().contains("Shma MG\"A")) {
             showShmaMGADialog();
-        } else if (zmanim.get(position).contains("Shma GR\"A")) {
+        } else if (zmanim.get(position).getTitle().contains("Shma GR\"A")) {
             showShmaGRADialog();
-        } else if (zmanim.get(position).contains("Brachot Shma")) {
+        } else if (zmanim.get(position).getTitle().contains("Brachot Shma")) {
             showBrachotShmaDialog();
-        } else if (zmanim.get(position).contains("Mid-Day")) {
+        } else if (zmanim.get(position).getTitle().contains("Mid-Day")) {
             showChatzotDialog();
-        } else if (zmanim.get(position).contains("Mincha Gedola")) {
+        } else if (zmanim.get(position).getTitle().contains("Mincha Gedola")) {
             showMinchaGedolaDialog();
-        } else if (zmanim.get(position).contains("Mincha Ketana")) {
+        } else if (zmanim.get(position).getTitle().contains("Mincha Ketana")) {
             showMinchaKetanaDialog();
-        } else if (zmanim.get(position).contains("Plag HaMincha")) {
+        } else if (zmanim.get(position).getTitle().contains("Plag HaMincha")) {
             showPlagDialog();
-        } else if (zmanim.get(position).contains("Candle Lighting")) {
+        } else if (zmanim.get(position).getTitle().contains("Candle Lighting")) {
             showCandleLightingDialog();
-        } else if (zmanim.get(position).contains("Sunset")) {
+        } else if (zmanim.get(position).getTitle().contains("Sunset")) {
             showShkiaDialog();
-        } else if (zmanim.get(position).contains("Nightfall")) {
+        } else if (zmanim.get(position).getTitle().contains("Nightfall")) {
             showTzaitDialog();
-        } else if (zmanim.get(position).contains("Fast Ends (Stringent)")) {
+        } else if (zmanim.get(position).getTitle().contains("Fast Ends (Stringent)")) {
             showTzaitTaanitLChumraDialog();
-        } else if (zmanim.get(position).contains("Fast Ends")) {
+        } else if (zmanim.get(position).getTitle().contains("Fast Ends")) {
             showTzaitTaanitDialog();
-        } else if (zmanim.get(position).contains("Shabbat/Chag Ends")
-                || zmanim.get(position).contains("Shabbat Ends")
-                || zmanim.get(position).contains("Chag Ends")) {
+        } else if (zmanim.get(position).getTitle().contains("Shabbat/Chag Ends")
+                || zmanim.get(position).getTitle().contains("Shabbat Ends")
+                || zmanim.get(position).getTitle().contains("Chag Ends")) {
             showTzaitShabbatDialog();
-        } else if (zmanim.get(position).contains("Rabbeinu Tam")) {
+        } else if (zmanim.get(position).getTitle().contains("Rabbeinu Tam")) {
             showRTDialog();
-        } else if (zmanim.get(position).contains("Midnight")) {
+        } else if (zmanim.get(position).getTitle().contains("Midnight")) {
             showChatzotLaylaDialog();
         }
     }
 
     private void checkEnglishZmanimForDialog(int position) {
-        if (zmanim.get(position).contains("Alot Hashachar")) {
+        if (zmanim.get(position).getTitle().contains("Alot Hashachar")) {
             showDawnDialog();
-        } else if (zmanim.get(position).contains("Earliest Talit/Tefilin")) {
+        } else if (zmanim.get(position).getTitle().contains("Earliest Talit/Tefilin")) {
             showEarliestTalitTefilinDialog();
-        } else if (zmanim.get(position).contains("HaNetz")) {
+        } else if (zmanim.get(position).getTitle().contains("HaNetz")) {
             showSunriseDialog();
-        } else if (zmanim.get(position).contains("Achilat Chametz")) {
+        } else if (zmanim.get(position).getTitle().contains("Achilat Chametz")) {
             showAchilatChametzDialog();
-        } else if (zmanim.get(position).contains("Biur Chametz")) {
+        } else if (zmanim.get(position).getTitle().contains("Biur Chametz")) {
             showBiurChametzDialog();
-        } else if (zmanim.get(position).contains("Shma MG\"A")) {
+        } else if (zmanim.get(position).getTitle().contains("Shma MG\"A")) {
             showShmaMGADialog();
-        } else if (zmanim.get(position).contains("Shma GR\"A")) {
+        } else if (zmanim.get(position).getTitle().contains("Shma GR\"A")) {
             showShmaGRADialog();
-        } else if (zmanim.get(position).contains("Brachot Shma")) {
+        } else if (zmanim.get(position).getTitle().contains("Brachot Shma")) {
             showBrachotShmaDialog();
-        } else if (zmanim.get(position).contains("Chatzot")) {
+        } else if (zmanim.get(position).getTitle().contains("Chatzot")) {
             showChatzotDialog();
-        } else if (zmanim.get(position).contains("Mincha Gedola")) {
+        } else if (zmanim.get(position).getTitle().contains("Mincha Gedola")) {
             showMinchaGedolaDialog();
-        } else if (zmanim.get(position).contains("Mincha Ketana")) {
+        } else if (zmanim.get(position).getTitle().contains("Mincha Ketana")) {
             showMinchaKetanaDialog();
-        } else if (zmanim.get(position).contains("Plag HaMincha")) {
+        } else if (zmanim.get(position).getTitle().contains("Plag HaMincha")) {
             showPlagDialog();
-        } else if (zmanim.get(position).contains("Candle Lighting")) {
+        } else if (zmanim.get(position).getTitle().contains("Candle Lighting")) {
             showCandleLightingDialog();
-        } else if (zmanim.get(position).contains("Shkia")) {
+        } else if (zmanim.get(position).getTitle().contains("Shkia")) {
             showShkiaDialog();
-        } else if (zmanim.get(position).contains("Tzait Hacochavim")) {
+        } else if (zmanim.get(position).getTitle().contains("Tzait Hacochavim")) {
             showTzaitDialog();
-        } else if (zmanim.get(position).contains("Tzait Taanit L'Chumra")) {
+        } else if (zmanim.get(position).getTitle().contains("Tzait Taanit L'Chumra")) {
             showTzaitTaanitLChumraDialog();
-        } else if (zmanim.get(position).contains("Tzait Taanit")) {
+        } else if (zmanim.get(position).getTitle().contains("Tzait Taanit")) {
             showTzaitTaanitDialog();
-        } else if (zmanim.get(position).contains("Tzait Shabbat/Chag")
-                || zmanim.get(position).contains("Tzait Chag")
-                || zmanim.get(position).contains("Tzait Shabbat")) {
+        } else if (zmanim.get(position).getTitle().contains("Tzait Shabbat/Chag")
+                || zmanim.get(position).getTitle().contains("Tzait Chag")
+                || zmanim.get(position).getTitle().contains("Tzait Shabbat")) {
             showTzaitShabbatDialog();
-        } else if (zmanim.get(position).contains("Rabbeinu Tam")) {
+        } else if (zmanim.get(position).getTitle().contains("Rabbeinu Tam")) {
             showRTDialog();
-        } else if (zmanim.get(position).contains("Chatzot Layla")) {
+        } else if (zmanim.get(position).getTitle().contains("Chatzot Layla")) {
             showChatzotLaylaDialog();
         }
     }
 
     private void showDawnDialog() {
-        mDialogBuilder.setTitle("Dawn - \u05E2\u05DC\u05D5\u05EA \u05D4\u05E9\u05D7\u05E8 - Alot HaShachar")
+        dialogBuilder.setTitle("Dawn - \u05E2\u05DC\u05D5\u05EA \u05D4\u05E9\u05D7\u05E8 - Alot HaShachar")
                 .setMessage("In Tanach this time is called Alot HaShachar (בראשית לב:כה), whereas in the gemara it is called Amud HaShachar.\n\n" +
                         "This is the time when the day begins according to halacha. " +
                         "Most mitzvot (commandments), Arvit for example, that take place at night are not allowed " +
@@ -269,7 +309,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void showEarliestTalitTefilinDialog() {
-        mDialogBuilder.setTitle("Earliest Talit/Tefilin - \u05D8\u05DC\u05D9\u05EA \u05D5\u05EA\u05E4\u05D9\u05DC\u05D9\u05DF - Misheyakir")
+        dialogBuilder.setTitle("Earliest Talit/Tefilin - \u05D8\u05DC\u05D9\u05EA \u05D5\u05EA\u05E4\u05D9\u05DC\u05D9\u05DF - Misheyakir")
                 .setMessage("Misheyakir (literally \"when you recognize\") is the time when a person can distinguish between blue and white. " +
                         "The gemara (ברכות ט) explains that when a person can distinguish between the blue (techelet) and white strings " +
                         "of their tzitzit, that is the earliest time a person can put on their talit and tefilin for shacharit.\n\n" +
@@ -280,7 +320,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void showSunriseDialog() {
-        mDialogBuilder.setTitle("Sunrise - \u05D4\u05E0\u05E5 - HaNetz")
+        dialogBuilder.setTitle("Sunrise - \u05D4\u05E0\u05E5 - HaNetz")
                 .setMessage("This is the earliest time when all mitzvot (commandments) that are to be done during the daytime are allowed to be " +
                         "performed L'chatchila (optimally). Halachic sunrise is defined as the moment when the top edge of the sun appears on the " +
                         "horizon while rising. Whereas, the gentiles define sunrise as the moment when the sun is halfway through the horizon. " +
@@ -295,7 +335,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void showAchilatChametzDialog() {
-        mDialogBuilder.setTitle("Eating Chametz - \u05D0\u05DB\u05D9\u05DC\u05EA \u05D7\u05DE\u05E5 - Achilat Chametz")
+        dialogBuilder.setTitle("Eating Chametz - \u05D0\u05DB\u05D9\u05DC\u05EA \u05D7\u05DE\u05E5 - Achilat Chametz")
                 .setMessage("This is the latest time a person can eat chametz.\n\n" +
                         "This is calculated as 4 zmaniyot/seasonal hours, according to the Magen Avraham, after Alot HaShachar (Dawn) with " +
                         "elevation included. Since Chametz is a mitzvah from the torah, we are stringent and we use the Magen Avraham's time to " +
@@ -304,7 +344,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void showBiurChametzDialog() {
-        mDialogBuilder.setTitle("Burning Chametz - \u05D1\u05D9\u05E2\u05D5\u05E8 \u05D7\u05DE\u05E5 - Biur Chametz")
+        dialogBuilder.setTitle("Burning Chametz - \u05D1\u05D9\u05E2\u05D5\u05E8 \u05D7\u05DE\u05E5 - Biur Chametz")
                 .setMessage("This is the latest time a person can own chametz before pesach begins. You should get rid of all chametz in your " +
                         "possession by this time.\n\n" +
                         "This is calculated as 5 zmaniyot/seasonal hours, according to the MG\"A, after Alot HaShachar (Dawn) with " +
@@ -313,7 +353,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void showShmaMGADialog() {
-        mDialogBuilder.setTitle("Latest time for Shma (MG\"A) - \u05E9\u05DE\u05E2 \u05DE\u05D2\"\u05D0 - Shma MG\"A")
+        dialogBuilder.setTitle("Latest time for Shma (MG\"A) - \u05E9\u05DE\u05E2 \u05DE\u05D2\"\u05D0 - Shma MG\"A")
                 .setMessage("This is the latest time a person can fulfill his obligation to say Shma everyday according to the Magen Avraham.\n\n" +
                         "The Magen Avraham/Terumat HeDeshen calculate this time as 3 zmaniyot/seasonal hours after Alot HaShachar (Dawn). " +
                         "They calculate a zmaniyot/seasonal hour by taking the time between Alot HaShachar (Dawn) and Tzeit Hachocavim (Nightfall) " +
@@ -322,7 +362,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void showShmaGRADialog() {
-        mDialogBuilder.setTitle("Latest time for Shma (GR\"A) - \u05E9\u05DE\u05E2 \u05D2\u05E8\"\u05D0 - Shma GR\"A")
+        dialogBuilder.setTitle("Latest time for Shma (GR\"A) - \u05E9\u05DE\u05E2 \u05D2\u05E8\"\u05D0 - Shma GR\"A")
                 .setMessage("This is the latest time a person can fulfill his obligation to say Shma everyday according to the GR\"A " +
                         "(HaGaon Rabbeinu Eliyahu)" +
                         "\n\n" +
@@ -333,7 +373,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void showBrachotShmaDialog() {
-        mDialogBuilder.setTitle("Brachot Shma - \u05D1\u05E8\u05DB\u05D5\u05EA \u05E9\u05DE\u05E2 - Brachot Shma")
+        dialogBuilder.setTitle("Brachot Shma - \u05D1\u05E8\u05DB\u05D5\u05EA \u05E9\u05DE\u05E2 - Brachot Shma")
                 .setMessage("This is the latest time a person can say the Brachot Shma according to the GR\"A. However, a person can still say " +
                         "Pisukei D'Zimra until Chatzot.\n\n" +
                         "The GR\"A calculates this time as 4 zmaniyot/seasonal hours after sunrise (elevation included). " +
@@ -343,7 +383,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void showChatzotDialog() {
-        mDialogBuilder.setTitle("Mid-Day - \u05D7\u05E6\u05D5\u05EA - Chatzot")
+        dialogBuilder.setTitle("Mid-Day - \u05D7\u05E6\u05D5\u05EA - Chatzot")
                 .setMessage("This is the middle of the halachic day, when the sun is exactly in the middle of the sky relative to the length of the" +
                         " day. It should be noted, that the sun can only be directly above every person, such that they don't even have shadows, " +
                         "in the Tropic of Cancer and the Tropic of Capricorn. Everywhere else, the sun will be at an angle even in the middle of " +
@@ -357,7 +397,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void showMinchaGedolaDialog() {
-        mDialogBuilder.setTitle("Earliest Mincha - \u05DE\u05E0\u05D7\u05D4 \u05D2\u05D3\u05D5\u05DC\u05D4 - Mincha Gedolah")
+        dialogBuilder.setTitle("Earliest Mincha - \u05DE\u05E0\u05D7\u05D4 \u05D2\u05D3\u05D5\u05DC\u05D4 - Mincha Gedolah")
                 .setMessage("Mincha Gedolah, literally \"Greater Mincha\", is the earliest time a person can say Mincha. " +
                         "It is also the preferred time a person should say Mincha according to some poskim.\n\n" +
                         "It is called Mincha Gedolah because there is a lot of time left until sunset.\n\n" +
@@ -370,7 +410,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void showMinchaKetanaDialog() {
-        mDialogBuilder.setTitle("Mincha Ketana - \u05DE\u05E0\u05D7\u05D4 \u05E7\u05D8\u05E0\u05D4")
+        dialogBuilder.setTitle("Mincha Ketana - \u05DE\u05E0\u05D7\u05D4 \u05E7\u05D8\u05E0\u05D4")
                 .setMessage("Mincha Ketana, literally \"Lesser Mincha\", is the most preferred time a person can say Mincha according to some poskim.\n\n" +
                         "It is called Mincha Ketana because there is less time left until sunset.\n\n" +
                         "This time is calculated as 9 and a half zmaniyot/seasonal hours after sunrise. " +
@@ -380,7 +420,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void showPlagDialog() {
-        mDialogBuilder.setTitle("Plag HaMincha - \u05E4\u05DC\u05D2 \u05D4\u05DE\u05E0\u05D7\u05D4")
+        dialogBuilder.setTitle("Plag HaMincha - \u05E4\u05DC\u05D2 \u05D4\u05DE\u05E0\u05D7\u05D4")
                 .setMessage("Plag HaMincha, literally \"Half of Mincha\", is the midpoint between Mincha Ketana and sunset. Since Mincha Ketana is " +
                         "2 and a half hours before sunset, Plag is half of that at an hour and 15 minutes before sunset.\n" +
                         "You can start saying arvit by this time according to Rabbi Yehuda in (ברכות כ'ו ע'א).\n\n" +
@@ -393,18 +433,18 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void showCandleLightingDialog() {
-        mDialogBuilder.setTitle("Candle Lighting - \u05D4\u05D3\u05DC\u05E7\u05EA \u05E0\u05E8\u05D5\u05EA")
+        dialogBuilder.setTitle("Candle Lighting - \u05D4\u05D3\u05DC\u05E7\u05EA \u05E0\u05E8\u05D5\u05EA")
                 .setMessage("This is the ideal time for a person to light the candles before shabbat/chag starts.\n" +
                         "When there is candle lighting on a day that is Yom tov/Shabbat before another day that is Yom tov, " +
                         "the candles are lit after Tzeit/Nightfall. However, if the next day is Shabbat, the candles are lit at their usual time.\n\n" +
                         "This time is calculated as " +
-                        PreferenceManager.getDefaultSharedPreferences(mContext).getString("CandleLightingOffset", "20") + " " +
+                        PreferenceManager.getDefaultSharedPreferences(context).getString("CandleLightingOffset", "20") + " " +
                         "regular minutes before sunset (elevation included).\n\n")
                 .show();
     }
 
     private void showShkiaDialog() {
-        mDialogBuilder.setTitle("Sunset - \u05E9\u05E7\u05D9\u05E2\u05D4 - Shkia")
+        dialogBuilder.setTitle("Sunset - \u05E9\u05E7\u05D9\u05E2\u05D4 - Shkia")
                 .setMessage("This is the time of the day that the day starts to transition into the next day according to halacha.\n\n" +
                         "Halachic sunset is defined as the moment when the top edge of the sun disappears on the " +
                         "horizon while setting (elevation included). Whereas, the gentiles define sunset as the moment when the sun is halfway " +
@@ -418,7 +458,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void showTzaitDialog() {
-        mDialogBuilder.setTitle("Nightfall - \u05E6\u05D0\u05EA \u05D4\u05DB\u05D5\u05DB\u05D1\u05D9\u05DD - Tzeit Hacochavim")
+        dialogBuilder.setTitle("Nightfall - \u05E6\u05D0\u05EA \u05D4\u05DB\u05D5\u05DB\u05D1\u05D9\u05DD - Tzeit Hacochavim")
                 .setMessage("Tzeit/Nightfall is the time when the next halachic day starts after Bein Hashmashot/twilight finishes.\n\n" +
                         "This is the latest time a person can say Mincha according Rav Ovadiah Yosef Z\"TL. A person should start mincha at " +
                         "least 2 minutes before this time.\n\n" +
@@ -429,32 +469,32 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void showTzaitTaanitDialog() {
-        mDialogBuilder.setTitle("Fast Ends - \u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA - Tzeit Taanit")
+        dialogBuilder.setTitle("Fast Ends - \u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA - Tzeit Taanit")
                 .setMessage("This is the time that the fast/taanit ends.\n\n" +
                         "This time is calculated as 20 regular minutes after sunset (elevation included).")
                 .show();
     }
 
     private void showTzaitTaanitLChumraDialog() {
-        mDialogBuilder.setTitle("Fast Ends (Stringent) - \u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA \u05DC\u05D7\u05D5\u05DE\u05E8\u05D4 - Tzeit Taanit L'Chumra")
+        dialogBuilder.setTitle("Fast Ends (Stringent) - \u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA \u05DC\u05D7\u05D5\u05DE\u05E8\u05D4 - Tzeit Taanit L'Chumra")
                 .setMessage("This is the more stringent time that the fast/taanit ends.\n\n" +
                         "This time is calculated as 30 regular minutes after sunset (elevation included).")
                 .show();
     }
 
     private void showTzaitShabbatDialog() {
-        mDialogBuilder.setTitle("Shabbat/Chag Ends - \u05E6\u05D0\u05EA \u05E9\u05D1\u05EA/\u05D7\u05D2 - Tzeit Shabbat/Chag")
+        dialogBuilder.setTitle("Shabbat/Chag Ends - \u05E6\u05D0\u05EA \u05E9\u05D1\u05EA/\u05D7\u05D2 - Tzeit Shabbat/Chag")
                 .setMessage("This is the time that Shabbat/Chag ends.\n\n" +
                         "Note that there are many customs on when shabbat ends, by default, I set it to 45 regular minutes after sunset (elevation " +
                         "included), however, you can change the time in the settings.\n\n" +
                         "This time is calculated as " +
-                        PreferenceManager.getDefaultSharedPreferences(mContext).getString("EndOfShabbatOffset", "40") + " " +
+                        PreferenceManager.getDefaultSharedPreferences(context).getString("EndOfShabbatOffset", "40") + " " +
                         "regular minutes after sunset (elevation included).")
                 .show();
     }
 
     private void showRTDialog() {
-        mDialogBuilder.setTitle("Rabbeinu Tam - \u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD")
+        dialogBuilder.setTitle("Rabbeinu Tam - \u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD")
                 .setMessage("This time is Tzeit/Nightfall according to Rabbeinu Tam.\n\n" +
                         "Tzeit/Nightfall is the time when the next halachic day starts after Bein Hashmashot/twilight finishes.\n\n" +
                         "This time is calculated as 72 zmaniyot/seasonal minutes after sunset (elevation included). " +
@@ -469,7 +509,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void showChatzotLaylaDialog() {
-        mDialogBuilder.setTitle("Midnight - \u05D7\u05E6\u05D5\u05EA \u05DC\u05D9\u05DC\u05D4 - Chatzot Layla")
+        dialogBuilder.setTitle("Midnight - \u05D7\u05E6\u05D5\u05EA \u05DC\u05D9\u05DC\u05D4 - Chatzot Layla")
                 .setMessage("This is the middle of the halachic night, when the sun is exactly in the middle of the sky beneath us.\n\n" +
                         "This time is calculated as 6 zmaniyot/seasonal hours after sunset. " +
                         "The GR\"A calculates a zmaniyot/seasonal hour by taking the time between sunrise and sunset (elevation included) and " +
@@ -478,14 +518,14 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void showUlChaparatPeshaDialog() {
-        mDialogBuilder.setTitle("וּלְכַפָּרַת פֶּשַׁע")
+        dialogBuilder.setTitle("וּלְכַפָּרַת פֶּשַׁע")
                 .setMessage("When Rosh Chodesh happens during a leap year, we add the words, \"וּלְכַפָּרַת פֶּשַׁע\" during Musaf. We only add these words " +
                         "from Tishri until the second month of Adar. However, for the rest of the year and during non leap years we do not say it.")
                 .show();
     }
 
     private void showElevationDialog() {
-        mDialogBuilder.setTitle("Current Elevation")
+        dialogBuilder.setTitle("Current Elevation")
                 .setMessage("This number represents the amount of elevation that you are applying to your zmanim to see sunrise/sunset in your current city in meters." +
                         " If the number is set to 0, then you are calculating the zmanim by mishor/sea level sunrise and sunset.\n\n" +
                         "There is a debate as to what Rabbi Ovadiah Yosef Z\"TL " +
@@ -496,7 +536,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void showTekufaDialog() {
-        mDialogBuilder.setTitle("Tekufa - Season")
+        dialogBuilder.setTitle("Tekufa - Season")
                 .setMessage("This is the time that the tekufa (season) changes.\n\nThere are 4 tekufas every year: Tishri (autumn), Tevet (winter), " +
                         "Nissan (spring), and Tammuz (summer). Each Tekufa happens 91.3125 (365.25 / 4) days after the previous Tekufa.\n\n" +
                         "The Achronim write that a person should not drink water when the seasons change. Rabbi Ovadiah Yosef Z\"TL writes " +

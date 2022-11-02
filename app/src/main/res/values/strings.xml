@@ -57,7 +57,7 @@
     <string name="setup_visible_sunrise_only">Setup Visible Sunrise Only</string>
     <string name="do_not_setup_either_uses_mishor_sea_level_sunrise_sunset_for_both_zmanim_and_sunrise">Do Not setup anything\n\n(Uses Mishor/Sea Level Sunrise and Sunset for both zmanim and Sunrise)</string>
     <string name="alternate_download_request">Press this button to download the visible sunrise table from the Chai Tables website:</string>
-    <string name="intro">Welcome!\n\nThe goal of this app is to help you create your own zmanim calendar according to Rabbi Ovadiah Yosef Z\"tl as accurately as possible.\n\nThere are 2 options in order to setup the zmanim for your location.\n\nThe \"Simple Setup\" option will setup the calendar according to the way that the Ohr HaChaim calendar, in Israel, sets it\'s zmanim. Pressing the Simple Setup button will take you to a page that will ask you to choose your city/area. Once you choose your city, it will set the elevation data for your city and it will also download a table that lists the times for VISIBLE sunrise throughout the next 2 years from a website called ChaiTables.com. This table will automatically be updated each year if possible.\n\nThe \"Advanced Setup\" option allows you to choose whether you want to set the elevation data for your city, or download the visible sunrise tables, or to do neither one and use Mishor (Sea Level) sunrise.\n\nKnow that the elevation data changes for each and every city and you will need to set the elevation data of your city every time you change cities.</string>
+    <string name="intro">Welcome!\n\nThe goal of this app is to help you create your own zmanim calendar according to Rabbi Ovadiah Yosef Z\"tl as accurately as possible.\n\nThere are 2 options in order to setup the zmanim for your location.\n\nThe \"Setup your city!\" option will setup the calendar according to the way that the Ohr HaChaim calendar, in Israel, sets it\'s zmanim. Pressing the "Setup your city!" button will take you to a page that will ask you to choose your city/area. Once you choose your city, it will set the elevation data for your city and it will also download a table that lists the times for VISIBLE sunrise throughout the next 2 years from a website called ChaiTables.com. This table will automatically be updated each year if possible.\n\nThe \"Advanced Setup\" option allows you to choose whether you want to set the elevation data for your city, or download the visible sunrise tables, or to do neither one and use Mishor (Sea Level) sunrise.\n\nKnow that the elevation data changes for each and every city and you will need to set the elevation data of your city every time you change cities.</string>
     <string name="what_language_would_you_like_the_zmanim_to_be_in">What language would you like the zmanim to be in?</string>
     <string name="hebrew">Hebrew</string>
     <string name="english">English</string>
@@ -68,13 +68,8 @@
     <string name="latest_birchat_halevanah_15_days">Latest Birchat Halevanah (15 days):</string>
     <string name="earliest_birchat_halevanah_7_days">Earliest Birchat Halevanah (7 days):</string>
     <string name="the_molad_for_this_month_in_your_timezone">The Molad for this month in your timezone:</string>
-    <string name="example_date">September 2021 / Elul 5781</string>
-    <string name="molad_example">Sun Aug 08 4:22:36 AM</string>
-    <string name="molad_example_7_days">Sun Aug 15 4:22:36 AM</string>
-    <string name="molad_example_15_days">Sun Aug 23 4:22:36 AM</string>
-    <string name="change_month">Change Month</string>
+    <string name="change_date">Change Date</string>
     <string name="the_molad_time_announced">The molad time announced:</string>
-    <string name="_10_34_and_3_chalakim">10:34 and 3 Chalakim</string>
     <string name="title_activity_shabbat">ShabbatActivity</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
@@ -109,4 +104,5 @@
     <string name="setup_your_city">Setup your city!</string>
     <string name="title_activity_notification_settings">Notification Settings</string>
     <string name="min">min</string>
+    <string name="weekly_view">Weekly View</string>
 </resources>

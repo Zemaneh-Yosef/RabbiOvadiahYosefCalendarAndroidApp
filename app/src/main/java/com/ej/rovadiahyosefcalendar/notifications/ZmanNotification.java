@@ -67,43 +67,47 @@ public class ZmanNotification extends BroadcastReceiver {
 
         Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
-        String[] zmanSeparated = zman.split(":");//zman is in the format "zmanName:zmanTime" e.g. "Alot Hashachar:538383388"
-        String zmanName = zmanSeparated[0];
-        String zmanTime = zmanSeparated[1];
+        try {
+            String[] zmanSeparated = zman.split(":");//zman is in the format "zmanName:zmanTime" e.g. "Alot Hashachar:538383388"
+            String zmanName = zmanSeparated[0];
+            String zmanTime = zmanSeparated[1];
 
-        Date zmanAsDate = new Date(Long.parseLong(zmanTime));
-        if ((jewishCalendar.isAssurBemelacha() && !mSettingsSharedPreferences.getBoolean("zmanim_notifications_on_shabbat", true))) {
-            return;//if the user does not want to be notified on shabbat, then return
+            Date zmanAsDate = new Date(Long.parseLong(zmanTime));
+            if ((jewishCalendar.isAssurBemelacha() && !mSettingsSharedPreferences.getBoolean("zmanim_notifications_on_shabbat", true))) {
+                return;//if the user does not want to be notified on shabbat, then return
+            }
+
+            DateFormat zmanimFormat;
+            if (mSettingsSharedPreferences.getBoolean("ShowSeconds", false)) {
+                zmanimFormat = new SimpleDateFormat("h:mm:ss aa", Locale.getDefault());
+            } else {
+                zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+            }
+            zmanimFormat.setTimeZone(TimeZone.getTimeZone(mSharedPreferences.getString("timezoneID", ""))); //set the formatters time zone
+
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(context,
+                    "Zmanim").setSmallIcon(R.drawable.calendar_foreground)
+                    .setContentTitle(zmanName)
+                    .setContentText(String.format("%s : %s", zmanimFormat.format(zmanAsDate), zmanName))
+                    .setStyle(new NotificationCompat.BigTextStyle()
+                            .setBigContentTitle(zmanName)
+                            .setSummaryText(mSharedPreferences.getString("locationNameFN", ""))
+                            .bigText(String.format("%s : %s", zmanimFormat.format(zmanAsDate), zmanName)))
+                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                    .setCategory(NotificationCompat.CATEGORY_REMINDER)
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setSound(alarmSound)
+                    .setColor(context.getColor(R.color.dark_gold))
+                    .setAutoCancel(true)
+                    .setWhen(System.currentTimeMillis())
+                    .setContentIntent(pendingIntent);
+            long notificationID = Long.parseLong(zmanTime);//the notification ID is the time of the zman
+            //the notification ID cannot be a long so we convert it to an int
+            //however, the notification ID will lose precision if it is too large
+            //so we make sure that the notification ID is not too large by modding it by the max int value
+            notificationManager.notify((int) (notificationID % Integer.MAX_VALUE), builder.build());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-        DateFormat zmanimFormat;
-        if (mSettingsSharedPreferences.getBoolean("ShowSeconds", false)) {
-            zmanimFormat = new SimpleDateFormat("h:mm:ss aa", Locale.getDefault());
-        } else {
-            zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
-        }
-        zmanimFormat.setTimeZone(TimeZone.getTimeZone(mSharedPreferences.getString("timezoneID", ""))); //set the formatters time zone
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context,
-                "Zmanim").setSmallIcon(R.drawable.calendar_foreground)
-                .setContentTitle(zmanName)
-                .setContentText(String.format("%s : %s", zmanName, zmanimFormat.format(zmanAsDate)))
-                .setStyle(new NotificationCompat.BigTextStyle()
-                        .setBigContentTitle(zmanName)
-                        .setSummaryText(mSharedPreferences.getString("locationNameFN", ""))
-                        .bigText(String.format("%s : %s", zmanName, zmanimFormat.format(zmanAsDate))))
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setCategory(NotificationCompat.CATEGORY_REMINDER)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setSound(alarmSound)
-                .setColor(context.getColor(R.color.dark_gold))
-                .setAutoCancel(true)
-                .setWhen(System.currentTimeMillis())
-                .setContentIntent(pendingIntent);
-        long notificationID = Long.parseLong(zmanTime);//the notification ID is the time of the zman
-        //the notification ID cannot be a long so we convert it to an int
-        //however, the notification ID will lose precision if it is too large
-        //so we make sure that the notification ID is not too large by modding it by the max int value
-        notificationManager.notify((int) (notificationID % Integer.MAX_VALUE), builder.build());
     }
 }

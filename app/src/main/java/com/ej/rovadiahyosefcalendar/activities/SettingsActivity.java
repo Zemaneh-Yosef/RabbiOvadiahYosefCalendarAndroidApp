@@ -1,6 +1,7 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sFromSettings;
 
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -65,6 +66,7 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
+            sFromSettings = true;
             onBackPressed();
             return true;
         }

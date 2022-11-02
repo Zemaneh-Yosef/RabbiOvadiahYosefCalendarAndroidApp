@@ -111,7 +111,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
 
         ArrayList<ZmanInformationHolder> zmanimYesterday;
         ArrayList<ZmanInformationHolder> zmanimToday;//we will get all the zmanim for today, tomorrow, and yesterday
-        ArrayList<ZmanInformationHolder> zmanimTomorrow;//note that these zmanim start from chatzot layla to alot hashachar, so we will check backwards
+        ArrayList<ZmanInformationHolder> zmanimTomorrow;//note that these zmanim start from chatzot layla to alot hashachar, so we will check from nightfall to dawn
 
         c.getCalendar().add(Calendar.DATE, -1);
         jewishCalendar.setDate(c.getCalendar());//set the calendars to the previous day
