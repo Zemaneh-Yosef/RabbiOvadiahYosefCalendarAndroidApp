@@ -17,6 +17,8 @@ Since version 6.0, the weekly view of the original calendar has been impemented:
 
 Click this link to download the app from the Google Play Store!: https://play.google.com/store/apps/details?id=com.EJ.ROvadiahYosefCalendar
 
+#Explanation of how the zmanim are calculated:
+
 Introduction to the calendar in Israel:
 
 <img src="https://i.imgur.com/udfwy3R.jpg" height="650">
