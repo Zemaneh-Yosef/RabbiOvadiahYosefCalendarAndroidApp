@@ -33,6 +33,4 @@ This time is calculated as 6 zmaniyot/seasonal minutes (according to the GR\"A) 
 
 Introduction to the calendar in Israel:
 
-<img src="https://i.imgur.com/udfwy3R.jpg" height="650">
-<img src="https://i.imgur.com/ureV4p4.jpg" height="650">
-<img src="https://i.imgur.com/HXEzXvr.jpg" height="650">
+<img src="https://i.imgur.com/udfwy3R.jpg" height="650"><img src="https://i.imgur.com/ureV4p4.jpg" height="650"><img src="https://i.imgur.com/HXEzXvr.jpg" height="650">
