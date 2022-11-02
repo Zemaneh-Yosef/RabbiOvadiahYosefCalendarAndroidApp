@@ -19,7 +19,16 @@ Click this link to download the app from the Google Play Store!: https://play.go
 
 # Explanation of how the zmanim are calculated:
 Dawn - Alot HaShachar:
+
 This time is calculated as 72 zmaniyot/seasonal minutes (according to the GR"A) before sunrise. Both sunrise and sunset have elevation included.
+
+Misheyakir - Earliest Talit/Tefilin:
+
+This time is calculated as 6 zmaniyot/seasonal minutes (according to the GR\"A) after Alot HaShachar (Dawn).
+
+
+
+
 
 
 Introduction to the calendar in Israel:
