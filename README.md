@@ -11,7 +11,7 @@ The only zman/time that could not be computed by the KosherJava API is the sunri
 
 First view implemented was the daily view of the app:
 
-![alt text](https://play-lh.googleusercontent.com/46VfUTuZLlA_ogFYMP0oLUbtgQtsj-D3lHNDnS5LvqVwwgXr4Qh0p8d0ZiJg-z69IEY=w720-h310-rw)
+![alt text](https://play-lh.googleusercontent.com/46VfUTuZLlA_ogFYMP0oLUbtgQtsj-D3lHNDnS5LvqVwwgXr4Qh0p8d0ZiJg-z69IEY=w2560-h1440-rw)
 
 Since version 6.0, the weekly view of the original calendar has been impemented:
 
