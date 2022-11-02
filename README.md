@@ -15,7 +15,7 @@ First view implemented was the daily view of the app:
 
 Since version 6.0, the weekly view of the original calendar has been impemented:
 
-Click this link to download the app from the Google Play Store!: https://play.google.com/store/apps/details?id=com.EJ.ROvadiahYosefCalendar
+Click this link to download the app from the [Google Play Store!](https://play.google.com/store/apps/details?id=com.EJ.ROvadiahYosefCalendar)
 
 # Explanation of how the zmanim are calculated:
 Dawn - Alot HaShachar:
