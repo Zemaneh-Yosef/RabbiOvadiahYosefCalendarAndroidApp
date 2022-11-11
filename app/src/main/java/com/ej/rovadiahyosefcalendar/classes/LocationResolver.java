@@ -62,13 +62,13 @@ public class LocationResolver extends Thread {
      * device, however, the process is slower as it needs to actually make a call to the GPS service
      * if the location has not been updated recently.
      * <p>
-     * This method will now first check if the user wants to use a zip code. If the user entered a
-     * zip code before, the app will use that zip code for as the current location.
+     * I originally wanted to just allow users to use a zip code to find their location, but I noticed that it also takes into account any address.
+     * The old keys for shared preferences are still there as zipcodes because I did not want to change them and undo the work the users have done.
      */
     @SuppressWarnings("BusyWait")
     public void acquireLatitudeAndLongitude() {
         if (mSharedPreferences.getBoolean("useZipcode", false)) {
-            getLatitudeAndLongitudeFromZipcode();
+            getLatitudeAndLongitudeFromSearchQuery();
         } else {
             if (ActivityCompat.checkSelfPermission(mContext, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(mActivity, new String[]{ACCESS_FINE_LOCATION}, 1);
@@ -234,12 +234,12 @@ public class LocationResolver extends Thread {
 
     /**
      * This method uses the Geocoder class to get a latitude and longitude coordinate from the user
-     * specified zip code. If it can not find am address it will make a toast saying that an error
+     * specified zip code/area. If it can not find an address it will make a toast saying that an error
      * occurred.
      *
      * @see Geocoder
      */
-    public void getLatitudeAndLongitudeFromZipcode() {
+    public void getLatitudeAndLongitudeFromSearchQuery() {
         String zipcode = mSharedPreferences.getString("Zipcode", "");
         List<Address> address = null;
         try {
@@ -255,7 +255,7 @@ public class LocationResolver extends Thread {
             mSharedPreferences.edit().putLong("oldLat", Double.doubleToRawLongBits(sLatitude)).apply();
             mSharedPreferences.edit().putLong("oldLong", Double.doubleToRawLongBits(sLongitude)).apply();
         } else {
-            getOldZipcodeLocation();
+            getOldSearchLocation();
         }
     }
 
@@ -263,9 +263,9 @@ public class LocationResolver extends Thread {
      * This method retrieves the old location data from the devices storage if it has already been
      * setup beforehand.
      *
-     * @see #getLatitudeAndLongitudeFromZipcode()
+     * @see #getLatitudeAndLongitudeFromSearchQuery()
      */
-    public void getOldZipcodeLocation() {
+    public void getOldSearchLocation() {
         double oldLat = Double.longBitsToDouble(mSharedPreferences.getLong("oldLat", 0));
         double oldLong = Double.longBitsToDouble(mSharedPreferences.getLong("oldLong", 0));
 

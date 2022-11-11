@@ -85,14 +85,21 @@ public class ZmanNotification extends BroadcastReceiver {
             }
             zmanimFormat.setTimeZone(TimeZone.getTimeZone(mSharedPreferences.getString("timezoneID", ""))); //set the formatters time zone
 
+            String text;
+            if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
+                text = String.format("%s : %s", zmanimFormat.format(zmanAsDate), zmanName);
+            } else {
+                text = zmanName + " is at " + zmanimFormat.format(zmanAsDate);
+            }
+
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context,
                     "Zmanim").setSmallIcon(R.drawable.calendar_foreground)
                     .setContentTitle(zmanName)
-                    .setContentText(String.format("%s : %s", zmanimFormat.format(zmanAsDate), zmanName))
+                    .setContentText(text)
                     .setStyle(new NotificationCompat.BigTextStyle()
                             .setBigContentTitle(zmanName)
                             .setSummaryText(mSharedPreferences.getString("locationNameFN", ""))
-                            .bigText(String.format("%s : %s", zmanimFormat.format(zmanAsDate), zmanName)))
+                            .bigText(text))
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     .setCategory(NotificationCompat.CATEGORY_REMINDER)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)

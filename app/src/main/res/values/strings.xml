@@ -9,7 +9,8 @@
         for any other purpose than to calculate the zmanim.\n\n(Note: As of Android 11, the app can not
         ask you for location permissions more than once per install. You might need to re-install
         the app to use your location.) \n\nHowever, if you still do not want to give location
-        permissions, you can choose to enter a zipcode and the app will find your location based on your general area. (This is not recommended.)
+        permissions, you can choose to search for your address or a zipcode and the app will find your location based on your approximate area.
+        (This is not recommended if you want accurate zmanim.)
     </string>
 
     <string name="setup_elevation">Setup Elevation</string>
@@ -41,7 +42,7 @@
     <string name="contact_header">Contact the developer</string>
     <string name="about">About</string>
     <string name="help">Help</string>
-    <string name="enter_a_zipcode">Enter A Zipcode</string>
+    <string name="search_for_a_place">Search for a place</string>
     <string name="title_activity_settings">Settings</string>
     <string name="full_setup">Full Setup</string>
     <string name="minhagim">Minhagim</string>
@@ -81,7 +82,7 @@
     <string name="no">No</string>
     <string name="show_introduction">Show Introduction?</string>
     <string name="ohr_hachaim_nmode">Ohr HaChaim\nSetup</string>
-    <string name="if_you_want_to_make_your_zmanim_like_the_ohr_hachaim_calendar_in_israel">If you want to make your zmanim like the Ohr HaChaim calendar in Israel, you can press on this button. Otherwise, you can choose the advanced setup.</string>
+    <string name="if_you_want_to_make_your_zmanim_like_the_ohr_hachaim_calendar_in_israel">If you want to make your zmanim like the Ohr HaChaim calendar in Israel, you can press on this button. Otherwise, you can choose the advanced setup to specify exactly what you want.</string>
     <string name="if_you_want_to_specify_what_to_setup">If you want to specify what to setup:</string>
     <string name="yalkut_yosef_quote">yalkut yosef quote</string>
     <string name="left">left</string>

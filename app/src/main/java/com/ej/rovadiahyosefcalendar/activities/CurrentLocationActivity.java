@@ -28,10 +28,10 @@ public class CurrentLocationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_current_location);
         mSharedPreferences = getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE);
+        mLocationResolver = new LocationResolver(this, this);
 
         Button allowLocationButton = findViewById(R.id.allow_location_button);
         allowLocationButton.setOnClickListener(v -> {
-            mLocationResolver = new LocationResolver(this, this);
             mLocationResolver.acquireLatitudeAndLongitude();
         });
 
@@ -48,21 +48,20 @@ public class CurrentLocationActivity extends AppCompatActivity {
         final EditText input = new EditText(this);
         input.setGravity(Gravity.CENTER_HORIZONTAL);
         new AlertDialog.Builder(this)
-                .setTitle("Enter a Zipcode")
-                .setMessage("WARNING! Zmanim will NOT be accurate! Using a Zipcode will give " +
-                        "you zmanim based on approximately where you are. For more accurate " +
-                        "zmanim, please allow the app to see your location.")
+                .setTitle("Search for a place")
+                .setMessage("WARNING! Zmanim will be based on your approximate area and will not be accurate! Using an address/zipcode will give " +
+                        "you zmanim based on approximately where you are. For more accurate zmanim, please allow the app to see your location.")
                 .setView(input)
                 .setPositiveButton(R.string.ok, (dialog, which) -> {
-                    if (input.getText().toString().isEmpty()) {// I would have loved to use a regex to validate the zipcode, however, it seems like zip codes are not uniform.
-                        Toast.makeText(this, "Please Enter a valid value, for example: 11024", Toast.LENGTH_SHORT)
+                    if (input.getText().toString().isEmpty()) {
+                        Toast.makeText(this, "Please enter a valid value, for example: 11024", Toast.LENGTH_SHORT)
                                 .show();
                         createZipcodeDialog();//restart
                     } else {
                         SharedPreferences.Editor editor = mSharedPreferences.edit();
                         editor.putBoolean("useZipcode", true).apply();
                         editor.putString("Zipcode", input.getText().toString()).apply();
-                        mLocationResolver.getLatitudeAndLongitudeFromZipcode();
+                        mLocationResolver.getLatitudeAndLongitudeFromSearchQuery();
                         mLocationResolver.setTimeZoneID();
                         startActivity(new Intent(this, SetupChooserActivity.class)
                                 .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
@@ -70,8 +69,7 @@ public class CurrentLocationActivity extends AppCompatActivity {
                         finish();//end the activity
                     }
                 })
-                .setNegativeButton("Cancel", (dialog, which) -> {
-                })
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel())
                 .create()
                 .show();
     }

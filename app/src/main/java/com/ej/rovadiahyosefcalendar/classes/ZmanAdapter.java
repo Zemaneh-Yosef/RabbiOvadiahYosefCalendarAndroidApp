@@ -485,7 +485,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     private void showTzaitShabbatDialog() {
         dialogBuilder.setTitle("Shabbat/Chag Ends - \u05E6\u05D0\u05EA \u05E9\u05D1\u05EA/\u05D7\u05D2 - Tzeit Shabbat/Chag")
                 .setMessage("This is the time that Shabbat/Chag ends.\n\n" +
-                        "Note that there are many customs on when shabbat ends, by default, I set it to 45 regular minutes after sunset (elevation " +
+                        "Note that there are many customs on when shabbat ends, by default, I set it to 40 regular minutes after sunset (elevation " +
                         "included), however, you can change the time in the settings.\n\n" +
                         "This time is calculated as " +
                         PreferenceManager.getDefaultSharedPreferences(context).getString("EndOfShabbatOffset", "40") + " " +
@@ -504,7 +504,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         "The GR\"A calculates a zmaniyot/seasonal hour by taking the time between sunrise and sunset (elevation included) and " +
                         "divides it into 12 equal parts. Then we divide one of those 12 parts into 60 to get a zmaniyot/seasonal minute in order " +
                         "to calculate 72 minutes. Another way of calculating this time is by calculating how many minutes are between sunrise and " +
-                        "sunset. Take that number and divide it by 10, and then add the result to sunset.")
+                        "sunset. Take that number and divide it by 10, and then add the result to sunset. The app uses the first method.")
                 .show();
     }
 

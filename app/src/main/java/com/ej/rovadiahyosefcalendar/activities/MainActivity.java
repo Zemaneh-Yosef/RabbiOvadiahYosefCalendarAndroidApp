@@ -182,10 +182,6 @@ public class MainActivity extends AppCompatActivity {
         initSetupResult();
         setupShabbatModeBanner();
         mLocationResolver = new LocationResolver(this, this);
-        if (ActivityCompat.checkSelfPermission(getApplicationContext(), ACCESS_FINE_LOCATION) != PERMISSION_GRANTED ||
-                mSharedPreferences.getBoolean("useZipcode", false)) {
-            mLocationResolver.acquireLatitudeAndLongitude();
-        }
         mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false), true);
         if (!ChaiTables.visibleSunriseFileExists(getExternalFilesDir(null), sCurrentLocationName, mJewishDateInfo.getJewishCalendar())
                 && mSharedPreferences.getBoolean("UseTable" + sCurrentLocationName, true)
@@ -252,6 +248,7 @@ public class MainActivity extends AppCompatActivity {
                         initMainView();
                     }
                     instantiateZmanimCalendar();
+                    setZmanimLanguageBools();
                     if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                         updateWeeklyZmanim();
                     } else {
@@ -1374,6 +1371,18 @@ public class MainActivity extends AppCompatActivity {
             announcements.append(ulChaparatPesha).append("\n");
         }
 
+        if (mJewishDateInfo.getJewishCalendar().isMashivHaruachEndDate()) {
+            announcements.append("מוריד הטל/ברכנו").append("\n");
+        }
+
+        if (mJewishDateInfo.getJewishCalendar().isMashivHaruachStartDate()) {
+            announcements.append("משיב הרוח").append("\n");
+        }
+
+        if (mJewishDateInfo.getJewishCalendar().isVeseinTalUmatarStartDate()) {
+            announcements.append("ברך עלינו").append("\n");
+        }
+
         String tachanun = mJewishDateInfo.getIsTachanunSaid();
         if (!tachanun.equals("There is Tachanun today")) {
             announcements.append(tachanun).append("\n");
@@ -1387,6 +1396,7 @@ public class MainActivity extends AppCompatActivity {
         if (mJewishDateInfo.getJewishCalendar().isBirkasHachamah()) {
             announcements.append("Birchat HaChamah is said today").append("\n");
         }
+
         List<ZmanListEntry> tekufa = new ArrayList<>();
         addTekufaTime(new SimpleDateFormat("h:mm aa", Locale.getDefault()), tekufa, true);
         if (!tekufa.isEmpty()) {
@@ -1399,29 +1409,6 @@ public class MainActivity extends AppCompatActivity {
                 announcements.append("No Daf Yomi Yerushalmi").append("\n");
             }
         }
-
-        //TODO: add the weekly announcements
-        //these are shown once:
-//        announcements.add(mJewishDateInfo.getIsMashivHaruchOrMoridHatalSaid()
-//                + " / "
-//                + mJewishDateInfo.getIsBarcheinuOrBarechAleinuSaid());
-//
-//        if (mSettingsPreferences.getBoolean("ShowLeapYear", false)) {
-//            announcements.add(mJewishDateInfo.isJewishLeapYear());
-//        }
-//
-//        if (mSettingsPreferences.getBoolean("ShowDST", false)) {
-//            if (mROZmanimCalendar.getGeoLocation().getTimeZone().inDaylightTime(mROZmanimCalendar.getSeaLevelSunrise())) {
-//                announcements.add("Daylight Savings Time is on");
-//            } else {
-//                announcements.add("Daylight Savings Time is off");
-//            }
-//        }
-//
-//        if (mSettingsPreferences.getBoolean("ShowElevation", false)) {
-//            announcements.add("Elevation: " + mElevation);
-//        }
-
         return announcements.toString();
     }
 
@@ -1465,7 +1452,7 @@ public class MainActivity extends AppCompatActivity {
                 weeklyInfo.get(i)[4].setBackground(null);
             }
             StringBuilder announcements = new StringBuilder();
-            mZmanimForAnnouncements = new ArrayList<>();//clear the list - this is for RT, end shabbat, etc.
+            mZmanimForAnnouncements = new ArrayList<>();//clear the list, it will be filled again in the getShortZmanim method
             mListViews[i].setAdapter(new ArrayAdapter<>(this, R.layout.zman_list_view, getShortZmanim()));//E.G. "Sunrise: 5:45 AM, Sunset: 8:30 PM, etc."
             if (!mZmanimForAnnouncements.isEmpty()) {
                 for (String zman : mZmanimForAnnouncements) {
@@ -1875,28 +1862,26 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * This method will create a new AlertDialog that asks the user to use their location and it
-     * will also give the option to use a zipcode through the EditText field.
+     * will also give the option to enter an address/zipcode through the EditText field.
      */
     private void createZipcodeDialog() {
         final EditText input = new EditText(this);
         input.setGravity(Gravity.CENTER_HORIZONTAL);
         new AlertDialog.Builder(this)
-                .setTitle("Enter a Zipcode")
-                .setMessage("WARNING! Zmanim will NOT be accurate! Using a Zipcode will give " +
-                        "you zmanim based on approximately where you are. For more accurate " +
-                        "zmanim, please allow the app to see your location.")
+                .setTitle("Search for a place")
+                .setMessage("WARNING! Zmanim will be based on your approximate area and will not be accurate! Using an address/zipcode will give " +
+                        "you zmanim based on approximately where you are. For more accurate zmanim, please allow the app to see your location.")
                 .setView(input)
                 .setPositiveButton(R.string.ok, (dialog, which) -> {
-                    if (input.getText().toString().isEmpty()) {// I would have loved to use a regex to validate the zipcode, however, it seems like zip codes are not uniform.
-                        Toast.makeText(this, "Please Enter a valid value, for example: 11024", Toast.LENGTH_SHORT)
-                                .show();
+                    if (input.getText().toString().isEmpty()) {
+                        Toast.makeText(this, "Please enter something", Toast.LENGTH_SHORT).show();
                         createZipcodeDialog();
                     } else {
                         SharedPreferences.Editor editor = mSharedPreferences.edit();
                         editor.putBoolean("useZipcode", true).apply();
                         editor.putString("Zipcode", input.getText().toString()).apply();
                         mLocationResolver = new LocationResolver(this, this);
-                        mLocationResolver.getLatitudeAndLongitudeFromZipcode();
+                        mLocationResolver.getLatitudeAndLongitudeFromSearchQuery();
                         if (mSharedPreferences.getBoolean("isElevationSetup" + sCurrentLocationName, true)) {
                             mLocationResolver.start();
                             try {

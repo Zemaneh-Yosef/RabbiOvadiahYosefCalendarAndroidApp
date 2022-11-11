@@ -31,7 +31,7 @@
         android:title="@string/setup" />
     <item
         android:id="@+id/enterZipcode"
-        android:title="@string/enter_a_zipcode" />
+        android:title="@string/search_for_a_place" />
     <item
         android:id="@+id/settings"
         android:title="@string/settings" />
