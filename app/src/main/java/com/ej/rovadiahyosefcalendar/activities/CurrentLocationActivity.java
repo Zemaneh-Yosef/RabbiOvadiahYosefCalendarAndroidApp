@@ -47,6 +47,7 @@ public class CurrentLocationActivity extends AppCompatActivity {
     private void createZipcodeDialog() {
         final EditText input = new EditText(this);
         input.setGravity(Gravity.CENTER_HORIZONTAL);
+        input.setHint("Enter Zipcode or Address");
         new AlertDialog.Builder(this)
                 .setTitle("Search for a place")
                 .setMessage("WARNING! Zmanim will be based on your approximate area and will not be accurate! Using an address/zipcode will give " +
