@@ -2188,6 +2188,8 @@ public class MainActivity extends AppCompatActivity {
     private String getMinchaGedolaString() {
         if (mIsZmanimInHebrew) {
             return "מנחה גדולה";
+        } else if (mIsZmanimEnglishTranslated) {
+            return "Earliest Mincha";
         } else {
             return "Mincha Gedola";
         }

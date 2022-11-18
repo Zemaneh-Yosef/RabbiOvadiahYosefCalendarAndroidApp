@@ -271,7 +271,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
                     "Candle Lighting",
                     "Plag HaMincha",
                     "Mincha Ketana",
-                    "Mincha Gedola",
+                    "Earliest Mincha",
                     "Mid-Day",
                     "Latest Biur Chametz",
                     "Latest Brachot Shma",
