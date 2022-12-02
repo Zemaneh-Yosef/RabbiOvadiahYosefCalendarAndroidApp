@@ -23,6 +23,7 @@
         android:layout_margin="8dp" />
 
     <LinearLayout
+        android:id="@+id/israel_buttons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="40sp"
@@ -32,12 +33,12 @@
 
     <Button
         android:id="@+id/inIsraelButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         android:layout_margin="20dp"
         android:background="@drawable/israel_button_background"
         android:gravity="center"
-        android:padding="52dp"
+        android:padding="8dp"
         android:text="@string/yes"
         android:textColor="@color/white"
         android:textStyle="bold"
@@ -47,9 +48,9 @@
 
     <Button
         android:id="@+id/notInIsraelButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="52sp"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:padding="8dp"
         android:layout_margin="20dp"
         android:background="@drawable/colorful_gradient"
         android:gravity="center"

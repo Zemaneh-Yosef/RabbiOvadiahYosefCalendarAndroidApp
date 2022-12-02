@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,6 +27,11 @@ public class FullSetupActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_full_setup);
+        LinearLayout layout = findViewById(R.id.israel_buttons);
+        float screenWidth = getResources().getDisplayMetrics().widthPixels / getResources().getDisplayMetrics().density;
+        if (screenWidth < 400) {
+            layout.setOrientation(LinearLayout.VERTICAL);
+        }
         mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         if (getIntent().getBooleanExtra("fromMenu", false)) {
             mSharedPreferences.edit().putBoolean("isSetup", false).apply();

@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean mBackHasBeenPressed = false;
     private boolean mUpdateTablesDialogShown;
     private boolean mInitialized = false;
-    private int mCurrentPosition;//current position in the RecyclerView list of zmanim to return to when the user returns to the main screen
+    private int mCurrentPosition;//current position in the RecyclerView list of zmanim to return to
     private double mElevation = 0;
     public static double sLatitude;
     public static double sLongitude;
@@ -166,6 +166,8 @@ public class MainActivity extends AppCompatActivity {
      */
     private final static Calendar dafYomiStartDate = new GregorianCalendar(1923, Calendar.SEPTEMBER, 11);
     private final static Calendar dafYomiYerushalmiStartDate = new GregorianCalendar(1980, Calendar.FEBRUARY, 2);
+    private int mDayOfNextUpcomingZman;
+    private int mIndexOfNextUpcomingZman;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -1152,7 +1154,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
         }
-        zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID)); //set the formatters time zone
+        zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
 
         List<ZmanListEntry> zmanim = new ArrayList<>();
 
@@ -1259,6 +1261,8 @@ public class MainActivity extends AppCompatActivity {
                 mCurrentPosition = ((LinearLayoutManager)mMainRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
                 mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
                 mMainRecyclerView.smoothScrollToPosition(mCurrentPosition);
+            } else if (mSharedPreferences.getBoolean("weeklyMode", false)) {
+                updateWeeklyZmanim();
             }
             createBackgroundThreadForNextUpcomingZman();//start a new thread to update the next upcoming zman
         };
@@ -1453,7 +1457,7 @@ public class MainActivity extends AppCompatActivity {
             }
             StringBuilder announcements = new StringBuilder();
             mZmanimForAnnouncements = new ArrayList<>();//clear the list, it will be filled again in the getShortZmanim method
-            mListViews[i].setAdapter(new ArrayAdapter<>(this, R.layout.zman_list_view, getShortZmanim()));//E.G. "Sunrise: 5:45 AM, Sunset: 8:30 PM, etc."
+            mListViews[i].setAdapter(new ArrayAdapter<>(this, R.layout.zman_list_view, getShortZmanim(i)));//E.G. "Sunrise: 5:45 AM, Sunset: 8:30 PM, etc."
             if (!mZmanimForAnnouncements.isEmpty()) {
                 for (String zman : mZmanimForAnnouncements) {
                     announcements.append(zman).append("\n");
@@ -1470,6 +1474,9 @@ public class MainActivity extends AppCompatActivity {
                 mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
             }
         }
+        View v = mListViews[mDayOfNextUpcomingZman].getAdapter().getView(mIndexOfNextUpcomingZman, null, mListViews[mDayOfNextUpcomingZman]);
+        v.setBackgroundColor(getColor(R.color.dark_gold));
+        mListViews[mDayOfNextUpcomingZman].getAdapter().getView(mIndexOfNextUpcomingZman, v, mListViews[mDayOfNextUpcomingZman]);
         if (month != null && !month.equals(mROZmanimCalendar.getCalendar().getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()))) {
             month += " - " + mROZmanimCalendar.getCalendar().getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
         }
@@ -1515,7 +1522,7 @@ public class MainActivity extends AppCompatActivity {
         mCurrentDateShown = backupCal;
     }
 
-    private String[] getShortZmanim() {
+    private String[] getShortZmanim(int day) {
         List<ZmanListEntry> zmanim = new ArrayList<>();
         addZmanim(zmanim, true);
         DateFormat zmanimFormat;
@@ -1526,6 +1533,7 @@ public class MainActivity extends AppCompatActivity {
         }
         zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
 
+        //filter out important zmanim
         List<ZmanListEntry> zmansToRemove = new ArrayList<>();
         if (mIsZmanimInHebrew) {
             for (ZmanListEntry zman : zmanim) {
@@ -1555,7 +1563,15 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         zmanim.removeAll(zmansToRemove);
+        for (int i = 0; i < zmanim.size(); i++) {
+            if (zmanim.get(i).getZman().equals(sNextUpcomingZman)) {
+                mDayOfNextUpcomingZman = day;
+                mIndexOfNextUpcomingZman = i;
+                break;
+            }
+        }
 
+        //here is where we actually create the list of zmanim to display
         String[] shortZmanim = new String[zmanim.size()];
         if (mIsZmanimInHebrew) {
             for (ZmanListEntry zman : zmanim) {
@@ -1902,6 +1918,7 @@ public class MainActivity extends AppCompatActivity {
                             } else {
                                 mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
                             }
+                            checkIfUserIsInIsraelOrNot();
                         }
                     }
                 })
@@ -1926,6 +1943,7 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
                     }
+                    checkIfUserIsInIsraelOrNot();
                 })
                 .create()
                 .show();

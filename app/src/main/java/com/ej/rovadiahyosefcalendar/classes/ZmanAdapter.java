@@ -51,6 +51,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
         roundUpRt = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("RoundUpRT", false);
         roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+        roundUpFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
         dialogBuilder = new AlertDialog.Builder(this.context);
         dialogBuilder.setPositiveButton("Dismiss", (dialog, which) -> dialog.dismiss());
         dialogBuilder.create();
