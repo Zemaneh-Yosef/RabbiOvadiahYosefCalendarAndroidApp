@@ -31,9 +31,7 @@ public class CurrentLocationActivity extends AppCompatActivity {
         mLocationResolver = new LocationResolver(this, this);
 
         Button allowLocationButton = findViewById(R.id.allow_location_button);
-        allowLocationButton.setOnClickListener(v -> {
-            mLocationResolver.acquireLatitudeAndLongitude();
-        });
+        allowLocationButton.setOnClickListener(v -> mLocationResolver.acquireLatitudeAndLongitude());
 
         Button enterZipcodeButton = findViewById(R.id.enter_zipcode_button);
         enterZipcodeButton.setOnClickListener(v -> createZipcodeDialog());

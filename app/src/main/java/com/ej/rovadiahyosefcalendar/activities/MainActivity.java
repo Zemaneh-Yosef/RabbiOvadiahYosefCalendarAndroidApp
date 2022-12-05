@@ -1474,9 +1474,6 @@ public class MainActivity extends AppCompatActivity {
                 mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
             }
         }
-        View v = mListViews[mDayOfNextUpcomingZman].getAdapter().getView(mIndexOfNextUpcomingZman, null, mListViews[mDayOfNextUpcomingZman]);
-        v.setBackgroundColor(getColor(R.color.dark_gold));
-        mListViews[mDayOfNextUpcomingZman].getAdapter().getView(mIndexOfNextUpcomingZman, v, mListViews[mDayOfNextUpcomingZman]);
         if (month != null && !month.equals(mROZmanimCalendar.getCalendar().getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()))) {
             month += " - " + mROZmanimCalendar.getCalendar().getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
         }
@@ -1583,6 +1580,9 @@ public class MainActivity extends AppCompatActivity {
                     shortZmanim[zmanim.indexOf(zman)] = zmanimFormat.format(zman.getZman()) + ":" + zman.getTitle()
                             .replace("סוף זמן", "");
                 }
+                if (zman.getZman().equals(sNextUpcomingZman)) {
+                    shortZmanim[zmanim.indexOf(zman)] = shortZmanim[zmanim.indexOf(zman)] + "←";
+                }
             }
         } else {
             for (ZmanListEntry zman : zmanim) {
@@ -1597,6 +1597,9 @@ public class MainActivity extends AppCompatActivity {
                             .replace("Hacochavim", "")
                             .replace("Latest ", "")
                             + ":" + zmanimFormat.format(zman.getZman());
+                }
+                if (zman.getZman().equals(sNextUpcomingZman)) {
+                    shortZmanim[zmanim.indexOf(zman)] = shortZmanim[zmanim.indexOf(zman)] + "➤";
                 }
             }
         }

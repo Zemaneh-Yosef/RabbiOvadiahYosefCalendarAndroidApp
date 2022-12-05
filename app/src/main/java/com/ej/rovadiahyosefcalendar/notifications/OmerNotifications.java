@@ -27,6 +27,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.MainActivity;
+import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
@@ -44,9 +45,10 @@ public class OmerNotifications extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        JewishCalendar jewishCalendar = new JewishCalendar();
-        mLocationResolver = new LocationResolver(context, new Activity());
         mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
+        JewishDateInfo jewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael",false), true);
+        JewishCalendar jewishCalendar = jewishDateInfo.getJewishCalendar();
+        mLocationResolver = new LocationResolver(context, new Activity());
 
         if (mSharedPreferences.getBoolean("isSetup",false)) {
             ROZmanimCalendar c = getROZmanimCalendar(context);
@@ -54,8 +56,7 @@ public class OmerNotifications extends BroadcastReceiver {
             int day = jewishCalendar.getDayOfOmer();
             if (day != -1 && day != 49) {//we don't want to send a notification right before shavuot
                 long when = c.getTzeit().getTime();
-                NotificationManager notificationManager =
-                        (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                     NotificationChannel channel = new NotificationChannel("Omer",
@@ -93,14 +94,14 @@ public class OmerNotifications extends BroadcastReceiver {
                             .setSmallIcon(R.drawable.calendar_foreground)
                             .setContentTitle("Day of Omer")
                             .setContentText("Tonight is the " +
-                                    (getOrdinal(jewishCalendar.getDayOfOmer() + 1)) +
+                                    (getOrdinal(day + 1)) +
                                     " day of the omer.")
                             .setStyle(new NotificationCompat
                                     .BigTextStyle()
                                     .setBigContentTitle(nextJewishDay)
                                     .setSummaryText("Don't forget to count!")
                                     .bigText("Tonight is the " +
-                                            (getOrdinal(jewishCalendar.getDayOfOmer() + 1)) +
+                                            (getOrdinal(day + 1)) +
                                             " day of the omer."))
                             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                             .setCategory(NotificationCompat.CATEGORY_REMINDER)
@@ -115,8 +116,58 @@ public class OmerNotifications extends BroadcastReceiver {
                     mSharedPreferences.edit().putString("lastKnownDayOmer", jewishCalendar.toString()).apply();
                 }
             }
+            if (jewishDateInfo.getJewishCalendar().isVeseinTalUmatarStartDate()) {// we need to know if user is in Israel or not
+                notifyBarechAleinu(context);
+            }
             updateAlarm(context, c);
         }
+    }
+
+    private void notifyBarechAleinu(Context context) {
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel("BarechAleinu",
+                    "Barech Aleinu Notifications",
+                    NotificationManager.IMPORTANCE_HIGH);
+            channel.setDescription("This notification will check daily if tonight is the start date for Barech Aleinu and it will notify you at sunset.");
+            channel.enableLights(true);
+            channel.enableVibration(true);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                channel.setAllowBubbles(true);
+            }
+            channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+            channel.setLightColor(Color.BLUE);
+            notificationManager.createNotificationChannel(channel);
+        }
+
+        Intent notificationIntent = new Intent(context, MainActivity.class);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,
+                notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
+
+        Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+
+        NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "BarechAleinu")
+                .setSmallIcon(R.drawable.calendar_foreground)
+                .setContentTitle("Barech Aleinu tonight!")
+                .setContentText("Tonight we start saying Barech Aleinu!")
+                .setStyle(new NotificationCompat
+                        .BigTextStyle()
+                        .setBigContentTitle("Barech Aleinu tonight!")
+                        .setSummaryText("Tonight we start saying Barech Aleinu!")
+                        .bigText("Tonight we start saying Barech Aleinu!"))
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setCategory(NotificationCompat.CATEGORY_REMINDER)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setSound(alarmSound)
+                .setColor(context.getColor(R.color.dark_gold))
+                .setAutoCancel(true)
+                .setWhen(System.currentTimeMillis())
+                .setContentIntent(pendingIntent);
+        notificationManager.notify(MID, mNotifyBuilder.build());
+        MID++;
     }
 
     @NonNull
