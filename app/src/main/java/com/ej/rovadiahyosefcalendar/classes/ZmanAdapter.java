@@ -553,7 +553,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
     private void showTachanunDialog() {
         dialogBuilder.setTitle("Tachanun - \u05EA\u05D7\u05E0\u05D5\u05DF")
-                .setMessage("Here is a list of days with no tachanun:\n" +
+                .setMessage("Here is a list of days with no tachanun:\n\n" +
                         "Rosh Chodesh\n" +
                         "The entire month of Nissan\n" +
                         "Pesach Sheni (14th of Iyar)\n" +
@@ -567,15 +567,14 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         "All of Chanukah\n" +
                         "15th of Shevat\n" +
                         "14th and 15th of Adar I and Adar II (and only 14th of Adar I in a leap year)\n" +
-                        "Every Shabbat\n\n" +
+                        "Every Shabbat\n" +
                         "Every Erev Rosh Chodesh\n" +
                         "Fast of Esther\n" +
                         "Tisha Be'av\n" +
                         "Tu Be'Shvat\n" +
                         "Lag Ba'Omer\n" +
                         "Pesach Sheni\n" +
-                        "Yom Yerushalayim but not Yom Ha'atzmaut\n" +
-                        "Note that every friday at mincha we do not say tachanun.")
+                        "Yom Yerushalayim but not Yom Ha'atzmaut\n")
                 .show();
     }
 }

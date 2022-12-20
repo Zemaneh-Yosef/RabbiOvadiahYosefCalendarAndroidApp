@@ -599,4 +599,26 @@ public class JewishDateInfo {
         }
         return "";
     }
+
+    public String getHallelOrChatziHallel() {
+        int yomTovIndex = jewishCalendar.getYomTovIndex();
+        if ((jewishCalendar.getJewishMonth() == JewishCalendar.NISSAN
+                && jewishCalendar.getJewishDayOfMonth() == 15)//First day of Pesach
+                || (!jewishCalendar.getInIsrael() &&
+                jewishCalendar.getJewishMonth() == JewishCalendar.NISSAN
+                && jewishCalendar.getJewishDayOfMonth() == 16)//First day of Pesach outside of israel
+                || yomTovIndex == JewishCalendar.SHAVUOS
+                || yomTovIndex == JewishCalendar.SUCCOS
+                || yomTovIndex == JewishCalendar.SHEMINI_ATZERES
+                || jewishCalendar.isCholHamoedSuccos()
+                || jewishCalendar.isChanukah()) {
+            return "הלל שלם";
+        } else if (jewishCalendar.isRoshChodesh() || jewishCalendar.isCholHamoedPesach()
+                || (jewishCalendar.getJewishMonth() == JewishCalendar.NISSAN && jewishCalendar.getJewishDayOfMonth() == 21)
+                || (!jewishCalendar.getInIsrael() && jewishCalendar.getJewishMonth() == JewishCalendar.NISSAN && jewishCalendar.getJewishDayOfMonth() == 22)) {
+            return "חצי הלל";
+        } else {
+            return "";
+        }
+    }
 }

@@ -1197,6 +1197,11 @@ public class MainActivity extends AppCompatActivity {
             zmanim.add(new ZmanListEntry(ulChaparatPesha));
         }
 
+        String hallel = mJewishDateInfo.getHallelOrChatziHallel();
+        if (!hallel.isEmpty()) {
+            zmanim.add(new ZmanListEntry(hallel));
+        }
+
         zmanim.add(new ZmanListEntry(mJewishDateInfo.getIsTachanunSaid()));
 
         String tonightStartOrEndBirchatLevana = mJewishDateInfo.getIsTonightStartOrEndBirchatLevana();
@@ -1374,6 +1379,11 @@ public class MainActivity extends AppCompatActivity {
         String ulChaparatPesha = mJewishDateInfo.getIsUlChaparatPeshaSaid();
         if (!ulChaparatPesha.isEmpty()) {
             announcements.append(ulChaparatPesha).append("\n");
+        }
+
+        String hallel = mJewishDateInfo.getHallelOrChatziHallel();
+        if (!hallel.isEmpty()) {
+            announcements.append(hallel).append("\n");
         }
 
         if (mJewishDateInfo.getJewishCalendar().isMashivHaruachEndDate()) {
