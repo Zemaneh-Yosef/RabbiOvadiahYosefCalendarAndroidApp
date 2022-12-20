@@ -16,6 +16,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -91,6 +92,7 @@ public class OmerNotifications extends BroadcastReceiver {
 
                 if (!mSharedPreferences.getString("lastKnownDayOmer", "").equals(jewishCalendar.toString())) {//We only want 1 notification a day.
                     NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "Omer")
+                            .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
                             .setSmallIcon(R.drawable.calendar_foreground)
                             .setContentTitle("Day of Omer")
                             .setContentText("Tonight is the " +

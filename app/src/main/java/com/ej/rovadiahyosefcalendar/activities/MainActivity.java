@@ -1274,13 +1274,14 @@ public class MainActivity extends AppCompatActivity {
     public void setNextUpcomingZman() {
         Date theZman = null;
         List<Date> zmanim = new ArrayList<>();
+        mROZmanimCalendar.setCalendar(Calendar.getInstance());
         mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);
         addZmanimDates(zmanim);//for the previous day
         mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
         addZmanimDates(zmanim);//for the current day
         mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
         addZmanimDates(zmanim);//for the next day
-        mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);//return to the current day
+        mROZmanimCalendar.setCalendar(mCurrentDateShown);
         //find the next upcoming zman that is after the current time and before all the other zmanim
         for (Date zman : zmanim) {
             if (zman != null && zman.after(new Date()) && (theZman == null || zman.before(theZman))) {

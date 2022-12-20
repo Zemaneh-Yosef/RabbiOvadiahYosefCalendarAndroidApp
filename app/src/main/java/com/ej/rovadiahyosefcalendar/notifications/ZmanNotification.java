@@ -11,6 +11,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -92,8 +93,9 @@ public class ZmanNotification extends BroadcastReceiver {
                 text = zmanName + " is at " + zmanimFormat.format(zmanAsDate);
             }
 
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(context,
-                    "Zmanim").setSmallIcon(R.drawable.calendar_foreground)
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "Zmanim")
+                    .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
+                    .setSmallIcon(R.drawable.ic_baseline_alarm_24)
                     .setContentTitle(zmanName)
                     .setContentText(text)
                     .setStyle(new NotificationCompat.BigTextStyle()

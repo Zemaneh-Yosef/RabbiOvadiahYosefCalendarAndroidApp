@@ -106,6 +106,10 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                 if (zmanim.get(position).getTitle().contains("Tekufa")) {
                     showTekufaDialog();
                 }
+
+                if (zmanim.get(position).getTitle().contains("Tachanun") || zmanim.get(position).getTitle().contains("צדקתך")) {
+                    showTachanunDialog();
+                }
             }
         });
 
@@ -544,6 +548,34 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         "(in Halichot Olam, Chelek 7, Page 183, Halacha 8) that a person should not drink water from a half hour before this time " +
                         "till a half hour after this time unless there is a piece of iron in the water.\n\nNOTE: This only applies to water, not " +
                         "to other drinks.")
+                .show();
+    }
+
+    private void showTachanunDialog() {
+        dialogBuilder.setTitle("Tachanun - \u05EA\u05D7\u05E0\u05D5\u05DF")
+                .setMessage("Here is a list of days with no tachanun:\n" +
+                        "Rosh Chodesh\n" +
+                        "The entire month of Nissan\n" +
+                        "Pesach Sheni (14th of Iyar)\n" +
+                        "Lag Ba'Omer\n" +
+                        "Rosh Chodesh Sivan until the 12th of Sivan (12th included)\n" +
+                        "9th of Av\n" +
+                        "15th of Av\n" +
+                        "Erev Rosh Hashanah and Rosh Hashanah\n" +
+                        "Erev Yom Kippur and Yom Kippur\n" +
+                        "From the 11th of Tishrei until the end of Tishrei\n" +
+                        "All of Chanukah\n" +
+                        "15th of Shevat\n" +
+                        "14th and 15th of Adar I and Adar II (and only 14th of Adar I in a leap year)\n" +
+                        "Every Shabbat\n\n" +
+                        "Every Erev Rosh Chodesh\n" +
+                        "Fast of Esther\n" +
+                        "Tisha Be'av\n" +
+                        "Tu Be'Shvat\n" +
+                        "Lag Ba'Omer\n" +
+                        "Pesach Sheni\n" +
+                        "Yom Yerushalayim but not Yom Ha'atzmaut\n" +
+                        "Note that every friday at mincha we do not say tachanun.")
                 .show();
     }
 }

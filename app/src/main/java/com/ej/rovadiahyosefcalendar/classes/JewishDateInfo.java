@@ -108,7 +108,7 @@ public class JewishDateInfo {
         result = addTaanitBechorot(result);
         result = addRoshChodesh(result);
         result = addDayOfOmer(result);
-        result = addDayOfChanukah(result);
+        result = replaceChanukahWithDayOfChanukah(result);
         return result;
     }
 
@@ -165,14 +165,10 @@ public class JewishDateInfo {
      * This method is used to add the Day of Chanuka to the current holiday if it is on the current day.
      * @return a string containing the Day of Chanuka and the current holiday
      */
-    private String addDayOfChanukah(String result) {
+    private String replaceChanukahWithDayOfChanukah(String result) {
         int dayOfChanukah = jewishCalendar.getDayOfChanukah();
         if (dayOfChanukah != -1) {
-            if (!result.isEmpty()) {
-                result += " / " + getOrdinal(dayOfChanukah) + " day of Chanukah";
-            } else {
-                result = getOrdinal(dayOfChanukah) + " day of Chanukah";
-            }
+            result = result.replace("Chanukah", getOrdinal(dayOfChanukah) + " day of Chanukah");
         }
         return result;
     }
@@ -249,7 +245,7 @@ public class JewishDateInfo {
                 }
             //20 was erev chanuka which was deleted
             case JewishCalendar.CHANUKAH:
-                return "Chanuka";
+                return "Chanukah";
             case JewishCalendar.TENTH_OF_TEVES:
                 return "Asarah Be'Tevet";
             case JewishCalendar.TU_BESHVAT:
@@ -306,7 +302,6 @@ public class JewishDateInfo {
     /**
      * This method will return a string containing when to say tachanun for the current date.
      * Here are a list of holidays that it will return a string for no tachanun:
-     * <p>
      * Rosh Chodesh
      * The entire month of Nissan
      * Pesach Sheni (14th of Iyar)
@@ -321,7 +316,6 @@ public class JewishDateInfo {
      * 15th of Shevat
      * 14th and 15th of Adar I and Adar II (and only 14th of Adar I in a leap year)
      * Every Shabbat
-     * <p>
      * Here are the days that we skip tachanun the day before at mincha:
      * Every Friday
      * Every Erev Rosh Chodesh
