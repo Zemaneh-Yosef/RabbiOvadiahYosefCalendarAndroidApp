@@ -65,7 +65,7 @@
     <string name="setup">Setup</string>
     <string name="molad_calculator">Molad Calculator</string>
     <string name="moon_background">moon background</string>
-    <string name="note_times_are_just_for_reference_you_should_ask_a_rav_if_you_can_say_the_bracha_earlier_or_later">Note: Times are just for reference, you should ask a rav if you can say the bracha earlier or later.</string>
+    <string name="note_times_are_just_for_reference_you_should_ask_a_rav_if_you_can_say_the_bracha_earlier_or_later">Disclaimer: Times are just for reference, you should ask a rav if you can say the bracha earlier or later.</string>
     <string name="latest_birchat_halevanah_15_days">Latest Birchat Halevanah (15 days):</string>
     <string name="earliest_birchat_halevanah_7_days">Earliest Birchat Halevanah (7 days):</string>
     <string name="the_molad_for_this_month_in_your_timezone">The Molad for this month in your timezone:</string>
@@ -106,4 +106,5 @@
     <string name="title_activity_notification_settings">Notification Settings</string>
     <string name="min">min</string>
     <string name="weekly_view">Weekly View</string>
+    <string name="website">Website</string>
 </resources>

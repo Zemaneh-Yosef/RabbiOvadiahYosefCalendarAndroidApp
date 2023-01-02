@@ -272,7 +272,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
                     "Plag HaMincha",
                     "Mincha Ketana",
                     "Earliest Mincha",
-                    "Mid-Day",
+                    "Mid-day",
                     "Latest Biur Chametz",
                     "Latest Brachot Shma",
                     "Latest Achilat Chametz",

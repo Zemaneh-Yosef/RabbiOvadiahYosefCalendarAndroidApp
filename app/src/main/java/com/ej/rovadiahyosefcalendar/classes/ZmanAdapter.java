@@ -2,7 +2,10 @@ package com.ej.rovadiahyosefcalendar.classes;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sCurrentLocationName;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sCurrentTimeZoneID;
+import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sLatitude;
+import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sLongitude;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sNextUpcomingZman;
 
 import android.app.AlertDialog;
@@ -93,6 +96,17 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     checkTranslatedEnglishZmanimForDialog(position);
                 } else {
                     checkEnglishZmanimForDialog(position);
+                }
+
+                if (position == 0) {
+                    dialogBuilder.setTitle("Location info for: " + zmanim.get(position).getTitle());
+                    String locationInfo = "Current Location: " + sCurrentLocationName + "\n" +
+                            "Current Longitude: " + sLongitude + "\n" +
+                            "Current Latitude: " + sLatitude + "\n" +
+                            "Elevation: " + mSharedPreferences.getString("elevation"+sCurrentLocationName, "0") + " meters" + "\n" +
+                            "Current Time Zone: " + sCurrentTimeZoneID;
+                    dialogBuilder.setMessage(locationInfo);
+                    dialogBuilder.show();
                 }
 
                 if (zmanim.get(position).getTitle().contains("וּלְכַפָּרַת פֶּשַׁע")) {
@@ -225,9 +239,9 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             showShmaGRADialog();
         } else if (zmanim.get(position).getTitle().contains("Brachot Shma")) {
             showBrachotShmaDialog();
-        } else if (zmanim.get(position).getTitle().contains("Mid-Day")) {
+        } else if (zmanim.get(position).getTitle().contains("Mid-day")) {
             showChatzotDialog();
-        } else if (zmanim.get(position).getTitle().contains("Mincha Gedola")) {
+        } else if (zmanim.get(position).getTitle().contains("Earliest Mincha")) {
             showMinchaGedolaDialog();
         } else if (zmanim.get(position).getTitle().contains("Mincha Ketana")) {
             showMinchaKetanaDialog();
@@ -388,7 +402,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void showChatzotDialog() {
-        dialogBuilder.setTitle("Mid-Day - \u05D7\u05E6\u05D5\u05EA - Chatzot")
+        dialogBuilder.setTitle("Mid-day - \u05D7\u05E6\u05D5\u05EA - Chatzot")
                 .setMessage("This is the middle of the halachic day, when the sun is exactly in the middle of the sky relative to the length of the" +
                         " day. It should be noted, that the sun can only be directly above every person, such that they don't even have shadows, " +
                         "in the Tropic of Cancer and the Tropic of Capricorn. Everywhere else, the sun will be at an angle even in the middle of " +
@@ -407,7 +421,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         "It is also the preferred time a person should say Mincha according to some poskim.\n\n" +
                         "It is called Mincha Gedolah because there is a lot of time left until sunset.\n\n" +
                         "A person should ideally start saying Korbanot AFTER this time.\n\n" +
-                        "This time is calculated as 30 regular minutes after Chatzot (Mid-Day). However, if the zmaniyot/seasonal minutes are longer," +
+                        "This time is calculated as 30 regular minutes after Chatzot (Mid-day). However, if the zmaniyot/seasonal minutes are longer," +
                         " we use those minutes instead to be stringent. " +
                         "The GR\"A calculates a zmaniyot/seasonal hour by taking the time between sunrise and sunset (elevation included) and " +
                         "divides it into 12 equal parts. Then we divide one of those 12 parts into 60 to get a zmaniyot/seasonal minute.")

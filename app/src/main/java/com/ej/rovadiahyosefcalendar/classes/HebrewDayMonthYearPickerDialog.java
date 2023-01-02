@@ -34,9 +34,9 @@ public class HebrewDayMonthYearPickerDialog extends DialogFragment {
     private final CustomDatePickerDialog mCustomDatePickerDialog;
     private final JewishCalendar mJewishCalendar;
     private final String[] mHebrewMonths = {"Nissan", "Iyar", "Sivan", "Tammuz", "Av",
-            "Elul", "Tishrei", "Cheshvan", "Kislev", "Tevet", "Shevat", "Adar"};
+            "Elul", "Tishri", "Cheshvan", "Kislev", "Tevet", "Shevat", "Adar"};
     private final String[] mHebrewMonthsLeap = {"Nissan", "Iyar", "Sivan", "Tammuz", "Av",
-            "Elul", "Tishrei", "Cheshvan", "Kislev", "Tevet", "Shevat", "Adar I", "Adar II"};
+            "Elul", "Tishri", "Cheshvan", "Kislev", "Tevet", "Shevat", "Adar I", "Adar II"};
     private NumberPicker mDayPicker;
     private NumberPicker mMonthPicker;
 

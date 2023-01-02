@@ -31,6 +31,7 @@ import com.rarepebble.colorpicker.ColorPreference;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.Objects;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -68,7 +69,6 @@ public class SettingsActivity extends AppCompatActivity {
         if (item.getItemId() == android.R.id.home) {
             sFromSettings = true;
             onBackPressed();
-            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -94,7 +94,7 @@ public class SettingsActivity extends AppCompatActivity {
             if (themePref != null) {
                 themePref.setOnPreferenceChangeListener((preference, newValue) -> {
                     String theme = (String) newValue;
-                    preference.getSharedPreferences().edit().putString(preference.getKey(), theme).apply();
+                    Objects.requireNonNull(preference.getSharedPreferences()).edit().putString(preference.getKey(), theme).apply();
                     switch (theme) {
                         case "Auto (Follow System Theme)":
                             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
@@ -116,7 +116,7 @@ public class SettingsActivity extends AppCompatActivity {
             Preference showSecondsPref = findPreference("ShowSeconds");
             if (showSecondsPref != null) {
                 showSecondsPref.setOnPreferenceClickListener(preference  -> {
-                    boolean isOn = preference.getSharedPreferences().getBoolean("ShowSeconds",false);
+                    boolean isOn = Objects.requireNonNull(preference.getSharedPreferences()).getBoolean("ShowSeconds",false);
                     if (isOn) {
                         new AlertDialog.Builder(getContext())
                                 .setTitle("Do NOT rely on the seconds!")
@@ -206,7 +206,7 @@ public class SettingsActivity extends AppCompatActivity {
             }
         }
 
-        public void onDisplayPreferenceDialog(Preference preference) {
+        public void onDisplayPreferenceDialog(@NonNull Preference preference) {
             if (preference instanceof ColorPreference) {
                 ColorPreference colorPreference = ((ColorPreference) preference);
                 colorPreference.showDialog(this, 0);
@@ -270,5 +270,11 @@ public class SettingsActivity extends AppCompatActivity {
                 break;
         }
         super.onResume();
+    }
+
+    @Override
+    public void onBackPressed() {
+        sFromSettings = true;
+        super.onBackPressed();
     }
 }

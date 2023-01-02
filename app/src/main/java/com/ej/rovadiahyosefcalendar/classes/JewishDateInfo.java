@@ -247,7 +247,7 @@ public class JewishDateInfo {
             case JewishCalendar.CHANUKAH:
                 return "Chanukah";
             case JewishCalendar.TENTH_OF_TEVES:
-                return "Asarah Be'Tevet";
+                return "Fast of Asarah Be'Tevet";
             case JewishCalendar.TU_BESHVAT:
                 return "Tu Be'Shevat";
             case JewishCalendar.FAST_OF_ESTHER:

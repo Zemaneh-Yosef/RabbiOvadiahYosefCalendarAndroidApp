@@ -19,6 +19,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -1161,18 +1162,20 @@ public class MainActivity extends AppCompatActivity {
         zmanim.add(new ZmanListEntry(mROZmanimCalendar.getGeoLocation().getLocationName()));
 
         StringBuilder sb = new StringBuilder();
-        sb.append(mJewishDateInfo.getJewishCalendar().toString()
-                .replace("Teves", "Tevet").replace("Tishrei", "Tishri"));
-        if (DateUtils.isSameDay(mROZmanimCalendar.getCalendar().getTime(), new Date())) {
-            sb.append("   ▼   ");//add a down arrow to indicate that this is the current day
-        } else {
-            sb.append("      ");
-        }
         sb.append(mROZmanimCalendar.getCalendar().get(Calendar.DATE));
         sb.append(" ");
         sb.append(mROZmanimCalendar.getCalendar().getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault()));
         sb.append(", ");
         sb.append(mROZmanimCalendar.getCalendar().get(Calendar.YEAR));
+
+        if (DateUtils.isSameDay(mROZmanimCalendar.getCalendar().getTime(), new Date())) {
+            sb.append("   ▼   ");//add a down arrow to indicate that this is the current day
+        } else {
+            sb.append("      ");
+        }
+
+        sb.append(mJewishDateInfo.getJewishCalendar().toString()
+                .replace("Teves", "Tevet").replace("Tishrei", "Tishri"));
         zmanim.add(new ZmanListEntry(sb.toString()));
 
         zmanim.add(new ZmanListEntry(mJewishDateInfo.getThisWeeksParsha()));
@@ -1254,6 +1257,8 @@ public class MainActivity extends AppCompatActivity {
         if (mSettingsPreferences.getBoolean("ShowElevation", false)) {
             zmanim.add(new ZmanListEntry("Elevation: " + mElevation + " meters"));
         }
+
+        //TODO: add a setting to send people to the siddur for the current day shown
 
         return zmanim;
     }
@@ -2059,7 +2064,12 @@ public class MainActivity extends AppCompatActivity {
                     .putExtra("fromMenu",true));
             return true;
         } else if (id == R.id.settings) {
+            sFromSettings = true;
             startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+            return true;
+        } else if (id == R.id.website) {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://elyahu41.github.io/RabbiOvadiahYosefCalendar/index.html"));
+            startActivity(browserIntent);
             return true;
         } else if (id == R.id.help) {
             new AlertDialog.Builder(this, R.style.Theme_AppCompat_DayNight)

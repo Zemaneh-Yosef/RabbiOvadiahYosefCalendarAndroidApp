@@ -36,6 +36,9 @@
         android:id="@+id/settings"
         android:title="@string/settings" />
     <item
+        android:id="@+id/website"
+        android:title="@string/website" />
+    <item
         android:id="@+id/help"
         android:title="@string/help" />
 

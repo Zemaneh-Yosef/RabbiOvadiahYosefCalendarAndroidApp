@@ -9,7 +9,6 @@ import java.util.TimeZone;
 public class JewishCalendarWithTekufaMethods extends JewishCalendar {
 
     public Double getTekufa() {
-
         double INITIAL_TEKUFA_OFFSET = 12.625;  // the number of days Tekufas Tishrei occurs before JEWISH_EPOCH
 
         double days = getJewishCalendarElapsedDays(getJewishYear()) + getDaysSinceStartOfJewishYear() + INITIAL_TEKUFA_OFFSET - 1;  // total days since first Tekufas Tishrei event
@@ -24,7 +23,7 @@ public class JewishCalendarWithTekufaMethods extends JewishCalendar {
     }
 
     public String getTekufaName() {
-        String[] tekufaNames = new String[]{"Tishri","Tevet","Nissan","Tammuz"};
+        String[] tekufaNames = new String[]{"Tishri", "Tevet", "Nissan", "Tammuz"};
 
         double INITIAL_TEKUFA_OFFSET = 12.625;  // the number of days Tekufas Tishrei occurs before JEWISH_EPOCH
         double days = getJewishCalendarElapsedDays(getJewishYear()) + getDaysSinceStartOfJewishYear() + INITIAL_TEKUFA_OFFSET - 1;  // total days since first Tekufas Tishrei event
@@ -40,7 +39,6 @@ public class JewishCalendarWithTekufaMethods extends JewishCalendar {
     }
 
     public Date getTekufaAsDate() {
-
         // The tekufa Date (point in time) must be generated using standard time. Using "Asia/Jerusalem" timezone will result in the time
         // being incorrectly off by an hour in the summer due to DST. Proper adjustment for the actual time in DST will be done by the date
         // formatter class used to display the Date.
