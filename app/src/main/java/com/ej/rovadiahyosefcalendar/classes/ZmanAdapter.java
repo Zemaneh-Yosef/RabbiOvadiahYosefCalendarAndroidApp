@@ -10,6 +10,7 @@ import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sNextUpcoming
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
@@ -98,7 +99,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     checkEnglishZmanimForDialog(position);
                 }
 
-                if (position == 0) {
+                if (position == 0) {// first entry will always be the location name
                     dialogBuilder.setTitle("Location info for: " + zmanim.get(position).getTitle());
                     String locationInfo = "Current Location: " + sCurrentLocationName + "\n" +
                             "Current Longitude: " + sLongitude + "\n" +
@@ -107,6 +108,20 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                             "Current Time Zone: " + sCurrentTimeZoneID;
                     dialogBuilder.setMessage(locationInfo);
                     dialogBuilder.show();
+                }
+
+                if (position == 2 && !zmanim.get(position).getTitle().equals("No Parsha this week")) {// third entry will always be the weekly parsha
+                    String parsha = zmanim.get(position).getTitle();
+                    String parshaLink = "https://www.sefaria.org/" + parsha;
+                    dialogBuilder.setTitle("Open Sefaria link for " + parsha + "?");
+                    dialogBuilder.setMessage("This will open the Sefaria website or app in a new window with the weekly parsha.");
+                    dialogBuilder.setPositiveButton("Open", (dialog, which) -> {
+                                Intent intent = new Intent(Intent.ACTION_VIEW);
+                                intent.setData(android.net.Uri.parse(parshaLink));
+                                context.startActivity(intent);
+                            });
+                    dialogBuilder.show();
+                    dialogBuilder.setPositiveButton("Dismiss", (dialog, which) -> dialog.dismiss());
                 }
 
                 if (zmanim.get(position).getTitle().contains("וּלְכַפָּרַת פֶּשַׁע")) {
@@ -124,6 +139,33 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                 if (zmanim.get(position).getTitle().contains("Tachanun") || zmanim.get(position).getTitle().contains("צדקתך")) {
                     showTachanunDialog();
                 }
+
+                if (zmanim.get(position).getTitle().contains("Daf Yomi")) {
+                    // open sefaria link for daf yomi
+                    String dafYomiLink = "https://www.sefaria.org/" + zmanim.get(position).getTitle().replace("Daf Yomi: ", "");
+                    dialogBuilder.setTitle("Open Sefaria link for " + zmanim.get(position).getTitle().replace("Daf Yomi: ", "") + "?");
+                    dialogBuilder.setMessage("This will open the Sefaria website or app in a new window with the daf yomi.");
+                    dialogBuilder.setPositiveButton("Open", (dialog, which) -> {
+                                Intent intent = new Intent(Intent.ACTION_VIEW);
+                                intent.setData(android.net.Uri.parse(dafYomiLink));
+                                context.startActivity(intent);
+                            });
+                    dialogBuilder.show();
+                    dialogBuilder.setPositiveButton("Dismiss", (dialog, which) -> dialog.dismiss());
+                }
+//                if (zmanim.get(position).getTitle().contains("Yerushalmi Yomi")) {//TODO: add sefaria link for yerushalmi yomi
+//                    // open sefaria link for yerushalmi yomi
+//                    String yerushalmiYomiLink = "https://www.sefaria.org/" + zmanim.get(position).getTitle().replace("Yerushalmi Yomi: ", "");
+//                    dialogBuilder.setTitle("Open Sefaria link for " + zmanim.get(position).getTitle().replace("Yerushalmi Yomi: ", "") + "?");
+//                    dialogBuilder.setMessage("This will open the Sefaria website or app in a new window with the yerushalmi yomi.");
+//                    dialogBuilder.setPositiveButton("Open", (dialog, which) -> {
+//                                Intent intent = new Intent(Intent.ACTION_VIEW);
+//                                intent.setData(android.net.Uri.parse(yerushalmiYomiLink));
+//                                context.startActivity(intent);
+//                            });
+//                    dialogBuilder.show();
+//                    dialogBuilder.setPositiveButton("Dismiss", (dialog, which) -> dialog.dismiss());
+//                }
             }
         });
 

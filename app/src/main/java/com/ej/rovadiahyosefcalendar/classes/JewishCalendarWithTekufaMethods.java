@@ -45,6 +45,9 @@ public class JewishCalendarWithTekufaMethods extends JewishCalendar {
         TimeZone yerushalayimStandardTZ = TimeZone.getTimeZone("GMT+2");
         Calendar cal = Calendar.getInstance(yerushalayimStandardTZ);
         cal.clear();
+        if (getTekufa() == null) {
+            return null;
+        }
         double hours = getTekufa() - 6;
         int minutes = (int) ((hours - (int) hours) * 60);
         cal.set(getGregorianYear(), getGregorianMonth(), getGregorianDayOfMonth(), 0, 0, 0);

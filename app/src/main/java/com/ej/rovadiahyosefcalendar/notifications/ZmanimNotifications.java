@@ -55,9 +55,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
     private ROZmanimCalendar getROZmanimCalendar(Context context) {
         if (ActivityCompat.checkSelfPermission(context, ACCESS_BACKGROUND_LOCATION) == PERMISSION_GRANTED) {
             mLocationResolver.getRealtimeNotificationData();
-            //Log.w("ZmanimNotifications", "Latitude: " + mLocationResolver.getLatitude() + " Longitude: " + mLocationResolver.getLongitude());
             if (mLocationResolver.getLatitude() == 0 && mLocationResolver.getLongitude() == 0) {
-                //Log.w("ZmanimNotifications", "Latitude and Longitude are both 0, we will use the last location");
                 return new ROZmanimCalendar(new GeoLocation(
                         mSharedPreferences.getString("name", ""),
                         Double.longBitsToDouble(mSharedPreferences.getLong("lat", 0)),
@@ -65,7 +63,6 @@ public class ZmanimNotifications extends BroadcastReceiver {
                         getLastKnownElevation(),
                         TimeZone.getTimeZone(mSharedPreferences.getString("timezoneID", ""))));
             } else {
-                //Log.w("ZmanimNotifications", "Latitude and Longitude are not 0, we will use the current location");
                 return new ROZmanimCalendar(new GeoLocation(
                         mLocationResolver.getLocationName(),
                         mLocationResolver.getLatitude(),

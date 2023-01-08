@@ -81,7 +81,7 @@ public class TekufaNotifications extends BroadcastReceiver {
             NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context,
                     "Tekufa Notifications")
                     .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
-                    .setSmallIcon(R.drawable.calendar_foreground)
+                    .setSmallIcon(R.drawable.ic_baseline_alarm_24)
                     .setContentTitle("Tekufa/Season Change")
                     .setContentText(contentText)
                     .setStyle(new NotificationCompat.BigTextStyle()
@@ -106,14 +106,14 @@ public class TekufaNotifications extends BroadcastReceiver {
         cal.add(Calendar.DATE, 1);
         jewishDateInfo.setCalendar(cal);
         if (jewishDateInfo.getJewishCalendar().getTekufa() != null &&
-                DateUtils.isSameDay(cal.getTime(), jewishDateInfo.getJewishCalendar().getTekufaAsDate())) {//if next day hebrew has tekufa today
+                DateUtils.isSameDay(new Date(), jewishDateInfo.getJewishCalendar().getTekufaAsDate())) {//if next day hebrew has tekufa today
             return jewishDateInfo.getJewishCalendar().getTekufaAsDate();
         }
 
         cal.add(Calendar.DATE, -1);
         jewishDateInfo.setCalendar(cal);//reset
         if (jewishDateInfo.getJewishCalendar().getTekufa() != null &&
-                DateUtils.isSameDay(cal.getTime(), jewishDateInfo.getJewishCalendar().getTekufaAsDate())) {//if today hebrew has tekufa today
+                DateUtils.isSameDay(new Date(), jewishDateInfo.getJewishCalendar().getTekufaAsDate())) {//if today hebrew has tekufa today
             return jewishDateInfo.getJewishCalendar().getTekufaAsDate();
         }
         return null;//it should not return null because this notification will be called when the tekufa is today or tomorrow

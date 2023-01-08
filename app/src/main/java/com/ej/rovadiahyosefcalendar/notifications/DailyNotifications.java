@@ -157,7 +157,6 @@ public class DailyNotifications extends BroadcastReceiver {
 
     private void startUpDailyZmanim(Context context, SharedPreferences sp) {
         Intent zmanIntent = new Intent(context.getApplicationContext(), ZmanimNotifications.class);
-        sp.edit().putBoolean("fromThisNotification", false).apply();
         PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),0,zmanIntent,PendingIntent.FLAG_IMMUTABLE);
         try {
             zmanimPendingIntent.send();
@@ -170,14 +169,14 @@ public class DailyNotifications extends BroadcastReceiver {
         cal.add(Calendar.DATE, 1);//start checking from tomorrow
         jewishDateInfo.setCalendar(cal);
         if (jewishDateInfo.getJewishCalendar().getTekufa() != null &&
-                DateUtils.isSameDay(cal.getTime(), jewishDateInfo.getJewishCalendar().getTekufaAsDate())) {//if next day hebrew has tekufa today
+                DateUtils.isSameDay(new Date(), jewishDateInfo.getJewishCalendar().getTekufaAsDate())) {//if next day hebrew has tekufa today
             setupTekufaNotification(context, cal, jewishDateInfo);
         }
 
         cal.add(Calendar.DATE, -1);
         jewishDateInfo.setCalendar(cal);//reset
         if (jewishDateInfo.getJewishCalendar().getTekufa() != null &&
-                DateUtils.isSameDay(cal.getTime(), jewishDateInfo.getJewishCalendar().getTekufaAsDate())) {//if today hebrew has tekufa today
+                DateUtils.isSameDay(new Date(), jewishDateInfo.getJewishCalendar().getTekufaAsDate())) {//if today hebrew has tekufa today
             setupTekufaNotification(context, cal, jewishDateInfo);
         }
     }
@@ -185,7 +184,8 @@ public class DailyNotifications extends BroadcastReceiver {
     private void setupTekufaNotification(Context context, Calendar cal, JewishDateInfo jewishDateInfo) {
         Calendar tekufaCal = (Calendar) cal.clone();//clone to avoid changing the original calendar
         AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
-        tekufaCal.setTimeInMillis(DateUtils.addHours(jewishDateInfo.getJewishCalendar().getTekufaAsDate(), -1).getTime());
+        Date tekufaDate = DateUtils.addHours(jewishDateInfo.getJewishCalendar().getTekufaAsDate(), -1);
+        tekufaCal.setTimeInMillis(tekufaDate.getTime());
         PendingIntent tekufaPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
                 0, new Intent(context.getApplicationContext(), TekufaNotifications.class), PendingIntent.FLAG_IMMUTABLE);
         am.cancel(tekufaPendingIntent);

@@ -375,36 +375,6 @@ public class LocationResolver extends Thread {
     }
 
     public void getRealtimeNotificationData() {
-        StringBuilder result = new StringBuilder();
-        List<Address> addresses = null;
-        try {
-            addresses = mGeocoder.getFromLocation(mLatitude, mLongitude, 1);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (addresses != null && addresses.size() > 0) {
-
-            String city = addresses.get(0).getLocality();
-            if (city != null) {
-                result.append(city).append(", ");
-            }
-
-            String state = addresses.get(0).getAdminArea();
-            if (state != null) {
-                result.append(state);
-            }
-
-            if (result.toString().endsWith(", ")) {
-                result.deleteCharAt(result.length() - 2);
-            }
-
-            if (city == null && state == null) {
-                String country = addresses.get(0).getCountryName();
-                result.append(country);
-            }
-        }
-        mLocationName = result.toString().trim();
-
         if (ActivityCompat.checkSelfPermission(mContext, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(mActivity, new String[]{ACCESS_FINE_LOCATION}, 1);
         } else {
@@ -497,6 +467,35 @@ public class LocationResolver extends Thread {
                 e.printStackTrace();
             }
         }
+        StringBuilder result = new StringBuilder();
+        List<Address> addresses = null;
+        try {
+            addresses = mGeocoder.getFromLocation(mLatitude, mLongitude, 1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (addresses != null && addresses.size() > 0) {
+
+            String city = addresses.get(0).getLocality();
+            if (city != null) {
+                result.append(city).append(", ");
+            }
+
+            String state = addresses.get(0).getAdminArea();
+            if (state != null) {
+                result.append(state);
+            }
+
+            if (result.toString().endsWith(", ")) {
+                result.deleteCharAt(result.length() - 2);
+            }
+
+            if (city == null && state == null) {
+                String country = addresses.get(0).getCountryName();
+                result.append(country);
+            }
+        }
+        mLocationName = result.toString().trim();
 
         setTimeZoneID();
     }

@@ -5,6 +5,7 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.classes.JewishDateInfo.formatHebrewNumber;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlarmManager;
@@ -15,6 +16,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -44,6 +46,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuCompat;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -167,8 +170,6 @@ public class MainActivity extends AppCompatActivity {
      */
     private final static Calendar dafYomiStartDate = new GregorianCalendar(1923, Calendar.SEPTEMBER, 11);
     private final static Calendar dafYomiYerushalmiStartDate = new GregorianCalendar(1980, Calendar.FEBRUARY, 2);
-    private int mDayOfNextUpcomingZman;
-    private int mIndexOfNextUpcomingZman;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -389,7 +390,7 @@ public class MainActivity extends AppCompatActivity {
         setupButtons();
         setNotifications();
         checkIfUserIsInIsraelOrNot();
-        askForBackgroundLocationPermission();
+        askForPermissions();
     }
 
     private void setZmanimLanguageBools() {
@@ -405,7 +406,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void askForBackgroundLocationPermission() {
+    private void askForPermissions() {
         if (mSharedPreferences.getBoolean("useZipcode", false)) {
             return;//if the user is using a zipcode, we don't need to ask for background location permission as we don't use the device's location
         }
@@ -865,6 +866,13 @@ public class MainActivity extends AppCompatActivity {
      * have changed his location.
      */
     private void setNotifications() {
+        if (mSettingsPreferences.getBoolean("zmanim_notifications", true)) {//if the user wants notifications
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {// ask for permission to send notifications for newer versions of android ughhhh...
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1);
+                }
+            }
+        }
         Calendar calendar = (Calendar) mROZmanimCalendar.getCalendar().clone();
         calendar.setTimeInMillis(mROZmanimCalendar.getSunrise().getTime());
         if (calendar.getTime().compareTo(new Date()) < 0) {
@@ -1576,13 +1584,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         zmanim.removeAll(zmansToRemove);
-        for (int i = 0; i < zmanim.size(); i++) {
-            if (zmanim.get(i).getZman().equals(sNextUpcomingZman)) {
-                mDayOfNextUpcomingZman = day;
-                mIndexOfNextUpcomingZman = i;
-                break;
-            }
-        }
 
         //here is where we actually create the list of zmanim to display
         String[] shortZmanim = new String[zmanim.size()];
