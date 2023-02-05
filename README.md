@@ -1,4 +1,4 @@
-# Rabbi Ovadiah Yosef Calendar App
+# Rabbi Ovadiah Yosef Calendar (Android) App
 
 <a href="https://play.google.com/store/apps/details?id=com.EJ.ROvadiahYosefCalendar&amp;pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1"><img class="android" alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" width="250px"></a>
 
