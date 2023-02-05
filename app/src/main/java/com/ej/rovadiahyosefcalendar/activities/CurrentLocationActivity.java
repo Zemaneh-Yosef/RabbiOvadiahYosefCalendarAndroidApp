@@ -1,6 +1,7 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sCurrentLocationName;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -62,9 +63,16 @@ public class CurrentLocationActivity extends AppCompatActivity {
                         editor.putString("Zipcode", input.getText().toString()).apply();
                         mLocationResolver.getLatitudeAndLongitudeFromSearchQuery();
                         mLocationResolver.setTimeZoneID();
-                        startActivity(new Intent(this, SetupChooserActivity.class)
-                                .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-                                .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
+                        mLocationResolver.start();
+                        try {
+                            mLocationResolver.join();
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                        mSharedPreferences.edit().putBoolean("UseTable" + sCurrentLocationName, false).apply();
+                        mSharedPreferences.edit().putBoolean("showMishorSunrise" + sCurrentLocationName, true).apply();
+                        mSharedPreferences.edit().putBoolean("isSetup", true).apply();
+                        mSharedPreferences.edit().putBoolean("useElevation", true).apply();
                         finish();//end the activity
                     }
                 })
@@ -86,9 +94,16 @@ public class CurrentLocationActivity extends AppCompatActivity {
             if (grantResults.length > 0 && grantResults[0] == 0) {
                 mLocationResolver.acquireLatitudeAndLongitude();
                 mLocationResolver.setTimeZoneID();
-                startActivity(new Intent(this, SetupChooserActivity.class)
-                        .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-                        .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
+                mLocationResolver.start();
+                try {
+                    mLocationResolver.join();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                mSharedPreferences.edit().putBoolean("UseTable" + sCurrentLocationName, false).apply();
+                mSharedPreferences.edit().putBoolean("showMishorSunrise" + sCurrentLocationName, true).apply();
+                mSharedPreferences.edit().putBoolean("isSetup", true).apply();
+                mSharedPreferences.edit().putBoolean("useElevation", true).apply();
                 finish();
             }
     }

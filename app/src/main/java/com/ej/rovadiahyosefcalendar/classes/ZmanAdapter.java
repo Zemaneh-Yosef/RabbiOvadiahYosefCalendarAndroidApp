@@ -7,6 +7,7 @@ import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sCurrentTimeZ
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sLatitude;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sLongitude;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sNextUpcomingZman;
+import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sSetupLauncher;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -24,6 +25,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.MainActivity;
+import com.ej.rovadiahyosefcalendar.activities.SetupChooserActivity;
+import com.ej.rovadiahyosefcalendar.activities.SetupElevationActivity;
+import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
+import com.kosherjava.zmanim.hebrewcalendar.YomiCalculator;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -38,7 +43,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     private final List<ZmanListEntry> zmanim;
     private final SharedPreferences mSharedPreferences;
     private final Context context;
-    private final AlertDialog.Builder dialogBuilder;
+    private AlertDialog.Builder dialogBuilder;
     private final DateFormat zmanimFormat;
     private final DateFormat roundUpFormat;
     private final boolean roundUpRt;
@@ -89,6 +94,11 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             holder.mMiddleTextView.setText(zmanim.get(position).getTitle());
         }
 
+        if (position == 2) {
+            //make text bold
+            holder.mMiddleTextView.setTypeface(null, Typeface.BOLD);
+        }
+
         holder.itemView.setOnClickListener(v -> {
             if (!MainActivity.sShabbatMode && PreferenceManager.getDefaultSharedPreferences(context).getBoolean("showZmanDialogs", true)) {
                 if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
@@ -104,11 +114,20 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     String locationInfo = "Current Location: " + sCurrentLocationName + "\n" +
                             "Current Longitude: " + sLongitude + "\n" +
                             "Current Latitude: " + sLatitude + "\n" +
-                            "Elevation: " + mSharedPreferences.getString("elevation"+sCurrentLocationName, "0") + " meters" + "\n" +
+                            "Elevation: " +
+                            (mSharedPreferences.getBoolean("useElevation", true) ?
+                                    mSharedPreferences.getString("elevation" + sCurrentLocationName, "0") :
+                                    "0")
+                            + " meters" + "\n" +
                             "Current Time Zone: " + sCurrentTimeZoneID;
                     dialogBuilder.setMessage(locationInfo);
+                    dialogBuilder.setNegativeButton("Change Elevation", (dialog, which) ->
+                            sSetupLauncher.launch(new Intent(context, SetupElevationActivity.class).putExtra("fromMenu",true)));
                     dialogBuilder.show();
+                    resetDialogBuilder();
                 }
+
+                // second entry is always the date
 
                 if (position == 2 && !zmanim.get(position).getTitle().equals("No Parsha this week")) {// third entry will always be the weekly parsha
                     String parsha = zmanim.get(position).getTitle();
@@ -120,8 +139,9 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                                 intent.setData(android.net.Uri.parse(parshaLink));
                                 context.startActivity(intent);
                             });
+                    dialogBuilder.setNegativeButton("Dismiss", (dialog, which) -> dialog.dismiss());
                     dialogBuilder.show();
-                    dialogBuilder.setPositiveButton("Dismiss", (dialog, which) -> dialog.dismiss());
+                    resetDialogBuilder();
                 }
 
                 if (zmanim.get(position).getTitle().contains("וּלְכַפָּרַת פֶּשַׁע")) {
@@ -141,8 +161,12 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                 }
 
                 if (zmanim.get(position).getTitle().contains("Daf Yomi")) {
-                    // open sefaria link for daf yomi
-                    String dafYomiLink = "https://www.sefaria.org/" + zmanim.get(position).getTitle().replace("Daf Yomi: ", "");
+                    ZmanListEntry zman = zmanim.get(position);
+                    JewishCalendar jewishCalendar = new JewishCalendar();
+                    jewishCalendar.setDate(zman.getZman());
+                    String masechta = YomiCalculator.getDafYomiBavli(jewishCalendar).getMasechtaTransliterated();
+                    int daf = YomiCalculator.getDafYomiBavli(jewishCalendar).getDaf();
+                    String dafYomiLink = "https://www.sefaria.org/" + masechta + "." + daf + "a";
                     dialogBuilder.setTitle("Open Sefaria link for " + zmanim.get(position).getTitle().replace("Daf Yomi: ", "") + "?");
                     dialogBuilder.setMessage("This will open the Sefaria website or app in a new window with the daf yomi.");
                     dialogBuilder.setPositiveButton("Open", (dialog, which) -> {
@@ -150,8 +174,9 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                                 intent.setData(android.net.Uri.parse(dafYomiLink));
                                 context.startActivity(intent);
                             });
+                    dialogBuilder.setNegativeButton("Dismiss", (dialog, which) -> dialog.dismiss());
                     dialogBuilder.show();
-                    dialogBuilder.setPositiveButton("Dismiss", (dialog, which) -> dialog.dismiss());
+                    resetDialogBuilder();
                 }
 //                if (zmanim.get(position).getTitle().contains("Yerushalmi Yomi")) {//TODO: add sefaria link for yerushalmi yomi
 //                    // open sefaria link for yerushalmi yomi
@@ -216,6 +241,12 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         } else {
             return "N/A";
         }
+    }
+
+    private void resetDialogBuilder() {
+        dialogBuilder = new AlertDialog.Builder(this.context);
+        dialogBuilder.setPositiveButton("Dismiss", (dialog, which) -> dialog.dismiss());
+        dialogBuilder.create();
     }
 
     private void checkHebrewZmanimForDialog(int position) {
@@ -391,8 +422,11 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         "the sun is VISIBLE to say shacharit. In Israel, the Ohr HaChaim calendar uses a table of sunrise times from the " +
                         "luach/calendar 'לוח ביכורי יוסף' (Luach Bechoray Yosef) each year. These times were made by Chaim Keller, creator of the " +
                         "ChaiTables website. Ideally, you should download these VISIBLE sunrise times from his website with the capability of " +
-                        "this app to use for the year. However, if you did not download the times, you will see 'Mishor' or 'Sea Level' sunrise instead.")
+                        "this app by pressing the button below. However, if you did not download the times, you will see 'Mishor' or 'Sea Level' sunrise instead.")
+                .setNegativeButton("Setup Visible Sunrise", (dialog, which) ->
+                        sSetupLauncher.launch(new Intent(context, SetupChooserActivity.class).putExtra("fromMenu",true)))
                 .show();
+        resetDialogBuilder();
     }
 
     private void showAchilatChametzDialog() {
@@ -538,7 +572,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
     private void showTzaitTaanitLChumraDialog() {
         dialogBuilder.setTitle("Fast Ends (Stringent) - \u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA \u05DC\u05D7\u05D5\u05DE\u05E8\u05D4 - Tzeit Taanit L'Chumra")
-                .setMessage("This is the more stringent time that the fast/taanit ends.\n\n" +
+                .setMessage("This is the more stringent time that the fast/taanit ends. This time is according to the opinion of Chacham Ben Zion Abba Shaul\n\n" +
                         "This time is calculated as 30 regular minutes after sunset (elevation included).")
                 .show();
     }
@@ -593,7 +627,10 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         "held about using elevation for zmanim. (See Halacha Berura vol. 14, in Otzrot Yosef (Kuntrus Ki Ba Hashemesh), Siman 6, " +
                         "Perek 21 for an in depth discussion) The Ohr HaChaim calendar uses elevation for their zmanim, however, Rabbi David Yosef " +
                         "Z\"TL holds that the elevation is not used for zmanim.")
+                .setNegativeButton("Change Elevation", (dialog, which) ->
+                        sSetupLauncher.launch(new Intent(context, SetupElevationActivity.class).putExtra("fromMenu",true)))
                 .show();
+        resetDialogBuilder();
     }
 
     private void showTekufaDialog() {
@@ -630,7 +667,9 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         "Tu Be'Shvat\n" +
                         "Lag Ba'Omer\n" +
                         "Pesach Sheni\n" +
-                        "Yom Yerushalayim but not Yom Ha'atzmaut\n")
+                        "Yom Yerushalayim but not Yom Ha'atzmaut\n\n" +
+                        "Note that there are other times you should not say tachanun, but this list is only for days with no tachanun. Sometimes " +
+                        "you can skip tachanun if there are mourners making up majority of the minyan or if there is a simcha (joyous occasion).")
                 .show();
     }
 }

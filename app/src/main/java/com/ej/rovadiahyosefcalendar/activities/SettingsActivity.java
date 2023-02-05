@@ -193,7 +193,7 @@ public class SettingsActivity extends AppCompatActivity {
                     email.setData(Uri.parse("mailto:"));
                     email.putExtra(Intent.EXTRA_EMAIL, new String[]{"elyahujacobi@gmail.com"}); //developer's email
                     email.putExtra(Intent.EXTRA_SUBJECT,"Support Ticket"); //Email's Subject
-                    email.putExtra(Intent.EXTRA_TEXT,"Dear Mr. Elyahu,"); //Email's Greeting text
+                    email.putExtra(Intent.EXTRA_TEXT,"Dear Mr. Elyahu, "); //Email's Greeting text
 
                     if (packageManager.resolveActivity(email,0) != null) { // there is an activity that can handle it
                         startActivity(email);
@@ -201,6 +201,18 @@ public class SettingsActivity extends AppCompatActivity {
                         Toast.makeText(getContext(),"No email app...", Toast.LENGTH_SHORT)
                                 .show();
                     }
+                    return false;
+                });
+            }
+
+            Preference help = findPreference("help");
+            if (help != null) {
+                help.setOnPreferenceClickListener(v -> {
+                    new AlertDialog.Builder(requireContext(), R.style.Theme_AppCompat_DayNight)
+                            .setTitle("Help using this app:")
+                            .setPositiveButton("ok", null)
+                            .setMessage(R.string.helper_text)
+                            .show();
                     return false;
                 });
             }

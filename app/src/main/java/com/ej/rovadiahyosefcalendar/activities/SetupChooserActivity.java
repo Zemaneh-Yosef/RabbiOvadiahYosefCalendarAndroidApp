@@ -22,9 +22,7 @@ import org.jetbrains.annotations.NotNull;
 public class SetupChooserActivity extends AppCompatActivity {
 
     private SharedPreferences.Editor mEditor;
-    private boolean mBackupSetting;
     private AlertDialog mAlertDialog;
-    private String mElevationBackup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,19 +68,6 @@ public class SetupChooserActivity extends AppCompatActivity {
 
         if (getIntent().getBooleanExtra("fromMenu", false)) {
             mEditor.putBoolean("isSetup", false).apply();//reset the preferences
-            try {
-                mElevationBackup = sharedPreferences.getString("elevation", "0");
-            } catch (Exception e) {
-                try {
-                    mElevationBackup = String.valueOf(sharedPreferences.getFloat("elevation", 0));
-                } catch (Exception e1) {
-                    mElevationBackup = "0";
-                    e1.printStackTrace();
-                }
-            }
-            mEditor.putString("elevation", "0").apply();
-            mBackupSetting = sharedPreferences.getBoolean("askagain", true);//save what the user set
-            mEditor.putBoolean("askagain", true).apply();//if the user is re-running the setup, reset the preferences for asking whether to change the city
         }
     }
 
@@ -90,14 +75,10 @@ public class SetupChooserActivity extends AppCompatActivity {
     public void onBackPressed() {
         if (getIntent().getBooleanExtra("fromMenu", false)) {
             mEditor.putBoolean("isSetup", true).apply();//undo the preferences changes in onCreate
-            mEditor.putBoolean("askagain", mBackupSetting).apply();
-            mEditor.putString("elevation", mElevationBackup).apply();
             finish();
             super.onBackPressed();
             return;
         }
-        startActivity(new Intent(this, ZmanimLanguageActivity.class)
-                .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
         finish();
         super.onBackPressed();
     }

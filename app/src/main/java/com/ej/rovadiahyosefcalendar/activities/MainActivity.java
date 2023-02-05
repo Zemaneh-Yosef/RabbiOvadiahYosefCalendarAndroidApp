@@ -7,7 +7,6 @@ import static com.ej.rovadiahyosefcalendar.classes.JewishDateInfo.formatHebrewNu
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -83,6 +82,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
@@ -148,12 +148,11 @@ public class MainActivity extends AppCompatActivity {
     //android classes:
     private Handler mHandler = null;
     private Runnable mZmanimUpdater;
-    private AlertDialog mAlertDialog;
     private GestureDetector mGestureDetector;
     private SharedPreferences mSharedPreferences;
     private SharedPreferences mSettingsPreferences;
     public static final String SHARED_PREF = "MyPrefsFile";
-    private ActivityResultLauncher<Intent> mSetupLauncher;
+    public static ActivityResultLauncher<Intent> sSetupLauncher;
 
     /**
      * The current date shown in the main activity.
@@ -182,7 +181,6 @@ public class MainActivity extends AppCompatActivity {
         mSettingsPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         mGestureDetector = new GestureDetector(MainActivity.this, new ZmanimGestureListener());
         mZmanimFormatter.setTimeFormat(ZmanimFormatter.SEXAGESIMAL_FORMAT);
-        initAlertDialog();
         initSetupResult();
         setupShabbatModeBanner();
         mLocationResolver = new LocationResolver(this, this);
@@ -191,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
                 && mSharedPreferences.getBoolean("UseTable" + sCurrentLocationName, true)
                 && !mSharedPreferences.getBoolean("isSetup", false)
                 && savedInstanceState == null) {//it should only not exist the first time running the app and only if the user has not set up the app
-            mSetupLauncher.launch(new Intent(this, FullSetupActivity.class));
+            sSetupLauncher.launch(new Intent(this, FullSetupActivity.class));
             initZmanimNotificationDefaults();
         } else {
             mLocationResolver.acquireLatitudeAndLongitude();
@@ -238,16 +236,15 @@ public class MainActivity extends AppCompatActivity {
      * It will also reinitialize the main view with the updated settings.
      */
     private void initSetupResult() {
-        mSetupLauncher = registerForActivityResult(
+        sSetupLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
-                    SharedPreferences.Editor editor = mSharedPreferences.edit();
                     mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        if (result.getData() != null) {
-                            editor.putString("lastLocation", sCurrentLocationName).apply();
-                        }
-                    }
+//                    if (result.getResultCode() == Activity.RESULT_OK) {
+//                        if (result.getData() != null) {
+//
+//                        }
+//                    }
                     if (!mInitialized) {
                         initMainView();
                     }
@@ -379,8 +376,11 @@ public class MainActivity extends AppCompatActivity {
      */
     private void initMainView() {
         mInitialized = true;
+        if (sLatitude == 0 && sLongitude == 0) {//initMainView() is called after the location is acquired, however, this is a failsafe
+            mLocationResolver.acquireLatitudeAndLongitude();
+        }
         mLocationResolver.setTimeZoneID();
-        getAndConfirmLastElevationAndVisibleSunriseData();
+        resolveElevationAndVisibleSunrise();
         instantiateZmanimCalendar();
         saveGeoLocationInfo();
         setZmanimLanguageBools();
@@ -657,6 +657,7 @@ public class MainActivity extends AppCompatActivity {
     private void setupCalendarButton() {
         mCalendarButton = findViewById(R.id.calendar);
         DatePickerDialog dialog = createDialog();
+        dialog.setCancelable(true);
 
         mCalendarButton.setOnClickListener(v -> {
             if (!sShabbatMode) {
@@ -782,7 +783,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(getIntent());
         }
         if (mMainRecyclerView != null) {
-            mCurrentPosition = ((LinearLayoutManager)mMainRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+            mCurrentPosition = ((LinearLayoutManager) Objects.requireNonNull(mMainRecyclerView.getLayoutManager())).findFirstVisibleItemPosition();
         }
         super.onPause();
     }
@@ -809,7 +810,7 @@ public class MainActivity extends AppCompatActivity {
                 mMainRecyclerView.scrollToPosition(mCurrentPosition);
             }
         }
-        getAndConfirmLastElevationAndVisibleSunriseData();
+        resolveElevationAndVisibleSunrise();
         resetTheme();
         if (mSharedPreferences.getBoolean("useImage", false)) {
             Bitmap bitmap = BitmapFactory.decodeFile(mSharedPreferences.getString("imageLocation", ""));
@@ -1231,7 +1232,8 @@ public class MainActivity extends AppCompatActivity {
         if (!mCurrentDateShown.before(dafYomiStartDate)) {
             zmanim.add(new ZmanListEntry("Daf Yomi: " + YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getMasechta()
                     + " " +
-                    formatHebrewNumber(YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getDaf())));
+                    formatHebrewNumber(YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getDaf()),
+                    mJewishDateInfo.getJewishCalendar().getGregorianCalendar().getTime(),false));
         }
         if (!mCurrentDateShown.before(dafYomiYerushalmiStartDate)) {
             String masechta = YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getMasechta();
@@ -1276,9 +1278,11 @@ public class MainActivity extends AppCompatActivity {
         Runnable nextZmanUpdater = () -> {
             setNextUpcomingZman();
             if (mMainRecyclerView != null && !mSharedPreferences.getBoolean("weeklyMode", false)) {
-                mCurrentPosition = ((LinearLayoutManager)mMainRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+                mCurrentPosition = ((LinearLayoutManager) Objects.requireNonNull(mMainRecyclerView.getLayoutManager())).findFirstVisibleItemPosition();
                 mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
-                mMainRecyclerView.smoothScrollToPosition(mCurrentPosition);
+                if (mCurrentPosition < Objects.requireNonNull(mMainRecyclerView.getAdapter()).getItemCount()) {
+                    mMainRecyclerView.scrollToPosition(mCurrentPosition);
+                }
             } else if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                 updateWeeklyZmanim();
             }
@@ -1481,7 +1485,7 @@ public class MainActivity extends AppCompatActivity {
             }
             StringBuilder announcements = new StringBuilder();
             mZmanimForAnnouncements = new ArrayList<>();//clear the list, it will be filled again in the getShortZmanim method
-            mListViews[i].setAdapter(new ArrayAdapter<>(this, R.layout.zman_list_view, getShortZmanim(i)));//E.G. "Sunrise: 5:45 AM, Sunset: 8:30 PM, etc."
+            mListViews[i].setAdapter(new ArrayAdapter<>(this, R.layout.zman_list_view, getShortZmanim()));//E.G. "Sunrise: 5:45 AM, Sunset: 8:30 PM, etc."
             if (!mZmanimForAnnouncements.isEmpty()) {
                 for (String zman : mZmanimForAnnouncements) {
                     announcements.append(zman).append("\n");
@@ -1543,7 +1547,7 @@ public class MainActivity extends AppCompatActivity {
         mCurrentDateShown = backupCal;
     }
 
-    private String[] getShortZmanim(int day) {
+    private String[] getShortZmanim() {
         List<ZmanListEntry> zmanim = new ArrayList<>();
         addZmanim(zmanim, true);
         DateFormat zmanimFormat;
@@ -1819,81 +1823,39 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * This method checks if the user has already setup the elevation and visible sunrise from the last time he started
-     * the app. If he has setup the elevation and visible sunrise, then it checks if the user is in the
-     * same city as the last time he setup the app based on the getLocationAsName method. If the user is in the same city,
-     * all is good. If the user is in another city, we create an AlertDialog to warn the user that the elevation data
-     * and visible sunrise data are not accurate.
+     * This method will check if elevation has been set for the current location and if not, it will automatically set it by connecting to geonames
+     * and getting the elevation for the current location via the LocationResolver class. It will then set the elevation in the shared preferences
+     * for the current location. If the user is offline, it will not do anything. The only time it will not set the elevation is if the user has
+     * disabled the elevation setting in the settings menu.
      *
-     * @see #initAlertDialog()
      * @see LocationResolver#getLocationAsName()
      */
-    private void getAndConfirmLastElevationAndVisibleSunriseData() {
-        String lastLocation = mSharedPreferences.getString("lastLocation", "");
-
-        String message ="The elevation and visible sunrise data change depending on the city you are in. " +
-                        "Therefore, it is recommended that you update your elevation and visible sunrise " +
-                        "data according to your current location." + "\n\n" +
-                        "Last Location: " + lastLocation + "\n" +
-                        "Current Location: " + sCurrentLocationName + "\n\n" +
-                        "Would you like to rerun the setup now?";
-
-        try {//TODO this needs to be removed but cannot be removed for now because it is needed for people who have setup the app before we changed data types
-            if (sCurrentLocationName.contains("Lat:") && sCurrentLocationName.contains("Long:")) {
-                sUserIsOffline = true;
-                mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mSharedPreferences.getString("name", ""), "0"));//lastKnownLocation
-            } else {//user is online
-                mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));//get the last value of the current location or 0 if it doesn't exist
-            }
-        } catch (Exception e) {
-            try {//legacy
-                mElevation = mSharedPreferences.getFloat("elevation", 0);
-            } catch (Exception e1) {
-                mElevation = 0;
-                e1.printStackTrace();
-            }
+    private void resolveElevationAndVisibleSunrise() {
+        if (sCurrentLocationName.contains("Lat:") && sCurrentLocationName.contains("Long:")
+                && mSettingsPreferences.getBoolean("SetElevationToLastKnownLocation", false)) {//only if the user has enabled the setting to set the elevation to the last known location
+            sUserIsOffline = true;
+            mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mSharedPreferences.getString("name", ""), "0"));//lastKnownLocation
+        } else {//user is online, get the elevation from the shared preferences for the current location
+            mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));//get the last value of the current location or 0 if it doesn't exist
         }
 
-        if (mSharedPreferences.getBoolean("askagain", true)) {//only prompt user if he has not asked to be left alone
-            if (!lastLocation.isEmpty() && !sCurrentLocationName.isEmpty() && //location name should never be empty. It either has the name or it has Lat: and Long:
-                    !lastLocation.equals(sCurrentLocationName) &&
-                    !sUserIsOffline) {//don't ask if the user is offline
-
-                if (!mSharedPreferences.getBoolean("isElevationSetup" + sCurrentLocationName, false)) {//user should update his elevation in another city
-                    mAlertDialog.setMessage(message);
-                    mAlertDialog.show();
-                } else {//if the user is in the same place, then we just need to check if his tables need to be updated
-                    seeIfTablesNeedToBeUpdated(false);
+        if (!sUserIsOffline && mSharedPreferences.getBoolean("useElevation", true)) {//update if the user is online and the elevation setting is enabled
+            if (!mSharedPreferences.contains("elevation" + sCurrentLocationName)) {//if the elevation for this location has never been set
+                mLocationResolver = new LocationResolver(this, this);
+                mLocationResolver.start();
+                try {
+                    mLocationResolver.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-
+                mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));
+                seeIfTablesNeedToBeUpdated(false);
             }
-        } else {//if the user has asked to be left alone for elevation, then we just need to check if his tables need to be updated
-            seeIfTablesNeedToBeUpdated(false);
         }
-    }
 
-    /**
-     * This method initializes the AlertDialog that will be shown to the user if the user is in another city and he has setup the app before.
-     * The AlertDialog will have two buttons: "Yes" and "No". If the user clicks "Yes", then the user will be taken to the
-     * elevation and visible sunrise setup activity. If the user clicks "No", then the user will be taken to the main activity.
-     * There is also a "Do not ask again" button that will stop the user from being prompted again.
-     * @see #getAndConfirmLastElevationAndVisibleSunriseData()
-     */
-    private void initAlertDialog() {
-        mAlertDialog = new AlertDialog.Builder(this)
-                .setTitle("You are not in the same city as the last time that you " +
-                        "setup the app!")
-                .setPositiveButton("Yes", (dialogInterface, i) ->
-                        mSetupLauncher.launch(new Intent(this, SetupChooserActivity.class)
-                                .putExtra("fromMenu",true)))
-                .setNegativeButton("No", (dialogInterface, i) -> Toast.makeText(
-                        this, "Using mishor/sea level values", Toast.LENGTH_LONG)
-                        .show())
-                .setNeutralButton("Do not ask again", (dialogInterface, i) -> {
-                    mSharedPreferences.edit().putBoolean("askagain", false).apply();
-                    Toast.makeText(this, "Your current elevation is: " + mElevation, Toast.LENGTH_LONG)
-                            .show();
-                }).create();
+        if (!mSharedPreferences.getBoolean("useElevation", true)) {//if the user has disabled the elevation setting, set the elevation to 0
+            mElevation = 0;
+        }
     }
 
     /**
@@ -1919,7 +1881,7 @@ public class MainActivity extends AppCompatActivity {
                         editor.putString("Zipcode", input.getText().toString()).apply();
                         mLocationResolver = new LocationResolver(this, this);
                         mLocationResolver.getLatitudeAndLongitudeFromSearchQuery();
-                        if (mSharedPreferences.getBoolean("isElevationSetup" + sCurrentLocationName, true)) {
+                        if (mSharedPreferences.getBoolean("useElevation", true)) {
                             mLocationResolver.start();
                             try {
                                 mLocationResolver.join();
@@ -1931,7 +1893,7 @@ public class MainActivity extends AppCompatActivity {
                             initMainView();
                         } else {
                             mLocationResolver.setTimeZoneID();
-                            getAndConfirmLastElevationAndVisibleSunriseData();
+                            resolveElevationAndVisibleSunrise();
                             instantiateZmanimCalendar();
                             if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                                 updateWeeklyZmanim();
@@ -1948,7 +1910,7 @@ public class MainActivity extends AppCompatActivity {
                     mLocationResolver = new LocationResolver(this, this);
                     mLocationResolver.acquireLatitudeAndLongitude();
                     mLocationResolver.setTimeZoneID();
-                    if (mSharedPreferences.getBoolean("isElevationSetup" + sCurrentLocationName, true)) {
+                    if (mSharedPreferences.getBoolean("useElevation", true)) {
                         mLocationResolver.start();
                         try {
                             mLocationResolver.join();
@@ -1956,7 +1918,7 @@ public class MainActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
                     }
-                    getAndConfirmLastElevationAndVisibleSunriseData();
+                    resolveElevationAndVisibleSunrise();
                     instantiateZmanimCalendar();
                     if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                         updateWeeklyZmanim();
@@ -1991,6 +1953,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         menu.findItem(R.id.weekly_mode).setChecked(mSharedPreferences.getBoolean("weeklyMode", false));
+        menu.findItem(R.id.use_elevation).setChecked(mSharedPreferences.getBoolean("useElevation", true));
         return true;
     }
 
@@ -2010,13 +1973,15 @@ public class MainActivity extends AppCompatActivity {
                     && mMainRecyclerView != null) {// Some users were getting a crash here, so I added this check.
                 mCurrentDateShown.setTime(new Date());
                 mJewishDateInfo.setCalendar(new GregorianCalendar());
+                resolveElevationAndVisibleSunrise();
+                instantiateZmanimCalendar();//for the location name
                 mROZmanimCalendar.setCalendar(new GregorianCalendar());
+                setNextUpcomingZman();
                 if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                     updateWeeklyZmanim();
                 } else {
                     mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
                 }
-                getAndConfirmLastElevationAndVisibleSunriseData();
             }
             return true;
         } else if (id == R.id.enterZipcode) {
@@ -2053,15 +2018,23 @@ public class MainActivity extends AppCompatActivity {
                 mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
             }
             return true;
+        } else if (id == R.id.use_elevation) {
+            item.setChecked(mSharedPreferences.getBoolean("useElevation", false));//save the state of the menu item
+            mSharedPreferences.edit().putBoolean("useElevation", !mSharedPreferences.getBoolean("useElevation", false)).apply();
+            resolveElevationAndVisibleSunrise();
+            instantiateZmanimCalendar();
+            setNextUpcomingZman();
+            if (mSharedPreferences.getBoolean("weeklyMode", false)) {
+                updateWeeklyZmanim();
+            } else {
+                mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+            }
+            return true;
         } else if (id == R.id.molad) {
             startActivity(new Intent(this, MoladActivity.class));
             return true;
-        } else if (id == R.id.setupChooser) {
-            mSetupLauncher.launch(new Intent(this, SetupChooserActivity.class)
-                    .putExtra("fromMenu",true));
-            return true;
         } else if (id == R.id.fullSetup) {
-            mSetupLauncher.launch(new Intent(this, FullSetupActivity.class)
+            sSetupLauncher.launch(new Intent(this, FullSetupActivity.class)
                     .putExtra("fromMenu",true));
             return true;
         } else if (id == R.id.settings) {

@@ -164,6 +164,9 @@ public class SimpleSetupActivity extends AppCompatActivity {
             if (scraper.isSearchRadiusTooSmall()) {
                 Toast.makeText(getApplicationContext(), "Something went wrong. Did you choose the right area?", Toast.LENGTH_SHORT).show();
                 startActivity(getIntent());
+            } else if (scraper.isWebsiteError()) {
+                Toast.makeText(getApplicationContext(), "Something went wrong connecting to the website. Please try again later.", Toast.LENGTH_SHORT).show();
+                startActivity(getIntent());
             } else {
                 Toast.makeText(getApplicationContext(), "Success!", Toast.LENGTH_SHORT).show();
                 userID++;
@@ -173,7 +176,7 @@ public class SimpleSetupActivity extends AppCompatActivity {
             mSharedPreferences.edit().putBoolean("UseTable" + sCurrentLocationName, true).apply();
             mSharedPreferences.edit().putBoolean("showMishorSunrise" + sCurrentLocationName, false).apply();
             mSharedPreferences.edit().putBoolean("isSetup", true).apply();
-            mSharedPreferences.edit().putBoolean("isElevationSetup" + sCurrentLocationName, true).apply();
+            mSharedPreferences.edit().putBoolean("useElevation", true).apply();
             Intent returnIntent = new Intent();
             returnIntent.putExtra("elevation", mSharedPreferences.getString("elevation" + sCurrentLocationName, ""));
             setResult(Activity.RESULT_OK, returnIntent);
@@ -188,7 +191,7 @@ public class SimpleSetupActivity extends AppCompatActivity {
             mSharedPreferences.edit().putBoolean("UseTable" + sCurrentLocationName, false).apply();
             mSharedPreferences.edit().putBoolean("showMishorSunrise" + sCurrentLocationName, true).apply();
             mSharedPreferences.edit().putBoolean("isSetup", true).apply();
-            mSharedPreferences.edit().putBoolean("isElevationSetup" + sCurrentLocationName, true).apply();
+            mSharedPreferences.edit().putBoolean("useElevation", true).apply();
             locationResolver.start();
             try {
                 locationResolver.join();

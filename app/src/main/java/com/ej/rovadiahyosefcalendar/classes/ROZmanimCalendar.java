@@ -26,7 +26,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     }
 
     public Date getEarliestTalitTefilin() {
-        long shaahZmanit = getTemporalHour(getSunrise(), getSunset());
+        long shaahZmanit = getTemporalHour(getElevationAdjustedSunrise(), getElevationAdjustedSunset());
         long dakahZmanit = shaahZmanit / MINUTES_PER_HOUR;
         return getTimeOffset(getAlos72Zmanis(),(6 * dakahZmanit));//use getTimeOffset to handle nulls
     }
@@ -94,12 +94,12 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     }
 
     public Date getChatzot() {
-        return getSunTransit(getSunrise(), getSunset());
+        return getSunTransit(getElevationAdjustedSunrise(), getElevationAdjustedSunset());
     }
 
     @Override
     public Date getPlagHamincha() {
-        long shaahZmanit = getTemporalHour(getSunrise(), getSunset());
+        long shaahZmanit = getTemporalHour(getElevationAdjustedSunrise(), getElevationAdjustedSunset());
         long dakahZmanit = shaahZmanit / MINUTES_PER_HOUR;
         return getTimeOffset(getTzeit(), -(shaahZmanit + (15 * dakahZmanit)));
     }
@@ -110,17 +110,17 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     }
 
     public Date getTzeit() {
-        long shaahZmanit = getTemporalHour(getSunrise(), getSunset());
+        long shaahZmanit = getTemporalHour(getElevationAdjustedSunrise(), getElevationAdjustedSunset());
         long dakahZmanit = shaahZmanit / MINUTES_PER_HOUR;
-        return getTimeOffset(getSunset(),(13 * dakahZmanit) + (dakahZmanit / 2));
+        return getTimeOffset(getElevationAdjustedSunset(),(13 * dakahZmanit) + (dakahZmanit / 2));
     }
 
     public Date getTzaitTaanit() {
-        return getTimeOffset(getSunset(), (20 * MILLISECONDS_PER_MINUTE));
+        return getTimeOffset(getElevationAdjustedSunset(), (20 * MILLISECONDS_PER_MINUTE));
     }
 
     public Date getTzaitTaanitLChumra() {
-        return getTimeOffset(getSunset(), (30 * MILLISECONDS_PER_MINUTE));
+        return getTimeOffset(getElevationAdjustedSunset(), (30 * MILLISECONDS_PER_MINUTE));
     }
 
     @Override

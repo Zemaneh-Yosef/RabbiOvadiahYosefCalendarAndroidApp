@@ -107,4 +107,5 @@
     <string name="min">min</string>
     <string name="weekly_view">Weekly View</string>
     <string name="website">Website</string>
+    <string name="use_elevation">Use Elevation?</string>
 </resources>

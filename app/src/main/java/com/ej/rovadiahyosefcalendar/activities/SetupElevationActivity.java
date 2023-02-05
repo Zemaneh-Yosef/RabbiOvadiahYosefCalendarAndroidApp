@@ -49,7 +49,7 @@ public class SetupElevationActivity extends AppCompatActivity {
         Button mishorButton = findViewById(R.id.mishor);
         mishorButton.setOnClickListener(v -> {
             editor.putString("elevation" + sCurrentLocationName, mElevation).apply();
-            editor.putBoolean("isElevationSetup", false).apply();
+            editor.putBoolean("useElevation", false).apply();
             editor.putBoolean("isSetup", true).apply();
             Intent returnIntent = new Intent();
             setResult(Activity.RESULT_CANCELED, returnIntent);
@@ -78,7 +78,7 @@ public class SetupElevationActivity extends AppCompatActivity {
                     mElevation = input.getText().toString();
                     editor.putString("elevation" + sCurrentLocationName, mElevation).apply();
                     editor.putBoolean("isSetup", true).apply();
-                    editor.putBoolean("isElevationSetup" + sCurrentLocationName, true).apply();
+                    editor.putBoolean("useElevation", true).apply();
                     Intent returnIntent = new Intent();
                     returnIntent.putExtra("elevation" + sCurrentLocationName, mElevation);
                     setResult(Activity.RESULT_OK, returnIntent);
@@ -96,7 +96,7 @@ public class SetupElevationActivity extends AppCompatActivity {
 
         Button geoNamesButton = findViewById(R.id.geonamesButton);
         geoNamesButton.setOnClickListener(view -> {
-            editor.putBoolean("isElevationSetup" + sCurrentLocationName, true).apply();
+            editor.putBoolean("useElevation", true).apply();
             editor.putBoolean("isSetup", true).apply();
             locationResolver.start();
             try {
@@ -134,6 +134,9 @@ public class SetupElevationActivity extends AppCompatActivity {
             if (scraper.isSearchRadiusTooSmall()) {
                 Toast.makeText(getApplicationContext(), "Something went wrong. Is the link correct?", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(this, AdvancedSetupActivity.class));
+            } else if (scraper.isWebsiteError()) {
+                Toast.makeText(getApplicationContext(), "Something went wrong connecting to the website.", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(this, AdvancedSetupActivity.class));
             } else {
                 Toast.makeText(getApplicationContext(), "Success!", Toast.LENGTH_SHORT).show();
                 userID++;
@@ -165,9 +168,11 @@ public class SetupElevationActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        startActivity(new Intent(this, AdvancedSetupActivity.class)
-                .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-                .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
+        if (!getIntent().getBooleanExtra("fromMenu", false)) {
+            startActivity(new Intent(this, AdvancedSetupActivity.class)
+                    .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+                    .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
+        }
         finish();
         super.onBackPressed();
     }

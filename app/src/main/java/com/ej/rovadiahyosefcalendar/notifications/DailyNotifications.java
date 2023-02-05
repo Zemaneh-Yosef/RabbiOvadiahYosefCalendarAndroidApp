@@ -116,19 +116,12 @@ public class DailyNotifications extends BroadcastReceiver {
     private ROZmanimCalendar getROZmanimCalendar(Context context) {
         if (ActivityCompat.checkSelfPermission(context, ACCESS_BACKGROUND_LOCATION) == PERMISSION_GRANTED) {
             mLocationResolver.getRealtimeNotificationData();
-            if (mLocationResolver.getLatitude() == 0 && mLocationResolver.getLongitude() == 0) {
-                return new ROZmanimCalendar(new GeoLocation(
-                        mSharedPreferences.getString("name", ""),
-                        Double.longBitsToDouble(mSharedPreferences.getLong("lat", 0)),
-                        Double.longBitsToDouble(mSharedPreferences.getLong("long", 0)),
-                        getLastKnownElevation(),
-                        TimeZone.getTimeZone(mSharedPreferences.getString("timezoneID", ""))));
-            } else {
+            if (mLocationResolver.getLatitude() != 0 && mLocationResolver.getLongitude() != 0) {
                 return new ROZmanimCalendar(new GeoLocation(
                         mLocationResolver.getLocationName(),
                         mLocationResolver.getLatitude(),
                         mLocationResolver.getLongitude(),
-                        getLastKnownElevation(),
+                        getLastKnownElevation(context),
                         mLocationResolver.getTimeZone()));
             }
         }
@@ -136,21 +129,18 @@ public class DailyNotifications extends BroadcastReceiver {
                 mSharedPreferences.getString("name", ""),
                 Double.longBitsToDouble(mSharedPreferences.getLong("lat", 0)),
                 Double.longBitsToDouble(mSharedPreferences.getLong("long", 0)),
-                getLastKnownElevation(),
+                getLastKnownElevation(context),
                 TimeZone.getTimeZone(mSharedPreferences.getString("timezoneID", ""))));
     }
 
-    private double getLastKnownElevation() {
-        double elevation = 0;
-        try {//TODO this needs to be removed but cannot be removed for now because it is needed for people who have setup the app before we changed data types
-            //get the last value of the current location or 0 if it doesn't exist
+    private double getLastKnownElevation(Context context) {
+        double elevation;
+        if (!mSharedPreferences.getBoolean("useElevation", true)) {//if the user has disabled the elevation setting, set the elevation to 0
+            elevation = 0;
+        } else if (ActivityCompat.checkSelfPermission(context, ACCESS_BACKGROUND_LOCATION) == PERMISSION_GRANTED) {
+            elevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mLocationResolver.getLocationName(), "0"));//get the elevation using the location name
+        } else {
             elevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mSharedPreferences.getString("name", ""), "0"));//lastKnownLocation
-        } catch (Exception e) {
-            try {//legacy
-                elevation = mSharedPreferences.getFloat("elevation", 0);
-            } catch (Exception e1) {
-                e1.printStackTrace();
-            }
         }
         return elevation;
     }

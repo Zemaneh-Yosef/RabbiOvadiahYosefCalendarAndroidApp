@@ -73,6 +73,12 @@
             app:entries="@array/shabbat_entries"
             app:summary="Choose whether to display Rabbeinu tam or regular shabbat end times" />
 
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="SetElevationToLastKnownLocation"
+            android:summary="Choose whether or not to set the elevation to the last known location when the app is opened offline"
+            android:title="Set elevation to last known location?" />
+
     </PreferenceCategory>
 
     <PreferenceCategory app:title="Appearance">
@@ -124,6 +130,15 @@
             app:selectable="true"
             app:summary="Contact the developer!"
             app:title="Have questions?" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="Help">
+
+        <Preference
+            android:key="help"
+            android:summary="Click here to see the help page"
+            android:title="Help" />
 
     </PreferenceCategory>
 

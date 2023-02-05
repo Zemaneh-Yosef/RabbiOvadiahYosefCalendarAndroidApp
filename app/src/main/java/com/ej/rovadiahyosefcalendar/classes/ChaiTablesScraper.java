@@ -52,6 +52,7 @@ public class ChaiTablesScraper extends Thread {
      * @see #writeZmanimTableToFile()
      */
     private boolean isSearchRadiusTooSmall;
+    private boolean mWebsiteError;
 
     /**
      * The setter method for the URL to scrape.
@@ -276,7 +277,7 @@ public class ChaiTablesScraper extends Thread {
             outputStream.flush();
             outputStream.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            mWebsiteError = true;
         }
     }
 
@@ -326,5 +327,9 @@ public class ChaiTablesScraper extends Thread {
 
     public boolean isSearchRadiusTooSmall() {
         return isSearchRadiusTooSmall;
+    }
+
+    public boolean isWebsiteError() {
+        return mWebsiteError;
     }
 }
