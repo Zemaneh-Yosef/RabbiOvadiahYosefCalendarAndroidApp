@@ -1,20 +1,27 @@
-# Rabbi Ovadiah Yosef Calendar App
+# Rabbi Ovadiah Yosef Calendar (Android) App
 
-<a href="https://play.google.com/store/apps/details?id=com.EJ.ROvadiahYosefCalendar&amp;pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1"><img class="android" alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" width="250px"></a>
+<b>Google Play Store and source code:</b>
+
+<a href="https://play.google.com/store/apps/details?id=com.EJ.ROvadiahYosefCalendar&amp;pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1"><img class="android" alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" width="250px"></a> <a href="https://github.com/Elyahu41/RabbiOvadiahYosefCalendarApp"><img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" width="62px"></a>
+
+<b>App Store and source code:</b>
 
 <img src="http://1radionews.com/wp-content/uploads/app_store_coming_soon.png" alt="Download on the App Store" width="240px">
 
-<a href="https://elyahu41.github.io/RabbiOvadiahYosefCalendar/index.html"><img src="https://www.kindpng.com/picc/m/36-363991_www-icon-png-transparent-background-website-icon-png.png" width="124px"></a>
+<b>Website and source code:</b>
+
+<a href="https://elyahu41.github.io/RabbiOvadiahYosefCalendar/"><img src="https://www.kindpng.com/picc/m/36-363991_www-icon-png-transparent-background-website-icon-png.png" width="124px"></a> <a href="https://github.com/Elyahu41/Elyahu41.github.io/tree/master/RabbiOvadiahYosefCalendar"><img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" width="62px"></a>
 
 The goal of this app is to recreate the Ohr HaChaim calendar that is widespread in Israel:
 
 <img src="https://i.imgur.com/QqGAtTB.jpg" height="750">
 
-In order to create this app, I needed an API that would give me the times for sunrise and sunset everyday. I was recommended the well known [KosherJava](https://github.com/KosherJava/zmanim) Package, and that is the basis for this app's zmanim (time) calculations.
+In order to create these apps, I needed an API that would give me the times for sunrise and sunset everyday (since all the other zmanim are based on these times). I was recommended the well known [KosherJava](https://github.com/KosherJava/zmanim) Package, and that is the basis for all of these app's zmanim (time) calculations.
 
-The app can display the zmanim/times in hebrew and english.
+The app can display the zmanim/times in hebrew and english but is primarily made for english speakers.
 
-The only zman/time that could not be computed by the KosherJava API is the sunrise time that the Ohr HaChayim calendar uses. They explain in the calendar introduction that they take the sunrise times from a calendar called, "Luach Bechoray Yosef". That calendar calculates the time for sunrise by taking into account the geography of the land around that area and finding when the earliest time for sunrise is. This would take a toll on a mobile phone's processor, therefore, the app does not support it. However, I discovered that the creator of this calendar made a website [ChaiTables.com](http://chaitables.com) to help people use his algorithm for sunrise all over the world and create a 12 month table based on your input. I added the ability to download these times in the app with your own specific parameters. (I highly recommend  you see the introduction on chaitables.com.)
+The only zman/time that could not be computed by the KosherJava API is the sunrise time that the Ohr HaChayim calendar uses. They explain in the calendar introduction that they take the sunrise times from a calendar called, "Luach Bechoray Yosef". That calendar calculates the time for sunrise by taking into account the geography of the land around that area and finding when the earliest time for sunrise is (based on the introduction to Chaitables.com). While not impossible, this would take a massive toll on a mobile phone's processor and memory, therefore, the app does not support it. However, I discovered that the creator of this calendar made a website [ChaiTables.com](http://chaitables.com) to help people use his algorithm for sunrise all over the world and create a 12 month table based on your input. I added the ability to download these times in the app with your own specific parameters. (I highly recommend that you see the introduction on chaitables.com.)
+
 
 First view implemented was the daily view of the app:
 
@@ -23,8 +30,6 @@ First view implemented was the daily view of the app:
 Since version 6.0, the weekly view of the original calendar has been impemented:
 
 ![alt text](https://play-lh.googleusercontent.com/NbOtQFdOia2iwFb1GQJk68j_WvLwhnMOzRnE-sbLzfuqZTrybFcuM1cCypHgL8odg4N8=w2560-h1440-rw)
-
-Click this link to download the app from the [Google Play Store!](https://play.google.com/store/apps/details?id=com.EJ.ROvadiahYosefCalendar)
 
 # Explanation of how the zmanim are calculated:
 Dawn - Alot HaShachar:
