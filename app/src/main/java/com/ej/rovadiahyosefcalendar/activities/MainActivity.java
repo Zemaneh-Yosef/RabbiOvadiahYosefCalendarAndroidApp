@@ -945,6 +945,8 @@ public class MainActivity extends AppCompatActivity {
                     break;
             }
             setRequestedOrientation(orientation);
+            mNextDate.setVisibility(View.GONE);
+            mPreviousDate.setVisibility(View.GONE);
             Calendar calendar = Calendar.getInstance();
             Calendar calendar2 = (Calendar) calendar.clone();
             mZmanimUpdater = () -> {
@@ -1147,6 +1149,8 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 mCalendarButton.setBackgroundColor(mSharedPreferences.getInt("CalButtonColor", 0x18267C));
             }
+            mNextDate.setVisibility(View.VISIBLE);
+            mPreviousDate.setVisibility(View.VISIBLE);
         }
     }
 
@@ -1236,7 +1240,7 @@ public class MainActivity extends AppCompatActivity {
                     mJewishDateInfo.getJewishCalendar().getGregorianCalendar().getTime(),false));
         }
         if (!mCurrentDateShown.before(dafYomiYerushalmiStartDate)) {
-            String masechta = YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getMasechta();
+            String masechta = YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getYerushalmiMasechta();
             String daf = formatHebrewNumber(YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getDaf());
             if (daf == null) {
                 zmanim.add(new ZmanListEntry("No Daf Yomi Yerushalmi"));
