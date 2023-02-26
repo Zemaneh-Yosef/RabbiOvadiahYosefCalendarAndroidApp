@@ -31,4 +31,6 @@
     <color name="lightYellow">#F1DBB0</color>
     <color name="green">#4CAF50</color>
     <color name="light_green">#62D566</color>
+    <color name="light_blue_50">#FFE1F5FE</color>
+    <color name="light_blue_200">#FF81D4FA</color>
 </resources>

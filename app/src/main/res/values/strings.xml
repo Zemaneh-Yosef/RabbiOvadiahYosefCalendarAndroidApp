@@ -108,4 +108,7 @@
     <string name="weekly_view">Weekly View</string>
     <string name="website">Website</string>
     <string name="use_elevation">Use Elevation?</string>
+    <string name="add_widget">Add widget</string>
+    <string name="app_widget_description">This widget will show the current days most important zmanim</string>
+    <string name="zmanim">Zmanim</string>
 </resources>

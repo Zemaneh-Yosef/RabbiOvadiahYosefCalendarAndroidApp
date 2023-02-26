@@ -22,19 +22,31 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
+        <receiver
+            android:name=".activities.ZmanimAppWidget"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/zmanim_app_widget_info" />
+        </receiver>
+
         <activity
             android:name=".activities.NotificationSettingsActivity"
-            android:theme="@style/MaterialTheme"
             android:exported="false"
-            android:label="@string/title_activity_notification_settings" />
+            android:label="@string/title_activity_notification_settings"
+            android:theme="@style/MaterialTheme" />
         <activity
             android:name=".activities.CurrentLocationActivity"
             android:exported="false" />
         <activity
             android:name=".activities.MoladActivity"
+            android:exported="true"
             android:label="Molad Calculator"
-            android:theme="@style/MaterialTheme"
-            android:exported="true" />
+            android:theme="@style/MaterialTheme" />
         <activity
             android:name=".activities.ZmanimLanguageActivity"
             android:exported="true" />
