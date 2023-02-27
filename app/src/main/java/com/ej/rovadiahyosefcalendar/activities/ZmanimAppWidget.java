@@ -49,8 +49,6 @@ public class ZmanimAppWidget extends AppWidgetProvider {
     private static boolean mIsZmanimInHebrew;
     private static boolean mIsZmanimEnglishTranslated;
 
-    private static boolean sInitialized = false;
-
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
         mLocationResolver = new LocationResolver(context, new Activity());
         mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
@@ -78,12 +76,12 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         views.setTextViewText(R.id.tachanun, tachanun);
         views.setTextViewText(R.id.daf, dafYomi);
 
-        if (!sInitialized) {
+        if (!mSharedPreferences.getBoolean("widgetInitialized", false)) {
             views.setViewVisibility(R.id.zman, View.INVISIBLE);// initially hide the other views
             views.setViewVisibility(R.id.zman_time, View.INVISIBLE);
             views.setViewVisibility(R.id.tachanun, View.INVISIBLE);
             views.setViewVisibility(R.id.daf, View.INVISIBLE);
-            sInitialized = true;
+            mSharedPreferences.edit().putBoolean("widgetInitialized", true).apply();
         }
 
         Intent configIntent = new Intent(context, MainActivity.class);
@@ -345,6 +343,20 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         appWidgetManager.updateAppWidget(appWidgetId, views);
 
         updateAppWidget(context, appWidgetManager, appWidgetId);
+    }
+
+    @Override
+    public void onEnabled(Context context) {
+        super.onEnabled(context);
+        mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
+        mSharedPreferences.edit().putBoolean("widgetInitialized", false).apply();
+    }
+
+    @Override
+    public void onDisabled(Context context) {
+        super.onDisabled(context);
+        mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
+        mSharedPreferences.edit().putBoolean("widgetInitialized", false).apply();
     }
 
     private static String getChatzotLaylaString() {
