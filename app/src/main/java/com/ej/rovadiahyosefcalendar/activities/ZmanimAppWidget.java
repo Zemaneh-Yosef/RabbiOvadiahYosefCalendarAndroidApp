@@ -48,6 +48,7 @@ public class ZmanimAppWidget extends AppWidgetProvider {
     private static ROZmanimCalendar mROZmanimCalendar;
     private static boolean mIsZmanimInHebrew;
     private static boolean mIsZmanimEnglishTranslated;
+    private static boolean sHeightIsGreaterThanWidth;
 
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
         mLocationResolver = new LocationResolver(context, new Activity());
@@ -68,7 +69,12 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         String dafYomi = mJewishDateInfo.getJewishCalendar().getDafYomiBavli().getMasechta()
                 + " " + JewishDateInfo.formatHebrewNumber(mJewishDateInfo.getJewishCalendar().getDafYomiBavli().getDaf());
 
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.zmanim_app_widget);
+        RemoteViews views;
+        if (sHeightIsGreaterThanWidth) {
+            views = new RemoteViews(context.getPackageName(), R.layout.zmanim_app_widget_vertical);
+        } else {
+            views = new RemoteViews(context.getPackageName(), R.layout.zmanim_app_widget);
+        }
         views.setTextViewText(R.id.jewish_date, jewishDate);
         views.setTextViewText(R.id.parsha, parsha);
         views.setTextViewText(R.id.zman, zman);
@@ -322,7 +328,7 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         int maxHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT);
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.zmanim_app_widget);
 
-        if (maxWidth >= 265) {// if the widget is wide enough, show the zman
+        if (maxWidth >= 250) {// if the widget is wide enough, show the zman
             views.setViewVisibility(R.id.zman, View.VISIBLE);
             views.setViewVisibility(R.id.zman_time, View.VISIBLE);
             views.setViewVisibility(R.id.tachanun, View.INVISIBLE);
@@ -333,12 +339,12 @@ public class ZmanimAppWidget extends AppWidgetProvider {
             views.setViewVisibility(R.id.tachanun, View.INVISIBLE);
             views.setViewVisibility(R.id.daf, View.INVISIBLE);
         }
-        if (maxWidth >= 358) {// if the widget is wide enough, show the daf as well
+        if (maxWidth >= 350) {// if the widget is wide enough, show the daf as well
             views.setViewVisibility(R.id.tachanun, View.VISIBLE);
             views.setViewVisibility(R.id.daf, View.VISIBLE);
         }
 
-        // We should technically check if the height is big enough to stretch the widget, but I don't think it's necessary because rarely will a user have a widget that uses a whole page of their home screen
+        sHeightIsGreaterThanWidth = maxHeight > maxWidth;
 
         appWidgetManager.updateAppWidget(appWidgetId, views);
 

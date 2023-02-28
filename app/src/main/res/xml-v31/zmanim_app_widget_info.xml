@@ -5,6 +5,8 @@
     android:initialLayout="@layout/zmanim_app_widget"
     android:minWidth="40dp"
     android:minHeight="40dp"
+    android:minResizeHeight="40dp"
+    android:minResizeWidth="40dp"
     android:previewImage="@drawable/appwidget_preview"
     android:previewLayout="@layout/zmanim_app_widget_preview"
     android:resizeMode="horizontal|vertical"
