@@ -208,24 +208,24 @@ public class MainActivity extends AppCompatActivity {
     private void initZmanimNotificationDefaults() {
         mSettingsPreferences.edit().putBoolean("zmanim_notifications", true).apply();
         mSettingsPreferences.edit().putInt("Alot", -1).apply();
-        mSettingsPreferences.edit().putInt("TalitTefilin", 15).apply();
+        mSettingsPreferences.edit().putInt("TalitTefilin", -1).apply();
         mSettingsPreferences.edit().putInt("HaNetz", -1).apply();
         mSettingsPreferences.edit().putInt("SofZmanShmaMGA", 15).apply();
-        mSettingsPreferences.edit().putInt("SofZmanShmaGRA", -1).apply();
+        mSettingsPreferences.edit().putInt("SofZmanShmaGRA", 15).apply();
         mSettingsPreferences.edit().putInt("SofZmanTefila", 15).apply();
         mSettingsPreferences.edit().putInt("SofZmanAchilatChametz", 15).apply();
         mSettingsPreferences.edit().putInt("SofZmanBiurChametz", 15).apply();
-        mSettingsPreferences.edit().putInt("Chatzot", -1).apply();
+        mSettingsPreferences.edit().putInt("Chatzot", 20).apply();
         mSettingsPreferences.edit().putInt("MinchaGedola", -1).apply();
         mSettingsPreferences.edit().putInt("MinchaKetana", -1).apply();
-        mSettingsPreferences.edit().putInt("PlagHaMincha", 15).apply();
+        mSettingsPreferences.edit().putInt("PlagHaMincha", -1).apply();
         mSettingsPreferences.edit().putInt("CandleLighting", 15).apply();
         mSettingsPreferences.edit().putInt("Shkia", 15).apply();
         mSettingsPreferences.edit().putInt("TzeitHacochavim", 15).apply();
         mSettingsPreferences.edit().putInt("FastEnd", 15).apply();
         mSettingsPreferences.edit().putInt("FastEndStringent", 15).apply();
         mSettingsPreferences.edit().putInt("ShabbatEnd", -1).apply();
-        mSettingsPreferences.edit().putInt("RT", -1).apply();
+        mSettingsPreferences.edit().putInt("RT", 0).apply();
         mSettingsPreferences.edit().putInt("NightChatzot", -1).apply();
     }
 
