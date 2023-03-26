@@ -81,6 +81,15 @@ public class SettingsActivity extends AppCompatActivity {
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
 
+            Preference zmanimPreferences = findPreference("zmanim_settings");
+            if (zmanimPreferences != null) {
+                zmanimPreferences.setOnPreferenceClickListener(preference -> {
+                    Intent intent = new Intent(getActivity(), ZmanimSettingsActivity.class);
+                    startActivity(intent);
+                    return true;
+                });
+            }
+
             Preference notificationPreference = findPreference("zmanim_notifications_settings");
             if (notificationPreference != null) {
                 notificationPreference.setOnPreferenceClickListener(preference -> {

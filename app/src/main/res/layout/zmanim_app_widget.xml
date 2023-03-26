@@ -21,7 +21,7 @@
             android:textStyle="bold"
             android:gravity="fill"
             android:maxLines="1"
-            tools:text="29 Shevat, 5783"/>
+            tools:text="28 Adar, 5783"/>
 
         <TextView
             android:id="@+id/parsha"

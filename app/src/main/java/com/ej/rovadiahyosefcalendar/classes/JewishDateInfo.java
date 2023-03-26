@@ -7,6 +7,7 @@ import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
 import org.apache.commons.lang3.time.DateUtils;
 
 import java.util.Calendar;
+import java.util.Date;
 
 /**
  * This class is used to get the information about the Jewish date. It is a helper class to manipulate the classes in the kosherjava library.
@@ -94,7 +95,7 @@ public class JewishDateInfo {
         String yomTovOfNextDay = getYomTovForNextDay();
 
         if (yomTovOfToday.isEmpty() && yomTovOfNextDay.isEmpty()) {//NEEDED if both empty
-            result = "";
+            //do nothing
         } else if (yomTovOfToday.isEmpty() && !yomTovOfNextDay.startsWith("Erev")) {//if next day has yom tov
             result = "Erev " + yomTovOfNextDay;
         } else if (!yomTovOfNextDay.isEmpty()
@@ -515,8 +516,11 @@ public class JewishDateInfo {
         Calendar fifteenDays = Calendar.getInstance();
         fifteenDays.setTime(jewishCalendar.getSofZmanKidushLevana15Days());
 
+        Date one = jewishCalendar.getMoladAsDate();
+        long two = jewishCalendar.getSofZmanKidushLevana15Days().getTime();
+
         if (DateUtils.isSameDay(jewishCalendar.getGregorianCalendar(), sevenDays)) {
-            return "Birchat HeLevana starts tonight";
+            return "Birchat HaLevana starts tonight";
         }
 
         if (DateUtils.isSameDay(jewishCalendar.getGregorianCalendar(), fifteenDays)) {
@@ -547,12 +551,9 @@ public class JewishDateInfo {
     public String getIsBarcheinuOrBarechAleinuSaid() {
         if (jewishCalendar.isVeseinBerachaRecited()) {
             return "ברכנו";
-        }
-
-        if (jewishCalendar.isVeseinTalUmatarRecited()) {
+        } else {
             return "ברך עלינו";
         }
-        return "";
     }
 
     /**

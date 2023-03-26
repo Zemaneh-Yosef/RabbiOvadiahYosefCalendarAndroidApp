@@ -1,0 +1,135 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="Zmanim Notifications Settings"
+        android:summary="Minutes before the zman for notifications">
+
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="zmanim_notifications_on_shabbat"
+            android:summary="Show zmanim notifications on shabbat/yom tov?"
+            android:title="Notifications on Shabbat and Yom Tov?" />
+
+        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+            android:key="Alot"
+            android:title="Alot Hashachar"
+            android:defaultValue="15"
+            />
+
+        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+            android:key="TalitTefilin"
+            android:title="Talit And Tefilin"
+            android:defaultValue="15"
+            />
+
+        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+            android:key="HaNetz"
+            android:title="HaNetz"
+            android:defaultValue="15"
+            />
+
+        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+            android:key="SofZmanShmaMGA"
+            android:title="Sof Zman Shma MGA"
+            android:defaultValue="15"
+            />
+
+        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+            android:key="SofZmanShmaGRA"
+            android:title="Sof Zman Shma GRA"
+            android:defaultValue="15"
+            />
+
+        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+            android:key="SofZmanTefila"
+            android:title="Sof Zman Tefila"
+            android:defaultValue="15"
+            />
+
+        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+            android:key="SofZmanAchilatChametz"
+            android:title="Achilat Chametz"
+            android:defaultValue="15"
+            />
+
+        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+            android:key="SofZmanBiurChametz"
+            android:title="Biur Chametz"
+            android:defaultValue="15"
+            />
+
+        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+            android:key="Chatzot"
+            android:title="Chatzot"
+            android:defaultValue="15"
+            />
+
+        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+            android:key="MinchaGedola"
+            android:title="Mincha Gedola"
+            android:defaultValue="15"
+            />
+
+        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+            android:key="MinchaKetana"
+            android:title="Mincha Ketana"
+            android:defaultValue="15"
+            />
+
+        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+            android:key="PlagHaMincha"
+            android:title="Plag HaMincha"
+            android:defaultValue="15"
+            />
+
+        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+            android:key="CandleLighting"
+            android:title="Candle Lighting"
+            android:defaultValue="15"
+            />
+
+        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+            android:key="Shkia"
+            android:title="Shkia"
+            android:defaultValue="15"
+            />
+
+        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+            android:key="TzeitHacochavim"
+            android:title="Tzeit Hacochavim"
+            android:defaultValue="15"
+            />
+
+        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+            android:key="FastEnd"
+            android:title="Fast Ends"
+            android:defaultValue="15"
+            />
+
+        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+            android:key="FastEndStringent"
+            android:title="Fast Ends (Stringent)"
+            android:defaultValue="15"
+            />
+
+        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+            android:key="ShabbatEnd"
+            android:title="Shabbat Ends"
+            android:defaultValue="15"
+            />
+
+        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+            android:key="RT"
+            android:title="Rabbeinu Tam"
+            android:defaultValue="15"
+            />
+
+        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+            android:key="NightChatzot"
+            android:title="Chatzot Layla"
+            android:defaultValue="15"
+            />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

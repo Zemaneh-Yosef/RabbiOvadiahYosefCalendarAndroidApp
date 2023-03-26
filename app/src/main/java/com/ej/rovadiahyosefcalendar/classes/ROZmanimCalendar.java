@@ -2,6 +2,8 @@ package com.ej.rovadiahyosefcalendar.classes;
 
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sCurrentLocationName;
 
+import androidx.annotation.Nullable;
+
 import com.kosherjava.zmanim.ComplexZmanimCalendar;
 import com.kosherjava.zmanim.ZmanimCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
@@ -10,6 +12,7 @@ import com.kosherjava.zmanim.util.GeoLocation;
 import java.io.File;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 public class ROZmanimCalendar extends ComplexZmanimCalendar {
 
@@ -28,7 +31,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     public Date getEarliestTalitTefilin() {
         long shaahZmanit = getTemporalHour(getElevationAdjustedSunrise(), getElevationAdjustedSunset());
         long dakahZmanit = shaahZmanit / MINUTES_PER_HOUR;
-        return getTimeOffset(getAlos72Zmanis(),(6 * dakahZmanit));//use getTimeOffset to handle nulls
+        return getTimeOffset(getAlos72Zmanis(), (6 * dakahZmanit));//use getTimeOffset to handle nulls
     }
 
     public Date getHaNetz() {
@@ -41,14 +44,17 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
                 int visibleSunriseHour = Integer.parseInt(currentVisibleSunrise.substring(0, 1));
                 int visibleSunriseMinutes = Integer.parseInt(currentVisibleSunrise.substring(2, 4));
 
-                Calendar tempCal = getCalendar();
+                Calendar tempCal = (Calendar) getCalendar().clone();
                 tempCal.set(Calendar.HOUR_OF_DAY, visibleSunriseHour);
                 tempCal.set(Calendar.MINUTE, visibleSunriseMinutes);
 
                 if (currentVisibleSunrise.length() == 7) {
                     int visibleSunriseSeconds = Integer.parseInt(currentVisibleSunrise.substring(5, 7));
                     tempCal.set(Calendar.SECOND, visibleSunriseSeconds);
+                } else {
+                    tempCal.set(Calendar.SECOND, 0);
                 }
+                tempCal.set(Calendar.MILLISECOND, 0);
                 visibleSunriseDate = tempCal.getTime();
             } else {
                 visibleSunriseDate = null;
@@ -58,7 +64,6 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         }
         return visibleSunriseDate;
     }
-
 
     public Date getHaNetz(String locationName) {
         try {
@@ -70,14 +75,17 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
                 int visibleSunriseHour = Integer.parseInt(currentVisibleSunrise.substring(0, 1));
                 int visibleSunriseMinutes = Integer.parseInt(currentVisibleSunrise.substring(2, 4));
 
-                Calendar tempCal = getCalendar();
+                Calendar tempCal = (Calendar) getCalendar().clone();
                 tempCal.set(Calendar.HOUR_OF_DAY, visibleSunriseHour);
                 tempCal.set(Calendar.MINUTE, visibleSunriseMinutes);
 
                 if (currentVisibleSunrise.length() == 7) {
                     int visibleSunriseSeconds = Integer.parseInt(currentVisibleSunrise.substring(5, 7));
                     tempCal.set(Calendar.SECOND, visibleSunriseSeconds);
+                } else {
+                    tempCal.set(Calendar.SECOND, 0);
                 }
+                tempCal.set(Calendar.MILLISECOND, 0);
                 visibleSunriseDate = tempCal.getTime();
             } else {
                 visibleSunriseDate = null;
@@ -102,6 +110,18 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         long shaahZmanit = getTemporalHour(getElevationAdjustedSunrise(), getElevationAdjustedSunset());
         long dakahZmanit = shaahZmanit / MINUTES_PER_HOUR;
         return getTimeOffset(getTzeit(), -(shaahZmanit + (15 * dakahZmanit)));
+    }
+
+    public Date getPlagHaminchaAmudeiHoraah() {
+        long shaahZmanit = getTemporalHour(getSeaLevelSunrise(), getSeaLevelSunset());
+        long dakahZmanit = shaahZmanit / MINUTES_PER_HOUR;
+        return getTimeOffset(getTzeitAmudeiHoraah(), -(shaahZmanit + (15 * dakahZmanit)));
+    }
+
+    public Date getPlagHaminchaHalachaBerurah() {
+        long shaahZmanit = getTemporalHour(getElevationAdjustedSunrise(), getElevationAdjustedSunset());
+        long dakahZmanit = shaahZmanit / MINUTES_PER_HOUR;
+        return getTimeOffset(getSunset(), -(shaahZmanit + (15 * dakahZmanit)));
     }
 
     @Override
@@ -143,4 +163,82 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
             jewishCalendar.setDate(getCalendar());
         }
     }
+
+    @Nullable
+    public Date getAlotAmudeiHoraah() {
+        Calendar tempCal = (Calendar) getCalendar().clone();
+        setCalendar(new GregorianCalendar(2023, Calendar.MARCH, 20));//set the calendar to the equinox
+        Date sunrise = getSeaLevelSunrise();
+        Date alotBy16Degrees = getAlos16Point1Degrees();//Get the time of 16.1° below the horizon on the equinox, just as we do for Israel to get the time of 16.1° below the horizon on the equinox
+        setCalendar(tempCal);//reset the calendar to the current day
+        //get the amount of minutes between the two Date objects
+        long numberOfMinutes = ((sunrise.getTime() - alotBy16Degrees.getTime()) / 60000);
+        long shaahZmanit = getTemporalHour(getSeaLevelSunrise(), getSeaLevelSunset());
+        long dakahZmanit = shaahZmanit / MINUTES_PER_HOUR;
+        //now that we have the number of minutes (should be 80 minutes for NY), we can calculate the time of Alot Hashachar for the current day using zmaniyot minutes
+        //so in NY, Alot Hashachar is 80 zmaniyot minutes before sunrise
+        return getTimeOffset(getSeaLevelSunrise(), -(numberOfMinutes * dakahZmanit));
+    }
+
+    public Date getEarliestTalitTefilinAmudeiHoraah() {
+        long shaahZmanit = getTemporalHour(getSeaLevelSunrise(), getSeaLevelSunset());
+        long dakahZmanit = shaahZmanit / MINUTES_PER_HOUR;
+        return getTimeOffset(getSeaLevelSunrise(), -(shaahZmanit + dakahZmanit * 6));
+    }
+
+    public Date getSofZmanShmaMGA72MinutesZmanisAmudeiHoraah() {
+        return getSofZmanShma(getAlotAmudeiHoraah(), getTzais72ZmanisAmudeiHoraah());
+    }
+
+    public Date getTzeitAmudeiHoraah() {
+            Calendar tempCal = (Calendar) getCalendar().clone();
+            setCalendar(new GregorianCalendar(2023, Calendar.MARCH, 20));
+            Date sunset = getSeaLevelSunset();
+            Date tzaitBy3point65degrees = getTzaisGeonim3Point65Degrees();
+            long numberOfMinutes = ((tzaitBy3point65degrees.getTime() - sunset.getTime()) / MILLISECONDS_PER_MINUTE);
+            setCalendar(tempCal);//reset the calendar to the current day
+            long shaahZmanit = getTemporalHour(getAlos72Zmanis(), getTzais72Zmanis());
+            long dakahZmanit = shaahZmanit / MINUTES_PER_HOUR;
+            return getTimeOffset(getSeaLevelSunset(), numberOfMinutes * dakahZmanit);
+    }
+
+    public Date getTzeitAmudeiHoraahLChumra() {
+        Calendar tempCal = (Calendar) getCalendar().clone();
+        setCalendar(new GregorianCalendar(2023, Calendar.MARCH, 20));
+        Date sunset = getSeaLevelSunset();
+        Date tzaitBy3point65degrees = getTzaisGeonim3Point65Degrees();
+        setCalendar(tempCal);//reset the calendar to the current day
+        //get the amount of minutes between the two Date objects
+        int numberOfMinutes = (int) ((tzaitBy3point65degrees.getTime() - sunset.getTime()) / MILLISECONDS_PER_MINUTE);
+        long shaahZmanit = getTemporalHour(getAlos72Zmanis(), getTzais72Zmanis());
+        long dakahZmanit = shaahZmanit / MINUTES_PER_HOUR;
+        return getTimeOffset(getSeaLevelSunset(), 20 * dakahZmanit);
+    }
+
+    public Date getTzaitShabbatAmudeiHoraah() {
+        return getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 7.14);
+    }
+
+    public Date getTzais72ZmanisAmudeiHoraah() {
+        //find the amount of minutes between sunrise and 16.1° below the horizon on a day that occurs on the equinox
+        Calendar tempCal = (Calendar) getCalendar().clone();
+        setCalendar(new GregorianCalendar(2023, Calendar.MARCH, 20));
+        Date sunset = getSeaLevelSunset();
+        Date tzaitBy16Degrees = getTzais16Point1Degrees();//Get the time of 16.1° below the horizon on the equinox, just as we do for Israel to get the time of 16.1° below the horizon on the equinox
+        setCalendar(tempCal);//reset the calendar to the current day
+        //get the amount of minutes between the two Date objects
+        int numberOfMinutes = (int) ((tzaitBy16Degrees.getTime() - sunset.getTime()) / MILLISECONDS_PER_MINUTE);
+        long shaahZmanit = getTemporalHour(getSeaLevelSunrise(), getSeaLevelSunset());
+        long dakahZmanit = shaahZmanit / MINUTES_PER_HOUR;
+        return getTimeOffset(getSeaLevelSunset(), (numberOfMinutes * dakahZmanit));
+    }
+
+    public Date getTzais72ZmanisAmudeiHoraahLkulah() {
+        if (getTzais72().before(getTzais72ZmanisAmudeiHoraah())) {//return the earlier of the two times
+            return getTzais72();
+        } else {
+            return getTzais72ZmanisAmudeiHoraah();
+        }
+    }
+
 }

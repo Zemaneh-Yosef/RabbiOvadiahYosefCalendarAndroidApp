@@ -221,7 +221,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
         }
     }
 
-    private ArrayList<ZmanInformationHolder> getArrayOfZmanim(ROZmanimCalendar c, JewishCalendar jewishCalendar, Context context) {
+    private ArrayList<ZmanInformationHolder> getArrayOfZmanim(ROZmanimCalendar c, JewishCalendar jewishCalendar, Context context) {//TODO add Amudei Horaah zmanim
         ArrayList<ZmanInformationHolder> pairArrayList = new ArrayList<>();
         String[] zmanNames;
         if (context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE).getBoolean("isZmanimInHebrew", false)) {

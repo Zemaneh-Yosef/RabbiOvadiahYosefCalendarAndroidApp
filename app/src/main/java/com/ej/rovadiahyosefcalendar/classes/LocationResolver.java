@@ -241,6 +241,10 @@ public class LocationResolver extends Thread {
      */
     public void getLatitudeAndLongitudeFromSearchQuery() {
         String zipcode = mSharedPreferences.getString("Zipcode", "");
+        if (zipcode.equals(mSharedPreferences.getString("oldZipcode", "None"))) {
+            getOldSearchLocation();
+            return;
+        }
         List<Address> address = null;
         try {
             address = mGeocoder.getFromLocationName(zipcode, 1);
@@ -252,6 +256,8 @@ public class LocationResolver extends Thread {
             sLatitude = first.getLatitude();
             sLongitude = first.getLongitude();
             sCurrentLocationName = getLocationAsName();
+            mSharedPreferences.edit().putString("oldZipcode", zipcode).apply();
+            mSharedPreferences.edit().putString("oldLocationName", sCurrentLocationName).apply();
             mSharedPreferences.edit().putLong("oldLat", Double.doubleToRawLongBits(sLatitude)).apply();
             mSharedPreferences.edit().putLong("oldLong", Double.doubleToRawLongBits(sLongitude)).apply();
         } else {
@@ -266,6 +272,7 @@ public class LocationResolver extends Thread {
      * @see #getLatitudeAndLongitudeFromSearchQuery()
      */
     public void getOldSearchLocation() {
+        sCurrentLocationName = mSharedPreferences.getString("oldLocationName", "");
         double oldLat = Double.longBitsToDouble(mSharedPreferences.getLong("oldLat", 0));
         double oldLong = Double.longBitsToDouble(mSharedPreferences.getLong("oldLong", 0));
 

@@ -10,7 +10,7 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
 
-public class NotificationSettingsActivity extends AppCompatActivity {
+public class ZmanimSettingsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,9 +41,7 @@ public class NotificationSettingsActivity extends AppCompatActivity {
     public static class SettingsFragment extends PreferenceFragmentCompat {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-            setPreferencesFromResource(R.xml.zmanim_notifications_preferences, rootKey);
+            setPreferencesFromResource(R.xml.zmanim_preferences, rootKey);
         }
-
-
     }
 }

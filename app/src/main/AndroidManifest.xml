@@ -22,6 +22,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
+        <activity
+            android:name=".activities.ZmanimSettingsActivity"
+            android:exported="false"
+            android:label="@string/title_activity_zmanim_settings" />
+
         <receiver
             android:name=".activities.ZmanimAppWidget"
             android:exported="false">

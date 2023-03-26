@@ -1,14 +1,22 @@
 <resources>
     <!-- Reply Preference -->
     <string-array name="candle_lighting_entries">
+        <item>15 Minutes</item>
         <item>18 Minutes</item>
         <item>20 Minutes</item>
+        <item>21 Minutes</item>
+        <item>22 Minutes</item>
+        <item>30 Minutes</item>
         <item>40 Minutes</item>
     </string-array>
 
     <string-array name="candle_lighting_values">
+        <item>15</item>
         <item>18</item>
         <item>20</item>
+        <item>21</item>
+        <item>22</item>
+        <item>30</item>
         <item>40</item>
     </string-array>
 
@@ -27,6 +35,16 @@
     <string-array name="shabbat_entries">
         <item>Show Regular Minutes</item>
         <item>Show Rabbeinu Tam</item>
+    </string-array>
+    <!-- Reply Preference -->
+    <string-array name="reply_entries">
+        <item>Reply</item>
+        <item>Reply to all</item>
+    </string-array>
+
+    <string-array name="reply_values">
+        <item>reply</item>
+        <item>reply_all</item>
     </string-array>
 
 </resources>

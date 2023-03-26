@@ -10,24 +10,15 @@
             android:title="Zmanim Notifications" />
 
         <Preference
+            android:key="zmanim_settings"
+            android:summary="Change the zmanim settings"
+            android:title="Zmanim Settings" />
+
+        <Preference
             android:dependency="zmanim_notifications"
             android:key="zmanim_notifications_settings"
             android:summary="Change the zmanim notifications settings"
             android:title="Zmanim Notifications Settings" />
-
-        <ListPreference
-            app:defaultValue="20"
-            app:entries="@array/candle_lighting_entries"
-            app:entryValues="@array/candle_lighting_values"
-            app:key="CandleLightingOffset"
-            app:summary="Enter the amount of minutes for candle lighting"
-            app:title="Candle Lighting Time" />
-
-        <EditTextPreference
-            app:defaultValue="40"
-            app:key="EndOfShabbatOffset"
-            app:summary="Enter the amount of minutes to add after sunset until shabbat ends"
-            app:title="End Shabbat Time" />
 
         <CheckBoxPreference
             android:defaultValue="false"
@@ -167,6 +158,36 @@
             android:key="ShowDST"
             android:summary="Choose whether or not to display if Daylight Savings is in effect"
             android:title="Show DST?" />
+
+    </PreferenceCategory>
+    <PreferenceCategory app:title="@string/messages_header">
+
+        <EditTextPreference
+            app:key="signature"
+            app:title="@string/signature_title"
+            app:useSimpleSummaryProvider="true" />
+
+        <ListPreference
+            app:defaultValue="reply"
+            app:entries="@array/reply_entries"
+            app:entryValues="@array/reply_values"
+            app:key="reply"
+            app:title="@string/reply_title"
+            app:useSimpleSummaryProvider="true" />
+
+    </PreferenceCategory>
+    <PreferenceCategory app:title="@string/sync_header">
+
+        <SwitchPreferenceCompat
+            app:key="sync"
+            app:title="@string/sync_title" />
+
+        <SwitchPreferenceCompat
+            app:dependency="sync"
+            app:key="attachment"
+            app:summaryOff="@string/attachment_summary_off"
+            app:summaryOn="@string/attachment_summary_on"
+            app:title="@string/attachment_title" />
 
     </PreferenceCategory>
 
