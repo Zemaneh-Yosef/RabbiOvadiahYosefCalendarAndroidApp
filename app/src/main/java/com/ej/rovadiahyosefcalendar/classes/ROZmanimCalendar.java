@@ -186,6 +186,15 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         return getTimeOffset(getSeaLevelSunrise(), -(shaahZmanit + dakahZmanit * 6));
     }
 
+    public Date getSofZmanAchilatChametzAmudeiHoraah() {
+        return getSofZmanTfila(getAlotAmudeiHoraah(), getTzais72ZmanisAmudeiHoraah());
+    }
+
+    public Date getSofZmanBiurChametzMGAAmudeiHoraah() {
+        long shaahZmanit = getTemporalHour(getAlotAmudeiHoraah(), getTzais72ZmanisAmudeiHoraah());
+        return getTimeOffset(getAlotAmudeiHoraah(), shaahZmanit * 5);
+    }
+
     public Date getSofZmanShmaMGA72MinutesZmanisAmudeiHoraah() {
         return getSofZmanShma(getAlotAmudeiHoraah(), getTzais72ZmanisAmudeiHoraah());
     }
