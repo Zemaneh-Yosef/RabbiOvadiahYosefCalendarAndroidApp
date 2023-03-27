@@ -1919,11 +1919,11 @@ public class MainActivity extends AppCompatActivity {
      * @param shortStyle if the tekufa should be added as Tekufa NAME : TIME or Tekufa NAME is today at TIME
      */
     private void addTekufaTime(DateFormat zmanimFormat, List<ZmanListEntry> zmanim, boolean shortStyle) {
-        mCurrentDateShown.add(Calendar.DATE,1);//check next day for tekufa, because the tekufa time can go back a day
-        mJewishDateInfo.setCalendar(mCurrentDateShown);
-        mCurrentDateShown.add(Calendar.DATE,-1);
+        mROZmanimCalendar.getCalendar().add(Calendar.DATE,1);//check next day for tekufa, because the tekufa time can go back a day
+        mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
+        mROZmanimCalendar.getCalendar().add(Calendar.DATE,-1);
         if (mJewishDateInfo.getJewishCalendar().getTekufa() != null &&
-                DateUtils.isSameDay(mCurrentDateShown.getTime(), mJewishDateInfo.getJewishCalendar().getTekufaAsDate())) {
+                DateUtils.isSameDay(mROZmanimCalendar.getCalendar().getTime(), mJewishDateInfo.getJewishCalendar().getTekufaAsDate())) {
             if (shortStyle) {
                 zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
                         zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
@@ -1932,11 +1932,11 @@ public class MainActivity extends AppCompatActivity {
                         zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
             }
         }
-        mJewishDateInfo.setCalendar(mCurrentDateShown);//reset
+        mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());//reset
 
         //else the tekufa time is on the same day as the current date, so we can add it normally
         if (mJewishDateInfo.getJewishCalendar().getTekufa() != null &&
-                DateUtils.isSameDay(mCurrentDateShown.getTime(), mJewishDateInfo.getJewishCalendar().getTekufaAsDate())) {
+                DateUtils.isSameDay(mROZmanimCalendar.getCalendar().getTime(), mJewishDateInfo.getJewishCalendar().getTekufaAsDate())) {
             if (shortStyle) {
                 zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
                         zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
