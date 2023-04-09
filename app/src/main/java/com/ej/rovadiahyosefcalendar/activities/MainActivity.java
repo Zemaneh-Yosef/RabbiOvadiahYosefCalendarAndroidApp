@@ -1298,89 +1298,34 @@ public class MainActivity extends AppCompatActivity {
 
     public void setNextUpcomingZman() {
         Date theZman = null;
-        List<Date> zmanim = new ArrayList<>();
-        mROZmanimCalendar.setCalendar(Calendar.getInstance());
-        mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);
-        addZmanimDates(zmanim);//for the previous day
-        mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
-        addZmanimDates(zmanim);//for the current day
-        mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
-        addZmanimDates(zmanim);//for the next day
+        List<ZmanListEntry> zmanim = new ArrayList<>();
+        Calendar today = Calendar.getInstance();
+
+        today.add(Calendar.DATE, -1);
+        mROZmanimCalendar.setCalendar(today);//MUST call setCalendar() because it sets the JewishCalendar to the correct date for netz
+        mJewishDateInfo.setCalendar(today);
+        addZmanim(zmanim, false);//for the previous day
+
+        today.add(Calendar.DATE, 1);
+        mROZmanimCalendar.setCalendar(today);
+        mJewishDateInfo.setCalendar(today);
+        addZmanim(zmanim, false);//for the current day
+
+        today.add(Calendar.DATE, 1);
+        mROZmanimCalendar.setCalendar(today);
+        mJewishDateInfo.setCalendar(today);
+        addZmanim(zmanim, false);//for the next day
+
         mROZmanimCalendar.setCalendar(mCurrentDateShown);
+        mJewishDateInfo.setCalendar(mCurrentDateShown);//reset
         //find the next upcoming zman that is after the current time and before all the other zmanim
-        for (Date zman : zmanim) {
+        for (ZmanListEntry zmanEntry : zmanim) {
+            Date zman = zmanEntry.getZman();
             if (zman != null && zman.after(new Date()) && (theZman == null || zman.before(theZman))) {
                 theZman = zman;
             }
         }
         sNextUpcomingZman = theZman;
-    }
-
-    private void addZmanimDates(List<Date> zmanim) {
-        zmanim.add(mROZmanimCalendar.getAlos72Zmanis());
-        zmanim.add(mROZmanimCalendar.getEarliestTalitTefilin());
-        if (mSettingsPreferences.getBoolean("ShowElevatedSunrise", false)) {
-            zmanim.add(mROZmanimCalendar.getSunrise());
-        }
-        if (mROZmanimCalendar.getHaNetz() != null && !mSharedPreferences.getBoolean("showMishorSunrise" + sCurrentLocationName, true)) {
-            zmanim.add(mROZmanimCalendar.getHaNetz());
-        } else {
-            zmanim.add(mROZmanimCalendar.getSeaLevelSunrise());
-        }
-        if (mROZmanimCalendar.getHaNetz() != null &&
-                !mSharedPreferences.getBoolean("showMishorSunrise" + sCurrentLocationName, true) &&
-                mSettingsPreferences.getBoolean("ShowMishorAlways", false)) {
-            zmanim.add(mROZmanimCalendar.getSeaLevelSunrise());
-        }
-        zmanim.add(mROZmanimCalendar.getSofZmanShmaMGA72MinutesZmanis());
-        zmanim.add(mROZmanimCalendar.getSofZmanShmaGRA());
-        if (mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.EREV_PESACH) {
-            zmanim.add(mROZmanimCalendar.getSofZmanTfilaMGA72MinutesZmanis());
-            zmanim.add(mROZmanimCalendar.getSofZmanTfilaGRA());
-            zmanim.add(mROZmanimCalendar.getSofZmanBiurChametzMGA());
-        } else {
-            zmanim.add(mROZmanimCalendar.getSofZmanTfilaGRA());
-        }
-        zmanim.add(mROZmanimCalendar.getChatzot());
-        zmanim.add(mROZmanimCalendar.getMinchaGedolaGreaterThan30());
-        zmanim.add(mROZmanimCalendar.getMinchaKetana());
-        zmanim.add(mROZmanimCalendar.getPlagHamincha());
-        if ((mJewishDateInfo.getJewishCalendar().hasCandleLighting() &&
-                !mJewishDateInfo.getJewishCalendar().isAssurBemelacha()) ||
-                mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY) {
-            zmanim.add(mROZmanimCalendar.getCandleLighting());
-        }
-        zmanim.add(mROZmanimCalendar.getSunset());
-        zmanim.add(mROZmanimCalendar.getTzeit());
-        if (mJewishDateInfo.getJewishCalendar().hasCandleLighting() &&
-                mJewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
-            if (mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) != Calendar.FRIDAY) {
-                zmanim.add(mROZmanimCalendar.getTzeit());
-            }
-        }
-        if (mJewishDateInfo.getJewishCalendar().isTaanis()
-                && mJewishDateInfo.getJewishCalendar().getYomTovIndex() != JewishCalendar.YOM_KIPPUR) {
-            zmanim.add(mROZmanimCalendar.getTzaitTaanit());
-            zmanim.add(mROZmanimCalendar.getTzaitTaanitLChumra());
-        }
-        if (mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting()) {
-            zmanim.add(mROZmanimCalendar.getTzaisAteretTorah());
-            if (mSettingsPreferences.getBoolean("RoundUpRT", true)) {
-                zmanim.add(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()));
-            } else {
-                zmanim.add(mROZmanimCalendar.getTzais72Zmanis());
-            }
-        }
-        if (mSettingsPreferences.getBoolean("AlwaysShowRT", false)) {
-            if (!(mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting())) {//if we want to always show the zman for RT, we can just NOT the previous cases where we do show it
-                if (mSettingsPreferences.getBoolean("RoundUpRT", true)) {
-                    zmanim.add(addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()));
-                } else {
-                    zmanim.add(mROZmanimCalendar.getTzais72Zmanis());
-                }
-            }
-        }
-        zmanim.add(mROZmanimCalendar.getSolarMidnight());
     }
 
     private String getAnnouncements() {
@@ -1891,8 +1836,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private String getShabbatAndOrChag() {
         if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
-            if (mJewishDateInfo.getJewishCalendar().isYomTovAssurBemelacha() &&
-                    mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
+            if (mJewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
                 return "\u05E9\u05D1\u05EA/\u05D7\u05D2";
             } else if (mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
                 return "\u05E9\u05D1\u05EA";
@@ -1900,8 +1844,7 @@ public class MainActivity extends AppCompatActivity {
                 return "\u05D7\u05D2";
             }
         } else {
-            if (mJewishDateInfo.getJewishCalendar().isYomTovAssurBemelacha() &&
-                    mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
+            if (mJewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
                 return "Shabbat/Chag";
             } else if (mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
                 return "Shabbat";
@@ -1916,9 +1859,10 @@ public class MainActivity extends AppCompatActivity {
      * on the current date.
      * @param zmanimFormat the format to use for the zmanim
      * @param zmanim the list of zmanim to add to
-     * @param shortStyle if the tekufa should be added as Tekufa NAME : TIME or Tekufa NAME is today at TIME
+     * @param shortStyle if the tekufa should be added as Tekufa Nissan : 4:30 or Tekufa Nissan is today at 4:30
      */
     private void addTekufaTime(DateFormat zmanimFormat, List<ZmanListEntry> zmanim, boolean shortStyle) {
+        zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
         mROZmanimCalendar.getCalendar().add(Calendar.DATE,1);//check next day for tekufa, because the tekufa time can go back a day
         mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
         mROZmanimCalendar.getCalendar().add(Calendar.DATE,-1);

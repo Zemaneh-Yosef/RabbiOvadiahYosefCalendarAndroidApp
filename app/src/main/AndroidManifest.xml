@@ -25,11 +25,13 @@
         <activity
             android:name=".activities.ZmanimSettingsActivity"
             android:exported="false"
-            android:label="@string/title_activity_zmanim_settings" />
+            android:label="@string/title_activity_zmanim_settings"
+            android:theme="@style/MaterialTheme"/>
 
         <receiver
             android:name=".activities.ZmanimAppWidget"
-            android:exported="false">
+            android:exported="false"
+            android:theme="@style/MaterialTheme">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>

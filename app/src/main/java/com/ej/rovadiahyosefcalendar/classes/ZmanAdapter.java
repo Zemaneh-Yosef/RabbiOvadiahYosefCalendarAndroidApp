@@ -46,7 +46,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     private AlertDialog.Builder dialogBuilder;
     private final DateFormat zmanimFormat;
     private final DateFormat roundUpFormat;
-    private final boolean roundUpRt;
+    private final boolean roundUpRT;
 
     public ZmanAdapter(Context context, List<ZmanListEntry> zmanim) {
         this.zmanim = zmanim;
@@ -58,7 +58,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
         }
         zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
-        roundUpRt = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("RoundUpRT", false);
+        roundUpRT = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("RoundUpRT", false);
         roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
         roundUpFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
         dialogBuilder = new AlertDialog.Builder(this.context);
@@ -84,7 +84,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                 zmanTime = "";//remove arrow
             }
 
-            if (zmanim.get(position).isRTZman() && roundUpRt) {
+            if (zmanim.get(position).isRTZman() && roundUpRT) {
                 zmanTime += roundUpFormat.format(checkNull(zmanim.get(position).getZman()));
             } else {
                 zmanTime += zmanimFormat.format(checkNull(zmanim.get(position).getZman()));
@@ -302,9 +302,9 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             showEarliestTalitTefilinDialog();
         } else if (zmanim.get(position).getTitle().contains("Sunrise")) {
             showSunriseDialog();
-        } else if (zmanim.get(position).getTitle().contains("Achilat Chametz")) {
+        } else if (zmanim.get(position).getTitle().contains("eat Chametz")) {
             showAchilatChametzDialog();
-        } else if (zmanim.get(position).getTitle().contains("Biur Chametz")) {
+        } else if (zmanim.get(position).getTitle().contains("burn Chametz")) {
             showBiurChametzDialog();
         } else if (zmanim.get(position).getTitle().contains("Shma MG\"A")) {
             showShmaMGADialog();

@@ -93,7 +93,7 @@ public class OmerNotifications extends BroadcastReceiver {
                 if (!mSharedPreferences.getString("lastKnownDayOmer", "").equals(jewishCalendar.toString())) {//We only want 1 notification a day.
                     NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "Omer")
                             .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
-                            .setSmallIcon(R.drawable.calendar_foreground)
+                            .setSmallIcon(R.drawable.omer_wheat)
                             .setContentTitle("Day of Omer")
                             .setContentText("Tonight is the " +
                                     (getOrdinal(day + 1)) +
