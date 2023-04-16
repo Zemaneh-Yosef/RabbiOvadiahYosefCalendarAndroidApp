@@ -28,6 +28,11 @@
         android:visibility="gone"
         tools:ignore="HardcodedText" />
 
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/mainRV"
         android:layout_width="match_parent"
@@ -35,6 +40,8 @@
         android:layout_weight="1"
         tools:visibility="gone"
         app:layout_constrainedHeight="true" />
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <TextView
         android:id="@+id/location_name"

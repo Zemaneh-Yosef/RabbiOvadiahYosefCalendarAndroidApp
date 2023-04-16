@@ -212,13 +212,6 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     }
 
     public Date getTzeitAmudeiHoraahLChumra() {
-        Calendar tempCal = (Calendar) getCalendar().clone();
-        setCalendar(new GregorianCalendar(2023, Calendar.MARCH, 20));
-        Date sunset = getSeaLevelSunset();
-        Date tzaitBy3point65degrees = getTzaisGeonim3Point65Degrees();
-        setCalendar(tempCal);//reset the calendar to the current day
-        //get the amount of minutes between the two Date objects
-        int numberOfMinutes = (int) ((tzaitBy3point65degrees.getTime() - sunset.getTime()) / MILLISECONDS_PER_MINUTE);
         long shaahZmanit = getTemporalHour(getAlos72Zmanis(), getTzais72Zmanis());
         long dakahZmanit = shaahZmanit / MINUTES_PER_HOUR;
         return getTimeOffset(getSeaLevelSunset(), 20 * dakahZmanit);
@@ -226,6 +219,14 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
 
     public Date getTzaitShabbatAmudeiHoraah() {
         return getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 7.14);
+    }
+
+    public Date getTzaitShabbatAmudeiHoraahLesserThan40() {
+        if (getTzaisAteretTorah().before(getTzaitShabbatAmudeiHoraah()))
+            return getTzaisAteretTorah();
+        else {
+            return getTzaitShabbatAmudeiHoraah();
+        }
     }
 
     public Date getTzais72ZmanisAmudeiHoraah() {

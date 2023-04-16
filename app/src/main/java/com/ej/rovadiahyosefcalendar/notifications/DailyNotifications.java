@@ -25,6 +25,7 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
+import androidx.preference.PreferenceManager;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.MainActivity;
@@ -82,16 +83,24 @@ public class DailyNotifications extends BroadcastReceiver {
 
                 Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
+                String specialDay;
+
+                if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowDayOfOmer",false)) {
+                    specialDay = jewishDateInfo.getSpecialDayWithoutOmer();
+                } else {
+                    specialDay = jewishDateInfo.getSpecialDay();
+                }
+
                 if (!mSharedPreferences.getString("lastKnownDay","").equals(jewishDateInfo.getJewishDate())) {//We only want 1 notification a day.
                     NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "Jewish Special Day")
                             .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
                             .setSmallIcon(R.drawable.calendar_foreground)
                             .setContentTitle("Jewish Special Day")
-                            .setContentText("Today is " + jewishDateInfo.getSpecialDay())
+                            .setContentText("Today is " + specialDay)
                             .setStyle(new NotificationCompat.BigTextStyle()
                                     .setBigContentTitle("Jewish Special Day")
                                     .setSummaryText(calendar.getGeoLocation().getLocationName())
-                                    .bigText("Today is " + jewishDateInfo.getSpecialDay()))
+                                    .bigText("Today is " + specialDay))
                             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                             .setCategory(NotificationCompat.CATEGORY_REMINDER)
                             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -108,7 +117,7 @@ public class DailyNotifications extends BroadcastReceiver {
             Calendar cal = Calendar.getInstance();
             checkIfTekufaIsToday(context, jewishDateInfo, cal);
             updateAlarm(context, calendar, cal);
-            startUpDailyZmanim(context, mSharedPreferences);//we need to start the zmanim service every day because there might be a person who will just want to see candle lighting time every week or a similar case by pesach zmanim.
+            startUpDailyZmanim(context, mSharedPreferences);//we need to start the zmanim service every day because there might be a person who will just want to see candle lighting time every week or once a year for pesach zmanim.
         }
     }
 

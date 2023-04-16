@@ -39,6 +39,12 @@
             android:title="Round up Rabbeinu Tam?" />
 
         <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="ShowDayOfOmer"
+            android:summary="Choose whether or not the app will notify you of the day of the omer during the day"
+            android:title="Notify day of omer as well?" />
+
+        <CheckBoxPreference
             android:defaultValue="false"
             android:key="ShowMishorAlways"
             android:summary="Choose whether or not to display sea level sunrise even if visible sunrise is setup as well"
@@ -158,36 +164,6 @@
             android:key="ShowDST"
             android:summary="Choose whether or not to display if Daylight Savings is in effect"
             android:title="Show DST?" />
-
-    </PreferenceCategory>
-    <PreferenceCategory app:title="@string/messages_header">
-
-        <EditTextPreference
-            app:key="signature"
-            app:title="@string/signature_title"
-            app:useSimpleSummaryProvider="true" />
-
-        <ListPreference
-            app:defaultValue="reply"
-            app:entries="@array/reply_entries"
-            app:entryValues="@array/reply_values"
-            app:key="reply"
-            app:title="@string/reply_title"
-            app:useSimpleSummaryProvider="true" />
-
-    </PreferenceCategory>
-    <PreferenceCategory app:title="@string/sync_header">
-
-        <SwitchPreferenceCompat
-            app:key="sync"
-            app:title="@string/sync_title" />
-
-        <SwitchPreferenceCompat
-            app:dependency="sync"
-            app:key="attachment"
-            app:summaryOff="@string/attachment_summary_off"
-            app:summaryOn="@string/attachment_summary_on"
-            app:title="@string/attachment_title" />
 
     </PreferenceCategory>
 

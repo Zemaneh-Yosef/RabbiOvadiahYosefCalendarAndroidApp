@@ -113,6 +113,29 @@ public class JewishDateInfo {
         return result;
     }
 
+    public String getSpecialDayWithoutOmer() {
+        String result = "";
+        String yomTovOfToday = getYomTov();
+        String yomTovOfNextDay = getYomTovForNextDay();
+
+        if (yomTovOfToday.isEmpty() && yomTovOfNextDay.isEmpty()) {//NEEDED if both empty
+            //do nothing
+        } else if (yomTovOfToday.isEmpty() && !yomTovOfNextDay.startsWith("Erev")) {//if next day has yom tov
+            result = "Erev " + yomTovOfNextDay;
+        } else if (!yomTovOfNextDay.isEmpty()
+                && !yomTovOfNextDay.startsWith("Erev")
+                && !yomTovOfToday.endsWith(yomTovOfNextDay)) {//if today and the next day have yom tov
+            result = yomTovOfToday + " / Erev " + yomTovOfNextDay;
+        } else {
+            result = yomTovOfToday;
+        }
+
+        result = addTaanitBechorot(result);
+        result = addRoshChodesh(result);
+        result = replaceChanukahWithDayOfChanukah(result);
+        return result;
+    }
+
     /**
      * This method is used to add the Taanit Bechorot to the current holiday if it is on the current day.
      * @return a string containing taanit bechorot or erev taanit bechorot

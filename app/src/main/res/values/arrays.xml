@@ -1,5 +1,4 @@
 <resources>
-    <!-- Reply Preference -->
     <string-array name="candle_lighting_entries">
         <item>15 Minutes</item>
         <item>18 Minutes</item>
@@ -18,6 +17,18 @@
         <item>22</item>
         <item>30</item>
         <item>40</item>
+    </string-array>
+
+    <string-array name="shabbat_opinion_entries">
+        <item>Regular Minutes</item>
+        <item>7.14 Degrees</item>
+        <item>Lesser of the two</item>
+    </string-array>
+
+    <string-array name="shabbat_opinion_values">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
     </string-array>
 
     <string-array name="theme_entries">

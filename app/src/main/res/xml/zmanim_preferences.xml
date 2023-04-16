@@ -17,11 +17,19 @@
             app:summary="Enter the amount of minutes for candle lighting"
             app:title="Candle Lighting Time" />
 
+        <ListPreference
+            app:defaultValue="1"
+            app:entries="@array/shabbat_opinion_entries"
+            app:entryValues="@array/shabbat_opinion_values"
+            app:key="EndOfShabbatOpinion"
+            app:summary="Choose which opinion to use for the end of shabbat"
+            app:title="End Shabbat Opinion" />
+
         <EditTextPreference
             app:defaultValue="40"
             app:key="EndOfShabbatOffset"
             app:summary="Enter the amount of minutes to add after sunset until shabbat ends"
-            app:title="End Shabbat Time" />
+            app:title="Minutes To Shabbat End" />
 
     </PreferenceCategory>
 

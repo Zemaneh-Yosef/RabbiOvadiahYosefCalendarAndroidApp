@@ -42,6 +42,7 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
@@ -51,6 +52,7 @@ import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTables;
@@ -175,6 +177,9 @@ public class MainActivity extends AppCompatActivity {
         setTheme(R.style.AppTheme); //splash screen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //Used this to align the title in the center and improve its text
+        Objects.requireNonNull(getSupportActionBar()).setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        getSupportActionBar().setCustomView(R.layout.action_bar_custom);
         mLayout = findViewById(R.id.main_layout);
         mHandler = new Handler(getMainLooper());
         mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
@@ -553,6 +558,30 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerViewAndTextViews() {
+        SwipeRefreshLayout swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            if (mLocationResolver == null) {
+                mLocationResolver = new LocationResolver(this, this);
+            }
+            mLocationResolver.acquireLatitudeAndLongitude();
+            mLocationResolver.setTimeZoneID();
+            if (mCurrentDateShown != null
+                    && mJewishDateInfo != null
+                    && mROZmanimCalendar != null
+                    && mMainRecyclerView != null) {
+                mCurrentDateShown.setTime(new Date());
+                mJewishDateInfo.setCalendar(new GregorianCalendar());
+                resolveElevationAndVisibleSunrise();
+                instantiateZmanimCalendar();//for the location name
+                setNextUpcomingZman();
+                if (mSharedPreferences.getBoolean("weeklyMode", false)) {
+                    updateWeeklyZmanim();
+                } else {
+                    mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                }
+            }
+            swipeRefreshLayout.setRefreshing(false);
+        });
         mMainRecyclerView = findViewById(R.id.mainRV);
         mMainRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mMainRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
@@ -817,10 +846,14 @@ public class MainActivity extends AppCompatActivity {
             Drawable drawable = new BitmapDrawable(getResources(), bitmap);
             mLayout.setBackground(drawable);
         }
-        if (mSharedPreferences.getBoolean("useDefaultCalButtonColor", true)) {
-            mCalendarButton.setBackgroundColor(getColor(R.color.dark_blue));
+        if (sShabbatMode) {
+            setShabbatBannersText(false);
         } else {
-            mCalendarButton.setBackgroundColor(mSharedPreferences.getInt("CalButtonColor", 0x18267C));
+            if (mSharedPreferences.getBoolean("useDefaultCalButtonColor", true)) {
+                mCalendarButton.setBackgroundColor(getColor(R.color.dark_blue));
+            } else {
+                mCalendarButton.setBackgroundColor(mSharedPreferences.getInt("CalButtonColor", 0x18267C));
+            }
         }
         Intent zmanIntent = new Intent(getApplicationContext(), ZmanimNotifications.class);//this is to update the zmanim notifications if the user changed the settings to start showing them
         mSharedPreferences.edit().putBoolean("fromThisNotification", false).apply();
@@ -1667,8 +1700,15 @@ public class MainActivity extends AppCompatActivity {
             zmanim.add(fastEnds);
         }
         if (mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting()) {
-            ZmanListEntry endShabbat = new ZmanListEntry(getTzaitString() + getShabbatAndOrChag() + getEndsString()
-                    + " (" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")", mROZmanimCalendar.getTzaisAteretTorah(), true);
+            ZmanListEntry endShabbat;
+            if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("1")) {
+                endShabbat = new ZmanListEntry(getTzaitString() + getShabbatAndOrChag() + getEndsString()
+                        + " (" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")", mROZmanimCalendar.getTzaisAteretTorah(), true);
+            } else if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("2")) {
+                endShabbat = new ZmanListEntry(getTzaitString() + getShabbatAndOrChag() + getEndsString(), mROZmanimCalendar.getTzaitShabbatAmudeiHoraah(), true);
+            } else {
+                endShabbat = new ZmanListEntry(getTzaitString() + getShabbatAndOrChag() + getEndsString(), mROZmanimCalendar.getTzaitShabbatAmudeiHoraahLesserThan40(), true);
+            }
             endShabbat.setNoteworthyZman(true);
             zmanim.add(endShabbat);
             if (mSettingsPreferences.getBoolean("RoundUpRT", true)) {
@@ -2030,30 +2070,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.refresh) {
-            if (mLocationResolver == null) {
-                mLocationResolver = new LocationResolver(this, this);
-            }
-            mLocationResolver.acquireLatitudeAndLongitude();
-            mLocationResolver.setTimeZoneID();
-            if (mCurrentDateShown != null
-                    && mJewishDateInfo != null
-                    && mROZmanimCalendar != null
-                    && mMainRecyclerView != null) {// Some users were getting a crash here, so I added this check.
-                mCurrentDateShown.setTime(new Date());
-                mJewishDateInfo.setCalendar(new GregorianCalendar());
-                resolveElevationAndVisibleSunrise();
-                instantiateZmanimCalendar();//for the location name
-                mROZmanimCalendar.setCalendar(new GregorianCalendar());
-                setNextUpcomingZman();
-                if (mSharedPreferences.getBoolean("weeklyMode", false)) {
-                    updateWeeklyZmanim();
-                } else {
-                    mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
-                }
-            }
-            return true;
-        } else if (id == R.id.enterZipcode) {
+        if (id == R.id.enterZipcode) {
             createZipcodeDialog();
             return true;
         } else if (id == R.id.shabbat_mode) {

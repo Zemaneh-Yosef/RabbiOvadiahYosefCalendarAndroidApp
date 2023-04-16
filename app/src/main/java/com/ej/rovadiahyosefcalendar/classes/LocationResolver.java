@@ -276,15 +276,9 @@ public class LocationResolver extends Thread {
         double oldLat = Double.longBitsToDouble(mSharedPreferences.getLong("oldLat", 0));
         double oldLong = Double.longBitsToDouble(mSharedPreferences.getLong("oldLong", 0));
 
-        if (oldLat == sLatitude && oldLong == sLongitude) {
-            Toast.makeText(mContext, "Unable to change location, using old location.", Toast.LENGTH_LONG).show();
-        }
-
         if (oldLat != 0 && oldLong != 0) {
             sLatitude = oldLat;
             sLongitude = oldLong;
-        } else {
-            Toast.makeText(mContext, "An error occurred getting zipcode coordinates", Toast.LENGTH_LONG).show();
         }
     }
 
