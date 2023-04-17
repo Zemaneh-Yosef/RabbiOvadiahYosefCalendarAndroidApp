@@ -291,6 +291,8 @@ public class MainActivity extends AppCompatActivity {
         weeklyParsha.setVisibility(View.VISIBLE);
         weeklyDafs.setVisibility(View.VISIBLE);
         mMainRecyclerView.setVisibility(View.GONE);
+        SwipeRefreshLayout swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
+        swipeRefreshLayout.setVisibility(View.GONE);
     }
 
     private void hideWeeklyTextViews() {
@@ -315,6 +317,8 @@ public class MainActivity extends AppCompatActivity {
         mWeeklyParsha.setVisibility(View.GONE);
         mWeeklyDafs.setVisibility(View.GONE);
         mMainRecyclerView.setVisibility(View.VISIBLE);
+        SwipeRefreshLayout swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
+        swipeRefreshLayout.setVisibility(View.VISIBLE);
     }
 
     private void findAllWeeklyViews() {
@@ -1772,8 +1776,8 @@ public class MainActivity extends AppCompatActivity {
         zmanim.add(new ZmanListEntry(getChatzotString(), mROZmanimCalendar.getChatzot(), true));
         zmanim.add(new ZmanListEntry(getMinchaGedolaString(), mROZmanimCalendar.getMinchaGedolaGreaterThan30(), true));
         zmanim.add(new ZmanListEntry(getMinchaKetanaString(), mROZmanimCalendar.getMinchaKetana(), true));
-        zmanim.add(new ZmanListEntry(getPlagHaminchaString() + " " + getHalachaBerurahString(), mROZmanimCalendar.getPlagHaminchaHalachaBerurah(), true));
-        zmanim.add(new ZmanListEntry(getPlagHaminchaString() + " " + getYalkutYosefString(), mROZmanimCalendar.getPlagHaminchaAmudeiHoraah(), true));
+        zmanim.add(new ZmanListEntry(getPlagHaminchaString() + " " + getAbbreviatedHalachaBerurahString(), mROZmanimCalendar.getPlagHaminchaHalachaBerurah(), true));
+        zmanim.add(new ZmanListEntry(getPlagHaminchaString() + " " + getAbbreviatedYalkutYosefString(), mROZmanimCalendar.getPlagHaminchaAmudeiHoraah(), true));
         if ((mJewishDateInfo.getJewishCalendar().hasCandleLighting() &&
                 !mJewishDateInfo.getJewishCalendar().isAssurBemelacha()) ||
                 mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY) {
@@ -2284,6 +2288,22 @@ public class MainActivity extends AppCompatActivity {
             return "הלכה ברורה";
         } else {
             return "Halacha Berurah";
+        }
+    }
+
+    private String getAbbreviatedYalkutYosefString() {
+        if (mIsZmanimInHebrew) {
+            return "י\"י";
+        } else {
+            return "Y\"Y";
+        }
+    }
+
+    private String getAbbreviatedHalachaBerurahString() {
+        if (mIsZmanimInHebrew) {
+            return "ה\"ב";
+        } else {
+            return "H\"B";
         }
     }
 

@@ -129,8 +129,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
                 // second entry is always the date
 
-                if (position == 2 && !zmanim.get(position).getTitle().equals("No Parsha this week")) {// third entry will always be the weekly parsha
-                    String parsha = zmanim.get(position).getTitle();
+                if (position == 2 && !zmanim.get(position).getTitle().equals("No Weekly Parsha")) {// third entry will always be the weekly parsha
+                    String parsha = zmanim.get(position).getTitle().split(" ")[0];//get first word
                     String parshaLink = "https://www.sefaria.org/" + parsha;
                     dialogBuilder.setTitle("Open Sefaria link for " + parsha + "?");
                     dialogBuilder.setMessage("This will open the Sefaria website or app in a new window with the weekly parsha.");

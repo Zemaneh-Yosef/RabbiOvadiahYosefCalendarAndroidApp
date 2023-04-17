@@ -73,7 +73,7 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
         mSharedPreferences.edit().putBoolean("isZmanimInHebrew", isHebrew).apply();
         mSharedPreferences.edit().putBoolean("isZmanimEnglishTranslated", isTranslated).apply();
         if (ActivityCompat.checkSelfPermission(getApplicationContext(), ACCESS_FINE_LOCATION) != PERMISSION_GRANTED ||
-                mSharedPreferences.getBoolean("useZipcode", false)) {
+                !mSharedPreferences.getBoolean("useZipcode", false)) {
             startActivity(new Intent(this, CurrentLocationActivity.class).setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
             finish();
             return;

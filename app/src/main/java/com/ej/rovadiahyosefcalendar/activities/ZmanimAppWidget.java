@@ -305,8 +305,8 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         zmanim.add(new ZmanListEntry(getChatzotString(), mROZmanimCalendar.getChatzot(), true));
         zmanim.add(new ZmanListEntry(getMinchaGedolaString(), mROZmanimCalendar.getMinchaGedolaGreaterThan30(), true));
         zmanim.add(new ZmanListEntry(getMinchaKetanaString(), mROZmanimCalendar.getMinchaKetana(), true));
-        zmanim.add(new ZmanListEntry(getPlagHaminchaString(), mROZmanimCalendar.getPlagHamincha(), true));
-        zmanim.add(new ZmanListEntry(getPlagHaminchaString(), mROZmanimCalendar.getPlagHaminchaHalachaBerurah(), true));
+        zmanim.add(new ZmanListEntry(getPlagHaminchaString() + " " + getAbbreviatedHalachaBerurahString(), mROZmanimCalendar.getPlagHaminchaHalachaBerurah(), true));
+        zmanim.add(new ZmanListEntry(getPlagHaminchaString() + " " + getAbbreviatedYalkutYosefString(), mROZmanimCalendar.getPlagHaminchaAmudeiHoraah(), true));
         if ((mJewishDateInfo.getJewishCalendar().hasCandleLighting() &&
                 !mJewishDateInfo.getJewishCalendar().isAssurBemelacha()) ||
                 mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY) {
@@ -591,6 +591,22 @@ public class ZmanimAppWidget extends AppWidgetProvider {
             return "פלג המנחה";
         } else {
             return "Plag HaMincha";
+        }
+    }
+
+    private static String getAbbreviatedYalkutYosefString() {
+        if (mIsZmanimInHebrew) {
+            return "י\"י";
+        } else {
+            return "Y\"Y";
+        }
+    }
+
+    private static String getAbbreviatedHalachaBerurahString() {
+        if (mIsZmanimInHebrew) {
+            return "ה\"ב";
+        } else {
+            return "H\"B";
         }
     }
 

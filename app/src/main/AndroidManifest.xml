@@ -26,12 +26,12 @@
             android:name=".activities.ZmanimSettingsActivity"
             android:exported="false"
             android:label="@string/title_activity_zmanim_settings"
-            android:theme="@style/MaterialTheme"/>
+            android:theme="@style/Theme.Material3.DayNight"/>
 
         <receiver
             android:name=".activities.ZmanimAppWidget"
             android:exported="false"
-            android:theme="@style/MaterialTheme">
+            android:theme="@style/Theme.Material3.DayNight">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -45,7 +45,7 @@
             android:name=".activities.NotificationSettingsActivity"
             android:exported="false"
             android:label="@string/title_activity_notification_settings"
-            android:theme="@style/MaterialTheme" />
+            android:theme="@style/Theme.Material3.DayNight" />
         <activity
             android:name=".activities.CurrentLocationActivity"
             android:exported="false" />
@@ -53,7 +53,7 @@
             android:name=".activities.MoladActivity"
             android:exported="true"
             android:label="Molad Calculator"
-            android:theme="@style/MaterialTheme" />
+            android:theme="@style/Theme.Material3.Dark" />
         <activity
             android:name=".activities.ZmanimLanguageActivity"
             android:exported="true" />
@@ -70,7 +70,7 @@
         <activity
             android:name=".activities.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:theme="@style/MaterialTheme" />
+            android:theme="@style/Theme.Material3.DayNight" />
         <activity android:name=".activities.SetupElevationActivity" />
         <activity
             android:name=".activities.MainActivity"

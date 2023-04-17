@@ -7,7 +7,6 @@ import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
 import org.apache.commons.lang3.time.DateUtils;
 
 import java.util.Calendar;
-import java.util.Date;
 
 /**
  * This class is used to get the information about the Jewish date. It is a helper class to manipulate the classes in the kosherjava library.
@@ -438,7 +437,7 @@ public class JewishDateInfo {
         jewishCalendar.setDate(currentDate);
 
         if (parsha.isEmpty() && specialParsha.isEmpty()) {
-            return "No Parsha this week";
+            return "No Weekly Parsha";
         } else if (specialParsha.isEmpty()) {
             return parsha;
         } else {
@@ -538,9 +537,6 @@ public class JewishDateInfo {
 
         Calendar fifteenDays = Calendar.getInstance();
         fifteenDays.setTime(jewishCalendar.getSofZmanKidushLevana15Days());
-
-        Date one = jewishCalendar.getMoladAsDate();
-        long two = jewishCalendar.getSofZmanKidushLevana15Days().getTime();
 
         if (DateUtils.isSameDay(jewishCalendar.getGregorianCalendar(), sevenDays)) {
             return "Birchat HaLevana starts tonight";

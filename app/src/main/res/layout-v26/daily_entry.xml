@@ -22,6 +22,7 @@
         android:textColor="?android:attr/textColorPrimary"
         android:textSize="22sp"
         android:textDirection="ltr"
+        android:fontFamily="sans-serif-light"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/zmanRightTextView"
         app:layout_constraintHorizontal_bias="0.000"
@@ -35,6 +36,7 @@
         android:gravity="center"
         android:textColor="?android:attr/textColorPrimary"
         android:textSize="22sp"
+        android:fontFamily="sans-serif-light"
         android:autoSizeTextType="uniform"
         android:autoSizeMaxTextSize="22sp"
         android:autoSizeMinTextSize="8sp"
@@ -55,6 +57,7 @@
         android:paddingStart="0dp"
         android:textColor="?android:attr/textColorPrimary"
         android:textSize="22sp"
+        android:fontFamily="sans-serif-light"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
