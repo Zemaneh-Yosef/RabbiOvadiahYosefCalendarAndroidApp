@@ -1904,7 +1904,7 @@ public class MainActivity extends AppCompatActivity {
      * TODO : Fix timezone issues with tekufa. If you try to see when the tekufa is in a different timezone, it will sometimes not work because the Dates are not the same.
      * @param zmanimFormat the format to use for the zmanim
      * @param zmanim the list of zmanim to add to
-     * @param shortStyle if the tekufa should be added as Tekufa Nissan : 4:30 or Tekufa Nissan is today at 4:30
+     * @param shortStyle if the tekufa should be added as "Tekufa Nissan : 4:30" or "Tekufa Nissan is today at 4:30"
      */
     private void addTekufaTime(DateFormat zmanimFormat, List<ZmanListEntry> zmanim, boolean shortStyle) {
         zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));

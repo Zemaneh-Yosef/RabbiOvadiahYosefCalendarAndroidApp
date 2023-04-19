@@ -81,7 +81,7 @@ public class TekufaNotifications extends BroadcastReceiver {
             NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context,
                     "Tekufa Notifications")
                     .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
-                    .setSmallIcon(R.drawable.ic_baseline_alarm_24)
+                    .setSmallIcon(getSeasonalIcon(jewishDateInfo.getJewishCalendar().getTekufaName()))
                     .setContentTitle("Tekufa/Season Change")
                     .setContentText(contentText)
                     .setStyle(new NotificationCompat.BigTextStyle()
@@ -99,6 +99,20 @@ public class TekufaNotifications extends BroadcastReceiver {
             notificationManager.notify(MID, mNotifyBuilder.build());
             MID++;
         }
+    }
+
+    private int getSeasonalIcon(String tekufaName) {
+        switch (tekufaName) {
+            case "Tishri":
+                return R.drawable.autumn;
+            case "Tevet":
+                return R.drawable.winter;
+            case "Nissan":
+                return R.drawable.spring;
+            case "Tammuz":
+                return R.drawable.summer;
+        }
+        return R.drawable.autumn;
     }
 
     private Date findTekufaTime(JewishDateInfo jewishDateInfo) {
