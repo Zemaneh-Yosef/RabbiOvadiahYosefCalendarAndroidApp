@@ -52,10 +52,20 @@ public class DailyNotifications extends BroadcastReceiver {
         mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         JewishDateInfo jewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael",false), true);
         mLocationResolver = new LocationResolver(context, new Activity());
+
         if (mSharedPreferences.getBoolean("isSetup",false)) {
+
             AstronomicalCalendar calendar = getROZmanimCalendar(context);
 
-            if (!jewishDateInfo.getSpecialDay().isEmpty()) {
+            String specialDay;
+
+            if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowDayOfOmer",false)) {
+                specialDay = jewishDateInfo.getSpecialDayWithoutOmer();
+            } else {
+                specialDay = jewishDateInfo.getSpecialDay();
+            }
+
+            if (!specialDay.isEmpty()) {
                 long when = calendar.getSunrise().getTime();
                 NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -82,14 +92,6 @@ public class DailyNotifications extends BroadcastReceiver {
                         notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
 
                 Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-
-                String specialDay;
-
-                if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowDayOfOmer",false)) {
-                    specialDay = jewishDateInfo.getSpecialDayWithoutOmer();
-                } else {
-                    specialDay = jewishDateInfo.getSpecialDay();
-                }
 
                 if (!mSharedPreferences.getString("lastKnownDay","").equals(jewishDateInfo.getJewishDate())) {//We only want 1 notification a day.
                     NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "Jewish Special Day")

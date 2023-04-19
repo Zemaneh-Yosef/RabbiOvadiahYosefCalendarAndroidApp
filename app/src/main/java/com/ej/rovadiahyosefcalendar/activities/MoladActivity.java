@@ -1,5 +1,6 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -84,6 +85,7 @@ public class MoladActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private void updateMoladDates() {
         String currentHebrewMonth;
         if (mJewishCalendar.isJewishLeapYear() && mJewishCalendar.getJewishMonth() == JewishDate.ADAR) {
@@ -108,7 +110,7 @@ public class MoladActivity extends AppCompatActivity {
         mMoladAnnouncementTime.setText(moladTime);
         mMoladDate.setText(mSDF.format(mJewishCalendar.getMoladAsDate()));
         mMoladDate7Days.setText(mSDF.format(mJewishCalendar.getTchilasZmanKidushLevana7Days()));
-        mMoladDate15Days.setText(mSDF.format(mJewishCalendar.getSofZmanKidushLevana15Days()));
+        mMoladDate15Days.setText("The whole night of the 15th day of the hebrew month");
     }
 
     @Override

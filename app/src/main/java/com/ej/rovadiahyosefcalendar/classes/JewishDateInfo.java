@@ -528,21 +528,21 @@ public class JewishDateInfo {
     }
 
     /**
-     * This method will return whether or not the current date is the end time or start time for birkat levana
-     * @return a string containing whether or not the current date is the end time or start time for birkat levana
+     * This method will return whether or not the current date is the end time or start time for Birchat HaLevana or an empty string if it is not
+     * either of those days
+     * @return a string containing whether or not the current date is the start time or end time for Birchat HaLevana.
+     * For example, if the current date is the 7th day of the month of Nissan, it will return "Birchat HaLevana starts tonight"
+     * If the current date is the 14th day of the month of Nissan, it will return "Last night for Birchat HaLevana"
      */
     public String getIsTonightStartOrEndBirchatLevana() {
         Calendar sevenDays = Calendar.getInstance();
         sevenDays.setTime(jewishCalendar.getTchilasZmanKidushLevana7Days());
 
-        Calendar fifteenDays = Calendar.getInstance();
-        fifteenDays.setTime(jewishCalendar.getSofZmanKidushLevana15Days());
-
         if (DateUtils.isSameDay(jewishCalendar.getGregorianCalendar(), sevenDays)) {
             return "Birchat HaLevana starts tonight";
         }
 
-        if (DateUtils.isSameDay(jewishCalendar.getGregorianCalendar(), fifteenDays)) {
+        if (jewishCalendar.getJewishDayOfMonth() == 14) {
             return "Last night for Birchat HaLevana";
         }
         return "";
@@ -551,6 +551,8 @@ public class JewishDateInfo {
     /**
      * This method returns if Mashiv Haruach Umorid Hageshem is recited.
      * @return a string containing whether or not Mashiv Haruach Umorid Hageshem is recited
+     * For example, if the current date is the 7th day of the month of Nissan, it will return "Mashiv Haruach" in Hebrew and
+     * if the current date is the 17th day of the month of Nissan, it will return "Morid Hatal"
      */
     public String getIsMashivHaruchOrMoridHatalSaid() {
         if (jewishCalendar.isMashivHaruachRecited()) {
@@ -565,7 +567,9 @@ public class JewishDateInfo {
 
     /**
      * This method returns if Barcheinu or Barech Aleinu is recited.
-     * @return a string containing whether or not Barcheinu or Barech Aleinu is recited
+     * @return a string containing whether or not Barcheinu or Barech Aleinu is recited in the Amidah.
+     *  For example, if the current date is the 7th day of the month of Nissan, it will return "Barech Aleinu" in Hebrew and
+     *  if the current date is the 17th day of the month of Nissan, it will return "Barcheinu"
      */
     public String getIsBarcheinuOrBarechAleinuSaid() {
         if (jewishCalendar.isVeseinBerachaRecited()) {
@@ -577,6 +581,7 @@ public class JewishDateInfo {
 
     /**
      * This method returns true if ulchaparat pesha is said in musaf on rosh chodesh.
+     * Ulchaparat pesha is said in musaf on rosh chodesh in a leap year if the rosh chodesh is in the months of Cheshvan, Kislev, Teves, Shevat, Adar, or Adar II.
      * @return a string containing whether or not to say ulchaparat pesha in musaf on rosh chodesh
      */
     public String getIsUlChaparatPeshaSaid() {
@@ -602,8 +607,9 @@ public class JewishDateInfo {
 
     /**
      * This method returns a string containing the words "No Music" if you are not allowed to listen to music on the current day. (Pesach to lag
-     * baomer and the three weeks)
-     * @return a string containing whether or not you are allowed to listen to music on the current day
+     * ba'omer and the three weeks)
+     * @return a string containing whether or not you are allowed to listen to music on the current day.
+     * If you are not allowed to listen to music, it will return "No Music". If you are allowed to listen to music, it will return an empty string.
      */
     public String isOKToListenToMusic() {
         if (jewishCalendar.getDayOfOmer() >= 8 && jewishCalendar.getDayOfOmer() <= 33) {
@@ -620,6 +626,12 @@ public class JewishDateInfo {
         return "";
     }
 
+    /**
+     * This method returns a string containing the words Hallel or Chatzi Hallel depending on the occasion.
+     * Hallel is said on the first day of Pesach, Shavuot, Succot, and Shmini Atzeret. It is also said everyday of Chanukah and chol hamoed Succot.
+     * Chatzi Hallel is said on Rosh Chodesh, Chol Hamoed Pesach, and the last day of Pesach.
+     * @return a string containing whether or not to say Hallel or Chatzi Hallel in Hebrew.
+     */
     public String getHallelOrChatziHallel() {
         int yomTovIndex = jewishCalendar.getYomTovIndex();
         if ((jewishCalendar.getJewishMonth() == JewishCalendar.NISSAN

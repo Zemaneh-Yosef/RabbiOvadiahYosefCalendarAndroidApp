@@ -1901,6 +1901,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * This method will check if the tekufa happens within the next 48 hours and it will add the tekufa to the list passed in if it happens
      * on the current date.
+     * TODO : Fix timezone issues with tekufa. If you try to see when the tekufa is in a different timezone, it will sometimes not work because the Dates are not the same.
      * @param zmanimFormat the format to use for the zmanim
      * @param zmanim the list of zmanim to add to
      * @param shortStyle if the tekufa should be added as Tekufa Nissan : 4:30 or Tekufa Nissan is today at 4:30
@@ -1909,7 +1910,7 @@ public class MainActivity extends AppCompatActivity {
         zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
         mROZmanimCalendar.getCalendar().add(Calendar.DATE,1);//check next day for tekufa, because the tekufa time can go back a day
         mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
-        mROZmanimCalendar.getCalendar().add(Calendar.DATE,-1);
+        mROZmanimCalendar.getCalendar().add(Calendar.DATE,-1);//reset the calendar
         if (mJewishDateInfo.getJewishCalendar().getTekufa() != null &&
                 DateUtils.isSameDay(mROZmanimCalendar.getCalendar().getTime(), mJewishDateInfo.getJewishCalendar().getTekufaAsDate())) {
             if (shortStyle) {
