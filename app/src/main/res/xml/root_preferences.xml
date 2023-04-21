@@ -118,6 +118,12 @@
             app:summary="Choose the color of the calendar button"
             app:title="Set Calendar Button Color" />
 
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="useDarkCalendarIcon"
+            android:summary="Choose whether or not to use a dark calendar icon for the calendar button"
+            android:title="Use Dark Calendar Icon?" />
+
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/contact_header">

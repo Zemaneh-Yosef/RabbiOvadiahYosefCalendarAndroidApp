@@ -200,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
             mLocationResolver.acquireLatitudeAndLongitude();
         }
         findAllWeeklyViews();
-        if (sGPSLocationServiceIsDisabled && sNetworkLocationServiceIsDisabled) {
+        if (sGPSLocationServiceIsDisabled && sNetworkLocationServiceIsDisabled) {// this is will only be true if the user has disabled both location services and is not using a zipcode
             Toast.makeText(MainActivity.this, "Please Enable GPS", Toast.LENGTH_SHORT).show();
         } else {
             if ((!mInitialized && ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) == PERMISSION_GRANTED)
@@ -583,6 +583,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
                 }
+                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable());
             }
             swipeRefreshLayout.setRefreshing(false);
         });
@@ -721,7 +722,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
             }
-            mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, MainActivity.this.getCurrentCalendarDrawable());
+            mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable());
             seeIfTablesNeedToBeUpdated(true);
         };
 
@@ -743,6 +744,14 @@ public class MainActivity extends AppCompatActivity {
      * Returns the current calendar drawable depending on the current day of the month.
      */
     private int getCurrentCalendarDrawable() {
+        if (!mSettingsPreferences.getBoolean("useDarkCalendarIcon", false)) {
+            return getCurrentCalendarDrawableLight();
+        } else {
+            return getCurrentCalendarDrawableDark();
+        }
+    }
+
+    private int getCurrentCalendarDrawableLight() {
         switch (mROZmanimCalendar.getCalendar().get(Calendar.DATE)) {
             case (1):
                 return R.drawable.calendar1;
@@ -809,6 +818,73 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private int getCurrentCalendarDrawableDark() {
+        switch (mROZmanimCalendar.getCalendar().get(Calendar.DATE)) {
+            case (1):
+                return R.drawable.calendar_1_dark;
+            case (2):
+                return R.drawable.calendar_2_dark;
+            case (3):
+                return R.drawable.calendar_3_dark;
+            case (4):
+                return R.drawable.calendar_4_dark;
+            case (5):
+                return R.drawable.calendar_5_dark;
+            case (6):
+                return R.drawable.calendar_6_dark;
+            case (7):
+                return R.drawable.calendar_7_dark;
+            case (8):
+                return R.drawable.calendar_8_dark;
+            case (9):
+                return R.drawable.calendar_9_dark;
+            case (10):
+                return R.drawable.calendar_10_dark;
+            case (11):
+                return R.drawable.calendar_11_dark;
+            case (12):
+                return R.drawable.calendar_12_dark;
+            case (13):
+                return R.drawable.calendar_13_dark;
+            case (14):
+                return R.drawable.calendar_14_dark;
+            case (15):
+                return R.drawable.calendar_15_dark;
+            case (16):
+                return R.drawable.calendar_16_dark;
+            case (17):
+                return R.drawable.calendar_17_dark;
+            case (18):
+                return R.drawable.calendar_18_dark;
+            case (19):
+                return R.drawable.calendar_19_dark;
+            case (20):
+                return R.drawable.calendar_20_dark;
+            case (21):
+                return R.drawable.calendar_21_dark;
+            case (22):
+                return R.drawable.calendar_22_dark;
+            case (23):
+                return R.drawable.calendar_23_dark;
+            case (24):
+                return R.drawable.calendar_24_dark;
+            case (25):
+                return R.drawable.calendar_25_dark;
+            case (26):
+                return R.drawable.calendar_26_dark;
+            case (27):
+                return R.drawable.calendar_27_dark;
+            case (28):
+                return R.drawable.calendar_28_dark;
+            case (29):
+                return R.drawable.calendar_29_dark;
+            case (30):
+                return R.drawable.calendar_30_dark;
+            default:
+                return R.drawable.calendar_31_dark;
+        }
+    }
+
     @Override
     protected void onPause() {
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -859,6 +935,7 @@ public class MainActivity extends AppCompatActivity {
                 mCalendarButton.setBackgroundColor(mSharedPreferences.getInt("CalButtonColor", 0x18267C));
             }
         }
+        mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable());
         Intent zmanIntent = new Intent(getApplicationContext(), ZmanimNotifications.class);//this is to update the zmanim notifications if the user changed the settings to start showing them
         mSharedPreferences.edit().putBoolean("fromThisNotification", false).apply();
         PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(getApplicationContext(),0,zmanIntent,PendingIntent.FLAG_IMMUTABLE);
@@ -951,6 +1028,7 @@ public class MainActivity extends AppCompatActivity {
         if (!hasFocus)
             if (sShabbatMode) {
                 startActivity(getIntent());
+                startShabbatMode();
             }
     }
 
@@ -1039,6 +1117,7 @@ public class MainActivity extends AppCompatActivity {
                 mShabbatModeBanner.setBackgroundColor(getColor(R.color.lightYellow));
                 mShabbatModeBanner.setTextColor(getColor(R.color.black));
                 mCalendarButton.setBackgroundColor(getColor(R.color.lightYellow));
+                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawableDark());
                 break;
             case JewishCalendar.SHAVUOS:
                 for (int i = 0; i < 4; i++) {
@@ -1052,6 +1131,7 @@ public class MainActivity extends AppCompatActivity {
                 mShabbatModeBanner.setBackgroundColor(getColor(R.color.light_blue));
                 mShabbatModeBanner.setTextColor(getColor(R.color.white));
                 mCalendarButton.setBackgroundColor(getColor(R.color.light_blue));
+                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawableDark());
                 break;
             case JewishCalendar.SUCCOS:
             case JewishCalendar.SHEMINI_ATZERES:
@@ -1066,6 +1146,7 @@ public class MainActivity extends AppCompatActivity {
                 mShabbatModeBanner.setBackgroundColor(getColor(R.color.light_green));
                 mShabbatModeBanner.setTextColor(getColor(R.color.black));
                 mCalendarButton.setBackgroundColor(getColor(R.color.light_green));
+                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawableDark());
                 break;
             case JewishCalendar.SIMCHAS_TORAH:
                 for (int i = 0; i < 4; i++) {
@@ -1079,6 +1160,7 @@ public class MainActivity extends AppCompatActivity {
                 mShabbatModeBanner.setBackgroundColor(getColor(R.color.green));
                 mShabbatModeBanner.setTextColor(getColor(R.color.black));
                 mCalendarButton.setBackgroundColor(getColor(R.color.green));
+                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawableLight());
                 break;
             case JewishCalendar.ROSH_HASHANA:
                 for (int i = 0; i < 4; i++) {
@@ -1092,6 +1174,7 @@ public class MainActivity extends AppCompatActivity {
                 mShabbatModeBanner.setBackgroundColor(getColor(R.color.dark_red));
                 mShabbatModeBanner.setTextColor(getColor(R.color.white));
                 mCalendarButton.setBackgroundColor(getColor(R.color.dark_red));
+                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawableLight());
                 break;
             case JewishCalendar.YOM_KIPPUR:
                 for (int i = 0; i < 4; i++) {
@@ -1105,6 +1188,7 @@ public class MainActivity extends AppCompatActivity {
                 mShabbatModeBanner.setBackgroundColor(getColor(R.color.white));
                 mShabbatModeBanner.setTextColor(getColor(R.color.black));
                 mCalendarButton.setBackgroundColor(getColor(R.color.white));
+                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawableDark());
                 break;
             default:
                 mShabbatModeBanner.setText("SHABBAT MODE                " +
@@ -1115,6 +1199,7 @@ public class MainActivity extends AppCompatActivity {
                 mShabbatModeBanner.setBackgroundColor(getColor(R.color.dark_blue));
                 mShabbatModeBanner.setTextColor(getColor(R.color.white));
                 mCalendarButton.setBackgroundColor(getColor(R.color.dark_blue));
+                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawableLight());
         }
 
         if (isFirstTime) {
@@ -1186,6 +1271,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 mCalendarButton.setBackgroundColor(mSharedPreferences.getInt("CalButtonColor", 0x18267C));
             }
+            mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable());
             mNextDate.setVisibility(View.VISIBLE);
             mPreviousDate.setVisibility(View.VISIBLE);
         }
@@ -1244,14 +1330,14 @@ public class MainActivity extends AppCompatActivity {
             zmanim.add(new ZmanListEntry(isOKToListenToMusic));
         }
 
-        String ulChaparatPesha = mJewishDateInfo.getIsUlChaparatPeshaSaid();
-        if (!ulChaparatPesha.isEmpty()) {
-            zmanim.add(new ZmanListEntry(ulChaparatPesha));
-        }
-
         String hallel = mJewishDateInfo.getHallelOrChatziHallel();
         if (!hallel.isEmpty()) {
             zmanim.add(new ZmanListEntry(hallel));
+        }
+
+        String ulChaparatPesha = mJewishDateInfo.getIsUlChaparatPeshaSaid();
+        if (!ulChaparatPesha.isEmpty()) {
+            zmanim.add(new ZmanListEntry(ulChaparatPesha));
         }
 
         zmanim.add(new ZmanListEntry(mJewishDateInfo.getIsTachanunSaid()));
@@ -1880,7 +1966,8 @@ public class MainActivity extends AppCompatActivity {
      */
     private String getShabbatAndOrChag() {
         if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
-            if (mJewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
+            if (mJewishDateInfo.getJewishCalendar().isYomTovAssurBemelacha()
+                    && mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
                 return "\u05E9\u05D1\u05EA/\u05D7\u05D2";
             } else if (mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
                 return "\u05E9\u05D1\u05EA";
@@ -1888,7 +1975,8 @@ public class MainActivity extends AppCompatActivity {
                 return "\u05D7\u05D2";
             }
         } else {
-            if (mJewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
+            if (mJewishDateInfo.getJewishCalendar().isYomTovAssurBemelacha()
+                    && mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
                 return "Shabbat/Chag";
             } else if (mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
                 return "Shabbat";
@@ -2133,7 +2221,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(MainActivity.this, SettingsActivity.class));
             return true;
         } else if (id == R.id.website) {
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://elyahu41.github.io/RabbiOvadiahYosefCalendar/index.html"));
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.royzmanim.com"));
             startActivity(browserIntent);
             return true;
         } else if (id == R.id.help) {
