@@ -6,7 +6,7 @@
 
 <b>App Store and source code:</b>
 
-<img src="http://1radionews.com/wp-content/uploads/app_store_coming_soon.png" alt="Download on the App Store" width="240px">
+<img src="http://1radionews.com/wp-content/uploads/app_store_coming_soon.png" alt="Download on the App Store" width="240px"><a href="https://github.com/Elyahu41/RabbiOvadiahYosefCalendarIOSApp"><img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" width="62px"></a>
 
 <b>Website and source code:</b>
 
