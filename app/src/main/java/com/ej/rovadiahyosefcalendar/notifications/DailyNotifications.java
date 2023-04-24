@@ -59,10 +59,10 @@ public class DailyNotifications extends BroadcastReceiver {
 
             String specialDay;
 
-            if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowDayOfOmer",false)) {
-                specialDay = jewishDateInfo.getSpecialDayWithoutOmer();
-            } else {
+            if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowDayOfOmer",true)) {
                 specialDay = jewishDateInfo.getSpecialDay();
+            } else {
+                specialDay = jewishDateInfo.getSpecialDayWithoutOmer();
             }
 
             if (!specialDay.isEmpty()) {

@@ -177,9 +177,8 @@ public class MainActivity extends AppCompatActivity {
         setTheme(R.style.AppTheme); //splash screen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //Used this to align the title in the center and improve its text
         Objects.requireNonNull(getSupportActionBar()).setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-        getSupportActionBar().setCustomView(R.layout.action_bar_custom);
+        getSupportActionBar().setCustomView(R.layout.action_bar_custom);//center the title
         mLayout = findViewById(R.id.main_layout);
         mHandler = new Handler(getMainLooper());
         mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
@@ -1839,12 +1838,12 @@ public class MainActivity extends AppCompatActivity {
         if (mROZmanimCalendar.getHaNetz() != null && !mSharedPreferences.getBoolean("showMishorSunrise" + sCurrentLocationName, true)) {
             zmanim.add(new ZmanListEntry(getHaNetzString(), mROZmanimCalendar.getHaNetz(), true));
         } else {
-            zmanim.add(new ZmanListEntry(getHaNetzString(), mROZmanimCalendar.getSeaLevelSunrise(), true));
+            zmanim.add(new ZmanListEntry(getHaNetzString() + " (" + getMishorString() + ")", mROZmanimCalendar.getSeaLevelSunrise(), true));
         }
         if (mROZmanimCalendar.getHaNetz() != null &&
                 !mSharedPreferences.getBoolean("showMishorSunrise" + sCurrentLocationName, true) &&
                 mSettingsPreferences.getBoolean("ShowMishorAlways", false)) {
-            zmanim.add(new ZmanListEntry(getHaNetzString(), mROZmanimCalendar.getSeaLevelSunrise(), true));
+            zmanim.add(new ZmanListEntry(getHaNetzString() + " (" + getMishorString() + ")", mROZmanimCalendar.getSeaLevelSunrise(), true));
         }
         zmanim.add(new ZmanListEntry(getShmaMgaString(), mROZmanimCalendar.getSofZmanShmaMGA72MinutesZmanisAmudeiHoraah(), true));
         zmanim.add(new ZmanListEntry(getShmaGraString(), mROZmanimCalendar.getSofZmanShmaGRA(), true));
@@ -1861,9 +1860,8 @@ public class MainActivity extends AppCompatActivity {
         }
         zmanim.add(new ZmanListEntry(getChatzotString(), mROZmanimCalendar.getChatzot(), true));
         zmanim.add(new ZmanListEntry(getMinchaGedolaString(), mROZmanimCalendar.getMinchaGedolaGreaterThan30(), true));
-        zmanim.add(new ZmanListEntry(getMinchaKetanaString(), mROZmanimCalendar.getMinchaKetana(), true));
         zmanim.add(new ZmanListEntry(getPlagHaminchaString() + " " + getAbbreviatedHalachaBerurahString(), mROZmanimCalendar.getPlagHaminchaHalachaBerurah(), true));
-        zmanim.add(new ZmanListEntry(getPlagHaminchaString() + " " + getAbbreviatedYalkutYosefString(), mROZmanimCalendar.getPlagHaminchaAmudeiHoraah(), true));
+        zmanim.add(new ZmanListEntry(getPlagHaminchaString() + " " + getAbbreviatedYalkutYosefString(), mROZmanimCalendar.getPlagHaminchaYalkutYosefAmudeiHoraah(), true));
         if ((mJewishDateInfo.getJewishCalendar().hasCandleLighting() &&
                 !mJewishDateInfo.getJewishCalendar().isAssurBemelacha()) ||
                 mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY) {

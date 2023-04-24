@@ -287,7 +287,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
                     "Sof Zman Achilat Chametz",
                     "Sof Zman Shma GRA",
                     "Sof Zman Shma MGA",
-                    "Sunrise",
+                    "HaNetz",
                     "Earliest Talit and Tefilin",
                     "Alot Hashachar"};
         }
