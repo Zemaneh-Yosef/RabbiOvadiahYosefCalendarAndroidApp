@@ -77,8 +77,14 @@
             />
 
         <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
-            android:key="PlagHaMincha"
-            android:title="Plag HaMincha"
+            android:key="PlagHaMinchaHB"
+            android:title="Plag HaMincha Halacha Berurah"
+            android:defaultValue="-1"
+            />
+
+        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+            android:key="PlagHaMinchaYY"
+            android:title="Plag HaMincha Yalkut Yosef"
             android:defaultValue="15"
             />
 
@@ -98,6 +104,12 @@
             android:key="TzeitHacochavim"
             android:title="Tzeit Hacochavim"
             android:defaultValue="15"
+            />
+
+        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+            android:key="TzeitHacochavimLChumra"
+            android:title="Tzeit Hacochavim L'Chumra"
+            android:defaultValue="-1"
             />
 
         <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
@@ -121,13 +133,13 @@
         <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
             android:key="RT"
             android:title="Rabbeinu Tam"
-            android:defaultValue="15"
+            android:defaultValue="0"
             />
 
         <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
             android:key="NightChatzot"
             android:title="Chatzot Layla"
-            android:defaultValue="15"
+            android:defaultValue="-1"
             />
 
     </PreferenceCategory>

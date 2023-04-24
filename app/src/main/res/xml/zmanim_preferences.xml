@@ -17,19 +17,23 @@
             app:summary="Enter the amount of minutes for candle lighting"
             app:title="Candle Lighting Time" />
 
-        <ListPreference
-            app:defaultValue="1"
-            app:entries="@array/shabbat_opinion_entries"
-            app:entryValues="@array/shabbat_opinion_values"
-            app:key="EndOfShabbatOpinion"
-            app:summary="Choose which opinion to use for the end of shabbat"
-            app:title="End Shabbat Opinion" />
+        <PreferenceCategory app:title="These settings only apply if you do not use the Luach Amudei Horaah setting">
 
-        <EditTextPreference
-            app:defaultValue="40"
-            app:key="EndOfShabbatOffset"
-            app:summary="Enter the amount of minutes to add after sunset until shabbat ends"
-            app:title="Minutes To Shabbat End" />
+            <EditTextPreference
+                app:defaultValue="40"
+                app:key="EndOfShabbatOffset"
+                app:summary="Enter the amount of minutes to add after sunset until shabbat ends"
+                app:title="Minutes To Shabbat End" />
+
+            <ListPreference
+                app:defaultValue="1"
+                app:entries="@array/shabbat_opinion_entries"
+                app:entryValues="@array/shabbat_opinion_values"
+                app:key="EndOfShabbatOpinion"
+                app:summary="Choose which opinion to use for the end of shabbat"
+                app:title="End Shabbat Opinion" />
+
+        </PreferenceCategory>
 
     </PreferenceCategory>
 
