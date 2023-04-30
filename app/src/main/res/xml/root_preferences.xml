@@ -10,21 +10,21 @@
             android:title="Zmanim Notifications" />
 
         <Preference
-            android:key="zmanim_settings"
-            android:summary="Change the zmanim settings"
-            android:title="Zmanim Settings" />
-
-        <Preference
             android:dependency="zmanim_notifications"
             android:key="zmanim_notifications_settings"
             android:summary="Change the zmanim notifications settings"
             android:title="Zmanim Notifications Settings" />
 
+        <Preference
+            android:key="zmanim_settings"
+            android:summary="Change the zmanim settings"
+            android:title="Zmanim Settings" />
+
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="ShowSeconds"
             android:summary="Choose whether or not to display the seconds of the zmanim"
-            android:title="Add seconds?" />
+            android:title="Show seconds?" />
 
         <CheckBoxPreference
             android:defaultValue="false"
@@ -68,7 +68,7 @@
             android:key="displayRTOrShabbatRegTime"
             android:title="Choose which zmanim to display"
             app:entries="@array/shabbat_entries"
-            app:summary="Choose whether to display Rabbeinu tam or regular shabbat end times" />
+            app:summary="Choose whether to display Rabbeinu tam or regular shabbat end times or both" />
 
         <CheckBoxPreference
             android:defaultValue="false"

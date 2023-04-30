@@ -396,7 +396,14 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         "allowed to be done B'dieved (after the fact) or B'shaat hadachak (in a time of need). However, one should ideally wait " +
                         "until sunrise to do them L'chatchila (optimally).\n\n" +
                         "This time is calculated as 72 zmaniyot/seasonal minutes (according to the GR\"A) before sunrise. Both sunrise and sunset " +
-                        "have elevation included.")
+                        "have elevation included.\n\n" +
+                        "In Luach Amudei Horaah mode, this time is calculated by finding out how many minutes " +
+                        "are between sunrise and 72 minutes as degrees (16.1) before sunrise on a equal day with sunrise and sunset set around 12 " +
+                        "hours apart. Then we take those minutes and make them zmaniyot according to the GR\"a and we subtract that time from " +
+                        "sunrise to get the time for Alot Hashachar. This is according to the Halacha Berurah and this should only be done outside of " +
+                        "Israel in more northern or southern areas. The Halacha Berurah writes to do this because it is more according to the nature " +
+                        "of the world, however, it does not seem like Rabbi Ovadiah Yosef ZT\"L or the Yalkut Yosef agrees with this opinion. " +
+                        "Elevation is not included in this calculation.")
                 .show();
     }
 
@@ -405,9 +412,17 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                 .setMessage("Misheyakir (literally \"when you recognize\") is the time when a person can distinguish between blue and white. " +
                         "The gemara (ברכות ט) explains that when a person can distinguish between the blue (techelet) and white strings " +
                         "of their tzitzit, that is the earliest time a person can put on their talit and tefilin for shacharit.\n\n" +
+                        "This is also the earliest time one can say Shema L'chatchila (optimally).\n\n" +
                         "This time is calculated as 6 zmaniyot/seasonal minutes (according to the GR\"A) after Alot HaShachar (Dawn).\n\n" +
                         "Note: This time is only for people who need to go to work or leave early in the morning to travel, however, normally a " +
-                        "person should put on his talit/tefilin 60 regular minutes (and in the winter 50 regular minutes) before sunrise.")
+                        "person should put on his talit/tefilin 60 regular minutes (and in the winter 50 regular minutes) before sunrise.\n\n" +
+                        "In Luach Amudei Horaah mode, this time is calculated by finding out how many minutes " +
+                        "are between sunrise and 72 minutes as degrees (16.1) before sunrise on a equal day with sunrise and sunset set around 12 " +
+                        "hours apart. Then we take those minutes and make them zmaniyot according to the GR\"a and we subtract 5/6 of that time from " +
+                        "sunrise to get the time for Misheyakir. This is according to the Halacha Berurah and this should only be done outside of " +
+                        "Israel in more northern or southern areas. The Halacha Berurah writes to do this because it is more according to the nature " +
+                        "of the world, however, it does not seem like Rabbi Ovadiah Yosef ZT\"L or the Yalkut Yosef agrees with this opinion. " +
+                        "Elevation is not included in this calculation.")
                 .show();
     }
 
@@ -422,7 +437,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         "the sun is VISIBLE to say shacharit. In Israel, the Ohr HaChaim calendar uses a table of sunrise times from the " +
                         "luach/calendar 'לוח ביכורי יוסף' (Luach Bechoray Yosef) each year. These times were made by Chaim Keller, creator of the " +
                         "ChaiTables website. Ideally, you should download these VISIBLE sunrise times from his website with the capability of " +
-                        "this app by pressing the button below. However, if you did not download the times, you will see 'Mishor' or 'Sea Level' sunrise instead.")
+                        "this app by pressing the button below. However, if you did not download the times, you will see 'Mishor' or 'Sea Level' " +
+                        "sunrise instead.")
                 .setNegativeButton("Setup Visible Sunrise", (dialog, which) ->
                         sSetupLauncher.launch(new Intent(context, SetupChooserActivity.class).putExtra("fromMenu",true)))
                 .show();
@@ -434,7 +450,9 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                 .setMessage("This is the latest time a person can eat chametz.\n\n" +
                         "This is calculated as 4 zmaniyot/seasonal hours, according to the Magen Avraham, after Alot HaShachar (Dawn) with " +
                         "elevation included. Since Chametz is a mitzvah from the torah, we are stringent and we use the Magen Avraham's time to " +
-                        "calculate the last time a person can eat chametz.")
+                        "calculate the last time a person can eat chametz.\n\n" +
+                        "In Luach Amudei Horaah mode, this time is calculated the same way as above except using the skewed Alot/Tzait of the " +
+                        "Amudei Horaah calendar, and no elevation is included.")
                 .show();
     }
 
@@ -443,7 +461,9 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                 .setMessage("This is the latest time a person can own chametz before pesach begins. You should get rid of all chametz in your " +
                         "possession by this time.\n\n" +
                         "This is calculated as 5 zmaniyot/seasonal hours, according to the MG\"A, after Alot HaShachar (Dawn) with " +
-                        "elevation included.")
+                        "elevation included.\n\n" +
+                        "In Luach Amudei Horaah mode, this time is calculated the same way as above except using the skewed Alot/Tzait of the " +
+                        "Amudei Horaah calendar, and no elevation is included.")
                 .show();
     }
 
@@ -452,18 +472,20 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                 .setMessage("This is the latest time a person can fulfill his obligation to say Shma everyday according to the Magen Avraham.\n\n" +
                         "The Magen Avraham/Terumat HeDeshen calculate this time as 3 zmaniyot/seasonal hours after Alot HaShachar (Dawn). " +
                         "They calculate a zmaniyot/seasonal hour by taking the time between Alot HaShachar (Dawn) and Tzeit Hachocavim (Nightfall) " +
-                        "of Rabbeinu Tam and divide it into 12 equal parts.")
+                        "of Rabbeinu Tam and divide it into 12 equal parts.\n\n" +
+                        "In Luach Amudei Horaah mode, this time is calculated the same way as above except using the skewed Alot/Tzait of the " +
+                        "Amudei Horaah calendar, and no elevation is included.")
                 .show();
     }
 
     private void showShmaGRADialog() {
         dialogBuilder.setTitle("Latest time for Shma (GR\"A) - \u05E9\u05DE\u05E2 \u05D2\u05E8\"\u05D0 - Shma GR\"A")
                 .setMessage("This is the latest time a person can fulfill his obligation to say Shma everyday according to the GR\"A " +
-                        "(HaGaon Rabbeinu Eliyahu)" +
-                        "\n\n" +
+                        "(HaGaon Rabbeinu Eliyahu)" + "\n\n" +
                         "The GR\"A calculates this time as 3 zmaniyot/seasonal hours after sunrise (elevation included). " +
                         "The GR\"A calculates a zmaniyot/seasonal hour by taking the time between sunrise and sunset (elevation included) and " +
-                        "divides it into 12 equal parts.")
+                        "divides it into 12 equal parts.\n\n" +
+                        "In Luach Amudei Horaah mode, this time is calculated the same way as above except no elevation is included.")
                 .show();
     }
 
@@ -473,7 +495,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         "Pisukei D'Zimra until Chatzot.\n\n" +
                         "The GR\"A calculates this time as 4 zmaniyot/seasonal hours after sunrise (elevation included). " +
                         "The GR\"A calculates a zmaniyot/seasonal hour by taking the time between sunrise and sunset (elevation included) and " +
-                        "divides it into 12 equal parts.")
+                        "divides it into 12 equal parts.\n\n" +
+                        "In Luach Amudei Horaah mode, this time is calculated the same way as above except no elevation is included.")
                 .show();
     }
 
@@ -487,7 +510,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         "time.\n\n" +
                         "This time is calculated as 6 zmaniyot/seasonal hours after sunrise. " +
                         "The GR\"A calculates a zmaniyot/seasonal hour by taking the time between sunrise and sunset (elevation included) and " +
-                        "divides it into 12 equal parts.\n\n")
+                        "divides it into 12 equal parts.\n\n" +
+                        "In Luach Amudei Horaah mode, this time is calculated the same way as above except no elevation is included.")
                 .show();
     }
 
@@ -500,7 +524,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         "This time is calculated as 30 regular minutes after Chatzot (Mid-day). However, if the zmaniyot/seasonal minutes are longer," +
                         " we use those minutes instead to be stringent. " +
                         "The GR\"A calculates a zmaniyot/seasonal hour by taking the time between sunrise and sunset (elevation included) and " +
-                        "divides it into 12 equal parts. Then we divide one of those 12 parts into 60 to get a zmaniyot/seasonal minute.")
+                        "divides it into 12 equal parts. Then we divide one of those 12 parts into 60 to get a zmaniyot/seasonal minute.\n\n" +
+                        "In Luach Amudei Horaah mode, this time is calculated the same way as above except no elevation is included.")
                 .show();
     }
 
@@ -518,10 +543,12 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         dialogBuilder.setTitle("Plag HaMincha - \u05E4\u05DC\u05D2 \u05D4\u05DE\u05E0\u05D7\u05D4")
                 .setMessage("Plag HaMincha, literally \"Half of Mincha\", is the midpoint between Mincha Ketana and sunset. Since Mincha Ketana is " +
                         "2 and a half hours before sunset, Plag is half of that at an hour and 15 minutes before sunset.\n" +
-                        "You can start saying arvit by this time according to Rabbi Yehuda in (ברכות כ'ו ע'א).\n\n" +
+                        "You can start saying arvit/maariv by this time according to Rabbi Yehudah in (ברכות כ'ו ע'א).\n\n" +
                         "A person should not accept shabbat before this time as well.\n\n" +
-                        "This time is usually calculated as 10 and 3/4th zmaniyot/seasonal hours after sunrise, however, yalkut yosef says to " +
-                        "calculate it as 1 hour and 15 zmaniyot/seasonal minutes before tzeit. " +
+                        "The Halacha Berurah says to calculate this time by subtracting an hour and 15 zmaniyot minutes from sunrise, however, the " +
+                        "yalkut yosef says to calculate it as 1 hour and 15 zmaniyot/seasonal minutes before tzeit (13.5 zmaniyot minutes). \n\n" +
+                        "In Luach Amudei Horaah mode, both ways to calculate this zman are shown. The only difference is that the tzait of the " +
+                        "Amudei Horaah is used instead of the regular 13.5 zmaniyot minutes.\n\n" +
                         "The GR\"A calculates a zmaniyot/seasonal hour by taking the time between sunrise and sunset (elevation included) and " +
                         "divides it into 12 equal parts. Then we divide one of those 12 parts into 60 to get a zmaniyot/seasonal minute.")
                 .show();
@@ -557,22 +584,31 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                 .setMessage("Tzeit/Nightfall is the time when the next halachic day starts after Bein Hashmashot/twilight finishes.\n\n" +
                         "This is the latest time a person can say Mincha according Rav Ovadiah Yosef Z\"TL. A person should start mincha at " +
                         "least 2 minutes before this time.\n\n" +
-                        "This time is calculated as 13 and a half zmaniyot/seasonal minutes after sunset (elevation included). " +
+                        "This time is calculated as 13 and a half zmaniyot/seasonal minutes after sunset (elevation included).\n\n" +
                         "The GR\"A calculates a zmaniyot/seasonal hour by taking the time between sunrise and sunset (elevation included) and " +
-                        "divides it into 12 equal parts. Then we divide one of those 12 parts into 60 to get a zmaniyot/seasonal minute.")
+                        "divides it into 12 equal parts. Then we divide one of those 12 parts into 60 to get a zmaniyot/seasonal minute.\n\n" +
+                        "In Luach Amudei Horaah mode, this time is calculated by finding out the the amount of minutes between sunset and 3.86 " +
+                        "degrees below the horizon on a equal day, then we add that amount of zmaniyot minutes to sunset to get the time of " +
+                        "Tzeit/Nightfall. We use 3.86 degrees below the horizon because that is the time when it is 13.5 minutes after sunset in Israel.")
                 .show();
     }
 
     private void showTzaitTaanitDialog() {
         dialogBuilder.setTitle("Fast Ends - \u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA - Tzeit Taanit")
                 .setMessage("This is the time that the fast/taanit ends.\n\n" +
-                        "This time is calculated as 20 regular minutes after sunset (elevation included).")
+                        "This time is calculated as 20 regular minutes after sunset (elevation included).\n\n" +
+                        "It is brought down in Halacha Berurah that Rabbi Ovadiah Yosef Z\"TL was once traveling in New York and he said to his son, " +
+                        "Rabbi David Yosef Shlita, that the fast ends 13.5 zmaniyot minutes after sunset. However, in his sefer Chazon Ovadiah, he " +
+                        "writes that the fast ends 20 regular minutes after sunset.\n\n" +
+                        "If a person wants to end the fast at 13.5 minutes after sunset, he has the rite to do so. However, if a person wants to " +
+                        "be stringent, he can end the fast at 20 minutes after sunset.")
                 .show();
     }
 
     private void showTzaitTaanitLChumraDialog() {
         dialogBuilder.setTitle("Fast Ends (Stringent) - \u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA \u05DC\u05D7\u05D5\u05DE\u05E8\u05D4 - Tzeit Taanit L'Chumra")
-                .setMessage("This is the more stringent time that the fast/taanit ends. This time is according to the opinion of Chacham Ben Zion Abba Shaul\n\n" +
+                .setMessage("This is a more stringent time that the fast/taanit ends. This time is according to the opinion of Chacham Ben Zion Abba" +
+                        " Shaul.\n\n" +
                         "This time is calculated as 30 regular minutes after sunset (elevation included).")
                 .show();
     }
@@ -580,11 +616,14 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     private void showTzaitShabbatDialog() {
         dialogBuilder.setTitle("Shabbat/Chag Ends - \u05E6\u05D0\u05EA \u05E9\u05D1\u05EA/\u05D7\u05D2 - Tzeit Shabbat/Chag")
                 .setMessage("This is the time that Shabbat/Chag ends.\n\n" +
-                        "Note that there are many customs on when shabbat ends, by default, I set it to 40 regular minutes after sunset (elevation " +
+                        "Note that there are many customs on when shabbat ends, by default, it is set to 40 regular minutes after sunset (elevation " +
                         "included), however, you can change the time in the settings.\n\n" +
                         "This time is calculated as " +
                         PreferenceManager.getDefaultSharedPreferences(context).getString("EndOfShabbatOffset", "40") + " " +
-                        "regular minutes after sunset (elevation included).")
+                        "regular minutes after sunset (elevation included).\n\n" +
+                        "In Luach Amudei Horaah mode, this time is calculated by using a degree of 7.18. We use this degree because " +
+                        "Rabbi Ovadiah Yosef ZT\"L ruled that regarding Motzeh Shabbat the listed time should be set as 30 fixed minutes after " +
+                        "sunset. This degree is interpreted as 30 minutes after sunset all year round in Israel.")
                 .show();
     }
 
@@ -599,7 +638,17 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         "The GR\"A calculates a zmaniyot/seasonal hour by taking the time between sunrise and sunset (elevation included) and " +
                         "divides it into 12 equal parts. Then we divide one of those 12 parts into 60 to get a zmaniyot/seasonal minute in order " +
                         "to calculate 72 minutes. Another way of calculating this time is by calculating how many minutes are between sunrise and " +
-                        "sunset. Take that number and divide it by 10, and then add the result to sunset. The app uses the first method.")
+                        "sunset. Take that number and divide it by 10, and then add the result to sunset. The app uses the first method.\n\n" +
+                        "In Luach Amudei Horaah mode, this time is calculated by finding out how many minutes " +
+                        "are between sunset and 72 minutes as degrees (16.0) after sunset on a equal day with sunrise and sunset set around 12 " +
+                        "hours apart. Then we take those minutes and make them zmaniyot according to the GR\"a and we add that time to " +
+                        "sunset to get the time for Rabbeinu Tam. This is according to the Halacha Berurah and this should only be done outside of " +
+                        "Israel in more northern or southern areas. The Halacha Berurah writes to do this because it is more according to the nature " +
+                        "of the world, however, it does not seem like Rabbi Ovadiah Yosef ZT\"L or the Yalkut Yosef agrees with this opinion. " +
+                        "Elevation is not included in this calculation.\n\n" +
+                        "It should be noted that Rabbi Ovadiah Yosef ZT\"L was of the opinion to keep the zmaniyot zman of rabbeinu tam whether or " +
+                        "not it fell out before or after 72 regular minutes after sunset. However, in Luach Amudei Horaah mode, we use the lesser of " +
+                        "the two times.")
                 .show();
     }
 
@@ -621,8 +670,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
     private void showElevationDialog() {
         dialogBuilder.setTitle("Current Elevation")
-                .setMessage("This number represents the amount of elevation that you are applying to your zmanim to see sunrise/sunset in your current city in meters." +
-                        " If the number is set to 0, then you are calculating the zmanim by mishor/sea level sunrise and sunset.\n\n" +
+                .setMessage("This number represents the amount of elevation that you are applying to your zmanim to see sunrise/sunset in your current city in meters. " +
+                        "If the number is set to 0, then you are calculating the zmanim by mishor/sea level sunrise and sunset.\n\n" +
                         "There is a debate as to what Rabbi Ovadiah Yosef Z\"TL " +
                         "held about using elevation for zmanim. (See Halacha Berura vol. 14, in Otzrot Yosef (Kuntrus Ki Ba Hashemesh), Siman 6, " +
                         "Perek 21 for an in depth discussion) The Ohr HaChaim calendar uses elevation for their zmanim, however, Rabbi David Yosef " +

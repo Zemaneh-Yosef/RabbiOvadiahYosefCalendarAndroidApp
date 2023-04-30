@@ -24,6 +24,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.Menu;
@@ -563,9 +564,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupRecyclerViewAndTextViews() {
         SwipeRefreshLayout swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
-        swipeRefreshLayout.setOnRefreshListener(() -> {
+        swipeRefreshLayout.setOnRefreshListener(() -> new Thread(() -> {
+            Looper.prepare();
             if (mLocationResolver == null) {
-                mLocationResolver = new LocationResolver(this, this);
+                mLocationResolver = new LocationResolver(MainActivity.this, MainActivity.this);
             }
             mLocationResolver.acquireLatitudeAndLongitude();
             mLocationResolver.setTimeZoneID();
@@ -578,15 +580,12 @@ public class MainActivity extends AppCompatActivity {
                 resolveElevationAndVisibleSunrise();
                 instantiateZmanimCalendar();//for the location name
                 setNextUpcomingZman();
-                if (mSharedPreferences.getBoolean("weeklyMode", false)) {
-                    updateWeeklyZmanim();
-                } else {
-                    mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
-                }
-                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable());
+                runOnUiThread(() -> mMainRecyclerView.setAdapter(new ZmanAdapter(MainActivity.this, getZmanimList())));
+                runOnUiThread(() -> mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable()));
             }
             swipeRefreshLayout.setRefreshing(false);
-        });
+            Looper.myLooper().quit();
+        }).start());
         mMainRecyclerView = findViewById(R.id.mainRV);
         mMainRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mMainRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
