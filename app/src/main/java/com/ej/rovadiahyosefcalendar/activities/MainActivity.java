@@ -224,7 +224,8 @@ public class MainActivity extends AppCompatActivity {
         mSettingsPreferences.edit().putInt("Chatzot", 20).apply();
         mSettingsPreferences.edit().putInt("MinchaGedola", -1).apply();
         mSettingsPreferences.edit().putInt("MinchaKetana", -1).apply();
-        mSettingsPreferences.edit().putInt("PlagHaMincha", -1).apply();
+        mSettingsPreferences.edit().putInt("PlagHaMinchaYY", -1).apply();
+        mSettingsPreferences.edit().putInt("PlagHaMinchaHB", -1).apply();
         mSettingsPreferences.edit().putInt("CandleLighting", 15).apply();
         mSettingsPreferences.edit().putInt("Shkia", 15).apply();
         mSettingsPreferences.edit().putInt("TzeitHacochavim", 15).apply();
@@ -451,7 +452,7 @@ public class MainActivity extends AppCompatActivity {
                     !mSharedPreferences.getBoolean("askedInIsrael", false)) {//and we did not ask already
                 new AlertDialog.Builder(this)
                         .setTitle("Are you in Israel now?")
-                        .setMessage("If you are in Israel now, please confirm below. Otherwise, ignore this message. (This setting only affects the holidays).")
+                        .setMessage("If you are in Israel now, please confirm below.")
                         .setPositiveButton("Yes, I am in Israel", (dialog, which) -> {
                             mSharedPreferences.edit().putBoolean("inIsrael", true).apply();
                             mJewishDateInfo = new JewishDateInfo(true, true);
@@ -926,7 +927,7 @@ public class MainActivity extends AppCompatActivity {
             mLayout.setBackground(drawable);
         }
         if (sShabbatMode) {
-            setShabbatBannersText(false);
+            setShabbatBannerColors(false);
         } else {
             if (mSharedPreferences.getBoolean("useDefaultCalButtonColor", true)) {
                 mCalendarButton.setBackgroundColor(getColor(R.color.dark_blue));
@@ -1036,12 +1037,12 @@ public class MainActivity extends AppCompatActivity {
      * and update the date when the time reaches the next date at 12:00:02am. It will also update the shabbat banner to reflect the next day's date.
      * (The reason why I chose 12:00:02am is to avoid a hiccup if the device is too fast to update the time, although it is probably not a big deal.)
      * @see #startScrollingThread() to start the thread that will scroll through the list of zmanim
-     * @see #setShabbatBannersText(boolean) to set the text of the shabbat banners
+     * @see #setShabbatBannerColors(boolean) to set the text of the shabbat banners
      */
     private void startShabbatMode() {
         if (!sShabbatMode) {
             sShabbatMode = true;
-            setShabbatBannersText(true);
+            setShabbatBannerColors(true);
             mShabbatModeBanner.setVisibility(View.VISIBLE);
             int orientation;
             int rotation = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation();
@@ -1068,7 +1069,7 @@ public class MainActivity extends AppCompatActivity {
                 mCurrentDateShown.setTimeInMillis(calendar.getTime().getTime());
                 mROZmanimCalendar.setCalendar(calendar);
                 mJewishDateInfo.setCalendar(calendar);
-                setShabbatBannersText(false);
+                setShabbatBannerColors(false);
                 if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                     updateWeeklyZmanim();
                 } else {
@@ -1093,7 +1094,7 @@ public class MainActivity extends AppCompatActivity {
      *                    Since it will be called at 12:00:02am the next day, we do not need to worry about the next day's date.
      */
     @SuppressLint("SetTextI18n")
-    private void setShabbatBannersText(boolean isFirstTime) {
+    private void setShabbatBannerColors(boolean isFirstTime) {
         if (isFirstTime) {
             mCurrentDateShown.add(Calendar.DATE,1);
             mJewishDateInfo.setCalendar(mCurrentDateShown);
@@ -1133,6 +1134,19 @@ public class MainActivity extends AppCompatActivity {
                 mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawableDark());
                 break;
             case JewishCalendar.SUCCOS:
+                for (int i = 0; i < 4; i++) {
+                    sb.append("SUCCOT");
+                    if (isShabbat) {
+                        sb.append("/SHABBAT");
+                    }
+                    sb.append(" MODE                ");
+                }
+                mShabbatModeBanner.setText(sb.toString());
+                mShabbatModeBanner.setBackgroundColor(getColor(R.color.light_green));
+                mShabbatModeBanner.setTextColor(getColor(R.color.black));
+                mCalendarButton.setBackgroundColor(getColor(R.color.light_green));
+                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawableDark());
+                break;
             case JewishCalendar.SHEMINI_ATZERES:
                 for (int i = 0; i < 4; i++) {
                     sb.append("SHEMINI ATZERET");
@@ -1149,7 +1163,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case JewishCalendar.SIMCHAS_TORAH:
                 for (int i = 0; i < 4; i++) {
-                    sb.append("SUCCOT");
+                    sb.append("SIMCHAT TORAH");
                     if (isShabbat) {
                         sb.append("/SHABBAT");
                     }
@@ -1749,7 +1763,7 @@ public class MainActivity extends AppCompatActivity {
             if (mJewishDateInfo.getJewishCalendar().isTomorrowShabbosOrYomTov()) {
                 mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
                 mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
-                if (!mJewishDateInfo.getJewishCalendar().isTomorrowShabbosOrYomTov()) {
+                if (!mJewishDateInfo.getJewishCalendar().isTomorrowShabbosOrYomTov()) {//only add if shabbat/yom tov ends tomorrow and not the day after
                     Set<String> stringSet = mSettingsPreferences.getStringSet("displayRTOrShabbatRegTime", null);
                     if (stringSet != null) {
                         if (stringSet.contains("Show Regular Minutes")) {

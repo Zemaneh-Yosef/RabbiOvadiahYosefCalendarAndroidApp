@@ -22,15 +22,15 @@
             <EditTextPreference
                 app:defaultValue="40"
                 app:key="EndOfShabbatOffset"
-                app:summary="Enter the amount of minutes to add after sunset until shabbat ends"
-                app:title="Minutes To Shabbat End" />
+                app:summary="Enter the amount of minutes to add to sunset for shabbat to end"
+                app:title="Minutes Till Shabbat Ends" />
 
             <ListPreference
                 app:defaultValue="1"
                 app:entries="@array/shabbat_opinion_entries"
                 app:entryValues="@array/shabbat_opinion_values"
                 app:key="EndOfShabbatOpinion"
-                app:summary="Choose which opinion to use for the end of shabbat"
+                app:summary="Choose which opinion to use for the time for when shabbat/chag ends"
                 app:title="End Shabbat Opinion" />
 
         </PreferenceCategory>

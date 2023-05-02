@@ -279,12 +279,12 @@ public class ZmanimNotifications extends BroadcastReceiver {
             }
         }
 
-        minutesBefore = mSettingsSharedPreferences.getInt("PlagHaMinchaYY", 15);
+        minutesBefore = mSettingsSharedPreferences.getInt("PlagHaMinchaYY", -1);
         if (minutesBefore >= 0) {
             pairArrayList.add(new ZmanInformationHolder(zmanimNames.getPlagHaminchaString(), c.getPlagHamincha(), minutesBefore));//always add
         }
 
-        minutesBefore = mSettingsSharedPreferences.getInt("PlagHaMinchaHB", 15);
+        minutesBefore = mSettingsSharedPreferences.getInt("PlagHaMinchaHB", -1);
         if (minutesBefore >= 0) {
             pairArrayList.add(new ZmanInformationHolder(zmanimNames.getPlagHaminchaString() + " " + zmanimNames.getAbbreviatedHalachaBerurahString(),
                     c.getPlagHaminchaHalachaBerurah(), minutesBefore));//always add
