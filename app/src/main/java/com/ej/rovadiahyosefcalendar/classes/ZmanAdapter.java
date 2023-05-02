@@ -716,7 +716,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         "Tu Be'Shvat\n" +
                         "Lag Ba'Omer\n" +
                         "Pesach Sheni\n" +
-                        "Yom Yerushalayim but not Yom Ha'atzmaut\n\n" +
+                        "Yom Yerushalayim but not Yom Ha'atzmaut (according to the minhag of Rabbi Ovadiah ZT\"L)\n\n" +
                         "Note that there are other times you should not say tachanun, but this list is only for days with no tachanun. Sometimes " +
                         "you can skip tachanun if there are mourners making up majority of the minyan or if there is a simcha (joyous occasion).")
                 .show();
