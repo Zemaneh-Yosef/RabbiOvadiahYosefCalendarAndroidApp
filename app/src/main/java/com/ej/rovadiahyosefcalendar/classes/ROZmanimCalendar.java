@@ -6,7 +6,6 @@ import androidx.annotation.Nullable;
 
 import com.kosherjava.zmanim.AstronomicalCalendar;
 import com.kosherjava.zmanim.ComplexZmanimCalendar;
-import com.kosherjava.zmanim.ZmanimCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.util.GeoLocation;
 
@@ -276,11 +275,9 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
      */
     @Override
     public Date getSolarMidnight() {
-        ZmanimCalendar clonedCal = (ZmanimCalendar) clone();
+        ROZmanimCalendar clonedCal = (ROZmanimCalendar) clone();
         clonedCal.getCalendar().add(Calendar.DAY_OF_MONTH, 1);
-        Date sunset = getSunset();
-        Date sunrise = clonedCal.getSunrise();
-        return getTimeOffset(sunset, getTemporalHour(sunset, sunrise) * 6);
+        return getTimeOffset(getChatzot(), (clonedCal.getChatzot().getTime() - getChatzot().getTime()) / 2);
     }
 
     public void setExternalFilesDir(File externalFilesDir) {

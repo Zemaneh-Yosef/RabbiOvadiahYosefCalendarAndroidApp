@@ -87,6 +87,10 @@ public class ZmanimNotifications extends BroadcastReceiver {
     /**
      * This method will set an alarm to the next zman that is coming up.
      * FIXME this method is not working properly, it is not setting the alarm to the next zman if there is a zman within the minutes before the zman afterwards.
+     *  For example: 1pm for midday and 1:10pm for mincha, there is an issue where the notification for mincha will not fire (15 minutes before) unless the zman for midday passes.
+     *  Update: Now that I looked at the code again, I think I know what the issue is. The issue is that I approached this problem from the wrong angle.
+     *  Setting the alarm to the next zman and then having that alarm set the next alarm is not the way to go. Instead, I should set two alarms, one for the next zman and one for the zman after that.
+     *  Then, when the second alarm fires, I should set the next two alarms again. This way, I will always have two alarms set, one for the next zman and one for the zman after that.
      */
     private void setAlarmToNextZman(Context context, ROZmanimCalendar c, JewishCalendar jewishCalendar) {
         mSharedPreferences.edit().putString("zman", "").apply();//clear the last zman
@@ -165,43 +169,23 @@ public class ZmanimNotifications extends BroadcastReceiver {
         }//by now we have the next zman, unless the user just wants notifications for very distant zmanim like candle lighting and biur chametz
 
         if (nextZman != null) {
-//            ZmanInformationHolder zmanAfterNextZman = null;
-//            //find the next zman after the current zman just in case we already set an alarm for the current zman
-//            if (isZmanYesterday) {
-//                if (nextZmanIndex + 1 < zmanimYesterday.size()) {//if there is a next zman yesterday
-//                    zmanAfterNextZman = zmanimYesterday.get(nextZmanIndex + 1);//set the next zman to the next zman in the list
-//                } else if (nextZmanIndex + 1 == zmanimYesterday.size()) {//if there is no next zman yesterday, but there is a next zman today
-//                    zmanAfterNextZman = zmanimToday.get(0);//set the next zman to the first zman in today's list
-//                }
-//            } else if (isZmanToday) {//if the next zman is today
-//                if (nextZmanIndex + 1 < zmanimToday.size()) {//if there is another zman today
-//                    zmanAfterNextZman = zmanimToday.get(nextZmanIndex + 1);//set the next zman to the next zman in the list
-//                } else if (nextZmanIndex + 1 == zmanimToday.size()) {//if there is no next zman today, but there is a next zman tomorrow
-//                    zmanAfterNextZman = zmanimTomorrow.get(0);//set the next zman to the first zman in tomorrow's list
-//                }
-//            } else {//if the next zman is tomorrow
-//                if (nextZmanIndex + 1 < zmanimTomorrow.size()) {//if there is another zman tomorrow
-//                    zmanAfterNextZman = zmanimTomorrow.get(nextZmanIndex + 1);//set the next zman to the next zman in the list
-//                }
-//            }
-//            Log.d("ZmanimNotifications", "NEXT ZMAN FOUND!: "+ nextZman.getZmanName() + " : " + nextZman.getZmanDate());
-//            Log.d("ZmanimNotifications", "NEXT ZMAN AFTER NEXT ZMAN: " + zmanAfterNextZman.getZmanDate());
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(nextZman.getZmanDate());
             String zmanAndNotifDay = "" + calendar.get(Calendar.DAY_OF_YEAR) + "" + calendar.get(Calendar.YEAR);
             if (mSharedPreferences.getString("lastZmanNameAndDay", "").equals(nextZman.getZmanName() + zmanAndNotifDay) &&
                     new Date().after(new Date(nextZman.getZmanDate().getTime() - (long) nextZman.getNotificationDelay() * 60 * 1000)) &&
                     new Date().before(nextZman.getZmanDate())) {
-                return;//not exactly sure why this check is necessary, but it is because we keep getting notifications for the same zman over and over again
+                return;//not exactly sure why this check is necessary, but it is, because we keep getting notifications for the same zman over and over again
             }
             AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
-            PendingIntent pendingIntentForScheduling = PendingIntent.getBroadcast(context.getApplicationContext(), 0, new Intent(context, ZmanimNotifications.class), PendingIntent.FLAG_IMMUTABLE);
-            PendingIntent zmanPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),0,new Intent(context, ZmanNotification.class),PendingIntent.FLAG_IMMUTABLE);
+            PendingIntent pendingIntentForScheduling = PendingIntent.getBroadcast(context.getApplicationContext(), 0, new Intent(context,
+                            ZmanimNotifications.class),
+                    PendingIntent.FLAG_IMMUTABLE);
+            PendingIntent zmanPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),0, new Intent(context,
+                            ZmanNotification.class),
+                    PendingIntent.FLAG_IMMUTABLE);
             if (mSharedPreferences.getString("lastZmanNameAndDay", "").equals(nextZman.getZmanName() + zmanAndNotifDay)
                     && mSharedPreferences.getBoolean("fromThisNotification", false)) {
-
-//                Log.d("ZmanimNotifications", "The zman is the same as the last one we set an alarm for " + mSharedPreferences.getString("lastZmanNameAndDay", ""));
-//                Log.d("ZmanimNotifications", "Set the alarm to come back here 1 minute after this zman passes");
 
                 mSharedPreferences.edit().putBoolean("fromThisNotification", true).apply();
                 am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, nextZman.getZmanDate().getTime() + 60_000, pendingIntentForScheduling);
@@ -215,9 +199,6 @@ public class ZmanimNotifications extends BroadcastReceiver {
 
             mSharedPreferences.edit().putBoolean("fromThisNotification", true).apply();
             am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, nextZman.getZmanDate().getTime() + 60_000, pendingIntentForScheduling);
-
-//            Log.d("ZmanimNotifications", "ZmanNotification was set to " + new Date(nextZman.getZmanDate().getTime() - (60_000L * nextZman.getNotificationDelay())) + " which is 15 minutes before the zman");
-//            Log.d("ZmanimNotifications", "we will set an alarm to come back here 1 minute after this zman passes at " + new Date(nextZman.getZmanDate().getTime() + 60_000));
         }
     }
 
@@ -420,6 +401,11 @@ public class ZmanimNotifications extends BroadcastReceiver {
         if (minutesBefore >= 0) {
             pairArrayList.add(new ZmanInformationHolder(zmanimNames.getPlagHaminchaString()
                     + " " + zmanimNames.getAbbreviatedHalachaBerurahString(), c.getPlagHaminchaHalachaBerurah(), minutesBefore));//always add
+        }
+
+        minutesBefore = mSettingsSharedPreferences.getInt("MinchaKetana", -1);
+        if (minutesBefore >= 0) {
+            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getMinchaKetanaString(), c.getMinchaKetana(), minutesBefore));//always add
         }
 
         minutesBefore = mSettingsSharedPreferences.getInt("MinchaGedola", -1);

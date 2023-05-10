@@ -25,7 +25,7 @@
         <activity
             android:name=".activities.ZmanimSettingsActivity"
             android:exported="false"
-            android:label="@string/title_activity_zmanim_settings"
+            android:label="Zmanim Settings"
             android:theme="@style/Theme.Material3.DayNight"/>
 
         <receiver

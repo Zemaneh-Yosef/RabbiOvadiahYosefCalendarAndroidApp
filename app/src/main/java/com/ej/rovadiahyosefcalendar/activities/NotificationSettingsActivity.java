@@ -49,10 +49,6 @@ public class NotificationSettingsActivity extends AppCompatActivity {
                     .getBoolean("LuachAmudeiHoraah", false);
 
             if (isLuachAmudeiHoraah) {
-                Preference minchaKetana = findPreference("MinchaKetana");
-                if (minchaKetana != null) {
-                    minchaKetana.setVisible(false);
-                }
                 Preference fast = findPreference("FastEnd");
                 if (fast != null) {
                     fast.setVisible(false);

@@ -62,6 +62,7 @@ import com.ej.rovadiahyosefcalendar.classes.CustomDatePickerDialog;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
+import com.ej.rovadiahyosefcalendar.classes.TempYerushalmiYomiCalculator;
 import com.ej.rovadiahyosefcalendar.classes.ZmanAdapter;
 import com.ej.rovadiahyosefcalendar.classes.ZmanListEntry;
 import com.ej.rovadiahyosefcalendar.classes.ZmanimNames;
@@ -1328,6 +1329,16 @@ public class MainActivity extends AppCompatActivity {
 
         zmanim.add(new ZmanListEntry(mJewishDateInfo.getThisWeeksParsha()));
 
+        mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
+        mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
+        if (mSettingsPreferences.getBoolean("showShabbatMevarchim", true)) {
+            if (mJewishDateInfo.getJewishCalendar().isShabbosMevorchim()) {
+                zmanim.add(new ZmanListEntry("שבת מברכים"));
+            }
+        }
+        mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);
+        mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
+
         zmanim.add(new ZmanListEntry(mROZmanimCalendar.getCalendar()
                 .getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault())
                 + " / " +
@@ -1375,8 +1386,8 @@ public class MainActivity extends AppCompatActivity {
                     mJewishDateInfo.getJewishCalendar().getGregorianCalendar().getTime(),false));
         }
         if (!mCurrentDateShown.before(dafYomiYerushalmiStartDate)) {
-            String masechta = YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getYerushalmiMasechta();
-            String daf = formatHebrewNumber(YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getDaf());
+            String masechta = TempYerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getYerushalmiMasechta();
+            String daf = formatHebrewNumber(TempYerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getDaf());
             if (daf == null) {
                 zmanim.add(new ZmanListEntry("No Daf Yomi Yerushalmi"));
             } else {
@@ -1876,6 +1887,7 @@ public class MainActivity extends AppCompatActivity {
         }
         zmanim.add(new ZmanListEntry(zmanimNames.getChatzotString(), mROZmanimCalendar.getChatzot(), true));
         zmanim.add(new ZmanListEntry(zmanimNames.getMinchaGedolaString(), mROZmanimCalendar.getMinchaGedolaGreaterThan30(), true));
+        zmanim.add(new ZmanListEntry(zmanimNames.getMinchaKetanaString(), mROZmanimCalendar.getMinchaKetana(), true));
         zmanim.add(new ZmanListEntry(zmanimNames.getPlagHaminchaString() + " " + zmanimNames.getAbbreviatedHalachaBerurahString(), mROZmanimCalendar.getPlagHaminchaHalachaBerurah(), true));
         zmanim.add(new ZmanListEntry(zmanimNames.getPlagHaminchaString() + " " + zmanimNames.getAbbreviatedYalkutYosefString(), mROZmanimCalendar.getPlagHaminchaYalkutYosefAmudeiHoraah(), true));
         if ((mJewishDateInfo.getJewishCalendar().hasCandleLighting() &&

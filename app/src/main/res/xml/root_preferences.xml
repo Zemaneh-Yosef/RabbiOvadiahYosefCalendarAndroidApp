@@ -58,6 +58,12 @@
 
         <CheckBoxPreference
             android:defaultValue="false"
+            android:key="showShabbatMevarchim"
+            android:summary="Choose whether or not to display if shabbat mevarchim happens tomorrow on Friday"
+            android:title="Show shabbat mevarchim?" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
             android:key="ShowWhenShabbatChagEnds"
             android:summary="Choose whether or not to display when Shabbat or Chag ends the day before after the candle lighting time"
             android:title="Show Tzait Shabbat the day before?" />

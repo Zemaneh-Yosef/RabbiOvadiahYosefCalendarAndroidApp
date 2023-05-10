@@ -612,7 +612,7 @@ public class JewishDateInfo {
      * If you are not allowed to listen to music, it will return "No Music". If you are allowed to listen to music, it will return an empty string.
      */
     public String isOKToListenToMusic() {
-        if (jewishCalendar.getDayOfOmer() >= 8 && jewishCalendar.getDayOfOmer() <= 33) {
+        if (jewishCalendar.getDayOfOmer() >= 8 && jewishCalendar.getDayOfOmer() <= 32) {
             return "No Music";
         } else if (jewishCalendar.getJewishMonth() == JewishDate.TAMMUZ) {
             if (jewishCalendar.getJewishDayOfMonth() >= 17) {
