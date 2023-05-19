@@ -1778,8 +1778,17 @@ public class MainActivity extends AppCompatActivity {
                     Set<String> stringSet = mSettingsPreferences.getStringSet("displayRTOrShabbatRegTime", null);
                     if (stringSet != null) {
                         if (stringSet.contains("Show Regular Minutes")) {
-                            zmanim.add(new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag() + zmanimNames.getEndsString() + zmanimNames.getMacharString()
-                                    + "(" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")", mROZmanimCalendar.getTzaisAteretTorah(), true));
+                            ZmanListEntry endShabbat;
+                            if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("1")) {
+                                endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag() + zmanimNames.getEndsString()
+                                        + " (" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")", mROZmanimCalendar.getTzaisAteretTorah(), true);
+                            } else if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("2")) {
+                                endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag() + zmanimNames.getEndsString(), mROZmanimCalendar.getTzaitShabbatAmudeiHoraah(), true);
+                            } else {
+                                endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag() + zmanimNames.getEndsString(), mROZmanimCalendar.getTzaitShabbatAmudeiHoraahLesserThan40(), true);
+                            }
+                            endShabbat.setNoteworthyZman(true);
+                            zmanim.add(endShabbat);
                         }
                         if (stringSet.contains("Show Rabbeinu Tam")) {
                             if (mSettingsPreferences.getBoolean("RoundUpRT", true)) {
