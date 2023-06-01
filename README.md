@@ -111,7 +111,7 @@ This time is calculated as 6 zmaniyot/seasonal hours after sunset. The GR"A calc
 
 
 
-Introduction to the calendar in Israel:
+# Introduction to the calendar in Israel:
 
 <img src="http://www.zmanim-diffusion.com/images/1.jpg" height="650">
 <img src="https://i.imgur.com/udfwy3R.jpg" height="650">
