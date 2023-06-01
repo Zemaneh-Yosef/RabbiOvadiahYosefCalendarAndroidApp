@@ -251,8 +251,9 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     }
 
     /**
-     * Rabbi Ovadiah Yosef writes that the average fast ends around 20 minutes after sunset.
-     * @return
+     * Rabbi Ovadiah Yosef writes that the average fast ends around 20 minutes after sunset. Rabbi Shlomo Benizri is of the opinion that this time is
+     * calculated as 20 regular minutes after sunset. This is what the Ohr HaChaim refers to as the other time for Tzait Hacochavim.
+     * @return the time when the average fast ends based on the opinion of Rabbi Shlomo Benizri who holds that it is 20 minutes after sunset L'Chumra.
      */
     public Date getTzaitTaanit() {
         return getTimeOffset(getElevationAdjustedSunset(), (20 * MILLISECONDS_PER_MINUTE));

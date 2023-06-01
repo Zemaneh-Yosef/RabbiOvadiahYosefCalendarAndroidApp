@@ -26,12 +26,12 @@
             android:name=".activities.ZmanimSettingsActivity"
             android:exported="false"
             android:label="Zmanim Settings"
-            android:theme="@style/Theme.Material3.DayNight"/>
+            android:theme="@style/MaterialTheme"/>
 
         <receiver
             android:name=".activities.ZmanimAppWidget"
             android:exported="false"
-            android:theme="@style/Theme.Material3.DayNight">
+            android:theme="@style/MaterialTheme">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -45,7 +45,7 @@
             android:name=".activities.NotificationSettingsActivity"
             android:exported="false"
             android:label="@string/title_activity_notification_settings"
-            android:theme="@style/Theme.Material3.DayNight" />
+            android:theme="@style/MaterialTheme" />
         <activity
             android:name=".activities.CurrentLocationActivity"
             android:exported="false" />
@@ -53,7 +53,7 @@
             android:name=".activities.MoladActivity"
             android:exported="true"
             android:label="Molad Calculator"
-            android:theme="@style/Theme.Material3.Dark" />
+            android:theme="@style/MaterialTheme" />
         <activity
             android:name=".activities.ZmanimLanguageActivity"
             android:exported="true" />
@@ -70,7 +70,7 @@
         <activity
             android:name=".activities.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:theme="@style/Theme.Material3.DayNight" />
+            android:theme="@style/MaterialTheme" />
         <activity android:name=".activities.SetupElevationActivity" />
         <activity
             android:name=".activities.MainActivity"
@@ -88,6 +88,7 @@
         <receiver android:name=".notifications.ZmanNotification" />
         <receiver android:name=".notifications.OmerNotifications" />
         <receiver android:name=".notifications.TekufaNotifications" />
+        <receiver android:name=".notifications.AmudeiHoraahTekufaNotifications" />
         <receiver
             android:name=".notifications.BootNotifications"
             android:exported="false">

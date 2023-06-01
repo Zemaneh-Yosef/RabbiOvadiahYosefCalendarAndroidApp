@@ -56,7 +56,12 @@ public class OmerNotifications extends BroadcastReceiver {
 
             int day = jewishCalendar.getDayOfOmer();
             if (day != -1 && day != 49) {//we don't want to send a notification right before shavuot
-                long when = c.getTzeit().getTime();
+                long when;
+                if (mSharedPreferences.getBoolean("LuachAmudeiHoraah", false)) {
+                    when = c.getTzeitAmudeiHoraah().getTime();
+                } else {
+                    when = c.getTzeit().getTime();
+                }
                 NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -152,7 +157,7 @@ public class OmerNotifications extends BroadcastReceiver {
         Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
         NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "BarechAleinu")
-                .setSmallIcon(R.drawable.calendar_foreground)
+                .setSmallIcon(R.drawable.winter)
                 .setContentTitle("Barech Aleinu tonight!")
                 .setContentText("Tonight we start saying Barech Aleinu!")
                 .setStyle(new NotificationCompat
@@ -208,7 +213,11 @@ public class OmerNotifications extends BroadcastReceiver {
     private void updateAlarm(Context context, ROZmanimCalendar c) {
         Calendar calendar = Calendar.getInstance();
         AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
-        calendar.setTimeInMillis(c.getTzeit().getTime());
+        if (mSharedPreferences.getBoolean("LuachAmudeiHoraah", false)) {
+            calendar.setTimeInMillis(c.getTzeitAmudeiHoraah().getTime());
+        } else {
+            calendar.setTimeInMillis(c.getTzeit().getTime());
+        }
         if (calendar.getTime().compareTo(new Date()) < 0) {
             calendar.add(Calendar.DATE, 1);
         }

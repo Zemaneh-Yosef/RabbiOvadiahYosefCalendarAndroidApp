@@ -43,6 +43,9 @@ public class ZmanimNotifications extends BroadcastReceiver {
         if (mSharedPreferences.getBoolean("isSetup",false) && mSettingsSharedPreferences.getBoolean("zmanim_notifications", true)) {
             JewishCalendar jewishCalendar = new JewishCalendar();
             ROZmanimCalendar zmanimCalendar = getROZmanimCalendar(context);
+            zmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
+            zmanimCalendar.setCandleLightingOffset(Double.parseDouble(mSettingsSharedPreferences.getString("CandleLightingOffset", "20")));
+            zmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(mSettingsSharedPreferences.getString("EndOfShabbatOffset", "40")));
             mSharedPreferences.edit().putString("locationNameFN", zmanimCalendar.getGeoLocation().getLocationName()).apply();
             setAlarmToNextZman(context, zmanimCalendar, jewishCalendar);
         }

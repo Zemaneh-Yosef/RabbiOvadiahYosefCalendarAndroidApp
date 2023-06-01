@@ -456,6 +456,7 @@ public class MainActivity extends AppCompatActivity {
                         .setMessage("If you are in Israel now, please confirm below.")
                         .setPositiveButton("Yes, I am in Israel", (dialog, which) -> {
                             mSharedPreferences.edit().putBoolean("inIsrael", true).apply();
+                            mSettingsPreferences.edit().putBoolean("LuachAmudeiHoraah", false).apply();
                             mJewishDateInfo = new JewishDateInfo(true, true);
                             Toast.makeText(this, "Settings updated", Toast.LENGTH_SHORT).show();
                             if (mSharedPreferences.getBoolean("weeklyMode", false)) {
@@ -955,12 +956,21 @@ public class MainActivity extends AppCompatActivity {
         String theme = mSettingsPreferences.getString("theme", "Auto (Follow System Theme)");
         switch (theme) {
             case "Auto (Follow System Theme)":
+                if (getDelegate().getLocalNightMode() == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
+                    break;
+                }
                 getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
                 break;
             case "Day":
+                if (getDelegate().getLocalNightMode() == AppCompatDelegate.MODE_NIGHT_NO) {
+                    break;
+                }
                 getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_NO);
                 break;
             case "Night":
+                if (getDelegate().getLocalNightMode() == AppCompatDelegate.MODE_NIGHT_YES) {
+                    break;
+                }
                 getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES);
                 break;
         }
@@ -970,7 +980,7 @@ public class MainActivity extends AppCompatActivity {
      * This method saves the information needed to restore a GeoLocation object in the notification classes.
      */
     private void saveGeoLocationInfo() {//needed for notifications
-        SharedPreferences.Editor editor = getSharedPreferences(SHARED_PREF, MODE_PRIVATE).edit();
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
         editor.putString("name", sCurrentLocationName).apply();
         editor.putLong("lat", Double.doubleToRawLongBits(sLatitude)).apply();//see here: https://stackoverflow.com/a/18098090/13593159
         editor.putLong("long", Double.doubleToRawLongBits(sLongitude)).apply();
@@ -979,7 +989,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * This method will be called every time the user opens the app. It will reset the notifications every time the app is opened since the user might
-     * have changed his location.
+     * have changed his location or settings.
      */
     private void setNotifications() {
         if (mSettingsPreferences.getBoolean("zmanim_notifications", true)) {//if the user wants notifications
@@ -1000,7 +1010,11 @@ public class MainActivity extends AppCompatActivity {
         am.cancel(dailyPendingIntent);//cancel any previous alarms
         am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), dailyPendingIntent);
 
-        calendar.setTimeInMillis(mROZmanimCalendar.getTzeit().getTime());
+        if (mSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
+            calendar.setTimeInMillis(mROZmanimCalendar.getTzeitAmudeiHoraah().getTime());
+        } else {
+            calendar.setTimeInMillis(mROZmanimCalendar.getTzeit().getTime());
+        }
         if (calendar.getTime().compareTo(new Date()) < 0) {
             calendar.add(Calendar.DATE, 1);
         }
@@ -1132,7 +1146,7 @@ public class MainActivity extends AppCompatActivity {
                 mShabbatModeBanner.setBackgroundColor(getColor(R.color.light_blue));
                 mShabbatModeBanner.setTextColor(getColor(R.color.white));
                 mCalendarButton.setBackgroundColor(getColor(R.color.light_blue));
-                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawableDark());
+                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawableLight());
                 break;
             case JewishCalendar.SUCCOS:
                 for (int i = 0; i < 4; i++) {
@@ -1174,7 +1188,7 @@ public class MainActivity extends AppCompatActivity {
                 mShabbatModeBanner.setBackgroundColor(getColor(R.color.green));
                 mShabbatModeBanner.setTextColor(getColor(R.color.black));
                 mCalendarButton.setBackgroundColor(getColor(R.color.green));
-                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawableLight());
+                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawableDark());
                 break;
             case JewishCalendar.ROSH_HASHANA:
                 for (int i = 0; i < 4; i++) {
@@ -1375,7 +1389,17 @@ public class MainActivity extends AppCompatActivity {
             zmanim.add(new ZmanListEntry("Birchat HaChamah is said today"));
         }
 
-        addTekufaTime(new SimpleDateFormat("h:mm aa", Locale.getDefault()), zmanim, false);
+        String tekufaOpinions = mSettingsPreferences.getString("TekufaOpinions", null);
+        if (tekufaOpinions.equals("1")) {
+            addTekufaTime(new SimpleDateFormat("h:mm aa", Locale.getDefault()), zmanim, false);
+        }
+        if (tekufaOpinions.equals("2")) {
+            addAmudeiHoraahTekufaTime(new SimpleDateFormat("h:mm aa", Locale.getDefault()), zmanim, false);
+        }
+        if (tekufaOpinions.equals("3")) {
+            addTekufaTime(new SimpleDateFormat("h:mm aa", Locale.getDefault()), zmanim, false);
+            addAmudeiHoraahTekufaTime(new SimpleDateFormat("h:mm aa", Locale.getDefault()), zmanim, false);
+        }
 
         addZmanim(zmanim, false);
 
@@ -1422,7 +1446,6 @@ public class MainActivity extends AppCompatActivity {
 
         return zmanim;
     }
-
 
     private void createBackgroundThreadForNextUpcomingZman() {
         Runnable nextZmanUpdater = () -> {
@@ -1525,9 +1548,21 @@ public class MainActivity extends AppCompatActivity {
         }
 
         List<ZmanListEntry> tekufa = new ArrayList<>();
-        addTekufaTime(new SimpleDateFormat("h:mm aa", Locale.getDefault()), tekufa, true);
+        String tekufaOpinions = mSettingsPreferences.getString("TekufaOpinions", null);
+        if (tekufaOpinions.equals("1")) {
+            addTekufaTime(new SimpleDateFormat("h:mm aa", Locale.getDefault()), tekufa, false);
+        }
+        if (tekufaOpinions.equals("2")) {
+            addAmudeiHoraahTekufaTime(new SimpleDateFormat("h:mm aa", Locale.getDefault()), tekufa, false);
+        }
+        if (tekufaOpinions.equals("3")) {
+            addTekufaTime(new SimpleDateFormat("h:mm aa", Locale.getDefault()), tekufa, false);
+            addAmudeiHoraahTekufaTime(new SimpleDateFormat("h:mm aa", Locale.getDefault()), tekufa, false);
+        }
         if (!tekufa.isEmpty()) {
-            announcements.append(tekufa.get(0).getTitle()).append("\n");
+            for (ZmanListEntry tekufaEntry : tekufa) {
+                announcements.append(tekufaEntry.getTitle()).append("\n");
+            }
         }
 
         if (!mCurrentDateShown.before(dafYomiYerushalmiStartDate)) {
@@ -1781,11 +1816,11 @@ public class MainActivity extends AppCompatActivity {
                             ZmanListEntry endShabbat;
                             if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("1")) {
                                 endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag() + zmanimNames.getEndsString()
-                                        + " (" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")", mROZmanimCalendar.getTzaisAteretTorah(), true);
+                                        + " (" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + zmanimNames.getMacharString(), mROZmanimCalendar.getTzaisAteretTorah(), true);
                             } else if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("2")) {
-                                endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag() + zmanimNames.getEndsString(), mROZmanimCalendar.getTzaitShabbatAmudeiHoraah(), true);
+                                endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag() + zmanimNames.getEndsString() + zmanimNames.getMacharString(), mROZmanimCalendar.getTzaitShabbatAmudeiHoraah(), true);
                             } else {
-                                endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag() + zmanimNames.getEndsString(), mROZmanimCalendar.getTzaitShabbatAmudeiHoraahLesserThan40(), true);
+                                endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag() + zmanimNames.getEndsString() + zmanimNames.getMacharString(), mROZmanimCalendar.getTzaitShabbatAmudeiHoraahLesserThan40(), true);
                             }
                             endShabbat.setNoteworthyZman(true);
                             zmanim.add(endShabbat);
@@ -2055,6 +2090,58 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " is today at " +
                         zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
+            }
+        }
+    }
+
+    /**
+     * This method will check if the tekufa happens within the next 48 hours and it will add the tekufa to the list passed in if it happens
+     * on the current date.
+     * TODO : Fix timezone issues with tekufa. If you try to see when the tekufa is in a different timezone, it will sometimes not work because the Dates are not the same.
+     * @param zmanimFormat the format to use for the zmanim
+     * @param zmanim the list of zmanim to add to
+     * @param shortStyle if the tekufa should be added as "Tekufa Nissan : 4:30" or "Tekufa Nissan is today at 4:30"
+     */
+    private void addAmudeiHoraahTekufaTime(DateFormat zmanimFormat, List<ZmanListEntry> zmanim, boolean shortStyle) {
+        zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
+        mROZmanimCalendar.getCalendar().add(Calendar.DATE,1);//check next day for tekufa, because the tekufa time can go back a day
+        mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
+        mROZmanimCalendar.getCalendar().add(Calendar.DATE,-1);//reset the calendar
+        if (mJewishDateInfo.getJewishCalendar().getTekufa() != null &&
+                DateUtils.isSameDay(mROZmanimCalendar.getCalendar().getTime(), mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())) {
+            if (shortStyle) {
+                zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
+                        zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
+            } else {
+                zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " is today at " +
+                        zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
+            }
+        }
+
+        mROZmanimCalendar.getCalendar().add(Calendar.DATE,2);//check the next day after
+        mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
+        mROZmanimCalendar.getCalendar().add(Calendar.DATE,-2);//reset the calendar
+        if (mJewishDateInfo.getJewishCalendar().getTekufa() != null &&
+                DateUtils.isSameDay(mROZmanimCalendar.getCalendar().getTime(), mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())) {
+            if (shortStyle) {
+                zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
+                        zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
+            } else {
+                zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " is today at " +
+                        zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
+            }
+        }
+        mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());//reset
+
+        //else the tekufa time is on the same day as the current date, so we can add it normally
+        if (mJewishDateInfo.getJewishCalendar().getTekufa() != null &&
+                DateUtils.isSameDay(mROZmanimCalendar.getCalendar().getTime(), mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())) {
+            if (shortStyle) {
+                zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
+                        zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
+            } else {
+                zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " is today at " +
+                        zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
             }
         }
     }

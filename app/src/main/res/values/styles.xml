@@ -2,9 +2,16 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.DayNight">
         <!-- Customize your theme here. -->
+        <item name="actionOverflowMenuStyle">@style/popupOverflowMenu</item>
     </style>
 
-    <style name="MaterialTheme" parent="Theme.MaterialComponents.DayNight" />
+    <style name="popupOverflowMenu" parent="@style/Widget.MaterialComponents.PopupMenu.Overflow">
+        <item name="android:popupBackground">@drawable/overflow_menu_bg</item>
+    </style>
+
+    <style name="MaterialTheme" parent="Theme.Material3.DayNight">
+        <item name="android:colorPrimaryDark">@color/black</item>
+    </style>
 
     <style name="SplashTheme" parent="AppTheme">
         <item name="android:windowBackground">@drawable/splash</item>

@@ -56,4 +56,30 @@ public class JewishCalendarWithTekufaMethods extends JewishCalendar {
 
         return cal.getTime();
     }
+
+    public Date getAmudeiHoraahTekufaAsDate() {
+        //The Luach Amudei Horaah uses the same calculation for the tekufa, however, it uses the local midday time of Israel as the starting point,
+        //instead of 6pm.
+
+        // The tekufa Date (point in time) must be generated using standard time. Using "Asia/Jerusalem" timezone will result in the time
+        // being incorrectly off by an hour in the summer due to DST. Proper adjustment for the actual time in DST will be done by the date
+        // formatter class used to display the Date.
+        TimeZone yerushalayimStandardTZ = TimeZone.getTimeZone("GMT+2");
+        Calendar cal = Calendar.getInstance(yerushalayimStandardTZ);
+        cal.clear();
+        if (getTekufa() == null) {
+            return null;
+        }
+        double hours = getTekufa() - 30;
+        int minutes = (int) ((hours - (int) hours) * 60);
+        cal.set(getGregorianYear(), getGregorianMonth(), getGregorianDayOfMonth(), 11, 39, 0);
+        cal.add(Calendar.HOUR_OF_DAY, (int) hours);
+        cal.add(Calendar.MINUTE, minutes);
+
+        if (getTekufaName().equals("Tammuz") || getTekufaName().equals("Nissan")) {
+            cal.add(Calendar.DATE, 1);//Warning!: This does not work past the year 2023! TODO: Fix this
+        }
+
+        return cal.getTime();
+    }
 }

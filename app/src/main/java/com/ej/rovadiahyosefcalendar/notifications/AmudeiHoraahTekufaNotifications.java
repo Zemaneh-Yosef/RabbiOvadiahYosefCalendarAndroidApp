@@ -32,7 +32,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-public class TekufaNotifications extends BroadcastReceiver {
+public class AmudeiHoraahTekufaNotifications extends BroadcastReceiver {
 
     private static int MID = 100;
 
@@ -44,8 +44,8 @@ public class TekufaNotifications extends BroadcastReceiver {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel("Tekufa Notifications",
-                    "Tekufa Notifications",
+            NotificationChannel channel = new NotificationChannel("Amudei Horaah Tekufa Notifications",
+                    "Amudei Horaah Tekufa Notifications",
                     NotificationManager.IMPORTANCE_HIGH);
             channel.setDescription("This notification will check daily if the seasons change and will show a notification to the user at an hour" +
                     " and a half before.");
@@ -79,7 +79,7 @@ public class TekufaNotifications extends BroadcastReceiver {
                     zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfter);
 
             NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context,
-                    "Tekufa Notifications")
+                    "Amudei Horaah Tekufa Notifications")
                     .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
                     .setSmallIcon(getSeasonalIcon(jewishDateInfo.getJewishCalendar().getTekufaName()))
                     .setContentTitle("Tekufa/Season Change")
@@ -120,15 +120,15 @@ public class TekufaNotifications extends BroadcastReceiver {
         cal.add(Calendar.DATE, 1);
         jewishDateInfo.setCalendar(cal);
         if (jewishDateInfo.getJewishCalendar().getTekufa() != null &&
-                DateUtils.isSameDay(new Date(), jewishDateInfo.getJewishCalendar().getTekufaAsDate())) {//if next day hebrew has tekufa today
-            return jewishDateInfo.getJewishCalendar().getTekufaAsDate();
+                DateUtils.isSameDay(new Date(), jewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())) {//if next day hebrew has tekufa today
+            return jewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate();
         }
 
         cal.add(Calendar.DATE, -1);
         jewishDateInfo.setCalendar(cal);//reset
         if (jewishDateInfo.getJewishCalendar().getTekufa() != null &&
-                DateUtils.isSameDay(new Date(), jewishDateInfo.getJewishCalendar().getTekufaAsDate())) {//if today hebrew has tekufa today
-            return jewishDateInfo.getJewishCalendar().getTekufaAsDate();
+                DateUtils.isSameDay(new Date(), jewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())) {//if today hebrew has tekufa today
+            return jewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate();
         }
         return null;//it should not return null because this notification will be called when the tekufa is today or tomorrow
     }

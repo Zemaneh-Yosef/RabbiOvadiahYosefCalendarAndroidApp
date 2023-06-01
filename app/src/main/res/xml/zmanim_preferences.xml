@@ -10,6 +10,14 @@
             android:title="Luach Amudei Horaah" />
 
         <ListPreference
+            app:defaultValue="1"
+            app:entries="@array/tekufa_opinion_entries"
+            app:entryValues="@array/tekufa_opinion_values"
+            app:key="TekufaOpinions"
+            app:summary="Choose which opinions to use for the time for the tekufas"
+            app:title="Tekufa Opinion" />
+
+        <ListPreference
             app:defaultValue="20"
             app:entries="@array/candle_lighting_entries"
             app:entryValues="@array/candle_lighting_values"

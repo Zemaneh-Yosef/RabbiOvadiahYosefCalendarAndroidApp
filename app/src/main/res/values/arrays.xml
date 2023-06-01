@@ -19,6 +19,18 @@
         <item>40</item>
     </string-array>
 
+    <string-array name="tekufa_opinion_entries">
+        <item>Regular 6PM start time (Ohr HaChaim)</item>
+        <item>11:39AM start time (Amudei Horaah)</item>
+        <item>Show Both</item>
+    </string-array>
+
+    <string-array name="tekufa_opinion_values">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
     <string-array name="shabbat_opinion_entries">
         <item>Regular Minutes</item>
         <item>7.14 Degrees</item>
