@@ -906,8 +906,10 @@ public class MainActivity extends AppCompatActivity {
             super.onResume();
             return;
         }
-        mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false), true);
-        mJewishDateInfo.setCalendar(mCurrentDateShown);
+        if (mJewishDateInfo.getJewishCalendar().getInIsrael() != mSharedPreferences.getBoolean("inIsrael", false)) {
+            mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false), true);
+            mJewishDateInfo.setCalendar(mCurrentDateShown);
+        }
         setNextUpcomingZman();
         setZmanimLanguageBools();
         if (sFromSettings) {
