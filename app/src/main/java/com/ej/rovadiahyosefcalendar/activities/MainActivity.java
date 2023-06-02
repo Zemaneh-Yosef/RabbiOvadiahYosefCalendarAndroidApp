@@ -1389,7 +1389,7 @@ public class MainActivity extends AppCompatActivity {
             zmanim.add(new ZmanListEntry("Birchat HaChamah is said today"));
         }
 
-        String tekufaOpinions = mSettingsPreferences.getString("TekufaOpinions", null);
+        String tekufaOpinions = mSettingsPreferences.getString("TekufaOpinions", "1");
         if (tekufaOpinions.equals("1")) {
             addTekufaTime(new SimpleDateFormat("h:mm aa", Locale.getDefault()), zmanim, false);
         }
@@ -1548,7 +1548,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         List<ZmanListEntry> tekufa = new ArrayList<>();
-        String tekufaOpinions = mSettingsPreferences.getString("TekufaOpinions", null);
+        String tekufaOpinions = mSettingsPreferences.getString("TekufaOpinions", "1");
         if (tekufaOpinions.equals("1")) {
             addTekufaTime(new SimpleDateFormat("h:mm aa", Locale.getDefault()), tekufa, false);
         }

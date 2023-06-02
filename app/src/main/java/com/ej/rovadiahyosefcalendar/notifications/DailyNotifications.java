@@ -117,7 +117,7 @@ public class DailyNotifications extends BroadcastReceiver {
                 }
             }
             Calendar cal = Calendar.getInstance();
-            String tekufaOpinions = PreferenceManager.getDefaultSharedPreferences(context).getString("TekufaOpinions", null);
+            String tekufaOpinions = PreferenceManager.getDefaultSharedPreferences(context).getString("TekufaOpinions", "1");
             if (tekufaOpinions.equals("1")) {
                 checkIfTekufaIsToday(context, jewishDateInfo, cal);
             }

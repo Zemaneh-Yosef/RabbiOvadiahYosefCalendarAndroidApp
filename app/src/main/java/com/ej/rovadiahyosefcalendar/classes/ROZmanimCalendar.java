@@ -298,31 +298,30 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         Calendar tempCal = (Calendar) getCalendar().clone();
         setCalendar(new GregorianCalendar(getCalendar().get(Calendar.YEAR), Calendar.MARCH, 17));//set the calendar to the equinox
         Date sunrise = getSeaLevelSunrise();
-        Date alotBy16Degrees = getAlos16Point1Degrees();//16.1 degrees is 72 minutes before sunrise in Netanya on the equinox, so no adjustment is needed
+        Date alotBy16Degrees = getSunriseOffsetByDegrees(GEOMETRIC_ZENITH + 16.04);//16.1 degrees is 72 minutes before sunrise in Netanya on the equinox, so no adjustment is needed
+        long numberOfMilli = sunrise.getTime() - alotBy16Degrees.getTime();
+        long numberOfSeconds = numberOfMilli / 1000;
         setCalendar(tempCal);//reset the calendar to the current day
-        //get the amount of minutes between the two Date objects
-        long numberOfMinutes = ((sunrise.getTime() - alotBy16Degrees.getTime()) / 60000);
+
         long shaahZmanit = getTemporalHour(getSeaLevelSunrise(), getSeaLevelSunset());
         long dakahZmanit = shaahZmanit / MINUTES_PER_HOUR;
-        //now that we have the number of minutes (should be 80 minutes for NY), we can calculate the time of Alot Hashachar for the current day using zmaniyot minutes
-        //so in NY, Alot Hashachar is 80 zmaniyot minutes before sunrise
-        return getTimeOffset(getSeaLevelSunrise(), -(numberOfMinutes * dakahZmanit));
+        long secondsZmanit = dakahZmanit / 60;
+        return getTimeOffset(getSeaLevelSunrise(), -(numberOfSeconds * secondsZmanit));
     }
 
     public Date getEarliestTalitTefilinAmudeiHoraah() {
         Calendar tempCal = (Calendar) getCalendar().clone();
         setCalendar(new GregorianCalendar(getCalendar().get(Calendar.YEAR), Calendar.MARCH, 17));//set the calendar to the equinox
         Date sunrise = getSeaLevelSunrise();
-        Date alotBy16Degrees = getAlos16Point1Degrees();//16.1 degrees is 72 minutes before sunrise in Netanya on the equinox, so no adjustment is needed
+        Date alotBy16Degrees = getSunriseOffsetByDegrees(GEOMETRIC_ZENITH + 16.04);//16.1 degrees is 72 minutes before sunrise in Netanya on the equinox, so no adjustment is needed
+        long numberOfMilli = sunrise.getTime() - alotBy16Degrees.getTime();
+        long numberOfSeconds = numberOfMilli / 1000;
         setCalendar(tempCal);//reset the calendar to the current day
-        //get the amount of minutes between the two Date objects
-        long numberOfMinutes = ((sunrise.getTime() - alotBy16Degrees.getTime()) / 60000);
+
         long shaahZmanit = getTemporalHour(getSeaLevelSunrise(), getSeaLevelSunset());
         long dakahZmanit = shaahZmanit / MINUTES_PER_HOUR;
-        //now that we have the number of minutes (should be 80 minutes for NY), we can calculate the time of Alot Hashachar for the current day using zmaniyot minutes
-        //so in NY, Alot Hashachar is 80 zmaniyot minutes before sunrise
-        //and Misheyakir is 5 / 6 of 80 zmaniyot minutes before sunrise
-        return getTimeOffset(getSeaLevelSunrise(), -(numberOfMinutes * dakahZmanit * 5 / 6));
+        long secondsZmanit = dakahZmanit / 60;
+        return getTimeOffset(getSeaLevelSunrise(), -(numberOfSeconds * secondsZmanit * 5 / 6));
     }
 
     public Date getSofZmanShmaMGA72MinutesZmanisAmudeiHoraah() {
@@ -348,12 +347,15 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         Calendar tempCal = (Calendar) getCalendar().clone();
         setCalendar(new GregorianCalendar(getCalendar().get(Calendar.YEAR), Calendar.MARCH, 17));//set the calendar to the equinox
         Date sunset = getSeaLevelSunset();
-        Date tzaitGeonimInDegrees = getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 3.86);//3.86 is 13.5 minutes after sunset in Netanya on the equinox from my experiments
-        long numberOfMinutes = ((tzaitGeonimInDegrees.getTime() - sunset.getTime()) / MILLISECONDS_PER_MINUTE);
+        Date tzaitGeonimInDegrees = getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 3.75);//3.75 is 13.5 minutes after sunset in Netanya on the equinox
+        long numberOfMilli = tzaitGeonimInDegrees.getTime() - sunset.getTime();
+        long numberOfSeconds = numberOfMilli / 1000;
         setCalendar(tempCal);//reset the calendar to the current day
+
         long shaahZmanit = getTemporalHour(getSeaLevelSunrise(), getSeaLevelSunset());
         long dakahZmanit = shaahZmanit / MINUTES_PER_HOUR;
-        return getTimeOffset(getSeaLevelSunset(), numberOfMinutes * dakahZmanit);
+        long secondsZmanit = dakahZmanit / 60;
+        return getTimeOffset(getSeaLevelSunset(), numberOfSeconds * secondsZmanit);
     }
 
     /**
@@ -366,12 +368,15 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         Calendar tempCal = (Calendar) getCalendar().clone();
         setCalendar(new GregorianCalendar(getCalendar().get(Calendar.YEAR), Calendar.MARCH, 17));//set the calendar to the equinox
         Date sunset = getSeaLevelSunset();
-        Date twentyMinutesInDegrees = getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 5.054);//5.054 is 20 minutes after sunset in Netanya on the equinox from my experiments
-        long numberOfMinutes = ((twentyMinutesInDegrees.getTime() - sunset.getTime()) / MILLISECONDS_PER_MINUTE);
+        Date tzaitGeonimInDegrees = getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 5.3);
+        long numberOfMilli = tzaitGeonimInDegrees.getTime() - sunset.getTime();
+        long numberOfSeconds = numberOfMilli / 1000;
         setCalendar(tempCal);//reset the calendar to the current day
+
         long shaahZmanit = getTemporalHour(getSeaLevelSunrise(), getSeaLevelSunset());
         long dakahZmanit = shaahZmanit / MINUTES_PER_HOUR;
-        return getTimeOffset(getSeaLevelSunset(), numberOfMinutes * dakahZmanit);
+        long secondsZmanit = dakahZmanit / 60;
+        return getTimeOffset(getSeaLevelSunset(), numberOfSeconds * secondsZmanit);
     }
 
     /**
@@ -415,16 +420,18 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
      * @return Rabbeinu Tam adjusted according to Rabbi Dahan's calculations in the Amudei Horaah.
      */
     public Date getTzais72ZmanisAmudeiHoraah() {
-        //find the amount of minutes between sunrise and 16° below the horizon on a day that occurs on the equinox
-        Calendar tempCal = (Calendar) getCalendar().clone();//save the current calendar
+        Calendar tempCal = (Calendar) getCalendar().clone();
         setCalendar(new GregorianCalendar(getCalendar().get(Calendar.YEAR), Calendar.MARCH, 17));//set the calendar to the equinox
         Date sunset = getSeaLevelSunset();
-        Date tzaitBy16Degrees = getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 16.0);//From my experimentation, 16 degrees is when the sun is 72 minutes after sunset on the equinox in Netanya
+        Date tzaitGeonimInDegrees = getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 16.0);//16.0 is 72 minutes after sunset in Netanya on the equinox
+        long numberOfMilli = tzaitGeonimInDegrees.getTime() - sunset.getTime();
+        long numberOfSeconds = numberOfMilli / 1000;
         setCalendar(tempCal);//reset the calendar to the current day
-        int numberOfMinutes = (int) ((tzaitBy16Degrees.getTime() - sunset.getTime()) / MILLISECONDS_PER_MINUTE);//get the amount of minutes between sunset and 16 degrees
+
         long shaahZmanit = getTemporalHour(getSeaLevelSunrise(), getSeaLevelSunset());
         long dakahZmanit = shaahZmanit / MINUTES_PER_HOUR;
-        return getTimeOffset(getSeaLevelSunset(), (numberOfMinutes * dakahZmanit));//add the number of adjusted zmaniyot minutes to sunset
+        long secondsZmanit = dakahZmanit / 60;
+        return getTimeOffset(getSeaLevelSunset(), numberOfSeconds * secondsZmanit);
     }
 
     /**

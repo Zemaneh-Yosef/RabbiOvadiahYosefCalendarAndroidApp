@@ -278,6 +278,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             showCandleLightingDialog();
         } else if (zmanim.get(position).getTitle().contains("\u05E9\u05E7\u05D9\u05E2\u05D4")) {
             showShkiaDialog();
+        } else if (zmanim.get(position).getTitle().contains("\u05E6\u05D0\u05EA \u05D4\u05DB\u05D5\u05DB\u05D1\u05D9\u05DD \u05DC\u05D7\u05D5\u05DE\u05E8\u05D4")) {
+            showTzaitLChumraDialog();
         } else if (zmanim.get(position).getTitle().contains("\u05E6\u05D0\u05EA \u05D4\u05DB\u05D5\u05DB\u05D1\u05D9\u05DD")) {
             showTzaitDialog();
         } else if (zmanim.get(position).getTitle().contains("\u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA \u05DC\u05D7\u05D5\u05DE\u05E8\u05D4")) {
@@ -324,6 +326,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             showCandleLightingDialog();
         } else if (zmanim.get(position).getTitle().contains("Sunset")) {
             showShkiaDialog();
+        } else if (zmanim.get(position).getTitle().contains("Nightfall (Stringent)")) {
+            showTzaitLChumraDialog();
         } else if (zmanim.get(position).getTitle().contains("Nightfall")) {
             showTzaitDialog();
         } else if (zmanim.get(position).getTitle().contains("Fast Ends (Stringent)")) {
@@ -370,6 +374,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             showCandleLightingDialog();
         } else if (zmanim.get(position).getTitle().contains("Shkia")) {
             showShkiaDialog();
+        } else if (zmanim.get(position).getTitle().contains("Tzait Hacochavim L'Chumra")) {
+            showTzaitLChumraDialog();
         } else if (zmanim.get(position).getTitle().contains("Tzait Hacochavim")) {
             showTzaitDialog();
         } else if (zmanim.get(position).getTitle().contains("Tzait Taanit L'Chumra")) {
@@ -398,7 +404,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         "This time is calculated as 72 zmaniyot/seasonal minutes (according to the GR\"A) before sunrise. Both sunrise and sunset " +
                         "have elevation included.\n\n" +
                         "In Luach Amudei Horaah mode, this time is calculated by finding out how many minutes " +
-                        "are between sunrise and 72 minutes as degrees (16.1) before sunrise on a equal day with sunrise and sunset set around 12 " +
+                        "are between sunrise and 72 minutes as degrees (16.04) before sunrise on a equal day with sunrise and sunset set around 12 " +
                         "hours apart. Then we take those minutes and make them zmaniyot according to the GR\"A and we subtract that time from " +
                         "sunrise to get the time for Alot Hashachar. This is according to the Halacha Berurah and this should only be done outside of " +
                         "Israel in more northern or southern areas. The Halacha Berurah writes to do this because it is more according to the nature " +
@@ -417,7 +423,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         "Note: This time is only for people who need to go to work or leave early in the morning to travel, however, normally a " +
                         "person should put on his talit/tefilin 60 regular minutes (and in the winter 50 regular minutes) before sunrise.\n\n" +
                         "In Luach Amudei Horaah mode, this time is calculated by finding out how many minutes " +
-                        "are between sunrise and 72 minutes as degrees (16.1) before sunrise on a equal day with sunrise and sunset set around 12 " +
+                        "are between sunrise and 72 minutes as degrees (16.04) before sunrise on a equal day with sunrise and sunset set around 12 " +
                         "hours apart. Then we take those minutes and make them zmaniyot according to the GR\"A and we subtract 5/6 of that time from " +
                         "sunrise to get the time for Misheyakir. This is according to the Halacha Berurah and this should only be done outside of " +
                         "Israel in more northern or southern areas. The Halacha Berurah writes to do this because it is more according to the nature " +
@@ -556,12 +562,13 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
     private void showCandleLightingDialog() {
         dialogBuilder.setTitle("Candle Lighting - \u05D4\u05D3\u05DC\u05E7\u05EA \u05E0\u05E8\u05D5\u05EA")
-                .setMessage("This is the ideal time for a person to light the candles before shabbat/chag starts.\n" +
+                .setMessage("This is the ideal time for a person to light the candles before shabbat/chag starts.\n\n" +
                         "When there is candle lighting on a day that is Yom tov/Shabbat before another day that is Yom tov, " +
                         "the candles are lit after Tzeit/Nightfall. However, if the next day is Shabbat, the candles are lit at their usual time.\n\n" +
                         "This time is calculated as " +
                         PreferenceManager.getDefaultSharedPreferences(context).getString("CandleLightingOffset", "20") + " " +
-                        "regular minutes before sunset (elevation included).\n\n")
+                        "regular minutes before sunset (elevation included).\n\n" +
+                        "The Ohr HaChaim calendar always shows the candle lighting time as 20 and 40 minutes before sunset.")
                 .show();
     }
 
@@ -587,9 +594,18 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         "This time is calculated as 13 and a half zmaniyot/seasonal minutes after sunset (elevation included).\n\n" +
                         "The GR\"A calculates a zmaniyot/seasonal hour by taking the time between sunrise and sunset (elevation included) and " +
                         "divides it into 12 equal parts. Then we divide one of those 12 parts into 60 to get a zmaniyot/seasonal minute.\n\n" +
-                        "In Luach Amudei Horaah mode, this time is calculated by finding out the the amount of minutes between sunset and 3.86 " +
+                        "In Luach Amudei Horaah mode, this time is calculated by finding out the the amount of minutes between sunset and 3.75 " +
                         "degrees below the horizon on a equal day, then we add that amount of zmaniyot minutes to sunset to get the time of " +
-                        "Tzeit/Nightfall. We use 3.86 degrees below the horizon because that is the time when it is 13.5 minutes after sunset in Israel.")
+                        "Tzeit/Nightfall. We use 3.75 degrees below the horizon because that is the time when it is 13.5 minutes after sunset in Israel.")
+                .show();
+    }
+
+    private void showTzaitLChumraDialog() {
+        dialogBuilder.setTitle("Nightfall (Stringent) - \u05E6\u05D0\u05EA \u05D4\u05DB\u05D5\u05DB\u05D1\u05D9\u05DD \u05DC\u05D7\u05D5\u05DE\u05E8\u05D4 - Tzeit Hacochavim L'Chumra")
+                .setMessage("This time is calculated as 20 minutes after sunset (elevation included).\n\n" +
+                        "In Luach Amudei Horaah mode, this time is calculated by finding out the the amount of minutes between sunset and 5.3 " +
+                        "degrees below the horizon on a equal day, then we add that amount of zmaniyot minutes to sunset to get the time of " +
+                        "Tzeit/Nightfall. We use 5.3 degrees below the horizon because that is the time when it is 20 minutes after sunset in Israel.")
                 .show();
     }
 
@@ -601,10 +617,11 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         "Rabbi David Yosef Shlita, that the fast ends 13.5 zmaniyot minutes after sunset. However, in his sefer Chazon Ovadiah, he " +
                         "writes that the fast ends 20 minutes after sunset.\n\n" +
                         "In the Ohr HaChaim calendar, they write that the fast ends at Tzait Hacochavim. I asked Rabbi Benizri if this meant that " +
-                        "the fast ends at 13.5 zmaniyot minutes after sunset and he said, \"Not necessarily, a person can end the fast at 20 minutes " +
+                        "the fast ends at 13.5 zmaniyot minutes after sunset and he said, \"Not necessarily, the calendar just says that the fast ends " +
+                        "at Tzait Hacochavim, a person can end the fast at 20 minutes " +
                         "after sunset if he wants to be stringent.\" I then asked him if those 20 minutes are zmaniyot minutes or regular minutes " +
                         "and he said, \"Regular minutes.\"\n\n" +
-                        "If a person wants to end the fast at 13.5 zmaniyot minutes after sunset, he has the right to do so. However, if a person wants to " +
+                        "To summarize: If a person wants to end the fast at 13.5 zmaniyot minutes after sunset, he has the right to do so. However, if a person wants to " +
                         "be stringent, he can end the fast at 20 minutes after sunset.")
                 .show();
     }
@@ -692,8 +709,11 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         "Nissan (spring), and Tammuz (summer). Each Tekufa happens 91.3125 (365.25 / 4) days after the previous Tekufa.\n\n" +
                         "The Achronim write that a person should not drink water when the seasons change. Rabbi Ovadiah Yosef Z\"TL writes " +
                         "(in Halichot Olam, Chelek 7, Page 183, Halacha 8) that a person should not drink water from a half hour before this time " +
-                        "till a half hour after this time unless there is a piece of iron in the water.\n\nNOTE: This only applies to water, not " +
-                        "to other drinks.")
+                        "till a half hour after this time unless there is a slim piece of iron in the water.\n\nNOTE: This only applies to water, not " +
+                        "to other drinks." + "\n\n" +
+                        "Both the Ohr HaChaim and the Amudei Horaah calendars use the above method to get the time for the tekufa. However, the " +
+                        "Amudei Horaah calendar changes from the Ohr HaChaim calendar, by using the local midday time of Israel. " +
+                        "Therefore, the Amudei Horaah calendar will always end with 9 minutes and the Ohr HaChaim calendar will always end with 0")
                 .show();
     }
 
