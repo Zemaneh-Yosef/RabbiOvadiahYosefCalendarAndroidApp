@@ -407,9 +407,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         "are between sunrise and 72 minutes as degrees (16.04) before sunrise on a equal day with sunrise and sunset set around 12 " +
                         "hours apart. Then we take those minutes and make them zmaniyot according to the GR\"A and we subtract that time from " +
                         "sunrise to get the time for Alot Hashachar. This is according to the Halacha Berurah and this should only be done outside of " +
-                        "Israel in more northern or southern areas. The Halacha Berurah writes to do this because it is more according to the nature " +
-                        "of the world, however, it does not seem like Rabbi Ovadiah Yosef ZT\"L or the Yalkut Yosef agrees with this opinion. " +
-                        "Elevation is not included in Luach Amudei Horaah mode.")
+                        "Israel in more northern or southern areas.")
                 .show();
     }
 

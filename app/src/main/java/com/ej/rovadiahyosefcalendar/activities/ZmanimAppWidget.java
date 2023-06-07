@@ -55,6 +55,9 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         mSettingsPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         setZmanimLanguageBools();
         mROZmanimCalendar = getROZmanimCalendar(context);
+        mROZmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
+        mROZmanimCalendar.setCandleLightingOffset(Double.parseDouble(mSettingsPreferences.getString("CandleLightingOffset", "20")));
+        mROZmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(mSettingsPreferences.getString("EndOfShabbatOffset", "40")));
         mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false), true);
         SimpleDateFormat sZmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
         sZmanimFormat.setTimeZone(mROZmanimCalendar.getCalendar().getTimeZone());
@@ -64,7 +67,10 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         ZmanListEntry nextUpcomingZman = getNextUpcomingZman();
         String zman = nextUpcomingZman.getTitle();
         String time = sZmanimFormat.format(nextUpcomingZman.getZman());
-        String tachanun = mJewishDateInfo.getIsTachanunSaid();
+        String tachanun = mJewishDateInfo.getIsTachanunSaid()
+                .replace("There is no Tachanun today", "No Tachanun")
+                .replace("There is only Tachanun in the morning", "Tachanun in the morning")
+                .replace("There is Tachanun today", "Tachanun");
         String dafYomi = mJewishDateInfo.getJewishCalendar().getDafYomiBavli().getMasechta()
                 + " " + JewishDateInfo.formatHebrewNumber(mJewishDateInfo.getJewishCalendar().getDafYomiBavli().getDaf());
 

@@ -11,6 +11,8 @@ import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.PendingIntent;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -402,7 +404,16 @@ public class MainActivity extends AppCompatActivity {
         setupButtons();
         setNotifications();
         checkIfUserIsInIsraelOrNot();
-        askForPermissions();
+        askForRealTimeNotificationPermissions();
+        updateWidget();
+    }
+
+    private void updateWidget() {
+        Intent intent = new Intent(this, ZmanimAppWidget.class);
+        intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+        int[] ids = AppWidgetManager.getInstance(getApplication()).getAppWidgetIds(new ComponentName(getApplication(), ZmanimAppWidget.class));
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+        sendBroadcast(intent);
     }
 
     private void setZmanimLanguageBools() {
@@ -418,7 +429,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void askForPermissions() {
+    private void askForRealTimeNotificationPermissions() {
         if (mSharedPreferences.getBoolean("useZipcode", false)) {
             return;//if the user is using a zipcode, we don't need to ask for background location permission as we don't use the device's location
         }
