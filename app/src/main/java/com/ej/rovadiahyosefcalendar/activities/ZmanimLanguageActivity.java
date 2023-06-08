@@ -34,14 +34,14 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
         Button english = findViewById(R.id.english);
         Button englishTranslated = findViewById(R.id.englishTranslated);
 
-        String hebrewText = "\u05E2\u05DC\u05D5\u05EA \u05D4\u05E9\u05D7\u05E8" + "\n" +
-                "\u05D8\u05DC\u05D9\u05EA \u05D5\u05EA\u05E4\u05D9\u05DC\u05D9\u05DF" + "\n" +
-                "\u05D4\u05E0\u05E5" + "\n" + "\u05E1\u05D5\u05E3 \u05D6\u05DE\u05DF" +
-                " \u05E9\u05DE\u05E2 \u05DE\u05D2\"\u05D0" + "\n" + "\u05E1\u05D5\u05E3 " +
-                "\u05D6\u05DE\u05DF \u05E9\u05DE\u05E2 \u05D2\u05E8\"\u05D0" + "\n" +
-                "\u05E1\u05D5\u05E3 \u05D6\u05DE\u05DF \u05D1\u05E8\u05DB\u05D5\u05EA " +
-                "\u05E9\u05DE\u05E2" + "\n" + "\u05D7\u05E6\u05D5\u05EA" + "\n" +
-                "\u05D5\u05D2\u05D5...";
+        String hebrewText = "עלות השחר\n" +
+                "תלית ותפילין\n" +
+                "הנץ\n" +
+                "סוף זמן שמע מג\"א\n" +
+                "סוף זמן שמע גר\"א\n" +
+                "סוף זמן ברכות שמע\n" +
+                "חצות\n" +
+                "וגו...";
         hebrew.setText(hebrewText);
 
         String englishText = "Alot Hashachar" + "\n" +

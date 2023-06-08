@@ -912,6 +912,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
+        //TODO update the date if it is a new day and the user has not went to a far away date
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         if (mROZmanimCalendar == null) {
             super.onResume();
@@ -2120,20 +2121,6 @@ public class MainActivity extends AppCompatActivity {
         mROZmanimCalendar.getCalendar().add(Calendar.DATE,1);//check next day for tekufa, because the tekufa time can go back a day
         mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
         mROZmanimCalendar.getCalendar().add(Calendar.DATE,-1);//reset the calendar
-        if (mJewishDateInfo.getJewishCalendar().getTekufa() != null &&
-                DateUtils.isSameDay(mROZmanimCalendar.getCalendar().getTime(), mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())) {
-            if (shortStyle) {
-                zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
-                        zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
-            } else {
-                zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " is today at " +
-                        zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
-            }
-        }
-
-        mROZmanimCalendar.getCalendar().add(Calendar.DATE,2);//check the next day after
-        mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
-        mROZmanimCalendar.getCalendar().add(Calendar.DATE,-2);//reset the calendar
         if (mJewishDateInfo.getJewishCalendar().getTekufa() != null &&
                 DateUtils.isSameDay(mROZmanimCalendar.getCalendar().getTime(), mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())) {
             if (shortStyle) {

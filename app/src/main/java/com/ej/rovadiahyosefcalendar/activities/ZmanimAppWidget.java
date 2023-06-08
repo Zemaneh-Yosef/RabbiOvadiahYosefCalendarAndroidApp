@@ -6,9 +6,11 @@ import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -32,6 +34,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -138,12 +141,24 @@ public class ZmanimAppWidget extends AppWidgetProvider {
     public static ZmanListEntry getNextUpcomingZman() {
         ZmanListEntry theZman = null;
         List<ZmanListEntry> zmanim = new ArrayList<>();
-        mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);
+        Calendar today = Calendar.getInstance();
+
+        today.add(Calendar.DATE, -1);
+        mROZmanimCalendar.setCalendar(today);//MUST call setCalendar() because it sets the JewishCalendar to the correct date for netz
+        mJewishDateInfo.setCalendar(today);
         addZmanim(zmanim);//for the previous day
-        mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
+
+        today.add(Calendar.DATE, 1);
+        mROZmanimCalendar.setCalendar(today);
+        mJewishDateInfo.setCalendar(today);
         addZmanim(zmanim);//for the current day
-        mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
+
+        today.add(Calendar.DATE, 1);
+        mROZmanimCalendar.setCalendar(today);
+        mJewishDateInfo.setCalendar(today);
         addZmanim(zmanim);//for the next day
+        mROZmanimCalendar.setCalendar(new GregorianCalendar());//reset the calendar to the current date
+        mJewishDateInfo.setCalendar(new GregorianCalendar());
         //find the next upcoming zman that is after the current time and before all the other zmanim
         for (ZmanListEntry zmanListEntry: zmanim) {
                 if (zmanListEntry.getZman() != null && zmanListEntry.getZman().after(new Date()) && (theZman == null || zmanListEntry.getZman().before(theZman.getZman()))) {
@@ -396,6 +411,7 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         for (int appWidgetId : appWidgetIds) {
             updateAppWidget(context, appWidgetManager, appWidgetId);
         }
+        scheduleUpdates(context);
     }
 
     @Override
@@ -450,5 +466,59 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         super.onDisabled(context);
         mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         mSharedPreferences.edit().putBoolean("widgetInitialized", false).apply();
+        cancelUpdates(context);
     }
+
+    @Override
+    public void onDeleted(Context context, int[] appWidgetIds) {
+        super.onDeleted(context, appWidgetIds);
+        scheduleUpdates(context);
+    }
+
+    private int[] getActiveWidgetIds(Context context) {
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+        ComponentName componentName = new ComponentName(context, ZmanimAppWidget.class);
+
+        // return ID of all active widgets within this AppWidgetProvider
+        return appWidgetManager.getAppWidgetIds(componentName);
+    }
+
+    private void scheduleUpdates(Context context) {
+        int[] activeWidgetIds = getActiveWidgetIds(context);
+
+        if (activeWidgetIds.length > 0) {
+            PendingIntent pendingIntent = getUpdatePendingIntent(context);
+
+            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            if (alarmManager != null) {
+                alarmManager.set(
+                        AlarmManager.RTC_WAKEUP,
+                        getNextUpcomingZman().getZman().getTime(),
+                        pendingIntent
+                );
+            }
+        }
+    }
+
+    private PendingIntent getUpdatePendingIntent(Context context) {
+        Class<?> widgetClass = ZmanimAppWidget.class;
+        int[] widgetIds = getActiveWidgetIds(context);
+        Intent updateIntent = new Intent(context, widgetClass)
+                .setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
+                .putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds);
+        int requestCode = widgetClass.getName().hashCode();
+        int flags = PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE;
+
+        return PendingIntent.getBroadcast(context, requestCode, updateIntent, flags);
+    }
+
+    private void cancelUpdates(Context context) {
+        PendingIntent pendingIntent = getUpdatePendingIntent(context);
+
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        if (alarmManager != null) {
+            alarmManager.cancel(pendingIntent);
+        }
+    }
+
 }

@@ -70,15 +70,12 @@ public class JewishCalendarWithTekufaMethods extends JewishCalendar {
         if (getTekufa() == null) {
             return null;
         }
-        double hours = getTekufa() - 30;
+        double hours = getTekufa() - 6;
         int minutes = (int) ((hours - (int) hours) * 60);
-        cal.set(getGregorianYear(), getGregorianMonth(), getGregorianDayOfMonth(), 11, 39, 0);
+        minutes -= 21; //minus 21 minutes to get to local midday
+        cal.set(getGregorianYear(), getGregorianMonth(), getGregorianDayOfMonth(), 0, 0, 0);
         cal.add(Calendar.HOUR_OF_DAY, (int) hours);
         cal.add(Calendar.MINUTE, minutes);
-
-        if (getTekufaName().equals("Tammuz") || getTekufaName().equals("Nissan")) {
-            cal.add(Calendar.DATE, 1);//Warning!: This does not work past the year 2023! TODO: Fix this
-        }
 
         return cal.getTime();
     }

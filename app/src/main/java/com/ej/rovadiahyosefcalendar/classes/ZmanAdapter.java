@@ -47,11 +47,13 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     private final DateFormat zmanimFormat;
     private final DateFormat roundUpFormat;
     private final boolean roundUpRT;
+    private final boolean isZmanimInHebrew;
 
     public ZmanAdapter(Context context, List<ZmanListEntry> zmanim) {
         this.zmanim = zmanim;
         this.context = context;
         mSharedPreferences = this.context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
+        isZmanimInHebrew = mSharedPreferences.getBoolean("isZmanimInHebrew", false);
         if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowSeconds", false)) {
             zmanimFormat = new SimpleDateFormat("h:mm:ss aa", Locale.getDefault());
         } else {
@@ -77,19 +79,37 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     public void onBindViewHolder(@NonNull @NotNull ZmanViewHolder holder, int position) {
         holder.setIsRecyclable(false);
         if (zmanim.get(position).isZman()) {
-            holder.mLeftTextView.setText(zmanim.get(position).getTitle());//zman name
+            if (isZmanimInHebrew) {
+                holder.mRightTextView.setTypeface(Typeface.DEFAULT_BOLD);
+                holder.mRightTextView.setText(zmanim.get(position).getTitle());//zman name
 
-            String zmanTime = "➤";
-            if (!zmanim.get(position).getZman().equals(sNextUpcomingZman)) {
-                zmanTime = "";//remove arrow
-            }
+                String zmanTime;
 
-            if (zmanim.get(position).isRTZman() && roundUpRT) {
-                zmanTime += roundUpFormat.format(checkNull(zmanim.get(position).getZman()));
+                if (zmanim.get(position).isRTZman() && roundUpRT) {
+                    zmanTime = roundUpFormat.format(checkNull(zmanim.get(position).getZman()));
+                } else {
+                    zmanTime = zmanimFormat.format(checkNull(zmanim.get(position).getZman()));
+                }
+                if (zmanim.get(position).getZman().equals(sNextUpcomingZman)) {
+                    zmanTime += "←";//remove arrow
+                }
+                holder.mLeftTextView.setText(zmanTime);
             } else {
-                zmanTime += zmanimFormat.format(checkNull(zmanim.get(position).getZman()));
+                holder.mLeftTextView.setTypeface(Typeface.DEFAULT_BOLD);
+                holder.mLeftTextView.setText(zmanim.get(position).getTitle());//zman name
+
+                String zmanTime = "➤";
+                if (!zmanim.get(position).getZman().equals(sNextUpcomingZman)) {
+                    zmanTime = "";//remove arrow
+                }
+
+                if (zmanim.get(position).isRTZman() && roundUpRT) {
+                    zmanTime += roundUpFormat.format(checkNull(zmanim.get(position).getZman()));
+                } else {
+                    zmanTime += zmanimFormat.format(checkNull(zmanim.get(position).getZman()));
+                }
+                holder.mRightTextView.setText(zmanTime);
             }
-            holder.mRightTextView.setText(zmanTime);
         } else {
             holder.mMiddleTextView.setText(zmanim.get(position).getTitle());
         }
@@ -101,7 +121,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
         holder.itemView.setOnClickListener(v -> {
             if (!MainActivity.sShabbatMode && PreferenceManager.getDefaultSharedPreferences(context).getBoolean("showZmanDialogs", true)) {
-                if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
+                if (isZmanimInHebrew) {
                     checkHebrewZmanimForDialog(position);
                 } else if (mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false)) {
                     checkTranslatedEnglishZmanimForDialog(position);
@@ -223,7 +243,6 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             super(itemView);
             setIsRecyclable(false);
             mLeftTextView = itemView.findViewById(R.id.zmanLeftTextView);
-            mLeftTextView.setTypeface(Typeface.DEFAULT_BOLD);
             mMiddleTextView = itemView.findViewById(R.id.zmanMiddleTextView);
             mRightTextView = itemView.findViewById(R.id.zmanRightTextView);
         }
@@ -710,7 +729,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         "till a half hour after this time unless there is a slim piece of iron in the water.\n\nNOTE: This only applies to water, not " +
                         "to other drinks." + "\n\n" +
                         "Both the Ohr HaChaim and the Amudei Horaah calendars use the above method to get the time for the tekufa. However, the " +
-                        "Amudei Horaah calendar changes from the Ohr HaChaim calendar, by using the local midday time of Israel. " +
+                        "Amudei Horaah calendar differs from the Ohr HaChaim calendar, by using the local midday time of Israel. Which causes a 21 " +
+                        "minute difference. " +
                         "Therefore, the Amudei Horaah calendar will always end with 9 minutes and the Ohr HaChaim calendar will always end with 0")
                 .show();
     }

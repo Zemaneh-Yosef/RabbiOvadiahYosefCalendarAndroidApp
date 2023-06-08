@@ -339,7 +339,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
 
     /**
      * This method calculates the time for Nightfall according to the opinion of the Amudei Horaah Calendar. This is calculated as 13.5
-     * adjusted zmaniyot minutes after sunset. This is based on the calculation of the 3.86&deg which is the time at 13.5 minutes in Netanya, Israel
+     * adjusted zmaniyot minutes after sunset. This is based on the calculation of the 3.77&deg which is the time at 13.5 minutes in Netanya, Israel
      * on the equinox.
      * @return the Date representing 13.5 minutes zmaniyot after sunset adjusted to the users location using degrees based on Netanya, Israel.
      */
@@ -347,7 +347,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         Calendar tempCal = (Calendar) getCalendar().clone();
         setCalendar(new GregorianCalendar(getCalendar().get(Calendar.YEAR), Calendar.MARCH, 17));//set the calendar to the equinox
         Date sunset = getSeaLevelSunset();
-        Date tzaitGeonimInDegrees = getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 3.75);//3.75 is 13.5 minutes after sunset in Netanya on the equinox
+        Date tzaitGeonimInDegrees = getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 3.77);//3.75 is 13.5 minutes after sunset in Netanya on the equinox
         long numberOfMilli = tzaitGeonimInDegrees.getTime() - sunset.getTime();
         long numberOfSeconds = numberOfMilli / 1000;
         setCalendar(tempCal);//reset the calendar to the current day
@@ -360,7 +360,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
 
     /**
      * This method returns another time for tzeit according to the opinion of the Amudei Horaah Calendar. This time is calculated as 20 minutes
-     * zmaniyot after sunset adjusted to the users location using degrees. 5.054 degrees is 20 minutes after sunset in Netanya on the equinox from my
+     * zmaniyot after sunset adjusted to the users location using degrees. 5.135 degrees is 20 minutes after sunset in Netanya on the equinox from my
      * experiments. We then calculate the number of minutes between sunset and this time on the equinox and multiply it by the zmaniyot minutes.
      * @return the Date representing 20 minutes zmaniyot after sunset adjusted to the users location using degrees.
      */
@@ -368,7 +368,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         Calendar tempCal = (Calendar) getCalendar().clone();
         setCalendar(new GregorianCalendar(getCalendar().get(Calendar.YEAR), Calendar.MARCH, 17));//set the calendar to the equinox
         Date sunset = getSeaLevelSunset();
-        Date tzaitGeonimInDegrees = getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 5.3);
+        Date tzaitGeonimInDegrees = getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 5.135);
         long numberOfMilli = tzaitGeonimInDegrees.getTime() - sunset.getTime();
         long numberOfSeconds = numberOfMilli / 1000;
         setCalendar(tempCal);//reset the calendar to the current day
@@ -380,19 +380,16 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     }
 
     /**
-     * This time is when the sun is 7.18° below {@link #GEOMETRIC_ZENITH geometric zenith} (90°). This calculation was provided by Rabbi Dahan himself. The way Rabbi
+     * This time is when the sun is 7.14° below {@link #GEOMETRIC_ZENITH geometric zenith} (90°). This calculation was provided by Rabbi Dahan himself. The way Rabbi
      * Dahan calculated this time for motzei shabbat was to find out at what degree would the sun be always 30 minutes or more after sunset
      * throughout the entire year. As Rabbi Ovadiah Yosef held that Shabbat ends after 30 minutes after sunset. Rabbi Dahan used degrees to calculate
      * when the sun is 30 minutes after sunset all year round.
-     *
-     * Note that in Rabbi Dahan's calculations, he used a degree of 7.14° below {@link #GEOMETRIC_ZENITH geometric zenith} (90°) for motzei shabbat.
-     * This is because he used the calculations in his excel spreadsheet.
-     * @return the <code>Date</code> of 7.18° below {@link #GEOMETRIC_ZENITH geometric zenith} (90°). If the calculation can't be computed such as in the Arctic
+     * @return the <code>Date</code> of 7.14° below {@link #GEOMETRIC_ZENITH geometric zenith} (90°). If the calculation can't be computed such as in the Arctic
      * Circle where there is at least one day a year where the sun does not rise, and one where it does not set, a null will be returned. See detailed
      * explanation on top of the {@link AstronomicalCalendar} documentation.
      */
     public Date getTzaitShabbatAmudeiHoraah() {
-        return getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 7.18);
+        return getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 7.14);
     }
 
     /**
@@ -412,7 +409,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     }
 
     /**
-     * This method returns the time for Rabbeinu Tam adjusted to the degrees of Netanya, Israel. The 16.0 degree is calculated as 72 minutes after
+     * This method returns the time for Rabbeinu Tam adjusted to the degrees of Netanya, Israel. The 16.01 degree is calculated as 72 minutes after
      * sunset in Netanya, Israel. This calculation was provided by Rabbi Dahan himself. The way Rabbi Dahan calculated this time was to find out at
      * what degree would the sun be 72 minutes after sunset on the equinox (March 17). Then he used that degree to calculate the time for 72 minutes
      * after sunset on the equinox for the current location. Then he got the minutes between sunset and that degree and used that to calculate the
@@ -423,8 +420,8 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         Calendar tempCal = (Calendar) getCalendar().clone();
         setCalendar(new GregorianCalendar(getCalendar().get(Calendar.YEAR), Calendar.MARCH, 17));//set the calendar to the equinox
         Date sunset = getSeaLevelSunset();
-        Date tzaitGeonimInDegrees = getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 16.0);//16.0 is 72 minutes after sunset in Netanya on the equinox
-        long numberOfMilli = tzaitGeonimInDegrees.getTime() - sunset.getTime();
+        Date tzaitRTInDegrees = getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 16.01);//16.0 is 72 minutes after sunset in Netanya on the equinox
+        long numberOfMilli = tzaitRTInDegrees.getTime() - sunset.getTime();
         long numberOfSeconds = numberOfMilli / 1000;
         setCalendar(tempCal);//reset the calendar to the current day
 
