@@ -32,9 +32,9 @@ public class SetupChooserActivity extends AppCompatActivity {
         mEditor = sharedPreferences.edit();
 
         mAlertDialog = new AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_NoActionBar_Fullscreen)
-                .setTitle("Introduction")
+                .setTitle(R.string.Introduction)
                 .setMessage(R.string.intro)
-                .setPositiveButton("Ok", (dialogInterface, i) -> { })
+                .setPositiveButton(R.string.ok, (dialogInterface, i) -> { })
                 .setCancelable(false)
                 .create();
 
@@ -94,8 +94,8 @@ public class SetupChooserActivity extends AppCompatActivity {
         int id = item.getItemId();
         if (id == R.id.help) {
             new AlertDialog.Builder(this, R.style.Theme_AppCompat_DayNight)
-                    .setTitle("Help using this app:")
-                    .setPositiveButton("ok", null)
+                    .setTitle(R.string.help_using_this_app)
+                    .setPositiveButton(R.string.ok, null)
                     .setMessage(R.string.helper_text)
                     .show();
             return true;

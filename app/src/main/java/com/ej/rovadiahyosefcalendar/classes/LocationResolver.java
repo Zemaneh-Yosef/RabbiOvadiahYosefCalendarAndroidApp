@@ -31,6 +31,7 @@ import org.geonames.WebService;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
 
@@ -50,7 +51,7 @@ public class LocationResolver extends Thread {
     public LocationResolver(Context context, Activity activity) {
         mContext = context;
         mActivity = activity;
-        mGeocoder = new Geocoder(mContext);
+        mGeocoder = new Geocoder(mContext, Locale.getDefault());
         mSharedPreferences = mContext.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE);
     }
 
@@ -204,29 +205,69 @@ public class LocationResolver extends Thread {
         StringBuilder result = new StringBuilder();
         List<Address> addresses = null;
         try {
-            addresses = mGeocoder.getFromLocation(sLatitude, sLongitude, 1);
+            if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                addresses = mGeocoder.getFromLocation(sLatitude, sLongitude, 5);
+            } else {
+                addresses = mGeocoder.getFromLocation(sLatitude, sLongitude, 1);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
         if (addresses != null && addresses.size() > 0) {
 
-            String city = addresses.get(0).getLocality();
-            if (city != null) {
-                result.append(city).append(", ");
-            }
+            if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                Address address = null;
+                for (Address add:addresses) {
+                    if (add.getLocale().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                        address = add;
+                    }
+                }
+                String city = null;
+                if (address != null) {
+                    city = address.getLocality();
+                }
+                if (city != null) {
+                    result.append(city).append(", ");
+                }
 
-            String state = addresses.get(0).getAdminArea();
-            if (state != null) {
-                result.append(state);
-            }
+                String state = null;
+                if (address != null) {
+                    state = address.getAdminArea();
+                }
+                if (state != null) {
+                    result.append(state);
+                }
 
-            if (result.toString().endsWith(", ")) {
-                result.deleteCharAt(result.length() - 2);
-            }
+                if (result.toString().endsWith(", ")) {
+                    result.deleteCharAt(result.length() - 2);
+                }
 
-            if (city == null && state == null) {
-                String country = addresses.get(0).getCountryName();
-                result.append(country);
+                if (city == null && state == null) {
+                    String country = null;
+                    if (address != null) {
+                        country = address.getCountryName();
+                    }
+                    result.append(country);
+                }
+            } else {
+                String city = addresses.get(0).getLocality();
+                if (city != null) {
+                    result.append(city).append(", ");
+                }
+
+                String state = addresses.get(0).getAdminArea();
+                if (state != null) {
+                    result.append(state);
+                }
+
+                if (result.toString().endsWith(", ")) {
+                    result.deleteCharAt(result.length() - 2);
+                }
+
+                if (city == null && state == null) {
+                    String country = addresses.get(0).getCountryName();
+                    result.append(country);
+                }
             }
         }
         return result.toString().trim();
@@ -463,29 +504,69 @@ public class LocationResolver extends Thread {
         StringBuilder result = new StringBuilder();
         List<Address> addresses = null;
         try {
-            addresses = mGeocoder.getFromLocation(mLatitude, mLongitude, 1);
+            if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                addresses = mGeocoder.getFromLocation(mLatitude, mLongitude, 5);
+            } else {
+                addresses = mGeocoder.getFromLocation(mLatitude, mLongitude, 1);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
         if (addresses != null && addresses.size() > 0) {
 
-            String city = addresses.get(0).getLocality();
-            if (city != null) {
-                result.append(city).append(", ");
-            }
+            if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                Address address = null;
+                for (Address add:addresses) {
+                    if (add.getLocale().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                        address = add;
+                    }
+                }
+                String city = null;
+                if (address != null) {
+                    city = address.getLocality();
+                }
+                if (city != null) {
+                    result.append(city).append(", ");
+                }
 
-            String state = addresses.get(0).getAdminArea();
-            if (state != null) {
-                result.append(state);
-            }
+                String state = null;
+                if (address != null) {
+                    state = address.getAdminArea();
+                }
+                if (state != null) {
+                    result.append(state);
+                }
 
-            if (result.toString().endsWith(", ")) {
-                result.deleteCharAt(result.length() - 2);
-            }
+                if (result.toString().endsWith(", ")) {
+                    result.deleteCharAt(result.length() - 2);
+                }
 
-            if (city == null && state == null) {
-                String country = addresses.get(0).getCountryName();
-                result.append(country);
+                if (city == null && state == null) {
+                    String country = null;
+                    if (address != null) {
+                        country = address.getCountryName();
+                    }
+                    result.append(country);
+                }
+            } else {
+                String city = addresses.get(0).getLocality();
+                if (city != null) {
+                    result.append(city).append(", ");
+                }
+
+                String state = addresses.get(0).getAdminArea();
+                if (state != null) {
+                    result.append(state);
+                }
+
+                if (result.toString().endsWith(", ")) {
+                    result.deleteCharAt(result.length() - 2);
+                }
+
+                if (city == null && state == null) {
+                    String country = addresses.get(0).getCountryName();
+                    result.append(country);
+                }
             }
         }
         mLocationName = result.toString().trim();

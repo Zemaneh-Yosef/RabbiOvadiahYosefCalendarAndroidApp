@@ -17,7 +17,7 @@
         android:paddingEnd="0dp"
         android:textColor="?android:attr/textColorPrimary"
         android:textSize="22sp"
-        android:textDirection="ltr"
+        android:textDirection="firstStrong"
         android:fontFamily="sans-serif-light"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/zmanRightTextView"

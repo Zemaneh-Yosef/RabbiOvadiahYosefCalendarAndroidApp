@@ -493,7 +493,7 @@ public class ZmanimAppWidget extends AppWidgetProvider {
             if (alarmManager != null) {
                 alarmManager.set(
                         AlarmManager.RTC_WAKEUP,
-                        getNextUpcomingZman().getZman().getTime(),
+                        getNextUpcomingZman().getZman().getTime() + 100,
                         pendingIntent
                 );
             }

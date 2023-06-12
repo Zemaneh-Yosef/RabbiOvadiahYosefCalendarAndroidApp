@@ -58,7 +58,7 @@
     <string name="setup_visible_sunrise_only">Setup Visible Sunrise Only</string>
     <string name="do_not_setup_either_uses_mishor_sea_level_sunrise_sunset_for_both_zmanim_and_sunrise">Do Not setup anything\n\n(Uses Mishor/Sea Level Sunrise and Sunset for both zmanim and Sunrise)</string>
     <string name="alternate_download_request">Press this button to download the visible sunrise table from the Chai Tables website:</string>
-    <string name="intro">Welcome!\n\nThe goal of this app is to help you create your own zmanim calendar according to Rabbi Ovadiah Yosef Z\"tl as accurately as possible.\n\nThere are 2 options in order to setup the zmanim for your location.\n\nThe \"Setup your city!\" option will setup the calendar according to the way that the Ohr HaChaim calendar, in Israel, sets it\'s zmanim. Pressing the "Setup your city!" button will take you to a page that will ask you to choose your city/area. Once you choose your city, it will set the elevation data for your city and it will also download a table that lists the times for VISIBLE sunrise throughout the next 2 years from a website called ChaiTables.com. This table will automatically be updated each year if possible.\n\nThe \"Advanced Setup\" option allows you to choose whether you want to set the elevation data for your city, or download the visible sunrise tables, or to do neither one and use Mishor (Sea Level) sunrise.\n\nKnow that the elevation data changes for each and every city and you will need to set the elevation data of your city every time you change cities.</string>
+    <string name="intro" translatable="false">Welcome!\n\nThe goal of this app is to help you create your own zmanim calendar according to Rabbi Ovadiah Yosef Z\"tl as accurately as possible.\n\nThere are 2 options in order to setup the zmanim for your location.\n\nThe \"Setup your city!\" option will setup the calendar according to the way that the Ohr HaChaim calendar, in Israel, sets it\'s zmanim. Pressing the "Setup your city!" button will take you to a page that will ask you to choose your city/area. Once you choose your city, it will set the elevation data for your city and it will also download a table that lists the times for VISIBLE sunrise throughout the next 2 years from a website called ChaiTables.com. This table will automatically be updated each year if possible.\n\nThe \"Advanced Setup\" option allows you to choose whether you want to set the elevation data for your city, or download the visible sunrise tables, or to do neither one and use Mishor (Sea Level) sunrise.\n\nKnow that the elevation data changes for each and every city and you will need to set the elevation data of your city every time you change cities.</string>
     <string name="what_language_would_you_like_the_zmanim_to_be_in">What language would you like the zmanim to be in?</string>
     <string name="hebrew">Hebrew</string>
     <string name="english">English</string>
@@ -111,19 +111,67 @@
     <string name="add_widget">Add widget</string>
     <string name="app_widget_description">This widget will show the current days most important zmanim</string>
     <string name="zmanim">Zmanim</string>
-    <string name="title_activity_zmanim_settings">ZmanimSettingsActivity</string>
-
-    <!-- Preference Titles -->
-    <string name="messages_header">Messages</string>
-    <string name="sync_header">Sync</string>
-
-    <!-- Messages Preferences -->
-    <string name="signature_title">Your signature</string>
-    <string name="reply_title">Default reply action</string>
-
-    <!-- Sync Preferences -->
-    <string name="sync_title">Sync email periodically</string>
-    <string name="attachment_title">Download incoming attachments</string>
-    <string name="attachment_summary_on">Automatically download attachments for incoming emails</string>
-    <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="are_u_in_israel">Are you in Israel now?</string>
+    <string name="if_you_are_in_israel_now_please_confirm_below">If you are in Israel now, please confirm below.</string>
+    <string name="yes_i_am_in_israel">Yes, I am in Israel</string>
+    <string name="no_i_am_not_in_israel">No, I am not in Israel</string>
+    <string name="do_not_ask_me_again">Do not ask me again</string>
+    <string name="settings_updated">Settings updated</string>
+    <string name="have_you_left_israel">Have you left Israel?</string>
+    <string name="if_you_are_not_in_israel_now_please_confirm_below_otherwise_ignore_this_message">If you are not in Israel now, please confirm below. Otherwise, ignore this message.</string>
+    <string name="yes_i_have_left_israel">Yes, I have left Israel</string>
+    <string name="no_i_have_not_left_israel">No, I have not left Israel</string>
+    <string name="please_enable_gps">Please Enable GPS</string>
+    <string name="would_you_like_to_receive_real_time_notifications_for_zmanim">Would you like to receive real-time notifications for zmanim?</string>
+    <string name="if_you_would_like_to_receive_real_time_zmanim_notifications">If you would like to receive real-time zmanim notifications for your current location, please navigate to the settings page and enable location services all the time for this app. Would you like to do this now?</string>
+    <string name="update_tables">Update Tables?</string>
+    <string name="the_visible_sunrise_tables_for_the_current_location_and_year_need_to_be_updated_do_you_want_to_update_the_tables_now">The visible sunrise tables for the current location and year need to be updated.\n\nDo you want to update the tables now?</string>
+    <string name="PESACH">PESACH</string>
+    <string name="slash_SHABBAT">/SHABBAT</string>
+    <string name="SHAVUOT">SHAVUOT</string>
+    <string name="SUCCOT">SUCCOT</string>
+    <string name="SHEMINI_ATZERET">SHEMINI ATZERET</string>
+    <string name="SIMCHAT_TORAH">SIMCHAT TORAH</string>
+    <string name="ROSH_HASHANA">ROSH HASHANA</string>
+    <string name="YOM_KIPPUR">YOM KIPPUR</string>
+    <string name="MODE">MODE</string>
+    <string name="SHABBAT_MODE">SHABBAT MODE</string>
+    <string name="birchat_hachamah_is_said_today">Birchat HaChamah is said today</string>
+    <string name="no_daf_yomi_yerushalmi">No Daf Yomi Yerushalmi</string>
+    <string name="daf_yomi">Daf Yomi:</string>
+    <string name="yerushalmi_yomi">Yerushalmi Yomi:</string>
+    <string name="shaah_zmanit_gr_a">Shaah Zmanit GR\"A:</string>
+    <string name="mg_a">MG\"A:</string>
+    <string name="daylight_savings_time_is_on">Daylight Savings Time is on</string>
+    <string name="daylight_savings_time_is_off">Daylight Savings Time is off</string>
+    <string name="elevation">\"Elevation: \"</string>
+    <string name="meters">\" meters\"</string>
+    <string name="there_is_tachanun_today">There is Tachanun today</string>
+    <string name="enter_zipcode_or_address">Enter Zipcode or Address</string>
+    <string name="warning_zmanim_will_be_based_on_your_approximate_area">WARNING! Zmanim will be based on your approximate area and will not be accurate! Using an address/zipcode will give you zmanim based on approximately where you are. For more accurate zmanim, please allow the app to see your location.</string>
+    <string name="please_enter_something">Please enter something</string>
+    <string name="use_location">Use location</string>
+    <string name="press_back_again_to_close_the_app">Press back again to close the app</string>
+    <string name="help_using_this_app">Help using this app:</string>
+    <string name="error">Error</string>
+    <string name="please_enter_a_link">Please enter a link</string>
+    <string name="how_to_get_info_from_chaitables_com">How to get info from chaitables.com</string>
+    <string name="i_recommend_that_you_visit_the_website_first_choose_your_area">(I recommend that you visit the website first.) \n\nChoose your area and on the next page all you need to do is to fill out steps 1 and 2, and click the button to calculate the tables on the bottom of the page.\n\nMake sure your search radius is big enough and leave the jewish year alone. The app will do the rest.</string>
+    <string name="please_enter_a_valid_value_for_example_11024">Please enter a valid value, for example: 11024</string>
+    <string name="cancel">Cancel</string>
+    <string name="the_whole_night_of_the_15th_day_of_the_hebrew_month">The whole night of the 15th day of the hebrew month</string>
+    <string name="h">h:</string>
+    <string name="m_and">\"m and \"</string>
+    <string name="chalakim">\" Chalakim\"</string>
+    <string name="do_not_rely_on_the_seconds">Do NOT rely on the seconds!</string>
+    <string name="do_not_rely_on_the_seconds_message">DO NOT RELY ON THESE SECONDS. The only zman that can be relied on to the second is the visible sunrise time based on chaitables.com. Otherwise, these zmanim are NOT accurate to the second! You should always round up or down a minute or two just in case.</string>
+    <string name="No_email_app_error">No email app…</string>
+    <string name="Introduction">Introduction</string>
+    <string name="enter_elevation_in_meters">Enter elevation in meters:</string>
+    <string name="please_enter_a_valid_value_for_example_30_or_30_0">Please Enter a valid value, for example: 30 or 30.0</string>
+    <string name="something_went_wrong_is_the_link_correct">Something went wrong. Is the link correct?</string>
+    <string name="something_went_wrong_connecting_to_the_website">Something went wrong connecting to the website.</string>
+    <string name="success">Success!</string>
+    <string name="something_went_wrong_did_you_choose_the_right_area">Something went wrong. Did you choose the right area?</string>
+    <string name="something_went_wrong_connecting_to_the_website_please_try_again_later">Something went wrong connecting to the website. Please try again later.</string>
 </resources>

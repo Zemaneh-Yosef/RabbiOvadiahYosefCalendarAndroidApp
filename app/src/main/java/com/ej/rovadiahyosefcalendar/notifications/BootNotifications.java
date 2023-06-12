@@ -6,11 +6,14 @@ import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
+import com.ej.rovadiahyosefcalendar.activities.ZmanimAppWidget;
 import com.kosherjava.zmanim.ComplexZmanimCalendar;
 import com.kosherjava.zmanim.util.GeoLocation;
 
@@ -50,6 +53,12 @@ public class BootNotifications extends BroadcastReceiver {
                 PendingIntent omerPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
                         0, new Intent(context, OmerNotifications.class), PendingIntent.FLAG_IMMUTABLE);
                 am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), omerPendingIntent);
+
+                Intent widgetIntent = new Intent(context, ZmanimAppWidget.class);
+                widgetIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+                int[] ids = AppWidgetManager.getInstance(context).getAppWidgetIds(new ComponentName(context, ZmanimAppWidget.class));
+                widgetIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+                context.sendBroadcast(widgetIntent);
             }
         }
     }

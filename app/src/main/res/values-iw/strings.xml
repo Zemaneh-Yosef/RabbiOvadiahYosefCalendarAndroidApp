@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">לוח מרן</string>
+
+    <string name="ok">בסדר</string>
+
+    <string name="zipcode">מיקוד</string>
+
+    <string name="title_location_permission">אין הרשאת מיקום</string>
+
+    <string name="text_location_permission">באופן אידיאלי, אפליקציה זו זקוקה להרשאות מיקום על מנת לחשב במדויק את הזמנים. לכן, עדיף לאפשר לאפליקציה לראות את המיקום שלך. אנחנו לא משתמשים במיקום שלךלכל מטרה אחרת מלבד חישוב הזמנים.(הערה: החל מ-Android 11, האפליקציה לא יכולהלבקש ממך הרשאות מיקום יותר מפעם אחת בכל התקנה. ייתכן שתצטרך להתקין מחדשהאפליקציה כדי להשתמש במיקום שלך.) עם זאת, אם אתה עדיין לא רוצה לתת מיקוםהרשאות, תוכל לבחור לחפש את הכתובת שלך או מיקוד והאפליקציה תמצא את מיקומך בהתבסס על האזור המשוער שלך.(זה לא מומלץ אם אתה רוצה זמנים מדויקים.)</string>
+
+    <string name="setup_elevation">הגדרת גובה</string>
+
+    <string name="mishor_request">אם אתה רוצה להשתמש במישור (מפלס הים) זריחה/שקיעה לחישובים שלךשל הזמנים, פשוט לחץ על הכפתור למטה:</string>
+
+    <string name="mishor_sea_level">מישור (גובה פני הים)</string>
+
+    <string name="manual_button">אם אתה רוצה לציין את רמת הגובה (במטרים) בעצמך, לחץ על הכפתור הזה:</string>
+
+    <string name="manual">מדריך ל</string>
+
+    <string name="geonames_request">אם אתה רוצה לקבל מידע זה מ-GeoNames.com, לחץ על הכפתור הזה:</string>
+
+    <string name="chaitables">ChaiTables</string>
+
+    <string name="long_explanation">שמעתי מהרב דרשן (יוצר אור החיים לו"ח בישראל) שהרב עובדיה יוסף זצ"ל קבע שהזריחה/שקיעה בפועל שיש להשתמש בה לחישוב זמנים היא כאשר רואים את הזריחה/שקיעה בנקודה הגבוהה ביותר ב. העיר. אולם הרב דוד יוסף שליט"א כותב שרבים אמרו לו שהרב עובדיה זצ"ל קיים להשתמש במישור (גובה פני הים) זריחה/שקיעה. לכן, אתה יכול להשתמש בלחצנים למטה כדי לבחור את ההגדרות המתאימות שאתה רוצה. (ראה הלכה ברורה כרך י"ד, באוצרות יוסף (קונטרוס כי ב השמש), סימן ו, פרק כ"א לדיון מעמיק)</string>
+
+    <string name="settings">הגדרות</string>
+
+    <string name="helper_text">ברוכים הבאים לאפליקציית לוח השנה של הרב עובדיה יוסף, אפליקציה זו נוצרה כדי לעזור לך לגלות את הזמנים המדויקים ביותר של היום על פי הרב עובדיה יוסף זצ"ל לעיר שלך! יש כמה דברים שכדאי לדעת לפני השימוש באפליקציה .1) הגדר גובה וזריחה גלויה למקום שבו אתה נמצא כעת. בשלב הראשון הזה, עליך לבחור את העיר שלך באופן אידיאלי ולהוריד את טבלאות הזריחה הנראות לעין. באמצעות ההגדרה הפשוטה, גם נתוני הגובה יורדו אוטומטית. טבלה זו מכילה את הזמנים המדויקים ביותר לזריחה של VISIBLE, וזהו האלגוריתם שבו משתמש לוח השנה של אור החיים בישראל. עם זאת, הטבלאות הללו נמשכות רק שנתיים לעתיד ויצטרכו להתעדכן מדי שנה. אם אינכם מעוניינים להשתמש בטבלאות אלו, תוכלו לבחור שלא להוריד אותן דרך התפריט המתקדם, והאפליקציה תשתמש במקום זאת באלגוריתם הרגיל לזריחה (ללא גובה כלול).2) יש כמה מנהגים שונים לבחירה בחלק ההגדרות של האפליקציה. הקפד לבחור את הנכונים עבור העיר/קהילה שלך. לדוגמה, ברירת המחדל של זמן הדלקת הנרות מוגדרת ל-20 דקות לפני השקיעה, ושעת סיום השבת כברירת מחדל מוגדרת ל-40 דקות לאחר השקיעה. אנא שנה את ההגדרות האלה למנהגים שלך.3) לבסוף, ניתן לכלול את הזמנים עם שניות, אל תסתמך על שניות אלו. ה-Zman היחיד שניתן לסמוך עליו על השני הוא זמן הזריחה הנראה על בסיס chaitables.com. אחרת, הזמנים האלה לא מדויקים עד השני! אתה תמיד צריך לעגל למעלה או למטה דקה או שתיים לכל מקרה .בנוסף לכל זה, ישנן תכונות שיגידו לך אוטומטית לעדכן את נתוני הגובה או את טבלאות הזריחה הנראות לעין. אם תעזוב את העיר שאליה אתה מגדיר את האפליקציה כעת, האפליקציה תבקש ממך להפעיל את ההגדרה שוב. הסיבה לתכונה זו היא כי הגובה ישתנה בהתאם לעיר בה אתה נמצא ותצטרך לעדכן אותה בכל פעם שתשנה ערים, אולם תכונה זו תידלק רק אם אתה משתמש בגובה.</string>
+
+    <string name="contact_header">צור קשר עם היזם</string>
+
+    <string name="about">על אודות</string>
+
+    <string name="help">עֶזרָה</string>
+
+    <string name="search_for_a_place">חפש מקום</string>
+
+    <string name="title_activity_settings">הגדרות</string>
+
+    <string name="full_setup">הגדרה מלאה</string>
+
+    <string name="minhagim">מנחים</string>
+
+    <string name="are_you_in_israel">אתה בישראל?</string>
+
+    <string name="i_am_in_israel">אני בישראל</string>
+
+    <string name="i_am_not_in_israel">אני לא בישראל</string>
+
+    <string name="quick_setup">התקנה מהירה</string>
+
+    <string name="advanced_setup">התקנה מתקדמת</string>
+
+    <string name="restart">איתחול</string>
+
+    <string name="download">הורד</string>
+
+    <string name="setup_both_elevation_and_visible_sunrise">הגדר גם גובה וגם זריחה גלויה (מתקדם)</string>
+
+    <string name="setup_elevation_only">הגדר גובה בלבד</string>
+
+    <string name="setup_visible_sunrise_only">הגדר זריחה גלויה בלבד</string>
+
+    <string name="do_not_setup_either_uses_mishor_sea_level_sunrise_sunset_for_both_zmanim_and_sunrise">אל תגדיר שום דבר (משתמש במישור/זריחה ושקיעה בגובה פני הים עבור זמנים וזריחה גם יחד)</string>
+
+    <string name="alternate_download_request">לחץ על כפתור זה כדי להוריד את טבלת הזריחה הנראית מאתר</string>
+
+    <string name="what_language_would_you_like_the_zmanim_to_be_in">באיזו שפה היית רוצה שהזמנים יהיו?</string>
+
+    <string name="hebrew">עִברִית</string>
+
+    <string name="english">אנגלית</string>
+
+    <string name="setup">להכין</string>
+
+    <string name="molad_calculator">מחשבון מולד</string>
+
+    <string name="moon_background">רקע ירח</string>
+
+    <string name="note_times_are_just_for_reference_you_should_ask_a_rav_if_you_can_say_the_bracha_earlier_or_later">כתב ויתור: הזמנים הם רק לעיון, אתה צריך לשאול רב אם אתה יכול להגיד את הברכה מוקדם יותר או מאוחר יותר.</string>
+
+    <string name="latest_birchat_halevanah_15_days">ברכת הלבנה האחרונה (15 ימים):</string>
+
+    <string name="earliest_birchat_halevanah_7_days">ברכת הלבנה המוקדמת ביותר (7 ימים):</string>
+
+    <string name="the_molad_for_this_month_in_your_timezone">המולד לחודש זה באזור הזמן שלך:</string>
+
+    <string name="change_date">שנה תאריך</string>
+
+    <string name="the_molad_time_announced">שעת המולד הכריזה:</string>
+
+    <string name="title_activity_shabbat">פעילות שבת</string>
+
+    <string name="dummy_button">כפתור דמה</string>
+
+    <string name="dummy_content">DUMMYתוכן</string>
+
+    <string name="shabbat_mode">מצב שבת/חג</string>
+
+    <string name="refresh">לְרַעֲנֵן</string>
+
+    <string name="full_restart">הפעלה מחדש מלאה</string>
+
+    <string name="translated_english">תורגם לאנגלית</string>
+
+    <string name="yes">כן</string>
+
+    <string name="no">לא</string>
+
+    <string name="show_introduction">להראות מבוא?</string>
+
+    <string name="ohr_hachaim_nmode">אור החיים הגדרה</string>
+
+    <string name="if_you_want_to_make_your_zmanim_like_the_ohr_hachaim_calendar_in_israel">אם תרצו להפוך את הזמנים שלכם כמו לוח השנה של אור החיים בישראל, תוכלו ללחוץ על הכפתור הזה. אחרת, אתה יכול לבחור את ההגדרה המתקדמת כדי לציין בדיוק מה אתה רוצה.</string>
+
+    <string name="if_you_want_to_specify_what_to_setup">אם אתה רוצה לציין מה להגדיר:</string>
+
+    <string name="yalkut_yosef_quote">ציטוט ילקוט יוסף</string>
+
+    <string name="left">שמאלה</string>
+
+    <string name="right">ימין</string>
+
+    <string name="skip_for_now">לדלג לעת עתה?</string>
+
+    <string name="or">אוֹ</string>
+
+    <string name="give_location_permission">תן הרשאת מיקום</string>
+
+    <string name="please_select_a_method_to_find_your_location">אנא בחר שיטה כדי למצוא את המיקום שלך</string>
+
+    <string name="simple_setup">הגדרה פשוטה</string>
+
+    <string name="select_your_country">בחר את המדינה שלך:</string>
+
+    <string name="select_your_state">בחר את המדינה שלך:</string>
+
+    <string name="select_your_metro_area">בחר את אזור המטרו שלך:</string>
+
+    <string name="chaitables_instructions">נא להיכנס לאתר chaitables.com וליצור טבלה של השנה הנוכחית עבור האזור שציינת. לאחר מכן העתק את הקישור/כתובת של הטבלה והזן אותה כאן:</string>
+
+    <string name="go_to_the_website_in_the_app">היכנסו לאתר באפליקציה</string>
+
+    <string name="set_link">הגדר קישור</string>
+
+    <string name="table_link">קישור לטבלה</string>
+
+    <string name="skip">לדלג?</string>
+
+    <string name="geonames">GeoNames</string>
+
+    <string name="area_not_listed">אזור לא רשום?</string>
+
+    <string name="setup_your_city">הגדר את העיר שלך!</string>
+
+    <string name="title_activity_notification_settings">הגדרות התראות</string>
+
+    <string name="min">דקה</string>
+
+    <string name="weekly_view">תצוגה שבועית</string>
+
+    <string name="website">אתר אינטרנט</string>
+
+    <string name="use_elevation">להשתמש בגובה?</string>
+
+    <string name="add_widget">הוסף ווידג\'ט</string>
+
+    <string name="app_widget_description">יישומון זה יציג את הזמנים החשובים ביותר בימים הנוכחיים</string>
+
+    <string name="zmanim">זמנים</string>
+
+    <string name="are_u_in_israel">אתה בישראל עכשיו?</string>
+
+    <string name="if_you_are_in_israel_now_please_confirm_below">אם אתה בישראל עכשיו, אנא אשר למטה.</string>
+
+    <string name="yes_i_am_in_israel">כן, אני בישראל</string>
+
+    <string name="no_i_am_not_in_israel">לא, אני לא בישראל</string>
+
+    <string name="do_not_ask_me_again">אל תשאל אותי שוב</string>
+
+    <string name="settings_updated">ההגדרות עודכנו</string>
+
+    <string name="have_you_left_israel">עזבת את ישראל?</string>
+
+    <string name="if_you_are_not_in_israel_now_please_confirm_below_otherwise_ignore_this_message">אם אינך בישראל כעת, אנא אשר למטה. אחרת, התעלם מהודעה זו.</string>
+
+    <string name="yes_i_have_left_israel">כן, עזבתי את ישראל</string>
+
+    <string name="no_i_have_not_left_israel">לא, לא עזבתי את ישראל</string>
+
+    <string name="please_enable_gps">אנא הפעל GPS</string>
+
+    <string name="would_you_like_to_receive_real_time_notifications_for_zmanim">האם תרצה לקבל התראות בזמן אמת עבור זמנים?</string>
+
+    <string name="if_you_would_like_to_receive_real_time_zmanim_notifications">אם תרצה לקבל התראות זמנים בזמן אמת על מיקומך הנוכחי, נא לנווט לדף ההגדרות ולהפעיל שירותי מיקום כל הזמן עבור אפליקציה זו. האם תרצה לעשות את זה עכשיו?</string>
+
+    <string name="update_tables">לעדכן טבלאות?</string>
+
+    <string name="the_visible_sunrise_tables_for_the_current_location_and_year_need_to_be_updated_do_you_want_to_update_the_tables_now">יש לעדכן את טבלאות הזריחה הגלויות עבור המיקום והשנה הנוכחיים. האם ברצונך לעדכן את הטבלאות כעת?</string>
+
+    <string name="PESACH">פסח</string>
+
+    <string name="slash_SHABBAT">/שבת</string>
+
+    <string name="SHAVUOT">חג השבועות</string>
+
+    <string name="SUCCOT">סוכות</string>
+
+    <string name="SHEMINI_ATZERET">שמיני עצרת</string>
+
+    <string name="SIMCHAT_TORAH">שמחת תורה</string>
+
+    <string name="ROSH_HASHANA">ראש השנה</string>
+
+    <string name="YOM_KIPPUR">יום כיפור</string>
+
+    <string name="MODE">מצב</string>
+
+    <string name="SHABBAT_MODE">מצב שבת</string>
+
+    <string name="birchat_hachamah_is_said_today">היום אומרים ברכת החמה</string>
+
+    <string name="no_daf_yomi_yerushalmi">אין דף יומי ירושלמי</string>
+
+    <string name="daf_yomi">דף יומי:</string>
+
+    <string name="yerushalmi_yomi">ירושלמי יומי:</string>
+
+    <string name="shaah_zmanit_gr_a">שעה זמנית גר\"א:</string>
+
+    <string name="mg_a">מג"א:</string>
+
+    <string name="daylight_savings_time_is_on">שעון הקיץ פועל</string>
+
+    <string name="daylight_savings_time_is_off">שעון הקיץ כבוי</string>
+
+    <string name="elevation">\"גובה:\"</string>
+
+    <string name="meters">\"מטר\"</string>
+
+    <string name="there_is_tachanun_today">יש היום תחנון</string>
+
+    <string name="enter_zipcode_or_address">הזן מיקוד או כתובת</string>
+
+    <string name="warning_zmanim_will_be_based_on_your_approximate_area">אַזהָרָה! זמנים יתבסס על השטח המשוער שלך ולא יהיה מדויק! שימוש בכתובת/מיקוד ייתן לך זמנים בהתאם למקום שבו אתה נמצא בערך. לזמן מדויק יותר, אפשר לאפליקציה לראות את מיקומך.</string>
+
+    <string name="please_enter_something">אנא הזן משהו</string>
+
+    <string name="use_location">השתמש במיקום</string>
+
+    <string name="press_back_again_to_close_the_app">לחץ שוב אחורה כדי לסגור את האפליקציה</string>
+
+    <string name="help_using_this_app">עזרה בשימוש באפליקציה הזו:</string>
+
+    <string name="error">שְׁגִיאָה</string>
+
+    <string name="please_enter_a_link">נא להזין קישור</string>
+
+    <string name="how_to_get_info_from_chaitables_com">כיצד לקבל מידע מ-chaitables.com</string>
+
+    <string name="i_recommend_that_you_visit_the_website_first_choose_your_area">(אני ממליץ לך לבקר קודם באתר.) בחר את האזור שלך ובעמוד הבא כל מה שאתה צריך לעשות הוא למלא את שלבים 1 ו-2, וללחוץ על הכפתור כדי לחשב את הטבלאות בתחתית העמוד .ודא שרדיוס החיפוש שלך גדול מספיק ועזוב את השנה היהודית בשקט. האפליקציה תעשה את השאר.</string>
+
+    <string name="please_enter_a_valid_value_for_example_11024">אנא הזן ערך חוקי, לדוגמה: 11024</string>
+
+    <string name="cancel">לְבַטֵל</string>
+
+    <string name="the_whole_night_of_the_15th_day_of_the_hebrew_month">כל הלילה של היום ה-15 לחודש העברי</string>
+
+    <string name="h">ח:</string>
+
+    <string name="m_and">\"מ ו\"</string>
+
+    <string name="chalakim">\" חלקים\"</string>
+
+    <string name="do_not_rely_on_the_seconds">אל תסמוך על השניות!</string>
+
+    <string name="do_not_rely_on_the_seconds_message">אל תסתמך על שניות אלו. ה-Zman היחיד שניתן לסמוך עליו על השני הוא זמן הזריחה הנראה על בסיס chaitables.com. אחרת, הזמנים האלה לא מדויקים עד השני! אתה תמיד צריך לעגל למעלה או למטה דקה או שתיים לכל מקרה.</string>
+
+    <string name="No_email_app_error">אין אפליקציית אימייל…</string>
+
+    <string name="Introduction">מבוא</string>
+
+    <string name="enter_elevation_in_meters">הזן גובה במטרים:</string>
+
+    <string name="please_enter_a_valid_value_for_example_30_or_30_0">אנא הזן ערך חוקי, לדוגמה: 30 או 30.0</string>
+
+    <string name="something_went_wrong_is_the_link_correct">משהו השתבש. האם הקישור נכון?</string>
+
+    <string name="something_went_wrong_connecting_to_the_website">משהו השתבש בחיבור לאתר.</string>
+
+    <string name="success">הַצלָחָה!</string>
+
+    <string name="something_went_wrong_did_you_choose_the_right_area">משהו השתבש. בחרתם את האזור הנכון?</string>
+
+    <string name="something_went_wrong_connecting_to_the_website_please_try_again_later">משהו השתבש בחיבור לאתר. בבקשה נסה שוב מאוחר יותר.</string>
+</resources>

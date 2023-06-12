@@ -100,8 +100,8 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
         int id = item.getItemId();
         if (id == R.id.help) {
             new AlertDialog.Builder(this, R.style.Theme_AppCompat_DayNight)
-                    .setTitle("Help using this app:")
-                    .setPositiveButton("ok", null)
+                    .setTitle(R.string.help_using_this_app)
+                    .setPositiveButton(R.string.ok, null)
                     .setMessage(R.string.helper_text)
                     .show();
             return true;

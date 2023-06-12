@@ -65,14 +65,15 @@ public class SetupElevationActivity extends AppCompatActivity {
         manualButton.setOnClickListener(v -> {
             final EditText input = new EditText(this);
             input.setGravity(Gravity.CENTER_HORIZONTAL);
+            input.setHint(R.string.enter_elevation_in_meters);
 
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Enter elevation in meters:");
+            builder.setTitle(R.string.enter_elevation_in_meters);
             builder.setView(input);
-            builder.setPositiveButton("OK", (dialog, which) -> {
+            builder.setPositiveButton(R.string.ok, (dialog, which) -> {
                 if (input.getText().toString().isEmpty() ||
                         !input.getText().toString().matches("[0-9]+.?[0-9]*")) {//regex to check for a proper number input
-                    Toast.makeText(this, "Please Enter a valid value, for example: 30 or 30.0", Toast.LENGTH_SHORT)
+                    Toast.makeText(this, R.string.please_enter_a_valid_value_for_example_30_or_30_0, Toast.LENGTH_SHORT)
                             .show();
                 } else {
                     mElevation = input.getText().toString();
@@ -89,7 +90,7 @@ public class SetupElevationActivity extends AppCompatActivity {
                     }
                 }
             });
-            builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+            builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel());
             builder.create();
             builder.show();
         });
@@ -132,13 +133,13 @@ public class SetupElevationActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
             if (scraper.isSearchRadiusTooSmall()) {
-                Toast.makeText(getApplicationContext(), "Something went wrong. Is the link correct?", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), R.string.something_went_wrong_is_the_link_correct, Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(this, AdvancedSetupActivity.class));
             } else if (scraper.isWebsiteError()) {
-                Toast.makeText(getApplicationContext(), "Something went wrong connecting to the website.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), R.string.something_went_wrong_connecting_to_the_website, Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(this, AdvancedSetupActivity.class));
             } else {
-                Toast.makeText(getApplicationContext(), "Success!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_SHORT).show();
                 userID++;
                 sharedPreferences.edit().putInt("USER_ID", userID).apply();
             }
@@ -157,8 +158,8 @@ public class SetupElevationActivity extends AppCompatActivity {
         int id = item.getItemId();
         if (id == R.id.help) {
             new AlertDialog.Builder(this, R.style.Theme_AppCompat_DayNight)
-                    .setTitle("Help using this app:")
-                    .setPositiveButton("ok", null)
+                    .setTitle(R.string.help_using_this_app)
+                    .setPositiveButton(R.string.ok, null)
                     .setMessage(R.string.helper_text)
                     .show();
             return true;

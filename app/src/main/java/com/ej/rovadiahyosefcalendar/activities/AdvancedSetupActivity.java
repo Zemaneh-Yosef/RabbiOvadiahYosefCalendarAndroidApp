@@ -42,9 +42,9 @@ public class AdvancedSetupActivity extends AppCompatActivity {
         setLink.setOnClickListener(v -> {
             if (tableLink.getText().toString().isEmpty()) {
                 new AlertDialog.Builder(AdvancedSetupActivity.this)
-                        .setTitle("Error")
-                        .setMessage("Please enter a link")
-                        .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
+                        .setTitle(R.string.error)
+                        .setMessage(R.string.please_enter_a_link)
+                        .setPositiveButton(R.string.ok, (dialog, which) -> dialog.dismiss())
                         .show();
             } else {
                 String link = tableLink.getText().toString();
@@ -58,7 +58,7 @@ public class AdvancedSetupActivity extends AppCompatActivity {
             }
         });
 
-        website.setOnClickListener(v -> {
+        website.setOnClickListener(v -> {//TODO hebrew this
             AlertDialog alertDialog = new AlertDialog.Builder(AdvancedSetupActivity.this)
                     .setTitle("Chaitables.com")
                     .setPositiveButton("Cancel", (dialog, which) -> dialog.dismiss())
@@ -121,13 +121,9 @@ public class AdvancedSetupActivity extends AppCompatActivity {
 
     private void showDialogBox() {
         new AlertDialog.Builder(this)
-                .setTitle("How to get info from chaitables.com")
-                .setMessage("(I recommend that you visit the website first.) \n\n" +
-                        "Choose your area and on the next page all you need to do is to fill out steps " +
-                        "1 and 2, and click the button to calculate the tables on the bottom of the page.\n\n" +
-                        "Make sure your search radius is big enough and leave the jewish year alone. " +
-                        "The app will do the rest.")
-                .setPositiveButton("Ok", (dialogInterface, i) -> dialogInterface.dismiss())
+                .setTitle(R.string.how_to_get_info_from_chaitables_com)
+                .setMessage(R.string.i_recommend_that_you_visit_the_website_first_choose_your_area)
+                .setPositiveButton(R.string.ok, (dialogInterface, i) -> dialogInterface.dismiss())
                 .show();
     }
 
@@ -151,8 +147,8 @@ public class AdvancedSetupActivity extends AppCompatActivity {
         int id = item.getItemId();
         if (id == R.id.help) {
             new AlertDialog.Builder(this, R.style.Theme_AppCompat_DayNight)
-                    .setTitle("Help using this app:")
-                    .setPositiveButton("ok", null)
+                    .setTitle(R.string.help_using_this_app)
+                    .setPositiveButton(R.string.ok, null)
                     .setMessage(R.string.helper_text)
                     .show();
             return true;

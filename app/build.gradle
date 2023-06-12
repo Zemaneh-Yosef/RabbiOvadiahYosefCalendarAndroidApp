@@ -9,8 +9,8 @@ android {
         minSdkVersion 23
         compileSdkVersion 33
         targetSdkVersion 33
-        versionCode 72
-        versionName "8.8"
+        versionCode 73
+        versionName "8.9"
 
         ndk { debugSymbolLevel 'FULL' }
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -22,6 +22,9 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             shrinkResources false
+        }
+        debug {
+            pseudoLocalesEnabled true
         }
     }
     compileOptions {

@@ -54,15 +54,30 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         this.context = context;
         mSharedPreferences = this.context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         isZmanimInHebrew = mSharedPreferences.getBoolean("isZmanimInHebrew", false);
-        if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowSeconds", false)) {
-            zmanimFormat = new SimpleDateFormat("h:mm:ss aa", Locale.getDefault());
+        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowSeconds", false)) {
+                zmanimFormat = new SimpleDateFormat("H:mm:ss", Locale.getDefault());
+            } else {
+                zmanimFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
+            }
         } else {
-            zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+            if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowSeconds", false)) {
+                zmanimFormat = new SimpleDateFormat("h:mm:ss aa", Locale.getDefault());
+            } else {
+                zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+            }
         }
+
+        zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
         zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
         roundUpRT = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("RoundUpRT", false);
-        roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
-        roundUpFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
+        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            roundUpFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
+            roundUpFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
+        } else {
+            roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+            roundUpFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
+        }
         dialogBuilder = new AlertDialog.Builder(this.context);
         dialogBuilder.setPositiveButton("Dismiss", (dialog, which) -> dialog.dismiss());
         dialogBuilder.create();

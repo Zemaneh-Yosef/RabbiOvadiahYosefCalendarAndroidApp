@@ -46,15 +46,14 @@ public class CurrentLocationActivity extends AppCompatActivity {
     private void createZipcodeDialog() {
         final EditText input = new EditText(this);
         input.setGravity(Gravity.CENTER_HORIZONTAL);
-        input.setHint("Enter Zipcode or Address");
+        input.setHint(R.string.enter_zipcode_or_address);
         new AlertDialog.Builder(this)
-                .setTitle("Search for a place")
-                .setMessage("WARNING! Zmanim will be based on your approximate area and will not be accurate! Using an address/zipcode will give " +
-                        "you zmanim based on approximately where you are. For more accurate zmanim, please allow the app to see your location.")
+                .setTitle(R.string.search_for_a_place)
+                .setMessage(R.string.warning_zmanim_will_be_based_on_your_approximate_area)
                 .setView(input)
                 .setPositiveButton(R.string.ok, (dialog, which) -> {
                     if (input.getText().toString().isEmpty()) {
-                        Toast.makeText(this, "Please enter a valid value, for example: 11024", Toast.LENGTH_SHORT)
+                        Toast.makeText(this, R.string.please_enter_a_valid_value_for_example_11024, Toast.LENGTH_SHORT)
                                 .show();
                         createZipcodeDialog();//restart
                     } else {
@@ -76,7 +75,7 @@ public class CurrentLocationActivity extends AppCompatActivity {
                         finish();//end the activity
                     }
                 })
-                .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel())
+                .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel())
                 .create()
                 .show();
     }

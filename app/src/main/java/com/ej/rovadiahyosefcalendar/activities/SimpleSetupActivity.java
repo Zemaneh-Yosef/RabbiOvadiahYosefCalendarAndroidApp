@@ -162,10 +162,10 @@ public class SimpleSetupActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
             if (scraper.isSearchRadiusTooSmall()) {
-                Toast.makeText(getApplicationContext(), "Something went wrong. Did you choose the right area?", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), R.string.something_went_wrong_did_you_choose_the_right_area, Toast.LENGTH_SHORT).show();
                 startActivity(getIntent());
             } else if (scraper.isWebsiteError()) {
-                Toast.makeText(getApplicationContext(), "Something went wrong connecting to the website. Please try again later.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), R.string.something_went_wrong_connecting_to_the_website_please_try_again_later, Toast.LENGTH_SHORT).show();
                 startActivity(getIntent());
             } else {
                 Toast.makeText(getApplicationContext(), "Success!", Toast.LENGTH_SHORT).show();
@@ -240,8 +240,8 @@ public class SimpleSetupActivity extends AppCompatActivity {
         int id = item.getItemId();
         if (id == R.id.help) {
             new AlertDialog.Builder(this, R.style.Theme_AppCompat_DayNight)
-                    .setTitle("Help using this app:")
-                    .setPositiveButton("ok", null)
+                    .setTitle(R.string.help_using_this_app)
+                    .setPositiveButton(R.string.ok, null)
                     .setMessage(R.string.helper_text)
                     .show();
             return true;

@@ -1,12 +1,16 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
+import androidx.annotation.NonNull;
+
+import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
-public class JewishCalendarWithTekufaMethods extends JewishCalendar {
+public class JewishCalendarWithExtraMethods extends JewishCalendar {
 
     public Double getTekufa() {
         double INITIAL_TEKUFA_OFFSET = 12.625;  // the number of days Tekufas Tishrei occurs before JEWISH_EPOCH
@@ -23,7 +27,12 @@ public class JewishCalendarWithTekufaMethods extends JewishCalendar {
     }
 
     public String getTekufaName() {
-        String[] tekufaNames = new String[]{"Tishri", "Tevet", "Nissan", "Tammuz"};
+        String[] tekufaNames;
+        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            tekufaNames = new String[]{"תשרי", "טבת", "ניסן", "תמוז"};
+        } else {
+            tekufaNames = new String[]{"Tishri", "Tevet", "Nissan", "Tammuz"};
+        }
 
         double INITIAL_TEKUFA_OFFSET = 12.625;  // the number of days Tekufas Tishrei occurs before JEWISH_EPOCH
         double days = getJewishCalendarElapsedDays(getJewishYear()) + getDaysSinceStartOfJewishYear() + INITIAL_TEKUFA_OFFSET - 1;  // total days since first Tekufas Tishrei event
@@ -78,5 +87,15 @@ public class JewishCalendarWithTekufaMethods extends JewishCalendar {
         cal.add(Calendar.MINUTE, minutes);
 
         return cal.getTime();
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        HebrewDateFormatter hebrewDateFormatter = new HebrewDateFormatter();
+        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            hebrewDateFormatter.setHebrewFormat(true);
+        }
+        return hebrewDateFormatter.format(this);
     }
 }

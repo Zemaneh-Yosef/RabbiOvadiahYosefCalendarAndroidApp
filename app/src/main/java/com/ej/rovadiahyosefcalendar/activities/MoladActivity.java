@@ -29,10 +29,9 @@ public class MoladActivity extends AppCompatActivity {
     private TextView mMoladDate15Days;
     private final Calendar mUserChosenDate = Calendar.getInstance();
     private final JewishCalendar mJewishCalendar = new JewishCalendar();
-    private final SimpleDateFormat mSDF = new SimpleDateFormat("EEE MMM d h:mm:ss aa", Locale.getDefault());
-    private final String[] mHebrewMonths = { "Nissan", "Iyar", "Sivan", "Tammuz", "Av",
-            "Elul", "Tishrei", "Cheshvan", "Kislev", "Tevet", "Shevat", "Adar", "Adar II", "Adar I"};
-
+    private SimpleDateFormat mSDF = new SimpleDateFormat("EEE MMM d h:mm:ss aa", Locale.getDefault());
+    private String[] mHebrewMonths = { "Nissan", "Iyar", "Sivan", "Tammuz", "Av",
+            "Elul", "Tishri", "Cheshvan", "Kislev", "Tevet", "Shevat", "Adar", "Adar II", "Adar I"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +40,11 @@ public class MoladActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            mSDF = new SimpleDateFormat("EEE MMM d H:mm:ss", Locale.getDefault());
+            mHebrewMonths = new String[]{ "ניסן", "אייר", "סיון", "תמוז", "אב",
+                    "אלול", "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר", "אדר ב", "אדר א"};
         }
 
         mCurrentMonths = findViewById(R.id.currentMonths);
@@ -105,12 +109,12 @@ public class MoladActivity extends AppCompatActivity {
         int moladMinutes = molad.getMoladMinutes();
         int moladChalakim = molad.getMoladChalakim();
 
-        String moladTime = moladHours + "h:" + moladMinutes + "m and " + moladChalakim + " Chalakim";
+        String moladTime = moladHours + getString(R.string.h) + moladMinutes + getString(R.string.m_and) + moladChalakim + getString(R.string.chalakim);
 
         mMoladAnnouncementTime.setText(moladTime);
         mMoladDate.setText(mSDF.format(mJewishCalendar.getMoladAsDate()));
         mMoladDate7Days.setText(mSDF.format(mJewishCalendar.getTchilasZmanKidushLevana7Days()));
-        mMoladDate15Days.setText("The whole night of the 15th day of the hebrew month");
+        mMoladDate15Days.setText(R.string.the_whole_night_of_the_15th_day_of_the_hebrew_month);
     }
 
     @Override

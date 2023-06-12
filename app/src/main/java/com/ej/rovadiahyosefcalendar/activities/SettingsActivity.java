@@ -44,13 +44,19 @@ public class SettingsActivity extends AppCompatActivity {
         String theme = mSettingsPreferences.getString("theme", "Auto (Follow System Theme)");
         switch (theme) {
             case "Auto (Follow System Theme)":
-                getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                if (AppCompatDelegate.getDefaultNightMode() != AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
+                    getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                }
                 break;
             case "Day":
-                getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                if (AppCompatDelegate.getDefaultNightMode() != AppCompatDelegate.MODE_NIGHT_NO) {
+                    getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                }
                 break;
             case "Night":
-                getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                if (AppCompatDelegate.getDefaultNightMode() != AppCompatDelegate.MODE_NIGHT_YES) {
+                    getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                }
                 break;
         }
         setContentView(R.layout.settings_activity);
@@ -128,12 +134,9 @@ public class SettingsActivity extends AppCompatActivity {
                     boolean isOn = Objects.requireNonNull(preference.getSharedPreferences()).getBoolean("ShowSeconds",false);
                     if (isOn) {
                         new AlertDialog.Builder(getContext())
-                                .setTitle("Do NOT rely on the seconds!")
-                                .setMessage("DO NOT RELY ON THESE SECONDS. " +
-                                        "The only zman that can be relied on to the second is the visible sunrise time based on chaitables.com. " +
-                                        "Otherwise, these zmanim are NOT accurate to the second! You should always round up or down a minute " +
-                                        "or two just in case.")
-                                .setPositiveButton("Ok", (dialogInterface, i) -> { })
+                                .setTitle(R.string.do_not_rely_on_the_seconds)
+                                .setMessage(R.string.do_not_rely_on_the_seconds_message)
+                                .setPositiveButton(R.string.ok, (dialogInterface, i) -> dialogInterface.dismiss())
                                 .create()
                                 .show();
                     }
@@ -202,12 +205,12 @@ public class SettingsActivity extends AppCompatActivity {
                     email.setData(Uri.parse("mailto:"));
                     email.putExtra(Intent.EXTRA_EMAIL, new String[]{"elyahujacobi@gmail.com"}); //developer's email
                     email.putExtra(Intent.EXTRA_SUBJECT,"Support Ticket"); //Email's Subject
-                    email.putExtra(Intent.EXTRA_TEXT,"Dear Mr. Elyahu, "); //Email's Greeting text
+                    email.putExtra(Intent.EXTRA_TEXT,""); //Email's Greeting text
 
                     if (packageManager.resolveActivity(email,0) != null) { // there is an activity that can handle it
                         startActivity(email);
                     } else {
-                        Toast.makeText(getContext(),"No email app...", Toast.LENGTH_SHORT)
+                        Toast.makeText(getContext(), R.string.No_email_app_error, Toast.LENGTH_SHORT)
                                 .show();
                     }
                     return false;
@@ -218,8 +221,8 @@ public class SettingsActivity extends AppCompatActivity {
             if (help != null) {
                 help.setOnPreferenceClickListener(v -> {
                     new AlertDialog.Builder(requireContext(), R.style.Theme_AppCompat_DayNight)
-                            .setTitle("Help using this app:")
-                            .setPositiveButton("ok", null)
+                            .setTitle(R.string.help_using_this_app)
+                            .setPositiveButton(R.string.ok, null)
                             .setMessage(R.string.helper_text)
                             .show();
                     return false;
@@ -281,13 +284,19 @@ public class SettingsActivity extends AppCompatActivity {
         String theme = mSettingsPreferences.getString("theme", "Auto (Follow System Theme)");
         switch (theme) {
             case "Auto (Follow System Theme)":
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                if (AppCompatDelegate.getDefaultNightMode() != AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                }
                 break;
             case "Day":
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                if (AppCompatDelegate.getDefaultNightMode() != AppCompatDelegate.MODE_NIGHT_NO) {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                }
                 break;
             case "Night":
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                if (AppCompatDelegate.getDefaultNightMode() != AppCompatDelegate.MODE_NIGHT_YES) {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                }
                 break;
         }
         super.onResume();

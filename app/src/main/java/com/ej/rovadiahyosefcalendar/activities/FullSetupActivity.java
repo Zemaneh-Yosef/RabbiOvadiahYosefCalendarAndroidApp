@@ -1,5 +1,7 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
 
 import android.app.AlertDialog;
@@ -13,10 +15,13 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Locale;
 
 public class FullSetupActivity extends AppCompatActivity {
 
@@ -57,8 +62,18 @@ public class FullSetupActivity extends AppCompatActivity {
 
     private void saveInfoAndStartActivity(boolean b) {
         mSharedPreferences.edit().putBoolean("inIsrael", b).apply();
-        startActivity(new Intent(this, ZmanimLanguageActivity.class).setFlags(
-                Intent.FLAG_ACTIVITY_FORWARD_RESULT));
+        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            mSharedPreferences.edit().putBoolean("isZmanimInHebrew", true).apply();
+            mSharedPreferences.edit().putBoolean("isZmanimEnglishTranslated", false).apply();
+            if (ActivityCompat.checkSelfPermission(getApplicationContext(), ACCESS_FINE_LOCATION) != PERMISSION_GRANTED &&
+                    !mSharedPreferences.getBoolean("useZipcode", false)) {
+                startActivity(new Intent(this, CurrentLocationActivity.class).setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
+            }
+            mSharedPreferences.edit().putBoolean("isSetup", true).apply();
+        } else {
+            startActivity(new Intent(this, ZmanimLanguageActivity.class).setFlags(
+                    Intent.FLAG_ACTIVITY_FORWARD_RESULT));
+        }
         finish();
     }
 
@@ -73,8 +88,8 @@ public class FullSetupActivity extends AppCompatActivity {
         int id = item.getItemId();
         if (id == R.id.help) {
             new AlertDialog.Builder(this, R.style.Theme_AppCompat_DayNight)
-                    .setTitle("Help using this app:")
-                    .setPositiveButton("ok", null)
+                    .setTitle(R.string.help_using_this_app)
+                    .setPositiveButton(R.string.ok, null)
                     .setMessage(R.string.helper_text)
                     .show();
             return true;
