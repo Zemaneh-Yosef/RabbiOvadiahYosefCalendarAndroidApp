@@ -39,6 +39,7 @@ import org.apache.commons.lang3.time.DateUtils;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 public class DailyNotifications extends BroadcastReceiver {
@@ -94,24 +95,45 @@ public class DailyNotifications extends BroadcastReceiver {
                 Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
                 if (!mSharedPreferences.getString("lastKnownDay","").equals(jewishDateInfo.getJewishDate())) {//We only want 1 notification a day.
-                    NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "Jewish Special Day")
-                            .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
-                            .setSmallIcon(R.drawable.calendar_foreground)
-                            .setContentTitle("Jewish Special Day")
-                            .setContentText("Today is " + specialDay)
-                            .setStyle(new NotificationCompat.BigTextStyle()
-                                    .setBigContentTitle("Jewish Special Day")
-                                    .setSummaryText(calendar.getGeoLocation().getLocationName())
-                                    .bigText("Today is " + specialDay))
-                            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                            .setCategory(NotificationCompat.CATEGORY_REMINDER)
-                            .setPriority(NotificationCompat.PRIORITY_HIGH)
-                            .setSound(alarmSound)
-                            .setColor(context.getColor(R.color.dark_gold))
-                            .setAutoCancel(true)
-                            .setWhen(when)
-                            .setContentIntent(pendingIntent);
-                    notificationManager.notify(MID, mNotifyBuilder.build());
+                    if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                        NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "Jewish Special Day")
+                                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
+                                .setSmallIcon(R.drawable.calendar_foreground)
+                                .setContentTitle("יום מיוחד ביהדות")
+                                .setContentText("היום הוא " + specialDay)
+                                .setStyle(new NotificationCompat.BigTextStyle()
+                                        .setBigContentTitle("יום מיוחד ביהדות.")
+                                        .setSummaryText(calendar.getGeoLocation().getLocationName())
+                                        .bigText("היום הוא " + specialDay))
+                                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                                .setCategory(NotificationCompat.CATEGORY_REMINDER)
+                                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                                .setSound(alarmSound)
+                                .setColor(context.getColor(R.color.dark_gold))
+                                .setAutoCancel(true)
+                                .setWhen(when)
+                                .setContentIntent(pendingIntent);
+                        notificationManager.notify(MID, mNotifyBuilder.build());
+                    } else {
+                        NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "Jewish Special Day")
+                                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
+                                .setSmallIcon(R.drawable.calendar_foreground)
+                                .setContentTitle("Jewish Special Day")
+                                .setContentText("Today is " + specialDay)
+                                .setStyle(new NotificationCompat.BigTextStyle()
+                                        .setBigContentTitle("Jewish Special Day")
+                                        .setSummaryText(calendar.getGeoLocation().getLocationName())
+                                        .bigText("Today is " + specialDay))
+                                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                                .setCategory(NotificationCompat.CATEGORY_REMINDER)
+                                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                                .setSound(alarmSound)
+                                .setColor(context.getColor(R.color.dark_gold))
+                                .setAutoCancel(true)
+                                .setWhen(when)
+                                .setContentIntent(pendingIntent);
+                        notificationManager.notify(MID, mNotifyBuilder.build());
+                    }
                     MID++;
                     mSharedPreferences.edit().putString("lastKnownDay", jewishDateInfo.getJewishDate()).apply();
                 }

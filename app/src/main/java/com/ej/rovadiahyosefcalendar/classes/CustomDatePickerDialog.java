@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.FragmentActivity;
 
+import com.ej.rovadiahyosefcalendar.R;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
 public class CustomDatePickerDialog extends DatePickerDialog {
@@ -27,7 +28,7 @@ public class CustomDatePickerDialog extends DatePickerDialog {
         mContext = context;
         mListener = listener;
         mJewishCalendar = jewishCalendar;
-        setButton(DialogInterface.BUTTON_NEUTRAL, "Switch Calendar", this);
+        setButton(DialogInterface.BUTTON_NEUTRAL, context.getString(R.string.switch_calendar), this);
     }
 
     @Override

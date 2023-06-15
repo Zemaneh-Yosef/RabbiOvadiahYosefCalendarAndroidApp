@@ -49,7 +49,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     private final boolean roundUpRT;
     private final boolean isZmanimInHebrew;
 
-    public ZmanAdapter(Context context, List<ZmanListEntry> zmanim) {
+    public ZmanAdapter(Context context, List<ZmanListEntry> zmanim) {//TODO make all string resources and translate
         this.zmanim = zmanim;
         this.context = context;
         mSharedPreferences = this.context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
@@ -68,7 +68,6 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             }
         }
 
-        zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
         zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
         roundUpRT = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("RoundUpRT", false);
         if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {

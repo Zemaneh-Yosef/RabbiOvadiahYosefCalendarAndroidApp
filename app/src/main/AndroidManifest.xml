@@ -25,7 +25,7 @@
         <activity
             android:name=".activities.ZmanimSettingsActivity"
             android:exported="false"
-            android:label="Zmanim Settings"
+            android:label="@string/zmanim_settings"
             android:theme="@style/MaterialTheme"/>
 
         <receiver
@@ -52,7 +52,7 @@
         <activity
             android:name=".activities.MoladActivity"
             android:exported="true"
-            android:label="Molad Calculator"
+            android:label="@string/molad_calculator"
             android:theme="@style/MaterialTheme" />
         <activity
             android:name=".activities.ZmanimLanguageActivity"

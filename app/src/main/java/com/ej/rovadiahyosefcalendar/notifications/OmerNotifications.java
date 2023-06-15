@@ -36,6 +36,7 @@ import com.kosherjava.zmanim.util.GeoLocation;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 public class OmerNotifications extends BroadcastReceiver {
@@ -96,29 +97,55 @@ public class OmerNotifications extends BroadcastReceiver {
                 jewishCalendar.setDate(gc);
 
                 if (!mSharedPreferences.getString("lastKnownDayOmer", "").equals(jewishCalendar.toString())) {//We only want 1 notification a day.
-                    NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "Omer")
-                            .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
-                            .setSmallIcon(R.drawable.omer_wheat)
-                            .setContentTitle("Day of Omer")
-                            .setContentText("Tonight is the " +
-                                    (getOrdinal(day + 1)) +
-                                    " day of the omer.")
-                            .setStyle(new NotificationCompat
-                                    .BigTextStyle()
-                                    .setBigContentTitle(nextJewishDay)
-                                    .setSummaryText("Don't forget to count!")
-                                    .bigText("Tonight is the " +
-                                            (getOrdinal(day + 1)) +
-                                            " day of the omer."))
-                            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                            .setCategory(NotificationCompat.CATEGORY_REMINDER)
-                            .setPriority(NotificationCompat.PRIORITY_HIGH)
-                            .setSound(alarmSound)
-                            .setColor(context.getColor(R.color.dark_gold))
-                            .setAutoCancel(true)
-                            .setWhen(when)
-                            .setContentIntent(pendingIntent);
-                    notificationManager.notify(MID, mNotifyBuilder.build());
+                    if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {//TODO change strings to siddur
+                        NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "Omer")
+                                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
+                                .setSmallIcon(R.drawable.omer_wheat)
+                                .setContentTitle("יום בעומר")
+                                .setContentText("Tonight is the " +
+                                        (getOrdinal(day + 1)) +
+                                        " day of the omer.")
+                                .setStyle(new NotificationCompat
+                                        .BigTextStyle()
+                                        .setBigContentTitle(nextJewishDay)
+                                        .setSummaryText("Don't forget to count!")
+                                        .bigText("Tonight is the " +
+                                                (getOrdinal(day + 1)) +
+                                                " day of the omer."))
+                                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                                .setCategory(NotificationCompat.CATEGORY_REMINDER)
+                                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                                .setSound(alarmSound)
+                                .setColor(context.getColor(R.color.dark_gold))
+                                .setAutoCancel(true)
+                                .setWhen(when)
+                                .setContentIntent(pendingIntent);
+                        notificationManager.notify(MID, mNotifyBuilder.build());
+                    } else {
+                        NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "Omer")
+                                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
+                                .setSmallIcon(R.drawable.omer_wheat)
+                                .setContentTitle("Day of Omer")
+                                .setContentText("Tonight is the " +
+                                        (getOrdinal(day + 1)) +
+                                        " day of the omer.")
+                                .setStyle(new NotificationCompat
+                                        .BigTextStyle()
+                                        .setBigContentTitle(nextJewishDay)
+                                        .setSummaryText("Don't forget to count!")
+                                        .bigText("Tonight is the " +
+                                                (getOrdinal(day + 1)) +
+                                                " day of the omer."))
+                                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                                .setCategory(NotificationCompat.CATEGORY_REMINDER)
+                                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                                .setSound(alarmSound)
+                                .setColor(context.getColor(R.color.dark_gold))
+                                .setAutoCancel(true)
+                                .setWhen(when)
+                                .setContentIntent(pendingIntent);
+                        notificationManager.notify(MID, mNotifyBuilder.build());
+                    }
                     MID++;
                     mSharedPreferences.edit().putString("lastKnownDayOmer", jewishCalendar.toString()).apply();
                 }
@@ -156,24 +183,45 @@ public class OmerNotifications extends BroadcastReceiver {
 
         Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
-        NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "BarechAleinu")
-                .setSmallIcon(R.drawable.winter)
-                .setContentTitle("Barech Aleinu tonight!")
-                .setContentText("Tonight we start saying Barech Aleinu!")
-                .setStyle(new NotificationCompat
-                        .BigTextStyle()
-                        .setBigContentTitle("Barech Aleinu tonight!")
-                        .setSummaryText("Tonight we start saying Barech Aleinu!")
-                        .bigText("Tonight we start saying Barech Aleinu!"))
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setCategory(NotificationCompat.CATEGORY_REMINDER)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setSound(alarmSound)
-                .setColor(context.getColor(R.color.dark_gold))
-                .setAutoCancel(true)
-                .setWhen(System.currentTimeMillis())
-                .setContentIntent(pendingIntent);
-        notificationManager.notify(MID, mNotifyBuilder.build());
+        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "BarechAleinu")
+                    .setSmallIcon(R.drawable.winter)
+                    .setContentTitle("ברך עלינו הלילה!")
+                    .setContentText("הלילה אנחנו מתחילים לומר ברך עלינו!")
+                    .setStyle(new NotificationCompat
+                            .BigTextStyle()
+                            .setBigContentTitle("ברך עלינו הלילה!")
+                            .setSummaryText("הלילה אנחנו מתחילים לומר ברך עלינו!")
+                            .bigText("הלילה אנחנו מתחילים לומר ברך עלינו!"))
+                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                    .setCategory(NotificationCompat.CATEGORY_REMINDER)
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setSound(alarmSound)
+                    .setColor(context.getColor(R.color.dark_gold))
+                    .setAutoCancel(true)
+                    .setWhen(System.currentTimeMillis())
+                    .setContentIntent(pendingIntent);
+            notificationManager.notify(MID, mNotifyBuilder.build());
+        } else {
+            NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "BarechAleinu")
+                    .setSmallIcon(R.drawable.winter)
+                    .setContentTitle("Barech Aleinu tonight!")
+                    .setContentText("Tonight we start saying Barech Aleinu!")
+                    .setStyle(new NotificationCompat
+                            .BigTextStyle()
+                            .setBigContentTitle("Barech Aleinu tonight!")
+                            .setSummaryText("Tonight we start saying Barech Aleinu!")
+                            .bigText("Tonight we start saying Barech Aleinu!"))
+                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                    .setCategory(NotificationCompat.CATEGORY_REMINDER)
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setSound(alarmSound)
+                    .setColor(context.getColor(R.color.dark_gold))
+                    .setAutoCancel(true)
+                    .setWhen(System.currentTimeMillis())
+                    .setContentIntent(pendingIntent);
+            notificationManager.notify(MID, mNotifyBuilder.build());
+        }
         MID++;
     }
 

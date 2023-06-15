@@ -110,6 +110,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
      */
     public Date getHaNetz() {
         try {
+            jewishCalendar.setDate(getCalendar());
             ChaiTables chaiTables = new ChaiTables(externalFilesDir, sCurrentLocationName, jewishCalendar);
 
             if (chaiTables.visibleSunriseFileExists()) {
@@ -147,6 +148,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
      */
     public Date getHaNetz(String locationName) {
         try {
+            jewishCalendar.setDate(getCalendar());
             ChaiTables chaiTables = new ChaiTables(externalFilesDir, locationName, jewishCalendar);
 
             if (chaiTables.visibleSunriseFileExists()) {
@@ -251,9 +253,12 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     }
 
     /**
+     * This method returns the time for tzait hacochavim (nightfall) l'chumra calculated by the Ohr HaChaim calendar according to the opinion of Rabbi
+     * Ovadiah Yosef. This is calculated as 20 regular minutes after elevated sunset.
      * Rabbi Ovadiah Yosef writes that the average fast ends around 20 minutes after sunset. Rabbi Shlomo Benizri is of the opinion that this time is
-     * calculated as 20 regular minutes after sunset. This is what the Ohr HaChaim refers to as the other time for Tzait Hacochavim.
-     * @return the time when the average fast ends based on the opinion of Rabbi Shlomo Benizri who holds that it is 20 minutes after sunset L'Chumra.
+     * calculated as 20 regular minutes after sunset. This is what the Ohr HaChaim refers to when it just writes that the fast ends at Tzait Hacochavim.
+     * It could mean 13.5 zmaniyot minutes after sunset, or 20 regular minutes after sunset.
+     * @return the time when the average fast ends based on the opinion of Rabbi Shlomo Benizri who holds that it is 20 regular minutes after sunset L'Chumra.
      */
     public Date getTzaitTaanit() {
         return getTimeOffset(getElevationAdjustedSunset(), (20 * MILLISECONDS_PER_MINUTE));

@@ -1,89 +1,89 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory app:title="Zmanim Options">
+    <PreferenceCategory app:title="@string/zmanim_options">
         <Preference
             android:key="zmanim_settings"
-            android:summary="Change the zmanim settings"
-            android:title="Zmanim Settings" />
+            android:summary="@string/change_the_zmanim_settings"
+            android:title="@string/zmanim_settings" />
 
         <SwitchPreferenceCompat
             android:defaultValue="true"
             android:key="zmanim_notifications"
-            android:summary="Enable or disable zmanim notifications"
-            android:title="Zmanim Notifications" />
+            android:summary="@string/enable_or_disable_zmanim_notifications"
+            android:title="@string/zmanim_notifications" />
 
         <Preference
             android:dependency="zmanim_notifications"
             android:key="zmanim_notifications_settings"
-            android:summary="Change the zmanim notifications settings"
-            android:title="Zmanim Notifications Settings" />
+            android:summary="@string/change_the_zmanim_notifications_settings"
+            android:title="@string/zmanim_notifications_settings" />
 
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="ShowSeconds"
-            android:summary="Choose whether or not to display the seconds of the zmanim"
-            android:title="Show seconds?" />
+            android:summary="@string/choose_whether_or_not_to_display_the_seconds_of_the_zmanim"
+            android:title="@string/show_seconds" />
 
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="AlwaysShowRT"
-            android:summary="Choose whether or not to display Rabbeinu Tam's nightfall everyday"
-            android:title="Show Rabbeinu Tam everyday?" />
+            android:summary="@string/choose_whether_or_not_to_display_rabbeinu_tam_s_nightfall_everyday"
+            android:title="@string/show_rabbeinu_tam_everyday" />
 
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="RoundUpRT"
-            android:summary="Choose whether or not to round up the zman of Rabbeinu Tam up to the nearest minute"
-            android:title="Round up Rabbeinu Tam?" />
+            android:summary="@string/choose_whether_or_not_to_round_up_the_zman_of_rabbeinu_tam_up_to_the_nearest_minute"
+            android:title="@string/round_up_rabbeinu_tam" />
 
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="ShowDayOfOmer"
-            android:summary="Choose whether or not the app will notify you of the day of the omer during the day"
-            android:title="Notify day of omer as well?" />
+            android:summary="@string/choose_whether_or_not_the_app_will_notify_you_of_the_day_of_the_omer_during_the_day"
+            android:title="@string/notify_day_of_omer_as_well" />
 
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="ShowMishorAlways"
-            android:summary="Choose whether or not to display sea level sunrise even if visible sunrise is setup as well"
-            android:title="Always show mishor sunrise?" />
+            android:summary="@string/choose_whether_or_not_to_display_sea_level_sunrise_even_if_visible_sunrise_is_setup_as_well"
+            android:title="@string/always_show_mishor_sunrise" />
 
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="showZmanDialogs"
-            android:summary="Choose whether or not to display the zman dialogs when you press on a zman"
-            android:title="Show zman dialogs?" />
+            android:summary="@string/choose_whether_or_not_to_display_the_zman_dialogs_when_you_press_on_a_zman"
+            android:title="@string/show_zman_dialogs" />
 
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="showShabbatMevarchim"
-            android:summary="Choose whether or not to display if shabbat mevarchim happens tomorrow on Friday"
-            android:title="Show shabbat mevarchim?" />
+            android:summary="@string/choose_whether_or_not_to_display_if_shabbat_mevarchim_happens_tomorrow_on_friday"
+            android:title="@string/show_shabbat_mevarchim" />
 
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="ShowWhenShabbatChagEnds"
-            android:summary="Choose whether or not to display when Shabbat or Chag ends the day before after the candle lighting time"
-            android:title="Show Tzait Shabbat the day before?" />
+            android:summary="@string/choose_whether_or_not_to_display_when_shabbat_or_chag_ends_the_day_before_after_the_candle_lighting_time"
+            android:title="@string/show_tzait_shabbat_the_day_before" />
 
         <MultiSelectListPreference
             android:dependency="ShowWhenShabbatChagEnds"
             android:entryValues="@array/shabbat_entries"
             android:key="displayRTOrShabbatRegTime"
-            android:title="Choose which zmanim to display"
+            android:title="@string/choose_which_zmanim_to_display"
             app:entries="@array/shabbat_entries"
-            app:summary="Choose whether to display Rabbeinu tam or regular shabbat end times or both" />
+            app:summary="@string/choose_whether_to_display_rabbeinu_tam_or_regular_shabbat_end_times_or_both" />
 
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="SetElevationToLastKnownLocation"
-            android:summary="Choose whether or not to set the elevation to the last known location when the app is opened offline"
-            android:title="Set elevation to last known location?" />
+            android:summary="@string/choose_whether_or_not_to_set_the_elevation_to_the_last_known_location_when_the_app_is_opened_offline"
+            android:title="@string/set_elevation_to_last_known_location" />
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="Appearance">
+    <PreferenceCategory app:title="@string/appearance">
 
         <ListPreference
             android:defaultValue="Auto (Follow System Theme)"
@@ -91,43 +91,43 @@
             app:entryValues="@array/theme_values"
             app:key="theme"
             app:selectable="true"
-            app:summary="Choose a theme for the app"
-            app:title="Theme" />
+            app:summary="@string/choose_a_theme_for_the_app"
+            app:title="@string/theme" />
 
         <com.rarepebble.colorpicker.ColorPreference
             android:defaultValue="@color/colorPrimary"
             app:colorpicker_selectNoneButtonText="Default"
             app:key="backgroundColor"
             app:selectable="true"
-            app:summary="Choose the color of the background"
-            app:title="Set Background Color" />
+            app:summary="@string/choose_the_color_of_the_background"
+            app:title="@string/set_background_color" />
 
         <Preference
             app:key="background"
             app:selectable="true"
-            app:summary="Choose your own image as the app's background"
-            app:title="Set Background From Image" />
+            app:summary="@string/choose_your_own_image_as_the_app_s_background"
+            app:title="@string/set_background_from_image" />
 
         <com.rarepebble.colorpicker.ColorPreference
             android:defaultValue="#FFFFFFFF"
             app:key="textColor"
             app:selectable="true"
-            app:summary="Choose the color of the text"
-            app:title="Set Text Color" />
+            app:summary="@string/choose_the_color_of_the_text"
+            app:title="@string/set_text_color" />
 
         <com.rarepebble.colorpicker.ColorPreference
             android:defaultValue="@color/dark_blue"
             app:colorpicker_selectNoneButtonText="Default"
             app:key="calendarButtonColor"
             app:selectable="true"
-            app:summary="Choose the color of the calendar button"
-            app:title="Set Calendar Button Color" />
+            app:summary="@string/choose_the_color_of_the_calendar_button"
+            app:title="@string/set_calendar_button_color" />
 
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="useDarkCalendarIcon"
-            android:summary="Choose whether or not to use a dark calendar icon for the calendar button"
-            android:title="Use Dark Calendar Icon?" />
+            android:summary="@string/choose_whether_or_not_to_use_a_dark_calendar_icon_for_the_calendar_button"
+            android:title="@string/use_dark_calendar_icon" />
 
     </PreferenceCategory>
 
@@ -136,45 +136,45 @@
         <Preference
             app:key="@string/contact_header"
             app:selectable="true"
-            app:summary="Contact the developer!"
-            app:title="Have questions?" />
+            app:summary="@string/contact_header"
+            app:title="@string/have_questions" />
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="Help">
+    <PreferenceCategory app:title="@string/help">
 
         <Preference
             android:key="help"
-            android:summary="Click here to see the help page"
-            android:title="Help" />
+            android:summary="@string/click_here_to_see_the_help_page"
+            android:title="@string/help" />
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="Debug">
+    <PreferenceCategory app:title="@string/debug">
 
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="ShowElevation"
-            android:summary="Choose whether or not to display the current elevation level"
-            android:title="Show elevation?" />
+            android:summary="@string/choose_whether_or_not_to_display_the_current_elevation_level"
+            android:title="@string/show_elevation" />
 
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="ShowElevatedSunrise"
-            android:summary="Choose whether or not to display the time for elevated sunrise that is used for calculating the zmanim"
-            android:title="Add elevated sunrise zman?" />
+            android:summary="@string/choose_whether_or_not_to_display_the_time_for_elevated_sunrise_that_is_used_for_calculating_the_zmanim"
+            android:title="@string/add_elevated_sunrise_zman" />
 
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="ShowLeapYear"
-            android:summary="Choose whether or not to display if it is a leap year"
-            android:title="Show if it is a leap year?" />
+            android:summary="@string/choose_whether_or_not_to_display_if_it_is_a_leap_year"
+            android:title="@string/show_if_it_is_a_leap_year" />
 
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="ShowDST"
-            android:summary="Choose whether or not to display if Daylight Savings is in effect"
-            android:title="Show DST?" />
+            android:summary="@string/choose_whether_or_not_to_display_if_daylight_savings_is_in_effect"
+            android:title="@string/show_dst" />
 
     </PreferenceCategory>
 

@@ -24,6 +24,7 @@ import androidx.fragment.app.DialogFragment;
 import com.ej.rovadiahyosefcalendar.R;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
+import java.util.Locale;
 import java.util.Objects;
 
 public class HebrewDayMonthYearPickerDialog extends DialogFragment {
@@ -33,9 +34,9 @@ public class HebrewDayMonthYearPickerDialog extends DialogFragment {
     private DatePickerDialog.OnDateSetListener listener;
     private final CustomDatePickerDialog mCustomDatePickerDialog;
     private final JewishCalendar mJewishCalendar;
-    private final String[] mHebrewMonths = {"Nissan", "Iyar", "Sivan", "Tammuz", "Av",
+    private String[] mHebrewMonths = {"Nissan", "Iyar", "Sivan", "Tammuz", "Av",
             "Elul", "Tishri", "Cheshvan", "Kislev", "Tevet", "Shevat", "Adar"};
-    private final String[] mHebrewMonthsLeap = {"Nissan", "Iyar", "Sivan", "Tammuz", "Av",
+    private String[] mHebrewMonthsLeap = {"Nissan", "Iyar", "Sivan", "Tammuz", "Av",
             "Elul", "Tishri", "Cheshvan", "Kislev", "Tevet", "Shevat", "Adar I", "Adar II"};
     private NumberPicker mDayPicker;
     private NumberPicker mMonthPicker;
@@ -46,7 +47,11 @@ public class HebrewDayMonthYearPickerDialog extends DialogFragment {
         mJewishCalendar = jewishCalendar;
         MIN_YEAR = jewishCalendar.getJewishYear() - 100;
         MAX_YEAR = jewishCalendar.getJewishYear() + 100;
-    }
+        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            mHebrewMonths = new String[]{"ניסן", "אייר", "סיון", "תמוז", "אב", "אלול", "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר"};
+            mHebrewMonthsLeap = new String[]{"ניסן", "אייר", "סיון", "תמוז", "אב", "אלול", "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר א׳", "אדר ב׳"};
+        }
+        }
 
     public void setListener(DatePickerDialog.OnDateSetListener listener) {
         this.listener = listener;
@@ -122,8 +127,8 @@ public class HebrewDayMonthYearPickerDialog extends DialogFragment {
                     listener.onDateSet(null,
                             mJewishCalendar.getGregorianYear(), mJewishCalendar.getGregorianMonth(), mJewishCalendar.getGregorianDayOfMonth());
                 })
-                .setNegativeButton("Cancel", (dialog2, id) -> Objects.requireNonNull(HebrewDayMonthYearPickerDialog.this.getDialog()).cancel())
-                .setNeutralButton("                Switch Calendar", (dialog3, which) -> {
+                .setNegativeButton(requireContext().getString(R.string.cancel), (dialog2, id) -> Objects.requireNonNull(HebrewDayMonthYearPickerDialog.this.getDialog()).cancel())
+                .setNeutralButton(requireContext().getString(R.string.switch_calendar), (dialog3, which) -> {
                     mCustomDatePickerDialog.create();
                     mCustomDatePickerDialog.show();
                 });

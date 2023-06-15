@@ -1471,7 +1471,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (mSettingsPreferences.getBoolean("ShowElevation", false)) {
-            zmanim.add(new ZmanListEntry(getString(R.string.elevation) + mElevation + getString(R.string.meters)));
+            zmanim.add(new ZmanListEntry(getString(R.string.elevation) + " " + mElevation + " " + getString(R.string.meters)));
         }
 
         //TODO: add a setting to send people to the siddur for the current day shown
@@ -1504,7 +1504,7 @@ public class MainActivity extends AppCompatActivity {
         Calendar today = Calendar.getInstance();
 
         today.add(Calendar.DATE, -1);
-        mROZmanimCalendar.setCalendar(today);//MUST call setCalendar() because it sets the JewishCalendar to the correct date for netz
+        mROZmanimCalendar.setCalendar(today);
         mJewishDateInfo.setCalendar(today);
         addZmanim(zmanim, false);//for the previous day
 
@@ -1713,10 +1713,18 @@ public class MainActivity extends AppCompatActivity {
         List<ZmanListEntry> zmanim = new ArrayList<>();
         addZmanim(zmanim, true);
         DateFormat zmanimFormat;
-        if (mSettingsPreferences.getBoolean("ShowSeconds", false)) {
-            zmanimFormat = new SimpleDateFormat("h:mm:ss aa", Locale.getDefault());
+        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            if (mSettingsPreferences.getBoolean("ShowSeconds", false)) {
+                zmanimFormat = new SimpleDateFormat("H:mm:ss", Locale.getDefault());
+            } else {
+                zmanimFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
+            }
         } else {
-            zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+            if (mSettingsPreferences.getBoolean("ShowSeconds", false)) {
+                zmanimFormat = new SimpleDateFormat("h:mm:ss aa", Locale.getDefault());
+            } else {
+                zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+            }
         }
         zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
 
@@ -1826,7 +1834,19 @@ public class MainActivity extends AppCompatActivity {
         zmanim.add(new ZmanListEntry(zmanimNames.getChatzotString(), mROZmanimCalendar.getChatzot(), true));
         zmanim.add(new ZmanListEntry(zmanimNames.getMinchaGedolaString(), mROZmanimCalendar.getMinchaGedolaGreaterThan30(), true));
         zmanim.add(new ZmanListEntry(zmanimNames.getMinchaKetanaString(), mROZmanimCalendar.getMinchaKetana(), true));
-        zmanim.add(new ZmanListEntry(zmanimNames.getPlagHaminchaString(), mROZmanimCalendar.getPlagHamincha(), true));
+        String plagOpinions = mSettingsPreferences.getString("plagOpinions", "1");
+        if (plagOpinions.equals("1")) {
+            zmanim.add(new ZmanListEntry(zmanimNames.getPlagHaminchaString(), mROZmanimCalendar.getPlagHamincha(), true));
+        }
+        if (plagOpinions.equals("2")) {
+            zmanim.add(new ZmanListEntry(zmanimNames.getPlagHaminchaString(), mROZmanimCalendar.getPlagHaminchaHalachaBerurah(), true));
+        }
+        if (plagOpinions.equals("3")) {
+            zmanim.add(new ZmanListEntry(zmanimNames.getPlagHaminchaString() + " " + zmanimNames.getAbbreviatedYalkutYosefString(),
+                    mROZmanimCalendar.getPlagHamincha(), true));
+            zmanim.add(new ZmanListEntry(zmanimNames.getPlagHaminchaString() + " " + zmanimNames.getAbbreviatedHalachaBerurahString(),
+                    mROZmanimCalendar.getPlagHaminchaHalachaBerurah(), true));
+        }
         if ((mJewishDateInfo.getJewishCalendar().hasCandleLighting() &&
                 !mJewishDateInfo.getJewishCalendar().isAssurBemelacha()) ||
                 mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY) {
@@ -1889,6 +1909,9 @@ public class MainActivity extends AppCompatActivity {
             fastEnds = new ZmanListEntry(zmanimNames.getTzaitString() + zmanimNames.getTaanitString() + zmanimNames.getEndsString() + " " + zmanimNames.getLChumraString(), mROZmanimCalendar.getTzaitTaanitLChumra(), true);
             fastEnds.setNoteworthyZman(true);
             zmanim.add(fastEnds);
+        } else if (mSettingsPreferences.getBoolean("alwaysShowTzeitLChumra", false)) {
+            ZmanListEntry tzeitLChumra = new ZmanListEntry(zmanimNames.getTzaitString() + zmanimNames.getLChumraString(), mROZmanimCalendar.getTzaitTaanit(), true);
+            zmanim.add(tzeitLChumra);
         }
         if (mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting()) {
             ZmanListEntry endShabbat;
@@ -2242,6 +2265,8 @@ public class MainActivity extends AppCompatActivity {
                 }
                 mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));
                 seeIfTablesNeedToBeUpdated(false);
+            } else {
+                mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));
             }
         }
 

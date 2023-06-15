@@ -158,7 +158,7 @@
 
     <string name="title_activity_notification_settings">הגדרות התראות</string>
 
-    <string name="min">דקה</string>
+    <string name="min">דקות</string>
 
     <string name="weekly_view">תצוגה שבועית</string>
 
@@ -232,15 +232,15 @@
 
     <string name="shaah_zmanit_gr_a">שעה זמנית גר\"א:</string>
 
-    <string name="mg_a">מג"א:</string>
+    <string name="mg_a">מג\"א:</string>
 
     <string name="daylight_savings_time_is_on">שעון הקיץ פועל</string>
 
     <string name="daylight_savings_time_is_off">שעון הקיץ כבוי</string>
 
-    <string name="elevation">\"גובה:\"</string>
+    <string name="elevation">גובה:</string>
 
-    <string name="meters">\"מטר\"</string>
+    <string name="meters">מטר</string>
 
     <string name="there_is_tachanun_today">יש היום תחנון</string>
 
@@ -272,9 +272,9 @@
 
     <string name="h">ח:</string>
 
-    <string name="m_and">\"מ ו\"</string>
+    <string name="m_and">מ ו</string>
 
-    <string name="chalakim">\" חלקים\"</string>
+    <string name="chalakim">חלקים</string>
 
     <string name="do_not_rely_on_the_seconds">אל תסמוך על השניות!</string>
 
@@ -297,4 +297,190 @@
     <string name="something_went_wrong_did_you_choose_the_right_area">משהו השתבש. בחרתם את האזור הנכון?</string>
 
     <string name="something_went_wrong_connecting_to_the_website_please_try_again_later">משהו השתבש בחיבור לאתר. בבקשה נסה שוב מאוחר יותר.</string>
+    <string name="zmanim_options">אפשרויות זמנים</string>
+
+    <string name="change_the_zmanim_settings">שנה את הגדרות הזמנים</string>
+
+    <string name="zmanim_settings">הגדרות זמן</string>
+
+    <string name="enable_or_disable_zmanim_notifications">הפעל או השבת התראות זמנים</string>
+
+    <string name="zmanim_notifications">הודעות זמנים</string>
+
+    <string name="change_the_zmanim_notifications_settings">שנה את הגדרות ההתראות של זמנים</string>
+
+    <string name="zmanim_notifications_settings">הגדרות התראות זמנים</string>
+
+    <string name="choose_whether_or_not_to_display_the_seconds_of_the_zmanim">בחר אם להציג את השניות של הזמנים או לא</string>
+
+    <string name="show_seconds">להראות שניות\?</string>
+
+    <string name="choose_whether_or_not_to_display_rabbeinu_tam_s_nightfall_everyday">בחר אם להציג את רדת הלילה של רבינו תם מדי יום או לא</string>
+
+    <string name="show_rabbeinu_tam_everyday">להראות את רבנו תם כל יום\?</string>
+
+    <string name="choose_whether_or_not_to_round_up_the_zman_of_rabbeinu_tam_up_to_the_nearest_minute">בחר אם לעגל או לא לעגל את הזמן של רבנו תם עד לדקה הקרובה</string>
+
+    <string name="round_up_rabbeinu_tam">לעגל את רבנו תם\?</string>
+
+    <string name="choose_whether_or_not_the_app_will_notify_you_of_the_day_of_the_omer_during_the_day">בחר אם האפליקציה תודיע לך על יום העומר במהלך היום</string>
+
+    <string name="notify_day_of_omer_as_well">להודיע על יום העומר גם</string>
+
+    <string name="choose_whether_or_not_to_display_sea_level_sunrise_even_if_visible_sunrise_is_setup_as_well">בחר אם להציג זריחה בגובה פני הים או לא, גם אם הזריחה הנראית לעין מוגדרת גם כן</string>
+
+    <string name="always_show_mishor_sunrise">תמיד להראות זריחה של מישור\?</string>
+
+    <string name="choose_whether_or_not_to_display_the_zman_dialogs_when_you_press_on_a_zman">בחר אם להציג או לא להציג את תיבות הדו-שיח של zman כאשר אתה לוחץ על zman</string>
+
+    <string name="show_zman_dialogs">להציג דיאלוגים של zman\?</string>
+
+    <string name="choose_whether_or_not_to_display_if_shabbat_mevarchim_happens_tomorrow_on_friday">בחר אם להציג או לא להציג אם שבת מברכים יקרה מחר ביום שישי</string>
+
+    <string name="show_shabbat_mevarchim">להראות שבת מברכים\?</string>
+
+    <string name="choose_whether_or_not_to_display_when_shabbat_or_chag_ends_the_day_before_after_the_candle_lighting_time">בחר אם להציג מתי השבת או חג מסתיימת יום לפני לאחר שעת הדלקת הנרות</string>
+
+    <string name="show_tzait_shabbat_the_day_before">להראות את ציאת שבת יום קודם\?</string>
+
+    <string name="choose_which_zmanim_to_display">בחר אילו זמנים להציג</string>
+
+    <string name="choose_whether_to_display_rabbeinu_tam_or_regular_shabbat_end_times_or_both">בחר אם להציג את רבינו תם או זמני סיום שבת רגילים או שניהם</string>
+
+    <string name="choose_whether_or_not_to_set_the_elevation_to_the_last_known_location_when_the_app_is_opened_offline">בחר אם להגדיר את הגובה למיקום האחרון הידוע כאשר האפליקציה נפתחת במצב לא מקוון</string>
+
+    <string name="set_elevation_to_last_known_location">האם להגדיר את הגובה למיקום האחרון הידוע\?</string>
+
+    <string name="appearance">מראה חיצוני</string>
+
+    <string name="theme">נושא</string>
+
+    <string name="choose_a_theme_for_the_app">בחר ערכת נושא לאפליקציה</string>
+
+    <string name="choose_the_color_of_the_background">בחר את צבע הרקע</string>
+
+    <string name="set_background_color">הגדר צבע רקע</string>
+
+    <string name="choose_your_own_image_as_the_app_s_background">בחר תמונה משלך כרקע של האפליקציה</string>
+
+    <string name="set_background_from_image">הגדר רקע מתוך תמונה</string>
+
+    <string name="choose_the_color_of_the_text">בחר את צבע הטקסט</string>
+
+    <string name="set_text_color">הגדר צבע טקסט</string>
+
+    <string name="choose_the_color_of_the_calendar_button">בחר את הצבע של כפתור לוח השנה</string>
+
+    <string name="set_calendar_button_color">הגדר צבע לחצן לוח שנה</string>
+
+    <string name="choose_whether_or_not_to_use_a_dark_calendar_icon_for_the_calendar_button">בחר אם להשתמש בסמל לוח שנה כהה עבור לחצן היומן</string>
+
+    <string name="use_dark_calendar_icon">להשתמש בסמל לוח שנה כהה\?</string>
+
+    <string name="have_questions">יש שאלות\?</string>
+
+    <string name="click_here_to_see_the_help_page">לחץ כאן כדי לראות את דף העזרה</string>
+
+    <string name="debug">לנפות</string>
+
+    <string name="choose_whether_or_not_to_display_the_current_elevation_level">בחר אם להציג את רמת הגובה הנוכחית או לא</string>
+
+    <string name="show_elevation">להראות גובה\?</string>
+
+    <string name="choose_whether_or_not_to_display_the_time_for_elevated_sunrise_that_is_used_for_calculating_the_zmanim">בחר אם להציג או לא את הזמן לזריחה מוגבהת המשמשת לחישוב הזמנים</string>
+
+    <string name="add_elevated_sunrise_zman">להוסיף זמן זריחה מוגבהת\?</string>
+
+    <string name="choose_whether_or_not_to_display_if_it_is_a_leap_year">בחר אם להציג אם זו שנה מעוברת</string>
+
+    <string name="show_if_it_is_a_leap_year">להראות אם זו שנה מעוברת\?</string>
+
+    <string name="choose_whether_or_not_to_display_if_daylight_savings_is_in_effect">בחר אם להציג אם שעון קיץ בתוקף</string>
+
+    <string name="show_dst">להציג את שעון הקיץ\?</string>
+
+    <string name="always_show_tzeit_l_chumra">הראו תמיד \"צייט לחומרא\"</string>
+
+    <string name="always_show_tzeit_l_chumra_according_to_the_ohr_hachaim_calendar">הראו תמיד את \"צייט לחומרא\" לפי לוח \"אור החיים\".</string>
+
+    <string name="plag_hamincha_opinion">דעה לפלג המנחה</string>
+
+    <string name="choose_which_opinion_to_show_for_the_time_for_plag_hamincha">בחר איזו דעה להראות לזמן פלג המנחה</string>
+
+    <string name="end_shabbat_opinion">סיום השבת חוות דעת</string>
+
+    <string name="choose_which_opinion_to_use_for_the_time_for_when_shabbat_chag_ends">בחר באיזו דעה להשתמש לזמן שבו מסתיימת שבת/חג</string>
+
+    <string name="minutes_till_shabbat_ends">דקות עד צאת השבת</string>
+
+    <string name="enter_the_amount_of_minutes_to_add_to_sunset_for_shabbat_to_end">הזינו את כמות הדקות להוסיף לשקיעה לסיום השבת</string>
+
+    <string name="these_settings_only_apply_if_you_do_not_use_the_luach_amudei_horaah_setting">הגדרות אלו חלות רק אם אינך משתמש בהגדרה \"לוח עמודי הוראה\".</string>
+
+    <string name="candle_lighting_time">זמן הדלקת נרות</string>
+
+    <string name="enter_the_amount_of_minutes_for_candle_lighting">הזן את כמות הדקות להדלקת נרות</string>
+
+    <string name="choose_which_opinions_to_use_for_the_time_for_the_tekufas">בחר באילו דעות להשתמש לתקופת התקופות</string>
+
+    <string name="tekufa_opinion">דעת תקופה</string>
+
+    <string name="luach_amudei_horaah">לוח עמודי הוראה</string>
+
+    <string name="make_the_zmanim_like_the_luach_amudei_horaah_only_outside_israel">הפוך את הזמנים כמו הלואך עמודי הוראה (רק מחוץ לישראל)</string>
+
+    <string name="minutes_before_the_zman_for_notifications">דקות לפני הזמן להתראות</string>
+
+    <string name="show_zmanim_notifications_on_shabbat_yom_tov">להראות הודעות זמנים בשבת/יום טוב\?</string>
+
+    <string name="notifications_on_shabbat_and_yom_tov">הודעות בשבת ויום טוב\?</string>
+
+    <string name="alot_hashachar">עלות השחר</string>
+
+    <string name="alot">עלות</string>
+
+    <string name="talit_and_tefilin">טלית ותפילין</string>
+
+    <string name="hanetz">הנץ</string>
+
+    <string name="sof_zman_shma_mga">סוף זמן שמע מג\"א</string>
+
+    <string name="sof_zman_shma_gra">סוף זמן שמע גר\"א</string>
+
+    <string name="sof_zman_tefila">סוף זמן תפילה</string>
+
+    <string name="achilat_chametz">אכילת חמץ</string>
+
+    <string name="biur_chametz">ביאור חמץ</string>
+
+    <string name="chatzot">חצות</string>
+
+    <string name="mincha_gedola">מנחה גדולה</string>
+
+    <string name="mincha_ketana">מנחה קטנה</string>
+
+    <string name="plag_hamincha_halacha_berurah">פלג המנחה הלכה ברורה</string>
+
+    <string name="plag_hamincha_yalkut_yosef">פלג המנחה ילקוט יוסף</string>
+
+    <string name="candle_lighting">הדלקת נרות</string>
+
+    <string name="shkia">שקיע</string>
+
+    <string name="tzeit_hacochavim">צאת הכוכבים</string>
+
+    <string name="tzeit_hacochavim_l_chumra">צאת הכוכבים לחומרה</string>
+
+    <string name="fast_ends">סיום מהיר</string>
+
+    <string name="fast_ends_stringent">סיום מהיר (מחמיר)</string>
+
+    <string name="shabbat_ends">השבת מסתיימת</string>
+
+    <string name="rabbeinu_tam">רבינו תם</string>
+
+    <string name="chatzot_layla">חצות לילה</string>
+
+    <string name="switch_calendar">החלף לוח שנה</string>
+
 </resources>

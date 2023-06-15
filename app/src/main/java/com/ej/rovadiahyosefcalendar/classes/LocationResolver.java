@@ -368,7 +368,7 @@ public class LocationResolver extends Thread {
             }
         } catch (NumberFormatException ex) {//an error occurred getting the elevation, probably because too many requests were made
             try {
-                WebService.setUserName("graviton57");//another user api key that I found online
+                WebService.setUserName("graviton57");//another user api key that I found online, only used as a backup
                 int e1 = WebService.srtm3(sLatitude, sLongitude);
                 if (e1 > 0) {
                     elevations.add(e1);
