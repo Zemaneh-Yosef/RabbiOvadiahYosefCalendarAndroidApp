@@ -97,7 +97,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
 
     /**
      * This method returns the time earliest time that your are allowed to put on your Talit and Tefilin. This is calculated by taking the
-     * Alos 72 Zmanis and adding 6 Shaot Zmaniyot to it. This is the same calculation that is used in the Ohr HaChaim calendar.
+     * {@link #getAlos72Zmanis()} method and adding 6 Shaot Zmaniyot to it. This is the same calculation that is used in the Ohr HaChaim calendar.
      * @return the earliest time that your are allowed to put on your Talit and Tefilin based on the Ohr HaChaim calendar. 66 minutes before sunrise.
      */
     public Date getEarliestTalitTefilin() {
@@ -193,7 +193,8 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
 
     /**
      * Returns mid-day but with elevation included if set to true. The {@link #getSunTransit()} method uses sea level sunrise and sunset. Whereas, all
-     * of the zmanim in the Ohr HaChaim use the sunrise and sunset adjusted for elevation. This method allows the option of using the elevation
+     * of the zmanim in the Ohr HaChaim use the sunrise and sunset adjusted for elevation. This method allows the option of using elevation.
+     * This does not affect the time for mid-day by that much.
      * @return mid-day but with elevation included if set, and setUseElevation() was set to true.
      */
     public Date getChatzot() {
@@ -259,7 +260,8 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
 
     /**
      * This method returns the time when the average fast ends based on the opinion of Chacham Ben Tzion Abba Shaul. This is calculated as 30 minutes
-     * after sunset.
+     * after sunset. This zman is not shown in either the Ohr Hachaim or Amudei Horaah calendars, however, I added it because many communities use this
+     * time for the end of the fast outside of Israel.
      * @return the time when the average fast ends based on the opinion of Chacham Ben Tzion Abba Shaul. 30 minutes after sunset.
      */
     public Date getTzaitTaanitLChumra() {
@@ -269,7 +271,8 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     /**
      * This method overrides the {@link #getSolarMidnight()} method in the base class to return the time of solar midnight as calculated by the Ohr
      * HaChaim calendar. This is calculated as 6 * shaot zmaniyot after sunset. The only difference between this method and
-     * the method in the base class is that this method uses elevation adjusted sunset always.
+     * the method in the base class is that this method uses elevation adjusted sunset always. It does not affect the time that much, but still, it is
+     * how the Ohr HaChaim calendar calculates it.
      * @return the time of solar midnight (chatzot) as calculated by the Ohr HaChaim calendar.
      */
     @Override
@@ -291,6 +294,22 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         }
     }
 
+    //Amudei Horaah methods start here
+
+    /**
+     * This method returns the time of alot hashachar (dawn) calculated by the Amudei Horaah calendar. While normally this is calculated as 72 zmaniyot
+     * minutes before sunrise, Rabbi Dahan says that the zmanim need to be adjusted for more northern/southern locations. He calculates the time as
+     * zmaniyot minutes/seconds, however, he adjusts it based on the location and 16.1 degrees (72 zmaniyot minutes in Israel).
+     *
+     * For example: If you wanted to calculate when alot is for NY, USA, you would first calculate the amount of regular minutes there are in an equinox
+     * day between sunrise and 16.1 degrees before sunrise. In NY, this would lead you to around 80 minutes. You would then minus 80 zmaniyot minutes to
+     * the time of sunrise to get the time of alot.
+     *
+     * This is how Rabbi Dahan calculates the zmanim for alot and tzait in the Amudei Horaah calendar. This zman should NOT be used in Israel.
+     *
+     * @return the time of alot hashachar (dawn) calculated by the Amudei Horaah calendar by adjusting the zman based off of degrees. This zman
+     * should NOT be used in Israel.
+     */
     @Nullable
     public Date getAlotAmudeiHoraah() {
         Calendar tempCal = (Calendar) getCalendar().clone();
@@ -307,6 +326,14 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         return getTimeOffset(getSeaLevelSunrise(), -(numberOfSeconds * secondsZmanit));
     }
 
+    /**
+     * This method returns the time of misheyakir calculated by the Amudei Horaah calendar.
+     * Rabbi Dahan calculates this zman for as 5/6 of the time between alot and sunrise in the Amudei Horaah calendar.
+     * This zman should NOT be used in Israel.
+     *
+     * @return the time of misheyakir calculated by the Amudei Horaah calendar by adjusting the zman based off of degrees. This zman
+     * should NOT be used in Israel.
+     */
     public Date getEarliestTalitTefilinAmudeiHoraah() {
         Calendar tempCal = (Calendar) getCalendar().clone();
         setCalendar(new GregorianCalendar(getCalendar().get(Calendar.YEAR), Calendar.MARCH, 17));//set the calendar to the equinox
@@ -322,6 +349,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         return getTimeOffset(getSeaLevelSunrise(), -(numberOfSeconds * secondsZmanit * 5 / 6));
     }
 
+    // These methods are similar to the ones in the base class, but they use the Amudei Horaah zmanim instead of the regular zmanim
     public Date getSofZmanShmaMGA72MinutesZmanisAmudeiHoraah() {
         return getSofZmanShma(getAlotAmudeiHoraah(), getTzais72ZmanisAmudeiHoraah());
     }
@@ -338,14 +366,15 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     /**
      * This method calculates the time for Nightfall according to the opinion of the Amudei Horaah Calendar. This is calculated as 13.5
      * adjusted zmaniyot minutes after sunset. This is based on the calculation of the 3.77&deg which is the time at 13.5 minutes in Netanya, Israel
-     * on the equinox.
-     * @return the Date representing 13.5 minutes zmaniyot after sunset adjusted to the users location using degrees based on Netanya, Israel.
+     * on the equinox. Why Netanya and not Jerusalem? Because Netanya is the mid point between Israel and Iraq. Therefore, Rabbi Dahan equates them.
+     * @return the Date representing 13.5 minutes zmaniyot after sunset adjusted to the users location using degrees based on Netanya, Israel. This zman
+     * should NOT be used in Israel.
      */
     public Date getTzeitAmudeiHoraah() {
         Calendar tempCal = (Calendar) getCalendar().clone();
         setCalendar(new GregorianCalendar(getCalendar().get(Calendar.YEAR), Calendar.MARCH, 17));//set the calendar to the equinox
         Date sunset = getSeaLevelSunset();
-        Date tzaitGeonimInDegrees = getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 3.77);//3.75 is 13.5 minutes after sunset in Netanya on the equinox
+        Date tzaitGeonimInDegrees = getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 3.77);//3.77 is 13.5 minutes after sunset in Netanya on the equinox
         long numberOfMilli = tzaitGeonimInDegrees.getTime() - sunset.getTime();
         long numberOfSeconds = numberOfMilli / 1000;
         setCalendar(tempCal);//reset the calendar to the current day
@@ -357,10 +386,11 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     }
 
     /**
-     * This method returns another time for tzeit according to the opinion of the Amudei Horaah Calendar. This time is calculated as 20 minutes
-     * zmaniyot after sunset adjusted to the users location using degrees. 5.135 degrees is 20 minutes after sunset in Netanya on the equinox from my
-     * experiments. We then calculate the number of minutes between sunset and this time on the equinox and multiply it by the zmaniyot minutes.
-     * @return the Date representing 20 minutes zmaniyot after sunset adjusted to the users location using degrees.
+     * This method returns another time for tzeit (l'chumra) according to the opinion of the Amudei Horaah Calendar. This time is calculated as 20
+     * zmaniyot minutes after sunset adjusted to the users location using degrees. 5.135 degrees is 20 minutes after sunset in Netanya on the equinox.
+     * We then calculate the number of minutes between sunset and this time on the equinox and multiply it by the zmaniyot minutes.
+     * @return the Date representing 20 minutes zmaniyot after sunset adjusted to the users location using degrees. This zman
+     * should NOT be used in Israel.
      */
     public Date getTzeitAmudeiHoraahLChumra() {
         Calendar tempCal = (Calendar) getCalendar().clone();
@@ -378,8 +408,8 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     }
 
     /**
-     * This time is when the sun is 7.14° below {@link #GEOMETRIC_ZENITH geometric zenith} (90°). This calculation was provided by Rabbi Dahan himself. The way Rabbi
-     * Dahan calculated this time for motzei shabbat was to find out at what degree would the sun be always 30 minutes or more after sunset
+     * This time is when the sun is 7.14° below {@link #GEOMETRIC_ZENITH geometric zenith} (90°). This calculation was provided by Rabbi Dahan himself.
+     * The way Rabbi Dahan calculated this time for motzei shabbat was to find out at what degree would the sun be always 30 minutes or more after sunset
      * throughout the entire year. As Rabbi Ovadiah Yosef held that Shabbat ends after 30 minutes after sunset. Rabbi Dahan used degrees to calculate
      * when the sun is 30 minutes after sunset all year round.
      * @return the <code>Date</code> of 7.14° below {@link #GEOMETRIC_ZENITH geometric zenith} (90°). If the calculation can't be computed such as in the Arctic
@@ -412,7 +442,8 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
      * what degree would the sun be 72 minutes after sunset on the equinox (March 17). Then he used that degree to calculate the time for 72 minutes
      * after sunset on the equinox for the current location. Then he got the minutes between sunset and that degree and used that to calculate the
      * zmaniyot minutes for the current location.
-     * @return Rabbeinu Tam adjusted according to Rabbi Dahan's calculations in the Amudei Horaah.
+     * @return Rabbeinu Tam adjusted according to Rabbi Dahan's calculations in the Amudei Horaah. This zman
+     * should NOT be used in Israel.
      */
     public Date getTzais72ZmanisAmudeiHoraah() {
         Calendar tempCal = (Calendar) getCalendar().clone();
@@ -432,6 +463,10 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     /**
      * Convenience method that returns the earlier of {@link #getTzais72()} and {@link #getTzais72ZmanisAmudeiHoraah()}.
      * This is the time printed for Rabbeinu Tam in the Amudei Horaah for Motzei Shabbat every week.
+     * Note: Rabbi Ovadiah ZT"L himself was machmir to follow Rabbeinu Tam for Motzei Shabbat/Chag bein lehakel bein lehachmir. No matter what the
+     * time was he followed Rabbeinu tam and never used 72 regular minutes. Rabbi Dahan told me that many poskim argue on him and that we do not
+     * need to be machmir for that extra time. I personally disagree with this decision, but I am not a posek. Just beware that this time is not
+     * the time that Rabbi Ovadiah ZT"L himself followed, but his sons and many other poskim do follow this time.
      * @return the earlier of {@link #getTzais72()} and {@link #getTzais72ZmanisAmudeiHoraah()}.
      */
     public Date getTzais72ZmanisAmudeiHoraahLkulah() {
