@@ -35,17 +35,19 @@ import java.util.GregorianCalendar;
  * calendar calculates the zmanim based on the Minchat Cohen that used Shaot Zmaniyot. This works well in Israel, however, even the Minchat Cohen
  * agrees that outside of Israel there should be a slight adjustment to the times for alot and tzait because of the curvature of the earth.
  * <br><br>
- * Therefore, Rabbi Lior Dahan Shlita, who is the author of the Amudei Horaah calendar uses degrees to adjust the times for alot and tzait. I have sat
+ * Therefore, Rabbi Lior Dahan Shlita, who is the author of the Amudei Horaah calendar (and sefarim under the same name on the mishna berurah) uses
+ * degrees to adjust the times for alot and tzait. I have sat
  * down with him and he explained to me exactly how he calculated his zmanim, and I have implemented his calculations in this class as well.
  * <br><br>
- * I have also spoken with Rabbi Asher Darshan Shlita about this subject, and he said to ask Rabbi Shlomo Benizri Shlita's opinion.
+ * I have also spoken with Rabbi Asher Darshan Shlita (programmer of the Ohr HaChaim Calendar) about this subject, and he said to ask Rabbi Shlomo
+ * Benizri Shlita's opinion as we was the decision maker on the Ohr HaChaim calendar based on his talks with Rabbi Ovadiah Yosef ZT"L.
  * <br><br>
- * I then talked with Rabbi Shlomo Benizri Shlita about this subject and he is of the firm opinion that the same way the Ohr HaChaim calendar
- * calculates the zmanim can be used anywhere in the world. He also said that he disagrees with Rabbi Lior Dahan Shlita's calculations for alot and
- * tzait, because Rabbi Ovadiah Yosef ZT"L never liked to used degrees since it is not our minhag. Rabbi Shlomo Benizri Shlita also said that he has
- * spoken with Rabbi Ovadiah Yosef ZT"L several times, while creating the calendar, about whether or not to use degrees for zmanim, and
- * Rabbi Ovadiah Yosef ZT"L always told him not to use degrees. He firmly told me that he believes that the Ohr HaChaim calendars calculation should
- * be used anywhere in the world.
+ * I then talked with Rabbi Shlomo Benizri Shlita about this subject, and he is of the firm opinion that the same way the Ohr HaChaim calendar
+ * calculates the zmanim in Israel, that same way can be used anywhere in the world. He also said that he heard about Rabbi Leeor Dahan Shlita's
+ * calculations for alot and tzait, and he disagrees because Rabbi Ovadiah Yosef ZT"L never liked to used degrees since it is not our minhag.
+ * Rabbi Shlomo Benizri Shlita also said that he has spoken with Rabbi Ovadiah Yosef ZT"L several times, while creating the calendar, about whether
+ * or not to use degrees for zmanim, and Rabbi Ovadiah Yosef ZT"L always told him not to use degrees. He firmly told me that he believes that the Ohr
+ * HaChaim calendars calculation should be used anywhere in the world.
  * <br><br>
  * Of course, when I asked Rabbi Dahan about this, he said that he disagrees with Rabbi Shlomo Benizri Shlita's opinion, since the Minchat Cohen which
  * Rabbi Ovadiah Yosef ZT"L bases his zmanim on says to use degrees in Northern/Southern areas of the world.
@@ -54,13 +56,14 @@ import java.util.GregorianCalendar;
  * and tzait based on the curvature of the earth. However, Rabbi David Yosef Shlita is known to argue with Rabbi Ovadiah Yosef ZT"L on many subjects.
  * <br><br>
  * Since the matter is not so simple, I have decided to give the user the option to choose which way to calculate the zmanim. The user can choose
- * to use the Ohr HaChaim method, which is the same way the Ohr HaChaim calendar calculates the zmanim, or the user can choose to use the
- * Amudei Horaah method, which is the same way the Amudei Horaah calendar calculates the zmanim adjusted to KosherJava.
+ * to use the Ohr HaChaim method, which is the same way the Ohr HaChaim calendar calculates the zmanim for Israel without any degree adjustment, or
+ * the user can choose to use the Amudei Horaah method with degree adjustments, which is identical to the way the Amudei Horaah calendar calculates
+ * the zmanim adjusted to KosherJava's methods.
  * <br><br>
  * Note: Rabbi Dahan used an Excel spreadsheet to calculate the zmanim for the Amudei Horaah calendar. I could not just copy the calculations from
  * the spreadsheet, because the spreadsheet uses a different algorithm to calculate the zmanim. However, I have talked with Rabbi Dahan about his
- * methodology and once I understood it, I was able to implement it in this class. I have also tested the zmanim based on his calendars that he
- * publishes and I have gone over the zmanim with him personally to make sure that they are correct.
+ * methodology and once I understood it, I was able to implement it in this class. I have also tested the zmanim based on his calendars (with the
+ * seconds of the zmanim added) that he publishes, and I have gone over the zmanim with him personally to make sure that they are correct.
  * <br><br>
  * I want to just end by saying that I am not a rabbi, and I am not a halachic authority. I am just a programmer who is trying to help the Sephardic
  * community. I have tried to do my best to make sure that the zmanim are calculated correctly. However, if you are still trying to figure out
@@ -222,16 +225,6 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     }
 
     /**
-     * Halacha Berurah (Rabbi David Yosef Shlita) holds that the time for Plag Hamincha is calculated by taking 1.25 "seasonal hours" (Sha'ot Zmaniot)
-     * from sunset.
-     * Note: The Amudei Horaah calendar provides both the Yalkut Yosef and Halacha Berurah times for Plag Hamincha. (No elevation adjustment is used)
-     * @return the time for Plag Hamincha as calculated by the Halacha Berurah.
-     */
-    public Date getPlagHaminchaHalachaBerurah() {
-        return getPlagHamincha(getElevationAdjustedSunrise(), getElevationAdjustedSunset());
-    }
-
-    /**
      * The Ohr Hachaim calendar uses elevation adjusted sunrise and sunset for all of its zmanim. This method reimplements the getCandleLighting method
      * to use the elevation adjusted sunset instead of sea level sunset.
      * @return the time for candle lighting as calculated by the Ohr HaChaim calendar.
@@ -242,9 +235,9 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     }
 
     /**
-     * This method returns the time for tzait hakochavim (nightfall) calculated by the Ohr HaChaim calendar according to the opinion of the
+     * This method returns the time for tzait hacochavim (nightfall) calculated by the Ohr HaChaim calendar according to the opinion of the
      * Geonim. This is calculated as 13.5 zmaniyot minutes after elevated sunset.
-     * @return the time for tzait hakochavim (nightfall) calculated by the Ohr HaChaim calendar according to the opinion of the Geonim.
+     * @return the time for tzait hacochavim (nightfall) calculated by the Ohr HaChaim calendar according to the opinion of the Geonim.
      */
     public Date getTzeit() {
         long shaahZmanit = getTemporalHour(getElevationAdjustedSunrise(), getElevationAdjustedSunset());

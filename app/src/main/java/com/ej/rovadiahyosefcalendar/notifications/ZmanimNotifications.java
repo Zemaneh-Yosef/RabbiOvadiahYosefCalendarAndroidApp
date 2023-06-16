@@ -281,7 +281,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
             minutesBefore = mSettingsSharedPreferences.getInt("PlagHaMinchaHB", -1);
             if (minutesBefore >= 0) {
                 pairArrayList.add(new ZmanInformationHolder(zmanimNames.getPlagHaminchaString() + " " + zmanimNames.getAbbreviatedHalachaBerurahString(),
-                        c.getPlagHaminchaHalachaBerurah(), minutesBefore));//always add
+                        c.getPlagHamincha(), minutesBefore));//always add
             }
         }
         if (plagOpinions.equals("3")) {
@@ -292,7 +292,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
             minutesBefore = mSettingsSharedPreferences.getInt("PlagHaMinchaHB", -1);
             if (minutesBefore >= 0) {
                 pairArrayList.add(new ZmanInformationHolder(zmanimNames.getPlagHaminchaString() + " " + zmanimNames.getAbbreviatedHalachaBerurahString(),
-                        c.getPlagHaminchaHalachaBerurah(), minutesBefore));//always add
+                        c.getPlagHamincha(), minutesBefore));//always add
             }
         }
 
@@ -425,7 +425,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
         minutesBefore = mSettingsSharedPreferences.getInt("PlagHaMinchaHB", 15);
         if (minutesBefore >= 0) {
             pairArrayList.add(new ZmanInformationHolder(zmanimNames.getPlagHaminchaString()
-                    + " " + zmanimNames.getAbbreviatedHalachaBerurahString(), c.getPlagHaminchaHalachaBerurah(), minutesBefore));//always add
+                    + " " + zmanimNames.getAbbreviatedHalachaBerurahString(), c.getPlagHamincha(), minutesBefore));//always add
         }
 
         minutesBefore = mSettingsSharedPreferences.getInt("MinchaKetana", -1);
