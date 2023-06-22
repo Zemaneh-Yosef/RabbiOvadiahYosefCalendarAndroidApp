@@ -1834,18 +1834,18 @@ public class MainActivity extends AppCompatActivity {
         zmanim.add(new ZmanListEntry(zmanimNames.getChatzotString(), mROZmanimCalendar.getChatzot(), true));
         zmanim.add(new ZmanListEntry(zmanimNames.getMinchaGedolaString(), mROZmanimCalendar.getMinchaGedolaGreaterThan30(), true));
         zmanim.add(new ZmanListEntry(zmanimNames.getMinchaKetanaString(), mROZmanimCalendar.getMinchaKetana(), true));
-        String plagOpinions = mSettingsPreferences.getString("plagOpinions", "1");
+        String plagOpinions = mSettingsPreferences.getString("plagOpinion", "1");
         if (plagOpinions.equals("1")) {
-            zmanim.add(new ZmanListEntry(zmanimNames.getPlagHaminchaString(), mROZmanimCalendar.getPlagHamincha(), true));
+            zmanim.add(new ZmanListEntry(zmanimNames.getPlagHaminchaString(), mROZmanimCalendar.getPlagHaminchaYalkutYosef(), true));
         }
         if (plagOpinions.equals("2")) {
             zmanim.add(new ZmanListEntry(zmanimNames.getPlagHaminchaString(), mROZmanimCalendar.getPlagHamincha(), true));
         }
         if (plagOpinions.equals("3")) {
-            zmanim.add(new ZmanListEntry(zmanimNames.getPlagHaminchaString() + " " + zmanimNames.getAbbreviatedYalkutYosefString(),
-                    mROZmanimCalendar.getPlagHamincha(), true));
             zmanim.add(new ZmanListEntry(zmanimNames.getPlagHaminchaString() + " " + zmanimNames.getAbbreviatedHalachaBerurahString(),
                     mROZmanimCalendar.getPlagHamincha(), true));
+            zmanim.add(new ZmanListEntry(zmanimNames.getPlagHaminchaString() + " " + zmanimNames.getAbbreviatedYalkutYosefString(),
+                    mROZmanimCalendar.getPlagHaminchaYalkutYosef(), true));
         }
         if ((mJewishDateInfo.getJewishCalendar().hasCandleLighting() &&
                 !mJewishDateInfo.getJewishCalendar().isAssurBemelacha()) ||
@@ -1910,7 +1910,7 @@ public class MainActivity extends AppCompatActivity {
             fastEnds.setNoteworthyZman(true);
             zmanim.add(fastEnds);
         } else if (mSettingsPreferences.getBoolean("alwaysShowTzeitLChumra", false)) {
-            ZmanListEntry tzeitLChumra = new ZmanListEntry(zmanimNames.getTzaitString() + zmanimNames.getLChumraString(), mROZmanimCalendar.getTzaitTaanit(), true);
+            ZmanListEntry tzeitLChumra = new ZmanListEntry(zmanimNames.getTzaitHacochavimString() + " " + zmanimNames.getLChumraString(), mROZmanimCalendar.getTzaitTaanit(), true);
             zmanim.add(tzeitLChumra);
         }
         if (mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting()) {
@@ -1935,6 +1935,13 @@ public class MainActivity extends AppCompatActivity {
                 rt.setRTZman(true);
                 rt.setNoteworthyZman(true);
                 zmanim.add(rt);
+            }
+            //If it is shabbat/yom tov,we want to dim the tzeit hacochavim zmanim in the GUI
+            for (ZmanListEntry zman: zmanim) {
+                if (zman.getTitle().equals(zmanimNames.getTzaitHacochavimString()) ||
+                        zman.getTitle().equals(zmanimNames.getTzaitHacochavimString() + " " + zmanimNames.getLChumraString())) {
+                    zman.setShouldBeDimmed(true);
+                }
             }
         }
         if (mSettingsPreferences.getBoolean("AlwaysShowRT", false)) {
@@ -1987,7 +1994,7 @@ public class MainActivity extends AppCompatActivity {
         zmanim.add(new ZmanListEntry(zmanimNames.getChatzotString(), mROZmanimCalendar.getChatzot(), true));
         zmanim.add(new ZmanListEntry(zmanimNames.getMinchaGedolaString(), mROZmanimCalendar.getMinchaGedolaGreaterThan30(), true));
         zmanim.add(new ZmanListEntry(zmanimNames.getMinchaKetanaString(), mROZmanimCalendar.getMinchaKetana(), true));
-        zmanim.add(new ZmanListEntry(zmanimNames.getPlagHaminchaString() + " " + zmanimNames.getAbbreviatedHalachaBerurahString(), mROZmanimCalendar.getPlagHamincha(), true));
+        zmanim.add(new ZmanListEntry(zmanimNames.getPlagHaminchaString() + " " + zmanimNames.getAbbreviatedHalachaBerurahString(), mROZmanimCalendar.getPlagHaminchaYalkutYosef(), true));
         zmanim.add(new ZmanListEntry(zmanimNames.getPlagHaminchaString() + " " + zmanimNames.getAbbreviatedYalkutYosefString(), mROZmanimCalendar.getPlagHaminchaYalkutYosefAmudeiHoraah(), true));
         if ((mJewishDateInfo.getJewishCalendar().hasCandleLighting() &&
                 !mJewishDateInfo.getJewishCalendar().isAssurBemelacha()) ||
@@ -2054,6 +2061,13 @@ public class MainActivity extends AppCompatActivity {
                 rt.setRTZman(true);
                 rt.setNoteworthyZman(true);
                 zmanim.add(rt);
+            }
+            //If it is shabbat/yom tov,we want to dim the tzeit hacochavim zmanim in the GUI
+            for (ZmanListEntry zman: zmanim) {
+                if (zman.getTitle().equals(zmanimNames.getTzaitHacochavimString()) ||
+                        zman.getTitle().equals(zmanimNames.getTzaitHacochavimString() + " " + zmanimNames.getLChumraString())) {
+                    zman.setShouldBeDimmed(true);
+                }
             }
         }
         if (mSettingsPreferences.getBoolean("AlwaysShowRT", false)) {

@@ -206,8 +206,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
      * This is how the Ohr HaChaim calculates Plag Hamincha as well.
      * @return the time for Plag Hamincha as calculated by the Ohr HaChaim and Yalkut Yosef.
      */
-    @Override
-    public Date getPlagHamincha() {
+    public Date getPlagHaminchaYalkutYosef() {
         long shaahZmanit = getTemporalHour(getElevationAdjustedSunrise(), getElevationAdjustedSunset());
         long dakahZmanit = shaahZmanit / MINUTES_PER_HOUR;
         return getTimeOffset(getTzeit(), -(shaahZmanit + (15 * dakahZmanit)));

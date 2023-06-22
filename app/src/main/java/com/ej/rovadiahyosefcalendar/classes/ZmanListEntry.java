@@ -10,6 +10,8 @@ public class ZmanListEntry {
     private boolean isNoteworthyZman;
     private boolean isRTZman;
 
+    private boolean shouldBeDimmed;
+
     public ZmanListEntry(String title) {
         this.title = title;
         this.zman = null;
@@ -48,5 +50,13 @@ public class ZmanListEntry {
 
     public void setNoteworthyZman(boolean b) {
         isNoteworthyZman = b;
+    }
+
+    public boolean isShouldBeDimmed() {
+        return shouldBeDimmed;
+    }
+
+    public void setShouldBeDimmed(boolean shouldBeDimmed) {
+        this.shouldBeDimmed = shouldBeDimmed;
     }
 }

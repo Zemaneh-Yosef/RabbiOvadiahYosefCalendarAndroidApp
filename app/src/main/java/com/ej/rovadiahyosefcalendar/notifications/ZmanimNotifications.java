@@ -270,11 +270,11 @@ public class ZmanimNotifications extends BroadcastReceiver {
             }
         }
 
-        String plagOpinions = mSettingsSharedPreferences.getString("plagOpinions", "1");
+        String plagOpinions = mSettingsSharedPreferences.getString("plagOpinion", "1");
         if (plagOpinions.equals("1")) {
             minutesBefore = mSettingsSharedPreferences.getInt("PlagHaMinchaYY", -1);
             if (minutesBefore >= 0) {
-                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getPlagHaminchaString(), c.getPlagHamincha(), minutesBefore));//always add
+                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getPlagHaminchaString(), c.getPlagHaminchaYalkutYosef(), minutesBefore));//always add
             }
         }
         if (plagOpinions.equals("2")) {
@@ -287,12 +287,12 @@ public class ZmanimNotifications extends BroadcastReceiver {
         if (plagOpinions.equals("3")) {
             minutesBefore = mSettingsSharedPreferences.getInt("PlagHaMinchaYY", -1);
             if (minutesBefore >= 0) {
-                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getPlagHaminchaString(), c.getPlagHamincha(), minutesBefore));//always add
+                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getPlagHaminchaString(), c.getPlagHaminchaYalkutYosef(), minutesBefore));//always add
             }
             minutesBefore = mSettingsSharedPreferences.getInt("PlagHaMinchaHB", -1);
             if (minutesBefore >= 0) {
                 pairArrayList.add(new ZmanInformationHolder(zmanimNames.getPlagHaminchaString() + " " + zmanimNames.getAbbreviatedHalachaBerurahString(),
-                        c.getPlagHamincha(), minutesBefore));//always add
+                        c.getPlagHaminchaYalkutYosef(), minutesBefore));//always add
             }
         }
 
@@ -425,7 +425,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
         minutesBefore = mSettingsSharedPreferences.getInt("PlagHaMinchaHB", 15);
         if (minutesBefore >= 0) {
             pairArrayList.add(new ZmanInformationHolder(zmanimNames.getPlagHaminchaString()
-                    + " " + zmanimNames.getAbbreviatedHalachaBerurahString(), c.getPlagHamincha(), minutesBefore));//always add
+                    + " " + zmanimNames.getAbbreviatedHalachaBerurahString(), c.getPlagHaminchaYalkutYosef(), minutesBefore));//always add
         }
 
         minutesBefore = mSettingsSharedPreferences.getInt("MinchaKetana", -1);

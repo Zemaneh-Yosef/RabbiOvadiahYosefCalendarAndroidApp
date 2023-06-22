@@ -240,6 +240,11 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             holder.mMiddleTextView.setTextColor(mSharedPreferences.getInt("tColor", 0xFFFFFFFF));
             holder.mRightTextView.setTextColor(mSharedPreferences.getInt("tColor", 0xFFFFFFFF));
         }
+
+        if (zmanim.get(position).isShouldBeDimmed()) {
+            holder.mLeftTextView.setTextColor(context.getResources().getColor(R.color.disabled_gray, context.getTheme()));
+            holder.mRightTextView.setTextColor(context.getResources().getColor(R.color.disabled_gray, context.getTheme()));
+        }
     }
 
     @Override
@@ -622,6 +627,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                 .setMessage("Tzeit/Nightfall is the time when the next halachic day starts after Bein Hashmashot/twilight finishes.\n\n" +
                         "This is the latest time a person can say Mincha according Rav Ovadiah Yosef Z\"TL. A person should start mincha at " +
                         "least 2 minutes before this time.\n\n" +
+                        "This time is shown in gray on shabbat and yom tov (as advised by my rabbeim) in order to not let people think that shabbat/yom tov ends at this time.\n\n" +
                         "This time is calculated as 13 and a half zmaniyot/seasonal minutes after sunset (elevation included).\n\n" +
                         "The GR\"A calculates a zmaniyot/seasonal hour by taking the time between sunrise and sunset (elevation included) and " +
                         "divides it into 12 equal parts. Then we divide one of those 12 parts into 60 to get a zmaniyot/seasonal minute.\n\n" +
@@ -634,6 +640,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     private void showTzaitLChumraDialog() {
         dialogBuilder.setTitle("Nightfall (Stringent) - \u05E6\u05D0\u05EA \u05D4\u05DB\u05D5\u05DB\u05D1\u05D9\u05DD \u05DC\u05D7\u05D5\u05DE\u05E8\u05D4 - Tzeit Hacochavim L'Chumra")
                 .setMessage("This time is calculated as 20 minutes after sunset (elevation included).\n\n" +
+                        "This time is important for fast days and deciding when to do a brit milah. Otherwise, it should not be used for anything else like the latest time for mincha.\n\n" +
+                        "This time is shown in gray on shabbat and yom tov (as advised by my rabbeim) in order to not let people think that shabbat/yom tov ends at this time.\n\n" +
                         "In Luach Amudei Horaah mode, this time is calculated by finding out the the amount of minutes between sunset and 5.3 " +
                         "degrees below the horizon on a equal day, then we add that amount of zmaniyot minutes to sunset to get the time of " +
                         "Tzeit/Nightfall. We use 5.3 degrees below the horizon because that is the time when it is 20 minutes after sunset in Israel.")
@@ -669,11 +677,14 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         dialogBuilder.setTitle("Shabbat/Chag Ends - \u05E6\u05D0\u05EA \u05E9\u05D1\u05EA/\u05D7\u05D2 - Tzeit Shabbat/Chag")
                 .setMessage("This is the time that Shabbat/Chag ends.\n\n" +
                         "Note that there are many customs on when shabbat ends, by default, it is set to 40 regular minutes after sunset (elevation " +
-                        "included), however, you can change the time in the settings.\n\n" +
+                        "included) outside of Israel and 30 regular minutes after sunset inside Israel. I used 40 minutes because Rabbi Meir Gavriel " +
+                        "Elbaz Shlita has told me that anywhere outside of Israel, " +
+                        "if you wait 40 regular minutes after sunset, that is enough time to end shabbat." +
+                        "You can change this time in the settings to accommodate your communities minhag.\n\n" +
                         "This time is calculated as " +
                         PreferenceManager.getDefaultSharedPreferences(context).getString("EndOfShabbatOffset", "40") + " " +
                         "regular minutes after sunset (elevation included).\n\n" +
-                        "In Luach Amudei Horaah mode, this time is calculated by using a degree of 7.18. We use this degree because " +
+                        "In Luach Amudei Horaah mode, this time is calculated by using a degree of 7.14. We use this degree because " +
                         "Rabbi Ovadiah Yosef ZT\"L ruled that regarding Motzeh Shabbat the listed time should be set as 30 fixed minutes after " +
                         "sunset. This degree is interpreted as 30 minutes after sunset all year round in Israel.")
                 .show();
