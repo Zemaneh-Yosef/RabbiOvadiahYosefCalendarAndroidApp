@@ -322,6 +322,9 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         setCalendar(new GregorianCalendar(getCalendar().get(Calendar.YEAR), Calendar.MARCH, 17));//set the calendar to the equinox
         Date sunrise = getSeaLevelSunrise();
         Date alotBy16Degrees = getSunriseOffsetByDegrees(GEOMETRIC_ZENITH + 16.04);//16.1 degrees is 72 minutes before sunrise in Netanya on the equinox, so no adjustment is needed
+        if (sunrise == null || alotBy16Degrees == null) {
+            return null;
+        }
         long numberOfMilli = sunrise.getTime() - alotBy16Degrees.getTime();
         long numberOfSeconds = numberOfMilli / 1000;
         setCalendar(tempCal);//reset the calendar to the current day
@@ -345,6 +348,9 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         setCalendar(new GregorianCalendar(getCalendar().get(Calendar.YEAR), Calendar.MARCH, 17));//set the calendar to the equinox
         Date sunrise = getSeaLevelSunrise();
         Date alotBy16Degrees = getSunriseOffsetByDegrees(GEOMETRIC_ZENITH + 16.04);//16.1 degrees is 72 minutes before sunrise in Netanya on the equinox, so no adjustment is needed
+        if (sunrise == null || alotBy16Degrees == null) {
+            return null;
+        }
         long numberOfMilli = sunrise.getTime() - alotBy16Degrees.getTime();
         long numberOfSeconds = numberOfMilli / 1000;
         setCalendar(tempCal);//reset the calendar to the current day
@@ -381,6 +387,9 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         setCalendar(new GregorianCalendar(getCalendar().get(Calendar.YEAR), Calendar.MARCH, 17));//set the calendar to the equinox
         Date sunset = getSeaLevelSunset();
         Date tzaitGeonimInDegrees = getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 3.77);//3.77 is 13.5 minutes after sunset in Netanya on the equinox
+        if (sunset == null || tzaitGeonimInDegrees == null) {
+            return null;
+        }
         long numberOfMilli = tzaitGeonimInDegrees.getTime() - sunset.getTime();
         long numberOfSeconds = numberOfMilli / 1000;
         setCalendar(tempCal);//reset the calendar to the current day
@@ -403,6 +412,9 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         setCalendar(new GregorianCalendar(getCalendar().get(Calendar.YEAR), Calendar.MARCH, 17));//set the calendar to the equinox
         Date sunset = getSeaLevelSunset();
         Date tzaitGeonimInDegrees = getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 5.135);
+        if (sunset == null || tzaitGeonimInDegrees == null) {
+            return null;
+        }
         long numberOfMilli = tzaitGeonimInDegrees.getTime() - sunset.getTime();
         long numberOfSeconds = numberOfMilli / 1000;
         setCalendar(tempCal);//reset the calendar to the current day
@@ -435,10 +447,14 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
      * @return the earlier of {@link #getTzaisAteretTorah()} and {@link #getTzaitShabbatAmudeiHoraah()}.
      */
     public Date getTzaitShabbatAmudeiHoraahLesserThan40() {
-        if (getTzaisAteretTorah().before(getTzaitShabbatAmudeiHoraah())) {//return the earlier of the two times
-            return getTzaisAteretTorah();
+        if (getTzaisAteretTorah() != null && getTzaitShabbatAmudeiHoraah() != null) {
+            if (getTzaisAteretTorah().before(getTzaitShabbatAmudeiHoraah())) {//return the earlier of the two times
+                return getTzaisAteretTorah();
+            } else {
+                return getTzaitShabbatAmudeiHoraah();
+            }
         } else {
-            return getTzaitShabbatAmudeiHoraah();
+            return null;
         }
     }
 
@@ -456,6 +472,9 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         setCalendar(new GregorianCalendar(getCalendar().get(Calendar.YEAR), Calendar.MARCH, 17));//set the calendar to the equinox
         Date sunset = getSeaLevelSunset();
         Date tzaitRTInDegrees = getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 16.01);//16.0 is 72 minutes after sunset in Netanya on the equinox
+        if (sunset == null || tzaitRTInDegrees == null) {
+            return null;
+        }
         long numberOfMilli = tzaitRTInDegrees.getTime() - sunset.getTime();
         long numberOfSeconds = numberOfMilli / 1000;
         setCalendar(tempCal);//reset the calendar to the current day
@@ -476,11 +495,14 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
      * @return the earlier of {@link #getTzais72()} and {@link #getTzais72ZmanisAmudeiHoraah()}.
      */
     public Date getTzais72ZmanisAmudeiHoraahLkulah() {
-        if (getTzais72().before(getTzais72ZmanisAmudeiHoraah())) {//return the earlier of the two times
-            return getTzais72();
-        } else {
-            return getTzais72ZmanisAmudeiHoraah();
+        if (getTzais72() != null && getTzais72ZmanisAmudeiHoraah() != null) {
+            if (getTzais72().before(getTzais72ZmanisAmudeiHoraah())) {//return the earlier of the two times
+                return getTzais72();
+            } else {
+                return getTzais72ZmanisAmudeiHoraah();
+            }
         }
+        return null;
     }
 
 }

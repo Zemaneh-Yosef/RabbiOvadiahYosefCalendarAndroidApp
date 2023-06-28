@@ -113,8 +113,10 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         zmanTime = zmanimFormat.format(zmanim.get(position).getZman());
                     }
                 }
-                if (zmanim.get(position).getZman() != null && zmanim.get(position).getZman().equals(sNextUpcomingZman)) {
-                    zmanTime += "←";//remove arrow
+                if (zmanim.get(position).getZman() != null) {
+                    if (zmanim.get(position).getZman().equals(sNextUpcomingZman)) {
+                        zmanTime += "←";//remove arrow
+                    }
                 }
                 holder.mLeftTextView.setText(zmanTime);
             } else {//switch the views
@@ -122,8 +124,10 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                 holder.mLeftTextView.setText(zmanim.get(position).getTitle());//zman name
 
                 String zmanTime = "➤";
-                if (!zmanim.get(position).getZman().equals(sNextUpcomingZman)) {
-                    zmanTime = "";//remove arrow
+                if (zmanim.get(position).getZman() != null) {
+                    if (!zmanim.get(position).getZman().equals(sNextUpcomingZman)) {
+                        zmanTime = "";//remove arrow
+                    }
                 }
 
                 if (zmanim.get(position).isRTZman() && roundUpRT) {
