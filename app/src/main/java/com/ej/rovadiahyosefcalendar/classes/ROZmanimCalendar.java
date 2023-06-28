@@ -278,7 +278,14 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     public Date getSolarMidnight() {
         ROZmanimCalendar clonedCal = (ROZmanimCalendar) clone();
         clonedCal.getCalendar().add(Calendar.DAY_OF_MONTH, 1);
-        return getTimeOffset(getChatzot(), (clonedCal.getChatzot().getTime() - getChatzot().getTime()) / 2);
+        Date chatzotForTomorrow = clonedCal.getChatzot();
+        Date chatzotForToday = clonedCal.getChatzot();
+
+        if (chatzotForTomorrow == null || chatzotForToday == null) {
+            return null;
+        }
+
+        return getTimeOffset(getChatzot(), (chatzotForTomorrow.getTime() - chatzotForToday.getTime()) / 2);
     }
 
     public void setExternalFilesDir(File externalFilesDir) {

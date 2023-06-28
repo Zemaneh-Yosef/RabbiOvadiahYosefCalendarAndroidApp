@@ -1024,7 +1024,9 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         Calendar calendar = (Calendar) mROZmanimCalendar.getCalendar().clone();
-        calendar.setTimeInMillis(mROZmanimCalendar.getSunrise().getTime());
+        if (mROZmanimCalendar.getSunrise() != null) {
+            calendar.setTimeInMillis(mROZmanimCalendar.getSunrise().getTime());
+        }
         if (calendar.getTime().compareTo(new Date()) < 0) {
             calendar.add(Calendar.DATE, 1);
         }
@@ -1034,10 +1036,12 @@ public class MainActivity extends AppCompatActivity {
         am.cancel(dailyPendingIntent);//cancel any previous alarms
         am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), dailyPendingIntent);
 
-        if (mSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
-            calendar.setTimeInMillis(mROZmanimCalendar.getTzeitAmudeiHoraah().getTime());
-        } else {
-            calendar.setTimeInMillis(mROZmanimCalendar.getTzeit().getTime());
+        if (mROZmanimCalendar.getTzeit() != null) {
+            if (mSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
+                calendar.setTimeInMillis(mROZmanimCalendar.getTzeitAmudeiHoraah().getTime());
+            } else {
+                calendar.setTimeInMillis(mROZmanimCalendar.getTzeit().getTime());
+            }
         }
         if (calendar.getTime().compareTo(new Date()) < 0) {
             calendar.add(Calendar.DATE, 1);

@@ -34,6 +34,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -100,15 +101,23 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                 String zmanTime;
 
                 if (zmanim.get(position).isRTZman() && roundUpRT) {
-                    zmanTime = roundUpFormat.format(checkNull(zmanim.get(position).getZman()));
+                    if (zmanim.get(position).getZman() == null) {
+                        zmanTime = "N/A";
+                    } else {
+                        zmanTime = roundUpFormat.format(zmanim.get(position).getZman());
+                    }
                 } else {
-                    zmanTime = zmanimFormat.format(checkNull(zmanim.get(position).getZman()));
+                    if (zmanim.get(position).getZman() == null) {
+                        zmanTime = "N/A";
+                    } else {
+                        zmanTime = zmanimFormat.format(zmanim.get(position).getZman());
+                    }
                 }
-                if (zmanim.get(position).getZman().equals(sNextUpcomingZman)) {
+                if (zmanim.get(position).getZman() != null && zmanim.get(position).getZman().equals(sNextUpcomingZman)) {
                     zmanTime += "←";//remove arrow
                 }
                 holder.mLeftTextView.setText(zmanTime);
-            } else {
+            } else {//switch the views
                 holder.mLeftTextView.setTypeface(Typeface.DEFAULT_BOLD);
                 holder.mLeftTextView.setText(zmanim.get(position).getTitle());//zman name
 
@@ -118,9 +127,17 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                 }
 
                 if (zmanim.get(position).isRTZman() && roundUpRT) {
-                    zmanTime += roundUpFormat.format(checkNull(zmanim.get(position).getZman()));
+                    if (zmanim.get(position).getZman() == null) {
+                        zmanTime = "N/A";
+                    } else {
+                        zmanTime = roundUpFormat.format(zmanim.get(position).getZman());
+                    }
                 } else {
-                    zmanTime += zmanimFormat.format(checkNull(zmanim.get(position).getZman()));
+                    if (zmanim.get(position).getZman() == null) {
+                        zmanTime = "N/A";
+                    } else {
+                        zmanTime = zmanimFormat.format(zmanim.get(position).getZman());
+                    }
                 }
                 holder.mRightTextView.setText(zmanTime);
             }
@@ -264,20 +281,6 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             mLeftTextView = itemView.findViewById(R.id.zmanLeftTextView);
             mMiddleTextView = itemView.findViewById(R.id.zmanMiddleTextView);
             mRightTextView = itemView.findViewById(R.id.zmanRightTextView);
-        }
-    }
-
-    /**
-     * This is a simple convenience method to check if the given date is null or not. If the date is not null,
-     * it will return exactly what was given. However, if the date is null, it will change the date to a string that says "N/A" (Not Available).
-     * @param date the date object to check if it is null
-     * @return the given date if not null or a string if null
-     */
-    private Object checkNull(Object date) {
-        if (date != null) {
-            return date;
-        } else {
-            return "N/A";
         }
     }
 

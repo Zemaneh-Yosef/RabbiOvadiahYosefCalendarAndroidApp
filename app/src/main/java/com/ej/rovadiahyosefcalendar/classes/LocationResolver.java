@@ -329,11 +329,16 @@ public class LocationResolver extends Thread {
      */
     public void setTimeZoneID() {
         if (mSharedPreferences.getBoolean("useZipcode", false)) {
-            TimeZoneMap timeZoneMap = TimeZoneMap.forRegion(
-                    Math.floor(sLatitude), Math.floor(sLongitude),
-                    Math.ceil(sLatitude), Math.ceil(sLongitude));//trying to avoid using the forEverywhere() method
-            MainActivity.sCurrentTimeZoneID = Objects.requireNonNull(timeZoneMap.getOverlappingTimeZone(sLatitude, sLongitude)).getZoneId();
-            mTimeZone = TimeZone.getTimeZone(Objects.requireNonNull(timeZoneMap.getOverlappingTimeZone(sLatitude, sLongitude)).getZoneId());
+            try {
+                TimeZoneMap timeZoneMap = TimeZoneMap.forRegion(
+                        Math.floor(sLatitude), Math.floor(sLongitude),
+                        Math.ceil(sLatitude), Math.ceil(sLongitude));//trying to avoid using the forEverywhere() method
+                MainActivity.sCurrentTimeZoneID = Objects.requireNonNull(timeZoneMap.getOverlappingTimeZone(sLatitude, sLongitude)).getZoneId();
+                mTimeZone = TimeZone.getTimeZone(Objects.requireNonNull(timeZoneMap.getOverlappingTimeZone(sLatitude, sLongitude)).getZoneId());
+            } catch (IllegalArgumentException e) {
+                MainActivity.sCurrentTimeZoneID = TimeZone.getDefault().getID();
+                mTimeZone = TimeZone.getDefault();
+            }
         } else {
             MainActivity.sCurrentTimeZoneID = TimeZone.getDefault().getID();
             mTimeZone = TimeZone.getDefault();
