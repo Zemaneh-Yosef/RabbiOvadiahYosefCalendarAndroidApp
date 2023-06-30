@@ -134,13 +134,13 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     if (zmanim.get(position).getZman() == null) {
                         zmanTime = "N/A";
                     } else {
-                        zmanTime = roundUpFormat.format(zmanim.get(position).getZman());
+                        zmanTime += roundUpFormat.format(zmanim.get(position).getZman());
                     }
                 } else {
                     if (zmanim.get(position).getZman() == null) {
                         zmanTime = "N/A";
                     } else {
-                        zmanTime = zmanimFormat.format(zmanim.get(position).getZman());
+                        zmanTime += zmanimFormat.format(zmanim.get(position).getZman());
                     }
                 }
                 holder.mRightTextView.setText(zmanTime);
@@ -645,7 +645,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void showTzaitLChumraDialog() {
-        dialogBuilder.setTitle("Nightfall (Stringent) - \u05E6\u05D0\u05EA \u05D4\u05DB\u05D5\u05DB\u05D1\u05D9\u05DD \u05DC\u05D7\u05D5\u05DE\u05E8\u05D4 - Tzeit Hacochavim L'Chumra")
+        dialogBuilder.setTitle("Nightfall (Stringent) - \u05E6\u05D0\u05EA \u05D4\u05DB\u05D5\u05DB\u05D1\u05D9\u05DD \u05DC\u05D7\u05D5\u05DE\u05E8\u05D0 - Tzeit Hacochavim L'Chumra")
                 .setMessage("This time is calculated as 20 minutes after sunset (elevation included).\n\n" +
                         "This time is important for fast days and deciding when to do a brit milah. Otherwise, it should not be used for anything else like the latest time for mincha.\n\n" +
                         "This time is shown in gray on shabbat and yom tov (as advised by my rabbeim) in order to not let people think that shabbat/yom tov ends at this time.\n\n" +
@@ -673,7 +673,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void showTzaitTaanitLChumraDialog() {
-        dialogBuilder.setTitle("Fast Ends (Stringent) - \u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA \u05DC\u05D7\u05D5\u05DE\u05E8\u05D4 - Tzeit Taanit L'Chumra")
+        dialogBuilder.setTitle("Fast Ends (Stringent) - \u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA \u05DC\u05D7\u05D5\u05DE\u05E8\u05D0 - Tzeit Taanit L'Chumra")
                 .setMessage("This is a more stringent time that the fast/taanit ends. This time is according to the opinion of Chacham Ben Zion Abba" +
                         " Shaul.\n\n" +
                         "This time is calculated as 30 regular minutes after sunset (elevation included).")

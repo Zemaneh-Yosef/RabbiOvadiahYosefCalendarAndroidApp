@@ -41,8 +41,7 @@ public class ZmanNotification extends BroadcastReceiver {
         mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         mSettingsSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         if (mSharedPreferences.getBoolean("isSetup",false)) {
-            JewishCalendar jewishCalendar = new JewishCalendar();
-            notifyUser(context, jewishCalendar, mSharedPreferences.getString("zman",""));
+            notifyUser(context, new JewishCalendar(), intent.getStringExtra("zman"));
         }
     }
 
