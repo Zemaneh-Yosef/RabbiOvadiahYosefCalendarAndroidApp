@@ -323,11 +323,11 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             showCandleLightingDialog();
         } else if (zmanim.get(position).getTitle().contains("\u05E9\u05E7\u05D9\u05E2\u05D4")) {
             showShkiaDialog();
-        } else if (zmanim.get(position).getTitle().contains("\u05E6\u05D0\u05EA \u05D4\u05DB\u05D5\u05DB\u05D1\u05D9\u05DD \u05DC\u05D7\u05D5\u05DE\u05E8\u05D4")) {
+        } else if (zmanim.get(position).getTitle().contains("\u05E6\u05D0\u05EA \u05D4\u05DB\u05D5\u05DB\u05D1\u05D9\u05DD \u05DC\u05D7\u05D5\u05DE\u05E8\u05D0")) {
             showTzaitLChumraDialog();
         } else if (zmanim.get(position).getTitle().contains("\u05E6\u05D0\u05EA \u05D4\u05DB\u05D5\u05DB\u05D1\u05D9\u05DD")) {
             showTzaitDialog();
-        } else if (zmanim.get(position).getTitle().contains("\u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA \u05DC\u05D7\u05D5\u05DE\u05E8\u05D4")) {
+        } else if (zmanim.get(position).getTitle().contains("\u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA \u05DC\u05D7\u05D5\u05DE\u05E8\u05D0")) {
             showTzaitTaanitLChumraDialog();
         } else if (zmanim.get(position).getTitle().contains("\u05E6\u05D0\u05EA \u05EA\u05E2\u05E0\u05D9\u05EA")) {
             showTzaitTaanitDialog();

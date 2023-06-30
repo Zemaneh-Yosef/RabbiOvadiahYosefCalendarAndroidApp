@@ -22,7 +22,7 @@ public class ZmanimNames {
 
     public String getLChumraString() {
         if (mIsZmanimInHebrew) {
-            return "חומרא";
+            return "לחומרא";
         } else if (mIsZmanimEnglishTranslated) {
             return "(Stringent)";
         } else {
