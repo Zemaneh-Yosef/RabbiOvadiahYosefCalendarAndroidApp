@@ -962,9 +962,12 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable());
-        Intent zmanIntent = new Intent(getApplicationContext(), ZmanimNotifications.class);//this is to update the zmanim notifications if the user changed the settings to start showing them
-        mSharedPreferences.edit().putBoolean("fromThisNotification", false).apply();
-        PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(getApplicationContext(),0,zmanIntent,PendingIntent.FLAG_IMMUTABLE);
+        //this is to update the zmanim notifications if the user changed the settings to start showing them
+        PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(
+                getApplicationContext(),
+                0,
+                new Intent(getApplicationContext(), ZmanimNotifications.class),
+                PendingIntent.FLAG_IMMUTABLE);
         try {
             zmanimPendingIntent.send();
         } catch (PendingIntent.CanceledException e) {
@@ -1051,7 +1054,7 @@ public class MainActivity extends AppCompatActivity {
         am.cancel(omerPendingIntent);//cancel any previous alarms
         am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), omerPendingIntent);
 
-        //zmanim notifications are set in the onResume method, doing it twice will cause the preferences to be reset to true mid way through
+        //zmanim notifications are set in the onResume method
 //        Intent zmanIntent = new Intent(getApplicationContext(), ZmanimNotifications.class);
 //        mSharedPreferences.edit().putBoolean("fromThisNotification", false).apply();
 //        PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(getApplicationContext(),0,zmanIntent,PendingIntent.FLAG_IMMUTABLE);

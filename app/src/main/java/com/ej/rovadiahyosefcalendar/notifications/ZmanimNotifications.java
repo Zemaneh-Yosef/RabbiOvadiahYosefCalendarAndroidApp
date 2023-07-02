@@ -127,8 +127,9 @@ public class ZmanimNotifications extends BroadcastReceiver {
                             context.getApplicationContext(),
                             i,
                             new Intent(context, ZmanNotification.class)
-                                    .putExtra("zman", zmanimOver3Days.get(i).getZmanName() + ":" + zmanimOver3Days.get(i).getZmanDate().getTime()),//save the zman name and time for the notification e.g. "Chatzot Layla:1331313311"
-                            PendingIntent.FLAG_MUTABLE);
+                                    .putExtra("zman",
+                                            zmanimOver3Days.get(i).getZmanName() + ":" + zmanimOver3Days.get(i).getZmanDate().getTime()),//save the zman name and time for the notification e.g. "Chatzot Layla:1331313311"
+                            PendingIntent.FLAG_MUTABLE|PendingIntent.FLAG_UPDATE_CURRENT);
 
                     am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, zmanimOver3Days.get(i).getZmanDate().getTime() - (60_000L * zmanimOver3Days.get(i).getNotificationDelay()), zmanPendingIntent);
                     set += 1;
@@ -141,6 +142,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
                 new Intent(context, ZmanimNotifications.class),
                 PendingIntent.FLAG_IMMUTABLE);
 
+        am.cancel(schedulePendingIntent);
         am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, new Date().getTime() + 3_600_000, schedulePendingIntent);
     }
 
