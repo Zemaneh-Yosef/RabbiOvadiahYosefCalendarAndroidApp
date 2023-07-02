@@ -714,20 +714,20 @@ public class JewishDateInfo {
 
         if (jewishCalendar.getDayOfOmer() >= 8 && jewishCalendar.getDayOfOmer() <= 32) {
             if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
-                return "לא לשמוע למוזיקה";
+                return "אין שמיעת מוזיקה";
             }
             return "No Music";
         } else if (jewishCalendar.getJewishMonth() == JewishDate.TAMMUZ) {
             if (jewishCalendar.getJewishDayOfMonth() >= 17) {
                 if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
-                    return "לא לשמוע למוזיקה";
+                    return "אין שמיעת מוזיקה";
                 }
                 return "No Music";
             }
         } else if (jewishCalendar.getJewishMonth() == JewishDate.AV) {
             if (jewishCalendar.getJewishDayOfMonth() <= 9) {
                 if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
-                    return "לא לשמוע למוזיקה";
+                    return "אין שמיעת מוזיקה";
                 }
                 return "No Music";
             }

@@ -112,8 +112,8 @@ public class ZmanimNotifications extends BroadcastReceiver {
             PendingIntent zmanPendingIntent = PendingIntent.getBroadcast(
                     context.getApplicationContext(),
                     i,
-                    new Intent(context, ZmanNotification.class),
-                    PendingIntent.FLAG_MUTABLE);
+                    new Intent(context, ZmanNotification.class).setAction(String.valueOf(i)),
+                    PendingIntent.FLAG_MUTABLE|PendingIntent.FLAG_CANCEL_CURRENT);
 
             am.cancel(zmanPendingIntent);//cancel the last zmanim notifications set
         }
@@ -122,11 +122,12 @@ public class ZmanimNotifications extends BroadcastReceiver {
         int set = 0;//only set 5 zmanim an hour
         for (int i = 0; i < zmanimOver3Days.size(); i++) {
             if (set < max) {
-                if (zmanimOver3Days.get(i).getZmanDate().after(new Date())) {
+                if ((zmanimOver3Days.get(i).getZmanDate().getTime() - (60_000L * zmanimOver3Days.get(i).getNotificationDelay()) > new Date().getTime())) {
                     PendingIntent zmanPendingIntent = PendingIntent.getBroadcast(
                             context.getApplicationContext(),
                             i,
                             new Intent(context, ZmanNotification.class)
+                                    .setAction(String.valueOf(i))
                                     .putExtra("zman",
                                             zmanimOver3Days.get(i).getZmanName() + ":" + zmanimOver3Days.get(i).getZmanDate().getTime()),//save the zman name and time for the notification e.g. "Chatzot Layla:1331313311"
                             PendingIntent.FLAG_MUTABLE|PendingIntent.FLAG_UPDATE_CURRENT);
