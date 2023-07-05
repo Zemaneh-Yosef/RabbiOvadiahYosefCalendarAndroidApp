@@ -78,6 +78,7 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
             finish();
             return;
         }
+        startActivity(new Intent(this, CalendarChooserActivity.class).setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
         mSharedPreferences.edit().putBoolean("isSetup", true).apply();
         finish();
     }

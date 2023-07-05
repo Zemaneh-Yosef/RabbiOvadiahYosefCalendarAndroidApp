@@ -23,10 +23,13 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".activities.CalendarChooserActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.ZmanimSettingsActivity"
             android:exported="false"
             android:label="@string/zmanim_settings"
-            android:theme="@style/MaterialTheme"/>
+            android:theme="@style/MaterialTheme" />
 
         <receiver
             android:name=".activities.ZmanimAppWidget"

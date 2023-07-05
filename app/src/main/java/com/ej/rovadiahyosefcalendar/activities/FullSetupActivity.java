@@ -26,7 +26,6 @@ import java.util.Locale;
 public class FullSetupActivity extends AppCompatActivity {
 
     private SharedPreferences mSharedPreferences;
-    private String mElevationBackup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,20 +37,6 @@ public class FullSetupActivity extends AppCompatActivity {
             layout.setOrientation(LinearLayout.VERTICAL);
         }
         mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
-        if (getIntent().getBooleanExtra("fromMenu", false)) {
-            mSharedPreferences.edit().putBoolean("isSetup", false).apply();
-            try {
-                mElevationBackup = mSharedPreferences.getString("elevation", "0");
-            } catch (Exception e) {
-                try {
-                    mElevationBackup = String.valueOf(mSharedPreferences.getFloat("elevation", 0));
-                } catch (Exception e1) {
-                    mElevationBackup = "0";
-                    e1.printStackTrace();
-                }
-            }
-            mSharedPreferences.edit().putString("elevation", "0").apply();
-        }
 
         Button inIsraelButton = findViewById(R.id.inIsraelButton);
         Button notInIsrael = findViewById(R.id.notInIsraelButton);
@@ -103,11 +88,6 @@ public class FullSetupActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (getIntent().getBooleanExtra("fromMenu", false)) {
-            getSharedPreferences(SHARED_PREF, MODE_PRIVATE).edit().putBoolean("isSetup", true).apply();//undo what we did in the onCreate method
-            getSharedPreferences(SHARED_PREF, MODE_PRIVATE).edit().putString("elevation", mElevationBackup).apply();
-            finish();
-        }
         super.onBackPressed();
     }
 }

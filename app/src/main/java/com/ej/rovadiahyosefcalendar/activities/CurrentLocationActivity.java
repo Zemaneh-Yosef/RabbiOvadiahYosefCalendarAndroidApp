@@ -72,6 +72,7 @@ public class CurrentLocationActivity extends AppCompatActivity {
                         mSharedPreferences.edit().putBoolean("showMishorSunrise" + sCurrentLocationName, true).apply();
                         mSharedPreferences.edit().putBoolean("isSetup", true).apply();
                         mSharedPreferences.edit().putBoolean("useElevation", true).apply();
+                        startActivity(new Intent(this, CalendarChooserActivity.class).setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
                         finish();//end the activity
                     }
                 })
@@ -103,6 +104,7 @@ public class CurrentLocationActivity extends AppCompatActivity {
                 mSharedPreferences.edit().putBoolean("showMishorSunrise" + sCurrentLocationName, true).apply();
                 mSharedPreferences.edit().putBoolean("isSetup", true).apply();
                 mSharedPreferences.edit().putBoolean("useElevation", true).apply();
+                startActivity(new Intent(this, CalendarChooserActivity.class).setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
                 finish();
             }
     }
