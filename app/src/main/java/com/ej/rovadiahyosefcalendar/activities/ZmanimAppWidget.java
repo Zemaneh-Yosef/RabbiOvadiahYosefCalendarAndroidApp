@@ -527,7 +527,7 @@ public class ZmanimAppWidget extends AppWidgetProvider {
                 .setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
                 .putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds);
         int requestCode = widgetClass.getName().hashCode();
-        int flags = PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE;
+        int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
 
         return PendingIntent.getBroadcast(context, requestCode, updateIntent, flags);
     }

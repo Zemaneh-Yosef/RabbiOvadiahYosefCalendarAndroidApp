@@ -27,6 +27,7 @@ import com.kosherjava.zmanim.util.GeoLocation;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -113,7 +114,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
                     context.getApplicationContext(),
                     i,
                     new Intent(context, ZmanNotification.class).setAction(String.valueOf(i)),
-                    PendingIntent.FLAG_MUTABLE|PendingIntent.FLAG_CANCEL_CURRENT);
+                    PendingIntent.FLAG_IMMUTABLE|PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_ONE_SHOT);
 
             am.cancel(zmanPendingIntent);//cancel the last zmanim notifications set
         }
@@ -125,12 +126,12 @@ public class ZmanimNotifications extends BroadcastReceiver {
                 if ((zmanimOver3Days.get(i).getZmanDate().getTime() - (60_000L * zmanimOver3Days.get(i).getNotificationDelay()) > new Date().getTime())) {
                     PendingIntent zmanPendingIntent = PendingIntent.getBroadcast(
                             context.getApplicationContext(),
-                            i,
+                            set,
                             new Intent(context, ZmanNotification.class)
-                                    .setAction(String.valueOf(i))
+                                    .setAction(String.valueOf(set))
                                     .putExtra("zman",
                                             zmanimOver3Days.get(i).getZmanName() + ":" + zmanimOver3Days.get(i).getZmanDate().getTime()),//save the zman name and time for the notification e.g. "Chatzot Layla:1331313311"
-                            PendingIntent.FLAG_MUTABLE|PendingIntent.FLAG_UPDATE_CURRENT);
+                            PendingIntent.FLAG_IMMUTABLE|PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_ONE_SHOT);
 
                     am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, zmanimOver3Days.get(i).getZmanDate().getTime() - (60_000L * zmanimOver3Days.get(i).getNotificationDelay()), zmanPendingIntent);
                     set += 1;
@@ -144,7 +145,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
                 PendingIntent.FLAG_IMMUTABLE);
 
         am.cancel(schedulePendingIntent);
-        am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, new Date().getTime() + 3_600_000, schedulePendingIntent);
+        am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, new Date().getTime() + 1_800_000, schedulePendingIntent);//every half hour
     }
 
     private ArrayList<ZmanInformationHolder> getArrayOfZmanim(ROZmanimCalendar c, JewishCalendar jewishCalendar, Context context) {
@@ -307,6 +308,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
             pairArrayList.add(new ZmanInformationHolder(zmanimNames.getAlotString(), c.getAlos72Zmanis(), minutesBefore));//always add
         }
 
+        Collections.reverse(pairArrayList);
         return pairArrayList;
     }
 
@@ -439,6 +441,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
             pairArrayList.add(new ZmanInformationHolder(zmanimNames.getAlotString(), c.getAlotAmudeiHoraah(), minutesBefore));//always add
         }
 
+        Collections.reverse(pairArrayList);
         return pairArrayList;
     }
 

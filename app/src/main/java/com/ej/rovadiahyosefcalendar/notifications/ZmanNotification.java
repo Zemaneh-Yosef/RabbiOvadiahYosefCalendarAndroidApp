@@ -41,7 +41,8 @@ public class ZmanNotification extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         mSettingsSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        if (mSharedPreferences.getBoolean("isSetup",false)) {
+        if (mSharedPreferences.getBoolean("isSetup",false)
+                && mSettingsSharedPreferences.getBoolean("zmanim_notifications", true)) {
             notifyUser(context, new JewishCalendar(), intent.getStringExtra("zman"));
         }
     }
@@ -140,7 +141,11 @@ public class ZmanNotification extends BroadcastReceiver {
             //the notification ID cannot be a long so we convert it to an int
             //however, the notification ID will lose precision if it is too large
             //so we make sure that the notification ID is not too large by modding it by the max int value
+            if (mSharedPreferences.getString("lastNotifiedZman", "").equals(zman)) {
+                return;// just in case, so we don't get two of the same zman
+            }
             notificationManager.notify((int) (notificationID % Integer.MAX_VALUE), builder.build());
+            mSharedPreferences.edit().putString("lastNotifiedZman", zman).apply();
         } catch (Exception e) {
             e.printStackTrace();
         }
