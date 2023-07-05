@@ -6,6 +6,7 @@ import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
 
 import org.apache.commons.lang3.time.DateUtils;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
@@ -761,5 +762,44 @@ public class JewishDateInfo {
         } else {
             return "";
         }
+    }
+
+    public boolean is3Weeks() {
+        if (jewishCalendar.getJewishMonth() == JewishDate.TAMMUZ) {
+            return jewishCalendar.getJewishDayOfMonth() >= 17;
+        } else if (jewishCalendar.getJewishMonth() == JewishDate.AV) {
+            return jewishCalendar.getJewishDayOfMonth() <= 9;
+        }
+        return false;
+    }
+
+    public boolean is9Days() {
+        if (jewishCalendar.getJewishMonth() == JewishDate.AV) {
+            return jewishCalendar.getJewishDayOfMonth() < 9;
+        }
+        return false;
+    }
+
+    public boolean isShevuahShechalBo() {
+        if (jewishCalendar.getJewishMonth() != JewishDate.AV) {
+            return false;
+        }
+
+        jewishCalendar.setJewishDayOfMonth(9);
+        if (jewishCalendar.getDayOfWeek() == 1 || jewishCalendar.getDayOfWeek() == 7) {
+            return false;//there is no shevua shechal bo if tisha beav falls out on a sunday or shabbat
+        }
+        jewishCalendar.setDate(currentDate);//reset
+
+        JewishDate tishaBeav = new JewishDate(
+                jewishCalendar.getJewishYear(),
+                JewishDate.AV,
+                8);
+        ArrayList<Integer> daysOfShevuahShechalBo = new ArrayList<>();
+        while (tishaBeav.getDayOfWeek() != 7) {
+            daysOfShevuahShechalBo.add(tishaBeav.getJewishDayOfMonth());
+            tishaBeav.setJewishDayOfMonth(tishaBeav.getJewishDayOfMonth() - 1);
+        }
+        return daysOfShevuahShechalBo.contains(jewishCalendar.getJewishDayOfMonth());
     }
 }

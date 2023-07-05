@@ -58,7 +58,7 @@ public class NotificationSettingsActivity extends AppCompatActivity {
                     fastStringent.setVisible(false);
                 }
             } else {
-                String plagOpinions = PreferenceManager.getDefaultSharedPreferences(requireContext()).getString("plagOpinions", "1");
+                String plagOpinions = PreferenceManager.getDefaultSharedPreferences(requireContext()).getString("plagOpinion", "1");
                 if (plagOpinions.equals("1")) {
                     Preference plagHaMinchaYY = findPreference("PlagHaMinchaYY");
                     if (plagHaMinchaYY != null) {
@@ -90,9 +90,10 @@ public class NotificationSettingsActivity extends AppCompatActivity {
                     }
                 }
 
+                boolean showTzeitLchumra = PreferenceManager.getDefaultSharedPreferences(requireContext()).getBoolean("alwaysShowTzeitLChumra", false);
                 Preference tzeitHacochavimLChumra = findPreference("TzeitHacochavimLChumra");
                 if (tzeitHacochavimLChumra != null) {
-                    tzeitHacochavimLChumra.setVisible(false);
+                    tzeitHacochavimLChumra.setVisible(showTzeitLchumra);
                 }
             }
         }
