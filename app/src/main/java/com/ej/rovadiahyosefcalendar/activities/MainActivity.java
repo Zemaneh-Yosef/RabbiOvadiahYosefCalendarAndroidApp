@@ -2287,7 +2287,8 @@ public class MainActivity extends AppCompatActivity {
             mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));//get the last value of the current location or 0 if it doesn't exist
         }
 
-        if (!sUserIsOffline && mSharedPreferences.getBoolean("useElevation", true)) {//update if the user is online and the elevation setting is enabled
+        if (!sUserIsOffline && mSharedPreferences.getBoolean("useElevation", true)
+        && !mSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {//update if the user is online and the elevation setting is enabled
             if (!mSharedPreferences.contains("elevation" + sCurrentLocationName)) {//if the elevation for this location has never been set
                 mLocationResolver = new LocationResolver(this, this);
                 mLocationResolver.start();
