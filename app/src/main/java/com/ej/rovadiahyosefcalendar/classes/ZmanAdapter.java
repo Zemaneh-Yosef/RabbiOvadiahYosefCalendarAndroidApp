@@ -34,7 +34,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -197,6 +196,12 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     dialogBuilder.setNegativeButton("Dismiss", (dialog, which) -> dialog.dismiss());
                     dialogBuilder.show();
                     resetDialogBuilder();
+                }
+
+                if (zmanim.get(position).getTitle().contains(context.getString(R.string.three_weeks))
+                || zmanim.get(position).getTitle().contains(context.getString(R.string.nine_days))
+                || zmanim.get(position).getTitle().contains(context.getString(R.string.shevuah_shechal_bo))) {
+                    showThreeWeeksDialog(zmanim.get(position).getTitle());
                 }
 
                 if (zmanim.get(position).getTitle().contains("וּלְכַפָּרַת פֶּשַׁע")) {
@@ -793,6 +798,32 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         "Yom Yerushalayim but not Yom Ha'atzmaut (according to the minhag of Rabbi Ovadiah ZT\"L)\n\n" +
                         "Note that there are other times you should not say tachanun, but this list is only for days with no tachanun. Sometimes " +
                         "you can skip tachanun if there are mourners making up majority of the minyan or if there is a simcha (joyous occasion).")
+                .show();
+    }
+
+    private void showThreeWeeksDialog(String title) {
+        dialogBuilder.setTitle(title)
+                .setMessage("During the time of the three weeks/nine days/shevuah shechal bo " +
+                        "certain restrictions apply:\n\n" +
+                        "Three Weeks:\n" +
+                        "No listening to music\n\n" +
+                        "Nine Days:\n" +
+                        "No listening to music\n" +
+                        "No weddings\n" +
+                        "No purchasing new clothing\n" +
+                        "No consumption of meat or wine\n" +
+                        "No wearing new clothing\n\n" +
+                        "Shevuah Shechal Bo:\n" +
+                        "No taking haircuts\n" +
+                        "No listening to music\n" +
+                        "No weddings\n" +
+                        "No purchasing new clothing\n" +
+                        "No swimming\n" +
+                        "No construction\n" +
+                        "No consumption of meat or wine\n" +
+                        "No showering with hot water\n" +
+                        "No laundry or wearing freshly laundered clothing\n" +
+                        "No wearing new clothing")
                 .show();
     }
 }

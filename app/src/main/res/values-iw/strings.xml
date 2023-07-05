@@ -482,5 +482,8 @@
     <string name="chatzot_layla">חצות לילה</string>
 
     <string name="switch_calendar">החלף לוח שנה</string>
+    <string name="three_weeks">שלושה שבועות</string>
+    <string name="nine_days">תשעה ימים</string>
+    <string name="shevuah_shechal_bo">שבוע שחל בו</string>
 
 </resources>

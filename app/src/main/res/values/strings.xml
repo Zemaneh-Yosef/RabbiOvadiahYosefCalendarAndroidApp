@@ -267,4 +267,7 @@
     <string name="rabbeinu_tam">Rabbeinu Tam</string>
     <string name="chatzot_layla">Chatzot Layla</string>
     <string name="switch_calendar">Switch Calendar</string>
+    <string name="three_weeks">Three Weeks</string>
+    <string name="nine_days">Nine days</string>
+    <string name="shevuah_shechal_bo">Shevuah Shechal Bo</string>
 </resources>

@@ -1402,6 +1402,18 @@ public class MainActivity extends AppCompatActivity {
             zmanim.add(new ZmanListEntry(day));
         }
 
+        if (mJewishDateInfo.is3Weeks()) {
+            if (mJewishDateInfo.is9Days()) {
+                if (mJewishDateInfo.isShevuahShechalBo()) {
+                    zmanim.add(new ZmanListEntry(getString(R.string.shevuah_shechal_bo)));
+                } else {
+                    zmanim.add(new ZmanListEntry(getString(R.string.nine_days)));
+                }
+            } else {
+                zmanim.add(new ZmanListEntry(getString(R.string.three_weeks)));
+            }
+        }
+
         String isOKToListenToMusic = mJewishDateInfo.isOKToListenToMusic();
         if (!isOKToListenToMusic.isEmpty()) {
             zmanim.add(new ZmanListEntry(isOKToListenToMusic));

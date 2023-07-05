@@ -768,7 +768,7 @@ public class JewishDateInfo {
         if (jewishCalendar.getJewishMonth() == JewishDate.TAMMUZ) {
             return jewishCalendar.getJewishDayOfMonth() >= 17;
         } else if (jewishCalendar.getJewishMonth() == JewishDate.AV) {
-            return jewishCalendar.getJewishDayOfMonth() <= 9;
+            return jewishCalendar.getJewishDayOfMonth() < 9;
         }
         return false;
     }
