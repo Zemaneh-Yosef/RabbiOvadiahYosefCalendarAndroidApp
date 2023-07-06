@@ -316,8 +316,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             showShmaGRADialog();
         } else if (zmanim.get(position).getTitle().contains("\u05D1\u05E8\u05DB\u05D5\u05EA \u05E9\u05DE\u05E2")) {
             showBrachotShmaDialog();
-        } else if (zmanim.get(position).getTitle().contains("\u05D7\u05E6\u05D5\u05EA")) {
-            showChatzotDialog();
+        } else if (zmanim.get(position).getTitle().contains("\u05D7\u05E6\u05D5\u05EA \u05DC\u05D9\u05DC\u05D4")) {
+            showChatzotLaylaDialog();
         } else if (zmanim.get(position).getTitle().contains("\u05DE\u05E0\u05D7\u05D4 \u05D2\u05D3\u05D5\u05DC\u05D4")) {
             showMinchaGedolaDialog();
         } else if (zmanim.get(position).getTitle().contains("\u05DE\u05E0\u05D7\u05D4 \u05E7\u05D8\u05E0\u05D4")) {
@@ -342,8 +342,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             showTzaitShabbatDialog();
         } else if (zmanim.get(position).getTitle().contains("\u05E8\u05D1\u05D9\u05E0\u05D5 \u05EA\u05DD")) {
             showRTDialog();
-        } else if (zmanim.get(position).getTitle().contains("\u05D7\u05E6\u05D5\u05EA \u05DC\u05D9\u05DC\u05D4")) {
-            showChatzotLaylaDialog();
+        } else if (zmanim.get(position).getTitle().contains("\u05D7\u05E6\u05D5\u05EA")) {
+            showChatzotDialog();
         }
     }
 
@@ -412,8 +412,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             showShmaGRADialog();
         } else if (zmanim.get(position).getTitle().contains("Brachot Shma")) {
             showBrachotShmaDialog();
-        } else if (zmanim.get(position).getTitle().contains("Chatzot")) {
-            showChatzotDialog();
+        } else if (zmanim.get(position).getTitle().contains("Chatzot Layla")) {
+            showChatzotLaylaDialog();
         } else if (zmanim.get(position).getTitle().contains("Mincha Gedola")) {
             showMinchaGedolaDialog();
         } else if (zmanim.get(position).getTitle().contains("Mincha Ketana")) {
@@ -438,8 +438,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             showTzaitShabbatDialog();
         } else if (zmanim.get(position).getTitle().contains("Rabbeinu Tam")) {
             showRTDialog();
-        } else if (zmanim.get(position).getTitle().contains("Chatzot Layla")) {
-            showChatzotLaylaDialog();
+        } else if (zmanim.get(position).getTitle().contains("Chatzot")) {
+            showChatzotDialog();
         }
     }
 
@@ -768,7 +768,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         "Both the Ohr HaChaim and the Amudei Horaah calendars use the above method to get the time for the tekufa. However, the " +
                         "Amudei Horaah calendar differs from the Ohr HaChaim calendar, by using the local midday time of Israel. Which causes a 21 " +
                         "minute difference. " +
-                        "Therefore, the Amudei Horaah calendar will always end with 9 minutes and the Ohr HaChaim calendar will always end with 0")
+                        "Therefore, the Amudei Horaah calendar time for the tekufa will always be 21 minutes before the Ohr HaChaim's time.")
                 .show();
     }
 
