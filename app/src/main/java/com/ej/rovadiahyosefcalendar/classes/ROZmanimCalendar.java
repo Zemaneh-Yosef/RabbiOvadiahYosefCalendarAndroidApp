@@ -279,7 +279,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         ROZmanimCalendar clonedCal = (ROZmanimCalendar) clone();
         clonedCal.getCalendar().add(Calendar.DAY_OF_MONTH, 1);
         Date chatzotForTomorrow = clonedCal.getChatzot();
-        Date chatzotForToday = clonedCal.getChatzot();
+        Date chatzotForToday = getChatzot();
 
         if (chatzotForTomorrow == null || chatzotForToday == null) {
             return null;
