@@ -599,9 +599,9 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         "2 and a half hours before sunset, Plag is half of that at an hour and 15 minutes before sunset.\n" +
                         "You can start saying arvit/maariv by this time according to Rabbi Yehudah in (ברכות כ'ו ע'א).\n\n" +
                         "A person should not accept shabbat before this time as well.\n\n" +
-                        "The Halacha Berurah says to calculate this time by subtracting an hour and 15 zmaniyot minutes from sunrise, however, the " +
-                        "yalkut yosef says to calculate it as 1 hour and 15 zmaniyot/seasonal minutes before tzeit (13.5 zmaniyot minutes). \n\n" +
-                        "In Luach Amudei Horaah mode, both ways to calculate this zman are shown. The only difference is that the tzait of the " +
+                        "The Halacha Berurah says to calculate this time by subtracting an hour and 15 zmaniyot minutes from sunset, however, the " +
+                        "Yalkut Yosef says to calculate it as 1 hour and 15 zmaniyot/seasonal minutes before tzeit (13.5 zmaniyot minutes). \n\n" +
+                        "In Luach Amudei Horaah mode, both ways to calculate this zman are shown. The only difference is that the tzeit of the " +
                         "Amudei Horaah is used instead of the regular 13.5 zmaniyot minutes.\n\n" +
                         "The GR\"A calculates a zmaniyot/seasonal hour by taking the time between sunrise and sunset (elevation included) and " +
                         "divides it into 12 equal parts. Then we divide one of those 12 parts into 60 to get a zmaniyot/seasonal minute.")

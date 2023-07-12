@@ -794,7 +794,8 @@ public class JewishDateInfo {
         JewishDate tishaBeav = new JewishDate(
                 jewishCalendar.getJewishYear(),
                 JewishDate.AV,
-                8);
+                8);// 1 day before to not include tisha beav itself
+
         ArrayList<Integer> daysOfShevuahShechalBo = new ArrayList<>();
         while (tishaBeav.getDayOfWeek() != 7) {
             daysOfShevuahShechalBo.add(tishaBeav.getJewishDayOfMonth());
