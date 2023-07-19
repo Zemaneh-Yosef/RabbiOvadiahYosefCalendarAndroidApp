@@ -811,10 +811,10 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         "No listening to music\n" +
                         "No weddings\n" +
                         "No purchasing new clothing\n" +
-                        "No consumption of meat or wine\n" +
+                        "No consumption of meat or wine (excludes Rosh Chodesh and Shabbat)\n" +
                         "No wearing new clothing\n\n" +
                         "Shevuah Shechal Bo:\n" +
-                        "No taking haircuts\n" +
+                        "No taking haircuts (Men Only)\n" +
                         "No listening to music\n" +
                         "No weddings\n" +
                         "No purchasing new clothing\n" +
