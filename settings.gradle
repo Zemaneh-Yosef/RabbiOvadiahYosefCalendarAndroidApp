@@ -1,2 +1,3 @@
 rootProject.name = "Rabbi Ovadiah Yosef Calendar"
 include ':app'
+include ':wearos'

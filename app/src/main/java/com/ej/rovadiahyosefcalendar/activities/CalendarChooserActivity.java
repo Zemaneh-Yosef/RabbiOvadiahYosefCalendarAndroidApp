@@ -1,9 +1,8 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -22,7 +21,7 @@ import java.util.Locale;
 
 public class CalendarChooserActivity extends AppCompatActivity {
 
-    private SharedPreferences mSharedPreferences;
+    private SharedPreferences mSettingsPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,13 +38,13 @@ public class CalendarChooserActivity extends AppCompatActivity {
         if (screenWidth < 400) {
             layout.setOrientation(LinearLayout.VERTICAL);
         }
-        mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
+        mSettingsPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        Button inIsraelButton = findViewById(R.id.ohrHachaimButton);
-        Button notInIsrael = findViewById(R.id.amudeiHoraahButton);
+        Button ohrHachaim = findViewById(R.id.ohrHachaimButton);
+        Button amudeiHoraah = findViewById(R.id.amudeiHoraahButton);
 
-        inIsraelButton.setOnClickListener(v -> saveInfoAndFinish(true));
-        notInIsrael.setOnClickListener(v -> saveInfoAndFinish(false));
+        ohrHachaim.setOnClickListener(v -> saveInfoAndFinish(false));
+        amudeiHoraah.setOnClickListener(v -> saveInfoAndFinish(true));
 
         Button help = findViewById(R.id.calendar_chooser_difference);
         help.setOnClickListener(v -> new AlertDialog.Builder(this, R.style.Theme_AppCompat_DayNight)
@@ -56,7 +55,7 @@ public class CalendarChooserActivity extends AppCompatActivity {
     }
 
     private void saveInfoAndFinish(boolean b) {
-        mSharedPreferences.edit().putBoolean("LuachAmudeiHoraah", b).apply();
+        mSettingsPreferences.edit().putBoolean("LuachAmudeiHoraah", b).apply();
         finish();
     }
 

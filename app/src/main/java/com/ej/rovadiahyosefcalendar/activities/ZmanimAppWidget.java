@@ -467,6 +467,7 @@ public class ZmanimAppWidget extends AppWidgetProvider {
             views.setViewVisibility(R.id.daf, View.VISIBLE);
         }
 
+        mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         mSharedPreferences.edit().putInt("widgetMaxWidth", maxWidth).apply();
         mSharedPreferences.edit().putInt("widgetMaxHeight", maxHeight).apply();
 
