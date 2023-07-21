@@ -93,8 +93,7 @@ public class OmerNotifications extends BroadcastReceiver {
                 gc.add(Calendar.DATE, 1);
                 jewishCalendar.setDate(gc);
                 String nextJewishDay = jewishCalendar.toString();
-                gc.add(Calendar.DATE, -1);
-                jewishCalendar.setDate(gc);
+                // Do not reset to the previous day, because Barech Aleinu checks for tomorrow
 
                 if (!mSharedPreferences.getString("lastKnownDayOmer", "").equals(jewishCalendar.toString())) {//We only want 1 notification a day.
                     if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {//TODO change strings to siddur
