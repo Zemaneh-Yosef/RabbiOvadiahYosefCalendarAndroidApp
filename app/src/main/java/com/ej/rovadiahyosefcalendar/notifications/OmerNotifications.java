@@ -31,7 +31,7 @@ import com.ej.rovadiahyosefcalendar.activities.MainActivity;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
-import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
+import com.kosherjava.zmanim.hebrewcalendar.TefilaRules;
 import com.kosherjava.zmanim.util.GeoLocation;
 
 import java.util.Calendar;
@@ -49,13 +49,12 @@ public class OmerNotifications extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         JewishDateInfo jewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael",false), true);
-        JewishCalendar jewishCalendar = jewishDateInfo.getJewishCalendar();
         mLocationResolver = new LocationResolver(context, new Activity());
 
         if (mSharedPreferences.getBoolean("isSetup",false)) {
             ROZmanimCalendar c = getROZmanimCalendar(context);
 
-            int day = jewishCalendar.getDayOfOmer();
+            int day = jewishDateInfo.getJewishCalendar().getDayOfOmer();
             if (day != -1 && day != 49) {//we don't want to send a notification right before shavuot
                 long when;
                 if (mSharedPreferences.getBoolean("LuachAmudeiHoraah", false)) {
@@ -89,13 +88,13 @@ public class OmerNotifications extends BroadcastReceiver {
 
                 Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
-                Calendar gc = jewishCalendar.getGregorianCalendar();
+                Calendar gc = jewishDateInfo.getJewishCalendar().getGregorianCalendar();
                 gc.add(Calendar.DATE, 1);
-                jewishCalendar.setDate(gc);
-                String nextJewishDay = jewishCalendar.toString();
+                jewishDateInfo.getJewishCalendar().setDate(gc);
+                String nextJewishDay = jewishDateInfo.getJewishCalendar().toString();
                 // Do not reset to the previous day, because Barech Aleinu checks for tomorrow
 
-                if (!mSharedPreferences.getString("lastKnownDayOmer", "").equals(jewishCalendar.toString())) {//We only want 1 notification a day.
+                if (!mSharedPreferences.getString("lastKnownDayOmer", "").equals(jewishDateInfo.getJewishCalendar().toString())) {//We only want 1 notification a day.
                     if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {//TODO change strings to siddur
                         NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "Omer")
                                 .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
@@ -146,10 +145,10 @@ public class OmerNotifications extends BroadcastReceiver {
                         notificationManager.notify(MID, mNotifyBuilder.build());
                     }
                     MID++;
-                    mSharedPreferences.edit().putString("lastKnownDayOmer", jewishCalendar.toString()).apply();
+                    mSharedPreferences.edit().putString("lastKnownDayOmer", jewishDateInfo.getJewishCalendar().toString()).apply();
                 }
             }
-            if (jewishDateInfo.getJewishCalendar().isVeseinTalUmatarStartDate()) {// we need to know if user is in Israel or not
+            if (new TefilaRules().isVeseinTalUmatarStartDate(jewishDateInfo.getJewishCalendar())) {// we need to know if user is in Israel or not
                 notifyBarechAleinu(context);
             }
             updateAlarm(context, c);
