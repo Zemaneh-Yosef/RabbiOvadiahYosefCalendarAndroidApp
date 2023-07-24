@@ -66,7 +66,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="40sp"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:gravity="center"
         android:layout_gravity="center">
 
@@ -74,7 +74,16 @@
             android:id="@+id/calendar_chooser_difference"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/what_s_the_difference">
+            android:text="@string/what_s_the_difference"
+            style="?android:attr/buttonBarButtonStyle">
+        </Button>
+
+        <Button
+            android:id="@+id/calendar_chooser_skip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/skip"
+            style="?android:attr/buttonBarButtonStyle">
         </Button>
 
     </LinearLayout>

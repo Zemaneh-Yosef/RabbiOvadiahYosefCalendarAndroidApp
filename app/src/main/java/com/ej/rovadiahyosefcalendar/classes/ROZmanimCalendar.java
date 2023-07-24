@@ -198,7 +198,11 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
      * @return mid-day but with elevation included if set, and setUseElevation() was set to true.
      */
     public Date getChatzot() {
-        return getSunTransit(getElevationAdjustedSunrise(), getElevationAdjustedSunset());
+        Date chatzot = getSunTransit(getElevationAdjustedSunrise(), getElevationAdjustedSunset());
+        if (chatzot == null) {
+            return getChatzos();
+        }
+        return chatzot;
     }
 
     /**
@@ -282,7 +286,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         Date chatzotForToday = getChatzot();
 
         if (chatzotForTomorrow == null || chatzotForToday == null) {
-            return null;
+            return super.getSolarMidnight();
         }
 
         return getTimeOffset(getChatzot(), (chatzotForTomorrow.getTime() - chatzotForToday.getTime()) / 2);
@@ -306,11 +310,11 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
      * This method returns the time of alot hashachar (dawn) calculated by the Amudei Horaah calendar. While normally this is calculated as 72 zmaniyot
      * minutes before sunrise, Rabbi Dahan says that the zmanim need to be adjusted for more northern/southern locations. He calculates the time as
      * zmaniyot minutes/seconds, however, he adjusts it based on the location and 16.1 degrees (72 zmaniyot minutes in Israel).
-     *
+     * <p>
      * For example: If you wanted to calculate when alot is for NY, USA, you would first calculate the amount of regular minutes there are in an equinox
      * day between sunrise and 16.1 degrees before sunrise. In NY, this would lead you to around 80 minutes. You would then minus 80 zmaniyot minutes to
      * the time of sunrise to get the time of alot.
-     *
+     * <p>
      * This is how Rabbi Dahan calculates the zmanim for alot and tzait in the Amudei Horaah calendar. This zman should NOT be used in Israel.
      *
      * @return the time of alot hashachar (dawn) calculated by the Amudei Horaah calendar by adjusting the zman based off of degrees. This zman

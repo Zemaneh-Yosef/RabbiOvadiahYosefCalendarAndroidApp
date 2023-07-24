@@ -3,10 +3,15 @@
     <style name="AppTheme" parent="Theme.AppCompat.DayNight">
         <!-- Customize your theme here. -->
         <item name="actionOverflowMenuStyle">@style/popupOverflowMenu</item>
+        <item name="alertDialogStyle">@style/alertDialog</item>
     </style>
 
     <style name="popupOverflowMenu" parent="@style/Widget.MaterialComponents.PopupMenu.Overflow">
         <item name="android:popupBackground">@drawable/overflow_menu_bg</item>
+    </style>
+
+    <style name="alertDialog" parent="@style/Theme.AppCompat.DayNight.Dialog.Alert">
+        <item name="android:windowBackground">@drawable/overflow_menu_bg</item>
     </style>
 
     <style name="MaterialTheme" parent="Theme.Material3.DayNight">

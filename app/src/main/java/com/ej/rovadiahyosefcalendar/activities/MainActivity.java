@@ -436,7 +436,7 @@ public class MainActivity extends AppCompatActivity {
         }
         if (!mSharedPreferences.getBoolean("askedForRealtimeNotifications", false)
                 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.alertDialog);
             builder.setTitle(R.string.would_you_like_to_receive_real_time_notifications_for_zmanim);
             builder.setMessage(R.string.if_you_would_like_to_receive_real_time_zmanim_notifications);
             builder.setCancelable(false);
@@ -461,7 +461,7 @@ public class MainActivity extends AppCompatActivity {
             mSharedPreferences.edit().putBoolean("askedNotInIsrael", false).apply();//reset that we asked outside israel for next time
             if (!mSharedPreferences.getBoolean("inIsrael", false) && //user was not in israel before
                     !mSharedPreferences.getBoolean("askedInIsrael", false)) {//and we did not ask already
-                new AlertDialog.Builder(this)
+                new AlertDialog.Builder(this, R.style.alertDialog)
                         .setTitle(R.string.are_u_in_israel)
                         .setMessage(R.string.if_you_are_in_israel_now_please_confirm_below)
                         .setPositiveButton(R.string.yes_i_am_in_israel, (dialog, which) -> {
@@ -489,7 +489,7 @@ public class MainActivity extends AppCompatActivity {
             mSharedPreferences.edit().putBoolean("askedInIsrael", false).apply();//reset that we asked in israel
             if (mSharedPreferences.getBoolean("inIsrael", false) && //user was in israel before
                     !mSharedPreferences.getBoolean("askedInNotIsrael", false)) {//and we did not ask already
-                new AlertDialog.Builder(this)
+                new AlertDialog.Builder(this, R.style.alertDialog)
                         .setTitle(R.string.have_you_left_israel)
                         .setMessage(R.string.if_you_are_not_in_israel_now_please_confirm_below_otherwise_ignore_this_message)
                         .setPositiveButton(R.string.yes_i_have_left_israel, (dialog, which) -> {
@@ -525,7 +525,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (!ChaiTables.visibleSunriseFileExists(getExternalFilesDir(null), sCurrentLocationName, mJewishDateInfo.getJewishCalendar())) {
                 if (!mUpdateTablesDialogShown) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.alertDialog);
                     builder.setTitle(R.string.update_tables);
                     builder.setMessage(R.string.the_visible_sunrise_tables_for_the_current_location_and_year_need_to_be_updated_do_you_want_to_update_the_tables_now);
                     builder.setPositiveButton(R.string.yes, (dialog, which) -> {
@@ -738,18 +738,11 @@ public class MainActivity extends AppCompatActivity {
             seeIfTablesNeedToBeUpdated(true);
         };
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            return new CustomDatePickerDialog(this, onDateSetListener,
-                    mROZmanimCalendar.getCalendar().get(Calendar.YEAR),
-                    mROZmanimCalendar.getCalendar().get(Calendar.MONTH),
-                    mROZmanimCalendar.getCalendar().get(Calendar.DAY_OF_MONTH),
-                    mJewishDateInfo.getJewishCalendar());
-        } else {
-            return new DatePickerDialog(this, onDateSetListener,
-                    mROZmanimCalendar.getCalendar().get(Calendar.YEAR),
-                    mROZmanimCalendar.getCalendar().get(Calendar.MONTH),
-                    mROZmanimCalendar.getCalendar().get(Calendar.DAY_OF_MONTH));
-        }
+        return new CustomDatePickerDialog(this, onDateSetListener,
+                mROZmanimCalendar.getCalendar().get(Calendar.YEAR),
+                mROZmanimCalendar.getCalendar().get(Calendar.MONTH),
+                mROZmanimCalendar.getCalendar().get(Calendar.DAY_OF_MONTH),
+                mJewishDateInfo.getJewishCalendar());
     }
 
     /**
@@ -2319,7 +2312,7 @@ public class MainActivity extends AppCompatActivity {
         final EditText input = new EditText(this);
         input.setGravity(Gravity.CENTER_HORIZONTAL);
         input.setHint(R.string.enter_zipcode_or_address);
-        new AlertDialog.Builder(this)
+        new AlertDialog.Builder(this, R.style.alertDialog)
                 .setTitle(R.string.search_for_a_place)
                 .setMessage(R.string.warning_zmanim_will_be_based_on_your_approximate_area)
                 .setView(input)

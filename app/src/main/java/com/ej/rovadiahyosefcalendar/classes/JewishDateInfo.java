@@ -3,6 +3,7 @@ package com.ej.rovadiahyosefcalendar.classes;
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
+import com.kosherjava.zmanim.hebrewcalendar.TefilaRules;
 
 import org.apache.commons.lang3.time.DateUtils;
 
@@ -23,8 +24,8 @@ public class JewishDateInfo {
 
     private final JewishCalendar jewishCalendar;
     private final HebrewDateFormatter hebrewDateFormatter;
+    private final TefilaRules tefilaRules;
     private Calendar currentDate = Calendar.getInstance();
-
     private final Locale locale = Locale.getDefault();
 
     /**
@@ -33,13 +34,14 @@ public class JewishDateInfo {
      * @param useModernHoliday boolean value to indicate whether or not to use modern holidays
      */
     public JewishDateInfo(boolean inIsrael, boolean useModernHoliday) {
+        jewishCalendar = new JewishCalendarWithExtraMethods();
+        jewishCalendar.setInIsrael(inIsrael);
+        jewishCalendar.setUseModernHolidays(useModernHoliday);
         hebrewDateFormatter = new HebrewDateFormatter();
         if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
             hebrewDateFormatter.setHebrewFormat(true);
         }
-        jewishCalendar = new JewishCalendarWithExtraMethods();
-        jewishCalendar.setInIsrael(inIsrael);
-        jewishCalendar.setUseModernHolidays(useModernHoliday);
+        tefilaRules = new TefilaRules();
     }
 
     /**
@@ -646,11 +648,11 @@ public class JewishDateInfo {
      * if the current date is the 17th day of the month of Nissan, it will return "Morid Hatal"
      */
     public String getIsMashivHaruchOrMoridHatalSaid() {
-        if (jewishCalendar.isMashivHaruachRecited()) {
+        if (tefilaRules.isMashivHaruachRecited(jewishCalendar)) {
             return "משיב הרוח";
         }
 
-        if (jewishCalendar.isMoridHatalRecited()) {
+        if (tefilaRules.isMoridHatalRecited(jewishCalendar)) {
             return "מוריד הטל";
         }
         return "";
@@ -663,7 +665,7 @@ public class JewishDateInfo {
      *  if the current date is the 17th day of the month of Nissan, it will return "Barcheinu"
      */
     public String getIsBarcheinuOrBarechAleinuSaid() {
-        if (jewishCalendar.isVeseinBerachaRecited()) {
+        if (tefilaRules.isVeseinBerachaRecited(jewishCalendar)) {
             return "ברכנו";
         } else {
             return "ברך עלינו";

@@ -77,7 +77,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
             roundUpFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
         }
-        dialogBuilder = new AlertDialog.Builder(this.context);
+        dialogBuilder = new AlertDialog.Builder(this.context, R.style.alertDialog);
         dialogBuilder.setPositiveButton("Dismiss", (dialog, which) -> dialog.dismiss());
         dialogBuilder.create();
     }
@@ -101,13 +101,13 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
                 if (zmanim.get(position).isRTZman() && roundUpRT) {
                     if (zmanim.get(position).getZman() == null) {
-                        zmanTime = "N/A";
+                        zmanTime = "XX:XX";
                     } else {
                         zmanTime = roundUpFormat.format(zmanim.get(position).getZman());
                     }
                 } else {
                     if (zmanim.get(position).getZman() == null) {
-                        zmanTime = "N/A";
+                        zmanTime = "XX:XX";
                     } else {
                         zmanTime = zmanimFormat.format(zmanim.get(position).getZman());
                     }
@@ -131,13 +131,13 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
                 if (zmanim.get(position).isRTZman() && roundUpRT) {
                     if (zmanim.get(position).getZman() == null) {
-                        zmanTime = "N/A";
+                        zmanTime = "XX:XX";
                     } else {
                         zmanTime += roundUpFormat.format(zmanim.get(position).getZman());
                     }
                 } else {
                     if (zmanim.get(position).getZman() == null) {
-                        zmanTime = "N/A";
+                        zmanTime = "XX:XX";
                     } else {
                         zmanTime += zmanimFormat.format(zmanim.get(position).getZman());
                     }
@@ -294,7 +294,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void resetDialogBuilder() {
-        dialogBuilder = new AlertDialog.Builder(this.context);
+        dialogBuilder = new AlertDialog.Builder(this.context, R.style.alertDialog);
         dialogBuilder.setPositiveButton("Dismiss", (dialog, which) -> dialog.dismiss());
         dialogBuilder.create();
     }
@@ -807,26 +807,28 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         "certain restrictions apply:\n\n" +
                         "Three Weeks:\n" +
                         "No listening to music\n" +
-                        "No shehechiyanu on new clothes\n\n" +
+                        "Better to delay shehechiyanu\n\n" +
                         "Nine Days:\n" +
                         "No listening to music\n" +
-                        "No shehechiyanu on new clothes\n" +
+                        "Better to delay shehechiyanu\n" +
+                        "Better to delay any construction\n" +
                         "No weddings\n" +
-                        "No purchasing new clothing\n" +
+                        "No purchasing new clothing (unless there is great need ex: a sale)\n" +
                         "No consumption of meat or wine (excludes Rosh Chodesh and Shabbat)\n" +
-                        "No wearing new clothing\n\n" +
+                        "No wearing brand new clothing\n\n" +
                         "Shevuah Shechal Bo:\n" +
-                        "No taking haircuts (Men Only)\n" +
                         "No listening to music\n" +
-                        "No shehechiyanu on new clothes\n" +
-                        "No weddings\n" +
-                        "No purchasing new clothing\n" +
-                        "No swimming\n" +
+                        "Better to delay shehechiyanu\n" +
                         "No construction\n" +
+                        "No weddings\n" +
+                        "No purchasing new clothing (unless there is great need ex: a sale)\n" +
                         "No consumption of meat or wine\n" +
-                        "No showering with hot water\n" +
-                        "No laundry or wearing freshly laundered clothing\n" +
-                        "No wearing new clothing")
+                        "No wearing brand new clothing\n" +
+                        "No taking haircuts or shaving (Men Only)\n" +
+                        "No swimming\n" +
+                        "No showering (with hot water)\n" +
+                        "No laundry\n" +
+                        "No wearing freshly laundered clothing (excludes undergarments)\n")
                 .show();
     }
 }

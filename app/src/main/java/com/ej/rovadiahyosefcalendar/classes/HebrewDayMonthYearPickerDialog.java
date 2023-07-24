@@ -60,7 +60,7 @@ public class HebrewDayMonthYearPickerDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity(), R.style.alertDialog);
 
         LayoutInflater inflater = requireActivity().getLayoutInflater();// Get the layout inflater
 

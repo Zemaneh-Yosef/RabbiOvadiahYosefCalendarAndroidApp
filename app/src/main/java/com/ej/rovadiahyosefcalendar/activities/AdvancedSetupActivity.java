@@ -41,7 +41,7 @@ public class AdvancedSetupActivity extends AppCompatActivity {
 
         setLink.setOnClickListener(v -> {
             if (tableLink.getText().toString().isEmpty()) {
-                new AlertDialog.Builder(AdvancedSetupActivity.this)
+                new AlertDialog.Builder(AdvancedSetupActivity.this, R.style.alertDialog)
                         .setTitle(R.string.error)
                         .setMessage(R.string.please_enter_a_link)
                         .setPositiveButton(R.string.ok, (dialog, which) -> dialog.dismiss())
@@ -59,7 +59,7 @@ public class AdvancedSetupActivity extends AppCompatActivity {
         });
 
         website.setOnClickListener(v -> {//TODO hebrew this
-            AlertDialog alertDialog = new AlertDialog.Builder(AdvancedSetupActivity.this)
+            AlertDialog alertDialog = new AlertDialog.Builder(AdvancedSetupActivity.this, R.style.alertDialog)
                     .setTitle("Chaitables.com")
                     .setPositiveButton("Cancel", (dialog, which) -> dialog.dismiss())
                     .create();
@@ -120,7 +120,7 @@ public class AdvancedSetupActivity extends AppCompatActivity {
     }
 
     private void showDialogBox() {
-        new AlertDialog.Builder(this)
+        new AlertDialog.Builder(this, R.style.alertDialog)
                 .setTitle(R.string.how_to_get_info_from_chaitables_com)
                 .setMessage(R.string.i_recommend_that_you_visit_the_website_first_choose_your_area)
                 .setPositiveButton(R.string.ok, (dialogInterface, i) -> dialogInterface.dismiss())

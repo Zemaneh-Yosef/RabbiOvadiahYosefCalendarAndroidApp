@@ -18,13 +18,12 @@ public class CustomDatePickerDialog extends DatePickerDialog {
     private final OnDateSetListener mListener;
     private final JewishCalendar mJewishCalendar;
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public CustomDatePickerDialog(@NonNull Context context,
                                   OnDateSetListener listener,
                                   int year,
                                   int month,
                                   int dayOfMonth, JewishCalendar jewishCalendar) {
-        super(context, listener, year, month, dayOfMonth);
+        super(context, R.style.alertDialog, listener, year, month, dayOfMonth);
         mContext = context;
         mListener = listener;
         mJewishCalendar = jewishCalendar;

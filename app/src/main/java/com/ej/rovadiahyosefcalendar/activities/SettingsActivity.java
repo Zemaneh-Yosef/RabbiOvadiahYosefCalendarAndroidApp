@@ -133,7 +133,7 @@ public class SettingsActivity extends AppCompatActivity {
                 showSecondsPref.setOnPreferenceClickListener(preference  -> {
                     boolean isOn = Objects.requireNonNull(preference.getSharedPreferences()).getBoolean("ShowSeconds",false);
                     if (isOn) {
-                        new AlertDialog.Builder(getContext())
+                        new AlertDialog.Builder(getContext(), R.style.alertDialog)
                                 .setTitle(R.string.do_not_rely_on_the_seconds)
                                 .setMessage(R.string.do_not_rely_on_the_seconds_message)
                                 .setPositiveButton(R.string.ok, (dialogInterface, i) -> dialogInterface.dismiss())

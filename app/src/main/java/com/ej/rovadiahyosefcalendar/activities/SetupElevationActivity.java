@@ -67,7 +67,7 @@ public class SetupElevationActivity extends AppCompatActivity {
             input.setGravity(Gravity.CENTER_HORIZONTAL);
             input.setHint(R.string.enter_elevation_in_meters);
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.alertDialog);
             builder.setTitle(R.string.enter_elevation_in_meters);
             builder.setView(input);
             builder.setPositiveButton(R.string.ok, (dialog, which) -> {
