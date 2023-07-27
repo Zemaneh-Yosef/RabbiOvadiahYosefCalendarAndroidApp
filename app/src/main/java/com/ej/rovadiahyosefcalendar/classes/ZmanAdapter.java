@@ -220,7 +220,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     showTachanunDialog();
                 }
 
-                if (zmanim.get(position).getTitle().contains("Daf Yomi")) {
+                if (zmanim.get(position).getTitle().contains(context.getString(R.string.daf_yomi))) {
                     ZmanListEntry zman = zmanim.get(position);
                     JewishCalendar jewishCalendar = new JewishCalendar();
                     jewishCalendar.setDate(zman.getZman());
@@ -803,7 +803,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
     private void showThreeWeeksDialog(String title) {
         dialogBuilder.setTitle(title)
-                .setMessage("During the time of the three weeks/nine days/shevuah shechal bo " +
+                .setMessage("During the time of the Three weeks/Nine days/Shevuah shechal bo " +
                         "certain restrictions apply:\n\n" +
                         "Three Weeks:\n" +
                         "No listening to music\n" +
