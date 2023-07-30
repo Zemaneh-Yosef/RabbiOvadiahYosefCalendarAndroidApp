@@ -274,4 +274,5 @@
     <string name="amudei_horaah">Amudei Horaah</string>
     <string name="ohr_hachaim">Ohr HaChaim</string>
     <string name="what_s_the_difference">What\'s the difference?</string>
+    <string name="skip_setup_not_recommended">Skip Setup (Not recommended)</string>
 </resources>

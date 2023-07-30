@@ -643,7 +643,7 @@ public class JewishDateInfo {
 
     /**
      * This method returns if Mashiv Haruach Umorid Hageshem is recited.
-     * @return a string containing whether or not Mashiv Haruach Umorid Hageshem is recited
+     * @return a string containing whether or not Mashiv Haruach Umorid Hageshem is recited.
      * For example, if the current date is the 7th day of the month of Nissan, it will return "Mashiv Haruach" in Hebrew and
      * if the current date is the 17th day of the month of Nissan, it will return "Morid Hatal"
      */

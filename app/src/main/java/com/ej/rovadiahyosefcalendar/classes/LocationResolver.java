@@ -19,7 +19,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -395,7 +394,6 @@ public class LocationResolver extends Thread {
                     size = 1;//edge case if no elevation data is available
                 }
             } catch (NumberFormatException ex1) {
-                Toast.makeText(mContext, "Elevation not updated. Too many requests. Try again later.", Toast.LENGTH_LONG).show();
                 ex.printStackTrace();
                 ex1.printStackTrace();
                 return;

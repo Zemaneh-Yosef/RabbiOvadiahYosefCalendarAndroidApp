@@ -1,5 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <shape android:shape="oval">
+            <stroke
+                android:width="8dp"
+                android:color="#00BCD4" /> <!-- Set the color to teal (#008080) -->
+            <gradient
+                android:startColor="#FFC107"
+                android:centerColor="#FFEB3B"
+                android:endColor="#FFC107" />
+            <corners android:radius="2dp" />
+        </shape>
+    </item>
+
+    <item android:state_focused="true">
+        <shape android:shape="oval">
+            <stroke
+                android:width="8dp"
+                android:color="#00BCD4" /> <!-- Set the color to teal (#008080) -->
+            <gradient
+                android:startColor="#FFC107"
+                android:centerColor="#FFEB3B"
+                android:endColor="#FFC107" />
+            <corners android:radius="2dp" />
+        </shape>
+    </item>
+
+    <item android:state_hovered="true">
+        <shape android:shape="oval">
+            <stroke
+                android:width="8dp"
+                android:color="#00BCD4" /> <!-- Set the color to teal (#008080) -->
+            <gradient
+                android:startColor="#FFC107"
+                android:centerColor="#FFEB3B"
+                android:endColor="#FFC107" />
+            <corners android:radius="2dp" />
+        </shape>
+    </item>
+
+    <item android:state_selected="true">
+        <shape android:shape="oval">
+            <stroke
+                android:width="8dp"
+                android:color="#00BCD4" /> <!-- Set the color to teal (#008080) -->
+            <gradient
+                android:startColor="#FFC107"
+                android:centerColor="#FFEB3B"
+                android:endColor="#FFC107" />
+            <corners android:radius="2dp" />
+        </shape>
+    </item>
+
     <item>
         <shape android:shape="oval">
             <gradient

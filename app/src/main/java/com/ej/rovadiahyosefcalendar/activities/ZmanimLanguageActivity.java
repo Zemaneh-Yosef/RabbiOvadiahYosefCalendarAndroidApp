@@ -41,6 +41,11 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
                 "סוף זמן שמע גר\"א\n" +
                 "סוף זמן ברכות שמע\n" +
                 "חצות\n" +
+                "מנחה גדולה\n" +
+                "מנחה קטנה\n" +
+                "פלג המנחה\n" +
+                "שקיעה\n" +
+                "צאת הכוכבים\n" +
                 "וגו...";
         hebrew.setText(hebrewText);
 
@@ -51,6 +56,11 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
                 "Sof Zman Shma Gr'a" + "\n" +
                 "Sof Zman Brachot Shma" + "\n" +
                 "Chatzot" + "\n" +
+                "Mincha Gedola" + "\n" +
+                "Mincha Ketana" + "\n" +
+                "Plag HaMincha" + "\n" +
+                "Shkia" + "\n" +
+                "Tzeit Hacochavim" + "\n" +
                 "etc...";
         english.setText(englishText);
 
@@ -61,6 +71,11 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
                 "Latest Shma Gr'a" + "\n" +
                 "Latest Brachot Shma" + "\n" +
                 "Mid-Day" + "\n" +
+                "Earliest Mincha" + "\n" +
+                "Mincha Ketana" + "\n" +
+                "Plag HaMincha" + "\n" +
+                "Sunset" + "\n" +
+                "Nightfall" + "\n" +
                 "etc...";
         englishTranslated.setText(englishTranslatedText);
 
@@ -108,7 +123,10 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
                     .setMessage(R.string.helper_text)
                     .show();
             return true;
-        } else if (id == R.id.restart) {
+        } else if (id == R.id.skipSetup) {
+            finish();
+            return true;
+        }  else if (id == R.id.restart) {
             startActivity(new Intent(this, FullSetupActivity.class));
             finish();
             return true;

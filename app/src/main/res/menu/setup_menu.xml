@@ -7,6 +7,10 @@
         android:title="@string/full_restart"
         />
     <item
+        android:id="@+id/skipSetup"
+        android:title="@string/skip_setup_not_recommended"
+        />
+    <item
         android:id="@+id/help"
         android:title="@string/help"
         />

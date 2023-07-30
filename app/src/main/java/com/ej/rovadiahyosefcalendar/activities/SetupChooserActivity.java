@@ -99,6 +99,9 @@ public class SetupChooserActivity extends AppCompatActivity {
                     .setMessage(R.string.helper_text)
                     .show();
             return true;
+        } else if (id == R.id.skipSetup) {
+            finish();
+            return true;
         } else if (id == R.id.restart) {
             startActivity(new Intent(this, FullSetupActivity.class));
             finish();

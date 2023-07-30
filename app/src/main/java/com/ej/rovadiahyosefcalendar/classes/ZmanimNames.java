@@ -76,6 +76,14 @@ public class ZmanimNames {
         }
     }
 
+    public String getStartsString() {
+        if (mIsZmanimInHebrew) {
+            return " מתחיל";
+        } else {
+            return " Starts";
+        }
+    }
+
     public String getEndsString() {
         if (mIsZmanimEnglishTranslated) {
             return " Ends";

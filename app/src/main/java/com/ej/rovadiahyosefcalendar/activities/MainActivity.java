@@ -1551,7 +1551,8 @@ public class MainActivity extends AppCompatActivity {
             announcements.append(day.replace("/ ","\n")).append("\n");
         }
 
-        String isOKToListenToMusic = mJewishDateInfo.isOKToListenToMusic();
+        String isOKToListenToMusic = mJewishDateInfo.isOKToListenToMusic()
+                .replace("@", new ZmanimNames(mIsZmanimInHebrew,mIsZmanimEnglishTranslated).getChatzotString());
         if (!isOKToListenToMusic.isEmpty()) {
             announcements.append(isOKToListenToMusic).append("\n");
         }
@@ -1815,6 +1816,11 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         ZmanimNames zmanimNames = new ZmanimNames(mIsZmanimInHebrew, mIsZmanimEnglishTranslated);
+        if (mJewishDateInfo.getJewishCalendar().isTaanis()
+                && mJewishDateInfo.getJewishCalendar().getYomTovIndex() != JewishCalendar.TISHA_BEAV
+                && mJewishDateInfo.getJewishCalendar().getYomTovIndex() != JewishCalendar.YOM_KIPPUR) {
+            zmanim.add(new ZmanListEntry(zmanimNames.getTaanitString() + zmanimNames.getStartsString(), mROZmanimCalendar.getAlos72Zmanis(), true));
+        }
         zmanim.add(new ZmanListEntry(zmanimNames.getAlotString(), mROZmanimCalendar.getAlos72Zmanis(), true));
         zmanim.add(new ZmanListEntry(zmanimNames.getTalitTefilinString(), mROZmanimCalendar.getEarliestTalitTefilin(), true));
         if (mSettingsPreferences.getBoolean("ShowElevatedSunrise", false)) {
@@ -1906,6 +1912,13 @@ public class MainActivity extends AppCompatActivity {
                 mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
             }
         }
+        mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
+        mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
+        mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);
+        if (mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.TISHA_BEAV) {
+            zmanim.add(new ZmanListEntry(zmanimNames.getTaanitString() + zmanimNames.getStartsString(), mROZmanimCalendar.getSunset(), true));
+        }
+        mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
         zmanim.add(new ZmanListEntry(zmanimNames.getSunsetString(), mROZmanimCalendar.getSunset(), true));
         zmanim.add(new ZmanListEntry(zmanimNames.getTzaitHacochavimString(), mROZmanimCalendar.getTzeit(), true));
         if (mJewishDateInfo.getJewishCalendar().hasCandleLighting() &&
@@ -1977,6 +1990,11 @@ public class MainActivity extends AppCompatActivity {
     private void addAmudeiHoraahZmanim(List<ZmanListEntry> zmanim, boolean isForWeeklyZmanim) {
         mROZmanimCalendar.setUseElevation(false);
         ZmanimNames zmanimNames = new ZmanimNames(mIsZmanimInHebrew, mIsZmanimEnglishTranslated);
+        if (mJewishDateInfo.getJewishCalendar().isTaanis()
+                && mJewishDateInfo.getJewishCalendar().getYomTovIndex() != JewishCalendar.TISHA_BEAV
+                && mJewishDateInfo.getJewishCalendar().getYomTovIndex() != JewishCalendar.YOM_KIPPUR) {
+            zmanim.add(new ZmanListEntry(zmanimNames.getTaanitString() + zmanimNames.getStartsString(), mROZmanimCalendar.getAlotAmudeiHoraah(), true));
+        }
         zmanim.add(new ZmanListEntry(zmanimNames.getAlotString(), mROZmanimCalendar.getAlotAmudeiHoraah(), true));
         zmanim.add(new ZmanListEntry(zmanimNames.getTalitTefilinString(), mROZmanimCalendar.getEarliestTalitTefilinAmudeiHoraah(), true));
         if (mSettingsPreferences.getBoolean("ShowElevatedSunrise", false)) {
@@ -2047,6 +2065,13 @@ public class MainActivity extends AppCompatActivity {
                 mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
             }
         }
+        mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
+        mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
+        mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);
+        if (mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.TISHA_BEAV) {
+            zmanim.add(new ZmanListEntry(zmanimNames.getTaanitString() + zmanimNames.getStartsString(), mROZmanimCalendar.getSunset(), true));
+        }
+        mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
         zmanim.add(new ZmanListEntry(zmanimNames.getSunsetString(), mROZmanimCalendar.getSeaLevelSunset(), true));
         zmanim.add(new ZmanListEntry(zmanimNames.getTzaitHacochavimString(), mROZmanimCalendar.getTzeitAmudeiHoraah(), true));
         zmanim.add(new ZmanListEntry(zmanimNames.getTzaitHacochavimString() + " " + zmanimNames.getLChumraString(), mROZmanimCalendar.getTzeitAmudeiHoraahLChumra(), true));
