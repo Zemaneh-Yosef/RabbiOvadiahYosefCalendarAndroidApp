@@ -161,8 +161,8 @@
     <string name="cancel">Cancel</string>
     <string name="the_whole_night_of_the_15th_day_of_the_hebrew_month">The whole night of the 15th day of the hebrew month</string>
     <string name="h">h:</string>
-    <string name="m_and">\"m and \"</string>
-    <string name="chalakim">\" Chalakim\"</string>
+    <string name="m_and">m and</string>
+    <string name="chalakim">Chalakim</string>
     <string name="do_not_rely_on_the_seconds">Do NOT rely on the seconds!</string>
     <string name="do_not_rely_on_the_seconds_message">DO NOT RELY ON THESE SECONDS. The only zman that can be relied on to the second is the visible sunrise time based on chaitables.com. Otherwise, these zmanim are NOT accurate to the second! You should always round up or down a minute or two just in case.</string>
     <string name="No_email_app_error">No email app…</string>
@@ -275,4 +275,8 @@
     <string name="ohr_hachaim">Ohr HaChaim</string>
     <string name="what_s_the_difference">What\'s the difference?</string>
     <string name="skip_setup_not_recommended">Skip Setup (Not recommended)</string>
+    <string name="birchat_halevanah">Birchat Helavana</string>
+    <string name="show_siddur">Show Siddur for this day</string>
+    <string name="until">until</string>
+   <string name="night_of">the night of</string>
 </resources>

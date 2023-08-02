@@ -1,5 +1,7 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
+import static com.ej.rovadiahyosefcalendar.activities.MainActivity.mJewishDateInfo;
+
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
@@ -7,6 +9,7 @@ import com.kosherjava.zmanim.hebrewcalendar.TefilaRules;
 
 import org.apache.commons.lang3.time.DateUtils;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
@@ -615,21 +618,35 @@ public class JewishDateInfo {
     }
 
     /**
-     * This method will return whether or not the current date is the end time or start time for Birchat HaLevana or an empty string if it is not
+     * This method will return whether or not the current date is the start time, middle, or end time
+     * for Birchat HaLevana or an empty string
      * either of those days
-     * @return a string containing whether or not the current date is the start time or end time for Birchat HaLevana.
-     * For example, if the current date is the 7th day of the month of Nissan, it will return "Birchat HaLevana starts tonight"
-     * If the current date is the 14th day of the month of Nissan, it will return "Last night for Birchat HaLevana"
+     * @return a string containing the status of birchat halevana this month
      */
-    public String getIsTonightStartOrEndBirchatLevana() {
+    public String getBirchatLevana() {
         Calendar sevenDays = Calendar.getInstance();
         sevenDays.setTime(jewishCalendar.getTchilasZmanKidushLevana7Days());
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM d", Locale.getDefault());
+        JewishCalendar latest = (JewishCalendar) jewishCalendar.clone();
+        latest.setJewishDayOfMonth(14);
 
-        if (DateUtils.isSameDay(jewishCalendar.getGregorianCalendar(), sevenDays)) {
-            if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
-                return "בִּרְכַּת הַלְּבָנָה מַתְחִילָה הַלַּיְלָה";
+        if (jewishCalendar.getJewishMonth() != JewishDate.AV) {
+            if (DateUtils.isSameDay(jewishCalendar.getGregorianCalendar(), sevenDays)) {
+                if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                    return "בִּרְכַּת הַלְּבָנָה מַתְחִילָה הַלַּיְלָה";
+                }
+                return "Birchat HaLevana starts tonight";
             }
-            return "Birchat HaLevana starts tonight";
+        } else {// Special case for Tisha Beav
+            if (jewishCalendar.getJewishDayOfMonth() < 9) {
+                return "";
+            }
+            if (jewishCalendar.isTishaBav()) {
+                if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                    return "בִּרְכַּת הַלְּבָנָה מַתְחִילָה הַלַּיְלָה";
+                }
+                return "Birchat HaLevana starts tonight";
+            }
         }
 
         if (jewishCalendar.getJewishDayOfMonth() == 14) {
@@ -637,6 +654,14 @@ public class JewishDateInfo {
                 return "הלילה האחרון לברכת הלבנה";
             }
             return "Last night for Birchat HaLevana";
+        }
+
+        if (jewishCalendar.getGregorianCalendar().getTime().after(sevenDays.getTime())
+        && jewishCalendar.getGregorianCalendar().getTime().before(latest.getGregorianCalendar().getTime())) {
+            if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                return "ברכת הלבנה עד ליל חמשה עשר";
+            }
+            return "Birchat HaLevana until " + sdf.format(latest.getGregorianCalendar().getTime());
         }
         return "";
     }

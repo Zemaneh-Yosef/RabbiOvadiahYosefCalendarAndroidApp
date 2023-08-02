@@ -24,7 +24,9 @@ import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ej.rovadiahyosefcalendar.R;
+import com.ej.rovadiahyosefcalendar.activities.CurrentLocationActivity;
 import com.ej.rovadiahyosefcalendar.activities.MainActivity;
+import com.ej.rovadiahyosefcalendar.activities.MoladActivity;
 import com.ej.rovadiahyosefcalendar.activities.SetupChooserActivity;
 import com.ej.rovadiahyosefcalendar.activities.SetupElevationActivity;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
@@ -34,6 +36,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -175,8 +178,12 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                             + " meters" + "\n" +
                             "Current Time Zone: " + sCurrentTimeZoneID;
                     dialogBuilder.setMessage(locationInfo);
-                    dialogBuilder.setNegativeButton("Change Elevation", (dialog, which) ->
-                            sSetupLauncher.launch(new Intent(context, SetupElevationActivity.class).putExtra("fromMenu",true)));
+                    //dialogBuilder.setNeutralButton("Change Location", (dialog, which) ->
+                    //        sSetupLauncher.launch(new Intent(context, CurrentLocationActivity.class)));//Look into this later
+                    if (!PreferenceManager.getDefaultSharedPreferences(context).getBoolean("LuachAmudeiHoraah", false)) {
+                        dialogBuilder.setNegativeButton("Change Elevation", (dialog, which) ->
+                                sSetupLauncher.launch(new Intent(context, SetupElevationActivity.class).putExtra("fromMenu",true)));
+                    }
                     dialogBuilder.show();
                     resetDialogBuilder();
                 }
@@ -252,6 +259,9 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 //                    dialogBuilder.setPositiveButton("Dismiss", (dialog, which) -> dialog.dismiss());
 //                }
             }
+            if (zmanim.get(position).getTitle().contains(context.getString(R.string.show_siddur))) {
+                context.startActivity(new Intent(context, SiddurViewerActivity.class));
+            }
         });
 
         if (mSharedPreferences.getBoolean("useImage", false)) {
@@ -268,8 +278,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         }
 
         if (zmanim.get(position).isShouldBeDimmed()) {
-            holder.mLeftTextView.setTextColor(context.getResources().getColor(R.color.disabled_gray, context.getTheme()));
-            holder.mRightTextView.setTextColor(context.getResources().getColor(R.color.disabled_gray, context.getTheme()));
+            holder.mLeftTextView.setTextColor(context.getResources().getColor(com.rarepebble.colorpicker.R.color.disabled_gray, context.getTheme()));
+            holder.mRightTextView.setTextColor(context.getResources().getColor(com.rarepebble.colorpicker.R.color.disabled_gray, context.getTheme()));
         }
     }
 

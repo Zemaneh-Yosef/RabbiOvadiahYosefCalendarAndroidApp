@@ -47,7 +47,7 @@ public class CalendarChooserActivity extends AppCompatActivity {
         amudeiHoraah.setOnClickListener(v -> saveInfoAndFinish(true));
 
         Button difference = findViewById(R.id.calendar_chooser_difference);
-        difference.setOnClickListener(v -> new AlertDialog.Builder(this, R.style.Theme_AppCompat_DayNight)
+        difference.setOnClickListener(v -> new AlertDialog.Builder(this, androidx.appcompat.R.style.Theme_AppCompat_DayNight)
                 .setTitle(R.string.what_s_the_difference)
                 .setPositiveButton(R.string.ok, (dialog, which) -> dialog.dismiss())
                 .setMessage(calendarDifference)
@@ -72,7 +72,7 @@ public class CalendarChooserActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull @NotNull MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.help) {
-            new AlertDialog.Builder(this, R.style.Theme_AppCompat_DayNight)
+            new AlertDialog.Builder(this, androidx.appcompat.R.style.Theme_AppCompat_DayNight)
                     .setTitle(R.string.help_using_this_app)
                     .setPositiveButton(R.string.ok, null)
                     .setMessage(R.string.helper_text)

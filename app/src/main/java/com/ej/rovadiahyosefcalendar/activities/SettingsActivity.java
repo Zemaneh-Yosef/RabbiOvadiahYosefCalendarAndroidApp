@@ -220,7 +220,7 @@ public class SettingsActivity extends AppCompatActivity {
             Preference help = findPreference("help");
             if (help != null) {
                 help.setOnPreferenceClickListener(v -> {
-                    new AlertDialog.Builder(requireContext(), R.style.Theme_AppCompat_DayNight)
+                    new AlertDialog.Builder(requireContext(), androidx.appcompat.R.style.Theme_AppCompat_DayNight)
                             .setTitle(R.string.help_using_this_app)
                             .setPositiveButton(R.string.ok, null)
                             .setMessage(R.string.helper_text)

@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
     //custom classes/kosherjava classes:
     private LocationResolver mLocationResolver;
     private ROZmanimCalendar mROZmanimCalendar;
-    private JewishDateInfo mJewishDateInfo;
+    public static JewishDateInfo mJewishDateInfo;
     private final ZmanimFormatter mZmanimFormatter = new ZmanimFormatter(TimeZone.getDefault());
 
     //android classes:
@@ -1424,9 +1424,9 @@ public class MainActivity extends AppCompatActivity {
 
         zmanim.add(new ZmanListEntry(mJewishDateInfo.getIsTachanunSaid()));
 
-        String tonightStartOrEndBirchatLevana = mJewishDateInfo.getIsTonightStartOrEndBirchatLevana();
-        if (!tonightStartOrEndBirchatLevana.isEmpty()) {
-            zmanim.add(new ZmanListEntry(tonightStartOrEndBirchatLevana));
+        String birchatLevana = mJewishDateInfo.getBirchatLevana();
+        if (!birchatLevana.isEmpty()) {
+            zmanim.add(new ZmanListEntry(birchatLevana));
         }
 
         if (mJewishDateInfo.getJewishCalendar().isBirkasHachamah()) {
@@ -1487,7 +1487,7 @@ public class MainActivity extends AppCompatActivity {
             zmanim.add(new ZmanListEntry(getString(R.string.elevation) + " " + mElevation + " " + getString(R.string.meters)));
         }
 
-        //TODO: add a setting to send people to the siddur for the current day shown
+        //zmanim.add(new ZmanListEntry(getString(R.string.show_siddur)));
 
         return zmanim;
     }
@@ -1584,7 +1584,7 @@ public class MainActivity extends AppCompatActivity {
             announcements.append(tachanun).append("\n");
         }
 
-        String tonightStartOrEndBirchatLevana = mJewishDateInfo.getIsTonightStartOrEndBirchatLevana();
+        String tonightStartOrEndBirchatLevana = mJewishDateInfo.getBirchatLevana();
         if (!tonightStartOrEndBirchatLevana.isEmpty()) {
             announcements.append(tonightStartOrEndBirchatLevana).append("\n");
         }
@@ -2493,7 +2493,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(browserIntent);
             return true;
         } else if (id == R.id.help) {
-            new AlertDialog.Builder(this, R.style.Theme_AppCompat_DayNight)
+            new AlertDialog.Builder(this, androidx.appcompat.R.style.Theme_AppCompat_DayNight)
                     .setTitle(R.string.help_using_this_app)
                     .setPositiveButton(R.string.ok, null)
                     .setMessage(R.string.helper_text)

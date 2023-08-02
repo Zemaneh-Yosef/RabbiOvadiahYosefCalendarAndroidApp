@@ -75,18 +75,11 @@ public class MoladActivity extends AppCompatActivity {
             updateMoladDates();
         };
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            return new CustomDatePickerDialog(this, onDateSetListener,
-                    mUserChosenDate.get(Calendar.YEAR),
-                    mUserChosenDate.get(Calendar.MONTH),
-                    mUserChosenDate.get(Calendar.DAY_OF_MONTH),
-                    mJewishCalendar);
-        } else {
-            return new DatePickerDialog(this, onDateSetListener,
-                    mUserChosenDate.get(Calendar.YEAR),
-                    mUserChosenDate.get(Calendar.MONTH),
-                    mUserChosenDate.get(Calendar.DAY_OF_MONTH));
-        }
+        return new CustomDatePickerDialog(this, onDateSetListener,
+                mUserChosenDate.get(Calendar.YEAR),
+                mUserChosenDate.get(Calendar.MONTH),
+                mUserChosenDate.get(Calendar.DAY_OF_MONTH),
+                mJewishCalendar);
     }
 
     @SuppressLint("SetTextI18n")
@@ -109,7 +102,7 @@ public class MoladActivity extends AppCompatActivity {
         int moladMinutes = molad.getMoladMinutes();
         int moladChalakim = molad.getMoladChalakim();
 
-        String moladTime = moladHours + getString(R.string.h) + moladMinutes + getString(R.string.m_and) + moladChalakim + getString(R.string.chalakim);
+        String moladTime = moladHours + getString(R.string.h) + moladMinutes + getString(R.string.m_and) + " " + moladChalakim + " " + getString(R.string.chalakim);
 
         mMoladAnnouncementTime.setText(moladTime);
         mMoladDate.setText(mSDF.format(mJewishCalendar.getMoladAsDate()));

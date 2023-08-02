@@ -146,7 +146,7 @@ public class AdvancedSetupActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull @NotNull MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.help) {
-            new AlertDialog.Builder(this, R.style.Theme_AppCompat_DayNight)
+            new AlertDialog.Builder(this, androidx.appcompat.R.style.Theme_AppCompat_DayNight)
                     .setTitle(R.string.help_using_this_app)
                     .setPositiveButton(R.string.ok, null)
                     .setMessage(R.string.helper_text)

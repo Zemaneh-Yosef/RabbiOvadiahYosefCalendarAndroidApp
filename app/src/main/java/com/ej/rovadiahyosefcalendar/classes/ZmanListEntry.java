@@ -9,7 +9,6 @@ public class ZmanListEntry {
     private final boolean isZman;
     private boolean isNoteworthyZman;
     private boolean isRTZman;
-
     private boolean shouldBeDimmed;
 
     public ZmanListEntry(String title) {
