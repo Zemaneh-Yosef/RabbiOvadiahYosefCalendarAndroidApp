@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:attr/colorBackground"
+    tools:context=".activities.SiddurChooserActivity">
+
+    <LinearLayout
+        android:id="@+id/siddur_choices"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/jewish_special_day"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="36dp"
+            android:textSize="26sp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textColor="?android:attr/textColorPrimary"
+            />
+
+        <Button
+            android:id="@+id/shacharit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/shacharit"
+            android:textStyle="bold"
+            android:textSize="26sp"
+            android:textColor="@color/black"
+            android:background="@drawable/colorful_gradient_square">
+        </Button>
+        <Button
+            android:id="@+id/mussaf"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="@string/mussaf"
+            android:textStyle="bold"
+            android:textSize="26sp"
+            android:textColor="@color/black"
+            android:background="@drawable/colorful_gradient_square">
+        </Button>
+        <Button
+            android:id="@+id/mincha"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="@string/mincha"
+            android:textStyle="bold"
+            android:textSize="26sp"
+            android:textColor="@color/black"
+            android:background="@drawable/colorful_gradient_square">
+        </Button>
+        <Button
+            android:id="@+id/neilah"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="@string/neilah"
+            android:textStyle="bold"
+            android:textSize="26sp"
+            android:textColor="@color/black"
+            android:background="@drawable/colorful_gradient_square">
+        </Button>
+        <Button
+            android:id="@+id/arvit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="@string/arvit"
+            android:textStyle="bold"
+            android:textSize="26sp"
+            android:textColor="@color/black"
+            android:background="@drawable/colorful_gradient_square">
+        </Button>
+
+    </LinearLayout>
+
+</ScrollView>

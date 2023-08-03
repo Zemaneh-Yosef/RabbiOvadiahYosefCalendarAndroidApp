@@ -24,11 +24,10 @@ import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ej.rovadiahyosefcalendar.R;
-import com.ej.rovadiahyosefcalendar.activities.CurrentLocationActivity;
 import com.ej.rovadiahyosefcalendar.activities.MainActivity;
-import com.ej.rovadiahyosefcalendar.activities.MoladActivity;
 import com.ej.rovadiahyosefcalendar.activities.SetupChooserActivity;
 import com.ej.rovadiahyosefcalendar.activities.SetupElevationActivity;
+import com.ej.rovadiahyosefcalendar.activities.SiddurChooserActivity;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.YomiCalculator;
 
@@ -36,7 +35,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -259,8 +257,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 //                    dialogBuilder.setPositiveButton("Dismiss", (dialog, which) -> dialog.dismiss());
 //                }
             }
-            if (zmanim.get(position).getTitle().contains(context.getString(R.string.show_siddur))) {
-                context.startActivity(new Intent(context, SiddurViewerActivity.class));
+            if (zmanim.get(position).getTitle().equals(context.getString(R.string.show_siddur))) {
+                context.startActivity(new Intent(context, SiddurChooserActivity.class));
             }
         });
 
@@ -740,6 +738,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     private void showChatzotLaylaDialog() {
         dialogBuilder.setTitle("Midnight - \u05D7\u05E6\u05D5\u05EA \u05DC\u05D9\u05DC\u05D4 - Chatzot Layla")
                 .setMessage("This is the middle of the halachic night, when the sun is exactly in the middle of the sky beneath us.\n\n" +
+                        "It is best to have Melaveh Malka before this time.\n\n" +
                         "This time is calculated as 6 zmaniyot/seasonal hours after sunset. " +
                         "The GR\"A calculates a zmaniyot/seasonal hour by taking the time between sunrise and sunset (elevation included) and " +
                         "divides it into 12 equal parts.\n\n")

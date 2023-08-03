@@ -23,7 +23,10 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".classes.SiddurViewerActivity"
+            android:name=".activities.SiddurViewActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.SiddurChooserActivity"
             android:exported="false" />
         <activity
             android:name=".activities.CalendarChooserActivity"

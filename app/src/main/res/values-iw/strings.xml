@@ -494,5 +494,10 @@
     <string name="show_siddur">הצג סידור ליום זה</string>
     <string name="until">עד</string>
     <string name="night_of">ליל</string>
+    <string name="shacharit">שחרית</string>
+    <string name="mussaf">מוסף</string>
+    <string name="mincha">מנחה</string>
+    <string name="arvit">ערבית</string>
+    <string name="neilah">נעילה</string>
 
 </resources>
