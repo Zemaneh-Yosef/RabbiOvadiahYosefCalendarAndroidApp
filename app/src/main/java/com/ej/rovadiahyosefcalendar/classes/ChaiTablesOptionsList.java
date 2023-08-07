@@ -167,7 +167,7 @@ public class ChaiTablesOptionsList {
 
     /**
      * STEP 2
-     * This method is used to set the metropolitan areas of the country.
+     * This method is used to set the metropolitan area that the user selected.
      * If a country has not been selected, the method throws an exception.
      * @param metropolitanArea The string that represents the metropolitan area.
      * @see #selectCountry(ChaiTablesCountries)
@@ -206,14 +206,12 @@ public class ChaiTablesOptionsList {
      * @param year the desired hebrew year for the chaitable link
      * @param userId the user id for the chaitables link
      */
-    public static String getChaiTablesLink(double latitude, double longitude, int timezone, int searchRadius, int type, int year, int userId, boolean switchLongitude) {
+    public static String getChaiTablesLink(double latitude, double longitude, int timezone, int searchRadius, int type, int year, int userId) {
         if (type < 0 || type > 5) {
             throw new IllegalArgumentException("type of tables must be between 0 and 5");
         }
 
-        if (switchLongitude) {
-            longitude = -longitude;
-        }
+        longitude = -longitude;
 
         if (selectedCountry.equals("Eretz_Yisroel")) {
             return getChaiTablesEretzYisroelLink(type, year, userId);

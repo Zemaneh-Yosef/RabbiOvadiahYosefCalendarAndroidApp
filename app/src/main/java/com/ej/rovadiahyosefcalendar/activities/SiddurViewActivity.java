@@ -37,6 +37,9 @@ public class SiddurViewActivity extends AppCompatActivity {
             case "Shacharit":
                 prayers = siddurMaker.getShacharitPrayers();
                 break;
+            case "Musaf":
+                prayers = siddurMaker.getMusafPrayers();
+                break;
             case "Mincha":
                 prayers = siddurMaker.getMinchaPrayers();
                 break;

@@ -1487,7 +1487,7 @@ public class MainActivity extends AppCompatActivity {
             zmanim.add(new ZmanListEntry(getString(R.string.elevation) + " " + mElevation + " " + getString(R.string.meters)));
         }
 
-        zmanim.add(new ZmanListEntry(getString(R.string.show_siddur)));
+        //zmanim.add(new ZmanListEntry(getString(R.string.show_siddur)));
 
         return zmanim;
     }

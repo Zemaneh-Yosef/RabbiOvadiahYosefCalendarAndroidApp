@@ -149,7 +149,7 @@ public class SimpleSetupActivity extends AppCompatActivity {
             progressBar.setVisibility(View.VISIBLE);
             int userID = getSharedPreferences(SHARED_PREF, MODE_PRIVATE).getInt("USER_ID", 10000);
             ChaiTablesScraper scraper = new ChaiTablesScraper();
-            String link = ChaiTablesOptionsList.getChaiTablesLink(sLatitude, sLongitude, -5, 8, 0, jewishDate.getJewishYear(), userID, true);
+            String link = ChaiTablesOptionsList.getChaiTablesLink(sLatitude, sLongitude, -5, 8, 0, jewishDate.getJewishYear(), userID);
             scraper.setUrl(link);
             scraper.setExternalFilesDir(getExternalFilesDir(null));
             scraper.setJewishDate(jewishDate);

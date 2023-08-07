@@ -39,6 +39,10 @@ public class SiddurChooserActivity extends AppCompatActivity {
         if (!(sJewishDateInfo.getJewishCalendar().isRoshChodesh()
                 || sJewishDateInfo.getJewishCalendar().isCholHamoed())) {
             mussaf.setVisibility(View.GONE);
+        } else {
+            startActivity(new Intent(this, SiddurViewActivity.class)
+                    .putExtra("prayer", "Musaf"));
+
         }
         Button mincha = findViewById(R.id.mincha);
         mincha.setOnClickListener(v -> {
