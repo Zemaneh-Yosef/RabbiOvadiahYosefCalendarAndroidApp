@@ -21,8 +21,6 @@ import java.util.ArrayList;
 
 public class SiddurViewActivity extends AppCompatActivity {
 
-    private SiddurMaker siddurMaker;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,7 +29,7 @@ public class SiddurViewActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
-        siddurMaker = new SiddurMaker(sJewishDateInfo);
+        SiddurMaker siddurMaker = new SiddurMaker(sJewishDateInfo);
         ArrayList<HighlightString> prayers = new ArrayList<>();
         switch ((String) getIntent().getExtras().get("prayer")) {
             case "Shacharit":

@@ -14,6 +14,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,7 +42,7 @@ import java.util.TimeZone;
 
 public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder> {
 
-    private final List<ZmanListEntry> zmanim;
+    private List<ZmanListEntry> zmanim;
     private final SharedPreferences mSharedPreferences;
     private final Context context;
     private AlertDialog.Builder dialogBuilder;
@@ -81,6 +82,10 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         dialogBuilder = new AlertDialog.Builder(this.context, R.style.alertDialog);
         dialogBuilder.setPositiveButton("Dismiss", (dialog, which) -> dialog.dismiss());
         dialogBuilder.create();
+    }
+
+    public void setZmanim(List<ZmanListEntry> zmanim) {
+        this.zmanim = zmanim;
     }
 
     @NotNull
@@ -195,7 +200,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     dialogBuilder.setMessage("This will open the Sefaria website or app in a new window with the weekly parsha.");
                     dialogBuilder.setPositiveButton("Open", (dialog, which) -> {
                                 Intent intent = new Intent(Intent.ACTION_VIEW);
-                                intent.setData(android.net.Uri.parse(parshaLink));
+                                intent.setData(Uri.parse(parshaLink));
                                 context.startActivity(intent);
                             });
                     dialogBuilder.setNegativeButton("Dismiss", (dialog, which) -> dialog.dismiss());
@@ -236,7 +241,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     dialogBuilder.setMessage("This will open the Sefaria website or app in a new window with the daf yomi.");
                     dialogBuilder.setPositiveButton("Open", (dialog, which) -> {
                                 Intent intent = new Intent(Intent.ACTION_VIEW);
-                                intent.setData(android.net.Uri.parse(dafYomiLink));
+                                intent.setData(Uri.parse(dafYomiLink));
                                 context.startActivity(intent);
                             });
                     dialogBuilder.setNegativeButton("Dismiss", (dialog, which) -> dialog.dismiss());
@@ -777,12 +782,13 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         "Both the Ohr HaChaim and the Amudei Horaah calendars use the above method to get the time for the tekufa. However, the " +
                         "Amudei Horaah calendar differs from the Ohr HaChaim calendar, by using the local midday time of Israel. Which causes a 21 " +
                         "minute difference. " +
-                        "Therefore, the Amudei Horaah calendar time for the tekufa will always be 21 minutes before the Ohr HaChaim's time.")
+                        "Therefore, the Amudei Horaah calendar time for the tekufa will always be 21 minutes before the Ohr HaChaim's time.\n\n" +
+                        "In practice, it is recommended to keep both times if possible as it is only adding an additional 21 minutes.")
                 .show();
     }
 
     private void showTachanunDialog() {
-        dialogBuilder.setTitle("Tachanun - \u05EA\u05D7\u05E0\u05D5\u05DF")
+        dialogBuilder.setTitle("Tachanun - תחנון")
                 .setMessage("Here is a list of days with no tachanun:\n\n" +
                         "Rosh Chodesh\n" +
                         "The entire month of Nissan\n" +

@@ -1,13 +1,17 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 
 import com.ej.rovadiahyosefcalendar.R;
 
@@ -45,8 +49,9 @@ public class SiddurAdapter extends ArrayAdapter<String> {
         return position;
     }
 
+    @NonNull
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
         ViewHolder viewHolder;
 
         if (convertView == null) {
@@ -71,6 +76,14 @@ public class SiddurAdapter extends ArrayAdapter<String> {
             convertView.setBackgroundColor(Color.TRANSPARENT);
             viewHolder.textView.setTextColor(viewHolder.defaultTextColor);
         }
+
+        viewHolder.textView.setOnClickListener(l -> {
+            if (siddur.get(position).toString().equals("Open Sefaria")) {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.sefaria.org/Siddur_Edot_HaMizrach?tab=contents"));
+                context.startActivity(browserIntent);
+            }
+        });
+        viewHolder.textView.setTextIsSelectable(false);
 
         return convertView;
     }

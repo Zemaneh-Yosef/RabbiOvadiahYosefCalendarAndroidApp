@@ -45,6 +45,7 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -73,6 +74,7 @@ import com.ej.rovadiahyosefcalendar.notifications.ZmanimNotifications;
 import com.kosherjava.zmanim.hebrewcalendar.Daf;
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
+import com.kosherjava.zmanim.hebrewcalendar.TefilaRules;
 import com.kosherjava.zmanim.hebrewcalendar.YerushalmiYomiCalculator;
 import com.kosherjava.zmanim.hebrewcalendar.YomiCalculator;
 import com.kosherjava.zmanim.util.GeoLocation;
@@ -107,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean mBackHasBeenPressed = false;
     private boolean mUpdateTablesDialogShown;
     private boolean mInitialized = false;
-    private int mCurrentPosition;//current position in the RecyclerView list of zmanim to return to
+    private int mCurrentPosition;//current top position in the list of zmanim to return to
     private double mElevation = 0;
     public static double sLatitude;
     public static double sLongitude;
@@ -264,7 +266,7 @@ public class MainActivity extends AppCompatActivity {
                     if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                         updateWeeklyZmanim();
                     } else {
-                        mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                        updateViewsInList();
                     }
                 }
         );
@@ -274,26 +276,14 @@ public class MainActivity extends AppCompatActivity {
         TextView englishMonthYear = findViewById(R.id.englishMonthYear);
         TextView locationName = findViewById(R.id.location_name);
         TextView hebrewMonthYear = findViewById(R.id.hebrewMonthYear);
-        LinearLayout sunday = findViewById(R.id.sunday);
-        LinearLayout monday = findViewById(R.id.monday);
-        LinearLayout tuesday = findViewById(R.id.tuesday);
-        LinearLayout wednesday = findViewById(R.id.wednesday);
-        LinearLayout thursday = findViewById(R.id.thursday);
-        LinearLayout friday = findViewById(R.id.friday);
-        LinearLayout saturday = findViewById(R.id.saturday);
+        LinearLayout mainWeekly = findViewById(R.id.main_weekly_layout);
         TextView weeklyParsha = findViewById(R.id.weeklyParsha);
         TextView weeklyDafs = findViewById(R.id.weeklyDafs);
 
         englishMonthYear.setVisibility(View.VISIBLE);
         locationName.setVisibility(View.VISIBLE);
         hebrewMonthYear.setVisibility(View.VISIBLE);
-        sunday.setVisibility(View.VISIBLE);
-        monday.setVisibility(View.VISIBLE);
-        tuesday.setVisibility(View.VISIBLE);
-        wednesday.setVisibility(View.VISIBLE);
-        thursday.setVisibility(View.VISIBLE);
-        friday.setVisibility(View.VISIBLE);
-        saturday.setVisibility(View.VISIBLE);
+        mainWeekly.setVisibility(View.VISIBLE);
         weeklyParsha.setVisibility(View.VISIBLE);
         weeklyDafs.setVisibility(View.VISIBLE);
         mMainRecyclerView.setVisibility(View.GONE);
@@ -302,24 +292,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void hideWeeklyTextViews() {
-        LinearLayout sunday = findViewById(R.id.sunday);
-        LinearLayout monday = findViewById(R.id.monday);
-        LinearLayout tuesday = findViewById(R.id.tuesday);
-        LinearLayout wednesday = findViewById(R.id.wednesday);
-        LinearLayout thursday = findViewById(R.id.thursday);
-        LinearLayout friday = findViewById(R.id.friday);
-        LinearLayout saturday = findViewById(R.id.saturday);
+        LinearLayout mainWeekly = findViewById(R.id.main_weekly_layout);
 
         mEnglishMonthYear.setVisibility(View.GONE);
         mLocationName.setVisibility(View.GONE);
         mHebrewMonthYear.setVisibility(View.GONE);
-        sunday.setVisibility(View.GONE);
-        monday.setVisibility(View.GONE);
-        tuesday.setVisibility(View.GONE);
-        wednesday.setVisibility(View.GONE);
-        thursday.setVisibility(View.GONE);
-        friday.setVisibility(View.GONE);
-        saturday.setVisibility(View.GONE);
+        mainWeekly.setVisibility(View.GONE);
         mWeeklyParsha.setVisibility(View.GONE);
         mWeeklyDafs.setVisibility(View.GONE);
         mMainRecyclerView.setVisibility(View.VISIBLE);
@@ -472,7 +450,7 @@ public class MainActivity extends AppCompatActivity {
                             if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                                 updateWeeklyZmanim();
                             } else {
-                                mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                                updateViewsInList();
                             }
                         })
                         .setNegativeButton(R.string.no_i_am_not_in_israel, (dialog, which) -> {
@@ -499,7 +477,7 @@ public class MainActivity extends AppCompatActivity {
                             if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                                 updateWeeklyZmanim();
                             } else {
-                                mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                                updateViewsInList();
                             }
                         })
                         .setNegativeButton(R.string.no_i_have_not_left_israel, (dialog, which) -> {
@@ -548,7 +526,7 @@ public class MainActivity extends AppCompatActivity {
                             if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                                 updateWeeklyZmanim();
                             } else {
-                                mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                                updateViewsInList();
                             }
                         }
                     });
@@ -593,23 +571,45 @@ public class MainActivity extends AppCompatActivity {
                 resolveElevationAndVisibleSunrise();
                 instantiateZmanimCalendar();//for the location name
                 setNextUpcomingZman();
-                runOnUiThread(() -> mMainRecyclerView.setAdapter(new ZmanAdapter(MainActivity.this, getZmanimList())));
+                runOnUiThread(this::updateViewsInList);
                 runOnUiThread(() -> mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable()));
             }
             swipeRefreshLayout.setRefreshing(false);
-            Looper.myLooper().quit();
+            Objects.requireNonNull(Looper.myLooper()).quit();
         }).start());
         mMainRecyclerView = findViewById(R.id.mainRV);
         mMainRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mMainRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+
+        mMainRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            final LinearLayout buttons = findViewById(R.id.buttons);
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (dy > 0) {
+                    buttons.setVisibility(View.VISIBLE);
+                } else {
+                    buttons.setVisibility(View.GONE);
+                }
+            }
+        });
         mMainRecyclerView.setOnTouchListener((view, motionEvent) -> mGestureDetector.onTouchEvent(motionEvent));
-        findViewById(R.id.main_layout).setOnTouchListener((view, motionEvent) -> mGestureDetector.onTouchEvent(motionEvent));
+        mLayout.setOnTouchListener((view, motionEvent) -> mGestureDetector.onTouchEvent(motionEvent));
         if (mSharedPreferences.getBoolean("weeklyMode", false)) {
             showWeeklyTextViews();
             updateWeeklyZmanim();
         } else {
             hideWeeklyTextViews();
             mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private void updateViewsInList() {
+        ZmanAdapter zmanAdapter = (ZmanAdapter) mMainRecyclerView.getAdapter();
+        if (zmanAdapter != null) {
+            zmanAdapter.setZmanim(getZmanimList());
+            zmanAdapter.notifyDataSetChanged();
         }
     }
 
@@ -663,7 +663,7 @@ public class MainActivity extends AppCompatActivity {
                 if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                     updateWeeklyZmanim();
                 } else {
-                    mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                    updateViewsInList();
                 }
                 mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable());
                 seeIfTablesNeedToBeUpdated(true);
@@ -689,7 +689,7 @@ public class MainActivity extends AppCompatActivity {
                 if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                     updateWeeklyZmanim();
                 } else {
-                    mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                    updateViewsInList();
                 }
                 mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable());
                 seeIfTablesNeedToBeUpdated(true);
@@ -732,7 +732,7 @@ public class MainActivity extends AppCompatActivity {
             if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                 updateWeeklyZmanim();
             } else {
-                mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                updateViewsInList();
             }
             mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable());
             seeIfTablesNeedToBeUpdated(true);
@@ -893,9 +893,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        if (sShabbatMode) {
-            startActivity(getIntent());
-        }
         if (mMainRecyclerView != null) {
             mCurrentPosition = ((LinearLayoutManager) Objects.requireNonNull(mMainRecyclerView.getLayoutManager())).findFirstVisibleItemPosition();
         }
@@ -1066,7 +1063,6 @@ public class MainActivity extends AppCompatActivity {
         super.onWindowFocusChanged(hasFocus);
         if (!hasFocus)
             if (sShabbatMode) {
-                startActivity(getIntent());
                 startShabbatMode();
             }
     }
@@ -1112,7 +1108,7 @@ public class MainActivity extends AppCompatActivity {
                 if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                     updateWeeklyZmanim();
                 } else {
-                    mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                    updateViewsInList();
                 }
                 mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable());
                 mHandler.removeCallbacks(mZmanimUpdater);
@@ -1334,9 +1330,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * This is the main method for updating the Zmanim in the recyclerview. It is called everytime the user changes the date or updates
-     * any setting that affects the zmanim. This method returns a list of ZmanListEntry objects that will be used to populate the recyclerview.
-     * @return List of ZmanListEntry objects that will be used to populate the recyclerview.
+     * This is the main method for updating the Zmanim in the list view. It is called everytime the user changes the date or updates
+     * any setting that affects the zmanim. This method returns a list of ZmanListEntry objects that will be used to populate the list view.
+     * @return List of ZmanListEntry objects that will be used to populate the list view.
      * @see ZmanListEntry
      * */
     private List<ZmanListEntry> getZmanimList() {
@@ -1468,8 +1464,14 @@ public class MainActivity extends AppCompatActivity {
                 + " / "
                 + sJewishDateInfo.getIsBarcheinuOrBarechAleinuSaid()));
 
-        zmanim.add(new ZmanListEntry(getString(R.string.shaah_zmanit_gr_a) + " " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanisGra())
-                + " " + getString(R.string.mg_a) + " " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanis72MinutesZmanis())));
+        if (!mSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
+            zmanim.add(new ZmanListEntry(getString(R.string.shaah_zmanit_gr_a) + " " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanisGra())
+                    + " " + getString(R.string.mg_a) + " " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanis72MinutesZmanis())));
+        } else {
+            long shaahZmanitMGA = mROZmanimCalendar.getTemporalHour(mROZmanimCalendar.getAlotAmudeiHoraah(), mROZmanimCalendar.getTzais72ZmanisAmudeiHoraah());
+            zmanim.add(new ZmanListEntry(getString(R.string.shaah_zmanit_gr_a) + " " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanisGra())
+                    + " " + getString(R.string.mg_a) + " " + mZmanimFormatter.format(shaahZmanitMGA)));
+        }
 
         if (mSettingsPreferences.getBoolean("ShowLeapYear", false)) {
             zmanim.add(new ZmanListEntry(sJewishDateInfo.isJewishLeapYear()));
@@ -1497,7 +1499,7 @@ public class MainActivity extends AppCompatActivity {
             setNextUpcomingZman();
             if (mMainRecyclerView != null && !mSharedPreferences.getBoolean("weeklyMode", false)) {
                 mCurrentPosition = ((LinearLayoutManager) Objects.requireNonNull(mMainRecyclerView.getLayoutManager())).findFirstVisibleItemPosition();
-                mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                updateViewsInList();
                 if (mCurrentPosition < Objects.requireNonNull(mMainRecyclerView.getAdapter()).getItemCount()) {
                     mMainRecyclerView.scrollToPosition(mCurrentPosition);
                 }
@@ -1551,8 +1553,7 @@ public class MainActivity extends AppCompatActivity {
             announcements.append(day.replace("/ ","\n")).append("\n");
         }
 
-        String isOKToListenToMusic = sJewishDateInfo.isOKToListenToMusic()
-                .replace("@", new ZmanimNames(mIsZmanimInHebrew,mIsZmanimEnglishTranslated).getChatzotString());
+        String isOKToListenToMusic = sJewishDateInfo.isOKToListenToMusic();
         if (!isOKToListenToMusic.isEmpty()) {
             announcements.append(isOKToListenToMusic).append("\n");
         }
@@ -1567,15 +1568,17 @@ public class MainActivity extends AppCompatActivity {
             announcements.append(hallel).append("\n");
         }
 
-        if (sJewishDateInfo.getJewishCalendar().isMashivHaruachEndDate()) {
+        TefilaRules tefilaRules = new TefilaRules();
+
+        if (tefilaRules.isMashivHaruachEndDate(sJewishDateInfo.getJewishCalendar())) {
             announcements.append("מוריד הטל/ברכנו").append("\n");
         }
 
-        if (sJewishDateInfo.getJewishCalendar().isMashivHaruachStartDate()) {
+        if (tefilaRules.isMashivHaruachStartDate(sJewishDateInfo.getJewishCalendar())) {
             announcements.append("משיב הרוח").append("\n");
         }
 
-        if (sJewishDateInfo.getJewishCalendar().isVeseinTalUmatarStartDate()) {
+        if (tefilaRules.isVeseinTalUmatarStartDate(sJewishDateInfo.getJewishCalendar())) {
             announcements.append("ברך עלינו").append("\n");
         }
 
@@ -1596,14 +1599,14 @@ public class MainActivity extends AppCompatActivity {
         List<ZmanListEntry> tekufa = new ArrayList<>();
         String tekufaOpinions = mSettingsPreferences.getString("TekufaOpinions", "1");
         if (tekufaOpinions.equals("1")) {
-            addTekufaTime(tekufa, false);
+            addTekufaTime(tekufa, true);
         }
         if (tekufaOpinions.equals("2")) {
-            addAmudeiHoraahTekufaTime(tekufa, false);
+            addAmudeiHoraahTekufaTime(tekufa, true);
         }
         if (tekufaOpinions.equals("3")) {
-            addTekufaTime(tekufa, false);
-            addAmudeiHoraahTekufaTime(tekufa, false);
+            addTekufaTime(tekufa, true);
+            addAmudeiHoraahTekufaTime(tekufa, true);
         }
         if (!tekufa.isEmpty()) {
             for (ZmanListEntry tekufaEntry : tekufa) {
@@ -2146,11 +2149,11 @@ public class MainActivity extends AppCompatActivity {
         if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
             if (sJewishDateInfo.getJewishCalendar().isYomTovAssurBemelacha()
                     && sJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
-                return "\u05E9\u05D1\u05EA/\u05D7\u05D2";
+                return "שבת/חג";
             } else if (sJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
-                return "\u05E9\u05D1\u05EA";
+                return "שבת";
             } else {
-                return "\u05D7\u05D2";
+                return "חג";
             }
         } else {
             if (sJewishDateInfo.getJewishCalendar().isYomTovAssurBemelacha()
@@ -2365,10 +2368,11 @@ public class MainActivity extends AppCompatActivity {
                             mLocationResolver.setTimeZoneID();
                             resolveElevationAndVisibleSunrise();
                             instantiateZmanimCalendar();
+                            setNextUpcomingZman();
                             if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                                 updateWeeklyZmanim();
                             } else {
-                                mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                                updateViewsInList();
                             }
                             checkIfUserIsInIsraelOrNot();
                         }
@@ -2390,10 +2394,11 @@ public class MainActivity extends AppCompatActivity {
                     }
                     resolveElevationAndVisibleSunrise();
                     instantiateZmanimCalendar();
+                    setNextUpcomingZman();
                     if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                         updateWeeklyZmanim();
                     } else {
-                        mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                        updateViewsInList();
                     }
                     checkIfUserIsInIsraelOrNot();
                 })
@@ -2442,7 +2447,7 @@ public class MainActivity extends AppCompatActivity {
                 if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                     updateWeeklyZmanim();
                 } else {
-                    mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                    updateViewsInList();
                 }
                 startShabbatMode();
                 item.setChecked(true);
@@ -2455,14 +2460,14 @@ public class MainActivity extends AppCompatActivity {
             mSharedPreferences.edit().putBoolean("weeklyMode", !mSharedPreferences.getBoolean("weeklyMode", false)).apply();
             item.setChecked(mSharedPreferences.getBoolean("weeklyMode", false));//save the state of the menu item
             if (mMainRecyclerView == null) {
-                return true;// This is to prevent a crash
+                return true;// Prevent a crash
             }
             if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                 showWeeklyTextViews();
                 updateWeeklyZmanim();
             } else {
                 hideWeeklyTextViews();
-                mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                updateViewsInList();
             }
             return true;
         } else if (id == R.id.use_elevation) {
@@ -2474,7 +2479,7 @@ public class MainActivity extends AppCompatActivity {
             if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                 updateWeeklyZmanim();
             } else {
-                mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                updateViewsInList();
             }
             return true;
         } else if (id == R.id.molad) {
@@ -2535,7 +2540,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        public boolean onDown(MotionEvent e) {
+        public boolean onDown(@NonNull MotionEvent e) {
             return true;
         }
     }

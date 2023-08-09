@@ -18,7 +18,8 @@ public class SiddurMaker {
     public ArrayList<HighlightString> getShacharitPrayers() {
         siddur = new ArrayList<>();// reset
         if (jewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
-            addToSiddur("Shabbat and Yom Tov are not currently supported");
+            addToSiddur("Shabbat and Yom Tov are currently not supported");
+            addToSiddurHighlighted("Open Sefaria");
             return siddur;
         }
         addToSiddur(
@@ -292,7 +293,7 @@ public class SiddurMaker {
                 || jewishDateInfo.getIsTachanunSaid().equals("There is Tachanun today")
                 || jewishDateInfo.getIsTachanunSaid().equals("יש תחנון")) {
             isTachanunSaid = true;
-            addTachanun();//TODO only tachanun pn fast days the rest is added in the slichot
+            addTachanun();//TODO only tachanun on fast days the rest is added in the slichot
             if (jewishDateInfo.getJewishCalendar().getDayOfWeek() == 2 || jewishDateInfo.getJewishCalendar().getDayOfWeek() == 5) {
                 addToSiddur(
                         "אֶל מֶלֶךְ יוֹשֵׁב עַל כִּסֵּא רַחֲמִים וּמִתְנַהֵג בַּחֲסִידוּת, מוֹחֵל עֲוֹנוֹת עַמּוֹ, מַעֲבִיר רִאשׁוֹן רִאשׁוֹן. מַרְבֶּה מְחִילָה לַחַטָּאִים, וּסְלִיחָה לַפּוֹשְׁעִים, עוֹשֶׂה צְדָקוֹת עִם כָּל בָּשָׂר וְרוּחַ, לֹא כְרָעָתָם לָהֶם גּוֹמֵל, אֶל, הוֹרֵתָנוּ לוֹמַר מִדּוֹת שְׁלֹשׁ עֶשְׂרֵה, זְכוֹר לָנוּ הַיּוֹם בְּרִית שְׁלֹשׁ עֶשְׂרֵה כְּמוֹ שֶׁהוֹדַעְתָּ לֶעָנָו מִקֶּדֶם, וְכֵן כָּתוּב בְּתוֹרָתָךְ וַיֵּ֤רֶד יְהֹוָה֙ בֶּֽעָנָ֔ן וַיִּתְיַצֵּ֥ב עִמּ֖וֹ שָׁ֑ם וַיִּקְרָ֥א בְשֵׁ֖ם יְהֹוָֽה: וְשָׁם נֶאֱמַר:   \n\n" +
@@ -1031,7 +1032,8 @@ public class SiddurMaker {
     public ArrayList<HighlightString> getMinchaPrayers() {
         siddur = new ArrayList<>();
         if (jewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
-            addToSiddur("Shabbat and Yom Tov are not currently supported");
+            addToSiddur("Shabbat and Yom Tov are currently not supported");
+            addToSiddurHighlighted("Open Sefaria");
             return siddur;
         }
         addToSiddur(
@@ -1116,7 +1118,8 @@ public class SiddurMaker {
         nextDay.add(Calendar.DATE, 1);
         jewishDateInfo.setCalendar(nextDay);
         if (jewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
-            addToSiddur("Shabbat and Yom Tov are not currently supported");
+            addToSiddur("Shabbat and Yom Tov are currently not supported");
+            addToSiddurHighlighted("Open Sefaria");
             jewishDateInfo.setCalendar(backup);
             return siddur;
         }

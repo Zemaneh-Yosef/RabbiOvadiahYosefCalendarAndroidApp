@@ -8,6 +8,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="?android:attr/colorBackground"
+    android:animateLayoutChanges="true"
     tools:context=".activities.MainActivity">
 
     <TextView
@@ -30,7 +31,7 @@
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh_layout"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         tools:visibility="gone">
@@ -45,6 +46,14 @@
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
+    <LinearLayout
+        android:id="@+id/main_weekly_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:background="?android:attr/colorBackground">
+
     <TextView
         android:id="@+id/location_name"
         android:layout_width="match_parent"
@@ -55,7 +64,6 @@
         android:textColor="?android:attr/textColorPrimary"
         android:gravity="center"
         android:background="@drawable/border"
-        android:visibility="gone"
         tools:visibility="visible"
         />
 
@@ -73,7 +81,6 @@
             android:textStyle="bold"
             android:textSize="13sp"
             android:textColor="?android:attr/textColorPrimary"
-            android:visibility="gone"
             tools:visibility="visible"
             />
 
@@ -87,7 +94,6 @@
             android:textSize="13sp"
             android:textColor="?android:attr/textColorPrimary"
             android:gravity="end"
-            android:visibility="gone"
             tools:visibility="visible"
             />
 
@@ -100,7 +106,6 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:baselineAligned="false"
-        android:visibility="gone"
         tools:visibility="visible"
         android:background="@drawable/border">
 
@@ -199,7 +204,6 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:baselineAligned="false"
-        android:visibility="gone"
         tools:visibility="visible"
         android:background="@drawable/border">
 
@@ -298,7 +302,6 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:baselineAligned="false"
-        android:visibility="gone"
         tools:visibility="visible"
         android:background="@drawable/border">
 
@@ -397,7 +400,6 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:baselineAligned="false"
-        android:visibility="gone"
         tools:visibility="visible"
         android:background="@drawable/border">
 
@@ -496,7 +498,6 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:baselineAligned="false"
-        android:visibility="gone"
         tools:visibility="visible"
         android:background="@drawable/border">
 
@@ -595,7 +596,6 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:baselineAligned="false"
-        android:visibility="gone"
         tools:visibility="visible"
         android:background="@drawable/border">
 
@@ -694,7 +694,6 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:baselineAligned="false"
-        android:visibility="gone"
         tools:visibility="visible"
         android:background="@drawable/border">
 
@@ -814,11 +813,15 @@
         tools:visibility="visible"
         />
 
+    </LinearLayout>
+
     <LinearLayout
+        android:id="@+id/buttons"
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:layout_gravity="center"
         android:gravity="center"
+        android:visibility="gone"
         tools:ignore="TooManyViews">
 
         <Button
