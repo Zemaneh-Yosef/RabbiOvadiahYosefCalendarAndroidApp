@@ -84,6 +84,7 @@ public class SiddurAdapter extends ArrayAdapter<String> {
             }
         });
         viewHolder.textView.setTextIsSelectable(false);
+        viewHolder.textView.setTypeface(Typeface.createFromAsset(context.getAssets(),"TaameyFrankCLM-Bold.ttf"));
 
         return convertView;
     }

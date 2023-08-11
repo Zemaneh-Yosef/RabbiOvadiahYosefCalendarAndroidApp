@@ -24,6 +24,7 @@ public class SiddurChooserActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setTitle(getString(R.string.show_siddur));
         }
 
         TextView specialDay = findViewById(R.id.jewish_special_day);

@@ -29,6 +29,7 @@ public class SiddurViewActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setTitle(getString(R.string.show_siddur));
         }
         SiddurMaker siddurMaker = new SiddurMaker(sJewishDateInfo);
         ArrayList<HighlightString> prayers = new ArrayList<>();
