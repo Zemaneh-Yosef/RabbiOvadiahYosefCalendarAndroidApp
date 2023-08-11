@@ -569,7 +569,8 @@ public class MainActivity extends AppCompatActivity {
                 mCurrentDateShown.setTime(new Date());
                 sJewishDateInfo.setCalendar(new GregorianCalendar());
                 resolveElevationAndVisibleSunrise();
-                instantiateZmanimCalendar();//for the location name
+                instantiateZmanimCalendar();
+                instantiateZmanimCalendar();
                 setNextUpcomingZman();
                 runOnUiThread(this::updateViewsInList);
                 runOnUiThread(() -> mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable()));
@@ -580,19 +581,6 @@ public class MainActivity extends AppCompatActivity {
         mMainRecyclerView = findViewById(R.id.mainRV);
         mMainRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mMainRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-
-        mMainRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            final LinearLayout buttons = findViewById(R.id.buttons);
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                if (dy > 0) {
-                    buttons.setVisibility(View.VISIBLE);
-                } else {
-                    buttons.setVisibility(View.GONE);
-                }
-            }
-        });
         mMainRecyclerView.setOnTouchListener((view, motionEvent) -> mGestureDetector.onTouchEvent(motionEvent));
         mLayout.setOnTouchListener((view, motionEvent) -> mGestureDetector.onTouchEvent(motionEvent));
         if (mSharedPreferences.getBoolean("weeklyMode", false)) {
@@ -606,11 +594,12 @@ public class MainActivity extends AppCompatActivity {
 
     @SuppressLint("NotifyDataSetChanged")
     private void updateViewsInList() {
-        ZmanAdapter zmanAdapter = (ZmanAdapter) mMainRecyclerView.getAdapter();
-        if (zmanAdapter != null) {
-            zmanAdapter.setZmanim(getZmanimList());
-            zmanAdapter.notifyDataSetChanged();
-        }
+//        ZmanAdapter zmanAdapter = (ZmanAdapter) mMainRecyclerView.getAdapter();
+//        if (zmanAdapter != null) {
+//            zmanAdapter.setZmanim(getZmanimList());
+//            zmanAdapter.notifyDataSetChanged();
+//        }
+        mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
     }
 
     @Override
@@ -1464,6 +1453,8 @@ public class MainActivity extends AppCompatActivity {
                 + " / "
                 + sJewishDateInfo.getIsBarcheinuOrBarechAleinuSaid()));
 
+        zmanim.add(new ZmanListEntry(getString(R.string.show_siddur)));
+
         if (!mSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
             zmanim.add(new ZmanListEntry(getString(R.string.shaah_zmanit_gr_a) + " " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanisGra())
                     + " " + getString(R.string.mg_a) + " " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanis72MinutesZmanis())));
@@ -1488,8 +1479,6 @@ public class MainActivity extends AppCompatActivity {
         if (mSettingsPreferences.getBoolean("ShowElevation", false)) {
             zmanim.add(new ZmanListEntry(getString(R.string.elevation) + " " + mElevation + " " + getString(R.string.meters)));
         }
-
-        //zmanim.add(new ZmanListEntry(getString(R.string.show_siddur)));
 
         return zmanim;
     }

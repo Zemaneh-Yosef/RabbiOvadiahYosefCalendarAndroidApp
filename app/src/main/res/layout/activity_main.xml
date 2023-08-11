@@ -821,7 +821,6 @@
         android:layout_height="40dp"
         android:layout_gravity="center"
         android:gravity="center"
-        android:visibility="gone"
         tools:ignore="TooManyViews">
 
         <Button

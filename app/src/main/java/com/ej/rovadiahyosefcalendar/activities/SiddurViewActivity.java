@@ -18,6 +18,7 @@ import com.ej.rovadiahyosefcalendar.classes.SiddurAdapter;
 import com.ej.rovadiahyosefcalendar.classes.SiddurMaker;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class SiddurViewActivity extends AppCompatActivity {
 
@@ -31,7 +32,7 @@ public class SiddurViewActivity extends AppCompatActivity {
         }
         SiddurMaker siddurMaker = new SiddurMaker(sJewishDateInfo);
         ArrayList<HighlightString> prayers = new ArrayList<>();
-        switch ((String) getIntent().getExtras().get("prayer")) {
+        switch ((String) Objects.requireNonNull(Objects.requireNonNull(getIntent().getExtras()).get("prayer"))) {
             case "Shacharit":
                 prayers = siddurMaker.getShacharitPrayers();
                 break;
