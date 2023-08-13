@@ -31,7 +31,7 @@ public class CustomDatePickerDialog extends DatePickerDialog {
     }
 
     @Override
-    public void onClick(DialogInterface dialog, int which) {
+    public void onClick(@NonNull DialogInterface dialog, int which) {
         super.onClick(dialog, which);
         if (which == BUTTON_NEUTRAL) {//if we want to change calendars
             HebrewDayMonthYearPickerDialog hdmypd = new HebrewDayMonthYearPickerDialog(this, mJewishCalendar);
