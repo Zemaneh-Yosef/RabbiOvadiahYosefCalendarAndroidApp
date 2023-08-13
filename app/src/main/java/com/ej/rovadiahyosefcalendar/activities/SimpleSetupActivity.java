@@ -24,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.ej.rovadiahyosefcalendar.R;
@@ -37,6 +38,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public class SimpleSetupActivity extends AppCompatActivity {
@@ -50,6 +52,8 @@ public class SimpleSetupActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_simple_setup);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        getSupportActionBar().setCustomView(R.layout.action_bar_custom);//center the title
         JewishDate jewishDate = new JewishDate();
         LocationResolver locationResolver = new LocationResolver(this, this);
         locationResolver.acquireLatitudeAndLongitude();

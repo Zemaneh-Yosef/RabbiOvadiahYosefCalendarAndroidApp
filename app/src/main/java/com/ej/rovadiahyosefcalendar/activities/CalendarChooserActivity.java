@@ -1,6 +1,7 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
@@ -18,6 +19,7 @@ import com.ej.rovadiahyosefcalendar.R;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
+import java.util.Objects;
 
 public class CalendarChooserActivity extends AppCompatActivity {
 
@@ -33,6 +35,8 @@ public class CalendarChooserActivity extends AppCompatActivity {
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendar_chooser);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        getSupportActionBar().setCustomView(R.layout.action_bar_custom);//center the title
         LinearLayout layout = findViewById(R.id.calendar_buttons);
         float screenWidth = getResources().getDisplayMetrics().widthPixels / getResources().getDisplayMetrics().density;
         if (screenWidth < 400) {

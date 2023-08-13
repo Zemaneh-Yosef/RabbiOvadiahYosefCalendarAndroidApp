@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">לוח מרן</string>
+    <string name="app_name">זמני יוסף</string>
 
     <string name="ok">בסדר</string>
 
@@ -499,5 +499,6 @@
     <string name="mincha">מנחה</string>
     <string name="arvit">ערבית</string>
     <string name="neilah">נעילה</string>
+    <string name="short_app_name">זמני יוסף</string>
 
 </resources>

@@ -14,10 +14,13 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
+
+import java.util.Objects;
 
 public class CurrentLocationActivity extends AppCompatActivity {
 
@@ -28,6 +31,8 @@ public class CurrentLocationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_current_location);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        getSupportActionBar().setCustomView(R.layout.action_bar_custom);//center the title
         mSharedPreferences = getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE);
         mLocationResolver = new LocationResolver(this, this);
 

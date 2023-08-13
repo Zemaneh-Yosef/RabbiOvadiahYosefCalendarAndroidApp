@@ -18,6 +18,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -1068,22 +1069,44 @@ public class MainActivity extends AppCompatActivity {
             sShabbatMode = true;
             setShabbatBannerColors(true);
             mShabbatModeBanner.setVisibility(View.VISIBLE);
-            int orientation;
-            int rotation = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation();
-            switch (rotation) {
-                case Surface.ROTATION_90:
-                case Surface.ROTATION_270:
-                    orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-                    break;
-                case Surface.ROTATION_180:
-                    orientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
-                    break;
-                case Surface.ROTATION_0:
-                default:
-                    orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-                    break;
+            WindowManager windowManager =  (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+            Configuration configuration = getResources().getConfiguration();
+            int rotation = windowManager.getDefaultDisplay().getRotation();
+            // Search for the natural position of the device
+            if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE &&
+                    (rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180) ||
+                    configuration.orientation == Configuration.ORIENTATION_PORTRAIT &&
+                            (rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270)) {
+                switch (rotation) {// Natural position is Landscape
+                    case Surface.ROTATION_0:
+                        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                        break;
+                    case Surface.ROTATION_90:
+                        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
+                        break;
+                    case Surface.ROTATION_180:
+                        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
+                        break;
+                    case Surface.ROTATION_270:
+                        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                        break;
+                }
+            } else {// Natural position is Portrait
+                switch (rotation) {
+                    case Surface.ROTATION_0:
+                        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                        break;
+                    case Surface.ROTATION_90:
+                        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                        break;
+                    case Surface.ROTATION_180:
+                        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
+                        break;
+                    case Surface.ROTATION_270:
+                        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
+                        break;
+                }
             }
-            setRequestedOrientation(orientation);
             mNextDate.setVisibility(View.GONE);
             mPreviousDate.setVisibility(View.GONE);
             Calendar calendar = Calendar.getInstance();

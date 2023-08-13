@@ -13,12 +13,15 @@ import android.view.MenuItem;
 import android.widget.Button;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
 
 public class ZmanimLanguageActivity extends AppCompatActivity {
 
@@ -28,6 +31,8 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_zmanim_language);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        getSupportActionBar().setCustomView(R.layout.action_bar_custom);//center the title
         mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
 
         Button hebrew = findViewById(R.id.hebrew);

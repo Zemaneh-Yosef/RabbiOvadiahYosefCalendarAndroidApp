@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.ej.rovadiahyosefcalendar.R;
@@ -29,6 +30,8 @@ import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 public class SetupElevationActivity extends AppCompatActivity {
 
     private String mElevation = "0";
@@ -37,6 +40,8 @@ public class SetupElevationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setup_elevation);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        getSupportActionBar().setCustomView(R.layout.action_bar_custom);//center the title
         LocationResolver locationResolver = new LocationResolver(this, this);
         locationResolver.acquireLatitudeAndLongitude();
         locationResolver.setTimeZoneID();

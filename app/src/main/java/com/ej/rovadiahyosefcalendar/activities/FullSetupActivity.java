@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -22,6 +23,7 @@ import com.ej.rovadiahyosefcalendar.R;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
+import java.util.Objects;
 
 public class FullSetupActivity extends AppCompatActivity {
 
@@ -31,6 +33,8 @@ public class FullSetupActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_full_setup);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        getSupportActionBar().setCustomView(R.layout.action_bar_custom);//center the title
         LinearLayout layout = findViewById(R.id.israel_buttons);
         float screenWidth = getResources().getDisplayMetrics().widthPixels / getResources().getDisplayMetrics().density;
         if (screenWidth < 400) {
