@@ -324,19 +324,15 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     public Date getAlotAmudeiHoraah() {
         Calendar tempCal = (Calendar) getCalendar().clone();
         setCalendar(new GregorianCalendar(getCalendar().get(Calendar.YEAR), Calendar.MARCH, 17));//set the calendar to the equinox
-        Date sunrise = getSeaLevelSunrise();
-        Date alotBy16Degrees = getSunriseOffsetByDegrees(GEOMETRIC_ZENITH + 16.04);//16.1 degrees is 72 minutes before sunrise in Netanya on the equinox, so no adjustment is needed
-        if (sunrise == null || alotBy16Degrees == null) {
+
+        double percentage = getPercentOfShaahZmanisFromDegrees(16.04, false);
+        if (percentage == Double.MIN_VALUE) {
             return null;
         }
-        long numberOfMilli = sunrise.getTime() - alotBy16Degrees.getTime();
-        long numberOfSeconds = numberOfMilli / 1000;
         setCalendar(tempCal);//reset the calendar to the current day
 
         long shaahZmanit = getTemporalHour(getSeaLevelSunrise(), getSeaLevelSunset());
-        long dakahZmanit = shaahZmanit / MINUTES_PER_HOUR;
-        long secondsZmanit = dakahZmanit / 60;
-        return getTimeOffset(getSeaLevelSunrise(), -(numberOfSeconds * secondsZmanit));
+        return getTimeOffset(getSeaLevelSunrise(), -(percentage * shaahZmanit));
     }
 
     /**
@@ -350,19 +346,15 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     public Date getEarliestTalitTefilinAmudeiHoraah() {
         Calendar tempCal = (Calendar) getCalendar().clone();
         setCalendar(new GregorianCalendar(getCalendar().get(Calendar.YEAR), Calendar.MARCH, 17));//set the calendar to the equinox
-        Date sunrise = getSeaLevelSunrise();
-        Date alotBy16Degrees = getSunriseOffsetByDegrees(GEOMETRIC_ZENITH + 16.04);//16.1 degrees is 72 minutes before sunrise in Netanya on the equinox, so no adjustment is needed
-        if (sunrise == null || alotBy16Degrees == null) {
+
+        double percentage = getPercentOfShaahZmanisFromDegrees(16.04, false);
+        if (percentage == Double.MIN_VALUE) {
             return null;
         }
-        long numberOfMilli = sunrise.getTime() - alotBy16Degrees.getTime();
-        long numberOfSeconds = numberOfMilli / 1000;
         setCalendar(tempCal);//reset the calendar to the current day
 
         long shaahZmanit = getTemporalHour(getSeaLevelSunrise(), getSeaLevelSunset());
-        long dakahZmanit = shaahZmanit / MINUTES_PER_HOUR;
-        long secondsZmanit = dakahZmanit / 60;
-        return getTimeOffset(getSeaLevelSunrise(), -(numberOfSeconds * secondsZmanit * 5 / 6));
+        return getTimeOffset(getSeaLevelSunrise(), -(percentage * shaahZmanit) * 5 / 6);
     }
 
     // These methods are similar to the ones in the base class, but they use the Amudei Horaah zmanim instead of the regular zmanim
@@ -389,19 +381,15 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     public Date getTzeitAmudeiHoraah() {
         Calendar tempCal = (Calendar) getCalendar().clone();
         setCalendar(new GregorianCalendar(getCalendar().get(Calendar.YEAR), Calendar.MARCH, 17));//set the calendar to the equinox
-        Date sunset = getSeaLevelSunset();
-        Date tzaitGeonimInDegrees = getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 3.77);//3.77 is 13.5 minutes after sunset in Netanya on the equinox
-        if (sunset == null || tzaitGeonimInDegrees == null) {
+
+        double percentage = getPercentOfShaahZmanisFromDegrees(3.77, true);
+        if (percentage == Double.MIN_VALUE) {
             return null;
         }
-        long numberOfMilli = tzaitGeonimInDegrees.getTime() - sunset.getTime();
-        long numberOfSeconds = numberOfMilli / 1000;
         setCalendar(tempCal);//reset the calendar to the current day
 
         long shaahZmanit = getTemporalHour(getSeaLevelSunrise(), getSeaLevelSunset());
-        long dakahZmanit = shaahZmanit / MINUTES_PER_HOUR;
-        long secondsZmanit = dakahZmanit / 60;
-        return getTimeOffset(getSeaLevelSunset(), numberOfSeconds * secondsZmanit);
+        return getTimeOffset(getSeaLevelSunset(), percentage * shaahZmanit);
     }
 
     /**
@@ -414,19 +402,15 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     public Date getTzeitAmudeiHoraahLChumra() {
         Calendar tempCal = (Calendar) getCalendar().clone();
         setCalendar(new GregorianCalendar(getCalendar().get(Calendar.YEAR), Calendar.MARCH, 17));//set the calendar to the equinox
-        Date sunset = getSeaLevelSunset();
-        Date tzaitGeonimInDegrees = getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 5.135);
-        if (sunset == null || tzaitGeonimInDegrees == null) {
+
+        double percentage = getPercentOfShaahZmanisFromDegrees(5.135, true);
+        if (percentage == Double.MIN_VALUE) {
             return null;
         }
-        long numberOfMilli = tzaitGeonimInDegrees.getTime() - sunset.getTime();
-        long numberOfSeconds = numberOfMilli / 1000;
         setCalendar(tempCal);//reset the calendar to the current day
 
         long shaahZmanit = getTemporalHour(getSeaLevelSunrise(), getSeaLevelSunset());
-        long dakahZmanit = shaahZmanit / MINUTES_PER_HOUR;
-        long secondsZmanit = dakahZmanit / 60;
-        return getTimeOffset(getSeaLevelSunset(), numberOfSeconds * secondsZmanit);
+        return getTimeOffset(getSeaLevelSunset(), percentage * shaahZmanit);
     }
 
     /**
@@ -474,19 +458,15 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     public Date getTzais72ZmanisAmudeiHoraah() {
         Calendar tempCal = (Calendar) getCalendar().clone();
         setCalendar(new GregorianCalendar(getCalendar().get(Calendar.YEAR), Calendar.MARCH, 17));//set the calendar to the equinox
-        Date sunset = getSeaLevelSunset();
-        Date tzaitRTInDegrees = getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 16.01);//16.0 is 72 minutes after sunset in Netanya on the equinox
-        if (sunset == null || tzaitRTInDegrees == null) {
+
+        double percentage = getPercentOfShaahZmanisFromDegrees(16.01, true);
+        if (percentage == Double.MIN_VALUE) {
             return null;
         }
-        long numberOfMilli = tzaitRTInDegrees.getTime() - sunset.getTime();
-        long numberOfSeconds = numberOfMilli / 1000;
         setCalendar(tempCal);//reset the calendar to the current day
 
         long shaahZmanit = getTemporalHour(getSeaLevelSunrise(), getSeaLevelSunset());
-        long dakahZmanit = shaahZmanit / MINUTES_PER_HOUR;
-        long secondsZmanit = dakahZmanit / 60;
-        return getTimeOffset(getSeaLevelSunset(), numberOfSeconds * secondsZmanit);
+        return getTimeOffset(getSeaLevelSunset(), percentage * shaahZmanit);
     }
 
     /**
@@ -526,7 +506,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
      * for the current calendar. If the calculation can't be computed a {@link Double#MIN_VALUE} will be returned. See detailed
      * explanation on top of the page.
      */
-    public double getPercentOfShaahZmanisFromDegreesAfterSunset(double degrees, boolean sunset) {
+    public double getPercentOfShaahZmanisFromDegrees(double degrees, boolean sunset) {
         Date seaLevelSunrise = getSeaLevelSunrise();
         Date seaLevelSunset = getSeaLevelSunset();
         Date twilight;
