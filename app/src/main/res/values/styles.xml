@@ -4,6 +4,8 @@
         <!-- Customize your theme here. -->
         <item name="actionOverflowMenuStyle">@style/popupOverflowMenu</item>
         <item name="alertDialogStyle">@style/alertDialog</item>
+        <item name="android:windowAllowReturnTransitionOverlap">true</item>
+        <item name="android:windowAllowEnterTransitionOverlap">true</item>
     </style>
 
     <style name="popupOverflowMenu" parent="@style/Widget.MaterialComponents.PopupMenu.Overflow">
