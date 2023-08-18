@@ -14,6 +14,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 import com.ej.rovadiahyosefcalendar.R;
+import com.ej.rovadiahyosefcalendar.activities.SiddurViewActivity;
 
 import java.util.ArrayList;
 
@@ -78,9 +79,14 @@ public class SiddurAdapter extends ArrayAdapter<String> {
         }
 
         viewHolder.textView.setOnClickListener(l -> {
-            if (siddur.get(position).toString().equals("Open Sefaria")) {
+            if (siddur.get(position).toString().equals("Open Sefaria Siddur")) {
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.sefaria.org/Siddur_Edot_HaMizrach?tab=contents"));
                 context.startActivity(browserIntent);
+            }
+            if (siddur.get(position).toString().equals("Mussaf is said here, press here to go to Mussaf")
+            || siddur.get(position).toString().equals("מוסף אומרים כאן, לחץ כאן כדי להמשיך למוסף")) {
+                context.startActivity(new Intent(context, SiddurViewActivity.class)
+                        .putExtra("prayer", "Musaf"));
             }
         });
         viewHolder.textView.setTextIsSelectable(false);

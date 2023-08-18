@@ -1,7 +1,9 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
+import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sJewishDateInfo;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
@@ -22,10 +24,13 @@ import java.util.Objects;
 
 public class SiddurViewActivity extends AppCompatActivity {
 
+    SharedPreferences sharedPreferences;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_siddur_view);
+        sharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
@@ -48,7 +53,8 @@ public class SiddurViewActivity extends AppCompatActivity {
                 break;
         }
         ListView siddur = findViewById(R.id.siddur);
-        siddur.setAdapter(new SiddurAdapter(this, prayers, 20));
+        siddur.setAdapter(new SiddurAdapter(this, prayers, sharedPreferences.getInt("siddurTextSize", 20)));
+        siddur.setDivider(null);
 
         SeekBar seekBar = findViewById(R.id.siddur_seekBar);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -56,6 +62,7 @@ public class SiddurViewActivity extends AppCompatActivity {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 SiddurAdapter sa = (SiddurAdapter) siddur.getAdapter();
                 sa.setTextSize(Math.max(progress, 11));
+                sharedPreferences.edit().putInt("siddurTextSize", progress).apply();
                 siddur.invalidateViews();
             }
 

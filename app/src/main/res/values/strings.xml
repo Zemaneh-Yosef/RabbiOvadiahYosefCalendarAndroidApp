@@ -139,7 +139,7 @@
     <string name="birchat_hachamah_is_said_today">Birchat HaChamah is said today</string>
     <string name="no_daf_yomi_yerushalmi">No Daf Yomi Yerushalmi</string>
     <string name="daf_yomi">Daf Yomi:</string>
-    <string name="yerushalmi_yomi">Yerushalmi Yomi:</string>
+    <string name="yerushalmi_yomi">Yerushalmi Vilna Yomi:</string>
     <string name="shaah_zmanit_gr_a">Shaah Zmanit GR\"A:</string>
     <string name="mg_a">MG\"A:</string>
     <string name="daylight_savings_time_is_on">Daylight Savings Time is on</string>
@@ -284,5 +284,4 @@
    <string name="mincha">מנחה</string>
    <string name="arvit">ערבית</string>
    <string name="neilah">נעילה</string>
-   <string name="short_app_name">Zmanei Yosef - Rabbi Ovadiah Yosef Calendar</string>
 </resources>

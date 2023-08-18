@@ -228,7 +228,7 @@
 
     <string name="daf_yomi">דף יומי:</string>
 
-    <string name="yerushalmi_yomi">ירושלמי יומי:</string>
+    <string name="yerushalmi_yomi">ירושלמי וילנא יומי:</string>
 
     <string name="shaah_zmanit_gr_a">שעה זמנית גר\"א:</string>
 
@@ -499,6 +499,5 @@
     <string name="mincha">מנחה</string>
     <string name="arvit">ערבית</string>
     <string name="neilah">נעילה</string>
-    <string name="short_app_name">זמני יוסף</string>
 
 </resources>
