@@ -810,8 +810,10 @@ public class SiddurMaker {
         );
 
         if (isArvit) {
+            Calendar calendar = jewishDateInfo.getJewishCalendar().getGregorianCalendar();
+            calendar.add(Calendar.DATE, -1);
+            jewishDateInfo.setCalendar(calendar);
             if (jewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
-                Calendar calendar = jewishDateInfo.getJewishCalendar().getGregorianCalendar();
                 calendar.add(Calendar.DATE, 1);
                 jewishDateInfo.setCalendar(calendar);
 
@@ -823,6 +825,8 @@ public class SiddurMaker {
                 calendar.add(Calendar.DATE, -1);
                 jewishDateInfo.setCalendar(calendar);
             }
+            calendar.add(Calendar.DATE, 1);
+            jewishDateInfo.setCalendar(calendar);
         }
 
         addToSiddur(
@@ -1395,7 +1399,6 @@ public class SiddurMaker {
                         "עַל כֵּן נְקַוֶּה לָךְ, יְהֹוָה אֱלֹהֵֽינוּ, לִרְאוֹת מְהֵרָה בְּתִפְאֶֽרֶת עֻזָּךְ, לְהַֽעֲבִיר גִּלּוּלִים מִן הָאָֽרֶץ, וְהָֽאֱלִילִים כָּרוֹת יִכָּֽרֵתוּן, לְתַקֵּן עוֹלָם בְּמַלְכוּת שַׁדַּי, וְכָל־בְּנֵי בָשָׂר יִקְרְאוּ בִשְׁמֶֽךָ, לְהַפְנוֹת אֵלֶֽיךָ כָּל־רִשְׁעֵי אָֽרֶץ. יַכִּֽירוּ וְיֵֽדְעוּ כָּל־יֽוֹשְׁבֵי תֵבֵֽל, כִּי לְךָ תִכְרַע כָּל־בֶּֽרֶךְ, תִּשָּׁבַע כָּל־לָשׁוֹן. לְפָנֶֽיךָ, יְהֹוָה אֱלֹהֵֽינוּ יִכְרְעוּ וְיִפֹּֽלוּ, וְלִכְבוֹד שִׁמְךָ יְקָר יִתֵּֽנוּ, וִיקַבְּלוּ כֻלָּם אֶת־עֹל מַלְכוּתֶֽךָ, וְתִמְלוֹךְ עֲלֵיהֶם מְהֵרָה לְעוֹלָם וָעֶד. כִּי הַמַּלְכוּת שֶׁלְּךָ הִיא, וּלְעֽוֹלְמֵי עַד תִּמְלוֹךְ בְּכָבוֹד. כַּכָּתוּב בְּתוֹרָתָךְ: יְהֹוָ֥ה ׀ יִמְלֹ֖ךְ לְעֹלָ֥ם וָעֶֽד׃ וְנֶאֱמַר. וְהָיָ֧ה יְהֹוָ֛ה לְמֶ֖לֶךְ עַל־כָּל־הָאָ֑רֶץ בַּיּ֣וֹם הַה֗וּא יִהְיֶ֧ה יְהֹוָ֛ה אֶחָ֖ד וּשְׁמ֥וֹ אֶחָֽד׃  \n\n" +
                         "וּבְתוֹרָתְךָ יְהֹוָה אֱלֹהֵינוּ כָּתוּב לֵּאמֹר. שְׁמַ֖ע יִשְׂרָאֵ֑ל יְהֹוָ֥ה אֱלֹהֵ֖ינוּ יְהֹוָ֥ה ׀ אֶחָֽד׃"
         );
-        jewishDateInfo.setCalendar(backup);
         return siddur;
     }
 
