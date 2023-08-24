@@ -23,7 +23,7 @@ public class CustomDatePickerDialog extends DatePickerDialog {
                                   int year,
                                   int month,
                                   int dayOfMonth, JewishCalendar jewishCalendar) {
-        super(context, R.style.alertDialog, listener, year, month, dayOfMonth);
+        super(context, listener, year, month, dayOfMonth);
         mContext = context;
         mListener = listener;
         mJewishCalendar = jewishCalendar;

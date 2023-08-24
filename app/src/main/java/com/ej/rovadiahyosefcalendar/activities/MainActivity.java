@@ -14,6 +14,7 @@ import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
@@ -36,6 +37,7 @@ import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -208,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
             mLocationResolver.acquireLatitudeAndLongitude();
         }
         findAllWeeklyViews();
-        if (sGPSLocationServiceIsDisabled && sNetworkLocationServiceIsDisabled) {// this is will only be true if the user has disabled both location services and is not using a zipcode
+        if ((sGPSLocationServiceIsDisabled && sNetworkLocationServiceIsDisabled) && !mSharedPreferences.getBoolean("useZipcode", false)) {// this is will only be true if the user has disabled both location services and is not using a zipcode
             Toast.makeText(MainActivity.this, R.string.please_enable_gps, Toast.LENGTH_SHORT).show();
         } else {
             if ((!mInitialized && ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) == PERMISSION_GRANTED)
@@ -2350,11 +2352,13 @@ public class MainActivity extends AppCompatActivity {
      * will also give the option to enter an address/zipcode through the EditText field.
      */
     private void createZipcodeDialog() {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this, R.style.alertDialog);
         final EditText input = new EditText(this);
         input.setGravity(Gravity.CENTER_HORIZONTAL);
         input.setHint(R.string.enter_zipcode_or_address);
-        new AlertDialog.Builder(this, R.style.alertDialog)
-                .setTitle(R.string.search_for_a_place)
+        input.setSingleLine();
+        input.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        alertDialog.setTitle(R.string.search_for_a_place)
                 .setMessage(R.string.warning_zmanim_will_be_based_on_your_approximate_area)
                 .setView(input)
                 .setPositiveButton(R.string.ok, (dialog, which) -> {
@@ -2414,9 +2418,18 @@ public class MainActivity extends AppCompatActivity {
                         updateViewsInList();
                     }
                     checkIfUserIsInIsraelOrNot();
-                })
-                .create()
-                .show();
+                });
+
+        AlertDialog ad = alertDialog.create();
+        ad.show();
+
+        input.setOnEditorActionListener((textView, actionId, keyEvent) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_NULL) {
+                ad.getButton(DialogInterface.BUTTON_POSITIVE).performClick();
+                return true;
+            }
+            return false;
+        });
     }
 
     @Override

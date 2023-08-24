@@ -5,12 +5,16 @@ import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sCurrentLocat
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -49,11 +53,13 @@ public class CurrentLocationActivity extends AppCompatActivity {
      * will also give the option to use a zipcode through the EditText field.
      */
     private void createZipcodeDialog() {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this, R.style.alertDialog);
         final EditText input = new EditText(this);
         input.setGravity(Gravity.CENTER_HORIZONTAL);
         input.setHint(R.string.enter_zipcode_or_address);
-        new AlertDialog.Builder(this, R.style.alertDialog)
-                .setTitle(R.string.search_for_a_place)
+        input.setSingleLine();
+        input.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        alertDialog.setTitle(R.string.search_for_a_place)
                 .setMessage(R.string.warning_zmanim_will_be_based_on_your_approximate_area)
                 .setView(input)
                 .setPositiveButton(R.string.ok, (dialog, which) -> {
@@ -83,9 +89,18 @@ public class CurrentLocationActivity extends AppCompatActivity {
                         finish();//end the activity
                     }
                 })
-                .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel())
-                .create()
-                .show();
+                .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel());
+
+        AlertDialog ad = alertDialog.create();
+        ad.show();
+
+        input.setOnEditorActionListener((textView, actionId, keyEvent) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_NULL) {
+                ad.getButton(DialogInterface.BUTTON_POSITIVE).performClick();
+                return true;
+            }
+            return false;
+        });
     }
 
     /**
