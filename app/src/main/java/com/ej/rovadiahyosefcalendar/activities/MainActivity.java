@@ -480,6 +480,7 @@ public class MainActivity extends AppCompatActivity {
                             } else {
                                 updateViewsInList();
                             }
+                            startActivity(new Intent(this, CalendarChooserActivity.class));
                         })
                         .setNegativeButton(R.string.no_i_have_not_left_israel, (dialog, which) -> {
                             mSharedPreferences.edit().putBoolean("askedInNotIsrael", true).apply();//save that we asked
