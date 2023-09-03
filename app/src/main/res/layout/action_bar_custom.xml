@@ -1,18 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:layout_height="wrap_content">
+    >
+
+    <TextClock
+        android:id="@+id/clock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:format12Hour="hh:mm:ss a"
+        android:format24Hour="hh:mm:ss"
+        android:layout_gravity="start"
+        android:gravity="start"/>
 
     <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/appCompatTextView"
+        style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:gravity="center"
-        android:text="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:layout_gravity="center"
         android:fontFamily="sans-serif-light"
-        style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title" />
+        android:gravity="center"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:text="@string/app_name" />
 
 
 </LinearLayout>

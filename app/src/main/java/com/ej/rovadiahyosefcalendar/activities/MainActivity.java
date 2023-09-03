@@ -43,6 +43,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextClock;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -930,6 +931,12 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         resetTheme();
+        TextClock clock = Objects.requireNonNull(getSupportActionBar()).getCustomView().findViewById(R.id.clock);
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            clock.setVisibility(View.VISIBLE);
+        } else {
+            clock.setVisibility(View.GONE);
+        }
         if (mSharedPreferences.getBoolean("useImage", false)) {
             Bitmap bitmap = BitmapFactory.decodeFile(mSharedPreferences.getString("imageLocation", ""));
             Drawable drawable = new BitmapDrawable(getResources(), bitmap);
@@ -1067,6 +1074,7 @@ public class MainActivity extends AppCompatActivity {
      * @see #startScrollingThread() to start the thread that will scroll through the list of zmanim
      * @see #setShabbatBannerColors(boolean) to set the text of the shabbat banners
      */
+    @SuppressLint("SourceLockedOrientationActivity")
     private void startShabbatMode() {
         if (!sShabbatMode) {
             sShabbatMode = true;
