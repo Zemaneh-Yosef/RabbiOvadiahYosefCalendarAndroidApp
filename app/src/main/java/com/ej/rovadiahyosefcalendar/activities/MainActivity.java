@@ -55,6 +55,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.splashscreen.SplashScreen;
 import androidx.core.view.MenuCompat;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -186,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         getWindow().getDecorView().setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
-        setTheme(R.style.AppTheme); //splash screen
+        SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Objects.requireNonNull(getSupportActionBar()).setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
@@ -934,6 +935,9 @@ public class MainActivity extends AppCompatActivity {
         TextClock clock = Objects.requireNonNull(getSupportActionBar()).getCustomView().findViewById(R.id.clock);
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             clock.setVisibility(View.VISIBLE);
+            if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                clock.setFormat24Hour("H:mm:ss");
+            }
         } else {
             clock.setVisibility(View.GONE);
         }
@@ -1116,6 +1120,15 @@ public class MainActivity extends AppCompatActivity {
                     case Surface.ROTATION_270:
                         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
                         break;
+                }
+            }
+            TextClock clock = Objects.requireNonNull(getSupportActionBar()).getCustomView().findViewById(R.id.clock);
+            if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                clock.setVisibility(View.VISIBLE);
+                TextView title = getSupportActionBar().getCustomView().findViewById(R.id.appCompatTextView);
+                title.setText(getString(R.string.short_app_name));
+                if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                    clock.setFormat24Hour("hh:mm:ss");
                 }
             }
             mNextDate.setVisibility(View.GONE);
@@ -1349,6 +1362,12 @@ public class MainActivity extends AppCompatActivity {
             mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable());
             mNextDate.setVisibility(View.VISIBLE);
             mPreviousDate.setVisibility(View.VISIBLE);
+            TextClock clock = Objects.requireNonNull(getSupportActionBar()).getCustomView().findViewById(R.id.clock);
+            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                clock.setVisibility(View.GONE);
+                TextView title = getSupportActionBar().getCustomView().findViewById(R.id.appCompatTextView);
+                title.setText(getString(R.string.app_name));
+            }
         }
     }
 
@@ -1487,7 +1506,9 @@ public class MainActivity extends AppCompatActivity {
                 + " / "
                 + sJewishDateInfo.getIsBarcheinuOrBarechAleinuSaid()));
 
-        zmanim.add(new ZmanListEntry(getString(R.string.show_siddur)));
+        if (!sShabbatMode) {
+            zmanim.add(new ZmanListEntry(getString(R.string.show_siddur)));
+        }
 
         if (!mSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
             zmanim.add(new ZmanListEntry(getString(R.string.shaah_zmanit_gr_a) + " " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanisGra())
@@ -2478,15 +2499,20 @@ public class MainActivity extends AppCompatActivity {
                 mCurrentDateShown.setTime(new Date());
                 sJewishDateInfo.setCalendar(new GregorianCalendar());
                 mROZmanimCalendar.setCalendar(new GregorianCalendar());
+                startShabbatMode();
                 if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                     updateWeeklyZmanim();
                 } else {
                     updateViewsInList();
                 }
-                startShabbatMode();
                 item.setChecked(true);
             } else {
                 endShabbatMode();
+                if (mSharedPreferences.getBoolean("weeklyMode", false)) {
+                    updateWeeklyZmanim();
+                } else {
+                    updateViewsInList();
+                }
                 item.setChecked(false);
             }
             return true;

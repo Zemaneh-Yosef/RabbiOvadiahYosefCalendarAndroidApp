@@ -10,52 +10,51 @@
 
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="fill"
+        android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/jewish_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:textSize="14sp"
+            android:padding="8dp"
             android:textStyle="bold"
-            android:gravity="fill"
-            android:maxLines="1"
-            tools:text="29 Shevat, 5783"/>
+            tools:text="29 Cheshvan, 5783"/>
 
         <TextView
             android:id="@+id/parsha"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:textSize="14sp"
+            android:padding="8dp"
             tools:text="תרומה"/>
 
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/zman"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:maxLines="1"
-            android:textSize="14sp"
-            android:gravity="center"
+            android:padding="8dp"
             tools:text="Chatzot"/>
 
         <TextView
             android:id="@+id/zman_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:textSize="16sp"
-            android:maxLines="1"
+            android:padding="8dp"
             android:textStyle="bold"
             tools:text="12:30 AM"/>
 
@@ -63,25 +62,24 @@
 
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/tachanun"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:textSize="11sp"
+            android:padding="8dp"
             tools:text="Tachanun"/>
 
         <TextView
             android:id="@+id/daf"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:textSize="14sp"
+            android:padding="8dp"
             tools:text="Daf Yomi"/>
 
     </LinearLayout>
-
+    </LinearLayout>
 </LinearLayout>

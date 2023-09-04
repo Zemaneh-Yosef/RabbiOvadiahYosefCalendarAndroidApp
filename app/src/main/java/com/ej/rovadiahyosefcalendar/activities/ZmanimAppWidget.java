@@ -70,14 +70,14 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         }
         sZmanimFormat.setTimeZone(mROZmanimCalendar.getCalendar().getTimeZone());
 
-        String jewishDate = mJewishDateInfo.getJewishDate().replace(",", "");
+        String jewishDate = mJewishDateInfo.getJewishDate();
         String parsha = mJewishDateInfo.getThisWeeksParsha();
         ZmanListEntry nextUpcomingZman = getNextUpcomingZman();
         String zman = nextUpcomingZman.getTitle();
         String time = sZmanimFormat.format(nextUpcomingZman.getZman());
         String tachanun = mJewishDateInfo.getIsTachanunSaid()
                 .replace("There is no Tachanun today", "No Tachanun")
-                .replace("There is only Tachanun in the morning", "Tachanun in the morning")
+                .replace("There is only Tachanun in the morning", "Tachanun morning only")
                 .replace("There is Tachanun today", "Tachanun");
         String dafYomi = mJewishDateInfo.getJewishCalendar().getDafYomiBavli().getMasechta()
                 + " " + JewishDateInfo.formatHebrewNumber(mJewishDateInfo.getJewishCalendar().getDafYomiBavli().getDaf());
@@ -95,13 +95,13 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         views.setTextViewText(R.id.tachanun, tachanun);
         views.setTextViewText(R.id.daf, dafYomi);
 
-        if (!mSharedPreferences.getBoolean("widgetInitialized", false)) {
-            views.setViewVisibility(R.id.zman, View.INVISIBLE);// initially hide the other views
-            views.setViewVisibility(R.id.zman_time, View.INVISIBLE);
-            views.setViewVisibility(R.id.tachanun, View.INVISIBLE);
-            views.setViewVisibility(R.id.daf, View.INVISIBLE);
-            mSharedPreferences.edit().putBoolean("widgetInitialized", true).apply();
-        }
+//        if (!mSharedPreferences.getBoolean("widgetInitialized", false)) {
+//            views.setViewVisibility(R.id.zman, View.INVISIBLE);// initially hide the other views
+//            views.setViewVisibility(R.id.zman_time, View.INVISIBLE);
+//            views.setViewVisibility(R.id.tachanun, View.INVISIBLE);
+//            views.setViewVisibility(R.id.daf, View.INVISIBLE);
+//            mSharedPreferences.edit().putBoolean("widgetInitialized", true).apply();
+//        }
 
         Intent configIntent = new Intent(context, MainActivity.class);
         PendingIntent configPendingIntent = PendingIntent.getActivity(context, 0, configIntent, PendingIntent.FLAG_IMMUTABLE);
@@ -451,7 +451,7 @@ public class ZmanimAppWidget extends AppWidgetProvider {
             views = new RemoteViews(context.getPackageName(), R.layout.zmanim_app_widget);
         }
 
-        if (maxWidth >= 250 || maxHeight > maxWidth) {// if the widget is wide enough, show the zman
+        /*if (maxWidth >= 250 || maxHeight > maxWidth) {// if the widget is wide enough, show the zman
             views.setViewVisibility(R.id.zman, View.VISIBLE);
             views.setViewVisibility(R.id.zman_time, View.VISIBLE);
             views.setViewVisibility(R.id.tachanun, View.INVISIBLE);
@@ -465,7 +465,7 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         if (maxWidth >= 350 || maxHeight > maxWidth) {// if the widget is wide enough, show the daf as well
             views.setViewVisibility(R.id.tachanun, View.VISIBLE);
             views.setViewVisibility(R.id.daf, View.VISIBLE);
-        }
+        }*/
 
         mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         mSharedPreferences.edit().putInt("widgetMaxWidth", maxWidth).apply();

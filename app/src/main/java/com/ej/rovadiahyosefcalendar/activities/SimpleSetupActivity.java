@@ -10,6 +10,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.view.Menu;
@@ -20,6 +21,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.TextClock;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,6 +40,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 
@@ -231,6 +234,15 @@ public class SimpleSetupActivity extends AppCompatActivity {
         mCountrySpinner.setSelection(mSharedPreferences.getInt("selectedCountry", 0));
         mStateSpinner.setSelection(mSharedPreferences.getInt("selectedState", 0));
         mMetroAreaSpinner.setSelection(mSharedPreferences.getInt("selectedMetroArea", 0));
+        TextClock clock = Objects.requireNonNull(getSupportActionBar()).getCustomView().findViewById(R.id.clock);
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            clock.setVisibility(View.VISIBLE);
+            if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                clock.setFormat24Hour("H:mm:ss");
+            }
+        } else {
+            clock.setVisibility(View.GONE);
+        }
     }
 
     @Override

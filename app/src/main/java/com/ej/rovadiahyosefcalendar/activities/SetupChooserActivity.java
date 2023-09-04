@@ -5,11 +5,14 @@ import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
+import android.widget.TextClock;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -20,6 +23,7 @@ import com.ej.rovadiahyosefcalendar.R;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Locale;
 import java.util.Objects;
 
 public class SetupChooserActivity extends AppCompatActivity {
@@ -73,6 +77,20 @@ public class SetupChooserActivity extends AppCompatActivity {
 
         if (getIntent().getBooleanExtra("fromMenu", false)) {
             mEditor.putBoolean("isSetup", false).apply();//reset the preferences
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        TextClock clock = Objects.requireNonNull(getSupportActionBar()).getCustomView().findViewById(R.id.clock);
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            clock.setVisibility(View.VISIBLE);
+            if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                clock.setFormat24Hour("H:mm:ss");
+            }
+        } else {
+            clock.setVisibility(View.GONE);
         }
     }
 

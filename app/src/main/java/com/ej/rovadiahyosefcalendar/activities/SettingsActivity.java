@@ -163,28 +163,46 @@ public class SettingsActivity extends AppCompatActivity {
                             if (result.getData() != null) {
                                 Intent picture = result.getData();
                                 Uri selectedImage = picture.getData();
-                                Cursor returnCursor = requireContext().getContentResolver()
-                                        .query(selectedImage, null, null, null, null);
-                                int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                                returnCursor.moveToFirst();
-                                String name = (returnCursor.getString(nameIndex));
+                                Cursor returnCursor = null;
+                                if (selectedImage != null) {
+                                    returnCursor = requireContext().getContentResolver()
+                                            .query(selectedImage, null, null, null, null);
+                                }
+                                int nameIndex = 0;
+                                if (returnCursor != null) {
+                                    nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                                }
+                                if (returnCursor != null) {
+                                    returnCursor.moveToFirst();
+                                    String name = (returnCursor.getString(nameIndex));
+                                }
                                 File file = new File(requireContext().getFilesDir(), "background");
                                 try {
-                                    InputStream inputStream = requireContext().getContentResolver().openInputStream(selectedImage);
+                                    InputStream inputStream = null;
+                                    if (selectedImage != null) {
+                                        inputStream = requireContext().getContentResolver().openInputStream(selectedImage);
+                                    }
                                     FileOutputStream outputStream = new FileOutputStream(file);
                                     int read = 0;
                                     int maxBufferSize = 1024 * 1024;
-                                    int bytesAvailable = inputStream.available();
+                                    int bytesAvailable = 0;
+                                    if (inputStream != null) {
+                                        bytesAvailable = inputStream.available();
+                                    }
                                     int bufferSize = Math.min(bytesAvailable, maxBufferSize);
                                     final byte[] buffers = new byte[bufferSize];
-                                    while ((read = inputStream.read(buffers)) != -1) {
+                                    while ((read = inputStream != null ? inputStream.read(buffers) : -1) != -1) {
                                         outputStream.write(buffers, 0, read);
                                     }
-                                    inputStream.close();
+                                    if (inputStream != null) {
+                                        inputStream.close();
+                                    }
                                     outputStream.close();
-                                    returnCursor.close();
+                                    if (returnCursor != null) {
+                                        returnCursor.close();
+                                    }
                                 } catch (Exception e) {
-                                    Log.e("Exception", e.getMessage());
+                                    Log.e("Exception", Objects.requireNonNull(e.getMessage()));
                                 }
 
                                 requireContext().getSharedPreferences(SHARED_PREF, MODE_PRIVATE)
@@ -213,6 +231,26 @@ public class SettingsActivity extends AppCompatActivity {
                         Toast.makeText(getContext(), R.string.No_email_app_error, Toast.LENGTH_SHORT)
                                 .show();
                     }
+                    return false;
+                });
+            }
+
+            Preference haskamaPref = findPreference("haskamot");
+            if (haskamaPref != null) {
+                haskamaPref.setOnPreferenceClickListener(v -> {
+                    new AlertDialog.Builder(getContext(), R.style.alertDialog)
+                            .setTitle(R.string.haskamot)
+                            .setMessage(R.string.haskamot_message)
+                            .setPositiveButton(R.string.by_rav_elbaz, (dialog, which) -> {
+                                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://royzmanim.com/assets/Haskamah.pdf"));
+                                startActivity(browserIntent);
+                            })
+                            .setNegativeButton(R.string.by_rav_dahan, (dialog, which) -> {
+                                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://royzmanim.com/assets/%D7%94%D7%A1%D7%9B%D7%9E%D7%94.pdf"));
+                                startActivity(browserIntent);
+                            })
+                            .create()
+                            .show();
                     return false;
                 });
             }

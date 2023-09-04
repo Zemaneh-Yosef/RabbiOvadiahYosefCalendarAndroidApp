@@ -8,12 +8,15 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextClock;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,6 +27,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 
+import java.util.Locale;
 import java.util.Objects;
 
 public class CurrentLocationActivity extends AppCompatActivity {
@@ -46,6 +50,20 @@ public class CurrentLocationActivity extends AppCompatActivity {
         Button enterZipcodeButton = findViewById(R.id.enter_zipcode_button);
         enterZipcodeButton.setOnClickListener(v -> createZipcodeDialog());
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        TextClock clock = Objects.requireNonNull(getSupportActionBar()).getCustomView().findViewById(R.id.clock);
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            clock.setVisibility(View.VISIBLE);
+            if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                clock.setFormat24Hour("H:mm:ss");
+            }
+        } else {
+            clock.setVisibility(View.GONE);
+        }
     }
 
     /**

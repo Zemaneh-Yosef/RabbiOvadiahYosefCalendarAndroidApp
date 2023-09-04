@@ -131,13 +131,19 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="@string/contact_header">
+    <PreferenceCategory app:title="@string/app_info">
 
         <Preference
             app:key="@string/contact_header"
             app:selectable="true"
             app:summary="@string/contact_header"
             app:title="@string/have_questions" />
+
+        <Preference
+            app:key="haskamot"
+            app:selectable="true"
+            app:summary="@string/view_rabbinic_approbations_for_this_application"
+            app:title="@string/haskamot" />
 
     </PreferenceCategory>
 

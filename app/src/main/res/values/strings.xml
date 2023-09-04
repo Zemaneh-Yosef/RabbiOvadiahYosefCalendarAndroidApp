@@ -284,4 +284,11 @@
    <string name="mincha">מנחה</string>
    <string name="arvit">ערבית</string>
    <string name="neilah">נעילה</string>
+    <string name="app_info">Application Information</string>
+   <string name="haskamot">Haskamot</string>
+   <string name="view_rabbinic_approbations_for_this_application">View rabbinic approbations for this application</string>
+   <string name="by_rav_elbaz">Haskama by Rabbi Elbaz</string>
+   <string name="haskamot_message">Choose which haskama you would like to view below.</string>
+   <string name="by_rav_dahan">Haskama by Rabbi Dahan</string>
+    <string name="short_app_name">ROYC</string>
 </resources>

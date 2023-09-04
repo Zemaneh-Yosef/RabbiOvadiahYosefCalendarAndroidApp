@@ -7,11 +7,14 @@ import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextClock;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -47,6 +50,20 @@ public class FullSetupActivity extends AppCompatActivity {
 
         inIsraelButton.setOnClickListener(v -> saveInfoAndStartActivity(true));
         notInIsrael.setOnClickListener(v -> saveInfoAndStartActivity(false));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        TextClock clock = Objects.requireNonNull(getSupportActionBar()).getCustomView().findViewById(R.id.clock);
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            clock.setVisibility(View.VISIBLE);
+            if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                clock.setFormat24Hour("H:mm:ss");
+            }
+        } else {
+            clock.setVisibility(View.GONE);
+        }
     }
 
     private void saveInfoAndStartActivity(boolean b) {
