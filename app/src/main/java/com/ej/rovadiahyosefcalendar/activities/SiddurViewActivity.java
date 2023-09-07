@@ -39,6 +39,9 @@ public class SiddurViewActivity extends AppCompatActivity {
         SiddurMaker siddurMaker = new SiddurMaker(sJewishDateInfo);
         ArrayList<HighlightString> prayers = new ArrayList<>();
         switch ((String) Objects.requireNonNull(Objects.requireNonNull(getIntent().getExtras()).get("prayer"))) {
+            case "Selichot":
+                prayers = siddurMaker.getSelichotPrayers();
+                break;
             case "Shacharit":
                 prayers = siddurMaker.getShacharitPrayers();
                 break;

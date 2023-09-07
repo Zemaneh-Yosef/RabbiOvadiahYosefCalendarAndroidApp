@@ -28,9 +28,20 @@
             />
 
         <Button
+            android:id="@+id/selichot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/selichot"
+            android:textStyle="bold"
+            android:textSize="26sp"
+            android:textColor="@color/black"
+            android:background="@drawable/colorful_gradient_square">
+        </Button>
+        <Button
             android:id="@+id/shacharit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
             android:text="@string/shacharit"
             android:textStyle="bold"
             android:textSize="26sp"
