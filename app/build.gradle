@@ -9,8 +9,8 @@ android {
         minSdkVersion 25
         compileSdkVersion 33
         targetSdkVersion 34
-        versionCode 105
-        versionName "12.1"
+        versionCode 106
+        versionName "12.2"
 
         ndk { debugSymbolLevel 'FULL' }
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
