@@ -828,4 +828,13 @@ public class JewishDateInfo {
         }
         return daysOfShevuahShechalBo.contains(jewishCalendar.getJewishDayOfMonth());
     }
+
+    public boolean isSelichotSaid() {
+        if (jewishCalendar.getJewishMonth() == JewishDate.ELUL) {
+            if (!jewishCalendar.isRoshChodesh()) {
+                return true;
+            }
+        }
+        return jewishCalendar.isAseresYemeiTeshuva();
+    }
 }

@@ -183,6 +183,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private final static Calendar dafYomiStartDate = new GregorianCalendar(1923, Calendar.SEPTEMBER, 11);
     private final static Calendar dafYomiYerushalmiStartDate = new GregorianCalendar(1980, Calendar.FEBRUARY, 2);
+    private Date mLastTimeUserWasInApp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -919,8 +920,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         resolveElevationAndVisibleSunrise();
-        if (!DateUtils.isSameDay(mROZmanimCalendar.getCalendar().getTime(), new Date())
-        && (new Date().getTime() - mCurrentDateShown.getTime().getTime()) > 7_200_000) {//two hours
+        if (!DateUtils.isSameDay(mCurrentDateShown.getTime(), new Date())
+        && (new Date().getTime() - mLastTimeUserWasInApp.getTime()) > 7_200_000) {//two hours
             mCurrentDateShown.setTime(new Date());
             mROZmanimCalendar.setCalendar(mCurrentDateShown);
             sJewishDateInfo.setCalendar(mCurrentDateShown);
@@ -931,6 +932,7 @@ public class MainActivity extends AppCompatActivity {
                 mMainRecyclerView.scrollToPosition(mCurrentPosition);
             }
         }
+        mLastTimeUserWasInApp = new Date();
         resetTheme();
         TextClock clock = Objects.requireNonNull(getSupportActionBar()).getCustomView().findViewById(R.id.clock);
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
