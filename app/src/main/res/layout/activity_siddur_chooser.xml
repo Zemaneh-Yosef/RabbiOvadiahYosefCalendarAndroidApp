@@ -93,6 +93,16 @@
             android:background="@drawable/colorful_gradient_square">
         </Button>
 
+        <TextView
+            android:id="@+id/siddur_disclaimer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:visibility="gone"
+            tools:visibility="visible"
+            tools:text="Purim prayers will show yesterday (the 14th)"
+            />
+
     </LinearLayout>
 
 </ScrollView>

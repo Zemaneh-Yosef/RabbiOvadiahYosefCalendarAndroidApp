@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.ej.rovadiahyosefcalendar.R;
+import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
 public class SiddurChooserActivity extends AppCompatActivity {
 
@@ -64,6 +65,12 @@ public class SiddurChooserActivity extends AppCompatActivity {
         Button arvit = findViewById(R.id.arvit);
         arvit.setOnClickListener(v -> startActivity(new Intent(this, SiddurViewActivity.class)
                 .putExtra("prayer", "Arvit")));
+
+        TextView disclaimer = findViewById(R.id.siddur_disclaimer);
+        if (sJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM) {
+            disclaimer.setVisibility(View.VISIBLE);
+            disclaimer.setText(getString(R.string.purim_disclaimer));
+        }
     }
 
 
