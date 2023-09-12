@@ -1973,14 +1973,23 @@ public class MainActivity extends AppCompatActivity {
         if (sJewishDateInfo.getJewishCalendar().hasCandleLighting() &&
                 sJewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
             if (sJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) != Calendar.FRIDAY) {
-                zmanim.add(new ZmanListEntry(zmanimNames.getCandleLightingString(), mROZmanimCalendar.getTzeit(), true));
+                ZmanListEntry endShabbat;
+                if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("1")) {
+                    endShabbat = new ZmanListEntry(zmanimNames.getCandleLightingString(), mROZmanimCalendar.getTzaisAteretTorah(), true);
+                } else if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("2")) {
+                    endShabbat = new ZmanListEntry(zmanimNames.getCandleLightingString(), mROZmanimCalendar.getTzaitShabbatAmudeiHoraah(), true);
+                } else {
+                    endShabbat = new ZmanListEntry(zmanimNames.getCandleLightingString(), mROZmanimCalendar.getTzaitShabbatAmudeiHoraahLesserThan40(), true);
+                }
+                endShabbat.setNoteworthyZman(true);
+                zmanim.add(endShabbat);
             }
         }
         if (sJewishDateInfo.getJewishCalendar().isTaanis() && sJewishDateInfo.getJewishCalendar().getYomTovIndex() != JewishCalendar.YOM_KIPPUR) {
             ZmanListEntry fastEnds = new ZmanListEntry(zmanimNames.getTzaitString() + zmanimNames.getTaanitString() + zmanimNames.getEndsString(), mROZmanimCalendar.getTzaitTaanit(), true);
             fastEnds.setNoteworthyZman(true);
             zmanim.add(fastEnds);
-            if (!isForWeeklyZmanim) {//remove the second fast time, it just confuses people
+            if (!isForWeeklyZmanim) {//remove the second fast time, it just confuses people because we remove l'chumra
                 fastEnds = new ZmanListEntry(zmanimNames.getTzaitString() + zmanimNames.getTaanitString() + zmanimNames.getEndsString() + " " + zmanimNames.getLChumraString(), mROZmanimCalendar.getTzaitTaanitLChumra(), true);
                 fastEnds.setNoteworthyZman(true);
                 zmanim.add(fastEnds);
@@ -2127,7 +2136,7 @@ public class MainActivity extends AppCompatActivity {
         if (sJewishDateInfo.getJewishCalendar().hasCandleLighting() &&
                 sJewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
             if (sJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) != Calendar.FRIDAY) {
-                zmanim.add(new ZmanListEntry(zmanimNames.getCandleLightingString(), mROZmanimCalendar.getTzeitAmudeiHoraah(), true));
+                zmanim.add(new ZmanListEntry(zmanimNames.getCandleLightingString(), mROZmanimCalendar.getTzaitShabbatAmudeiHoraah(), true));
             }
         }
         if (sJewishDateInfo.getJewishCalendar().isTaanis() && sJewishDateInfo.getJewishCalendar().getYomTovIndex() != JewishCalendar.YOM_KIPPUR) {
