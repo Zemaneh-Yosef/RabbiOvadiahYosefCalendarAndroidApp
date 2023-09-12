@@ -1,5 +1,6 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
+import static android.text.Html.fromHtml;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sJewishDateInfo;
 
 import androidx.annotation.NonNull;
@@ -8,6 +9,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -15,6 +19,8 @@ import android.widget.TextView;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
+
+import java.util.Locale;
 
 public class SiddurChooserActivity extends AppCompatActivity {
 
@@ -67,9 +73,23 @@ public class SiddurChooserActivity extends AppCompatActivity {
                 .putExtra("prayer", "Arvit")));
 
         TextView disclaimer = findViewById(R.id.siddur_disclaimer);
+        disclaimer.setGravity(Gravity.CENTER);
+        disclaimer.setClickable(true);
+        disclaimer.setMovementMethod(LinkMovementMethod.getInstance());
         if (sJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM) {
             disclaimer.setVisibility(View.VISIBLE);
             disclaimer.setText(getString(R.string.purim_disclaimer));
+        }
+
+        if (sJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.TU_BESHVAT) {
+            disclaimer.setVisibility(View.VISIBLE);
+            String text = "";
+            if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                text = "טוב לאמר את התפילה הזו בטו בשבט:<br><br> <a href='https://elyahu41.github.io/Prayer%20for%20an%20Etrog.pdf'>תפילה לאתרוג</a>";
+            } else {
+                text = "It is good to say this prayer on Tu'Beshvat:<br><br> <a href='https://elyahu41.github.io/Prayer%20for%20an%20Etrog.pdf'>Prayer for Etrog</a>";
+            }
+            disclaimer.setText(fromHtml(text, Html.FROM_HTML_MODE_COMPACT));
         }
     }
 
