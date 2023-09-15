@@ -1973,16 +1973,20 @@ public class MainActivity extends AppCompatActivity {
         if (sJewishDateInfo.getJewishCalendar().hasCandleLighting() &&
                 sJewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
             if (sJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) != Calendar.FRIDAY) {
-                ZmanListEntry endShabbat;
-                if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("1")) {
-                    endShabbat = new ZmanListEntry(zmanimNames.getCandleLightingString(), mROZmanimCalendar.getTzaisAteretTorah(), true);
-                } else if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("2")) {
-                    endShabbat = new ZmanListEntry(zmanimNames.getCandleLightingString(), mROZmanimCalendar.getTzaitShabbatAmudeiHoraah(), true);
-                } else {
-                    endShabbat = new ZmanListEntry(zmanimNames.getCandleLightingString(), mROZmanimCalendar.getTzaitShabbatAmudeiHoraahLesserThan40(), true);
+                if (sJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {//When today is Shabbat
+                    ZmanListEntry endShabbat;
+                    if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("1")) {
+                        endShabbat = new ZmanListEntry(zmanimNames.getCandleLightingString(), mROZmanimCalendar.getTzaisAteretTorah(), true);
+                    } else if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("2")) {
+                        endShabbat = new ZmanListEntry(zmanimNames.getCandleLightingString(), mROZmanimCalendar.getTzaitShabbatAmudeiHoraah(), true);
+                    } else {
+                        endShabbat = new ZmanListEntry(zmanimNames.getCandleLightingString(), mROZmanimCalendar.getTzaitShabbatAmudeiHoraahLesserThan40(), true);
+                    }
+                    endShabbat.setNoteworthyZman(true);
+                    zmanim.add(endShabbat);
+                } else {//When today is Yom Tov
+                    zmanim.add(new ZmanListEntry(zmanimNames.getCandleLightingString(), mROZmanimCalendar.getTzeit(), true));
                 }
-                endShabbat.setNoteworthyZman(true);
-                zmanim.add(endShabbat);
             }
         }
         if (sJewishDateInfo.getJewishCalendar().isTaanis() && sJewishDateInfo.getJewishCalendar().getYomTovIndex() != JewishCalendar.YOM_KIPPUR) {
@@ -2136,7 +2140,11 @@ public class MainActivity extends AppCompatActivity {
         if (sJewishDateInfo.getJewishCalendar().hasCandleLighting() &&
                 sJewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
             if (sJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) != Calendar.FRIDAY) {
-                zmanim.add(new ZmanListEntry(zmanimNames.getCandleLightingString(), mROZmanimCalendar.getTzaitShabbatAmudeiHoraah(), true));
+                if (sJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {//When today is Shabbat
+                    zmanim.add(new ZmanListEntry(zmanimNames.getCandleLightingString(), mROZmanimCalendar.getTzaitShabbatAmudeiHoraah(), true));
+                } else {//When today is Yom Tov
+                    zmanim.add(new ZmanListEntry(zmanimNames.getCandleLightingString(), mROZmanimCalendar.getTzeitAmudeiHoraahLChumra(), true));
+                }
             }
         }
         if (sJewishDateInfo.getJewishCalendar().isTaanis() && sJewishDateInfo.getJewishCalendar().getYomTovIndex() != JewishCalendar.YOM_KIPPUR) {

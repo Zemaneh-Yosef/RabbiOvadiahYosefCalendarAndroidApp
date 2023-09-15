@@ -433,6 +433,9 @@ public class JewishDateInfo {
                 || jewishCalendar.getJewishMonth() == JewishDate.NISSAN
                 || (jewishCalendar.getJewishMonth() == JewishDate.SIVAN && jewishCalendar.getJewishDayOfMonth() <= 12)
                 || (jewishCalendar.getJewishMonth() == JewishDate.TISHREI && jewishCalendar.getJewishDayOfMonth() >= 11)) {
+            if (yomTovIndex == JewishCalendar.ROSH_HASHANA && jewishCalendar.getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {//Edge case for rosh hashana that falls on shabbat (Shulchan Aruch, Chapter 598 and Chazon Ovadia page 185)
+                return "צדקתך";
+            }//TODO check source on this
             if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
                 return "אין תחנון היום";
             }
@@ -479,7 +482,7 @@ public class JewishDateInfo {
 
     /**
      * This method will return whether or not this jewish year is a leap year.
-     * @return true if the jewish year is a leap year, false otherwise
+     * @return "This year is a jewish leap year!" if the jewish year is a leap year, "This year is a not a jewish leap year!" otherwise
      */
     public String isJewishLeapYear() {
         if (jewishCalendar.isJewishLeapYear()) {
@@ -497,7 +500,7 @@ public class JewishDateInfo {
 
     /**
      * This method will return the parsha of the current week by rolling the calendar to saturday.
-     * @return a string containing the parsha of the current week
+     * @return a string containing the parsha of the current week or "No Weekly Parsha"
      */
     public String getThisWeeksParsha() {
 
@@ -532,7 +535,7 @@ public class JewishDateInfo {
     }
 
     /**
-     * This method will return ordinal number of a number. For example, the number 1 will return 1st.
+     * This method will return the ordinal of a number. For example, the number 1 will return 1st.
      * @param number the number to get the ordinal number of
      */
     private String getOrdinal(int number) {
@@ -553,7 +556,7 @@ public class JewishDateInfo {
      */
     public String getJewishDayOfWeek() {
         hebrewDateFormatter.setHebrewFormat(true);
-        String result = "\u05D9\u05D5\u05DD ";//this says יוֹם
+        String result = "יום ";
         result += hebrewDateFormatter.formatDayOfWeek(jewishCalendar);
         hebrewDateFormatter.setHebrewFormat(false);
         return result;
@@ -565,7 +568,7 @@ public class JewishDateInfo {
      * @return a string containing the number in Hebrew
      */
     public static String formatHebrewNumber(int num) {
-        if (num <= 0 || num >= 6000) return null;// should refactor
+        if (num <= 0 || num >= 6000) return "X";
 
         String[] let1000 = {" א'", " ב'", " ג'", " ד'", " ה'"};
         String[] let100 = {"ק", "ר", "ש", "ת"};
