@@ -2561,6 +2561,9 @@ public class MainActivity extends AppCompatActivity {
                 updateViewsInList();
             }
             return true;
+        } else if (id == R.id.netzView) {
+            startActivity(new Intent(this, NetzActivity.class));
+            return true;
         } else if (id == R.id.molad) {
             startActivity(new Intent(this, MoladActivity.class));
             return true;

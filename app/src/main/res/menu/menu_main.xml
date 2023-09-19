@@ -24,6 +24,9 @@
             android:title="@string/use_elevation"
             android:checkable="true" />
         <item
+            android:id="@+id/netzView"
+            android:title="@string/netz_countdown" />
+        <item
             android:id="@+id/molad"
             android:title="@string/molad_calculator" />
 

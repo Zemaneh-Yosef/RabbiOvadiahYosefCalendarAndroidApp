@@ -256,6 +256,14 @@ public class ZmanimNames {
         }
     }
 
+    public String getIsInString() {
+        if (mIsZmanimInHebrew) {
+            return " ב...";
+        } else {
+            return " is in...";
+        }
+    }
+
     public String getTalitTefilinString() {
         if (mIsZmanimInHebrew) {
             return "טלית ותפילין";
