@@ -508,5 +508,8 @@
     <string name="short_app_name">זמני יוסף</string>
     <string name="selichot">סליחות</string>
     <string name="purim_disclaimer">תפילות פורים יוצגו ב-14 (אתמול)</string>
+    <string name="title_activity_netz">ספירת זריחה</string>
+    <string name="quit">לפסוק</string>
+    <string name="netz_countdown">ספירת זריחה</string>
 
 </resources>
