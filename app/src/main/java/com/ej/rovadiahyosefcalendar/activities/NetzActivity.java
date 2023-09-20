@@ -163,7 +163,7 @@ public class NetzActivity extends AppCompatActivity {
         ZmanimNames netzName = new ZmanimNames(mIsZmanimInHebrew, mIsZmanimEnglishTranslated);
 
         // Create a CountdownTimer with a 1-second interval
-        CountDownTimer countDownTimer = new CountDownTimer(netz.getTime(), 1000) {
+        CountDownTimer countDownTimer = new CountDownTimer(netz.getTime() - new Date().getTime(), 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
                 long seconds = (millisUntilFinished / 1000) % 60;
