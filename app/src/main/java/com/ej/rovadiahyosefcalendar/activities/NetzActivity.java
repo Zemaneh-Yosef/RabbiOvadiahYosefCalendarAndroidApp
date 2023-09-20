@@ -144,6 +144,10 @@ public class NetzActivity extends AppCompatActivity {
         setZmanimLanguageBools();
         mROZmanimCalendar = getROZmanimCalendar(this);
 
+        startTimer();
+    }
+
+    private void startTimer() {
         Date netz = mROZmanimCalendar.getHaNetz();
 
         if (netz == null) {
@@ -180,7 +184,7 @@ public class NetzActivity extends AppCompatActivity {
             @Override
             public void onFinish() {
                 binding.fullscreenContent.setText("00:00");
-                onCreate(savedInstanceState);//TODO test that this will restart the countdown for the next day
+                startTimer();
             }
         };
 
