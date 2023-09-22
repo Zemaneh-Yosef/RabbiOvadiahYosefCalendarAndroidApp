@@ -29,7 +29,9 @@ import com.kosherjava.zmanim.util.GeoLocation;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.TimeZone;
 
 /**
@@ -139,34 +141,47 @@ public class NetzActivity extends AppCompatActivity {
         binding.quitButton.setOnTouchListener(mDelayHideTouchListener);
         binding.quitButton.setOnClickListener(l -> finish());
 
+        binding.netzRefresh.setOnRefreshListener(() -> new Thread(() -> {
+            Looper.prepare();
+            startTimer();
+            binding.netzRefresh.setRefreshing(false);
+            Objects.requireNonNull(Looper.myLooper()).quit();
+        }).start());
+
         mLocationResolver = new LocationResolver(this, new Activity());
         mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         setZmanimLanguageBools();
         mROZmanimCalendar = getROZmanimCalendar(this);
+        mROZmanimCalendar.setExternalFilesDir(getExternalFilesDir(null));
 
         startTimer();
     }
 
     private void startTimer() {
+        mROZmanimCalendar.getCalendar().setTime(new Date());
         Date netz = mROZmanimCalendar.getHaNetz();
+        boolean isMishor = false;
 
         if (netz == null) {
             netz = mROZmanimCalendar.getSeaLevelSunrise();
+            isMishor = true;
         }
 
         if (netz.before(new Date())) {
             mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
 
             netz = mROZmanimCalendar.getHaNetz();
+            isMishor = false;
 
             if (netz == null) {
                 netz = mROZmanimCalendar.getSeaLevelSunrise();
+                isMishor = true;
             }
         }
 
         ZmanimNames netzName = new ZmanimNames(mIsZmanimInHebrew, mIsZmanimEnglishTranslated);
 
-        // Create a CountdownTimer with a 1-second interval
+        boolean finalIsMishor = isMishor;
         CountDownTimer countDownTimer = new CountDownTimer(netz.getTime() - new Date().getTime(), 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
@@ -174,7 +189,13 @@ public class NetzActivity extends AppCompatActivity {
                 long minutes = (millisUntilFinished / (1000 * 60)) % 60;
                 long hours = (millisUntilFinished / (1000 * 60 * 60)) % 24;
 
-                String countdownText = netzName.getHaNetzString() + netzName.getIsInString() + "\n\n";
+                String countdownText = netzName.getHaNetzString();
+
+                if (finalIsMishor) {
+                    countdownText += " (" + netzName.getMishorString() + ")";
+                }
+
+                countdownText += netzName.getIsInString() + "\n\n";
 
                 countdownText += String.format(Locale.getDefault(),"%02dh:%02dm:%02ds", hours, minutes, seconds);
                 binding.fullscreenContent.setText(countdownText);
@@ -183,8 +204,10 @@ public class NetzActivity extends AppCompatActivity {
             @SuppressLint("SetTextI18n")
             @Override
             public void onFinish() {
-                binding.fullscreenContent.setText("00:00");
-                startTimer();
+                binding.fullscreenContent.setText("Netz/Sunrise has passed. Swipe down to countdown again.");
+                if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                    binding.fullscreenContent.setText("הזריחה עברה. החלק למטה כדי להתחיל סיפור חוזר.");
+                }
             }
         };
 

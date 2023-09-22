@@ -29,7 +29,7 @@ public class SiddurMaker {
         this.jewishDateInfo = jewishDateInfo;
     }
 
-    public ArrayList<HighlightString> getSelichotPrayers() {
+    public ArrayList<HighlightString> getSelichotPrayers(boolean isInAMinyan) {//TODO remove all minyan prayers if user desired
         siddur = new ArrayList<>();// reset
 
         if (jewishDateInfo.getJewishCalendar().isAssurBemelacha()) {

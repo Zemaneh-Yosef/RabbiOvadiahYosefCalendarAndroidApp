@@ -114,7 +114,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     public Date getHaNetz() {
         try {
             jewishCalendar.setDate(getCalendar());
-            ChaiTables chaiTables = new ChaiTables(externalFilesDir, sCurrentLocationName, jewishCalendar);
+            ChaiTables chaiTables = new ChaiTables(externalFilesDir, getGeoLocation().getLocationName(), jewishCalendar);
 
             if (chaiTables.visibleSunriseFileExists()) {
                 String currentVisibleSunrise = chaiTables.getVisibleSunrise();

@@ -40,7 +40,7 @@ public class SiddurViewActivity extends AppCompatActivity {
         ArrayList<HighlightString> prayers = new ArrayList<>();
         switch ((String) Objects.requireNonNull(Objects.requireNonNull(getIntent().getExtras()).get("prayer"))) {
             case "Selichot":
-                prayers = siddurMaker.getSelichotPrayers();
+                prayers = siddurMaker.getSelichotPrayers(false);
                 break;
             case "Shacharit":
                 prayers = siddurMaker.getShacharitPrayers();
