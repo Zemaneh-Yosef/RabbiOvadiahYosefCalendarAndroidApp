@@ -1050,15 +1050,14 @@ public class MainActivity extends AppCompatActivity {
         am.cancel(omerPendingIntent);//cancel any previous alarms
         am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), omerPendingIntent);
 
-        //zmanim notifications are set in the onResume method
-//        Intent zmanIntent = new Intent(getApplicationContext(), ZmanimNotifications.class);
-//        mSharedPreferences.edit().putBoolean("fromThisNotification", false).apply();
-//        PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(getApplicationContext(),0,zmanIntent,PendingIntent.FLAG_IMMUTABLE);
-//        try {
-//            zmanimPendingIntent.send();
-//        } catch (PendingIntent.CanceledException e) {
-//            e.printStackTrace();
-//        }
+        Intent zmanIntent = new Intent(getApplicationContext(), ZmanimNotifications.class);
+        mSharedPreferences.edit().putBoolean("fromThisNotification", false).apply();
+        PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(getApplicationContext(),0,zmanIntent,PendingIntent.FLAG_IMMUTABLE);
+        try {
+            zmanimPendingIntent.send();
+        } catch (PendingIntent.CanceledException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -2440,6 +2439,8 @@ public class MainActivity extends AppCompatActivity {
                                 updateViewsInList();
                             }
                             checkIfUserIsInIsraelOrNot();
+                            saveGeoLocationInfo();
+                            setNotifications();
                         }
                     }
                 })
@@ -2466,6 +2467,8 @@ public class MainActivity extends AppCompatActivity {
                         updateViewsInList();
                     }
                     checkIfUserIsInIsraelOrNot();
+                    saveGeoLocationInfo();
+                    setNotifications();
                 });
 
         AlertDialog ad = alertDialog.create();
