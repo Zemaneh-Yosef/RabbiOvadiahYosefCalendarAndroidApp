@@ -19,7 +19,7 @@ public class JewishCalendarWithExtraMethods extends JewishCalendar {
 
         double solarDaysElapsed = days % 365.25;  // total days elapsed since start of solar year
         double tekufaDaysElapsed = solarDaysElapsed % 91.3125;  // the number of days that have passed since a tekufa event
-        if (tekufaDaysElapsed > 0 && tekufaDaysElapsed <= 1){  // if the tekufa happens in the upcoming 24 hours
+        if (tekufaDaysElapsed > 0 && tekufaDaysElapsed <= 1) {  // if the tekufa happens in the upcoming 24 hours
             return ((1.0 - tekufaDaysElapsed) * 24.0) % 24;// rationalize the tekufa event to number of hours since start of jewish day
         } else {
             return null;
@@ -40,7 +40,7 @@ public class JewishCalendarWithExtraMethods extends JewishCalendar {
         double solarDaysElapsed = days % 365.25;  // total days elapsed since start of solar year
         int currentTekufaNumber = (int) (solarDaysElapsed / 91.3125);  // the current quarter of the solar year
         double tekufaDaysElapsed = solarDaysElapsed % 91.3125;  // the number of days that have passed since a tekufa event
-        if (tekufaDaysElapsed > 0 && tekufaDaysElapsed <= 1){  // if the tekufa happens in the upcoming 24 hours
+        if (tekufaDaysElapsed > 0 && tekufaDaysElapsed <= 1) {  // if the tekufa happens in the upcoming 24 hours
             return tekufaNames[currentTekufaNumber];//0 for Tishrei, 1 for Tevet, 2, for Nissan, 3 for Tammuz
         } else {
             return "";

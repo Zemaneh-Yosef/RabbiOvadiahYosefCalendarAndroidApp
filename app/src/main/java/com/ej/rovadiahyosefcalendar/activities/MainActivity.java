@@ -55,7 +55,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.splashscreen.SplashScreen;
 import androidx.core.view.MenuCompat;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -188,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         getWindow().getDecorView().setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
-        SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
+        //SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Objects.requireNonNull(getSupportActionBar()).setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
@@ -272,7 +271,7 @@ public class MainActivity extends AppCompatActivity {
                     if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                         updateWeeklyZmanim();
                     } else {
-                        updateViewsInList();
+                        updateDailyZmanim();
                     }
                 }
         );
@@ -456,7 +455,7 @@ public class MainActivity extends AppCompatActivity {
                             if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                                 updateWeeklyZmanim();
                             } else {
-                                updateViewsInList();
+                                updateDailyZmanim();
                             }
                         })
                         .setNegativeButton(R.string.no_i_am_not_in_israel, (dialog, which) -> {
@@ -483,7 +482,7 @@ public class MainActivity extends AppCompatActivity {
                             if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                                 updateWeeklyZmanim();
                             } else {
-                                updateViewsInList();
+                                updateDailyZmanim();
                             }
                             startActivity(new Intent(this, CalendarChooserActivity.class));
                         })
@@ -533,7 +532,7 @@ public class MainActivity extends AppCompatActivity {
                             if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                                 updateWeeklyZmanim();
                             } else {
-                                updateViewsInList();
+                                updateDailyZmanim();
                             }
                         }
                     });
@@ -579,28 +578,30 @@ public class MainActivity extends AppCompatActivity {
                 instantiateZmanimCalendar();
                 instantiateZmanimCalendar();
                 setNextUpcomingZman();
-                runOnUiThread(this::updateViewsInList);
+                runOnUiThread(this::updateDailyZmanim);
                 runOnUiThread(() -> mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable()));
             }
             swipeRefreshLayout.setRefreshing(false);
             Objects.requireNonNull(Looper.myLooper()).quit();
         }).start());
         mMainRecyclerView = findViewById(R.id.mainRV);
-        mMainRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mMainRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        mMainRecyclerView.setOnTouchListener((view, motionEvent) -> mGestureDetector.onTouchEvent(motionEvent));
+        if (mMainRecyclerView != null) {// not sure if this will stop a bug from happening but it doesn't hurt
+            mMainRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+            mMainRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+            mMainRecyclerView.setOnTouchListener((view, motionEvent) -> mGestureDetector.onTouchEvent(motionEvent));
+        }
         mLayout.setOnTouchListener((view, motionEvent) -> mGestureDetector.onTouchEvent(motionEvent));
         if (mSharedPreferences.getBoolean("weeklyMode", false)) {
             showWeeklyTextViews();
             updateWeeklyZmanim();
         } else {
             hideWeeklyTextViews();
-            mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+            updateDailyZmanim();
         }
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private void updateViewsInList() {
+    private void updateDailyZmanim() {
 //        ZmanAdapter zmanAdapter = (ZmanAdapter) mMainRecyclerView.getAdapter();
 //        if (zmanAdapter != null) {
 //            zmanAdapter.setZmanim(getZmanimList());
@@ -659,7 +660,7 @@ public class MainActivity extends AppCompatActivity {
                 if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                     updateWeeklyZmanim();
                 } else {
-                    updateViewsInList();
+                    updateDailyZmanim();
                 }
                 mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable());
                 seeIfTablesNeedToBeUpdated(true);
@@ -685,7 +686,7 @@ public class MainActivity extends AppCompatActivity {
                 if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                     updateWeeklyZmanim();
                 } else {
-                    updateViewsInList();
+                    updateDailyZmanim();
                 }
                 mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable());
                 seeIfTablesNeedToBeUpdated(true);
@@ -728,7 +729,7 @@ public class MainActivity extends AppCompatActivity {
             if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                 updateWeeklyZmanim();
             } else {
-                updateViewsInList();
+                updateDailyZmanim();
             }
             mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable());
             seeIfTablesNeedToBeUpdated(true);
@@ -941,16 +942,16 @@ public class MainActivity extends AppCompatActivity {
                 clock.setFormat24Hour("H:mm:ss");
             }
         } else {
-            clock.setVisibility(View.GONE);
+            if (!sShabbatMode) {
+                clock.setVisibility(View.GONE);
+            }
         }
         if (mSharedPreferences.getBoolean("useImage", false)) {
             Bitmap bitmap = BitmapFactory.decodeFile(mSharedPreferences.getString("imageLocation", ""));
             Drawable drawable = new BitmapDrawable(getResources(), bitmap);
             mLayout.setBackground(drawable);
         }
-        if (sShabbatMode) {
-            setShabbatBannerColors(false);
-        } else {
+        if (!sShabbatMode) {
             if (mSharedPreferences.getBoolean("useDefaultCalButtonColor", true)) {
                 mCalendarButton.setBackgroundColor(getColor(R.color.dark_blue));
             } else {
@@ -1145,7 +1146,7 @@ public class MainActivity extends AppCompatActivity {
                 if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                     updateWeeklyZmanim();
                 } else {
-                    updateViewsInList();
+                    updateDailyZmanim();
                 }
                 mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable());
                 mHandler.removeCallbacks(mZmanimUpdater);
@@ -1544,7 +1545,7 @@ public class MainActivity extends AppCompatActivity {
             setNextUpcomingZman();
             if (mMainRecyclerView != null && !mSharedPreferences.getBoolean("weeklyMode", false)) {
                 mCurrentPosition = ((LinearLayoutManager) Objects.requireNonNull(mMainRecyclerView.getLayoutManager())).findFirstVisibleItemPosition();
-                updateViewsInList();
+                updateDailyZmanim();
                 if (mCurrentPosition < Objects.requireNonNull(mMainRecyclerView.getAdapter()).getItemCount()) {
                     mMainRecyclerView.scrollToPosition(mCurrentPosition);
                 }
@@ -1632,9 +1633,9 @@ public class MainActivity extends AppCompatActivity {
             announcements.append(tachanun).append("\n");
         }
 
-        String tonightStartOrEndBirchatLevana = sJewishDateInfo.getBirchatLevana();
-        if (!tonightStartOrEndBirchatLevana.isEmpty()) {
-            announcements.append(tonightStartOrEndBirchatLevana).append("\n");
+        String birchatLevana = sJewishDateInfo.getBirchatLevana();
+        if (!birchatLevana.isEmpty() && !birchatLevana.contains("until") && !birchatLevana.contains("עד")) {
+            announcements.append(birchatLevana).append("\n");
         }
 
         if (sJewishDateInfo.getJewishCalendar().isBirkasHachamah()) {
@@ -2436,7 +2437,7 @@ public class MainActivity extends AppCompatActivity {
                             if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                                 updateWeeklyZmanim();
                             } else {
-                                updateViewsInList();
+                                updateDailyZmanim();
                             }
                             checkIfUserIsInIsraelOrNot();
                             saveGeoLocationInfo();
@@ -2464,7 +2465,7 @@ public class MainActivity extends AppCompatActivity {
                     if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                         updateWeeklyZmanim();
                     } else {
-                        updateViewsInList();
+                        updateDailyZmanim();
                     }
                     checkIfUserIsInIsraelOrNot();
                     saveGeoLocationInfo();
@@ -2525,7 +2526,7 @@ public class MainActivity extends AppCompatActivity {
                 if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                     updateWeeklyZmanim();
                 } else {
-                    updateViewsInList();
+                    updateDailyZmanim();
                 }
                 item.setChecked(true);
             } else {
@@ -2533,7 +2534,7 @@ public class MainActivity extends AppCompatActivity {
                 if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                     updateWeeklyZmanim();
                 } else {
-                    updateViewsInList();
+                    updateDailyZmanim();
                 }
                 item.setChecked(false);
             }
@@ -2549,7 +2550,7 @@ public class MainActivity extends AppCompatActivity {
                 updateWeeklyZmanim();
             } else {
                 hideWeeklyTextViews();
-                updateViewsInList();
+                updateDailyZmanim();
             }
             return true;
         } else if (id == R.id.use_elevation) {
@@ -2561,7 +2562,7 @@ public class MainActivity extends AppCompatActivity {
             if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                 updateWeeklyZmanim();
             } else {
-                updateViewsInList();
+                updateDailyZmanim();
             }
             return true;
         } else if (id == R.id.netzView) {
