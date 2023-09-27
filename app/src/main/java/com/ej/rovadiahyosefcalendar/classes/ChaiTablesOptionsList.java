@@ -23,6 +23,15 @@ public class ChaiTablesOptionsList {
             "UK and Ireland", //becomes England in the link
             "Ukraine", "Uruguay", "USA", "Venezuela"};
 
+    public static String[] countriesHebrew = new String[]{"ארגנטינה", "אוסטרליה", "אוסטריה", "בלגיה", "ברזיל",
+            "בולגריה", "קנדה", "צ'ילה", "סין", "קולומביה", "רפובליקת הצ'כ", "דנמרק",
+            "ארץ ישראל (ערים)",
+            "ארץ ישראל (שכונות)",
+            "צרפת", "גרמניה", "יוון", "הונגריה", "איטליה", "מקסיקו", "הולנד", "פנמה", "פולין", "רומניה",
+            "רוסיה", "דרום אפריקה", "ספרד", "שוויץ", "טורקיה",
+            "הממלכה המאוחדת ואירלנד",
+            "אוקראינה", "אורוגוואי", "ארצות הברית", "וונצואלה"};
+
     /**
      * This is the selected country that will be passed into the link.
      * The string will look like this for Example: "USA" or "England"

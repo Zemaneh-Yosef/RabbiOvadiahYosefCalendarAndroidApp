@@ -56,7 +56,8 @@
             android:text="@string/select_your_state"
             android:textSize="20sp"
             android:textColor="?android:attr/textColorPrimary"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            tools:visibility="visible"/>
 
         <Spinner
             android:id="@+id/stateSpinner"
@@ -65,7 +66,8 @@
             android:layout_margin="20dp"
             android:padding="8dp"
             android:layout_gravity="center"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            tools:visibility="visible"/>
 
     </LinearLayout>
 
@@ -84,7 +86,8 @@
             android:text="@string/select_your_metro_area"
             android:textSize="20sp"
             android:textColor="?android:attr/textColorPrimary"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            tools:visibility="visible"/>
 
         <Spinner
             android:id="@+id/metroAreaSpinner"
@@ -92,7 +95,8 @@
             android:layout_height="wrap_content"
             android:layout_margin="20dp"
             android:layout_gravity="center"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            tools:visibility="visible"/>
 
     </LinearLayout>
 
