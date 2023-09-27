@@ -36,12 +36,15 @@ public class SiddurChooserActivity extends AppCompatActivity {
 
         TextView specialDay = findViewById(R.id.jewish_special_day);
         specialDay.setText(sJewishDateInfo.getSpecialDayWithoutOmer());
+        if (specialDay.getText().toString().isEmpty()) {
+            specialDay.setVisibility(View.GONE);
+        }
 
         Button selichot = findViewById(R.id.selichot);
         if (sJewishDateInfo.isSelichotSaid()) {
             selichot.setVisibility(View.VISIBLE);
         } else {
-            selichot.setVisibility(View.INVISIBLE);
+            selichot.setVisibility(View.GONE);
         }
         selichot.setOnClickListener(v -> startActivity(new Intent(this, SiddurViewActivity.class)
                 .putExtra("prayer", "Selichot")));
