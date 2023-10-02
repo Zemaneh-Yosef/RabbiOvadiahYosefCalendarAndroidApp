@@ -160,6 +160,7 @@ public class SimpleSetupActivity extends AppCompatActivity {
             scraper.setUrl(link);
             scraper.setExternalFilesDir(getExternalFilesDir(null));
             scraper.setJewishDate(jewishDate);
+            downloadButton.setEnabled(false);
             locationResolver.start();
             scraper.start();
             try {
@@ -195,6 +196,7 @@ public class SimpleSetupActivity extends AppCompatActivity {
         areaNotListedButton.setOnClickListener(v -> {
             ProgressBar progressBar = findViewById(R.id.progress_bar);
             progressBar.setVisibility(View.VISIBLE);
+            areaNotListedButton.setEnabled(false);
             mSharedPreferences.edit().putBoolean("UseTable" + sCurrentLocationName, false).apply();
             mSharedPreferences.edit().putBoolean("showMishorSunrise" + sCurrentLocationName, true).apply();
             mSharedPreferences.edit().putBoolean("isSetup", true).apply();

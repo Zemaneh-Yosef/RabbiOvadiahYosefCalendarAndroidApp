@@ -56,6 +56,7 @@ public class SetupElevationActivity extends AppCompatActivity {
 
         Button mishorButton = findViewById(R.id.mishor);
         mishorButton.setOnClickListener(v -> {
+            mishorButton.setEnabled(false);
             editor.putString("elevation" + sCurrentLocationName, mElevation).apply();
             editor.putBoolean("useElevation", false).apply();
             editor.putBoolean("isSetup", true).apply();
@@ -71,6 +72,7 @@ public class SetupElevationActivity extends AppCompatActivity {
 
         Button manualButton = findViewById(R.id.manual);
         manualButton.setOnClickListener(v -> {
+            manualButton.setEnabled(false);
             final EditText input = new EditText(this);
             input.setGravity(Gravity.CENTER_HORIZONTAL);
             input.setHint(R.string.enter_elevation_in_meters);
@@ -105,6 +107,7 @@ public class SetupElevationActivity extends AppCompatActivity {
 
         Button geoNamesButton = findViewById(R.id.geonamesButton);
         geoNamesButton.setOnClickListener(view -> {
+            geoNamesButton.setEnabled(false);
             editor.putBoolean("useElevation", true).apply();
             editor.putBoolean("isSetup", true).apply();
             locationResolver.start();

@@ -29,7 +29,6 @@ import com.kosherjava.zmanim.util.GeoLocation;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
@@ -208,6 +207,18 @@ public class NetzActivity extends AppCompatActivity {
                 if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
                     binding.fullscreenContent.setText("הזריחה עברה. החלק למטה כדי להתחיל סיפור חוזר.");
                 }
+                CountDownTimer countDownTimerTillTzeit = new CountDownTimer(mROZmanimCalendar.getTzeit().getTime() - new Date().getTime(), 1000) {
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                        // Do nothing... this countdown will just restart at tzeit
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        startTimer();
+                    }
+                };
+                countDownTimerTillTzeit.start();
             }
         };
 

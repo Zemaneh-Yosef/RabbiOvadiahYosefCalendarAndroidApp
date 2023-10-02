@@ -10,6 +10,7 @@ public class ZmanListEntry {
     private boolean isNoteworthyZman;
     private boolean isRTZman;
     private boolean shouldBeDimmed;
+    private boolean isVisibleSunriseZman;
 
     public ZmanListEntry(String title) {
         this.title = title;
@@ -21,6 +22,13 @@ public class ZmanListEntry {
         this.title = title;
         this.zman = zman;
         this.isZman = isZman;
+    }
+
+    public ZmanListEntry(String title, Date zman,boolean isZman, boolean isVisibleSunriseZman) {
+        this.title = title;
+        this.zman = zman;
+        this.isZman = isZman;
+        this.isVisibleSunriseZman = isVisibleSunriseZman;
     }
 
     public String getTitle() {
@@ -57,5 +65,9 @@ public class ZmanListEntry {
 
     public void setShouldBeDimmed(boolean shouldBeDimmed) {
         this.shouldBeDimmed = shouldBeDimmed;
+    }
+
+    public boolean isVisibleSunriseZman() {
+        return isVisibleSunriseZman;
     }
 }

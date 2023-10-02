@@ -48,6 +48,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     private final Context context;
     private AlertDialog.Builder dialogBuilder;
     private final DateFormat zmanimFormat;
+    private final DateFormat visibleSunriseFormat;
     private final DateFormat roundUpFormat;
     private final boolean roundUpRT;
     private final boolean isZmanimInHebrew;
@@ -69,6 +70,12 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             } else {
                 zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
             }
+        }
+
+        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            visibleSunriseFormat = new SimpleDateFormat("H:mm:ss", Locale.getDefault());
+        } else {
+            visibleSunriseFormat = new SimpleDateFormat("h:mm:ss aa", Locale.getDefault());
         }
 
         zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
@@ -119,6 +126,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     } else {
                         zmanTime = roundUpFormat.format(zmanim.get(position).getZman());
                     }
+                } else if (zmanim.get(position).isVisibleSunriseZman()) {
+                        zmanTime = visibleSunriseFormat.format(zmanim.get(position).getZman());
                 } else {
                     if (zmanim.get(position).getZman() == null) {
                         zmanTime = "XX:XX";
@@ -132,7 +141,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     }
                 }
                 holder.mLeftTextView.setText(zmanTime);
-            } else {//switch the views
+            } else {//switch the views for english
                 holder.mLeftTextView.setTypeface(Typeface.DEFAULT_BOLD);
                 holder.mLeftTextView.setText(zmanim.get(position).getTitle());//zman name
 
@@ -149,6 +158,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     } else {
                         zmanTime += roundUpFormat.format(zmanim.get(position).getZman());
                     }
+                } else if (zmanim.get(position).isVisibleSunriseZman()) {
+                    zmanTime = visibleSunriseFormat.format(zmanim.get(position).getZman());
                 } else {
                     if (zmanim.get(position).getZman() == null) {
                         zmanTime = "XX:XX";
