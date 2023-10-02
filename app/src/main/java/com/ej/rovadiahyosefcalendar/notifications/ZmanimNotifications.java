@@ -42,13 +42,16 @@ public class ZmanimNotifications extends BroadcastReceiver {
         mSettingsSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         mLocationResolver = new LocationResolver(context, new Activity());
         if (mSharedPreferences.getBoolean("isSetup",false) && mSettingsSharedPreferences.getBoolean("zmanim_notifications", true)) {
-            JewishCalendar jewishCalendar = new JewishCalendar();
-            ROZmanimCalendar zmanimCalendar = getROZmanimCalendar(context);
-            zmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
-            zmanimCalendar.setCandleLightingOffset(Double.parseDouble(mSettingsSharedPreferences.getString("CandleLightingOffset", "20")));
-            zmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(mSettingsSharedPreferences.getString("EndOfShabbatOffset", "40")));
-            mSharedPreferences.edit().putString("locationNameFN", zmanimCalendar.getGeoLocation().getLocationName()).apply();
-            setAlarms(context, zmanimCalendar, jewishCalendar);
+            Runnable mAlarmUpdater = () -> {
+                JewishCalendar jewishCalendar = new JewishCalendar();
+                ROZmanimCalendar zmanimCalendar = getROZmanimCalendar(context);
+                zmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
+                zmanimCalendar.setCandleLightingOffset(Double.parseDouble(mSettingsSharedPreferences.getString("CandleLightingOffset", "20")));
+                zmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(mSettingsSharedPreferences.getString("EndOfShabbatOffset", "40")));
+                mSharedPreferences.edit().putString("locationNameFN", zmanimCalendar.getGeoLocation().getLocationName()).apply();
+                setAlarms(context, zmanimCalendar, jewishCalendar);
+            };
+            mAlarmUpdater.run();
         }
     }
 
