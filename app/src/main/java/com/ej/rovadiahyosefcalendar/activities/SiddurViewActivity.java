@@ -6,7 +6,6 @@ import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sJewishDateIn
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SeekBar;
 
@@ -29,29 +28,30 @@ public class SiddurViewActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        String siddurTitle = (String) Objects.requireNonNull(Objects.requireNonNull(getIntent().getExtras()).get("prayer"));
         setContentView(R.layout.activity_siddur_view);
         sharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle(getString(R.string.show_siddur));
+            actionBar.setTitle((!siddurTitle.isEmpty() ? siddurTitle : getString(R.string.show_siddur)));
         }
         SiddurMaker siddurMaker = new SiddurMaker(sJewishDateInfo);
         ArrayList<HighlightString> prayers = new ArrayList<>();
-        switch ((String) Objects.requireNonNull(Objects.requireNonNull(getIntent().getExtras()).get("prayer"))) {
-            case "Selichot":
+        switch (siddurTitle) {
+            case "סליחות":
                 prayers = siddurMaker.getSelichotPrayers(false);
                 break;
-            case "Shacharit":
+            case "שחרית":
                 prayers = siddurMaker.getShacharitPrayers();
                 break;
-            case "Musaf":
+            case "מוסף":
                 prayers = siddurMaker.getMusafPrayers();
                 break;
-            case "Mincha":
+            case "מנחה":
                 prayers = siddurMaker.getMinchaPrayers();
                 break;
-            case "Arvit":
+            case "ערבית":
                 prayers = siddurMaker.getArvitPrayers();
                 break;
         }
@@ -64,8 +64,8 @@ public class SiddurViewActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 SiddurAdapter sa = (SiddurAdapter) siddur.getAdapter();
-                sa.setTextSize(Math.max(progress, 11));
-                sharedPreferences.edit().putInt("siddurTextSize", progress).apply();
+                sa.setTextSize(progress + 11);
+                sharedPreferences.edit().putInt("siddurTextSize", progress + 11).apply();
                 siddur.invalidateViews();
             }
 

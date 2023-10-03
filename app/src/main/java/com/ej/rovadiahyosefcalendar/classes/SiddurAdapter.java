@@ -86,7 +86,7 @@ public class SiddurAdapter extends ArrayAdapter<String> {
             if (siddur.get(position).toString().equals("Mussaf is said here, press here to go to Mussaf")
             || siddur.get(position).toString().equals("מוסף אומרים כאן, לחץ כאן כדי להמשיך למוסף")) {
                 context.startActivity(new Intent(context, SiddurViewActivity.class)
-                        .putExtra("prayer", "Musaf"));
+                        .putExtra("prayer", "מוסף"));
             }
         });
         viewHolder.textView.setTextIsSelectable(false);

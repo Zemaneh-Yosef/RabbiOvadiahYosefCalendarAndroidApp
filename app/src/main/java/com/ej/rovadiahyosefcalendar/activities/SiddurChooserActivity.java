@@ -3,10 +3,6 @@ package com.ej.rovadiahyosefcalendar.activities;
 import static android.text.Html.fromHtml;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sJewishDateInfo;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Html;
@@ -16,6 +12,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
@@ -47,11 +47,11 @@ public class SiddurChooserActivity extends AppCompatActivity {
             selichot.setVisibility(View.GONE);
         }
         selichot.setOnClickListener(v -> startActivity(new Intent(this, SiddurViewActivity.class)
-                .putExtra("prayer", "Selichot")));
+                .putExtra("prayer", getString(R.string.selichot))));
 
         Button shacharit = findViewById(R.id.shacharit);
         shacharit.setOnClickListener(v -> startActivity(new Intent(this, SiddurViewActivity.class)
-                .putExtra("prayer", "Shacharit")));
+                .putExtra("prayer", getString(R.string.shacharit))));
 
         Button mussaf = findViewById(R.id.mussaf);
         if (!(sJewishDateInfo.getJewishCalendar().isRoshChodesh()
@@ -59,12 +59,12 @@ public class SiddurChooserActivity extends AppCompatActivity {
             mussaf.setVisibility(View.GONE);
         } else {
             mussaf.setOnClickListener(v -> startActivity(new Intent(this, SiddurViewActivity.class)
-                    .putExtra("prayer", "Musaf")));
+                    .putExtra("prayer", getString(R.string.mussaf))));
         }
 
         Button mincha = findViewById(R.id.mincha);
         mincha.setOnClickListener(v -> startActivity(new Intent(this, SiddurViewActivity.class)
-                .putExtra("prayer", "Mincha")));
+                .putExtra("prayer", getString(R.string.mincha))));
 
         Button neilah = findViewById(R.id.neilah);
         //if (!sJewishDateInfo.getJewishCalendar().isYomKippur()) {
@@ -73,7 +73,7 @@ public class SiddurChooserActivity extends AppCompatActivity {
 
         Button arvit = findViewById(R.id.arvit);
         arvit.setOnClickListener(v -> startActivity(new Intent(this, SiddurViewActivity.class)
-                .putExtra("prayer", "Arvit")));
+                .putExtra("prayer", getString(R.string.arvit))));
 
         TextView disclaimer = findViewById(R.id.siddur_disclaimer);
         disclaimer.setGravity(Gravity.CENTER);
