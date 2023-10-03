@@ -36,8 +36,10 @@ public class FullSetupActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_full_setup);
+
         Objects.requireNonNull(getSupportActionBar()).setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setCustomView(R.layout.action_bar_custom);//center the title
+
         LinearLayout layout = findViewById(R.id.israel_buttons);
         float screenWidth = getResources().getDisplayMetrics().widthPixels / getResources().getDisplayMetrics().density;
         if (screenWidth < 400) {

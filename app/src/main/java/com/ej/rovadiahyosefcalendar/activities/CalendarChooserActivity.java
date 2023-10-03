@@ -1,10 +1,5 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.preference.PreferenceManager;
-
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -16,6 +11,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextClock;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 
 import com.ej.rovadiahyosefcalendar.R;
 
@@ -38,8 +38,10 @@ public class CalendarChooserActivity extends AppCompatActivity {
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendar_chooser);
+
         Objects.requireNonNull(getSupportActionBar()).setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-        getSupportActionBar().setCustomView(R.layout.action_bar_custom);//center the title
+        getSupportActionBar().setCustomView(R.layout.action_bar_custom);
+
         LinearLayout layout = findViewById(R.id.calendar_buttons);
         float screenWidth = getResources().getDisplayMetrics().widthPixels / getResources().getDisplayMetrics().density;
         if (screenWidth < 400) {

@@ -55,6 +55,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.splashscreen.SplashScreen;
 import androidx.core.view.MenuCompat;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -104,8 +105,6 @@ import java.util.regex.Pattern;
 public class MainActivity extends AppCompatActivity {
 
     public static boolean sShabbatMode;
-    public static boolean sNetworkLocationServiceIsDisabled;
-    public static boolean sGPSLocationServiceIsDisabled;
     public static boolean sUserIsOffline;
     public static boolean sFromSettings;
     private boolean mIsZmanimInHebrew;
@@ -187,11 +186,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         getWindow().getDecorView().setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
-        //SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
+        SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
+        if (getActionBar() != null) {// only for emulator
+            getActionBar().hide();
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         Objects.requireNonNull(getSupportActionBar()).setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setCustomView(R.layout.action_bar_custom);//center the title
+
         mLayout = findViewById(R.id.main_layout);
         mHandler = new Handler(getMainLooper());
         mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
@@ -212,13 +216,8 @@ public class MainActivity extends AppCompatActivity {
             mLocationResolver.acquireLatitudeAndLongitude();
         }
         findAllWeeklyViews();
-        if ((sGPSLocationServiceIsDisabled && sNetworkLocationServiceIsDisabled) && !mSharedPreferences.getBoolean("useZipcode", false)) {// this is will only be true if the user has disabled both location services and is not using a zipcode
-            Toast.makeText(MainActivity.this, R.string.please_enable_gps, Toast.LENGTH_SHORT).show();
-        } else {
-            if ((!mInitialized && ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) == PERMISSION_GRANTED)
-                    || mSharedPreferences.getBoolean("useZipcode", false)) {
-                initMainView();
-            }
+        if ((!mInitialized && ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) == PERMISSION_GRANTED) || mSharedPreferences.getBoolean("useZipcode", false)) {
+            initMainView();
         }
     }
 
@@ -575,7 +574,6 @@ public class MainActivity extends AppCompatActivity {
                 mCurrentDateShown.setTime(new Date());
                 sJewishDateInfo.setCalendar(new GregorianCalendar());
                 resolveElevationAndVisibleSunrise();
-                instantiateZmanimCalendar();
                 instantiateZmanimCalendar();
                 setNextUpcomingZman();
                 runOnUiThread(this::updateDailyZmanim);

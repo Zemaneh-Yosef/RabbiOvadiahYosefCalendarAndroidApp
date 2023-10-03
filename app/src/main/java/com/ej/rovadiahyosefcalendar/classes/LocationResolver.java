@@ -4,10 +4,8 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sCurrentLocationName;
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sGPSLocationServiceIsDisabled;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sLatitude;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sLongitude;
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sNetworkLocationServiceIsDisabled;
 
 import android.app.Activity;
 import android.content.Context;
@@ -19,10 +17,12 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 
+import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.MainActivity;
 
 import org.geonames.WebService;
@@ -76,11 +76,8 @@ public class LocationResolver extends Thread {
                 try {
                     LocationManager locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
                     if (locationManager != null) {
-                        if (!locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-                            sNetworkLocationServiceIsDisabled = true;
-                        }
-                        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                            sGPSLocationServiceIsDisabled = true;
+                        if (!locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) || !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                            Toast.makeText(mContext, mContext.getString(R.string.please_enable_gps), Toast.LENGTH_SHORT).show();
                         }
                         LocationListener locationListener = new LocationListener() {
                             @Override
@@ -99,62 +96,47 @@ public class LocationResolver extends Thread {
                             public void onStatusChanged(String provider, int status, Bundle extras) {
                             }
                         };
-                        if (!sNetworkLocationServiceIsDisabled) {
-                            locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, locationListener, null);
-                        }
-                        if (!sGPSLocationServiceIsDisabled) {
-                            locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
-                        }
-                        if (!sNetworkLocationServiceIsDisabled || !sGPSLocationServiceIsDisabled) {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {//newer implementation
-                                locationManager.getCurrentLocation(LocationManager.NETWORK_PROVIDER,
-                                        null, Runnable::run,
-                                        location -> {
-                                            if (location != null) {
-                                                sLatitude = location.getLatitude();
-                                                sLongitude = location.getLongitude();
-                                            }
-                                        });
-                                locationManager.getCurrentLocation(LocationManager.GPS_PROVIDER,
-                                        null, Runnable::run,
-                                        location -> {
-                                            if (location != null) {
-                                                sLatitude = location.getLatitude();
-                                                sLongitude = location.getLongitude();
-                                            }
-                                        });
-                                long tenSeconds = System.currentTimeMillis() + 10000;
-                                while ((sLatitude == 0 && sLongitude == 0) && System.currentTimeMillis() < tenSeconds) {
-                                    Thread.sleep(0);//we MUST wait for the location data to be set or else the app will crash
-                                }
-                                if (sLatitude == 0 && sLongitude == 0) {//if 10 seconds passed and we still don't have the location, use the older implementation
-                                    Location location;//location might be old
-                                    if (!sNetworkLocationServiceIsDisabled) {
-                                        location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                                    } else {
-                                        location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                                    }
-                                    if (location != null) {
-                                        sLatitude = location.getLatitude();
-                                        sLongitude = location.getLongitude();
-                                    }
-                                }
-                            } else {//older implementation
-                                Location location = null;//location might be old
-                                if (!sNetworkLocationServiceIsDisabled) {
+                        locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, locationListener, null);
+                        locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {//newer implementation
+                            locationManager.getCurrentLocation(LocationManager.NETWORK_PROVIDER,
+                                    null, Runnable::run,
+                                    location -> {
+                                        if (location != null) {
+                                            sLatitude = location.getLatitude();
+                                            sLongitude = location.getLongitude();
+                                        }
+                                    });
+                            locationManager.getCurrentLocation(LocationManager.GPS_PROVIDER,
+                                    null, Runnable::run,
+                                    location -> {
+                                        if (location != null) {
+                                            sLatitude = location.getLatitude();
+                                            sLongitude = location.getLongitude();
+                                        }
+                                    });
+                            long tenSeconds = System.currentTimeMillis() + 10000;
+                            while ((sLatitude == 0 && sLongitude == 0) && System.currentTimeMillis() < tenSeconds) {
+                                Thread.sleep(0);//we MUST wait for the location data to be set or else the app will crash
+                            }
+                            if (sLatitude == 0 && sLongitude == 0) {//if 10 seconds passed and we still don't have the location, use the older implementation
+                                Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);//location might be old
+                                if (location == null) {
                                     location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                                 }
                                 if (location != null) {
                                     sLatitude = location.getLatitude();
                                     sLongitude = location.getLongitude();
                                 }
-                                if (!sGPSLocationServiceIsDisabled) {
-                                    location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                                }
-                                if (location != null && (sLatitude == 0 && sLongitude == 0)) {
-                                    sLatitude = location.getLatitude();
-                                    sLongitude = location.getLongitude();
-                                }
+                            }
+                        } else {//older implementation
+                            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);//location might be old
+                            if (location == null) {
+                                location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                            }
+                            if (location != null) {
+                                sLatitude = location.getLatitude();
+                                sLongitude = location.getLongitude();
                             }
                         }
                     }
@@ -173,21 +155,10 @@ public class LocationResolver extends Thread {
     public void resolveCurrentLocationName() {
         sCurrentLocationName = getLocationAsName();
         if (sCurrentLocationName.isEmpty()) {
-            if (sLatitude != 0 && sLongitude != 0) {
-                String lat = String.valueOf(sLatitude);
-                if (lat.contains("-")) {
-                    lat = lat.substring(0, 5);
-                } else {
-                    lat = lat.substring(0, 4);
-                }
-                String longitude = String.valueOf(sLongitude);
-                if (longitude.contains("-")) {
-                    longitude = longitude.substring(0, 5);
-                } else {
-                    longitude = longitude.substring(0, 4);
-                }
-                sCurrentLocationName = "Lat: " + lat + " Long: " + longitude;
-            }
+            String lat = String.format(Locale.getDefault(), "%.3f", sLatitude);
+            String longitude = String.format(Locale.getDefault(), "%.3f", sLongitude);
+
+            sCurrentLocationName = "Lat: " + lat + " Long: " + longitude;
         }
     }
 
@@ -418,12 +389,6 @@ public class LocationResolver extends Thread {
             try {
                 LocationManager locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
                 if (locationManager != null) {
-                    if (!locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-                        sNetworkLocationServiceIsDisabled = true;
-                    }
-                    if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                        sGPSLocationServiceIsDisabled = true;
-                    }
                     LocationListener locationListener = new LocationListener() {
                         @Override
                         public void onLocationChanged(@NonNull Location location) {
@@ -441,59 +406,46 @@ public class LocationResolver extends Thread {
                         public void onStatusChanged(String provider, int status, Bundle extras) {
                         }
                     };
-                    if (!sNetworkLocationServiceIsDisabled) {
-                        locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, locationListener, null);
-                    }
-                    if (!sGPSLocationServiceIsDisabled) {
-                        locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
-                    }
-                    if (!sNetworkLocationServiceIsDisabled || !sGPSLocationServiceIsDisabled) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {//newer implementation
-                            locationManager.getCurrentLocation(LocationManager.NETWORK_PROVIDER,
-                                    null, Runnable::run,
-                                    location -> {
-                                        if (location != null) {
-                                            mLatitude = location.getLatitude();
-                                            mLongitude = location.getLongitude();
-                                        }
-                                    });
-                            locationManager.getCurrentLocation(LocationManager.GPS_PROVIDER,
-                                    null, Runnable::run,
-                                    location -> {
-                                        if (location != null) {
-                                            mLatitude = location.getLatitude();
-                                            mLongitude = location.getLongitude();
-                                        }
-                                    });
-                            long tenSeconds = System.currentTimeMillis() + 10000;
-                            while ((mLatitude == 0 && mLongitude == 0) && System.currentTimeMillis() < tenSeconds) {
-                                Thread.sleep(0);//we MUST wait for the location data to be set or else the app will crash
-                            }
-                            if (mLatitude == 0 && mLongitude == 0) {//if 10 seconds passed and we still don't have the location, use the older implementation
-                                Location location;//location might be old
-                                if (!sNetworkLocationServiceIsDisabled) {
-                                    location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                                } else {
-                                    location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                                }
-                                if (location != null) {
-                                    mLatitude = location.getLatitude();
-                                    mLongitude = location.getLongitude();
-                                }
-                            }
-                        } else {//older implementation
-                            Location location = null;//location might be old
-                            if (!sNetworkLocationServiceIsDisabled) {
+                    locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, locationListener, null);
+                    locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {//newer implementation
+                        locationManager.getCurrentLocation(LocationManager.NETWORK_PROVIDER,
+                                null, Runnable::run,
+                                location -> {
+                                    if (location != null) {
+                                        mLatitude = location.getLatitude();
+                                        mLongitude = location.getLongitude();
+                                    }
+                                });
+                        locationManager.getCurrentLocation(LocationManager.GPS_PROVIDER,
+                                null, Runnable::run,
+                                location -> {
+                                    if (location != null) {
+                                        mLatitude = location.getLatitude();
+                                        mLongitude = location.getLongitude();
+                                    }
+                                });
+                        long tenSeconds = System.currentTimeMillis() + 10000;
+                        while ((mLatitude == 0 && mLongitude == 0) && System.currentTimeMillis() < tenSeconds) {
+                            Thread.sleep(0);//we MUST wait for the location data to be set or else the app will crash
+                        }
+                        if (mLatitude == 0 && mLongitude == 0) {//if 10 seconds passed and we still don't have the location, use the older implementation
+                            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);;//location might be old
+                            if (location == null) {
                                 location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                             }
                             if (location != null) {
                                 mLatitude = location.getLatitude();
                                 mLongitude = location.getLongitude();
                             }
-                            if (!sGPSLocationServiceIsDisabled) {
-                                location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                        }
+                    } else {//older implementation
+                        if (mLatitude == 0 && mLongitude == 0) {//if 10 seconds passed and we still don't have the location, use the older implementation
+                            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);;//location might be old
+                            if (location == null) {
+                                location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                             }
-                            if (location != null && (mLatitude == 0 && mLongitude == 0)) {
+                            if (location != null) {
                                 mLatitude = location.getLatitude();
                                 mLongitude = location.getLongitude();
                             }

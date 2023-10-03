@@ -43,8 +43,10 @@ public class SetupElevationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setup_elevation);
+
         Objects.requireNonNull(getSupportActionBar()).setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setCustomView(R.layout.action_bar_custom);//center the title
+
         LocationResolver locationResolver = new LocationResolver(this, this);
         locationResolver.acquireLatitudeAndLongitude();
         locationResolver.setTimeZoneID();

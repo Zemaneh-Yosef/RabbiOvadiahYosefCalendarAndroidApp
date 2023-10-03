@@ -13,6 +13,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.AssetManager;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.view.LayoutInflater;
@@ -22,6 +23,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.core.text.HtmlCompat;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -33,8 +35,13 @@ import com.ej.rovadiahyosefcalendar.activities.SiddurChooserActivity;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.YomiCalculator;
 
+import org.commonmark.node.Node;
+import org.commonmark.parser.Parser;
+import org.commonmark.renderer.html.HtmlRenderer;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -52,6 +59,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     private final DateFormat roundUpFormat;
     private final boolean roundUpRT;
     private final boolean isZmanimInHebrew;
+
+    private final Locale locale = Locale.getDefault();
 
     public ZmanAdapter(Context context, List<ZmanListEntry> zmanim) {
         this.zmanim = zmanim;
@@ -475,10 +484,54 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         }
     }
 
+    public static InputStream loadInputStreamFromAssetFile(Context context, String fileName){
+        AssetManager am = context.getAssets();
+        try {
+            InputStream is = am.open(fileName);
+            return is;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String loadContentFromFile(Context context, String path){
+        String content = null;
+        try {
+            InputStream is = loadInputStreamFromAssetFile(context, path);
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+            content = new String(buffer, "UTF-8");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+        return content;
+    }
+
     private void showDawnDialog() {
-        dialogBuilder.setTitle("Dawn - עלות השחר - Alot HaShachar")
-                .setMessage(R.string.alot_dialog)
-                .show();
+        try {
+            String alotMarkdown = loadContentFromFile(context, "aloth.md");
+
+            Parser parser = Parser.builder().build();
+            Node document = parser.parse(alotMarkdown);
+            HtmlRenderer renderer = HtmlRenderer.builder().build();
+            String alotHTML = renderer.render(document);
+
+            if (locale.getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                dialogBuilder.setTitle("Dawn - עלות השחר - Alot HaShachar")
+                        .setMessage(R.string.alot_dialog)
+                        .show();
+            } else {
+                dialogBuilder.setTitle("Dawn - עלות השחר - Alot HaShachar")
+                        .setMessage(HtmlCompat.fromHtml(alotHTML, HtmlCompat.FROM_HTML_MODE_LEGACY))
+                        .show();
+            }
+        } catch (Exception e) {
+
+        }
     }
 
     private void showEarliestTalitTefilinDialog() {

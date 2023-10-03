@@ -55,13 +55,15 @@ public class SimpleSetupActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_simple_setup);
+
         Objects.requireNonNull(getSupportActionBar()).setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setCustomView(R.layout.action_bar_custom);//center the title
+
         JewishDate jewishDate = new JewishDate();
         LocationResolver locationResolver = new LocationResolver(this, this);
         locationResolver.acquireLatitudeAndLongitude();
         TextView locationTextView = findViewById(R.id.location);
-        locationTextView.setText(MainActivity.sCurrentLocationName);
+        locationTextView.setText(sCurrentLocationName);
 
         mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
 

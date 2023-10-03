@@ -6,6 +6,7 @@ import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -21,6 +22,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
 import com.ej.rovadiahyosefcalendar.classes.ZmanimNames;
@@ -30,7 +32,6 @@ import com.kosherjava.zmanim.util.GeoLocation;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.TimeZone;
 
 /**
@@ -140,13 +141,6 @@ public class NetzActivity extends AppCompatActivity {
         binding.quitButton.setOnTouchListener(mDelayHideTouchListener);
         binding.quitButton.setOnClickListener(l -> finish());
 
-        binding.netzRefresh.setOnRefreshListener(() -> new Thread(() -> {
-            Looper.prepare();
-            startTimer();
-            binding.netzRefresh.setRefreshing(false);
-            Objects.requireNonNull(Looper.myLooper()).quit();
-        }).start());
-
         mLocationResolver = new LocationResolver(this, new Activity());
         mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         setZmanimLanguageBools();
@@ -203,10 +197,16 @@ public class NetzActivity extends AppCompatActivity {
             @SuppressLint("SetTextI18n")
             @Override
             public void onFinish() {
-                binding.fullscreenContent.setText("Netz/Sunrise has passed. Swipe down to countdown again.");
+                binding.fullscreenContent.setText("Netz/Sunrise has passed.");
                 if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
-                    binding.fullscreenContent.setText("הזריחה עברה. החלק למטה כדי להתחיל סיפור חוזר.");
+                    binding.fullscreenContent.setText("הזריחה עברה.");
                 }
+                AlertDialog alertDialog = new AlertDialog.Builder(NetzActivity.this, R.style.alertDialog)
+                        .setTitle(getString(R.string.netz_countdown))
+                        .setMessage(getString(R.string.netz_message))
+                        .setPositiveButton(R.string.ok, (dialog, which) -> startTimer())
+                        .create();
+                alertDialog.show();
                 CountDownTimer countDownTimerTillTzeit = new CountDownTimer(mROZmanimCalendar.getTzeit().getTime() - new Date().getTime(), 1000) {
                     @Override
                     public void onTick(long millisUntilFinished) {
@@ -215,6 +215,7 @@ public class NetzActivity extends AppCompatActivity {
 
                     @Override
                     public void onFinish() {
+                        alertDialog.dismiss();
                         startTimer();
                     }
                 };
