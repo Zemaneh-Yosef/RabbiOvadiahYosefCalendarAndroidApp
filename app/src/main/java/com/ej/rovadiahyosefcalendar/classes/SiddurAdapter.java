@@ -1,14 +1,23 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
+import static android.content.Context.SENSOR_SERVICE;
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -23,6 +32,10 @@ public class SiddurAdapter extends ArrayAdapter<String> {
     private final Context context;
     private final ArrayList<HighlightString> siddur;
     private int textSize;
+    private float[] gravity = new float[3];
+    private float[] geomagnetic = new float[3];
+    private float azimuth;
+    private float currentDegree = 0f;
 
     public SiddurAdapter(Context context, ArrayList<HighlightString> siddur, int textSize) {
         super(context, 0);
@@ -59,6 +72,7 @@ public class SiddurAdapter extends ArrayAdapter<String> {
             convertView = LayoutInflater.from(context).inflate(R.layout.text_view, parent, false);
             viewHolder = new ViewHolder();
             viewHolder.textView = convertView.findViewById(R.id.textView);
+            viewHolder.imageView = convertView.findViewById(R.id.imageView);
             convertView.setTag(viewHolder);
             viewHolder.defaultTextColor = viewHolder.textView.getCurrentTextColor();
         } else {
@@ -92,11 +106,103 @@ public class SiddurAdapter extends ArrayAdapter<String> {
         viewHolder.textView.setTextIsSelectable(false);
         viewHolder.textView.setTypeface(Typeface.createFromAsset(context.getAssets(),"TaameyFrankCLM-Bold.ttf"));
 
+        if (siddur.get(position).toString().equals("(Use this compass to help you find where South is) השתמש בקומפס הזה כדי לעזור לך למצוא את הדרום:")) {
+            viewHolder.imageView.setVisibility(View.VISIBLE);
+            viewHolder.imageView.setImageResource(R.drawable.compass);
+            SensorManager sensorManager = (SensorManager) context.getSystemService(SENSOR_SERVICE);
+            Sensor accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            Sensor magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+
+            if (accelerometer != null) {
+                sensorManager.registerListener(new SensorEventListener() {
+                    @Override
+                    public void onSensorChanged(SensorEvent event) {
+                        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+                            gravity = event.values;
+                        }
+
+                        float[] rotationMatrix = new float[9];
+                        if (SensorManager.getRotationMatrix(rotationMatrix, null, gravity, geomagnetic)) {
+                            float[] orientationValues = new float[3];
+                            SensorManager.getOrientation(rotationMatrix, orientationValues);
+
+                            azimuth = (float) Math.toDegrees(orientationValues[0]);
+                            azimuth = (azimuth + 360) % 360;
+
+                            RotateAnimation ra = new RotateAnimation(
+                                    currentDegree,
+                                    -azimuth,
+                                    Animation.RELATIVE_TO_SELF, 0.5f,
+                                    Animation.RELATIVE_TO_SELF, 0.5f
+                            );
+
+                            ra.setDuration(250);
+                            ra.setFillAfter(true);
+
+                            //viewHolder.imageView.startAnimation(ra);
+                            currentDegree = -azimuth;
+                        }
+                    }
+
+                    @Override
+                    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+                    }
+                }, accelerometer, SensorManager.SENSOR_DELAY_UI);
+            }
+            if (magnetometer != null) {
+                sensorManager.registerListener(new SensorEventListener() {
+                    @Override
+                    public void onSensorChanged(SensorEvent event) {
+                        if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+                            geomagnetic = event.values;
+                        }
+
+                        float[] rotationMatrix = new float[9];
+                        if (SensorManager.getRotationMatrix(rotationMatrix, null, gravity, geomagnetic)) {
+                            float[] orientationValues = new float[3];
+                            SensorManager.getOrientation(rotationMatrix, orientationValues);
+
+                            azimuth = (float) Math.toDegrees(orientationValues[0]);
+                            azimuth = (azimuth + 360) % 360;
+
+                            RotateAnimation ra = new RotateAnimation(
+                                    currentDegree,
+                                    -azimuth,
+                                    Animation.RELATIVE_TO_SELF, 0.5f,
+                                    Animation.RELATIVE_TO_SELF, 0.5f
+                            );
+
+                            ra.setDuration(250);
+                            ra.setFillAfter(true);
+
+                            viewHolder.imageView.startAnimation(ra);
+                            currentDegree = -azimuth;
+                        }
+                    }
+
+                    @Override
+                    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+                    }
+                }, magnetometer, SensorManager.SENSOR_DELAY_UI);
+            }
+
+            if (accelerometer == null && magnetometer == null) {
+                viewHolder.textView.setText("");
+                viewHolder.imageView.setImageResource(0);
+                viewHolder.imageView.setVisibility(View.GONE);
+            }
+        } else {
+            viewHolder.imageView.setImageResource(0);
+            viewHolder.imageView.setVisibility(View.GONE);
+        }
+
         return convertView;
     }
 
     static class ViewHolder {
         TextView textView;
+        ImageView imageView;
         int defaultTextColor; // Store the default color
     }
 }
