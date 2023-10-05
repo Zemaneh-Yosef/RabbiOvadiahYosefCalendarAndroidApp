@@ -106,7 +106,9 @@ public class SiddurAdapter extends ArrayAdapter<String> {
         viewHolder.textView.setTextIsSelectable(false);
         viewHolder.textView.setTypeface(Typeface.createFromAsset(context.getAssets(),"TaameyFrankCLM-Bold.ttf"));
 
-        if (siddur.get(position).toString().equals("(Use this compass to help you find where South is) השתמש בקומפס הזה כדי לעזור לך למצוא את הדרום:")) {
+        if (siddur.get(position).toString().equals("(Use this compass to help you find which direction South is in. Do not hold your phone straight up or place it on a table, hold it normally.) עזר לך למצוא את הכיוון הדרומי באמצעות המצפן הזה. אל תחזיק את הטלפון שלך בצורה ישרה למעלה או תנה אותו על שולחן, תחזיק אותו בצורה רגילה.:")) {
+            convertView.setBackgroundColor(Color.BLACK);
+            viewHolder.textView.setTextColor(Color.YELLOW);
             viewHolder.imageView.setVisibility(View.VISIBLE);
             viewHolder.imageView.setImageResource(R.drawable.compass);
             SensorManager sensorManager = (SensorManager) context.getSystemService(SENSOR_SERVICE);
