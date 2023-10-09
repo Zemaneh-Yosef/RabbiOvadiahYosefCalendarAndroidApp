@@ -229,7 +229,7 @@ public class DailyNotifications extends BroadcastReceiver {
         cal.add(Calendar.DATE, 1);//start checking from tomorrow
         jewishDateInfo.setCalendar(cal);
         if (jewishDateInfo.getJewishCalendar().getTekufa() != null &&
-                DateUtils.isSameDay(new Date(), jewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())) {//if next day hebrew has tekufa today
+                DateUtils.isSameDay(new Date(), jewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())) {//if next hebrew day has tekufa today
             setupAmudeiHoraahTekufaNotification(context, cal, jewishDateInfo);
         }
 

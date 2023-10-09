@@ -336,7 +336,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
     private void resetDialogBuilder() {
         dialogBuilder = new AlertDialog.Builder(this.context, R.style.alertDialog);
-        dialogBuilder.setPositiveButton("Dismiss", (dialog, which) -> dialog.dismiss());
+        dialogBuilder.setPositiveButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
         dialogBuilder.create();
     }
 
