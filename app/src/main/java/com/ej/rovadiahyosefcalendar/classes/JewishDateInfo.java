@@ -103,7 +103,7 @@ public class JewishDateInfo {
      * This method is the main method used to get the current holiday or special day and the next holiday or special day if there is one.
      * @return a string containing the current holiday and the next holiday if there is one
      */
-    public String getSpecialDay() {
+    public String getSpecialDay(boolean addOmer) {
         String result = "";
         String yomTovOfToday = getYomTov();
         String yomTovOfNextDay = getYomTovForNextDay();
@@ -112,7 +112,9 @@ public class JewishDateInfo {
             //do nothing
         } else if (yomTovOfToday.isEmpty() && !yomTovOfNextDay.startsWith("Erev")) {//if next day has yom tov
             if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
-                result = "ערב " + yomTovOfNextDay;
+                if (!yomTovOfNextDay.startsWith("ערב")) {
+                    result = "ערב " + yomTovOfNextDay;
+                }
             } else {
                 result = "Erev " + yomTovOfNextDay;
             }
@@ -120,7 +122,11 @@ public class JewishDateInfo {
                 && !yomTovOfNextDay.startsWith("Erev")
                 && !yomTovOfToday.endsWith(yomTovOfNextDay)) {//if today and the next day have yom tov
             if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
-                result = yomTovOfToday + " / ערב " + yomTovOfNextDay;
+                if (!yomTovOfNextDay.startsWith("ערב")) {
+                    result = yomTovOfToday + " / ערב " + yomTovOfNextDay;
+                } else {
+                    result = yomTovOfToday;
+                }
             } else {
                 result = yomTovOfToday + " / Erev " + yomTovOfNextDay;
             }
@@ -130,38 +136,9 @@ public class JewishDateInfo {
 
         result = addTaanitBechorot(result);
         result = addRoshChodesh(result);
-        result = addDayOfOmer(result);
-        result = replaceChanukahWithDayOfChanukah(result);
-        return result;
-    }
-
-    public String getSpecialDayWithoutOmer() {
-        String result = "";
-        String yomTovOfToday = getYomTov();
-        String yomTovOfNextDay = getYomTovForNextDay();
-
-        if (yomTovOfToday.isEmpty() && yomTovOfNextDay.isEmpty()) {//NEEDED if both empty
-            //do nothing
-        } else if (yomTovOfToday.isEmpty() && !yomTovOfNextDay.startsWith("Erev")) {//if next day has yom tov
-            if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
-                result = "ערב " + yomTovOfNextDay;
-            } else {
-                result = "Erev " + yomTovOfNextDay;
-            }
-        } else if (!yomTovOfNextDay.isEmpty()
-                && !yomTovOfNextDay.startsWith("Erev")
-                && !yomTovOfToday.endsWith(yomTovOfNextDay)) {//if today and the next day have yom tov
-            if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
-                result = yomTovOfToday + " / ערב " + yomTovOfNextDay;
-            } else {
-                result = yomTovOfToday + " / Erev " + yomTovOfNextDay;
-            }
-        } else {
-            result = yomTovOfToday;
+        if (addOmer) {
+            result = addDayOfOmer(result);
         }
-
-        result = addTaanitBechorot(result);
-        result = addRoshChodesh(result);
         result = replaceChanukahWithDayOfChanukah(result);
         return result;
     }
@@ -357,6 +334,8 @@ public class JewishDateInfo {
                 return "Lag B'Omer";
             case JewishCalendar.SHUSHAN_PURIM_KATAN:
                 return "Shushan Purim Katan";
+            case JewishCalendar.ISRU_CHAG:
+                return "Isru Chag";
             default:
                 return "";
         }

@@ -35,7 +35,7 @@ public class SiddurChooserActivity extends AppCompatActivity {
         }
 
         TextView specialDay = findViewById(R.id.jewish_special_day);
-        specialDay.setText(sJewishDateInfo.getSpecialDayWithoutOmer());
+        specialDay.setText(sJewishDateInfo.getSpecialDay(false));
         if (specialDay.getText().toString().isEmpty()) {
             specialDay.setVisibility(View.GONE);
         }

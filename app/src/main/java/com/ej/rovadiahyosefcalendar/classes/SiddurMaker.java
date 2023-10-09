@@ -34,8 +34,8 @@ public class SiddurMaker {
         siddur = new ArrayList<>();// reset
 
         if (jewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
-            addToSiddur("Shabbat and Yom Tov are currently not supported");
-            addToSiddurHighlighted("Open Sefaria Siddur");
+            addToSiddur("Shabbat and Yom Tov are currently not supported/שבת ויום טוב כרגע אינם נתמכים");
+            addToSiddurHighlighted("Open Sefaria Siddur/פתח את סידור ספריה");
             return siddur;
         }
 
@@ -347,8 +347,8 @@ public class SiddurMaker {
     public ArrayList<HighlightString> getShacharitPrayers() {
         siddur = new ArrayList<>();// reset
         if (jewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
-            addToSiddur("Shabbat and Yom Tov are currently not supported");
-            addToSiddurHighlighted("Open Sefaria Siddur");
+            addToSiddur("Shabbat and Yom Tov are currently not supported/שבת ויום טוב כרגע אינם נתמכים");
+            addToSiddurHighlighted("Open Sefaria Siddur/פתח את סידור ספריה");
             return siddur;
         }
         addToSiddurHighlighted(
@@ -2630,8 +2630,8 @@ public class SiddurMaker {
     public ArrayList<HighlightString> getMinchaPrayers() {
         siddur = new ArrayList<>();
         if (jewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
-            addToSiddur("Shabbat and Yom Tov are currently not supported");
-            addToSiddurHighlighted("Open Sefaria Siddur");
+            addToSiddur("Shabbat and Yom Tov are currently not supported/שבת ויום טוב כרגע אינם נתמכים");
+            addToSiddurHighlighted("Open Sefaria Siddur/פתח את סידור ספריה");
             return siddur;
         }
         if (jewishDateInfo.getJewishCalendar().isTaanis() && jewishDateInfo.getJewishCalendar().getYomTovIndex() != JewishCalendar.YOM_KIPPUR) {
@@ -2707,8 +2707,8 @@ public class SiddurMaker {
         nextDay.add(Calendar.DATE, 1);
         jewishDateInfo.setCalendar(nextDay);
         if (jewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
-            addToSiddur("Shabbat and Yom Tov are currently not supported");
-            addToSiddurHighlighted("Open Sefaria Siddur");
+            addToSiddur("Shabbat and Yom Tov are currently not supported/שבת ויום טוב כרגע אינם נתמכים");
+            addToSiddurHighlighted("Open Sefaria Siddur/פתח את סידור ספריה");
             jewishDateInfo.setCalendar(backup);
             return siddur;
         }

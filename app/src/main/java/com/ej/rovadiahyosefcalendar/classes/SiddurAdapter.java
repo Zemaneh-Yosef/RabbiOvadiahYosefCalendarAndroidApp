@@ -81,7 +81,6 @@ public class SiddurAdapter extends ArrayAdapter<String> {
 
         String itemText = siddur.get(position).toString();
         viewHolder.textView.setText(itemText);
-        viewHolder.textView.setTypeface(null, Typeface.BOLD);
         viewHolder.textView.setTextSize(textSize);
 
         if (siddur.get(position).shouldBeHighlighted()) {
@@ -93,7 +92,7 @@ public class SiddurAdapter extends ArrayAdapter<String> {
         }
 
         viewHolder.textView.setOnClickListener(l -> {
-            if (siddur.get(position).toString().equals("Open Sefaria Siddur")) {
+            if (siddur.get(position).toString().equals("Open Sefaria Siddur/פתח את סידור ספריה")) {
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.sefaria.org/Siddur_Edot_HaMizrach?tab=contents"));
                 context.startActivity(browserIntent);
             }
@@ -104,7 +103,7 @@ public class SiddurAdapter extends ArrayAdapter<String> {
             }
         });
         viewHolder.textView.setTextIsSelectable(false);
-        viewHolder.textView.setTypeface(Typeface.createFromAsset(context.getAssets(),"TaameyFrankCLM-Bold.ttf"));
+        viewHolder.textView.setTypeface(Typeface.createFromAsset(context.getAssets(),"TaameyFrankCLM-Bold.ttf"), Typeface.BOLD);
 
         if (siddur.get(position).toString().equals("(Use this compass to help you find which direction South is in. Do not hold your phone straight up or place it on a table, hold it normally.) עזר לך למצוא את הכיוון הדרומי באמצעות המצפן הזה. אל תחזיק את הטלפון שלך בצורה ישרה למעלה או תנה אותו על שולחן, תחזיק אותו בצורה רגילה.:")) {
             convertView.setBackgroundColor(Color.BLACK);

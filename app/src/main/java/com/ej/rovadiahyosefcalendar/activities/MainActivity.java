@@ -1418,7 +1418,6 @@ public class MainActivity extends AppCompatActivity {
         mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);
         sJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());//reset
 
-
         if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
             zmanim.add(new ZmanListEntry(mROZmanimCalendar.getCalendar()
                     .getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault())));
@@ -1429,7 +1428,7 @@ public class MainActivity extends AppCompatActivity {
                     sJewishDateInfo.getJewishDayOfWeek()));
         }
 
-        String day = sJewishDateInfo.getSpecialDay();
+        String day = sJewishDateInfo.getSpecialDay(true);
         if (!day.isEmpty()) {
             zmanim.add(new ZmanListEntry(day));
         }
@@ -1593,7 +1592,7 @@ public class MainActivity extends AppCompatActivity {
     private String getAnnouncements() {
         StringBuilder announcements = new StringBuilder();
 
-        String day = sJewishDateInfo.getSpecialDay();
+        String day = sJewishDateInfo.getSpecialDay(true);
         if (!day.isEmpty()) {
             announcements.append(day.replace("/ ","\n")).append("\n");
         }
