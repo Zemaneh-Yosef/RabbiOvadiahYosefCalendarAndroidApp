@@ -3,7 +3,9 @@ package com.ej.rovadiahyosefcalendar.activities;
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -103,6 +105,13 @@ public class MoladActivity extends AppCompatActivity {
         int moladChalakim = molad.getMoladChalakim();
 
         String moladTime = moladHours + getString(R.string.h) + moladMinutes + getString(R.string.m_and) + " " + moladChalakim + " " + getString(R.string.chalakim);
+
+        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            TextView m = findViewById(R.id.moladAnnouncement);
+            m.setGravity(Gravity.END);
+            mMoladAnnouncementTime.setGravity(Gravity.END);
+            moladTime = moladMinutes + " : " + moladHours + " \n" + moladChalakim + " " + getString(R.string.chalakim);
+        }
 
         mMoladAnnouncementTime.setText(moladTime);
         mMoladDate.setText(mSDF.format(mJewishCalendar.getMoladAsDate()));

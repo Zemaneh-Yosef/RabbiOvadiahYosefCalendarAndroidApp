@@ -42,6 +42,7 @@
         android:orientation="vertical"
         android:layout_gravity="center"
         android:gravity="center"
+        android:layout_marginTop="20dp"
         android:layout_weight="1">
 
         <Button

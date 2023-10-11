@@ -27,7 +27,7 @@ public class JewishDateInfo {
     private final HebrewDateFormatter hebrewDateFormatter;
     private final TefilaRules tefilaRules;
     private Calendar currentDate = Calendar.getInstance();
-    private final Locale locale = Locale.getDefault();
+    private boolean isLocaleHebrew = false;
 
     /**
      * Constructor of the class.
@@ -39,8 +39,9 @@ public class JewishDateInfo {
         jewishCalendar.setInIsrael(inIsrael);
         jewishCalendar.setUseModernHolidays(useModernHoliday);
         hebrewDateFormatter = new HebrewDateFormatter();
-        if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
             hebrewDateFormatter.setHebrewFormat(true);
+            isLocaleHebrew = true;
         }
         tefilaRules = new TefilaRules();
     }
@@ -68,7 +69,7 @@ public class JewishDateInfo {
      */
     private String getRoshChodeshOrErevRoshChodesh() {
         String result;
-        if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+        if (isLocaleHebrew) {
             hebrewDateFormatter.setHebrewFormat(true);
             if (jewishCalendar.isRoshChodesh()) {
                 result = hebrewDateFormatter.formatRoshChodesh(jewishCalendar);
@@ -111,7 +112,7 @@ public class JewishDateInfo {
         if (yomTovOfToday.isEmpty() && yomTovOfNextDay.isEmpty()) {//NEEDED if both empty
             //do nothing
         } else if (yomTovOfToday.isEmpty() && !yomTovOfNextDay.startsWith("Erev")) {//if next day has yom tov
-            if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            if (isLocaleHebrew) {
                 if (!yomTovOfNextDay.startsWith("ערב")) {
                     result = "ערב " + yomTovOfNextDay;
                 }
@@ -121,7 +122,7 @@ public class JewishDateInfo {
         } else if (!yomTovOfNextDay.isEmpty()
                 && !yomTovOfNextDay.startsWith("Erev")
                 && !yomTovOfToday.endsWith(yomTovOfNextDay)) {//if today and the next day have yom tov
-            if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            if (isLocaleHebrew) {
                 if (!yomTovOfNextDay.startsWith("ערב")) {
                     result = yomTovOfToday + " / ערב " + yomTovOfNextDay;
                 } else {
@@ -148,7 +149,7 @@ public class JewishDateInfo {
      * @return a string containing taanit bechorot or erev taanit bechorot
      */
     private String addTaanitBechorot(String result) {
-        if (locale.getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+        if (isLocaleHebrew) {
             if (tomorrowIsTaanitBechorot()) {//edge case
                 if (result.isEmpty()) {
                     result = "ערב תענית בכורות";
@@ -217,7 +218,7 @@ public class JewishDateInfo {
     private String replaceChanukahWithDayOfChanukah(String result) {
         int dayOfChanukah = jewishCalendar.getDayOfChanukah();
         if (dayOfChanukah != -1) {
-            if (!locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            if (!isLocaleHebrew) {
                 result = result.replace("Chanukah", getOrdinal(dayOfChanukah) + " day of Chanukah");
             }
         }
@@ -231,7 +232,7 @@ public class JewishDateInfo {
     private String addDayOfOmer(String result) {
         int dayOfOmer = jewishCalendar.getDayOfOmer();
         if (dayOfOmer != -1) {
-            if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            if (isLocaleHebrew) {
                 if (!result.isEmpty()) {
                     result += " / " + formatHebrewNumber(dayOfOmer) + " יום של עומר";
                 } else {
@@ -253,7 +254,7 @@ public class JewishDateInfo {
      * @return a string containing the current holiday
      */
     private String getYomTov() {
-        if (locale.getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+        if (isLocaleHebrew) {
             return hebrewDateFormatter.formatYomTov(jewishCalendar);
         }
         switch (jewishCalendar.getYomTovIndex()) {
@@ -415,7 +416,7 @@ public class JewishDateInfo {
             if (yomTovIndex == JewishCalendar.ROSH_HASHANA && jewishCalendar.getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {//Edge case for rosh hashana that falls on shabbat (Shulchan Aruch, Chapter 598 and Chazon Ovadia page 185)
                 return "צדקתך";
             }//TODO check source on this
-            if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            if (isLocaleHebrew) {
                 return "אין תחנון היום";
             }
             return "There is no Tachanun today";
@@ -431,12 +432,12 @@ public class JewishDateInfo {
                 || yomTovIndexForNextDay == JewishCalendar.PURIM_KATAN
                 || jewishCalendar.isErevRoshChodesh()) {
             if (jewishCalendar.getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
-                if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                if (isLocaleHebrew) {
                     return "אין תחנון היום";
                 }
                 return "There is no Tachanun today";
             }
-            if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            if (isLocaleHebrew) {
                 return "תחנון נאמר רק בבוקר";
             }
             return "There is only Tachanun in the morning";
@@ -444,7 +445,7 @@ public class JewishDateInfo {
         if (currentDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
             return "צדקתך";
         }
-        if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+        if (isLocaleHebrew) {
             return "יש תחנון";
         }
         return "There is Tachanun today";
@@ -465,12 +466,12 @@ public class JewishDateInfo {
      */
     public String isJewishLeapYear() {
         if (jewishCalendar.isJewishLeapYear()) {
-            if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            if (isLocaleHebrew) {
                 return "שנה זו היא שנת מעוברת";
             }
             return "This year is a jewish leap year!";
         } else {
-            if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            if (isLocaleHebrew) {
                 return "שנה זו אינה שנת מעוברת";
             }
             return "This year is a not a jewish leap year!";
@@ -495,14 +496,14 @@ public class JewishDateInfo {
         hebrewDateFormatter.setHebrewFormat(true);
         String parsha = hebrewDateFormatter.formatParsha(jewishCalendar);
         String specialParsha = hebrewDateFormatter.formatSpecialParsha(jewishCalendar);
-        if (!locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+        if (!isLocaleHebrew) {
             hebrewDateFormatter.setHebrewFormat(false);//return to default setting
         }
         jewishCalendar.setDate(currentDate);
 
         if (parsha.isEmpty() && specialParsha.isEmpty()) {
-            if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
-                return "אֵין פָּרָשַׁת הַשָּׁבוּעַ";
+            if (isLocaleHebrew) {
+                return "אין פרשת השבוע";
             } else {
                 return "No Weekly Parsha";
             }
@@ -537,7 +538,9 @@ public class JewishDateInfo {
         hebrewDateFormatter.setHebrewFormat(true);
         String result = "יום ";
         result += hebrewDateFormatter.formatDayOfWeek(jewishCalendar);
-        hebrewDateFormatter.setHebrewFormat(false);
+        if (!isLocaleHebrew) {
+            hebrewDateFormatter.setHebrewFormat(false);
+        }
         return result;
     }
 
@@ -612,7 +615,7 @@ public class JewishDateInfo {
 
         if (jewishCalendar.getJewishMonth() != JewishDate.AV) {
             if (DateUtils.isSameDay(jewishCalendar.getGregorianCalendar(), sevenDays)) {
-                if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                if (isLocaleHebrew) {
                     return "בִּרְכַּת הַלְּבָנָה מַתְחִילָה הַלַּיְלָה";
                 }
                 return "Birchat HaLevana starts tonight";
@@ -622,7 +625,7 @@ public class JewishDateInfo {
                 return "";
             }
             if (jewishCalendar.isTishaBav()) {
-                if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                if (isLocaleHebrew) {
                     return "בִּרְכַּת הַלְּבָנָה מַתְחִילָה הַלַּיְלָה";
                 }
                 return "Birchat HaLevana starts tonight";
@@ -630,7 +633,7 @@ public class JewishDateInfo {
         }
 
         if (jewishCalendar.getJewishDayOfMonth() == 14) {
-            if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            if (isLocaleHebrew) {
                 return "הלילה האחרון לברכת הלבנה";
             }
             return "Last night for Birchat HaLevana";
@@ -638,7 +641,7 @@ public class JewishDateInfo {
 
         if (jewishCalendar.getGregorianCalendar().getTime().after(sevenDays.getTime())
         && jewishCalendar.getGregorianCalendar().getTime().before(latest.getGregorianCalendar().getTime())) {
-            if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            if (isLocaleHebrew) {
                 return "ברכת הלבנה עד ליל חמשה עשר";
             }
             return "Birchat HaLevana until " + sdf.format(latest.getGregorianCalendar().getTime());
@@ -692,18 +695,18 @@ public class JewishDateInfo {
                         month == JewishCalendar.SHEVAT ||
                         month == JewishCalendar.ADAR ||
                         month == JewishCalendar.ADAR_II) {
-                    if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                    if (isLocaleHebrew) {
                         return "אֱמֹר וּלְכַפָּרַת פֶּשַׁע";
                     }
                     return "Say וּלְכַפָּרַת פֶּשַׁע";
                 } else {
-                    if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                    if (isLocaleHebrew) {
                         return "אַל תֹּאמַר וּלְכַפָּרַת פֶּשַׁע";
                     }
                     return "Do not say וּלְכַפָּרַת פֶּשַׁע";
                 }
             } else {
-                if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                if (isLocaleHebrew) {
                     return "אַל תֹּאמַר וּלְכַפָּרַת פֶּשַׁע";
                 }
                 return "Do not say וּלְכַפָּרַת פֶּשַׁע";
@@ -721,20 +724,20 @@ public class JewishDateInfo {
     public String isOKToListenToMusic() {
 
         if (jewishCalendar.getDayOfOmer() >= 8 && jewishCalendar.getDayOfOmer() <= 32) {
-            if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            if (isLocaleHebrew) {
                 return "אין שמיעת מוזיקה";
             }
             return "No Music";
         } else if (jewishCalendar.getJewishMonth() == JewishDate.TAMMUZ) {
             if (jewishCalendar.getJewishDayOfMonth() >= 17) {
-                if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                if (isLocaleHebrew) {
                     return "אין שמיעת מוזיקה";
                 }
                 return "No Music";
             }
         } else if (jewishCalendar.getJewishMonth() == JewishDate.AV) {
             if (jewishCalendar.getJewishDayOfMonth() <= 9) {
-                if (locale.getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                if (isLocaleHebrew) {
                     return "אין שמיעת מוזיקה";
                 }
                 return "No Music";

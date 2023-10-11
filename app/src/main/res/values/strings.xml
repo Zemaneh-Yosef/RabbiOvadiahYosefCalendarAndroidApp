@@ -6,11 +6,9 @@
     <string name="text_location_permission">
         Ideally, this app needs location permissions in order to accurately calculate the zmanim.
         Therefore, it is better to allow the app to see your location. We do not use your location
-        for any other purpose than to calculate the zmanim.\n\n(Note: As of Android 11, the app can not
-        ask you for location permissions more than once per install. You might need to re-install
-        the app to use your location.) \n\nHowever, if you still do not want to give location
+        for any other purpose than to calculate the zmanim.\n\nHowever, if you still do not want to give location
         permissions, you can choose to search for your address or a zipcode and the app will find your location based on your approximate area.
-        (This is not recommended if you want accurate zmanim.)
+        (Using a zip code is not recommended if you want accurate zmanim. It is better to put in your address.)
     </string>
 
     <string name="setup_elevation">Setup Elevation</string>

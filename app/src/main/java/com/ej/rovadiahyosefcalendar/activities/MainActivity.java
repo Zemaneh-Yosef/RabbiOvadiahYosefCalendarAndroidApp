@@ -1675,6 +1675,9 @@ public class MainActivity extends AppCompatActivity {
         sJewishDateInfo.setCalendar(mCurrentDateShown);
 
         HebrewDateFormatter hebrewDateFormatter = new HebrewDateFormatter();
+        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            hebrewDateFormatter.setHebrewFormat(true);
+        }
         List<TextView[]> weeklyInfo = Arrays.asList(mSunday, mMonday, mTuesday, mWednesday, mThursday, mFriday, mSaturday);
 
         String month = mCurrentDateShown.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
@@ -1684,6 +1687,9 @@ public class MainActivity extends AppCompatActivity {
                 .replace("Tishrei", "Tishri")
                 .replace("Teves", "Tevet");
         String hebrewYear = String.valueOf(sJewishDateInfo.getJewishCalendar().getJewishYear());
+        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            hebrewYear = hebrewDateFormatter.formatHebrewNumber(sJewishDateInfo.getJewishCalendar().getJewishYear());
+        }
 
         String masechta = "";
         String yerushalmiMasechta = "";
@@ -1737,8 +1743,14 @@ public class MainActivity extends AppCompatActivity {
                     .replace("Tishrei", "Tishri")
                     .replace("Teves", "Tevet");
         }
-        if (!hebrewYear.equals(String.valueOf(sJewishDateInfo.getJewishCalendar().getJewishYear()))) {
-            hebrewYear += " / " + sJewishDateInfo.getJewishCalendar().getJewishYear();
+        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            if (!hebrewYear.equals(hebrewDateFormatter.formatHebrewNumber(sJewishDateInfo.getJewishCalendar().getJewishYear()))) {
+                hebrewYear += " / " + hebrewDateFormatter.formatHebrewNumber(sJewishDateInfo.getJewishCalendar().getJewishYear());
+            }
+        } else {
+            if (!hebrewYear.equals(String.valueOf(sJewishDateInfo.getJewishCalendar().getJewishYear()))) {
+                hebrewYear += " / " + sJewishDateInfo.getJewishCalendar().getJewishYear();
+            }
         }
         if (!masechta.equals(YomiCalculator.getDafYomiBavli(sJewishDateInfo.getJewishCalendar()).getMasechta())) {
             masechta += " " + daf + " - " + YomiCalculator.getDafYomiBavli(sJewishDateInfo.getJewishCalendar()).getMasechta() + " " +
@@ -1759,6 +1771,10 @@ public class MainActivity extends AppCompatActivity {
         String dafs = getString(R.string.daf_yomi) + " " + masechta + "       " + getString(R.string.yerushalmi_yomi) + " " + yerushalmiMasechta;
         String monthYear = month + " " + year;
         mEnglishMonthYear.setText(monthYear);
+        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            mEnglishMonthYear.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_END);
+            mHebrewMonthYear.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+        }
         mLocationName.setText(sCurrentLocationName);
         String hebrewMonthYear = hebrewMonth + " " + hebrewYear;
         mHebrewMonthYear.setText(hebrewMonthYear);
@@ -1794,11 +1810,24 @@ public class MainActivity extends AppCompatActivity {
             for (ZmanListEntry zman : zmanim) {
                 if (zman.isNoteworthyZman()) {
                     if (zman.isRTZman() && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("RoundUpRT", false)) {
-                        DateFormat rtFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+                        DateFormat rtFormat;
+                        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                            if (mSettingsPreferences.getBoolean("ShowSeconds", false)) {
+                                rtFormat = new SimpleDateFormat("H:mm:ss", Locale.getDefault());
+                            } else {
+                                rtFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
+                            }
+                        } else {
+                            if (mSettingsPreferences.getBoolean("ShowSeconds", false)) {
+                                rtFormat = new SimpleDateFormat("h:mm:ss aa", Locale.getDefault());
+                            } else {
+                                rtFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+                            }
+                        }
                         rtFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
-                        mZmanimForAnnouncements.add(rtFormat.format(zman.getZman()) + ":" + zman.getTitle().replaceAll("\\(.*\\)", "").trim());
+                        mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + " : " + rtFormat.format(zman.getZman()));
                     } else {
-                        mZmanimForAnnouncements.add(zmanimFormat.format(zman.getZman()) + ":" + zman.getTitle().replaceAll("\\(.*\\)", "").trim());
+                        mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + " : " + zmanimFormat.format(zman.getZman()));
                     }
                     zmansToRemove.add(zman);
                 }
@@ -1824,15 +1853,27 @@ public class MainActivity extends AppCompatActivity {
         if (mIsZmanimInHebrew) {
             for (ZmanListEntry zman : zmanim) {
                 if (zman.isRTZman() && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("RoundUpRT", false)) {
-                    DateFormat rtFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+                    DateFormat rtFormat;
+                    if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                        if (mSettingsPreferences.getBoolean("ShowSeconds", false)) {
+                            rtFormat = new SimpleDateFormat("H:mm:ss", Locale.getDefault());
+                        } else {
+                            rtFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
+                        }
+                    } else {
+                        if (mSettingsPreferences.getBoolean("ShowSeconds", false)) {
+                            rtFormat = new SimpleDateFormat("h:mm:ss aa", Locale.getDefault());
+                        } else {
+                            rtFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+                        }
+                    }
                     rtFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
-                    shortZmanim[zmanim.indexOf(zman)] = rtFormat.format(zman.getZman()) + ":" + zman.getTitle();
+                    shortZmanim[zmanim.indexOf(zman)] = rtFormat.format(zman.getTitle()) + ": " + zman.getZman();
                 } else {
-                    shortZmanim[zmanim.indexOf(zman)] = zmanimFormat.format(zman.getZman()) + ":" + zman.getTitle()
-                            .replace("סוף זמן", "");
+                    shortZmanim[zmanim.indexOf(zman)] = zman.getTitle().replace("סוף זמן", "") + ": " + zmanimFormat.format(zman.getZman());
                 }
                 if (zman.getZman().equals(sNextUpcomingZman)) {
-                    shortZmanim[zmanim.indexOf(zman)] = shortZmanim[zmanim.indexOf(zman)] + "←";
+                    shortZmanim[zmanim.indexOf(zman)] = shortZmanim[zmanim.indexOf(zman)] + "➤";
                 }
             }
         } else {
@@ -1840,7 +1881,7 @@ public class MainActivity extends AppCompatActivity {
                 if (zman.isRTZman() && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("RoundUpRT", false)) {
                     DateFormat rtFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
                     rtFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
-                    shortZmanim[zmanim.indexOf(zman)] = zman.getTitle() + ":" + rtFormat.format(zman.getZman());
+                    shortZmanim[zmanim.indexOf(zman)] = zman.getTitle() + ": " + rtFormat.format(zman.getZman());
                 } else {
                     shortZmanim[zmanim.indexOf(zman)] = zman.getTitle()
                             .replace("Earliest ","")

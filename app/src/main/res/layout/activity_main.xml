@@ -43,7 +43,6 @@
         android:layout_weight="1"
         android:focusable="true"
         android:descendantFocusability="afterDescendants"
-        tools:visibility="gone"
         app:layout_constrainedHeight="true" />
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
@@ -54,7 +53,6 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="vertical"
-        android:visibility="gone"
         android:background="?android:attr/colorBackground">
 
     <TextView
@@ -127,17 +125,21 @@
                 android:padding="2dp"
                 android:textColor="?android:attr/textColorPrimary" />
 
-            <TextView
-                android:id="@+id/announcements"
+            <ScrollView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_weight="1">
+            <TextView
+                android:id="@+id/announcements"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:textSize="11sp"
                 android:textStyle="bold"
                 android:textColor="?android:attr/textColorPrimary"
                 android:padding="2dp"
                 android:background="@drawable/border"
                 tools:text="Rosh Chodesh \nUlChaparat Pesha" />
+            </ScrollView>
 
         </LinearLayout>
 
@@ -225,18 +227,21 @@
                 android:padding="2dp"
                 android:textColor="?android:attr/textColorPrimary" />
 
-            <TextView
-                android:id="@+id/announcements2"
+            <ScrollView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_weight="1">
+            <TextView
+                android:id="@+id/announcements2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:textSize="11sp"
                 android:textStyle="bold"
                 android:padding="2dp"
                 android:background="@drawable/border"
                 android:textColor="?android:attr/textColorPrimary"
                 tools:text="Rosh Chodesh \nUlChaparat Pesha" />
-
+        </ScrollView>
         </LinearLayout>
 
         <LinearLayout
@@ -323,18 +328,21 @@
                 android:padding="2dp"
                 android:textColor="?android:attr/textColorPrimary" />
 
-            <TextView
-                android:id="@+id/announcements3"
+            <ScrollView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_weight="1">
+            <TextView
+                android:id="@+id/announcements3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:textSize="11sp"
                 android:textStyle="bold"
                 android:padding="2dp"
                 android:background="@drawable/border"
                 android:textColor="?android:attr/textColorPrimary"
                 tools:text="Rosh Chodesh \nUlChaparat Pesha" />
-
+        </ScrollView>
         </LinearLayout>
 
         <LinearLayout
@@ -421,18 +429,21 @@
                 android:padding="2dp"
                 android:textColor="?android:attr/textColorPrimary" />
 
-            <TextView
-                android:id="@+id/announcements4"
+            <ScrollView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_weight="1">
+            <TextView
+                android:id="@+id/announcements4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:textSize="11sp"
                 android:textStyle="bold"
                 android:padding="2dp"
                 android:background="@drawable/border"
                 android:textColor="?android:attr/textColorPrimary"
                 tools:text="Rosh Chodesh \nUlChaparat Pesha" />
-
+        </ScrollView>
         </LinearLayout>
 
         <LinearLayout
@@ -519,17 +530,21 @@
                 android:padding="2dp"
                 android:textColor="?android:attr/textColorPrimary" />
 
-            <TextView
-                android:id="@+id/announcements5"
+            <ScrollView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_weight="1">
+            <TextView
+                android:id="@+id/announcements5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:textSize="11sp"
                 android:textStyle="bold"
                 android:padding="2dp"
                 android:background="@drawable/border"
                 android:textColor="?android:attr/textColorPrimary"
                 tools:text="Rosh Chodesh \nUlChaparat Pesha" />
+            </ScrollView>
 
         </LinearLayout>
 
@@ -617,17 +632,21 @@
                 android:padding="2dp"
                 android:textColor="?android:attr/textColorPrimary" />
 
-            <TextView
-                android:id="@+id/announcements6"
+            <ScrollView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_weight="1">
+            <TextView
+                android:id="@+id/announcements6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:textSize="11sp"
                 android:textStyle="bold"
                 android:padding="2dp"
                 android:background="@drawable/border"
                 android:textColor="?android:attr/textColorPrimary"
                 tools:text="Rosh Chodesh \nUlChaparat Pesha" />
+            </ScrollView>
 
         </LinearLayout>
 
@@ -715,18 +734,21 @@
                 android:padding="2dp"
                 android:textColor="?android:attr/textColorPrimary" />
 
-            <TextView
-                android:id="@+id/announcements7"
+            <ScrollView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_weight="1">
+            <TextView
+                android:id="@+id/announcements7"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:textSize="11sp"
                 android:textStyle="bold"
                 android:padding="2dp"
                 android:background="@drawable/border"
                 android:textColor="?android:attr/textColorPrimary"
                 tools:text="Rosh Chodesh \nUlChaparat Pesha" />
-
+            </ScrollView>
         </LinearLayout>
 
         <LinearLayout
