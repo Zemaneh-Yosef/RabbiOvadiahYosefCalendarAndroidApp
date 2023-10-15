@@ -689,12 +689,13 @@ public class JewishDateInfo {
         if (jewishCalendar.isRoshChodesh()) {
             if (jewishCalendar.isJewishLeapYear()) {
                 int month = jewishCalendar.getJewishMonth();
-                if (month == JewishCalendar.CHESHVAN ||
-                        month == JewishCalendar.KISLEV ||
-                        month == JewishCalendar.TEVES ||
-                        month == JewishCalendar.SHEVAT ||
-                        month == JewishCalendar.ADAR ||
-                        month == JewishCalendar.ADAR_II) {
+                if (month == JewishCalendar.TISHREI || // Even if there is no Rosh Chodesh Tishri, Rosh Hodesh Cheshvan includes the 30th of Tishri
+                    month == JewishCalendar.CHESHVAN ||
+                    month == JewishCalendar.KISLEV ||
+                    month == JewishCalendar.TEVES ||
+                    month == JewishCalendar.SHEVAT ||
+                    month == JewishCalendar.ADAR ||
+                    month == JewishCalendar.ADAR_II) {
                     if (isLocaleHebrew) {
                         return "אֱמֹר וּלְכַפָּרַת פֶּשַׁע";
                     }
