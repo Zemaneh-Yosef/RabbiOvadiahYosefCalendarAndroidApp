@@ -32,6 +32,7 @@ import com.kosherjava.zmanim.util.GeoLocation;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.TimeZone;
 
 /**
@@ -141,6 +142,13 @@ public class NetzActivity extends AppCompatActivity {
         binding.quitButton.setOnTouchListener(mDelayHideTouchListener);
         binding.quitButton.setOnClickListener(l -> finish());
 
+        binding.netzRefresh.setOnRefreshListener(() -> new Thread(() -> {
+            Looper.prepare();
+            startTimer();
+            binding.netzRefresh.setRefreshing(false);
+            Objects.requireNonNull(Looper.myLooper()).quit();
+        }).start());
+
         mLocationResolver = new LocationResolver(this, new Activity());
         mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         setZmanimLanguageBools();
@@ -194,32 +202,22 @@ public class NetzActivity extends AppCompatActivity {
                 binding.fullscreenContent.setText(countdownText);
             }
 
-            @SuppressLint("SetTextI18n")
             @Override
             public void onFinish() {
-                binding.fullscreenContent.setText("Netz/Sunrise has passed.");
-                if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
-                    binding.fullscreenContent.setText("הזריחה עברה.");
-                }
-                AlertDialog alertDialog = new AlertDialog.Builder(NetzActivity.this, R.style.alertDialog)
-                        .setTitle(getString(R.string.netz_countdown))
-                        .setMessage(getString(R.string.netz_message))
-                        .setPositiveButton(R.string.ok, (dialog, which) -> startTimer())
-                        .create();
-                alertDialog.show();
-                CountDownTimer countDownTimerTillTzeit = new CountDownTimer(mROZmanimCalendar.getTzeit().getTime() - new Date().getTime(), 1000) {
+                binding.fullscreenContent.setText(getString(R.string.netz_message));
+
+                CountDownTimer countDownTimerTillSunset = new CountDownTimer(mROZmanimCalendar.getSunset().getTime() - new Date().getTime(), 1000) {
                     @Override
                     public void onTick(long millisUntilFinished) {
-                        // Do nothing... this countdown will just restart at tzeit
+                        // Do nothing... this countdown will just restart at sunset
                     }
 
                     @Override
                     public void onFinish() {
-                        alertDialog.dismiss();
                         startTimer();
                     }
                 };
-                countDownTimerTillTzeit.start();
+                countDownTimerTillSunset.start();
             }
         };
 

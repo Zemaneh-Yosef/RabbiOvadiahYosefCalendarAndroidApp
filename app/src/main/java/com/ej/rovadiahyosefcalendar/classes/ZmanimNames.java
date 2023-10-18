@@ -12,7 +12,7 @@ public class ZmanimNames {
 
     public String getChatzotLaylaString() {
         if (mIsZmanimInHebrew) {
-            return "חצות לילה";
+            return "חצות הלילה";
         } else if (mIsZmanimEnglishTranslated) {
             return "Midnight";
         } else {

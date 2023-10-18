@@ -97,7 +97,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             roundUpFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
         }
         dialogBuilder = new AlertDialog.Builder(this.context, R.style.alertDialog);
-        dialogBuilder.setPositiveButton("Dismiss", (dialog, which) -> dialog.dismiss());
+        dialogBuilder.setPositiveButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
         dialogBuilder.create();
     }
 
@@ -146,7 +146,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                 }
                 if (zmanim.get(position).getZman() != null) {
                     if (zmanim.get(position).getZman().equals(sNextUpcomingZman)) {
-                        zmanTime += "←";//remove arrow
+                        zmanTime += "◄";
                     }
                 }
                 holder.mLeftTextView.setText(zmanTime);
@@ -231,7 +231,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                                 intent.setData(Uri.parse(parshaLink));
                                 context.startActivity(intent);
                             });
-                    dialogBuilder.setNegativeButton("Dismiss", (dialog, which) -> dialog.dismiss());
+                    dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
                     dialogBuilder.show();
                     resetDialogBuilder();
                 }

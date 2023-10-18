@@ -417,7 +417,7 @@ public class JewishDateInfo {
                 return "צדקתך";
             }//TODO check source on this
             if (isLocaleHebrew) {
-                return "אין תחנון היום";
+                return "לא אומרים תחנון היום";
             }
             return "There is no Tachanun today";
         }
@@ -433,12 +433,12 @@ public class JewishDateInfo {
                 || jewishCalendar.isErevRoshChodesh()) {
             if (jewishCalendar.getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
                 if (isLocaleHebrew) {
-                    return "אין תחנון היום";
+                    return "לא אומרים תחנון היום";
                 }
                 return "There is no Tachanun today";
             }
             if (isLocaleHebrew) {
-                return "תחנון נאמר רק בבוקר";
+                return "אומרים תחנון רק בבוקר";
             }
             return "There is only Tachanun in the morning";
         }
@@ -446,7 +446,7 @@ public class JewishDateInfo {
             return "צדקתך";
         }
         if (isLocaleHebrew) {
-            return "יש תחנון";
+            return "אומרים תחנון";
         }
         return "There is Tachanun today";
     }
@@ -503,7 +503,7 @@ public class JewishDateInfo {
 
         if (parsha.isEmpty() && specialParsha.isEmpty()) {
             if (isLocaleHebrew) {
-                return "אין פרשת השבוע";
+                return "אין פרשת שבוע";
             } else {
                 return "No Weekly Parsha";
             }
@@ -536,8 +536,7 @@ public class JewishDateInfo {
      */
     public String getJewishDayOfWeek() {
         hebrewDateFormatter.setHebrewFormat(true);
-        String result = "יום ";
-        result += hebrewDateFormatter.formatDayOfWeek(jewishCalendar);
+        String result = hebrewDateFormatter.formatDayOfWeek(jewishCalendar).replace("ששי", "שישי");
         if (!isLocaleHebrew) {
             hebrewDateFormatter.setHebrewFormat(false);
         }
@@ -634,7 +633,7 @@ public class JewishDateInfo {
 
         if (jewishCalendar.getJewishDayOfMonth() == 14) {
             if (isLocaleHebrew) {
-                return "הלילה האחרון לברכת הלבנה";
+                return "לילה האחרון לברכת הלבנה";
             }
             return "Last night for Birchat HaLevana";
         }
@@ -697,18 +696,18 @@ public class JewishDateInfo {
                     month == JewishCalendar.ADAR ||
                     month == JewishCalendar.ADAR_II) {
                     if (isLocaleHebrew) {
-                        return "אֱמֹר וּלְכַפָּרַת פֶּשַׁע";
+                        return "אוֹמְרִים וּלְכַפָּרַת פֶּשַׁע";
                     }
                     return "Say וּלְכַפָּרַת פֶּשַׁע";
                 } else {
                     if (isLocaleHebrew) {
-                        return "אַל תֹּאמַר וּלְכַפָּרַת פֶּשַׁע";
+                        return "לֹא אוֹמְרִים וּלְכַפָּרַת פֶּשַׁע";
                     }
                     return "Do not say וּלְכַפָּרַת פֶּשַׁע";
                 }
             } else {
                 if (isLocaleHebrew) {
-                    return "אַל תֹּאמַר וּלְכַפָּרַת פֶּשַׁע";
+                    return "לֹא אוֹמְרִים וּלְכַפָּרַת פֶּשַׁע";
                 }
                 return "Do not say וּלְכַפָּרַת פֶּשַׁע";
             }

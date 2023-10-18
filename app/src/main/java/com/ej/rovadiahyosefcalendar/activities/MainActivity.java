@@ -20,6 +20,7 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -29,6 +30,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.DisplayMetrics;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.Menu;
@@ -36,6 +38,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
@@ -201,6 +204,25 @@ public class MainActivity extends AppCompatActivity {
         mHandler = new Handler(getMainLooper());
         mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         mSettingsPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String lang = mSettingsPreferences.getString("language", "Default");
+        if (!lang.equals("Default")) {
+            if (!Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals(lang)) {
+                switch (lang) {
+                    case "English":
+                        Locale locale = new Locale("en", "US");
+                        Locale.setDefault(locale);
+                        setLocale(locale);
+                        break;
+                    case "Hebrew":
+                        Locale helocale = new Locale("he", "IL");
+                        Locale.setDefault(helocale);
+                        setLocale(helocale);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
         mGestureDetector = new GestureDetector(MainActivity.this, new ZmanimGestureListener());
         mZmanimFormatter.setTimeFormat(ZmanimFormatter.SEXAGESIMAL_FORMAT);
         initSetupResult();
@@ -220,6 +242,16 @@ public class MainActivity extends AppCompatActivity {
         if ((!mInitialized && ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) == PERMISSION_GRANTED) || mSharedPreferences.getBoolean("useZipcode", false)) {
             initMainView();
         }
+    }
+
+    public void setLocale(Locale locale) {
+        Resources res = getResources();
+        DisplayMetrics dm = res.getDisplayMetrics();
+        Configuration conf = res.getConfiguration();
+        conf.setLocale(locale);
+        res.updateConfiguration(conf, dm);// not perfect
+        conf.setLayoutDirection(locale);
+        recreate();
     }
 
     private void initZmanimNotificationDefaults() {
@@ -278,19 +310,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showWeeklyTextViews() {
-        TextView englishMonthYear = findViewById(R.id.englishMonthYear);
-        TextView locationName = findViewById(R.id.location_name);
-        TextView hebrewMonthYear = findViewById(R.id.hebrewMonthYear);
         LinearLayout mainWeekly = findViewById(R.id.main_weekly_layout);
-        TextView weeklyParsha = findViewById(R.id.weeklyParsha);
-        TextView weeklyDafs = findViewById(R.id.weeklyDafs);
 
-        englishMonthYear.setVisibility(View.VISIBLE);
-        locationName.setVisibility(View.VISIBLE);
-        hebrewMonthYear.setVisibility(View.VISIBLE);
+        mEnglishMonthYear.setVisibility(View.VISIBLE);
+        mLocationName.setVisibility(View.VISIBLE);
+        mHebrewMonthYear.setVisibility(View.VISIBLE);
         mainWeekly.setVisibility(View.VISIBLE);
-        weeklyParsha.setVisibility(View.VISIBLE);
-        weeklyDafs.setVisibility(View.VISIBLE);
+        mWeeklyParsha.setVisibility(View.VISIBLE);
+        mWeeklyDafs.setVisibility(View.VISIBLE);
         mMainRecyclerView.setVisibility(View.GONE);
         SwipeRefreshLayout swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
         swipeRefreshLayout.setVisibility(View.GONE);
@@ -311,8 +338,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void findAllWeeklyViews() {
-        mEnglishMonthYear = findViewById(R.id.englishMonthYear);
         mLocationName = findViewById(R.id.location_name);
+        mEnglishMonthYear = findViewById(R.id.englishMonthYear);
         mHebrewMonthYear = findViewById(R.id.hebrewMonthYear);
         //there are 7 of these sets of views
         mListViews[0] = findViewById(R.id.zmanim);
@@ -364,8 +391,63 @@ public class MainActivity extends AppCompatActivity {
         mSaturday[4] = findViewById(R.id.englishDay7);
         mSaturday[5] = findViewById(R.id.englishDateNumber7);
 
-        mWeeklyParsha = findViewById(R.id.weeklyParsha);
         mWeeklyDafs = findViewById(R.id.weeklyDafs);
+        mWeeklyParsha = findViewById(R.id.weeklyParsha);
+        updateWeeklyTextViewTextColor();
+    }
+    
+    private void updateWeeklyTextViewTextColor() {
+        if (mSharedPreferences.getBoolean("customTextColor", false)) {
+            int textColor = mSharedPreferences.getInt("tColor", 0xFFFFFFFF);
+            mLocationName.setTextColor(textColor);
+            mEnglishMonthYear.setTextColor(textColor);
+            mHebrewMonthYear.setTextColor(textColor);
+            //there are 7 of these sets of views
+            mSunday[1].setTextColor(textColor);
+            mSunday[2].setTextColor(textColor);
+            mSunday[3].setTextColor(textColor);
+            mSunday[4].setTextColor(textColor);
+            mSunday[5].setTextColor(textColor);
+
+            mMonday[1].setTextColor(textColor);
+            mMonday[2].setTextColor(textColor);
+            mMonday[3].setTextColor(textColor);
+            mMonday[4].setTextColor(textColor);
+            mMonday[5].setTextColor(textColor);
+
+            mTuesday[1].setTextColor(textColor);
+            mTuesday[2].setTextColor(textColor);
+            mTuesday[3].setTextColor(textColor);
+            mTuesday[4].setTextColor(textColor);
+            mTuesday[5].setTextColor(textColor);
+
+            mWednesday[1].setTextColor(textColor);
+            mWednesday[2].setTextColor(textColor);
+            mWednesday[3].setTextColor(textColor);
+            mWednesday[4].setTextColor(textColor);
+            mWednesday[5].setTextColor(textColor);
+
+            mThursday[1].setTextColor(textColor);
+            mThursday[2].setTextColor(textColor);
+            mThursday[3].setTextColor(textColor);
+            mThursday[4].setTextColor(textColor);
+            mThursday[5].setTextColor(textColor);
+
+            mFriday[1].setTextColor(textColor);
+            mFriday[2].setTextColor(textColor);
+            mFriday[3].setTextColor(textColor);
+            mFriday[4].setTextColor(textColor);
+            mFriday[5].setTextColor(textColor);
+
+            mSaturday[1].setTextColor(textColor);
+            mSaturday[2].setTextColor(textColor);
+            mSaturday[3].setTextColor(textColor);
+            mSaturday[4].setTextColor(textColor);
+            mSaturday[5].setTextColor(textColor);
+
+            mWeeklyDafs.setTextColor(textColor);
+            mWeeklyParsha.setTextColor(textColor);
+        }
     }
 
     /**
@@ -913,9 +995,10 @@ public class MainActivity extends AppCompatActivity {
             instantiateZmanimCalendar();
             mROZmanimCalendar.setCalendar(mCurrentDateShown);
             if (mSharedPreferences.getBoolean("weeklyMode", false)) {
+                updateWeeklyTextViewTextColor();
                 updateWeeklyZmanim();
             } else {
-                mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                updateDailyZmanim();
                 mMainRecyclerView.scrollToPosition(mCurrentPosition);
             }
         }
@@ -928,7 +1011,7 @@ public class MainActivity extends AppCompatActivity {
             if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                 updateWeeklyZmanim();
             } else {
-                mMainRecyclerView.setAdapter(new ZmanAdapter(this, getZmanimList()));
+                updateDailyZmanim();
                 mMainRecyclerView.scrollToPosition(mCurrentPosition);
             }
         }
@@ -949,6 +1032,9 @@ public class MainActivity extends AppCompatActivity {
             Bitmap bitmap = BitmapFactory.decodeFile(mSharedPreferences.getString("imageLocation", ""));
             Drawable drawable = new BitmapDrawable(getResources(), bitmap);
             mLayout.setBackground(drawable);
+        } else if (mSharedPreferences.getBoolean("customBackgroundColor", false) &&
+                !mSharedPreferences.getBoolean("useDefaultBackgroundColor", false)) {
+            mLayout.setBackgroundColor(mSharedPreferences.getInt("bColor", 0x32312C));
         }
         if (!sShabbatMode) {
             if (mSharedPreferences.getBoolean("useDefaultCalButtonColor", true)) {
@@ -1384,11 +1470,8 @@ public class MainActivity extends AppCompatActivity {
         zmanim.add(new ZmanListEntry(mROZmanimCalendar.getGeoLocation().getLocationName()));
 
         StringBuilder sb = new StringBuilder();
-        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
-            sb.append(formatHebrewNumber(mROZmanimCalendar.getCalendar().get(Calendar.DATE)));
-        } else {
-            sb.append(mROZmanimCalendar.getCalendar().get(Calendar.DATE));
-        }
+
+        sb.append(mROZmanimCalendar.getCalendar().get(Calendar.DATE));
         sb.append(" ");
         sb.append(mROZmanimCalendar.getCalendar().getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault()));
         sb.append(", ");
@@ -1425,7 +1508,8 @@ public class MainActivity extends AppCompatActivity {
             zmanim.add(new ZmanListEntry(mROZmanimCalendar.getCalendar()
                     .getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault())
                     + " / " +
-                    sJewishDateInfo.getJewishDayOfWeek()));
+                    mROZmanimCalendar.getCalendar()
+                            .getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, new Locale("he","IL"))));
         }
 
         String day = sJewishDateInfo.getSpecialDay(true);
@@ -1713,7 +1797,21 @@ public class MainActivity extends AppCompatActivity {
             }
             StringBuilder announcements = new StringBuilder();
             mZmanimForAnnouncements = new ArrayList<>();//clear the list, it will be filled again in the getShortZmanim method
-            mListViews[i].setAdapter(new ArrayAdapter<>(this, R.layout.zman_list_view, getShortZmanim()));//E.G. "Sunrise: 5:45 AM, Sunset: 8:30 PM, etc."
+            mListViews[i].setAdapter(new ArrayAdapter<String>(this, R.layout.zman_list_view, getShortZmanim()) {
+                @NonNull
+                @Override
+                public View getView(int position, View convertView, @NonNull ViewGroup parent) {
+                    View view = super.getView(position, convertView, parent);
+
+                    TextView textView = (TextView) view.findViewById(R.id.zman_in_list);
+
+                    if (textView != null) {
+                        textView.setTextColor(mSharedPreferences.getInt("tColor", 0xFFFFFFFF));
+                    }
+
+                    return view;
+                }
+            });//E.G. "Sunrise: 5:45 AM, Sunset: 8:30 PM, etc."
             if (!mZmanimForAnnouncements.isEmpty()) {
                 for (String zman : mZmanimForAnnouncements) {
                     announcements.append(zman).append("\n");
@@ -1721,6 +1819,9 @@ public class MainActivity extends AppCompatActivity {
             }
             announcements.append(getAnnouncements());
             weeklyInfo.get(i)[1].setText(announcements.toString());//E.G. "Yom Tov, Yom Kippur, etc."
+            if (announcements.toString().isEmpty()) {
+                weeklyInfo.get(i)[1].setVisibility(View.INVISIBLE);
+            }
             weeklyInfo.get(i)[2].setText(sJewishDateInfo.getJewishDayOfWeek());//E.G. "יום ראשון"
             weeklyInfo.get(i)[3].setText(formatHebrewNumber(sJewishDateInfo.getJewishCalendar().getJewishDayOfMonth()));//E.G. "א"
             weeklyInfo.get(i)[4].setText(mROZmanimCalendar.getCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, Locale.getDefault()));//E.G. "Sun"
@@ -1811,7 +1912,7 @@ public class MainActivity extends AppCompatActivity {
                 if (zman.isNoteworthyZman()) {
                     if (zman.isRTZman() && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("RoundUpRT", false)) {
                         DateFormat rtFormat;
-                        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                        if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
                             if (mSettingsPreferences.getBoolean("ShowSeconds", false)) {
                                 rtFormat = new SimpleDateFormat("H:mm:ss", Locale.getDefault());
                             } else {
@@ -1825,9 +1926,17 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                         rtFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
-                        mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + " : " + rtFormat.format(zman.getZman()));
+                        if (!Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                            mZmanimForAnnouncements.add(rtFormat.format(zman.getZman()) + " : " + zman.getTitle().replaceAll("\\(.*\\)", "").trim());
+                        } else {
+                            mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + " : " + rtFormat.format(zman.getZman()));
+                        }
                     } else {
-                        mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + " : " + zmanimFormat.format(zman.getZman()));
+                        if (!Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                            mZmanimForAnnouncements.add(zmanimFormat.format(zman.getZman()) + " : " + zman.getTitle().replaceAll("\\(.*\\)", "").trim());
+                        } else {
+                            mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + " : " + zmanimFormat.format(zman.getZman()));
+                        }
                     }
                     zmansToRemove.add(zman);
                 }
@@ -1868,12 +1977,24 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                     rtFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
-                    shortZmanim[zmanim.indexOf(zman)] = rtFormat.format(zman.getTitle()) + ": " + zman.getZman();
+                    if (!Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                        shortZmanim[zmanim.indexOf(zman)] = rtFormat.format(zman.getZman()) + " : " +  zman.getTitle();
+                    } else {
+                        shortZmanim[zmanim.indexOf(zman)] = zman.getTitle() + " : " +  rtFormat.format(zman.getZman());
+                    }
                 } else {
-                    shortZmanim[zmanim.indexOf(zman)] = zman.getTitle().replace("סוף זמן", "") + ": " + zmanimFormat.format(zman.getZman());
+                    if (!Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                        shortZmanim[zmanim.indexOf(zman)] = zmanimFormat.format(zman.getZman()) + " : " + zman.getTitle().replace("סוף זמן", "");
+                    } else {
+                        shortZmanim[zmanim.indexOf(zman)] = zman.getTitle().replace("סוף זמן", "") + " : " + zmanimFormat.format(zman.getZman());
+                    }
                 }
                 if (zman.getZman().equals(sNextUpcomingZman)) {
-                    shortZmanim[zmanim.indexOf(zman)] = shortZmanim[zmanim.indexOf(zman)] + "➤";
+                    if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                        shortZmanim[zmanim.indexOf(zman)] = shortZmanim[zmanim.indexOf(zman)] + " ➤ ";
+                    } else {
+                        shortZmanim[zmanim.indexOf(zman)] = shortZmanim[zmanim.indexOf(zman)] + " ◄ ";
+                    }
                 }
             }
         } else {
@@ -1881,17 +2002,21 @@ public class MainActivity extends AppCompatActivity {
                 if (zman.isRTZman() && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("RoundUpRT", false)) {
                     DateFormat rtFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
                     rtFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
-                    shortZmanim[zmanim.indexOf(zman)] = zman.getTitle() + ": " + rtFormat.format(zman.getZman());
+                    shortZmanim[zmanim.indexOf(zman)] = zman.getTitle() + " : " + rtFormat.format(zman.getZman());
                 } else {
                     shortZmanim[zmanim.indexOf(zman)] = zman.getTitle()
                             .replace("Earliest ","")
                             .replace("Sof Zman ", "")
                             .replace("Hacochavim", "")
                             .replace("Latest ", "")
-                            + ":" + zmanimFormat.format(zman.getZman());
+                            + " : " + zmanimFormat.format(zman.getZman());
                 }
                 if (zman.getZman().equals(sNextUpcomingZman)) {
-                    shortZmanim[zmanim.indexOf(zman)] = shortZmanim[zmanim.indexOf(zman)] + "➤";
+                    if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                        shortZmanim[zmanim.indexOf(zman)] = shortZmanim[zmanim.indexOf(zman)] + " ➤ ";
+                    } else {
+                        shortZmanim[zmanim.indexOf(zman)] = shortZmanim[zmanim.indexOf(zman)] + " ◄ ";
+                    }
                 }
             }
         }

@@ -266,6 +266,15 @@ public class SettingsActivity extends AppCompatActivity {
                     return false;
                 });
             }
+
+            Preference lang = findPreference("language");
+            if (lang != null) {
+                lang.setOnPreferenceChangeListener((preference, newValue) -> {
+                    Objects.requireNonNull(preference.getSharedPreferences()).edit().putString(preference.getKey(), (String) newValue).apply();
+                    Toast.makeText(getContext(), getString(R.string.restart_app), Toast.LENGTH_LONG).show();
+                    return false;
+                });
+            }
         }
 
         public void onDisplayPreferenceDialog(@NonNull Preference preference) {

@@ -1,4 +1,16 @@
 <resources>
+    <string-array name="language_entries">
+        <item>System Default</item>
+        <item>English</item>
+        <item>Hebrew</item>
+    </string-array>
+
+    <string-array name="language_values">
+        <item>Default</item>
+        <item>English</item>
+        <item>Hebrew</item>
+    </string-array>
+
     <string-array name="candle_lighting_entries">
         <item>15 Minutes</item>
         <item>18 Minutes</item>

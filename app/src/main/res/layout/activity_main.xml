@@ -52,8 +52,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:orientation="vertical"
-        android:background="?android:attr/colorBackground">
+        android:orientation="vertical">
 
     <TextView
         android:id="@+id/location_name"
@@ -159,7 +158,7 @@
                 android:textSize="16sp"
                 android:textColor="?android:attr/textColorPrimary"
                 tools:ignore="NestedWeights"
-                tools:text="יום ראשון" />
+                tools:text="ראשון" />
 
             <TextView
                 android:id="@+id/hebrewDate"
@@ -260,7 +259,7 @@
                 android:textSize="16sp"
                 android:textColor="?android:attr/textColorPrimary"
                 tools:ignore="NestedWeights"
-                tools:text="יום שני" />
+                tools:text="שני" />
 
             <TextView
                 android:id="@+id/hebrewDate2"
@@ -361,7 +360,7 @@
                 android:textSize="16sp"
                 tools:ignore="NestedWeights"
                 android:textColor="?android:attr/textColorPrimary"
-                tools:text="יום שלישי" />
+                tools:text="שלישי" />
 
             <TextView
                 android:id="@+id/hebrewDate3"
@@ -462,7 +461,7 @@
                 android:textSize="16sp"
                 android:textColor="?android:attr/textColorPrimary"
                 tools:ignore="NestedWeights"
-                tools:text="יום רביעי" />
+                tools:text="רביעי" />
 
             <TextView
                 android:id="@+id/hebrewDate4"
@@ -564,7 +563,7 @@
                 android:textSize="16sp"
                 android:textColor="?android:attr/textColorPrimary"
                 tools:ignore="NestedWeights"
-                tools:text="יום חמישי" />
+                tools:text="חמישי" />
 
             <TextView
                 android:id="@+id/hebrewDate5"
@@ -666,7 +665,7 @@
                 android:textSize="16sp"
                 android:textColor="?android:attr/textColorPrimary"
                 tools:ignore="NestedWeights"
-                tools:text="יום ששי" />
+                tools:text="שישי" />
 
             <TextView
                 android:id="@+id/hebrewDate6"
@@ -767,7 +766,7 @@
                 android:textSize="16sp"
                 android:textColor="?android:attr/textColorPrimary"
                 tools:ignore="NestedWeights"
-                tools:text="יום שבת" />
+                tools:text="שבת" />
 
             <TextView
                 android:id="@+id/hebrewDate7"

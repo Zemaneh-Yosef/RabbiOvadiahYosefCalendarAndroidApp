@@ -3,19 +3,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:opacity="opaque">
     <!-- Background Color -->
-    <item android:drawable="@color/background_gray"/>
+    <item android:drawable="@color/ic_banner_background"/>
 
     <!-- Logo -->
-    <item android:bottom="40dp">
+    <item>
         <bitmap
             android:gravity="center"
-            android:src="@drawable/gold_calendar"/>
-    </item>
-
-    <item android:top="250dp">
-        <bitmap
-            android:gravity="center"
-            android:src="@drawable/cooltext392922405046809" />
+            android:src="@mipmap/ic_launcher_foreground"/>
     </item>
 
 </layer-list>

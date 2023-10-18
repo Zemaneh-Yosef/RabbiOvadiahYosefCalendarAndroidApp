@@ -79,6 +79,41 @@ import java.util.GregorianCalendar;
  * outside of Israel. It seems to me that Rabbi Shlomo Benizri Shlita's opinion that the Ohr HaChaim calendar should be used anywhere in the world is
  * more in line with Rabbi Ovadiah Yosef ZT"L's opinion.
  * <br><br>
+ * Methods used to replicate the Ohr Hachaim calendar's zmanim:
+ * {@link #getAlos72Zmanis()}
+ * <br>
+ * {@link #getEarliestTalitTefilin()} not in KosherJava, but implemented by this class.
+ * <br>
+ * {@link #getHaNetz()} gets the sunrise times from chaitables, otherwise we should default to {@link #getSeaLevelSunrise()} since it is similar to visible sunrise.
+ * <br>
+ * {@link #getSofZmanShmaMGA72MinutesZmanis()}
+ * <br>
+ * {@link #getSofZmanShmaGRA()}
+ * <br>
+ * {@link #getSofZmanTfilaMGA72MinutesZmanis()} for sof zman achilat chametz.
+ * <br>
+ * {@link #getSofZmanTfilaGRA()}
+ * <br>
+ * {@link #getSofZmanBiurChametzMGA()} for sof zman biur chametz, not in kosherjava.
+ * <br>
+ * {@link #getChatzot()} reimplemented to use elevation,
+ * even though it does not affect the time,
+ * I did it this way just because the Ohr Hachaim calendar does the same.
+ * <br>
+ * {@link #getMinchaGedolaGreaterThan30()}
+ * <br>
+ * {@link #getMinchaKetana()}
+ * <br>
+ * {@link #getPlagHaminchaYalkutYosef()} not in kosherjava.
+ * <br>
+ * {@link #getCandleLighting()} reimplemented to use elevation.
+ * Remember to change {@link #setAteretTorahSunsetOffset(double)} to 20 if you want to replicate
+ * the exact times of the Ohr Hachaim calendar. Note that the calendar also shows 40 minutes before sunset.
+ * <br>
+ * {@link #getSunset()}
+ * <br>
+ * {@link #getTzeit()}
+ * <br>
  * Created by EJ on 9/13/2021.
  */
 public class ROZmanimCalendar extends ComplexZmanimCalendar {
