@@ -633,7 +633,7 @@ public class JewishDateInfo {
 
         if (jewishCalendar.getJewishDayOfMonth() == 14) {
             if (isLocaleHebrew) {
-                return "לילה האחרון לברכת הלבנה";
+                return "לילה אחרון לברכת הלבנה";
             }
             return "Last night for Birchat HaLevana";
         }
