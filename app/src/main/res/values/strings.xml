@@ -193,7 +193,7 @@
     <string name="show_zman_dialogs">Show zman dialogs?</string>
     <string name="choose_whether_or_not_to_display_if_shabbat_mevarchim_happens_tomorrow_on_friday">Choose whether or not to display if shabbat mevarchim happens tomorrow on Friday</string>
     <string name="show_shabbat_mevarchim">Show shabbat mevarchim?</string>
-    <string name="choose_whether_or_not_to_display_when_shabbat_or_chag_ends_the_day_before_after_the_candle_lighting_time">Choose whether or not to display when Shabbat or Chag ends the day before after the candle lighting time</string>
+    <string name="choose_whether_or_not_to_display_when_shabbat_or_chag_ends_the_day_before_after_the_candle_lighting_time">Choose whether or not to display when Shabbat or Chag ends the day before</string>
     <string name="show_tzait_shabbat_the_day_before">Show Tzait Shabbat the day before?</string>
     <string name="choose_which_zmanim_to_display">Choose which zmanim to display</string>
     <string name="choose_whether_to_display_rabbeinu_tam_or_regular_shabbat_end_times_or_both">Choose whether to display Rabbeinu tam or regular shabbat end times or both</string>

@@ -76,8 +76,8 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         String zman = nextUpcomingZman.getTitle();
         String time = sZmanimFormat.format(nextUpcomingZman.getZman());
         String tachanun = mJewishDateInfo.getIsTachanunSaid()
-                .replace("There is no Tachanun today", "No Tachanun")
-                .replace("There is only Tachanun in the morning", "Tachanun morning only")
+                .replace("No Tachanun today", "No Tachanun")
+                .replace("Tachanun only in the morning", "Tachanun morning only")
                 .replace("There is Tachanun today", "Tachanun");
         String dafYomi = mJewishDateInfo.getJewishCalendar().getDafYomiBavli().getMasechta()
                 + " " + JewishDateInfo.formatHebrewNumber(mJewishDateInfo.getJewishCalendar().getDafYomiBavli().getDaf());

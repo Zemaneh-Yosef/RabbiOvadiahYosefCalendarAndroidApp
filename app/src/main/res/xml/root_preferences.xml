@@ -38,7 +38,7 @@
             android:title="@string/round_up_rabbeinu_tam" />
 
         <CheckBoxPreference
-            android:defaultValue="true"
+            android:defaultValue="false"
             android:key="ShowDayOfOmer"
             android:summary="@string/choose_whether_or_not_the_app_will_notify_you_of_the_day_of_the_omer_during_the_day"
             android:title="@string/notify_day_of_omer_as_well" />

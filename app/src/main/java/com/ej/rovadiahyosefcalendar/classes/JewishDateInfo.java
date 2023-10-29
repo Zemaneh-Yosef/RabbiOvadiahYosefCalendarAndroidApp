@@ -417,9 +417,9 @@ public class JewishDateInfo {
                 return "צדקתך";
             }//TODO check source on this
             if (isLocaleHebrew) {
-                return "לא אומרים תחנון היום";
+                return "לא אומרים תחנון";
             }
-            return "There is no Tachanun today";
+            return "No Tachanun today";
         }
         int yomTovIndexForNextDay = getYomTovIndexForNextDay();
         if (jewishCalendar.getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY
@@ -433,14 +433,14 @@ public class JewishDateInfo {
                 || jewishCalendar.isErevRoshChodesh()) {
             if (jewishCalendar.getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
                 if (isLocaleHebrew) {
-                    return "לא אומרים תחנון היום";
+                    return "לא אומרים תחנון";
                 }
-                return "There is no Tachanun today";
+                return "No Tachanun today";
             }
             if (isLocaleHebrew) {
                 return "אומרים תחנון רק בבוקר";
             }
-            return "There is only Tachanun in the morning";
+            return "Tachanun only in the morning";
         }
         if (currentDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
             return "צדקתך";
@@ -467,12 +467,12 @@ public class JewishDateInfo {
     public String isJewishLeapYear() {
         if (jewishCalendar.isJewishLeapYear()) {
             if (isLocaleHebrew) {
-                return "שנה זו היא שנת מעוברת";
+                return "שנה מעוברת";
             }
             return "This year is a jewish leap year!";
         } else {
             if (isLocaleHebrew) {
-                return "שנה זו אינה שנת מעוברת";
+                return "אינה שנת מעוברת";
             }
             return "This year is a not a jewish leap year!";
         }
@@ -641,7 +641,7 @@ public class JewishDateInfo {
         if (jewishCalendar.getGregorianCalendar().getTime().after(sevenDays.getTime())
         && jewishCalendar.getGregorianCalendar().getTime().before(latest.getGregorianCalendar().getTime())) {
             if (isLocaleHebrew) {
-                return "ברכת הלבנה עד ליל חמשה עשר";
+                return "ברכת הלבנה עד ליל טו'";
             }
             return "Birchat HaLevana until " + sdf.format(latest.getGregorianCalendar().getTime());
         }

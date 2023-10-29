@@ -747,10 +747,10 @@ public class SiddurMaker {
 
         boolean isTachanunSaid = false;
 
-        if (jewishDateInfo.getIsTachanunSaid().equals("There is only Tachanun in the morning")
-                || jewishDateInfo.getIsTachanunSaid().equals("תחנון נאמר רק בבוקר")
+        if (jewishDateInfo.getIsTachanunSaid().equals("Tachanun only in the morning")
+                || jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון רק בבוקר")
                 || jewishDateInfo.getIsTachanunSaid().equals("There is Tachanun today")
-                || jewishDateInfo.getIsTachanunSaid().equals("יש תחנון")) {
+                || jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון")) {
             isTachanunSaid = true;
             addTachanun();
             if (jewishDateInfo.getJewishCalendar().isTaanis() && jewishDateInfo.getJewishCalendar().getYomTovIndex() != JewishCalendar.YOM_KIPPUR) {

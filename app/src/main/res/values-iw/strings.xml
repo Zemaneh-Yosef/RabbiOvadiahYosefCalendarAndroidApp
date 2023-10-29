@@ -38,7 +38,7 @@
 
     <string name="help">עֶזרָה</string>
 
-    <string name="search_for_a_place">חפש מקום</string>
+    <string name="search_for_a_place">שינוי מקום</string>
 
     <string name="title_activity_settings">הגדרות</string>
 
@@ -76,9 +76,9 @@
 
     <string name="english">אנגלית</string>
 
-    <string name="setup">להכין</string>
+    <string name="setup">הגדרה מחדש</string>
 
-    <string name="molad_calculator">מחשבון מולד</string>
+    <string name="molad_calculator">חישוב המולד</string>
 
     <string name="moon_background">רקע ירח</string>
 
@@ -162,9 +162,9 @@
 
     <string name="min">דקות</string>
 
-    <string name="weekly_view">תצוגה שבועית</string>
+    <string name="weekly_view">תצוגה: שבועי</string>
 
-    <string name="website">אתר אינטרנט</string>
+    <string name="website">מעבר לאתר</string>
 
     <string name="use_elevation">להשתמש בגובה?</string>
 
@@ -244,7 +244,7 @@
 
     <string name="meters">מטר</string>
 
-    <string name="there_is_tachanun_today">יש היום תחנון</string>
+    <string name="there_is_tachanun_today">אומרים תחנון</string>
 
     <string name="enter_zipcode_or_address">הזן מיקוד או כתובת</string>
 
@@ -303,55 +303,55 @@
 
     <string name="change_the_zmanim_settings">שנה את הגדרות הזמנים</string>
 
-    <string name="zmanim_settings">הגדרות זמן</string>
+    <string name="zmanim_settings">הגדרות זמן כללי</string>
 
     <string name="enable_or_disable_zmanim_notifications">הפעל או השבת התראות זמנים</string>
 
-    <string name="zmanim_notifications">הודעות זמנים</string>
+    <string name="zmanim_notifications">התראות זמנים</string>
 
-    <string name="change_the_zmanim_notifications_settings">שנה את הגדרות ההתראות של זמנים</string>
+    <string name="change_the_zmanim_notifications_settings">בחר מתי לקבל התראה על כל זמן ביום</string>
 
-    <string name="zmanim_notifications_settings">הגדרות התראות זמנים</string>
+    <string name="zmanim_notifications_settings">הגדר התראות זמנים</string>
 
     <string name="choose_whether_or_not_to_display_the_seconds_of_the_zmanim">בחר אם להציג את השניות של הזמנים או לא</string>
 
-    <string name="show_seconds">להראות שניות\?</string>
+    <string name="show_seconds">הצגת שניות\?</string>
 
-    <string name="choose_whether_or_not_to_display_rabbeinu_tam_s_nightfall_everyday">בחר אם להציג את רדת הלילה של רבינו תם מדי יום או לא</string>
+    <string name="choose_whether_or_not_to_display_rabbeinu_tam_s_nightfall_everyday">בחר אם להציג כל יום את זמן רדת הלילה (צאת הכוכבים) לפי שיטת רבינו תם</string>
 
-    <string name="show_rabbeinu_tam_everyday">להראות את רבנו תם כל יום\?</string>
+    <string name="show_rabbeinu_tam_everyday">הצגת את רבנו תם כל יום\?</string>
 
-    <string name="choose_whether_or_not_to_round_up_the_zman_of_rabbeinu_tam_up_to_the_nearest_minute">בחר אם לעגל או לא לעגל את הזמן של רבנו תם עד לדקה הקרובה</string>
+    <string name="choose_whether_or_not_to_round_up_the_zman_of_rabbeinu_tam_up_to_the_nearest_minute">בחר אם לעגל את זמן רבנו תם לדקה הקרובה</string>
 
-    <string name="round_up_rabbeinu_tam">לעגל את רבנו תם\?</string>
+    <string name="round_up_rabbeinu_tam">זמן רבנו תם מעוגל\?</string>
 
     <string name="choose_whether_or_not_the_app_will_notify_you_of_the_day_of_the_omer_during_the_day">בחר אם האפליקציה תודיע לך על יום העומר במהלך היום</string>
 
     <string name="notify_day_of_omer_as_well">להודיע על יום העומר גם</string>
 
-    <string name="choose_whether_or_not_to_display_sea_level_sunrise_even_if_visible_sunrise_is_setup_as_well">בחר אם להציג זריחה בגובה פני הים או לא, גם אם הזריחה הנראית לעין מוגדרת גם כן</string>
+    <string name="choose_whether_or_not_to_display_sea_level_sunrise_even_if_visible_sunrise_is_setup_as_well">בחר אם להציג את זמן הזריחה בגובה פני הים גם כשהוגדר להציג את זמן הזריחה הנראית</string>
 
-    <string name="always_show_mishor_sunrise">תמיד להראות זריחה של מישור\?</string>
+    <string name="always_show_mishor_sunrise">הצגה קבועה של זמן הנץ במישור\?</string>
 
-    <string name="choose_whether_or_not_to_display_the_zman_dialogs_when_you_press_on_a_zman">בחר אם להציג או לא להציג את תיבות הדו-שיח של זמן כאשר אתה לוחץ על זמן</string>
+    <string name="choose_whether_or_not_to_display_the_zman_dialogs_when_you_press_on_a_zman">בחר אם להציג את ההסבר על כל זמן כשלוחצים עליו</string>
 
-    <string name="show_zman_dialogs">להציג דיאלוגים של זמן\?</string>
+    <string name="show_zman_dialogs">הצגת הסבר על הזמן\?</string>
 
-    <string name="choose_whether_or_not_to_display_if_shabbat_mevarchim_happens_tomorrow_on_friday">בחר אם להציג או לא להציג אם שבת מברכים יקרה מחר ביום שישי</string>
+    <string name="choose_whether_or_not_to_display_if_shabbat_mevarchim_happens_tomorrow_on_friday">בחר אם להציג האם השבת היא שבת מברכים (ביום שישי)</string>
 
-    <string name="show_shabbat_mevarchim">להראות שבת מברכים\?</string>
+    <string name="show_shabbat_mevarchim">הצגת שבת מברכים\?</string>
 
-    <string name="choose_whether_or_not_to_display_when_shabbat_or_chag_ends_the_day_before_after_the_candle_lighting_time">בחר אם להציג מתי השבת או חג מסתיימת יום לפני לאחר שעת הדלקת הנרות</string>
+    <string name="choose_whether_or_not_to_display_when_shabbat_or_chag_ends_the_day_before_after_the_candle_lighting_time">בחר אם להציג מתי השבת או חג מסתיימת יום לפני</string>
 
-    <string name="show_tzait_shabbat_the_day_before">להראות את ציאת שבת יום קודם\?</string>
+    <string name="show_tzait_shabbat_the_day_before">הצגת זמן צאת שבת/חג יום קודם\?</string>
 
     <string name="choose_which_zmanim_to_display">בחר אילו זמנים להציג</string>
 
     <string name="choose_whether_to_display_rabbeinu_tam_or_regular_shabbat_end_times_or_both">בחר אם להציג את רבינו תם או זמני סיום שבת רגילים או שניהם</string>
 
-    <string name="choose_whether_or_not_to_set_the_elevation_to_the_last_known_location_when_the_app_is_opened_offline">בחר אם להגדיר את הגובה למיקום האחרון הידוע כאשר האפליקציה נפתחת במצב לא מקוון</string>
+    <string name="choose_whether_or_not_to_set_the_elevation_to_the_last_known_location_when_the_app_is_opened_offline">בחר אם להשאיר את הגדרת הגובה לפי המיקום האחרון כשהאפליקציה נפתחת במצב לא מקוון</string>
 
-    <string name="set_elevation_to_last_known_location">האם להגדיר את הגובה למיקום האחרון הידוע\?</string>
+    <string name="set_elevation_to_last_known_location">שמירת גובה של מיקום אחרון\?</string>
 
     <string name="appearance">מראה חיצוני</string>
 
@@ -512,7 +512,7 @@
     <string name="purim_disclaimer">תפילות פורים יוצגו ב-14 (אתמול)</string>
     <string name="title_activity_netz">ספירת זריחה</string>
     <string name="quit">לפסוק</string>
-    <string name="netz_countdown">ספירת זריחה</string>
+    <string name="netz_countdown">ספירה לאחור לזמן הנץ</string>
     <string name="setup_visible_sunrise">הגדרת זריחה נראית</string>
     <string name="alot_dialog">בתנ\"ך, הזמן הזה נקרא \"עלות השחר\" (בראשית ל\"ב:כ\"ה), בעוד בגמרא הוא נקרא \"עמוד השחר\".  זהו הזמן בו מתחיל היום לפי ההלכה. רוב המצוות, דוגמת ערבית, שמתבצעות בלילה, אסורות להתבצע אחרי הזמן הזה. לאחריו, מצוות שחייבות להתבצע בזמן היום מותרות להתבצע בדיעבד (לאחר מעשה) או בשעת הדחק (בזמן הצורך). אף על פי כן, יש למחוץ לטובה לחכות עד לזריחה כדי לממש אותן לפי הלכה.  הזמן הזה נחשב ל-72 זמניות/דקות עונתיות (על פי הגר\"א) לפני הזריחה. גם הזריחה והשקיעה משתנות בהתעלות.  במצב לוח עמודי הוראה, הזמן הזה מחושב על ידי מציאת מספר הדקות שבין הזריחה ל-72 דקות כמות מעלות (16.04) לפני הזריחה ביום שווה עם הזריחה והשקיעה מוגדרים בתקופה של 12 שעות. לאחר מכן, אנחנו מעבירים את הדקות האלו לזמניות על פי הגר\"א ומחסרים אותו מהזמן של העלות השחר. זה על פי הלכה ברורה ועל המרצים לבצע זאת רק מחוץ לישראל באזורים צפוניים או דרומיים יותר.</string>
     <string name="misheyakir_dialog">\"משייכיר\" (במשמעות הלמידי \"כאשר אתה מכיר\") הוא הזמן בו אדם יכול להבחין בין כחול ללבן. הגמרא (ברכות ט) מסבירה שכאשר אדם יכול להבחין בין החוטים הכחולים (תכלת) והחוטים הלבנים שבציציתו, זהו הזמן המוקדם ביותר בו אדם יכול ללבוש את הטלית והתפילין לשחרית.  זהו גם הזמן המוקדם ביותר בו אפשר לקרוא את שמע לפי הלכה לכתחילה.  הזמן הזה מחושב כ-6 זמניות/דקות עונתיות (על פי הגר\"א) לאחר \"עלות השחר\" (השחר).  הערה: הזמן הזה הוא רק לאנשים שצריכים לצאת לעבודה או לנסוע בשעות הראשונות של הבוקר, אך בדרך כלל אדם צריך ללבוש את הטלית והתפילין שעה רגילה ובחורף 50 דקות רגילות לפני הזריחה.  במצב של \"לוח עמודי הוראה\", הזמן הזה מחושב על ידי מציאת מספר הדקות שבין הזריחה ל-72 דקות כמויות מעלות (16.04) לפני הזריחה ביום שווה עם הזריחה והשקיעה מוגדרות במרחק כשעתיים זמן ממוצע זה משתנה מדי. לאחר מכן, אנחנו ממירים את הדקות האלו לזמניות על פי הגר\"א ומחסרים 5/6 מהזמן הזה מהזמן של הזריחה כדי לקבוע את הזמן של \"משייכיר\". זה נעשה על פי הלכה ברורה ויש לעשות זאת רק מחוץ לישראל באזורים צפוניים או דרומיים יותר. כלולים בחישובים אלו לא הם התנועה של השמש.</string>

@@ -58,13 +58,7 @@ public class DailyNotifications extends BroadcastReceiver {
 
             AstronomicalCalendar calendar = getROZmanimCalendar(context);
 
-            String specialDay;
-
-            if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowDayOfOmer",true)) {
-                specialDay = jewishDateInfo.getSpecialDay(true);
-            } else {
-                specialDay = jewishDateInfo.getSpecialDay(false);
-            }
+            String specialDay = jewishDateInfo.getSpecialDay(PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowDayOfOmer",false));
 
             if (!specialDay.isEmpty()) {
                 long when = calendar.getSunrise().getTime();

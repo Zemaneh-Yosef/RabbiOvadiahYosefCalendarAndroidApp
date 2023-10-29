@@ -189,7 +189,6 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("AppCompatMethod")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        getWindow().getDecorView().setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
         if (getActionBar() != null) {// only for emulator
             getActionBar().hide();
@@ -666,10 +665,13 @@ public class MainActivity extends AppCompatActivity {
             Objects.requireNonNull(Looper.myLooper()).quit();
         }).start());
         mMainRecyclerView = findViewById(R.id.mainRV);
-        if (mMainRecyclerView != null) {// not sure if this will stop a bug from happening but it doesn't hurt
+        if (mMainRecyclerView != null) {
             mMainRecyclerView.setLayoutManager(new LinearLayoutManager(this));
             mMainRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
             mMainRecyclerView.setOnTouchListener((view, motionEvent) -> mGestureDetector.onTouchEvent(motionEvent));
+            if (mIsZmanimInHebrew) {
+                mMainRecyclerView.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+            }
         }
         mLayout.setOnTouchListener((view, motionEvent) -> mGestureDetector.onTouchEvent(motionEvent));
         if (mSharedPreferences.getBoolean("weeklyMode", false)) {
@@ -1374,7 +1376,7 @@ public class MainActivity extends AppCompatActivity {
                 mShabbatModeBanner.setBackgroundColor(getColor(R.color.dark_blue));
                 mShabbatModeBanner.setTextColor(getColor(R.color.white));
                 mCalendarButton.setBackgroundColor(getColor(R.color.dark_blue));
-                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawableLight());
+                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable());
         }
 
         if (isFirstTime) {
@@ -1821,6 +1823,8 @@ public class MainActivity extends AppCompatActivity {
             weeklyInfo.get(i)[1].setText(announcements.toString());//E.G. "Yom Tov, Yom Kippur, etc."
             if (announcements.toString().isEmpty()) {
                 weeklyInfo.get(i)[1].setVisibility(View.INVISIBLE);
+            } else {
+                weeklyInfo.get(i)[1].setVisibility(View.VISIBLE);
             }
             weeklyInfo.get(i)[2].setText(sJewishDateInfo.getJewishDayOfWeek());//E.G. "יום ראשון"
             weeklyInfo.get(i)[3].setText(formatHebrewNumber(sJewishDateInfo.getJewishCalendar().getJewishDayOfMonth()));//E.G. "א"
