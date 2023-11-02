@@ -166,7 +166,7 @@
 
     <string name="website">מעבר לאתר</string>
 
-    <string name="use_elevation">להשתמש בגובה?</string>
+    <string name="use_elevation">זמנים לפי גובה?</string>
 
     <string name="add_widget">הוסף ווידג\'ט</string>
 
@@ -299,15 +299,16 @@
     <string name="something_went_wrong_did_you_choose_the_right_area">משהו השתבש. בחרתם את האזור הנכון?</string>
 
     <string name="something_went_wrong_connecting_to_the_website_please_try_again_later">משהו השתבש בחיבור לאתר. בבקשה נסה שוב מאוחר יותר.</string>
-    <string name="zmanim_options">אפשרויות זמנים</string>
+
+    <string name="zmanim_options">הגדרות זמנים</string>
 
     <string name="change_the_zmanim_settings">שנה את הגדרות הזמנים</string>
 
     <string name="zmanim_settings">הגדרות זמן כללי</string>
 
-    <string name="enable_or_disable_zmanim_notifications">הפעל או השבת התראות זמנים</string>
+    <string name="enable_or_disable_zmanim_notifications">בחר אם לקבל התראות על זמנים בכל יום</string>
 
-    <string name="zmanim_notifications">התראות זמנים</string>
+    <string name="zmanim_notifications">התראות</string>
 
     <string name="change_the_zmanim_notifications_settings">בחר מתי לקבל התראה על כל זמן ביום</string>
 
@@ -315,15 +316,15 @@
 
     <string name="choose_whether_or_not_to_display_the_seconds_of_the_zmanim">בחר אם להציג את השניות של הזמנים או לא</string>
 
-    <string name="show_seconds">הצגת שניות\?</string>
+    <string name="show_seconds">הצגת שניות</string>
 
     <string name="choose_whether_or_not_to_display_rabbeinu_tam_s_nightfall_everyday">בחר אם להציג כל יום את זמן רדת הלילה (צאת הכוכבים) לפי שיטת רבינו תם</string>
 
-    <string name="show_rabbeinu_tam_everyday">הצגת את רבנו תם כל יום\?</string>
+    <string name="show_rabbeinu_tam_everyday">הצגת את רבנו תם כל יום</string>
 
     <string name="choose_whether_or_not_to_round_up_the_zman_of_rabbeinu_tam_up_to_the_nearest_minute">בחר אם לעגל את זמן רבנו תם לדקה הקרובה</string>
 
-    <string name="round_up_rabbeinu_tam">זמן רבנו תם מעוגל\?</string>
+    <string name="round_up_rabbeinu_tam">זמן רבנו תם מעוגל</string>
 
     <string name="choose_whether_or_not_the_app_will_notify_you_of_the_day_of_the_omer_during_the_day">בחר אם האפליקציה תודיע לך על יום העומר במהלך היום</string>
 
@@ -331,19 +332,19 @@
 
     <string name="choose_whether_or_not_to_display_sea_level_sunrise_even_if_visible_sunrise_is_setup_as_well">בחר אם להציג את זמן הזריחה בגובה פני הים גם כשהוגדר להציג את זמן הזריחה הנראית</string>
 
-    <string name="always_show_mishor_sunrise">הצגה קבועה של זמן הנץ במישור\?</string>
+    <string name="always_show_mishor_sunrise">הצגה קבועה של זמן הנץ במישור</string>
 
     <string name="choose_whether_or_not_to_display_the_zman_dialogs_when_you_press_on_a_zman">בחר אם להציג את ההסבר על כל זמן כשלוחצים עליו</string>
 
-    <string name="show_zman_dialogs">הצגת הסבר על הזמן\?</string>
+    <string name="show_zman_dialogs">הצגת הסבר על הזמן</string>
 
     <string name="choose_whether_or_not_to_display_if_shabbat_mevarchim_happens_tomorrow_on_friday">בחר אם להציג האם השבת היא שבת מברכים (ביום שישי)</string>
 
-    <string name="show_shabbat_mevarchim">הצגת שבת מברכים\?</string>
+    <string name="show_shabbat_mevarchim">הצגת שבת מברכים</string>
 
     <string name="choose_whether_or_not_to_display_when_shabbat_or_chag_ends_the_day_before_after_the_candle_lighting_time">בחר אם להציג מתי השבת או חג מסתיימת יום לפני</string>
 
-    <string name="show_tzait_shabbat_the_day_before">הצגת זמן צאת שבת/חג יום קודם\?</string>
+    <string name="show_tzait_shabbat_the_day_before">הצגת זמן צאת שבת/חג יום קודם</string>
 
     <string name="choose_which_zmanim_to_display">בחר אילו זמנים להציג</string>
 
@@ -351,29 +352,29 @@
 
     <string name="choose_whether_or_not_to_set_the_elevation_to_the_last_known_location_when_the_app_is_opened_offline">בחר אם להשאיר את הגדרת הגובה לפי המיקום האחרון כשהאפליקציה נפתחת במצב לא מקוון</string>
 
-    <string name="set_elevation_to_last_known_location">שמירת גובה של מיקום אחרון\?</string>
+    <string name="set_elevation_to_last_known_location">שמירת גובה של מיקום אחרון</string>
 
-    <string name="appearance">מראה חיצוני</string>
+    <string name="appearance">הגדרות תצוגה</string>
 
-    <string name="theme">נושא</string>
+    <string name="theme">עיצוב</string>
 
-    <string name="choose_a_theme_for_the_app">בחר ערכת נושא לאפליקציה</string>
+    <string name="choose_a_theme_for_the_app">צבע הרקע של האפליקציה</string>
 
-    <string name="choose_the_color_of_the_background">בחר את צבע הרקע</string>
+    <string name="choose_the_color_of_the_background"></string>
 
-    <string name="set_background_color">הגדר צבע רקע</string>
+    <string name="set_background_color">צבע הלוח</string>
 
-    <string name="choose_your_own_image_as_the_app_s_background">בחר תמונה משלך כרקע של האפליקציה</string>
+    <string name="choose_your_own_image_as_the_app_s_background"></string>
 
-    <string name="set_background_from_image">הגדר רקע מתוך תמונה</string>
+    <string name="set_background_from_image">רקע הלוח כתמונה</string>
 
-    <string name="choose_the_color_of_the_text">בחר את צבע הטקסט</string>
+    <string name="choose_the_color_of_the_text"></string>
 
-    <string name="set_text_color">הגדר צבע טקסט</string>
+    <string name="set_text_color">צבע הטקסט</string>
 
-    <string name="choose_the_color_of_the_calendar_button">בחר את הצבע של כפתור לוח השנה</string>
+    <string name="choose_the_color_of_the_calendar_button"></string>
 
-    <string name="set_calendar_button_color">הגדר צבע לחצן לוח שנה</string>
+    <string name="set_calendar_button_color">רקע אייקון לוח השנה</string>
 
     <string name="choose_whether_or_not_to_use_a_dark_calendar_icon_for_the_calendar_button">בחר אם להשתמש בסמל לוח שנה כהה עבור לחצן היומן</string>
 

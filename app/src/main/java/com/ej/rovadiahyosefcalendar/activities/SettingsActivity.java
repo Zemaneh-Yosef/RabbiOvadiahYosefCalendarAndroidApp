@@ -301,9 +301,13 @@ public class SettingsActivity extends AppCompatActivity {
                                     .apply();
                             break;
                         case "textColor":
-                            editor.putBoolean("customTextColor", true)
-                                    .putInt("tColor", (Integer) newValue)
-                                    .apply();
+                            if (newValue == null) {
+                                editor.putBoolean("customTextColor", false).apply();
+                            } else {
+                                editor.putBoolean("customTextColor", true)
+                                        .putInt("tColor", (Integer) newValue)
+                                        .apply();
+                            }
                             break;
                         case "calendarButtonColor":
                             if (newValue != null) {

@@ -23,8 +23,14 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -58,6 +64,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.core.splashscreen.SplashScreen;
 import androidx.core.view.MenuCompat;
 import androidx.preference.PreferenceManager;
@@ -186,7 +193,6 @@ public class MainActivity extends AppCompatActivity {
     private final static Calendar dafYomiYerushalmiStartDate = new GregorianCalendar(1980, Calendar.FEBRUARY, 2);
     private Date mLastTimeUserWasInApp;
 
-    @SuppressLint("AppCompatMethod")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
@@ -198,6 +204,7 @@ public class MainActivity extends AppCompatActivity {
 
         Objects.requireNonNull(getSupportActionBar()).setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setCustomView(R.layout.action_bar_custom);//center the title
+        getWindow().getDecorView().setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
 
         mLayout = findViewById(R.id.main_layout);
         mHandler = new Handler(getMainLooper());
@@ -986,23 +993,18 @@ public class MainActivity extends AppCompatActivity {
             super.onResume();
             return;
         }
-        if (sJewishDateInfo.getJewishCalendar().getInIsrael() != mSharedPreferences.getBoolean("inIsrael", false)) {
-            sJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false), true);
-            sJewishDateInfo.setCalendar(mCurrentDateShown);
-        }
+        sJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false), true);
+        sJewishDateInfo.setCalendar(mCurrentDateShown);
         setNextUpcomingZman();
         setZmanimLanguageBools();
-        if (sFromSettings) {
-            sFromSettings = false;
-            instantiateZmanimCalendar();
-            mROZmanimCalendar.setCalendar(mCurrentDateShown);
-            if (mSharedPreferences.getBoolean("weeklyMode", false)) {
-                updateWeeklyTextViewTextColor();
-                updateWeeklyZmanim();
-            } else {
-                updateDailyZmanim();
-                mMainRecyclerView.scrollToPosition(mCurrentPosition);
-            }
+        instantiateZmanimCalendar();
+        mROZmanimCalendar.setCalendar(mCurrentDateShown);
+        if (mSharedPreferences.getBoolean("weeklyMode", false)) {
+            updateWeeklyTextViewTextColor();
+            updateWeeklyZmanim();
+        } else {
+            updateDailyZmanim();
+            mMainRecyclerView.scrollToPosition(mCurrentPosition);
         }
         resolveElevationAndVisibleSunrise();
         if (!DateUtils.isSameDay(mCurrentDateShown.getTime(), new Date())
@@ -1683,6 +1685,16 @@ public class MainActivity extends AppCompatActivity {
             announcements.append(day.replace("/ ","\n")).append("\n");
         }
 
+        mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
+        sJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
+        if (mSettingsPreferences.getBoolean("showShabbatMevarchim", true)) {
+            if (sJewishDateInfo.getJewishCalendar().isShabbosMevorchim()) {
+                announcements.append("שבת מברכים").append("\n");
+            }
+        }
+        mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);
+        sJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());//reset
+
         String isOKToListenToMusic = sJewishDateInfo.isOKToListenToMusic();
         if (!isOKToListenToMusic.isEmpty()) {
             announcements.append(isOKToListenToMusic).append("\n");
@@ -1808,7 +1820,9 @@ public class MainActivity extends AppCompatActivity {
                     TextView textView = (TextView) view.findViewById(R.id.zman_in_list);
 
                     if (textView != null) {
-                        textView.setTextColor(mSharedPreferences.getInt("tColor", 0xFFFFFFFF));
+                        if (mSharedPreferences.getBoolean("customTextColor", false)) {
+                            textView.setTextColor(mSharedPreferences.getInt("tColor", 0xFFFFFFFF));
+                        }
                     }
 
                     return view;
