@@ -215,7 +215,7 @@
     <string name="have_questions">Have questions?</string>
     <string name="click_here_to_see_the_help_page">Click here to see the help page</string>
     <string name="debug">Debug</string>
-    <string name="choose_whether_or_not_to_display_the_current_elevation_level">Choose whether or not to display the current elevation level</string>
+    <string name="choose_whether_or_not_to_display_the_current_elevation_level">Choose whether or not to display the current elevation level in the daily view</string>
     <string name="show_elevation">Show elevation?</string>
     <string name="choose_whether_or_not_to_display_the_time_for_elevated_sunrise_that_is_used_for_calculating_the_zmanim">Choose whether or not to display the time for elevated sunrise that is used for calculating the zmanim</string>
     <string name="add_elevated_sunrise_zman">Add elevated sunrise zman?</string>

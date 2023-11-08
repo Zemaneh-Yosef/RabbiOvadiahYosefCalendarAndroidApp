@@ -38,6 +38,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/widget_next_zman"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -61,6 +62,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/widget_tachanun_daf"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_weight="1"

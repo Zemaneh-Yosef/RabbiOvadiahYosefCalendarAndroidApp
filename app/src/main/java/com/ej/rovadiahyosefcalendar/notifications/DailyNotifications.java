@@ -141,8 +141,7 @@ public class DailyNotifications extends BroadcastReceiver {
                 checkIfAmudeiHoraahTekufaIsToday(context, jewishDateInfo, cal);
             }
             if (tekufaOpinions.equals("3")) {
-                checkIfTekufaIsToday(context, jewishDateInfo, cal);
-                checkIfAmudeiHoraahTekufaIsToday(context, jewishDateInfo, cal);
+                checkIfBothTekufasAreOnToday(context, jewishDateInfo, cal);
             }
             updateAlarm(context, calendar, cal);
             startUpDailyZmanim(context, mSharedPreferences);//we need to start the zmanim service every day because there might be a person who will just want to see candle lighting time every week or once a year for pesach zmanim.
@@ -242,6 +241,33 @@ public class DailyNotifications extends BroadcastReceiver {
         tekufaCal.setTimeInMillis(tekufaDate.getTime());
         PendingIntent tekufaPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
                 0, new Intent(context.getApplicationContext(), AmudeiHoraahTekufaNotifications.class), PendingIntent.FLAG_IMMUTABLE);
+        am.cancel(tekufaPendingIntent);
+        am.set(AlarmManager.RTC_WAKEUP, tekufaCal.getTimeInMillis(), tekufaPendingIntent);
+    }
+
+    private void checkIfBothTekufasAreOnToday(Context context, JewishDateInfo jewishDateInfo, Calendar cal) {
+        cal.add(Calendar.DATE, 1);//start checking from tomorrow
+        jewishDateInfo.setCalendar(cal);
+        if (jewishDateInfo.getJewishCalendar().getTekufa() != null &&
+                DateUtils.isSameDay(new Date(), jewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())) {//if next hebrew day has tekufa today
+            setupCombinedTekufaNotification(context, cal, jewishDateInfo);
+        }
+
+        cal.add(Calendar.DATE, -1);
+        jewishDateInfo.setCalendar(cal);//reset
+        if (jewishDateInfo.getJewishCalendar().getTekufa() != null &&
+                DateUtils.isSameDay(new Date(), jewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())) {//if today hebrew has tekufa today
+            setupCombinedTekufaNotification(context, cal, jewishDateInfo);
+        }
+    }
+
+    private void setupCombinedTekufaNotification(Context context, Calendar cal, JewishDateInfo jewishDateInfo) {
+        Calendar tekufaCal = (Calendar) cal.clone();//clone to avoid changing the original calendar
+        AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
+        Date tekufaDate = DateUtils.addHours(jewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate(), -1);
+        tekufaCal.setTimeInMillis(tekufaDate.getTime());
+        PendingIntent tekufaPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
+                0, new Intent(context.getApplicationContext(), CombinedTekufaNotifications.class), PendingIntent.FLAG_IMMUTABLE);
         am.cancel(tekufaPendingIntent);
         am.set(AlarmManager.RTC_WAKEUP, tekufaCal.getTimeInMillis(), tekufaPendingIntent);
     }

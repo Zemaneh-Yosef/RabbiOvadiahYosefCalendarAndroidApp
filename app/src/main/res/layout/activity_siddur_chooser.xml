@@ -29,7 +29,7 @@
 
         <Button
             android:id="@+id/selichot"
-            android:layout_width="wrap_content"
+            android:layout_width="312dp"
             android:layout_height="wrap_content"
             android:text="@string/selichot"
             android:textStyle="bold"
@@ -39,7 +39,7 @@
         </Button>
         <Button
             android:id="@+id/shacharit"
-            android:layout_width="wrap_content"
+            android:layout_width="312dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
             android:text="@string/shacharit"
@@ -50,7 +50,7 @@
         </Button>
         <Button
             android:id="@+id/mussaf"
-            android:layout_width="wrap_content"
+            android:layout_width="312dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
             android:text="@string/mussaf"
@@ -61,7 +61,7 @@
         </Button>
         <Button
             android:id="@+id/mincha"
-            android:layout_width="wrap_content"
+            android:layout_width="312dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
             android:text="@string/mincha"
@@ -72,7 +72,7 @@
         </Button>
         <Button
             android:id="@+id/neilah"
-            android:layout_width="wrap_content"
+            android:layout_width="312dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
             android:text="@string/neilah"
@@ -83,7 +83,7 @@
         </Button>
         <Button
             android:id="@+id/arvit"
-            android:layout_width="wrap_content"
+            android:layout_width="312dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
             android:text="@string/arvit"

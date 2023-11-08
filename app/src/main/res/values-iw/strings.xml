@@ -32,11 +32,11 @@
 
     <string name="helper_text">ברוכים הבאים לאפליקציית לוח השנה של הרב עובדיה יוסף, אפליקציה זו נוצרה כדי לעזור לך לגלות את הזמנים המדויקים ביותר של היום על פי הרב עובדיה יוסף זצ"ל לעיר שלך! יש כמה דברים שכדאי לדעת לפני השימוש באפליקציה .1) הגדר גובה וזריחה גלויה למקום שבו אתה נמצא כעת. בשלב הראשון הזה, עליך לבחור את העיר שלך באופן אידיאלי ולהוריד את טבלאות הזריחה הנראות לעין. באמצעות ההגדרה הפשוטה, גם נתוני הגובה יורדו אוטומטית. טבלה זו מכילה את הזמנים המדויקים ביותר לזריחה של VISIBLE, וזהו האלגוריתם שבו משתמש לוח השנה של אור החיים בישראל. עם זאת, הטבלאות הללו נמשכות רק שנתיים לעתיד ויצטרכו להתעדכן מדי שנה. אם אינכם מעוניינים להשתמש בטבלאות אלו, תוכלו לבחור שלא להוריד אותן דרך התפריט המתקדם, והאפליקציה תשתמש במקום זאת באלגוריתם הרגיל לזריחה (ללא גובה כלול).2) יש כמה מנהגים שונים לבחירה בחלק ההגדרות של האפליקציה. הקפד לבחור את הנכונים עבור העיר/קהילה שלך. לדוגמה, ברירת המחדל של זמן הדלקת הנרות מוגדרת ל-20 דקות לפני השקיעה, ושעת סיום השבת כברירת מחדל מוגדרת ל-40 דקות לאחר השקיעה. אנא שנה את ההגדרות האלה למנהגים שלך.3) לבסוף, ניתן לכלול את הזמנים עם שניות, אל תסתמך על שניות אלו. הזמן היחיד שניתן לסמוך עליו על השני הוא זמן הזריחה הנראה על בסיס chaitables.com. אחרת, הזמנים האלה לא מדויקים עד השני! אתה תמיד צריך לעגל למעלה או למטה דקה או שתיים לכל מקרה .בנוסף לכל זה, ישנן תכונות שיגידו לך אוטומטית לעדכן את נתוני הגובה או את טבלאות הזריחה הנראות לעין. אם תעזוב את העיר שאליה אתה מגדיר את האפליקציה כעת, האפליקציה תבקש ממך להפעיל את ההגדרה שוב. הסיבה לתכונה זו היא כי הגובה ישתנה בהתאם לעיר בה אתה נמצא ותצטרך לעדכן אותה בכל פעם שתשנה ערים, אולם תכונה זו תידלק רק אם אתה משתמש בגובה.</string>
 
-    <string name="contact_header">צור קשר עם היזם</string>
+    <string name="contact_header">צור קשר עם המפתח</string>
 
     <string name="about">על אודות</string>
 
-    <string name="help">עֶזרָה</string>
+    <string name="help">עזרה על זמני יוסף</string>
 
     <string name="search_for_a_place">שינוי מקום</string>
 
@@ -380,19 +380,19 @@
 
     <string name="use_dark_calendar_icon">להשתמש בסמל לוח שנה כהה\?</string>
 
-    <string name="have_questions">יש שאלות\?</string>
+    <string name="have_questions">שירות לקוחות</string>
 
-    <string name="click_here_to_see_the_help_page">לחץ כאן כדי לראות את דף העזרה</string>
+    <string name="click_here_to_see_the_help_page">הדרכה ומידע על האפליקציה</string>
 
     <string name="debug">לנפות</string>
 
-    <string name="choose_whether_or_not_to_display_the_current_elevation_level">בחר אם להציג את רמת הגובה הנוכחית או לא</string>
+    <string name="choose_whether_or_not_to_display_the_current_elevation_level">בחר אם להציג את הגובה הנוכחי שלך בתצוגה היומית</string>
 
-    <string name="show_elevation">להראות גובה\?</string>
+    <string name="show_elevation">הצגת גובה</string>
 
-    <string name="choose_whether_or_not_to_display_the_time_for_elevated_sunrise_that_is_used_for_calculating_the_zmanim">בחר אם להציג או לא את הזמן לזריחה מוגבהת המשמשת לחישוב הזמנים</string>
+    <string name="choose_whether_or_not_to_display_the_time_for_elevated_sunrise_that_is_used_for_calculating_the_zmanim">בחר אם להציג את זמן הנץ לפי הגובה הנוכחי</string>
 
-    <string name="add_elevated_sunrise_zman">להוסיף זמן זריחה מוגבהת\?</string>
+    <string name="add_elevated_sunrise_zman">הצגת זמן זריחה מוגבהת</string>
 
     <string name="choose_whether_or_not_to_display_if_it_is_a_leap_year">בחר אם להציג אם זו שנה מעוברת</string>
 
@@ -402,9 +402,9 @@
 
     <string name="show_dst">להציג את שעון הקיץ\?</string>
 
-    <string name="always_show_tzeit_l_chumra">הראו תמיד \"צייט לחומרא\"</string>
+    <string name="always_show_tzeit_l_chumra">הראו תמיד \"צאת לחומרא\"</string>
 
-    <string name="always_show_tzeit_l_chumra_according_to_the_ohr_hachaim_calendar">הראו תמיד את \"צייט לחומרא\" לפי לוח \"אור החיים\".</string>
+    <string name="always_show_tzeit_l_chumra_according_to_the_ohr_hachaim_calendar">הראו תמיד את \"צאת לחומרא\" לפי לוח \"אור החיים\".</string>
 
     <string name="plag_hamincha_opinion">דעה לפלג המנחה</string>
 
@@ -503,7 +503,7 @@
     <string name="arvit">ערבית</string>
     <string name="neilah">נעילה</string>
     <string name="app_info">מידע על האפליקציה</string>
-    <string name="view_rabbinic_approbations_for_this_application">צפייה בהסכמות רבניות לאפליקציה זו.</string>
+    <string name="view_rabbinic_approbations_for_this_application">הסכמות של רבנים לאפליקציה</string>
     <string name="haskamot">הַסְכָּמוֹת</string>
     <string name="by_rav_elbaz">הַסְכָּמָה מֵאֵת הרב אלבז</string>
     <string name="haskamot_message">אנא בחר איזו הסכמה תרצה לראות</string>
@@ -543,8 +543,8 @@
     <string name="three_weeks_dialog">בזמן שלושת השבועות/תשעת הימים/שבוע שחל בו חוקים מסוימים:  שלושת השבועות:  אסור להאזין למוזיקה. מומלץ לדחות את ברכת שהחיינו (שהחיינו) למקום שבו ניתן. תשעת הימים:  אסור להאזין למוזיקה. מומלץ לדחות את ברכת שהחיינו (שהחיינו) למקום שבו ניתן. מומלץ לדחות כל פעולות בנייה. אסור לערוך חתונות. אסור לרכוש בגדים חדשים (אלא אם יש צורך גדול, לדוגמה: מבצע). אסור לצרוך בשר או יין (אכן בראש חודש ובשבת הם פוטרים). אסור ללבוש בגדים חדשים לגמרי. שבוע שחל בו שבוע שחל בו:  אסור להאזין למוזיקה. מומלץ לדחות את ברכת שהחיינו (שהחיינו) למקום שבו ניתן. אסור לערוך פעולות בנייה. אסור לערוך חתונות. אסור לרכוש בגדים חדשים (אלא אם יש צורך גדול, לדוגמה: מבצע). אסור לצרוך בשר או יין. אסור ללבוש בגדים חדשים לגמרי. אסור להסתפר או לגלח את הזקן (רק לגברים). אסור לשחות. אסור לרחוץ (במים חמים). אסור לכבס. אסור ללבוש בגדים שנכבסו פרט לבגדי תחתית.</string>
     <string name="netz_message">נץ (הזריחה) כבר עבר. מונה חדש יתחיל בשקיעה, או תוכל החלק את המסך כלפי מטה כדי להתחיל מחדש את הספירה עכשיו.</string>
     <string name="dismiss">שחרר</string>
-    <string name="manually_override_which_language_the_app_is_set_to">לשנות באופן ידני באיזו שפה האפליקציה מוגדרת</string>
-    <string name="manually_set_the_language_of_the_app">להגדיר באופן ידני את שפת האפליקציה</string>
+    <string name="manually_override_which_language_the_app_is_set_to"></string>
+    <string name="manually_set_the_language_of_the_app">שפת האפליקציה</string>
     <string name="restart_app">אנא אתחל את האפליקציה</string>
 
 </resources>

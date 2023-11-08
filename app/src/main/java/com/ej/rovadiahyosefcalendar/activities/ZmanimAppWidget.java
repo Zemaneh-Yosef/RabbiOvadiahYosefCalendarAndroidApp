@@ -15,6 +15,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.RemoteViews;
 
 import androidx.core.app.ActivityCompat;
@@ -95,13 +96,10 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         views.setTextViewText(R.id.tachanun, tachanun);
         views.setTextViewText(R.id.daf, dafYomi);
 
-//        if (!mSharedPreferences.getBoolean("widgetInitialized", false)) {
-//            views.setViewVisibility(R.id.zman, View.INVISIBLE);// initially hide the other views
-//            views.setViewVisibility(R.id.zman_time, View.INVISIBLE);
-//            views.setViewVisibility(R.id.tachanun, View.INVISIBLE);
-//            views.setViewVisibility(R.id.daf, View.INVISIBLE);
-//            mSharedPreferences.edit().putBoolean("widgetInitialized", true).apply();
-//        }
+        if (!mSharedPreferences.getBoolean("widgetInitialized", false)) {
+            views.setViewVisibility(R.id.widget_next_zman, View.GONE);// initially hide the other views
+            views.setViewVisibility(R.id.widget_tachanun_daf, View.GONE);
+        }
 
         Intent configIntent = new Intent(context, MainActivity.class);
         PendingIntent configPendingIntent = PendingIntent.getActivity(context, 0, configIntent, PendingIntent.FLAG_IMMUTABLE);
@@ -570,21 +568,18 @@ public class ZmanimAppWidget extends AppWidgetProvider {
             views = new RemoteViews(context.getPackageName(), R.layout.zmanim_app_widget);
         }
 
-        /*if (maxWidth >= 250 || maxHeight > maxWidth) {// if the widget is wide enough, show the zman
-            views.setViewVisibility(R.id.zman, View.VISIBLE);
-            views.setViewVisibility(R.id.zman_time, View.VISIBLE);
-            views.setViewVisibility(R.id.tachanun, View.INVISIBLE);
-            views.setViewVisibility(R.id.daf, View.INVISIBLE);
+        if (minWidth >= 250 || maxHeight > maxWidth) {// if the widget is wide enough, show the zman
+            views.setViewVisibility(R.id.widget_next_zman, View.VISIBLE);// initially hide the other views
+            views.setViewVisibility(R.id.widget_tachanun_daf, View.GONE);
         } else {
-            views.setViewVisibility(R.id.zman, View.INVISIBLE);
-            views.setViewVisibility(R.id.zman_time, View.INVISIBLE);
-            views.setViewVisibility(R.id.tachanun, View.INVISIBLE);
-            views.setViewVisibility(R.id.daf, View.INVISIBLE);
+            views.setViewVisibility(R.id.widget_next_zman, View.GONE);// initially hide the other views
+            views.setViewVisibility(R.id.widget_tachanun_daf, View.GONE);
+            mSharedPreferences.edit().putBoolean("widgetInitialized", true).apply();
         }
-        if (maxWidth >= 350 || maxHeight > maxWidth) {// if the widget is wide enough, show the daf as well
-            views.setViewVisibility(R.id.tachanun, View.VISIBLE);
-            views.setViewVisibility(R.id.daf, View.VISIBLE);
-        }*/
+        if (minWidth >= 350 || maxHeight > maxWidth) {// if the widget is wide enough, show the daf as well
+            views.setViewVisibility(R.id.widget_next_zman, View.VISIBLE);// initially hide the other views
+            views.setViewVisibility(R.id.widget_tachanun_daf, View.VISIBLE);
+        }
 
         mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         mSharedPreferences.edit().putInt("widgetMaxWidth", maxWidth).apply();
