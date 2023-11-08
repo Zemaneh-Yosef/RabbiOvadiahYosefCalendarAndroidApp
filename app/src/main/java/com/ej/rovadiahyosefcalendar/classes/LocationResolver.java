@@ -384,7 +384,17 @@ public class LocationResolver extends Thread {
 
     public void getRealtimeNotificationData() {
         if (ActivityCompat.checkSelfPermission(mContext, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(mActivity, new String[]{ACCESS_FINE_LOCATION}, 1);
+//            ActivityCompat.requestPermissions(mActivity, new String[]{ACCESS_FINE_LOCATION}, 1); We can't ask for permissions here
+            mLocationName = mSharedPreferences.getString("oldLocationName", "");
+            double oldLat = Double.longBitsToDouble(mSharedPreferences.getLong("oldLat", 0));
+            double oldLong = Double.longBitsToDouble(mSharedPreferences.getLong("oldLong", 0));
+
+            if (oldLat != 0 && oldLong != 0) {
+                mLatitude = oldLat;
+                mLongitude = oldLong;
+            }
+            setTimeZoneID();
+            return;
         } else {
             try {
                 LocationManager locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);

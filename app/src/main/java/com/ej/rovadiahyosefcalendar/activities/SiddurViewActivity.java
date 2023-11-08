@@ -1,7 +1,6 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sJewishDateInfo;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -15,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.classes.HighlightString;
+import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.SiddurAdapter;
 import com.ej.rovadiahyosefcalendar.classes.SiddurMaker;
 
@@ -28,32 +28,45 @@ public class SiddurViewActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        String siddurTitle = (String) Objects.requireNonNull(Objects.requireNonNull(getIntent().getExtras()).get("prayer"));
+        String siddurTitle = getIntent().getStringExtra("prayer");
         setContentView(R.layout.activity_siddur_view);
         sharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle((!siddurTitle.isEmpty() ? siddurTitle : getString(R.string.show_siddur)));
+            if (siddurTitle != null) {
+                actionBar.setTitle((!siddurTitle.isEmpty() ? siddurTitle : getString(R.string.show_siddur)));
+            }
         }
-        SiddurMaker siddurMaker = new SiddurMaker(sJewishDateInfo);
+
+        JewishDateInfo mJewishDateInfo = new JewishDateInfo(getSharedPreferences(SHARED_PREF, MODE_PRIVATE).getBoolean("inIsrael", false), true);
+        mJewishDateInfo.getJewishCalendar().setJewishDate(
+                getIntent().getIntExtra("JewishYear", 5700),
+                getIntent().getIntExtra("JewishMonth", 1),
+                getIntent().getIntExtra("JewishDay", 1)
+        );
+        mJewishDateInfo.setCalendar(mJewishDateInfo.getJewishCalendar().getGregorianCalendar());// not my best work
+
+        SiddurMaker siddurMaker = new SiddurMaker(mJewishDateInfo);
         ArrayList<HighlightString> prayers = new ArrayList<>();
-        switch (siddurTitle) {
-            case "סליחות":
-                prayers = siddurMaker.getSelichotPrayers(false);
-                break;
-            case "שחרית":
-                prayers = siddurMaker.getShacharitPrayers();
-                break;
-            case "מוסף":
-                prayers = siddurMaker.getMusafPrayers();
-                break;
-            case "מנחה":
-                prayers = siddurMaker.getMinchaPrayers();
-                break;
-            case "ערבית":
-                prayers = siddurMaker.getArvitPrayers();
-                break;
+        if (siddurTitle != null) {
+            switch (siddurTitle) {
+                case "סליחות":
+                    prayers = siddurMaker.getSelichotPrayers(false);
+                    break;
+                case "שחרית":
+                    prayers = siddurMaker.getShacharitPrayers();
+                    break;
+                case "מוסף":
+                    prayers = siddurMaker.getMusafPrayers();
+                    break;
+                case "מנחה":
+                    prayers = siddurMaker.getMinchaPrayers();
+                    break;
+                case "ערבית":
+                    prayers = siddurMaker.getArvitPrayers();
+                    break;
+            }
         }
         ListView siddur = findViewById(R.id.siddur);
         siddur.setAdapter(new SiddurAdapter(this, prayers, sharedPreferences.getInt("siddurTextSize", 20)));

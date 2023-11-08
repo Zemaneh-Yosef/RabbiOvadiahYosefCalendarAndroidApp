@@ -204,8 +204,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                             "Current Longitude: " + sLongitude + "\n" +
                             "Elevation: " +
                             (mSharedPreferences.getBoolean("useElevation", true) ?
-                                    mSharedPreferences.getString("elevation" + sCurrentLocationName, "0") :
-                                    "0")
+                                    mSharedPreferences.getString("elevation" + sCurrentLocationName, "0") : "0")
                             + " meters" + "\n" +
                             "Current Time Zone: " + sCurrentTimeZoneID;
                     dialogBuilder.setMessage(locationInfo);
@@ -291,7 +290,16 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 //                }
             }
             if (zmanim.get(position).getTitle().equals(context.getString(R.string.show_siddur))) {
-                context.startActivity(new Intent(context, SiddurChooserActivity.class));
+                JewishCalendar jewishCalendar = new JewishCalendar();
+                jewishCalendar.setDate(zmanim.get(position).getZman());
+                System.out.println(jewishCalendar.getJewishDayOfMonth());
+                System.out.println(jewishCalendar.getJewishMonth());
+                System.out.println(jewishCalendar.getJewishYear());
+                context.startActivity(new Intent(context, SiddurChooserActivity.class)
+                        .putExtra("JewishDay", jewishCalendar.getJewishDayOfMonth())
+                        .putExtra("JewishMonth", jewishCalendar.getJewishMonth())
+                        .putExtra("JewishYear", jewishCalendar.getJewishYear())
+                );
             }
         });
 

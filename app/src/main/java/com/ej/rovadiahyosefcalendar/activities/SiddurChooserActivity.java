@@ -1,7 +1,7 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
 import static android.text.Html.fromHtml;
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sJewishDateInfo;
+import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,11 +18,14 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.ej.rovadiahyosefcalendar.R;
+import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
 import java.util.Locale;
 
 public class SiddurChooserActivity extends AppCompatActivity {
+
+    private JewishDateInfo mJewishDateInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,37 +37,41 @@ public class SiddurChooserActivity extends AppCompatActivity {
             actionBar.setTitle(getString(R.string.show_siddur));
         }
 
+        mJewishDateInfo = new JewishDateInfo(getSharedPreferences(SHARED_PREF, MODE_PRIVATE).getBoolean("inIsrael", false), true);
+        mJewishDateInfo.getJewishCalendar().setJewishDate(
+                getIntent().getIntExtra("JewishYear", 5700),
+                getIntent().getIntExtra("JewishMonth", 1),
+                getIntent().getIntExtra("JewishDay", 1)
+        );
+        mJewishDateInfo.setCalendar(mJewishDateInfo.getJewishCalendar().getGregorianCalendar());// not my best work
+
         TextView specialDay = findViewById(R.id.jewish_special_day);
-        specialDay.setText(sJewishDateInfo.getSpecialDay(false));
+        specialDay.setText(mJewishDateInfo.getSpecialDay(false));
         if (specialDay.getText().toString().isEmpty()) {
             specialDay.setVisibility(View.GONE);
         }
 
         Button selichot = findViewById(R.id.selichot);
-        if (sJewishDateInfo.isSelichotSaid()) {
+        if (mJewishDateInfo.isSelichotSaid()) {
             selichot.setVisibility(View.VISIBLE);
         } else {
             selichot.setVisibility(View.GONE);
         }
-        selichot.setOnClickListener(v -> startActivity(new Intent(this, SiddurViewActivity.class)
-                .putExtra("prayer", getString(R.string.selichot))));
+        selichot.setOnClickListener(v -> startSiddurActivity(getString(R.string.selichot)));
 
         Button shacharit = findViewById(R.id.shacharit);
-        shacharit.setOnClickListener(v -> startActivity(new Intent(this, SiddurViewActivity.class)
-                .putExtra("prayer", getString(R.string.shacharit))));
+        shacharit.setOnClickListener(v -> startSiddurActivity(getString(R.string.shacharit)));
 
         Button mussaf = findViewById(R.id.mussaf);
-        if (!(sJewishDateInfo.getJewishCalendar().isRoshChodesh()
-                || sJewishDateInfo.getJewishCalendar().isCholHamoed())) {
+        if (!(mJewishDateInfo.getJewishCalendar().isRoshChodesh()
+                || mJewishDateInfo.getJewishCalendar().isCholHamoed())) {
             mussaf.setVisibility(View.GONE);
         } else {
-            mussaf.setOnClickListener(v -> startActivity(new Intent(this, SiddurViewActivity.class)
-                    .putExtra("prayer", getString(R.string.mussaf))));
+            mussaf.setOnClickListener(v -> startSiddurActivity(getString(R.string.mussaf)));
         }
 
         Button mincha = findViewById(R.id.mincha);
-        mincha.setOnClickListener(v -> startActivity(new Intent(this, SiddurViewActivity.class)
-                .putExtra("prayer", getString(R.string.mincha))));
+        mincha.setOnClickListener(v -> startSiddurActivity(getString(R.string.mincha)));
 
         Button neilah = findViewById(R.id.neilah);
         //if (!sJewishDateInfo.getJewishCalendar().isYomKippur()) {
@@ -72,19 +79,18 @@ public class SiddurChooserActivity extends AppCompatActivity {
         //}
 
         Button arvit = findViewById(R.id.arvit);
-        arvit.setOnClickListener(v -> startActivity(new Intent(this, SiddurViewActivity.class)
-                .putExtra("prayer", getString(R.string.arvit))));
+        arvit.setOnClickListener(v -> startSiddurActivity(getString(R.string.arvit)));
 
         TextView disclaimer = findViewById(R.id.siddur_disclaimer);
         disclaimer.setGravity(Gravity.CENTER);
         disclaimer.setClickable(true);
         disclaimer.setMovementMethod(LinkMovementMethod.getInstance());
-        if (sJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM) {
+        if (mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM) {
             disclaimer.setVisibility(View.VISIBLE);
             disclaimer.setText(getString(R.string.purim_disclaimer));
         }
 
-        if (sJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.TU_BESHVAT) {
+        if (mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.TU_BESHVAT) {
             disclaimer.setVisibility(View.VISIBLE);
             String text = "";
             if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
@@ -96,6 +102,14 @@ public class SiddurChooserActivity extends AppCompatActivity {
         }
     }
 
+    private void startSiddurActivity(String prayer) {
+        startActivity(new Intent(this, SiddurViewActivity.class)
+                .putExtra("prayer", prayer)
+                .putExtra("JewishDay", mJewishDateInfo.getJewishCalendar().getJewishDayOfMonth())
+                .putExtra("JewishMonth", mJewishDateInfo.getJewishCalendar().getJewishMonth())
+                .putExtra("JewishYear", mJewishDateInfo.getJewishCalendar().getJewishYear())
+        );
+    }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
