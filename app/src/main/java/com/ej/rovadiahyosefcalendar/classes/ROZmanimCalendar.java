@@ -563,4 +563,16 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         return riseSetToTwilight / shaahZmanis;
     }
 
+    @Override
+    public Date getMinchaGedolaGreaterThan30() {
+        Date minchaGedola30 = getTimeOffset(getChatzot(), MILLISECONDS_PER_MINUTE * 30);
+        Date minchaGedola = getMinchaGedola();
+
+        if (minchaGedola30 == null || minchaGedola == null) {
+            return null;
+        } else {
+            return minchaGedola30.compareTo(minchaGedola) > 0 ? minchaGedola30
+                    : minchaGedola;
+        }
+    }
 }
