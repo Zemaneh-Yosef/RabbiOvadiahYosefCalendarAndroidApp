@@ -33,17 +33,19 @@ public class SiddurAdapter extends ArrayAdapter<String> {
 
     private final Context context;
     private final ArrayList<HighlightString> siddur;
+    private final JewishDateInfo jewishDateInfo;
     private int textSize;
     private float[] gravity = new float[3];
     private float[] geomagnetic = new float[3];
     private float azimuth;
     private float currentDegree = 0f;
 
-    public SiddurAdapter(Context context, ArrayList<HighlightString> siddur, int textSize) {
+    public SiddurAdapter(Context context, ArrayList<HighlightString> siddur, int textSize, JewishDateInfo jewishDateInfo) {
         super(context, 0);
         this.context = context;
         this.siddur = siddur;
         this.textSize = textSize;
+        this.jewishDateInfo = jewishDateInfo;
     }
 
     public void setTextSize(int size) {
@@ -101,7 +103,11 @@ public class SiddurAdapter extends ArrayAdapter<String> {
             if (siddur.get(position).toString().equals("Mussaf is said here, press here to go to Mussaf")
             || siddur.get(position).toString().equals("מוסף אומרים כאן, לחץ כאן כדי להמשיך למוסף")) {
                 context.startActivity(new Intent(context, SiddurViewActivity.class)
-                        .putExtra("prayer", "מוסף"));
+                        .putExtra("prayer", "מוסף")
+                        .putExtra("JewishDay", jewishDateInfo.getJewishCalendar().getJewishDayOfMonth())
+                        .putExtra("JewishMonth", jewishDateInfo.getJewishCalendar().getJewishMonth())
+                        .putExtra("JewishYear", jewishDateInfo.getJewishCalendar().getJewishYear())
+                );
             }
         });
         viewHolder.textView.setTextIsSelectable(false);

@@ -292,9 +292,6 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             if (zmanim.get(position).getTitle().equals(context.getString(R.string.show_siddur))) {
                 JewishCalendar jewishCalendar = new JewishCalendar();
                 jewishCalendar.setDate(zmanim.get(position).getZman());
-                System.out.println(jewishCalendar.getJewishDayOfMonth());
-                System.out.println(jewishCalendar.getJewishMonth());
-                System.out.println(jewishCalendar.getJewishYear());
                 context.startActivity(new Intent(context, SiddurChooserActivity.class)
                         .putExtra("JewishDay", jewishCalendar.getJewishDayOfMonth())
                         .putExtra("JewishMonth", jewishCalendar.getJewishMonth())

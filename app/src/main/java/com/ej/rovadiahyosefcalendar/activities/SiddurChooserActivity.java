@@ -39,9 +39,9 @@ public class SiddurChooserActivity extends AppCompatActivity {
 
         mJewishDateInfo = new JewishDateInfo(getSharedPreferences(SHARED_PREF, MODE_PRIVATE).getBoolean("inIsrael", false), true);
         mJewishDateInfo.getJewishCalendar().setJewishDate(
-                getIntent().getIntExtra("JewishYear", 5700),
-                getIntent().getIntExtra("JewishMonth", 1),
-                getIntent().getIntExtra("JewishDay", 1)
+                getIntent().getIntExtra("JewishYear", mJewishDateInfo.getJewishCalendar().getJewishYear()),
+                getIntent().getIntExtra("JewishMonth", mJewishDateInfo.getJewishCalendar().getJewishMonth()),
+                getIntent().getIntExtra("JewishDay", mJewishDateInfo.getJewishCalendar().getJewishDayOfMonth())
         );
         mJewishDateInfo.setCalendar(mJewishDateInfo.getJewishCalendar().getGregorianCalendar());// not my best work
 

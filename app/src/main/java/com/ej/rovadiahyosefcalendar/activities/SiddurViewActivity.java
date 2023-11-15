@@ -41,9 +41,9 @@ public class SiddurViewActivity extends AppCompatActivity {
 
         JewishDateInfo mJewishDateInfo = new JewishDateInfo(getSharedPreferences(SHARED_PREF, MODE_PRIVATE).getBoolean("inIsrael", false), true);
         mJewishDateInfo.getJewishCalendar().setJewishDate(
-                getIntent().getIntExtra("JewishYear", 5700),
-                getIntent().getIntExtra("JewishMonth", 1),
-                getIntent().getIntExtra("JewishDay", 1)
+                getIntent().getIntExtra("JewishYear", mJewishDateInfo.getJewishCalendar().getJewishYear()),
+                getIntent().getIntExtra("JewishMonth", mJewishDateInfo.getJewishCalendar().getJewishMonth()),
+                getIntent().getIntExtra("JewishDay", mJewishDateInfo.getJewishCalendar().getJewishDayOfMonth())
         );
         mJewishDateInfo.setCalendar(mJewishDateInfo.getJewishCalendar().getGregorianCalendar());// not my best work
 
@@ -69,7 +69,7 @@ public class SiddurViewActivity extends AppCompatActivity {
             }
         }
         ListView siddur = findViewById(R.id.siddur);
-        siddur.setAdapter(new SiddurAdapter(this, prayers, sharedPreferences.getInt("siddurTextSize", 20)));
+        siddur.setAdapter(new SiddurAdapter(this, prayers, sharedPreferences.getInt("siddurTextSize", 20), mJewishDateInfo));
         siddur.setDivider(null);
 
         SeekBar seekBar = findViewById(R.id.siddur_seekBar);
