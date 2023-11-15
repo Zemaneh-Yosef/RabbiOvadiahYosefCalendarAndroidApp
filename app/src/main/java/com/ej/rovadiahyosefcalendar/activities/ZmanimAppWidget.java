@@ -72,7 +72,7 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         }
         sZmanimFormat.setTimeZone(mROZmanimCalendar.getCalendar().getTimeZone());
 
-        String jewishDate = mJewishDateInfo.getJewishCalendar().getJewishDayOfMonth() + " " + new HebrewDateFormatter().formatMonth(mJewishDateInfo.getJewishCalendar());
+        String jewishDate = mJewishDateInfo.getJewishDate();
         String parsha = mJewishDateInfo.getThisWeeksParsha();
         ZmanListEntry nextUpcomingZman = getNextUpcomingZman();
         String zman = nextUpcomingZman.getTitle();
