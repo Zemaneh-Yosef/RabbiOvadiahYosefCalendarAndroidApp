@@ -27,6 +27,7 @@ import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
 import com.ej.rovadiahyosefcalendar.classes.ZmanListEntry;
 import com.ej.rovadiahyosefcalendar.classes.ZmanimNames;
+import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.util.GeoLocation;
 
@@ -71,7 +72,7 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         }
         sZmanimFormat.setTimeZone(mROZmanimCalendar.getCalendar().getTimeZone());
 
-        String jewishDate = mJewishDateInfo.getJewishDate();
+        String jewishDate = mJewishDateInfo.getJewishCalendar().getJewishDayOfMonth() + " " + new HebrewDateFormatter().formatMonth(mJewishDateInfo.getJewishCalendar());
         String parsha = mJewishDateInfo.getThisWeeksParsha();
         ZmanListEntry nextUpcomingZman = getNextUpcomingZman();
         String zman = nextUpcomingZman.getTitle();

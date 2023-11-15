@@ -1168,6 +1168,7 @@ public class MainActivity extends AppCompatActivity {
             sShabbatMode = true;
             setShabbatBannerColors(true);
             mShabbatModeBanner.setVisibility(View.VISIBLE);
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             WindowManager windowManager =  (WindowManager) getSystemService(Context.WINDOW_SERVICE);
             Configuration configuration = getResources().getConfiguration();
             int rotation = windowManager.getDefaultDisplay().getRotation();
