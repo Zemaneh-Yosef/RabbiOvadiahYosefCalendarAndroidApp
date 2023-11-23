@@ -636,8 +636,10 @@ public class MainActivity extends AppCompatActivity {
                 TimeZone.getTimeZone(sCurrentTimeZoneID)));
         mROZmanimCalendar.setExternalFilesDir(getExternalFilesDir(null));
         mROZmanimCalendar.setCandleLightingOffset(Double.parseDouble(mSettingsPreferences.getString("CandleLightingOffset", "20")));
-        mROZmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(mSettingsPreferences.getString("EndOfShabbatOffset",
-                mSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40")));
+        mROZmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(mSettingsPreferences.getString("EndOfShabbatOffset", mSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40")));
+        if (mSharedPreferences.getBoolean("inIsrael", false)) {
+            mROZmanimCalendar.setAteretTorahSunsetOffset(30);
+        }
     }
 
     private void setupRecyclerViewAndTextViews() {
@@ -1813,7 +1815,7 @@ public class MainActivity extends AppCompatActivity {
                 public View getView(int position, View convertView, @NonNull ViewGroup parent) {
                     View view = super.getView(position, convertView, parent);
 
-                    TextView textView = (TextView) view.findViewById(R.id.zman_in_list);
+                    TextView textView = view.findViewById(R.id.zman_in_list);
 
                     if (textView != null) {
                         if (mSharedPreferences.getBoolean("customTextColor", false)) {
@@ -1998,9 +2000,9 @@ public class MainActivity extends AppCompatActivity {
                     }
                 } else {
                     if (!Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
-                        shortZmanim[zmanim.indexOf(zman)] = zmanimFormat.format(zman.getZman()) + " : " + zman.getTitle().replace("סוף זמן", "");
+                        shortZmanim[zmanim.indexOf(zman)] = zmanimFormat.format(zman.getZman()) + " : " + zman.getTitle().replace("סוף זמן ", "");
                     } else {
-                        shortZmanim[zmanim.indexOf(zman)] = zman.getTitle().replace("סוף זמן", "") + " : " + zmanimFormat.format(zman.getZman());
+                        shortZmanim[zmanim.indexOf(zman)] = zman.getTitle().replace("סוף זמן ", "") + " : " + zmanimFormat.format(zman.getZman());
                     }
                 }
                 if (zman.getZman().equals(sNextUpcomingZman)) {
@@ -2111,7 +2113,7 @@ public class MainActivity extends AppCompatActivity {
                     if (stringSet != null) {
                         if (stringSet.contains("Show Regular Minutes")) {
                             ZmanListEntry endShabbat;
-                            if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("1")) {
+                            if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("1") || mSharedPreferences.getBoolean("inIsrael", false)) {
                                 endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag() + zmanimNames.getEndsString()
                                         + " (" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")" + zmanimNames.getMacharString(), mROZmanimCalendar.getTzaisAteretTorah(), true);
                             } else if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("2")) {
@@ -2153,7 +2155,7 @@ public class MainActivity extends AppCompatActivity {
             if (mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) != Calendar.FRIDAY) {
                 if (mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {//When today is Shabbat
                     ZmanListEntry endShabbat;
-                    if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("1")) {
+                    if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("1") || mSharedPreferences.getBoolean("inIsrael", false)) {
                         endShabbat = new ZmanListEntry(zmanimNames.getCandleLightingString(), mROZmanimCalendar.getTzaisAteretTorah(), true);
                     } else if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("2")) {
                         endShabbat = new ZmanListEntry(zmanimNames.getCandleLightingString(), mROZmanimCalendar.getTzaitShabbatAmudeiHoraah(), true);
@@ -2182,7 +2184,7 @@ public class MainActivity extends AppCompatActivity {
         }
         if (mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting()) {
             ZmanListEntry endShabbat;
-            if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("1")) {
+            if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("1") || mSharedPreferences.getBoolean("inIsrael", false)) {
                 endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag() + zmanimNames.getEndsString()
                         + " (" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")", mROZmanimCalendar.getTzaisAteretTorah(), true);
             } else if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("2")) {

@@ -77,6 +77,7 @@ public class SiddurAdapter extends ArrayAdapter<String> {
             viewHolder = new ViewHolder();
             viewHolder.textView = convertView.findViewById(R.id.textView);
             viewHolder.imageView = convertView.findViewById(R.id.imageView);
+            viewHolder.line = convertView.findViewById(R.id.line);
             convertView.setTag(viewHolder);
             viewHolder.defaultTextColor = viewHolder.textView.getCurrentTextColor();
         } else {
@@ -93,6 +94,14 @@ public class SiddurAdapter extends ArrayAdapter<String> {
         } else {
             convertView.setBackgroundColor(Color.TRANSPARENT);
             viewHolder.textView.setTextColor(viewHolder.defaultTextColor);
+        }
+
+        if (siddur.get(position).toString().equals("[break here]")) {
+            viewHolder.textView.setVisibility(View.GONE);
+            viewHolder.line.setVisibility(View.VISIBLE);
+        } else {
+            viewHolder.textView.setVisibility(View.VISIBLE);
+            viewHolder.line.setVisibility(View.GONE);
         }
 
         viewHolder.textView.setOnClickListener(l -> {
@@ -221,6 +230,7 @@ public class SiddurAdapter extends ArrayAdapter<String> {
     static class ViewHolder {
         TextView textView;
         ImageView imageView;
+        View line;
         int defaultTextColor; // Store the default color
     }
 }
