@@ -5,6 +5,7 @@ import static android.content.Context.ALARM_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.OmerActivity.omerList;
 
 import android.app.Activity;
 import android.app.AlarmManager;
@@ -28,14 +29,18 @@ import androidx.core.app.NotificationCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.MainActivity;
+import com.ej.rovadiahyosefcalendar.activities.OmerActivity;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.TefilaRules;
 import com.kosherjava.zmanim.util.GeoLocation;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -48,10 +53,10 @@ public class OmerNotifications extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
-        JewishDateInfo jewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael",false), true);
+        JewishDateInfo jewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false), true);
         mLocationResolver = new LocationResolver(context, new Activity());
 
-        if (mSharedPreferences.getBoolean("isSetup",false)) {
+        if (mSharedPreferences.getBoolean("isSetup", false)) {
             ROZmanimCalendar c = getROZmanimCalendar(context);
 
             int day = jewishDateInfo.getJewishCalendar().getDayOfOmer();
@@ -80,11 +85,11 @@ public class OmerNotifications extends BroadcastReceiver {
                     notificationManager.createNotificationChannel(channel);
                 }
 
-                Intent notificationIntent = new Intent(context, MainActivity.class);
+                Intent notificationIntent = new Intent(context, OmerActivity.class).putExtra("omerDay", day);
                 notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
                 PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,
-                        notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
+                        notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
                 Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
@@ -95,55 +100,26 @@ public class OmerNotifications extends BroadcastReceiver {
                 // Do not reset to the previous day, because Barech Aleinu checks for tomorrow
 
                 if (!mSharedPreferences.getString("lastKnownDayOmer", "").equals(jewishDateInfo.getJewishCalendar().toString())) {//We only want 1 notification a day.
-                    if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {//TODO change strings to siddur
-                        NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "Omer")
-                                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
-                                .setSmallIcon(R.drawable.omer_wheat)
-                                .setContentTitle("יום בעומר")
-                                .setContentText("Tonight is the " +
-                                        (getOrdinal(day + 1)) +
-                                        " day of the omer.")
-                                .setStyle(new NotificationCompat
-                                        .BigTextStyle()
-                                        .setBigContentTitle(nextJewishDay)
-                                        .setSummaryText("Don't forget to count!")
-                                        .bigText("Tonight is the " +
-                                                (getOrdinal(day + 1)) +
-                                                " day of the omer."))
-                                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                                .setCategory(NotificationCompat.CATEGORY_REMINDER)
-                                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                                .setSound(alarmSound)
-                                .setColor(context.getColor(R.color.dark_gold))
-                                .setAutoCancel(true)
-                                .setWhen(when)
-                                .setContentIntent(pendingIntent);
-                        notificationManager.notify(MID, mNotifyBuilder.build());
-                    } else {
-                        NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "Omer")
-                                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
-                                .setSmallIcon(R.drawable.omer_wheat)
-                                .setContentTitle("Day of Omer")
-                                .setContentText("Tonight is the " +
-                                        (getOrdinal(day + 1)) +
-                                        " day of the omer.")
-                                .setStyle(new NotificationCompat
-                                        .BigTextStyle()
-                                        .setBigContentTitle(nextJewishDay)
-                                        .setSummaryText("Don't forget to count!")
-                                        .bigText("Tonight is the " +
-                                                (getOrdinal(day + 1)) +
-                                                " day of the omer."))
-                                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                                .setCategory(NotificationCompat.CATEGORY_REMINDER)
-                                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                                .setSound(alarmSound)
-                                .setColor(context.getColor(R.color.dark_gold))
-                                .setAutoCancel(true)
-                                .setWhen(when)
-                                .setContentIntent(pendingIntent);
-                        notificationManager.notify(MID, mNotifyBuilder.build());
-                    }
+                    NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "Omer")
+                            .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
+                            .setSmallIcon(R.drawable.omer_wheat)
+                            .setContentTitle(Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew") ? "יום בעומר" : "Day of Omer")
+                            .setContentText(omerList.get(day))
+                            .setStyle(new NotificationCompat
+                                    .BigTextStyle()
+                                    .setBigContentTitle(nextJewishDay)
+                                    .setSummaryText(Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew") ? "אל תשכח לספור!" : "Don't forget to count!")
+                                    .bigText("בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם, אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ עַל סְפִירַת הָעֹמֶר:" + "\n\n" + omerList.get(day) + "\n\nהָרַחֲמָן הוּא יַחֲזִיר עֲבוֹדַת בֵּית הַמִּקְדָּשׁ לִמְקוֹמָהּ בִּמְהֵרָה בְיָמֵינוּ אָמֵן:"))
+                            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                            .setCategory(NotificationCompat.CATEGORY_REMINDER)
+                            .setPriority(NotificationCompat.PRIORITY_HIGH)
+                            .setSound(alarmSound)
+                            .setColor(context.getColor(R.color.dark_gold))
+                            .setAutoCancel(true)
+                            .setWhen(when)
+                            .setContentIntent(pendingIntent)
+                            .addAction(new NotificationCompat.Action(0, context.getString(R.string.see_full_text), pendingIntent));
+                    notificationManager.notify(MID, mNotifyBuilder.build());
                     MID++;
                     mSharedPreferences.edit().putString("lastKnownDayOmer", jewishDateInfo.getJewishCalendar().toString()).apply();
                 }
@@ -271,17 +247,5 @@ public class OmerNotifications extends BroadcastReceiver {
                 0, new Intent(context.getApplicationContext(), OmerNotifications.class), PendingIntent.FLAG_IMMUTABLE);
         am.cancel(omerPendingIntent);
         am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), omerPendingIntent);
-    }
-
-    private String getOrdinal(int i) {
-        String[] suffixes = new String[] { "th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th" };
-        switch (i % 100) {
-            case 11:
-            case 12:
-            case 13:
-                return i + "th";
-            default:
-                return i + suffixes[i % 10];
-        }
     }
 }

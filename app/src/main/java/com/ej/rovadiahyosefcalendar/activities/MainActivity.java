@@ -637,7 +637,7 @@ public class MainActivity extends AppCompatActivity {
         mROZmanimCalendar.setExternalFilesDir(getExternalFilesDir(null));
         mROZmanimCalendar.setCandleLightingOffset(Double.parseDouble(mSettingsPreferences.getString("CandleLightingOffset", "20")));
         mROZmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(mSettingsPreferences.getString("EndOfShabbatOffset", mSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40")));
-        if (mSharedPreferences.getBoolean("inIsrael", false)) {
+        if (mSharedPreferences.getBoolean("inIsrael", false) && mSettingsPreferences.getString("EndOfShabbatOffset", "40").equals("40")) {
             mROZmanimCalendar.setAteretTorahSunsetOffset(30);
         }
     }
@@ -990,10 +990,10 @@ public class MainActivity extends AppCompatActivity {
         }
         mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false), true);
         mJewishDateInfo.setCalendar(mCurrentDateShown);
-        setNextUpcomingZman();
         setZmanimLanguageBools();
         instantiateZmanimCalendar();
         mROZmanimCalendar.setCalendar(mCurrentDateShown);
+        setNextUpcomingZman();
         if (mSharedPreferences.getBoolean("weeklyMode", false)) {
             updateWeeklyTextViewTextColor();
             updateWeeklyZmanim();
@@ -2413,7 +2413,6 @@ public class MainActivity extends AppCompatActivity {
     /**
      * This method will check if the tekufa happens within the next 48 hours and it will add the tekufa to the list passed in if it happens
      * on the current date.
-     * TODO : Fix timezone issues with tekufa. If you try to see when the tekufa is in a different timezone, it will sometimes not work because the Dates are not the same.
      * @param zmanim the list of zmanim to add to
      * @param shortStyle if the tekufa should be added as "Tekufa Nissan : 4:30" or "Tekufa Nissan is today at 4:30"
      */
@@ -2428,46 +2427,64 @@ public class MainActivity extends AppCompatActivity {
         mROZmanimCalendar.getCalendar().add(Calendar.DATE,1);//check next day for tekufa, because the tekufa time can go back a day
         mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
         mROZmanimCalendar.getCalendar().add(Calendar.DATE,-1);//reset the calendar
-        if (mJewishDateInfo.getJewishCalendar().getTekufa() != null &&
-                DateUtils.isSameDay(mROZmanimCalendar.getCalendar().getTime(), mJewishDateInfo.getJewishCalendar().getTekufaAsDate())) {
-            if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
-                if (shortStyle) {
-                    zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
-                            zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
+        if (mJewishDateInfo.getJewishCalendar().getTekufa() != null) {
+
+            final Calendar cal1 = (Calendar) mROZmanimCalendar.getCalendar().clone();
+            final Calendar cal2 = (Calendar) mROZmanimCalendar.getCalendar().clone();
+            cal2.setTime(mJewishDateInfo.getJewishCalendar().getTekufaAsDate());// should not be null in this if block
+
+            if (cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA) &&
+                    cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+                    cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
+
+                if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                    if (shortStyle) {
+                        zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
+                                zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
+                    } else {
+                        zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() +
+                                " היום בשעה " + zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
+                    }
                 } else {
-                    zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() +
-                            " היום בשעה " + zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
-                }
-            } else {
-                if (shortStyle) {
-                    zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
-                            zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
-                } else {
-                    zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " is today at " +
-                            zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
+                    if (shortStyle) {
+                        zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
+                                zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
+                    } else {
+                        zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " is today at " +
+                                zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
+                    }
                 }
             }
         }
         mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());//reset
 
         //else the tekufa time is on the same day as the current date, so we can add it normally
-        if (mJewishDateInfo.getJewishCalendar().getTekufa() != null &&
-                DateUtils.isSameDay(mROZmanimCalendar.getCalendar().getTime(), mJewishDateInfo.getJewishCalendar().getTekufaAsDate())) {
-            if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
-                if (shortStyle) {
-                    zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
-                            zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
+        if (mJewishDateInfo.getJewishCalendar().getTekufa() != null) {
+
+            final Calendar cal1 = (Calendar) mROZmanimCalendar.getCalendar().clone();
+            final Calendar cal2 = (Calendar) mROZmanimCalendar.getCalendar().clone();
+            cal2.setTime(mJewishDateInfo.getJewishCalendar().getTekufaAsDate());// should not be null in this if block
+
+            if (cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA) &&
+                    cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+                    cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
+
+                if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                    if (shortStyle) {
+                        zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
+                                zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
+                    } else {
+                        zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() +
+                                " היום בשעה " + zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
+                    }
                 } else {
-                    zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() +
-                            " היום בשעה " + zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
-                }
-            } else {
-                if (shortStyle) {
-                    zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
-                            zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
-                } else {
-                    zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " is today at " +
-                            zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
+                    if (shortStyle) {
+                        zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
+                                zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
+                    } else {
+                        zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " is today at " +
+                                zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
+                    }
                 }
             }
         }
@@ -2476,61 +2493,79 @@ public class MainActivity extends AppCompatActivity {
     /**
      * This method will check if the tekufa happens within the next 48 hours and it will add the tekufa to the list passed in if it happens
      * on the current date.
-     * TODO : Fix timezone issues with tekufa. If you try to see when the tekufa is in a different timezone, it will sometimes not work because the Dates are not the same.
      * @param zmanim the list of zmanim to add to
      * @param shortStyle if the tekufa should be added as "Tekufa Nissan : 4:30" or "Tekufa Nissan is today at 4:30"
      */
     private void addAmudeiHoraahTekufaTime(List<ZmanListEntry> zmanim, boolean shortStyle) {
         DateFormat zmanimFormat;
-        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+        if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
             zmanimFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
         } else {
             zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
         }
         zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
-        mROZmanimCalendar.getCalendar().add(Calendar.DATE,1);//check next day for tekufa, because the tekufa time can go back a day
+        mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);//check next day for tekufa, because the tekufa time can go back a day
         mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
-        mROZmanimCalendar.getCalendar().add(Calendar.DATE,-1);//reset the calendar
-        if (mJewishDateInfo.getJewishCalendar().getTekufa() != null &&
-                DateUtils.isSameDay(mROZmanimCalendar.getCalendar().getTime(), mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())) {
-            if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
-                if (shortStyle) {
-                    zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
-                            zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
+        mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);//reset the calendar
+
+        if (mJewishDateInfo.getJewishCalendar().getTekufa() != null) {
+
+            final Calendar cal1 = (Calendar) mROZmanimCalendar.getCalendar().clone();
+            final Calendar cal2 = (Calendar) mROZmanimCalendar.getCalendar().clone();
+            cal2.setTime(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate());// should not be null in this if block
+
+            if (cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA) &&
+                    cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+                    cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
+
+                if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                    if (shortStyle) {
+                        zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
+                                zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
+                    } else {
+                        zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() +
+                                " היום בשעה " + zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
+                    }
                 } else {
-                    zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() +
-                            " היום בשעה " + zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
-                }
-            } else {
-                if (shortStyle) {
-                    zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
-                            zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
-                } else {
-                    zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " is today at " +
-                            zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
+                    if (shortStyle) {
+                        zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
+                                zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
+                    } else {
+                        zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " is today at " +
+                                zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
+                    }
                 }
             }
         }
         mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());//reset
 
         //else the tekufa time is on the same day as the current date, so we can add it normally
-        if (mJewishDateInfo.getJewishCalendar().getTekufa() != null &&
-                DateUtils.isSameDay(mROZmanimCalendar.getCalendar().getTime(), mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())) {
-            if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
-                if (shortStyle) {
-                    zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
-                            zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
+        if (mJewishDateInfo.getJewishCalendar().getTekufa() != null) {
+
+            final Calendar cal1 = (Calendar) mROZmanimCalendar.getCalendar().clone();
+            final Calendar cal2 = (Calendar) mROZmanimCalendar.getCalendar().clone();
+            cal2.setTime(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate());// should not be null in this if block
+
+            if (cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA) &&
+                    cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+                    cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
+
+                if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                    if (shortStyle) {
+                        zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
+                                zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
+                    } else {
+                        zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() +
+                                " היום בשעה " + zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
+                    }
                 } else {
-                    zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() +
-                            " היום בשעה " + zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
-                }
-            } else {
-                if (shortStyle) {
-                    zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
-                            zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
-                } else {
-                    zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " is today at " +
-                            zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
+                    if (shortStyle) {
+                        zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
+                                zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
+                    } else {
+                        zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " is today at " +
+                                zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
+                    }
                 }
             }
         }

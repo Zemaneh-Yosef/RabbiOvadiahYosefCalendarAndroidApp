@@ -112,7 +112,39 @@ import java.util.GregorianCalendar;
  * <br>
  * {@link #getSunset()}
  * <br>
- * {@link #getTzeit()}
+ * {@link #getTzeit()} Not in KosherJava as of now since it is a very early zman for Tzeit and
+ * Eliyahu Hershfeld is concerned about how people will use the method.
+ * <br>
+ * {@link #getTzaisAteretTorah()} is used for the end time for Shabbat/Yom Tov. The method
+ * {@link #setAteretTorahSunsetOffset(double)} is used to set the time to 30 minutes after sunset in
+ * Israel and outside of Israel (as instructed by Rabbi Meir Gavriel Elbaz) the time is set to
+ * 40 minutes (which it is set to by default)
+ * <br>
+ * {@link #getTzais72Zmanis()} is used for the zman of Rabbeinu Tam
+ * <br>
+ * {@link #getSolarMidnight()} is used for the zman of Chatzot Layla
+ * <br> <br>
+ * The Amudei Horaah calendar uses all the methods above, however, the Alot Hashachar and
+ * Tzeit Hacochavim methods are changed to include a slight adjustment based on degrees, and two
+ * additional zmanim are added in that calendar. The two additional zmanim are for Plag HaMincha
+ * according to the Halacha Berurah (also known as the GRA's Plag HaMincha) and Tzeit HaCochavim
+ * L'Chumra which is a zman that is only used for ending fasts and determining which day a baby is
+ * born on for a brit milah. The Ohr Hachaim calendar did not include these two times because the
+ * halacha berurah was not well known by the time the calendar was made and according to Rav Benizri
+ * the zman for Tzeit HaCochavim L'Chumra is merely 20 minutes after sunset which is easy to calculate.
+ * <br> <br>
+ * See these methods for more information on the Amudei Horaah's zmanim:
+ * <br>
+ * {@link #getAlotAmudeiHoraah()},
+ * {@link #getEarliestTalitTefilinAmudeiHoraah()},
+ * {@link #getSofZmanShmaMGA72MinutesZmanisAmudeiHoraah()},
+ * {@link #getSofZmanAchilatChametzAmudeiHoraah()},
+ * {@link #getSofZmanBiurChametzMGAAmudeiHoraah()},
+ * {@link #getTzeitAmudeiHoraah()},
+ * {@link #getTzeitAmudeiHoraahLChumra()},
+ * {@link #getTzaitShabbatAmudeiHoraah()},
+ * {@link #getTzais72ZmanisAmudeiHoraah()},
+ * {@link #getTzais72ZmanisAmudeiHoraahLkulah()}
  * <br>
  * Created by EJ on 9/13/2021.
  */

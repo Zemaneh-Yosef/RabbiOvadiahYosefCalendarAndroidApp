@@ -534,7 +534,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         .setMessage(HtmlCompat.fromHtml(alotHTML, HtmlCompat.FROM_HTML_MODE_LEGACY))
                         .show();
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
 
         }
     }
