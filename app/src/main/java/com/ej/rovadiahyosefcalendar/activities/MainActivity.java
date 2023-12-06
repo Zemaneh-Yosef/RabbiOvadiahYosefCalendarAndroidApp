@@ -1055,16 +1055,6 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                getApplicationContext(),
-                0,
-                new Intent(getApplicationContext(), OmerNotifications.class),
-                PendingIntent.FLAG_IMMUTABLE);
-        try {
-            pendingIntent.send();
-        } catch (PendingIntent.CanceledException e) {
-            e.printStackTrace();
-        }
         super.onResume();
     }
 
