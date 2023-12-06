@@ -63,6 +63,12 @@
 
         <SwitchPreferenceCompat
             android:defaultValue="false"
+            android:key="ShowShmitaYear"
+            android:summary="@string/choose_whether_or_not_to_show_if_the_year_is_a_shmita_year_or_not"
+            android:title="@string/show_shmita_year" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
             android:key="ShowWhenShabbatChagEnds"
             android:summary="@string/choose_whether_or_not_to_display_when_shabbat_or_chag_ends_the_day_before_after_the_candle_lighting_time"
             android:title="@string/show_tzait_shabbat_the_day_before" />

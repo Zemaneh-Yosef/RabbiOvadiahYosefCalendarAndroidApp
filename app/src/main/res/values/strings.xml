@@ -327,4 +327,8 @@
     <string name="manually_set_the_language_of_the_app">Manually set the language of the app</string>
     <string name="restart_app">Please restart the app</string>
     <string name="see_full_text">See Full Text</string>
+    <string name="show_shmita_year">Show Shmita Year?</string>
+   <string name="choose_whether_or_not_to_show_if_the_year_is_a_shmita_year_or_not">Choose whether or not to show if the year is a shmita year or not</string>
+   <string name="this_year_is_a_shmita_year">This year is a Shmita Year</string>
+   <string name="this_year_is_not_a_shmita_year">This year is not a Shmita year</string>
 </resources>

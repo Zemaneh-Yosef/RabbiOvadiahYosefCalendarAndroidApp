@@ -1054,6 +1054,17 @@ public class MainActivity extends AppCompatActivity {
         } catch (PendingIntent.CanceledException e) {
             e.printStackTrace();
         }
+
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                getApplicationContext(),
+                0,
+                new Intent(getApplicationContext(), OmerNotifications.class),
+                PendingIntent.FLAG_IMMUTABLE);
+        try {
+            pendingIntent.send();
+        } catch (PendingIntent.CanceledException e) {
+            e.printStackTrace();
+        }
         super.onResume();
     }
 
@@ -1517,6 +1528,11 @@ public class MainActivity extends AppCompatActivity {
             zmanim.add(new ZmanListEntry(day));
         }
 
+        if (mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.ROSH_HASHANA &&
+                mJewishDateInfo.isShmitaYear()) {
+            zmanim.add(new ZmanListEntry(getString(R.string.this_year_is_a_shmita_year)));
+        }
+
         if (mJewishDateInfo.is3Weeks()) {
             if (mJewishDateInfo.is9Days()) {
                 if (mJewishDateInfo.isShevuahShechalBo()) {
@@ -1614,6 +1630,14 @@ public class MainActivity extends AppCompatActivity {
                 zmanim.add(new ZmanListEntry(getString(R.string.daylight_savings_time_is_on)));
             } else {
                 zmanim.add(new ZmanListEntry(getString(R.string.daylight_savings_time_is_off)));
+            }
+        }
+
+        if (mSettingsPreferences.getBoolean("ShowShmitaYear", false)) {
+            if (mJewishDateInfo.isShmitaYear()) {
+                zmanim.add(new ZmanListEntry(getString(R.string.this_year_is_a_shmita_year)));
+            } else {
+                zmanim.add(new ZmanListEntry(getString(R.string.this_year_is_not_a_shmita_year)));
             }
         }
 

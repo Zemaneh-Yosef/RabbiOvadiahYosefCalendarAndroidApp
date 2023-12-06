@@ -547,5 +547,9 @@
     <string name="manually_set_the_language_of_the_app">שפת האפליקציה</string>
     <string name="restart_app">אנא אתחל את האפליקציה</string>
     <string name="see_full_text">ראה את הטקסט המלא</string>
+    <string name="show_shmita_year">הצג שנת שמיטה</string>
+    <string name="choose_whether_or_not_to_show_if_the_year_is_a_shmita_year_or_not">בחר האם להציג האם השנה היא שנת שמיטה</string>
+    <string name="this_year_is_a_shmita_year">שנה זו היא שנת שמיטה</string>
+    <string name="this_year_is_not_a_shmita_year">שנה זו אינה שנת שמיטה</string>
 
 </resources>

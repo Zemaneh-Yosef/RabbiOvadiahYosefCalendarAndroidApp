@@ -124,6 +124,9 @@ public class OmerNotifications extends BroadcastReceiver {
                     mSharedPreferences.edit().putString("lastKnownDayOmer", jewishDateInfo.getJewishCalendar().toString()).apply();
                 }
             }
+            Calendar gc = jewishDateInfo.getJewishCalendar().getGregorianCalendar();
+            gc.add(Calendar.DATE, 1);
+            jewishDateInfo.getJewishCalendar().setDate(gc);
             if (new TefilaRules().isVeseinTalUmatarStartDate(jewishDateInfo.getJewishCalendar())) {// we need to know if user is in Israel or not
                 notifyBarechAleinu(context);
             }

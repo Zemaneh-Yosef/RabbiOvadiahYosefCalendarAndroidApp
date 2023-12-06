@@ -822,4 +822,16 @@ public class JewishDateInfo {
         }
         return jewishCalendar.isAseresYemeiTeshuva();
     }
+
+    /**
+     * This method returns whether or not the current year is a Shmita year according to the
+     * general established minhag. It should be noted that Rashi and other rishonim hold that the
+     * year before what this method returns is actually the year of Shmita.
+     *
+     * @return a boolean whether or not the current year is Shmita according to the general minhag
+     * NOTE: Some Rishonim hold that the year before this one is the Shmita year.
+     */
+    public boolean isShmitaYear() {
+        return jewishCalendar.getJewishYear() % 7 == 0;
+    }
 }
