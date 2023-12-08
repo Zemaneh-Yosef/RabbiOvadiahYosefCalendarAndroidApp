@@ -425,6 +425,7 @@ public class JewishDateInfo {
         if (jewishCalendar.getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY
                 || yomTovIndex == JewishCalendar.FAST_OF_ESTHER
                 || yomTovIndexForNextDay == JewishCalendar.TISHA_BEAV
+                || yomTovIndexForNextDay == JewishCalendar.CHANUKAH
                 || yomTovIndexForNextDay == JewishCalendar.TU_BEAV
                 || yomTovIndexForNextDay == JewishCalendar.TU_BESHVAT
                 || yomTovIndexForNextDay == JewishCalendar.LAG_BAOMER
