@@ -80,14 +80,15 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                 zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
             }
         }
+        zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
 
         if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
             visibleSunriseFormat = new SimpleDateFormat("H:mm:ss", Locale.getDefault());
         } else {
             visibleSunriseFormat = new SimpleDateFormat("h:mm:ss aa", Locale.getDefault());
         }
+        visibleSunriseFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
 
-        zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
         roundUpRT = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("RoundUpRT", false);
         if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
             roundUpFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
@@ -96,6 +97,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             roundUpFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
             roundUpFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
         }
+        roundUpFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
         dialogBuilder = new AlertDialog.Builder(this.context, R.style.alertDialog);
         dialogBuilder.setPositiveButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
         dialogBuilder.create();
