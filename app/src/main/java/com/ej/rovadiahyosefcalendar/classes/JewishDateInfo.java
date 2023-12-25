@@ -39,6 +39,7 @@ public class JewishDateInfo {
         jewishCalendar.setInIsrael(inIsrael);
         jewishCalendar.setUseModernHolidays(useModernHoliday);
         hebrewDateFormatter = new HebrewDateFormatter();
+        hebrewDateFormatter.setUseGershGershayim(false);
         if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
             hebrewDateFormatter.setHebrewFormat(true);
             isLocaleHebrew = true;
@@ -234,9 +235,9 @@ public class JewishDateInfo {
         if (dayOfOmer != -1) {
             if (isLocaleHebrew) {
                 if (!result.isEmpty()) {
-                    result += " / " + formatHebrewNumber(dayOfOmer) + " יום של עומר";
+                    result += " / " + "יום " + hebrewDateFormatter.formatHebrewNumber(dayOfOmer) + " של עומר";
                 } else {
-                    result = formatHebrewNumber(dayOfOmer) + " יום של עומר";
+                    result = "יום " + hebrewDateFormatter.formatHebrewNumber(dayOfOmer) + " של עומר";
                 }
             } else {
                 if (!result.isEmpty()) {
@@ -542,62 +543,6 @@ public class JewishDateInfo {
             hebrewDateFormatter.setHebrewFormat(false);
         }
         return result;
-    }
-
-    /**
-     * This method will take a number and return the number in Hebrew.
-     * @param num the number to convert to Hebrew
-     * @return a string containing the number in Hebrew
-     */
-    public static String formatHebrewNumber(int num) {
-        if (num <= 0 || num >= 6000) return "X";
-
-        String[] let1000 = {" א'", " ב'", " ג'", " ד'", " ה'"};
-        String[] let100 = {"ק", "ר", "ש", "ת"};
-        String[] let10 = {"י", "כ", "ל", "מ", "נ", "ס", "ע", "פ", "צ"};
-        String[] let1 = {"א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט"};
-
-        StringBuilder result = new StringBuilder();
-
-        if (num >= 100) {
-            if (num >= 1000) {
-                result.append(let1000[num / 1000 - 1]);
-                num %= 1000;
-            }
-
-            if (num < 500) {
-                if (num > 100) {
-                    result.append(let100[(num / 100) - 1]);
-                }
-            } else if (num < 900) {
-                result.append("ת");
-                result.append(let100[((num - 400) / 100) - 1]);
-            } else {
-                result.append("תת");
-                result.append(let100[((num - 800) / 100) - 1]);
-            }
-
-            num %= 100;
-        }
-        switch (num) {
-            // Avoid letter combinations from the Tetragrammaton
-            case 16:
-                result.append("טז");
-                break;
-            case 15:
-                result.append("טו");
-                break;
-            default:
-                if (num >= 10) {
-                    result.append(let10[(num / 10) - 1]);
-                    num %= 10;
-                }
-                if (num > 0) {
-                    result.append(let1[num - 1]);
-                }
-                break;
-        }
-        return result.toString();
     }
 
     /**

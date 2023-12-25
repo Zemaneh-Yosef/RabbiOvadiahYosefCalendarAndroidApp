@@ -81,8 +81,10 @@ public class ZmanimAppWidget extends AppWidgetProvider {
                 .replace("No Tachanun today", "No Tachanun")
                 .replace("Tachanun only in the morning", "Tachanun morning only")
                 .replace("There is Tachanun today", "Tachanun");
+        HebrewDateFormatter hebrewDateFormatter = new HebrewDateFormatter();
+        hebrewDateFormatter.setUseGershGershayim(false);
         String dafYomi = mJewishDateInfo.getJewishCalendar().getDafYomiBavli().getMasechta()
-                + " " + JewishDateInfo.formatHebrewNumber(mJewishDateInfo.getJewishCalendar().getDafYomiBavli().getDaf());
+                + " " + hebrewDateFormatter.formatHebrewNumber(mJewishDateInfo.getJewishCalendar().getDafYomiBavli().getDaf());
 
         RemoteViews views;
         if (mSharedPreferences.getInt("widgetMaxHeight", 0) > mSharedPreferences.getInt("widgetMaxWidth", 0)) {
