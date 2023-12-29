@@ -1229,7 +1229,7 @@ public class SiddurMaker {
                 addToSiddurHighlighted("הַשָּׁלוֹם");
                 addToSiddur("בִּמְרוֹמָיו. הוּא בְּרַחֲמָיו יַעֲשֶׂה שָׁלוֹם עָלֵינוּ וְעַל כָּל־עַמּוֹ יִשְׂרָאֵל. וְאִמְרוּ אָמֵן. [אָמֵן]");
             } else {
-                addToSiddurHighlighted(regularKaddishTitkabal);
+                addToSiddur(regularKaddishTitkabal);
             }
         }
     }

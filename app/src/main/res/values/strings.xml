@@ -331,4 +331,9 @@
    <string name="choose_whether_or_not_to_show_if_the_year_is_a_shmita_year_or_not">Choose whether or not to show if the year is a shmita year or not</string>
    <string name="this_year_is_a_shmita_year">This year is a Shmita Year</string>
    <string name="this_year_is_not_a_shmita_year">This year is not a Shmita year</string>
+    <string name="advanced">Advanced</string>
+   <string name="enter_location_name">Enter location name:</string>
+   <string name="enter_latitude">Enter latitude:</string>
+   <string name="enter_longitude">Enter longitude:</string>
+   <string name="choose_timezone">Choose a timezone</string>
 </resources>

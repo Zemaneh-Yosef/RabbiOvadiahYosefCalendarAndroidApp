@@ -4,6 +4,7 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sCurrentLocationName;
+import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sCurrentTimeZoneID;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sLatitude;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sLongitude;
 
@@ -29,9 +30,12 @@ import org.geonames.WebService;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TimeZone;
 
 import us.dustinj.timezonemap.TimeZoneMap;
@@ -67,6 +71,39 @@ public class LocationResolver extends Thread {
      */
     @SuppressWarnings("BusyWait")
     public void acquireLatitudeAndLongitude() {
+        if (mSharedPreferences.getBoolean("useAdvanced", false)) {
+            sCurrentLocationName = mSharedPreferences.getString("advancedLN", "");
+            sLatitude = Double.parseDouble(mSharedPreferences.getString("advancedLat", ""));
+            sLongitude = Double.parseDouble(mSharedPreferences.getString("advancedLong", ""));
+            sCurrentTimeZoneID = mSharedPreferences.getString("advancedTimezone", "");
+            return; // stop here
+        } else if (mSharedPreferences.getBoolean("useLocation1", false)) {
+            sCurrentLocationName = mSharedPreferences.getString("location1", "");
+            sLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location1Lat", 0));
+            sLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location1Long", 0));
+            sCurrentTimeZoneID = mSharedPreferences.getString("location1Timezone", "");
+        } else if (mSharedPreferences.getBoolean("useLocation2", false)) {
+            sCurrentLocationName = mSharedPreferences.getString("location2", "");
+            sLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location2Lat", 0));
+            sLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location2Long", 0));
+            sCurrentTimeZoneID = mSharedPreferences.getString("location2Timezone", "");
+        } else if (mSharedPreferences.getBoolean("useLocation3", false)) {
+            sCurrentLocationName = mSharedPreferences.getString("location3", "");
+            sLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location3Lat", 0));
+            sLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location3Long", 0));
+            sCurrentTimeZoneID = mSharedPreferences.getString("location3Timezone", "");
+        } else if (mSharedPreferences.getBoolean("useLocation4", false)) {
+            sCurrentLocationName = mSharedPreferences.getString("location4", "");
+            sLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location4Lat", 0));
+            sLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location4Long", 0));
+            sCurrentTimeZoneID = mSharedPreferences.getString("location4Timezone", "");
+        } else if (mSharedPreferences.getBoolean("useLocation5", false)) {
+            sCurrentLocationName = mSharedPreferences.getString("location5", "");
+            sLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location5Lat", 0));
+            sLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location5Long", 0));
+            sCurrentTimeZoneID = mSharedPreferences.getString("location5Timezone", "");
+        }
+
         if (mSharedPreferences.getBoolean("useZipcode", false)) {
             getLatitudeAndLongitudeFromSearchQuery();
         } else {
@@ -81,20 +118,13 @@ public class LocationResolver extends Thread {
                         }
                         LocationListener locationListener = new LocationListener() {
                             @Override
-                            public void onLocationChanged(@NonNull Location location) {
-                            }
-
+                            public void onLocationChanged(@NonNull Location location) {}
                             @Override
-                            public void onProviderEnabled(@NonNull String provider) {
-                            }
-
+                            public void onProviderEnabled(@NonNull String provider) {}
                             @Override
-                            public void onProviderDisabled(@NonNull String provider) {
-                            }
-
+                            public void onProviderDisabled(@NonNull String provider) {}
                             @Override
-                            public void onStatusChanged(String provider, int status, Bundle extras) {
-                            }
+                            public void onStatusChanged(String provider, int status, Bundle extras) {}
                         };
                         locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, locationListener, null);
                         locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
@@ -303,8 +333,10 @@ public class LocationResolver extends Thread {
                 TimeZoneMap timeZoneMap = TimeZoneMap.forRegion(
                         Math.floor(sLatitude), Math.floor(sLongitude),
                         Math.ceil(sLatitude), Math.ceil(sLongitude));//trying to avoid using the forEverywhere() method
-                MainActivity.sCurrentTimeZoneID = Objects.requireNonNull(timeZoneMap.getOverlappingTimeZone(sLatitude, sLongitude)).getZoneId();
-                mTimeZone = TimeZone.getTimeZone(Objects.requireNonNull(timeZoneMap.getOverlappingTimeZone(sLatitude, sLongitude)).getZoneId());
+                String zoneID = Objects.requireNonNull(timeZoneMap.getOverlappingTimeZone(sLatitude, sLongitude)).getZoneId();
+                MainActivity.sCurrentTimeZoneID = zoneID;
+                mTimeZone = TimeZone.getTimeZone(zoneID);
+                saveLocationInformation();
             } catch (IllegalArgumentException e) {
                 MainActivity.sCurrentTimeZoneID = TimeZone.getDefault().getID();
                 mTimeZone = TimeZone.getDefault();
@@ -312,6 +344,43 @@ public class LocationResolver extends Thread {
         } else {
             MainActivity.sCurrentTimeZoneID = TimeZone.getDefault().getID();
             mTimeZone = TimeZone.getDefault();
+        }
+    }
+
+    private void saveLocationInformation() {
+        Set<String> locations = new HashSet<>();
+        locations.add(mSharedPreferences.getString("location1", ""));
+        locations.add(mSharedPreferences.getString("location2", ""));
+        locations.add(mSharedPreferences.getString("location3", ""));
+        locations.add(mSharedPreferences.getString("location4", ""));
+        locations.add(mSharedPreferences.getString("location5", ""));
+
+        if (!sCurrentLocationName.isEmpty() && !locations.contains(sCurrentLocationName)) { // if the current location is not empty and the location is not in the last 5 locations
+
+            mSharedPreferences.edit().putString("location5", mSharedPreferences.getString("location4", ""))
+                    .putLong("location5Lat", mSharedPreferences.getLong("location4Lat", 0))
+                    .putLong("location5Long", mSharedPreferences.getLong("location4Long", 0))
+                    .putString("location5Timezone", mSharedPreferences.getString("location4Timezone", "")).apply(); // swap location values
+
+            mSharedPreferences.edit().putString("location4", mSharedPreferences.getString("location3", ""))
+                    .putLong("location4Lat", mSharedPreferences.getLong("location3Lat", 0))
+                    .putLong("location4Long", mSharedPreferences.getLong("location3Long", 0))
+                    .putString("location4Timezone", mSharedPreferences.getString("location3Timezone", "")).apply(); // swap location values
+
+            mSharedPreferences.edit().putString("location3", mSharedPreferences.getString("location2", ""))
+                    .putLong("location3Lat", mSharedPreferences.getLong("location2Lat", 0))
+                    .putLong("location3Long", mSharedPreferences.getLong("location2Long", 0))
+                    .putString("location3Timezone", mSharedPreferences.getString("location2Timezone", "")).apply(); // swap location values
+
+            mSharedPreferences.edit().putString("location2", mSharedPreferences.getString("location1", ""))
+                    .putLong("location2Lat", mSharedPreferences.getLong("location1Lat", 0))
+                    .putLong("location2Long", mSharedPreferences.getLong("location1Long", 0))
+                    .putString("location2Timezone", mSharedPreferences.getString("location1Timezone", "")).apply(); // swap location values
+
+            mSharedPreferences.edit().putString("location1", sCurrentLocationName)
+                    .putLong("location1Lat",Double.doubleToRawLongBits(sLatitude))
+                    .putLong("location1Long", Double.doubleToRawLongBits(sLongitude))
+                    .putString("location1Timezone", sCurrentTimeZoneID).apply(); // save the current location last and we will get the elevation later
         }
     }
 
@@ -383,6 +452,43 @@ public class LocationResolver extends Thread {
     }
 
     public void getRealtimeNotificationData() {
+        if (mSharedPreferences.getBoolean("useAdvanced", false)) {
+            mLocationName = mSharedPreferences.getString("advancedLN", "");
+            mLatitude = Double.parseDouble(mSharedPreferences.getString("advancedLat", ""));
+            mLongitude = Double.parseDouble(mSharedPreferences.getString("advancedLong", ""));
+            mTimeZone = TimeZone.getTimeZone(mSharedPreferences.getString("advancedTimezone", ""));
+            return;
+        } else if (mSharedPreferences.getBoolean("useLocation1", false)) {
+            mLocationName = mSharedPreferences.getString("location1", "");
+            mLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location1Lat", 0));
+            mLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location1Long", 0));
+            mTimeZone = TimeZone.getTimeZone(mSharedPreferences.getString("location1Timezone", ""));
+            return;
+        } else if (mSharedPreferences.getBoolean("useLocation2", false)) {
+            mLocationName = mSharedPreferences.getString("location2", "");
+            mLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location2Lat", 0));
+            mLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location2Long", 0));
+            mTimeZone = TimeZone.getTimeZone(mSharedPreferences.getString("location2Timezone", ""));
+            return;
+        } else if (mSharedPreferences.getBoolean("useLocation3", false)) {
+            mLocationName = mSharedPreferences.getString("location3", "");
+            mLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location3Lat", 0));
+            mLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location3Long", 0));
+            mTimeZone = TimeZone.getTimeZone(mSharedPreferences.getString("location3Timezone", ""));
+            return;
+        } else if (mSharedPreferences.getBoolean("useLocation4", false)) {
+            mLocationName = mSharedPreferences.getString("location4", "");
+            mLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location4Lat", 0));
+            mLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location4Long", 0));
+            mTimeZone = TimeZone.getTimeZone(mSharedPreferences.getString("location4Timezone", ""));
+            return;
+        } else if (mSharedPreferences.getBoolean("useLocation5", false)) {
+            mLocationName = mSharedPreferences.getString("location5", "");
+            mLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location5Lat", 0));
+            mLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location5Long", 0));
+            mTimeZone = TimeZone.getTimeZone(mSharedPreferences.getString("location5Timezone", ""));
+            return;
+        }
         if (ActivityCompat.checkSelfPermission(mContext, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED) {
 //            ActivityCompat.requestPermissions(mActivity, new String[]{ACCESS_FINE_LOCATION}, 1); We can't ask for permissions here
             mLocationName = mSharedPreferences.getString("oldLocationName", "");

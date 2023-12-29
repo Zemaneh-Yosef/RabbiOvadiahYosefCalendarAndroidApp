@@ -551,5 +551,10 @@
     <string name="choose_whether_or_not_to_show_if_the_year_is_a_shmita_year_or_not">בחר האם להציג האם השנה היא שנת שמיטה</string>
     <string name="this_year_is_a_shmita_year">שנה זו היא שנת שמיטה</string>
     <string name="this_year_is_not_a_shmita_year">שנה זו אינה שנת שמיטה</string>
+    <string name="advanced">מתקדם</string>
+    <string name="enter_location_name">הזן שם מיקום:</string>
+    <string name="enter_latitude">הזן קו רוחב:</string>
+    <string name="enter_longitude">הזן קו אורך:</string>
+    <string name="choose_timezone">בחר אזור זמן</string>
 
 </resources>
