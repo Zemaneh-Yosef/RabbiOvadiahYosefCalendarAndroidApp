@@ -87,7 +87,7 @@ public class ZmanimAppWidget extends AppWidgetProvider {
                 + " " + hebrewDateFormatter.formatHebrewNumber(mJewishDateInfo.getJewishCalendar().getDafYomiBavli().getDaf());
 
         RemoteViews views;
-        if (mSharedPreferences.getInt("widgetMaxHeight", 0) > mSharedPreferences.getInt("widgetMaxWidth", 0)) {
+        if (mSharedPreferences.getInt("widgetMaxHeight" + appWidgetId, 0) > mSharedPreferences.getInt("widgetMaxWidth" + appWidgetId, 0)) {
             views = new RemoteViews(context.getPackageName(), R.layout.zmanim_app_widget_horizontal);
         } else {
             views = new RemoteViews(context.getPackageName(), R.layout.zmanim_app_widget);
@@ -585,8 +585,8 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         }
 
         mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
-        mSharedPreferences.edit().putInt("widgetMaxWidth", maxWidth).apply();
-        mSharedPreferences.edit().putInt("widgetMaxHeight", maxHeight).apply();
+        mSharedPreferences.edit().putInt("widgetMaxWidth" + appWidgetId, maxWidth).apply();
+        mSharedPreferences.edit().putInt("widgetMaxHeight" + appWidgetId, maxHeight).apply();
 
         appWidgetManager.updateAppWidget(appWidgetId, views);
 
