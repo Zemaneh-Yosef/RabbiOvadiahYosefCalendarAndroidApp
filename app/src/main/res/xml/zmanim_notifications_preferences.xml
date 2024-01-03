@@ -4,6 +4,12 @@
     <PreferenceCategory app:title="@string/zmanim_notifications_settings"
         android:summary="@string/minutes_before_the_zman_for_notifications">
 
+        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+            android:key="autoDismissNotifications"
+            android:title="@string/dismiss_notifications"
+            android:defaultValue="30"
+            />
+
         <SwitchPreferenceCompat
             android:defaultValue="true"
             android:key="zmanim_notifications_on_shabbat"
@@ -11,7 +17,7 @@
             android:title="@string/notifications_on_shabbat_and_yom_tov" />
 
         <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
-            android:key="@string/alot"
+            android:key="Alot"
             android:title="@string/alot_hashachar"
             android:defaultValue="15"
             />
@@ -79,7 +85,7 @@
         <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
             android:key="PlagHaMinchaHB"
             android:title="@string/plag_hamincha_halacha_berurah"
-            android:defaultValue="-1"
+            android:defaultValue="15"
             />
 
         <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
@@ -109,7 +115,7 @@
         <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
             android:key="TzeitHacochavimLChumra"
             android:title="@string/tzeit_hacochavim_l_chumra"
-            android:defaultValue="-1"
+            android:defaultValue="15"
             />
 
         <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
@@ -139,7 +145,7 @@
         <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
             android:key="NightChatzot"
             android:title="@string/chatzot_layla"
-            android:defaultValue="-1"
+            android:defaultValue="15"
             />
 
     </PreferenceCategory>

@@ -24,6 +24,7 @@ import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import com.EJ.ROvadiahYosefCalendar.R
 import com.EJ.ROvadiahYosefCalendar.presentation.theme.RabbiOvadiahYosefCalendarTheme
+import com.example.common.ZmanListEntry
 
 class MainActivity : ComponentActivity() {
 
@@ -33,6 +34,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val sharedPref = getSharedPreferences(SHARED_PREF, MODE_PRIVATE)
         val test = sharedPref.all
+        val zmanim: List<ZmanListEntry> = ArrayList()
         setContent {
             WearApp("Ely")
         }

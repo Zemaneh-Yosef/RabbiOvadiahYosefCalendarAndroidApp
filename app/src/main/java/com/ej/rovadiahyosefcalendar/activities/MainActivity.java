@@ -57,7 +57,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.splashscreen.SplashScreen;
@@ -70,8 +69,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTables;
-import com.ej.rovadiahyosefcalendar.classes.ChaiTablesCountries;
-import com.ej.rovadiahyosefcalendar.classes.ChaiTablesOptionsList;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesScraper;
 import com.ej.rovadiahyosefcalendar.classes.CustomDatePickerDialog;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
@@ -101,7 +98,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -114,7 +110,6 @@ public class MainActivity extends AppCompatActivity {
 
     public static boolean sShabbatMode;
     public static boolean sUserIsOffline;
-    public static boolean sFromSettings;
     private boolean mIsZmanimInHebrew;
     private boolean mIsZmanimEnglishTranslated;
     private boolean mBackHasBeenPressed = false;
@@ -262,6 +257,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initZmanimNotificationDefaults() {
         mSettingsPreferences.edit().putBoolean("zmanim_notifications", true).apply();
+        mSettingsPreferences.edit().putInt("autoDismissNotifications", -1).apply();
         mSettingsPreferences.edit().putInt("Alot", -1).apply();
         mSettingsPreferences.edit().putInt("TalitTefilin", -1).apply();
         mSettingsPreferences.edit().putInt("HaNetz", -1).apply();
@@ -3079,7 +3075,6 @@ public class MainActivity extends AppCompatActivity {
                     .putExtra("fromMenu",true));
             return true;
         } else if (id == R.id.settings) {
-            sFromSettings = true;
             startActivity(new Intent(MainActivity.this, SettingsActivity.class));
             return true;
         } else if (id == R.id.website) {

@@ -336,4 +336,5 @@
    <string name="enter_latitude">Enter latitude:</string>
    <string name="enter_longitude">Enter longitude:</string>
    <string name="choose_timezone">Choose a timezone</string>
+    <string name="dismiss_notifications">Dismiss notifications automatically?</string>
 </resources>

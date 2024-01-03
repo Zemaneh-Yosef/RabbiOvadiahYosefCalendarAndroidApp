@@ -55,20 +55,14 @@
         <activity
             android:name=".presentation.MainActivity"
             android:exported="true"
-            android:theme="@android:style/Theme.DeviceDefault">
+            android:theme="@android:style/Theme.DeviceDefault"
+            android:taskAffinity="">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".presentation.PrefSyncService" android:enabled="true" android:exported="true">
-            <intent-filter>
-                <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
-                <data android:scheme="wear" android:host="*"
-                    android:pathPrefix="/PrefSyncService/data/settings" />
-            </intent-filter>
-        </service>
     </application>
 
 </manifest>

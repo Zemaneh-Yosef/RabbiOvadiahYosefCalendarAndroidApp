@@ -12,6 +12,9 @@ import androidx.preference.PreferenceManager;
 
 import com.ej.rovadiahyosefcalendar.R;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class NotificationSettingsActivity extends AppCompatActivity {
 
     @Override
@@ -45,6 +48,10 @@ public class NotificationSettingsActivity extends AppCompatActivity {
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.zmanim_notifications_preferences, rootKey);
 
+            showRelevantZmanim();
+        }
+
+        private void showRelevantZmanim() {
             boolean isLuachAmudeiHoraah = PreferenceManager.getDefaultSharedPreferences(requireContext())
                     .getBoolean("LuachAmudeiHoraah", false);
 

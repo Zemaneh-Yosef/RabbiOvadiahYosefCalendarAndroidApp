@@ -454,7 +454,7 @@
 
     <string name="achilat_chametz">אכילת חמץ</string>
 
-    <string name="biur_chametz">ביאור חמץ</string>
+    <string name="biur_chametz">ביעור חמץ</string>
 
     <string name="chatzot">חצות</string>
 
@@ -468,21 +468,21 @@
 
     <string name="candle_lighting">הדלקת נרות</string>
 
-    <string name="shkia">שקיע</string>
+    <string name="shkia">שקיעה</string>
 
     <string name="tzeit_hacochavim">צאת הכוכבים</string>
 
-    <string name="tzeit_hacochavim_l_chumra">צאת הכוכבים לחומרה</string>
+    <string name="tzeit_hacochavim_l_chumra">צאת הכוכבים לחומרא</string>
 
-    <string name="fast_ends">סיום מהיר</string>
+    <string name="fast_ends">צאת התענית</string>
 
-    <string name="fast_ends_stringent">סיום מהיר (מחמיר)</string>
+    <string name="fast_ends_stringent">צאת התענית לחומרא</string>
 
-    <string name="shabbat_ends">השבת מסתיימת</string>
+    <string name="shabbat_ends">צאת שבת</string>
 
     <string name="rabbeinu_tam">רבינו תם</string>
 
-    <string name="chatzot_layla">חצות לילה</string>
+    <string name="chatzot_layla">חצות הלילה</string>
 
     <string name="switch_calendar">החלף לוח שנה</string>
     <string name="three_weeks">שלושה שבועות</string>
@@ -556,5 +556,6 @@
     <string name="enter_latitude">הזן קו רוחב:</string>
     <string name="enter_longitude">הזן קו אורך:</string>
     <string name="choose_timezone">בחר אזור זמן</string>
+    <string name="dismiss_notifications">לבטל הודעות באופן אוטומטי</string>
 
 </resources>

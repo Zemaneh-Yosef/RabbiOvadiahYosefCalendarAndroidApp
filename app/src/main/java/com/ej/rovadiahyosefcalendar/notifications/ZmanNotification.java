@@ -34,6 +34,7 @@ import java.util.TimeZone;
 
 public class ZmanNotification extends BroadcastReceiver {
 
+    private static final long MINUTE_MILLI = 60_000;
     private SharedPreferences mSharedPreferences;
     private SharedPreferences mSettingsSharedPreferences;
 
@@ -137,15 +138,18 @@ public class ZmanNotification extends BroadcastReceiver {
                     .setAutoCancel(true)
                     .setWhen(System.currentTimeMillis())
                     .setContentIntent(pendingIntent);
+            if (mSettingsSharedPreferences.getInt("autoDismissNotifications", -1) != -1) {
+                builder.setTimeoutAfter(mSettingsSharedPreferences.getInt("autoDismissNotifications", -1) * MINUTE_MILLI);
+            }
             long notificationID = Long.parseLong(zmanTime);//the notification ID is the time of the zman
             //the notification ID cannot be a long so we convert it to an int
             //however, the notification ID will lose precision if it is too large
             //so we make sure that the notification ID is not too large by modding it by the max int value
-            if (mSharedPreferences.getString("lastNotifiedZman", "").equals(zman)) {
+            if (mSharedPreferences.getString("lastNotifiedZman", "").equals(zman + notificationID)) {
                 return;// just in case, so we don't get two of the same zman
             }
             notificationManager.notify((int) (notificationID % Integer.MAX_VALUE), builder.build());
-            mSharedPreferences.edit().putString("lastNotifiedZman", zman).apply();
+            mSharedPreferences.edit().putString("lastNotifiedZman", zman + notificationID).apply();
         } catch (Exception e) {
             e.printStackTrace();
         }
