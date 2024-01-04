@@ -139,7 +139,7 @@ public class ZmanNotification extends BroadcastReceiver {
                     .setWhen(System.currentTimeMillis())
                     .setContentIntent(pendingIntent);
             if (mSettingsSharedPreferences.getInt("autoDismissNotifications", -1) != -1) {
-                builder.setTimeoutAfter(mSettingsSharedPreferences.getInt("autoDismissNotifications", -1) * MINUTE_MILLI);
+                builder.setTimeoutAfter((mSettingsSharedPreferences.getInt("autoDismissNotifications", -1) * MINUTE_MILLI) + 3000); // add 3 seconds because 0 milliseconds doesn't do anything
             }
             long notificationID = Long.parseLong(zmanTime);//the notification ID is the time of the zman
             //the notification ID cannot be a long so we convert it to an int

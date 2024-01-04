@@ -7,7 +7,7 @@
         <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
             android:key="autoDismissNotifications"
             android:title="@string/dismiss_notifications"
-            android:defaultValue="30"
+            android:defaultValue="-1"
             />
 
         <SwitchPreferenceCompat

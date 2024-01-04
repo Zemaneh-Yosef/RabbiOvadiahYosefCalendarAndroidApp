@@ -42,6 +42,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -494,8 +495,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     public static InputStream loadInputStreamFromAssetFile(Context context, String fileName){
         AssetManager am = context.getAssets();
         try {
-            InputStream is = am.open(fileName);
-            return is;
+            return am.open(fileName);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -503,14 +503,21 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     public static String loadContentFromFile(Context context, String path){
-        String content = null;
+        String content;
         try {
             InputStream is = loadInputStreamFromAssetFile(context, path);
-            int size = is.available();
+            int size = 0;
+            if (is != null) {
+                size = is.available();
+            }
             byte[] buffer = new byte[size];
-            is.read(buffer);
-            is.close();
-            content = new String(buffer, "UTF-8");
+            if (is != null) {
+                is.read(buffer);
+            }
+            if (is != null) {
+                is.close();
+            }
+            content = new String(buffer, StandardCharsets.UTF_8);
         } catch (IOException ex) {
             ex.printStackTrace();
             return null;
@@ -536,9 +543,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         .setMessage(HtmlCompat.fromHtml(alotHTML, HtmlCompat.FROM_HTML_MODE_LEGACY))
                         .show();
             }
-        } catch (Exception ignored) {
-
-        }
+        } catch (Exception ignored) {}
     }
 
     private void showEarliestTalitTefilinDialog() {
@@ -685,9 +690,29 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void showTekufaDialog() {
-        dialogBuilder.setTitle("Tekufa - Season - תקופה")
-                .setMessage(R.string.tekufa_dialog)
-                .show();
+        try {
+            String tekufaMarkdownEN = loadContentFromFile(context, "tekufot-en.md");
+            String tekufaMarkdownHB = loadContentFromFile(context, "tekufa-hb.md");
+
+            Parser parser = Parser.builder().build();
+            HtmlRenderer renderer = HtmlRenderer.builder().build();
+
+            Node documentEN = parser.parse(tekufaMarkdownEN);
+            String tekufaHTMLEnglish = renderer.render(documentEN);
+
+            Node documentHB = parser.parse(tekufaMarkdownHB);
+            String tekufaHTMLHebrew = renderer.render(documentHB);
+
+            if (locale.getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                dialogBuilder.setTitle("Tekufa - Season - תקופה")
+                        .setMessage(HtmlCompat.fromHtml(tekufaHTMLHebrew, HtmlCompat.FROM_HTML_MODE_LEGACY))
+                        .show();
+            } else {
+                dialogBuilder.setTitle("Tekufa - Season - תקופה")
+                        .setMessage(HtmlCompat.fromHtml(tekufaHTMLEnglish, HtmlCompat.FROM_HTML_MODE_LEGACY))
+                        .show();
+            }
+        } catch (Exception ignored) {}
     }
 
     private void showTachanunDialog() {
