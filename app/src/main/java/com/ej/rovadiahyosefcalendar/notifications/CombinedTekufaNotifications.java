@@ -67,7 +67,7 @@ public class CombinedTekufaNotifications extends BroadcastReceiver {
 
         Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
-        Date tekufaTime = findEarlierTekufaTime(jewishDateInfo);
+        Date earlierTekufaTime = findEarlierTekufaTime(jewishDateInfo);
         DateFormat zmanimFormat;
         if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
             zmanimFormat = new SimpleDateFormat("H:mm", Locale.getDefault());//no need for seconds as the tekufa never has seconds
@@ -76,14 +76,16 @@ public class CombinedTekufaNotifications extends BroadcastReceiver {
         }
         zmanimFormat.setTimeZone(TimeZone.getDefault());
 
-        if (tekufaTime != null) {//it should never be null, but just in case
-            Date halfHourBefore = new Date(tekufaTime.getTime() - DateUtils.MILLIS_PER_HOUR/2);
-            Date halfHourAfterPlus21Minutes = new Date(tekufaTime.getTime() + DateUtils.MILLIS_PER_HOUR/2 + (DateUtils.MILLIS_PER_MINUTE * 21));
+        if (earlierTekufaTime != null) {//it should never be null, but just in case
+            Date halfHourBefore = new Date(earlierTekufaTime.getTime() - DateUtils.MILLIS_PER_HOUR/2);
+            Date tekufaTime = new Date(earlierTekufaTime.getTime() + DateUtils.MILLIS_PER_MINUTE + 21);
+            Date halfHourAfterPlus21Minutes = new Date(earlierTekufaTime.getTime() + DateUtils.MILLIS_PER_HOUR/2 + (DateUtils.MILLIS_PER_MINUTE * 21));
 
             NotificationCompat.Builder mNotifyBuilder;
 
             if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
-                String contentText = "התקופות משתנות היום ב " + zmanimFormat.format(tekufaTime) + ". " +
+                String contentText = "התקופות משתנות היום ב "
+                        + zmanimFormat.format(earlierTekufaTime) + "/" + zmanimFormat.format(tekufaTime) + ". " +
                         "נא לא לשתות מים מ- " +
                         zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfterPlus21Minutes);
 
@@ -103,11 +105,13 @@ public class CombinedTekufaNotifications extends BroadcastReceiver {
                         .setSound(alarmSound)
                         .setColor(context.getColor(R.color.dark_gold))
                         .setAutoCancel(true)
-                        .setWhen(tekufaTime.getTime())
+                        .setWhen(earlierTekufaTime.getTime())
                         .setContentIntent(pendingIntent);
                 notificationManager.notify(MID, mNotifyBuilder.build());
             } else {
-                String contentText = "The tekufas (seasons) change today at " + zmanimFormat.format(tekufaTime) + ". Preferably, do not drink water from " +
+                String contentText = "The tekufas (seasons) change today at "
+                        + zmanimFormat.format(earlierTekufaTime) + "/" + zmanimFormat.format(tekufaTime) +
+                        ". Preferably, do not drink water from " +
                         zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfterPlus21Minutes);
 
                 mNotifyBuilder = new NotificationCompat.Builder(context,
@@ -126,7 +130,7 @@ public class CombinedTekufaNotifications extends BroadcastReceiver {
                         .setSound(alarmSound)
                         .setColor(context.getColor(R.color.dark_gold))
                         .setAutoCancel(true)
-                        .setWhen(tekufaTime.getTime())
+                        .setWhen(earlierTekufaTime.getTime())
                         .setContentIntent(pendingIntent);
                 notificationManager.notify(MID, mNotifyBuilder.build());
             }
