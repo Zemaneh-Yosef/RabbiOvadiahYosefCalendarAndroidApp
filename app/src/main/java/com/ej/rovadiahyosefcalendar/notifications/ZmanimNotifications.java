@@ -452,11 +452,11 @@ public class ZmanimNotifications extends BroadcastReceiver {
         if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
             if (jewishCalendar.isYomTovAssurBemelacha() &&
                     jewishCalendar.getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
-                return "\u05E9\u05D1\u05EA/\u05D7\u05D2";
+                return "שבת/חג";
             } else if (jewishCalendar.getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
-                return "\u05E9\u05D1\u05EA";
+                return "שבת";
             } else {
-                return "\u05D7\u05D2";
+                return "חג";
             }
         } else {
             if (jewishCalendar.isYomTovAssurBemelacha() &&

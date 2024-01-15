@@ -991,38 +991,40 @@ public class MainActivity extends AppCompatActivity {
             super.onResume();
             return;
         }
-        mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false), true);
-        mJewishDateInfo.setCalendar(mCurrentDateShown);
-        setZmanimLanguageBools();
-        instantiateZmanimCalendar();
-        mROZmanimCalendar.setCalendar(mCurrentDateShown);
-        setNextUpcomingZman();
-        if (mSharedPreferences.getBoolean("weeklyMode", false)) {
-            updateWeeklyTextViewTextColor();
-            updateWeeklyZmanim();
-        } else {
-            updateDailyZmanim();
-            mMainRecyclerView.scrollToPosition(mCurrentPosition);
-        }
-        resolveElevationAndVisibleSunrise();
-        if (!DateUtils.isSameDay(mCurrentDateShown.getTime(), new Date())
-        && (new Date().getTime() - mLastTimeUserWasInApp.getTime()) > 7_200_000) {//two hours
-            mCurrentDateShown.setTime(new Date());
-            mROZmanimCalendar.setCalendar(mCurrentDateShown);
+        if (mSharedPreferences.getBoolean("shouldRefresh", false)) {
+            mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false), true);
             mJewishDateInfo.setCalendar(mCurrentDateShown);
+            setZmanimLanguageBools();
+            instantiateZmanimCalendar();
+            mROZmanimCalendar.setCalendar(mCurrentDateShown);
+            setNextUpcomingZman();
             if (mSharedPreferences.getBoolean("weeklyMode", false)) {
+                updateWeeklyTextViewTextColor();
                 updateWeeklyZmanim();
             } else {
                 updateDailyZmanim();
                 mMainRecyclerView.scrollToPosition(mCurrentPosition);
             }
+            resolveElevationAndVisibleSunrise();
+            resetTheme();
+            //this is to update the zmanim notifications if the user changed the settings to start showing them
+            PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(
+                    getApplicationContext(),
+                    0,
+                    new Intent(getApplicationContext(), ZmanimNotifications.class),
+                    PendingIntent.FLAG_IMMUTABLE);
+            try {
+                zmanimPendingIntent.send();
+            } catch (PendingIntent.CanceledException e) {
+                e.printStackTrace();
+            }
+            mSharedPreferences.edit().putBoolean("shouldRefresh", false).apply();
         }
-        mLastTimeUserWasInApp = new Date();
-        resetTheme();
+
         TextClock clock = Objects.requireNonNull(getSupportActionBar()).getCustomView().findViewById(R.id.clock);
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             clock.setVisibility(View.VISIBLE);
-            if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
                 clock.setFormat24Hour("H:mm:ss");
             }
         } else {
@@ -1030,6 +1032,7 @@ public class MainActivity extends AppCompatActivity {
                 clock.setVisibility(View.GONE);
             }
         }
+
         if (mSharedPreferences.getBoolean("useImage", false)) {
             Bitmap bitmap = BitmapFactory.decodeFile(mSharedPreferences.getString("imageLocation", ""));
             Drawable drawable = new BitmapDrawable(getResources(), bitmap);
@@ -1046,17 +1049,20 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable());
-        //this is to update the zmanim notifications if the user changed the settings to start showing them
-        PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(
-                getApplicationContext(),
-                0,
-                new Intent(getApplicationContext(), ZmanimNotifications.class),
-                PendingIntent.FLAG_IMMUTABLE);
-        try {
-            zmanimPendingIntent.send();
-        } catch (PendingIntent.CanceledException e) {
-            e.printStackTrace();
+
+        if (!DateUtils.isSameDay(mCurrentDateShown.getTime(), new Date())
+                && (new Date().getTime() - mLastTimeUserWasInApp.getTime()) > 7_200_000) {//two hours
+            mCurrentDateShown.setTime(new Date());
+            mROZmanimCalendar.setCalendar(mCurrentDateShown); // no need to check for null pointers
+            mJewishDateInfo.setCalendar(mCurrentDateShown);
+            if (mSharedPreferences.getBoolean("weeklyMode", false)) {
+                updateWeeklyZmanim();
+            } else {
+                updateDailyZmanim();
+                mMainRecyclerView.scrollToPosition(mCurrentPosition);
+            }
         }
+        mLastTimeUserWasInApp = new Date();
 
         super.onResume();
     }
@@ -1140,7 +1146,6 @@ public class MainActivity extends AppCompatActivity {
         am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), omerPendingIntent);
 
         Intent zmanIntent = new Intent(getApplicationContext(), ZmanimNotifications.class);
-        mSharedPreferences.edit().putBoolean("fromThisNotification", false).apply();
         PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(getApplicationContext(),0,zmanIntent,PendingIntent.FLAG_IMMUTABLE);
         try {
             zmanimPendingIntent.send();
@@ -3071,22 +3076,17 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(this, MoladActivity.class));
             return true;
         } else if (id == R.id.fullSetup) {
+            mSharedPreferences.edit().putBoolean("shouldRefresh", true).apply();
             sSetupLauncher.launch(new Intent(this, FullSetupActivity.class)
                     .putExtra("fromMenu",true));
             return true;
         } else if (id == R.id.settings) {
+            mSharedPreferences.edit().putBoolean("shouldRefresh", true).apply();
             startActivity(new Intent(MainActivity.this, SettingsActivity.class));
             return true;
         } else if (id == R.id.website) {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.royzmanim.com"));
             startActivity(browserIntent);
-            return true;
-        } else if (id == R.id.help) {
-            new AlertDialog.Builder(this, androidx.appcompat.R.style.Theme_AppCompat_DayNight)
-                    .setTitle(R.string.help_using_this_app)
-                    .setPositiveButton(R.string.ok, null)
-                    .setMessage(R.string.helper_text)
-                    .show();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -3114,9 +3114,13 @@ public class MainActivity extends AppCompatActivity {
 
             if (Math.abs(xVelocity) > Math.abs(yVelocity)) {
                 if (xDiff > 0) {
-                    mNextDate.performClick();
+                    if (mNextDate != null) {
+                        mNextDate.performClick();
+                    }
                 } else {
-                    mPreviousDate.performClick();
+                    if (mPreviousDate != null) {
+                        mPreviousDate.performClick();
+                    }
                 }
                 return true;
             }
