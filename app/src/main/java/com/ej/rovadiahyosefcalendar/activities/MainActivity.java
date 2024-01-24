@@ -30,6 +30,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.Menu;
@@ -74,12 +75,17 @@ import com.ej.rovadiahyosefcalendar.classes.CustomDatePickerDialog;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
+import com.ej.rovadiahyosefcalendar.classes.WearableCapabilityChecker;
 import com.ej.rovadiahyosefcalendar.classes.ZmanAdapter;
 import com.ej.rovadiahyosefcalendar.classes.ZmanListEntry;
 import com.ej.rovadiahyosefcalendar.classes.ZmanimNames;
 import com.ej.rovadiahyosefcalendar.notifications.DailyNotifications;
 import com.ej.rovadiahyosefcalendar.notifications.OmerNotifications;
 import com.ej.rovadiahyosefcalendar.notifications.ZmanimNotifications;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
+import com.google.android.gms.wearable.Node;
+import com.google.android.gms.wearable.Wearable;
 import com.kosherjava.zmanim.hebrewcalendar.Daf;
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
@@ -90,7 +96,10 @@ import com.kosherjava.zmanim.util.GeoLocation;
 import com.kosherjava.zmanim.util.ZmanimFormatter;
 
 import org.apache.commons.lang3.time.DateUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -103,6 +112,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -230,7 +240,7 @@ public class MainActivity extends AppCompatActivity {
         setupShabbatModeBanner();
         mLocationResolver = new LocationResolver(this, this);
         mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false), true);
-        if (!ChaiTables.visibleSunriseFileExists(getExternalFilesDir(null), sCurrentLocationName, mJewishDateInfo.getJewishCalendar())
+        if (ChaiTables.visibleSunriseFileDoesNotExist(getExternalFilesDir(null), sCurrentLocationName, mJewishDateInfo.getJewishCalendar())
                 && mSharedPreferences.getBoolean("UseTable" + sCurrentLocationName, true)
                 && !mSharedPreferences.getBoolean("isSetup", false)
                 && savedInstanceState == null) {//it should only not exist the first time running the app and only if the user has not set up the app
@@ -474,6 +484,142 @@ public class MainActivity extends AppCompatActivity {
         checkIfUserIsInIsraelOrNot();
         askForRealTimeNotificationPermissions();
         updateWidget();
+        sendPreferencesToWatch();
+    }
+
+    private void sendPreferencesToWatch() {
+        WearableCapabilityChecker wearableCapabilityChecker = new WearableCapabilityChecker(this);
+        wearableCapabilityChecker.checkIfWatchExists(hasWatch -> {
+            if (hasWatch) {
+                new Thread(() -> {
+                    // Get the connected nodes (user may have multiple watches) on the Wear network
+                    Task<List<Node>> nodeListTask = Wearable.getNodeClient(getApplicationContext()).getConnectedNodes();
+                    try {
+                        List<Node> nodes = Tasks.await(nodeListTask);
+                        for (Node node : nodes) {
+                            // Build the message
+                            JSONObject jsonPreferences = getJSONPreferencesObject();
+                            String message = jsonPreferences.toString();
+                            byte[] payload = message.getBytes(StandardCharsets.UTF_8); // use UTF-8 since each ASCII character will be 1 byte
+
+                            // Send the message
+                            Task<Integer> sendMessageTask =
+                                    Wearable.getMessageClient(getApplicationContext())
+                                            .sendMessage(node.getId(), "prefs/", payload);
+
+                            // Add onCompleteListener to check if the message was successfully sent
+                            sendMessageTask.addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    int result = task.getResult();
+                                    Log.d("From main app", "Message sent to " + node.getDisplayName() + ". Result: " + result + ". message: " +message);
+                                } else {
+                                    Exception exception = task.getException();
+                                    Log.e("From main app", "Failed to send message to watch: " + exception);
+                                }
+                            });
+
+                            try {
+                                ChaiTables chaiTables = new ChaiTables(getExternalFilesDir(null), sCurrentLocationName, mJewishDateInfo.getJewishCalendar());
+                                String chaiTableForThisYear = chaiTables.getFullChaiTable();
+                                byte[] chaiTablePayload = chaiTableForThisYear.getBytes(StandardCharsets.UTF_8); // use UTF-8 since each ASCII character will be 1 byte
+
+                                Task<Integer> sendChaiTablesTask =
+                                        Wearable.getMessageClient(getApplicationContext())
+                                                .sendMessage(node.getId(), "chaiTable/", chaiTablePayload);
+
+                                sendChaiTablesTask.addOnCompleteListener(task -> {
+                                    if (task.isSuccessful()) {
+                                        int result = task.getResult();
+                                        Log.d("From main app", "chaiTable sent to " + node.getDisplayName() + ". Result: " + result + ". message: " + message);
+                                    } else {
+                                        Exception exception = task.getException();
+                                        Log.e("From main app", "Failed to send chaiTable to watch: " + exception);
+                                    }
+                                });
+                            } catch (Exception e) {
+                                Log.e("From main app", "Failed to build ChaiTables object, file is probably missing");
+                                e.printStackTrace();
+                            }
+                        }
+                    } catch (ExecutionException | InterruptedException | JSONException exception) {
+                        Log.e("From main app", "Failed to send message to watch: " + exception);
+                    }
+                }).start();
+            }
+        });
+    }
+
+    private JSONObject getJSONPreferencesObject() throws JSONException {
+        // We need to be careful to remember where the preferences are in either Settings Preferences or Shared Preferences
+        JSONObject jsonObject = new JSONObject().put("useElevation", mSharedPreferences.getBoolean("useElevation", false))
+                .put("ShowSeconds", mSettingsPreferences.getBoolean("ShowSeconds", false))
+                .put("ShowElevation", mSettingsPreferences.getBoolean("ShowElevation", false))
+                .put("ShowElevatedSunrise", mSettingsPreferences.getBoolean("ShowElevatedSunrise", false))
+                .put("inIsrael", mSharedPreferences.getBoolean("inIsrael", false))
+                .put("tekufaOpinions", mSettingsPreferences.getString("tekufaOpinions", "1"))
+                .put("RoundUpRT", mSettingsPreferences.getBoolean("RoundUpRT", false))
+                .put("showShabbatMevarchim", mSettingsPreferences.getBoolean("showShabbatMevarchim", false))
+                .put("LuachAmudeiHoraah", mSettingsPreferences.getBoolean("LuachAmudeiHoraah", false))
+                .put("isZmanimInHebrew", mSharedPreferences.getBoolean("isZmanimInHebrew", false))
+                .put("isZmanimEnglishTranslated", mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false))
+                .put("ShowMishorAlways", mSettingsPreferences.getBoolean("ShowMishorAlways", false))
+                .put("plagOpinion", mSettingsPreferences.getString("plagOpinion", "1"))
+                .put("CandleLightingOffset", mSettingsPreferences.getString("CandleLightingOffset", "20"))
+                .put("ShowWhenShabbatChagEnds", mSettingsPreferences.getBoolean("ShowWhenShabbatChagEnds", false));
+        if (jsonObject.getBoolean("ShowWhenShabbatChagEnds")) {
+            Set<String> stringSet = mSettingsPreferences.getStringSet("displayRTOrShabbatRegTime", null);
+            if (stringSet != null) {
+                jsonObject.put("Show Regular Minutes", stringSet.contains("Show Regular Minutes"))
+                        .put("Show Rabbeinu Tam", stringSet.contains("Show Rabbeinu Tam"));
+            }
+        }
+        jsonObject.put("EndOfShabbatOffset", mSettingsPreferences.getString("EndOfShabbatOffset", "40"))
+                .put("EndOfShabbatOpinion", mSettingsPreferences.getString("EndOfShabbatOpinion", "1"))
+                .put("alwaysShowTzeitLChumra", mSettingsPreferences.getBoolean("alwaysShowTzeitLChumra", false))
+                .put("AlwaysShowRT", mSettingsPreferences.getBoolean("AlwaysShowRT", false))
+                .put("useZipcode", mSharedPreferences.getBoolean("useZipcode", false))
+                .put("Zipcode", mSharedPreferences.getString("Zipcode", "None")) // we just need to pass in the zipcode and the location resolver in the watch app will handle saving the details
+                .put("locationName", sCurrentLocationName) // needed because we are not sure if the watches current location is the same as the app's
+                .put("elevation" + sCurrentLocationName, mSharedPreferences.getString("elevation" + sCurrentLocationName, "0"))
+                .put("SetElevationToLastKnownLocation", mSettingsPreferences.getBoolean("SetElevationToLastKnownLocation", false))
+
+                .put("useAdvanced", mSharedPreferences.getBoolean("useAdvanced", false))
+                .put("advancedLN", mSharedPreferences.getString("advancedLN", ""))
+                .put("advancedLat", mSharedPreferences.getString("advancedLat", "0"))
+                .put("advancedLong", mSharedPreferences.getString("advancedLong", "0"))
+                .put("advancedTimezone", mSharedPreferences.getString("advancedTimezone", ""))
+
+                .put("useLocation1", mSharedPreferences.getBoolean("useLocation1", false))
+                .put("location1", mSharedPreferences.getString("location1", ""))
+                .put("location1Lat", mSharedPreferences.getLong("location1Lat", 0))
+                .put("location1Long", mSharedPreferences.getLong("location1Long", 0))
+                .put("location1Timezone", mSharedPreferences.getString("location1Timezone", ""))
+
+                .put("useLocation2", mSharedPreferences.getBoolean("useLocation2", false))
+                .put("location2", mSharedPreferences.getString("location2", ""))
+                .put("location2Lat", mSharedPreferences.getLong("location2Lat", 0))
+                .put("location2Long", mSharedPreferences.getLong("location2Long", 0))
+                .put("location2Timezone", mSharedPreferences.getString("location2Timezone", ""))
+
+                .put("useLocation3", mSharedPreferences.getBoolean("useLocation3", false))
+                .put("location3", mSharedPreferences.getString("location3", ""))
+                .put("location3Lat", mSharedPreferences.getLong("location3Lat", 0))
+                .put("location3Long", mSharedPreferences.getLong("location3Long", 0))
+                .put("location3Timezone", mSharedPreferences.getString("location3Timezone", ""))
+
+                .put("useLocation4", mSharedPreferences.getBoolean("useLocation4", false))
+                .put("location4", mSharedPreferences.getString("location4", ""))
+                .put("location4Lat", mSharedPreferences.getLong("location4Lat", 0))
+                .put("location4Long", mSharedPreferences.getLong("location4Long", 0))
+                .put("location4Timezone", mSharedPreferences.getString("location4Timezone", ""))
+
+                .put("useLocation5", mSharedPreferences.getBoolean("useLocation5", false))
+                .put("location5", mSharedPreferences.getString("location5", ""))
+                .put("location5Lat", mSharedPreferences.getLong("location5Lat", 0))
+                .put("location5Long", mSharedPreferences.getLong("location5Long", 0))
+                .put("location5Timezone", mSharedPreferences.getString("location5Timezone", ""));
+
+        return jsonObject;
     }
 
     private void updateWidget() {
@@ -591,7 +737,7 @@ public class MainActivity extends AppCompatActivity {
         if (mSharedPreferences.getBoolean("isSetup", false) //only check after the app has been setup before
                 && mSharedPreferences.getBoolean("UseTable" + sCurrentLocationName, false)) { //and only if the tables are being used
 
-            if (!ChaiTables.visibleSunriseFileExists(getExternalFilesDir(null), sCurrentLocationName, mJewishDateInfo.getJewishCalendar())) {
+            if (ChaiTables.visibleSunriseFileDoesNotExist(getExternalFilesDir(null), sCurrentLocationName, mJewishDateInfo.getJewishCalendar())) {
                 if (!mUpdateTablesDialogShown) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.alertDialog);
                     builder.setTitle(R.string.update_tables);
@@ -1948,7 +2094,7 @@ public class MainActivity extends AppCompatActivity {
         if (mIsZmanimInHebrew) {
             for (ZmanListEntry zman : zmanim) {
                 if (zman.isNoteworthyZman()) {
-                    if (zman.isRTZman() && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("RoundUpRT", false)) {
+                    if (zman.isRTZman() && mSettingsPreferences.getBoolean("RoundUpRT", false)) {
                         DateFormat rtFormat;
                         if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
                             if (mSettingsPreferences.getBoolean("ShowSeconds", false)) {
@@ -1982,7 +2128,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             for (ZmanListEntry zman : zmanim) {
                 if (zman.isNoteworthyZman()) {
-                    if (zman.isRTZman() && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("RoundUpRT", false)) {
+                    if (zman.isRTZman() && mSettingsPreferences.getBoolean("RoundUpRT", false)) {
                         DateFormat rtFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
                         rtFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
                         mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + ":" + rtFormat.format(zman.getZman()));
@@ -1999,7 +2145,7 @@ public class MainActivity extends AppCompatActivity {
         String[] shortZmanim = new String[zmanim.size()];
         if (mIsZmanimInHebrew) {
             for (ZmanListEntry zman : zmanim) {
-                if (zman.isRTZman() && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("RoundUpRT", false)) {
+                if (zman.isRTZman() && mSettingsPreferences.getBoolean("RoundUpRT", false)) {
                     DateFormat rtFormat;
                     if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
                         if (mSettingsPreferences.getBoolean("ShowSeconds", false)) {
@@ -2037,7 +2183,7 @@ public class MainActivity extends AppCompatActivity {
             }
         } else {
             for (ZmanListEntry zman : zmanim) {
-                if (zman.isRTZman() && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("RoundUpRT", false)) {
+                if (zman.isRTZman() && mSettingsPreferences.getBoolean("RoundUpRT", false)) {
                     DateFormat rtFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
                     rtFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
                     shortZmanim[zmanim.indexOf(zman)] = zman.getTitle() + " : " + rtFormat.format(zman.getZman());
@@ -2724,6 +2870,7 @@ public class MainActivity extends AppCompatActivity {
                             checkIfUserIsInIsraelOrNot();
                             saveGeoLocationInfo();
                             setNotifications();
+                            sendPreferencesToWatch();
                         }
                     }
                 })
@@ -2833,6 +2980,7 @@ public class MainActivity extends AppCompatActivity {
                                         checkIfUserIsInIsraelOrNot();
                                         saveGeoLocationInfo();
                                         setNotifications();
+                                        sendPreferencesToWatch();
                                     }
                                 }
                             });
@@ -2865,6 +3013,7 @@ public class MainActivity extends AppCompatActivity {
                     checkIfUserIsInIsraelOrNot();
                     saveGeoLocationInfo();
                     setNotifications();
+                    sendPreferencesToWatch();
                 });
 
         AlertDialog ad = alertDialog.create();
@@ -2895,6 +3044,7 @@ public class MainActivity extends AppCompatActivity {
             checkIfUserIsInIsraelOrNot();
             saveGeoLocationInfo();
             setNotifications();
+            sendPreferencesToWatch();
             ad.dismiss();
         });
 
@@ -2915,6 +3065,7 @@ public class MainActivity extends AppCompatActivity {
             checkIfUserIsInIsraelOrNot();
             saveGeoLocationInfo();
             setNotifications();
+            sendPreferencesToWatch();
             ad.dismiss();
         });
 
@@ -2935,6 +3086,7 @@ public class MainActivity extends AppCompatActivity {
             checkIfUserIsInIsraelOrNot();
             saveGeoLocationInfo();
             setNotifications();
+            sendPreferencesToWatch();
             ad.dismiss();
         });
 
@@ -2955,6 +3107,7 @@ public class MainActivity extends AppCompatActivity {
             checkIfUserIsInIsraelOrNot();
             saveGeoLocationInfo();
             setNotifications();
+            sendPreferencesToWatch();
             ad.dismiss();
         });
 
@@ -2975,6 +3128,7 @@ public class MainActivity extends AppCompatActivity {
             checkIfUserIsInIsraelOrNot();
             saveGeoLocationInfo();
             setNotifications();
+            sendPreferencesToWatch();
             ad.dismiss();
         });
     }

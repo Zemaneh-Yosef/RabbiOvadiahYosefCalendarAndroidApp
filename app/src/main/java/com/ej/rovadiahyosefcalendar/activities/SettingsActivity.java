@@ -220,7 +220,7 @@ public class SettingsActivity extends AppCompatActivity {
                     Intent email = new Intent(Intent.ACTION_SENDTO);
                     email.setData(Uri.parse("mailto:"));
                     email.putExtra(Intent.EXTRA_EMAIL, new String[]{"elyahujacobi@gmail.com"}); //developer's email
-                    email.putExtra(Intent.EXTRA_SUBJECT,"Support Ticket"); //Email's Subject
+                    email.putExtra(Intent.EXTRA_SUBJECT,"Zmanei Yosef (Android)"); //Email's Subject
                     email.putExtra(Intent.EXTRA_TEXT,""); //Email's Greeting text
 
                     if (packageManager.resolveActivity(email,0) != null) { // there is an activity that can handle it

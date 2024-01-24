@@ -1,4 +1,4 @@
-package com.example.common;
+package com.EJ.ROvadiahYosefCalendar.classes;
 
 import java.util.Date;
 

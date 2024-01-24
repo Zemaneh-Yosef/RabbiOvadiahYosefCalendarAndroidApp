@@ -75,7 +75,6 @@ public class LocationResolver extends Thread {
             sLatitude = Double.parseDouble(mSharedPreferences.getString("advancedLat", ""));
             sLongitude = Double.parseDouble(mSharedPreferences.getString("advancedLong", ""));
             sCurrentTimeZoneID = mSharedPreferences.getString("advancedTimezone", "");
-            return; // stop here
         } else if (mSharedPreferences.getBoolean("useLocation1", false)) {
             sCurrentLocationName = mSharedPreferences.getString("location1", "");
             sLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location1Lat", 0));
@@ -101,9 +100,7 @@ public class LocationResolver extends Thread {
             sLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location5Lat", 0));
             sLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location5Long", 0));
             sCurrentTimeZoneID = mSharedPreferences.getString("location5Timezone", "");
-        }
-
-        if (mSharedPreferences.getBoolean("useZipcode", false)) {
+        } else if (mSharedPreferences.getBoolean("useZipcode", false)) {
             getLatitudeAndLongitudeFromSearchQuery();
         } else {
             if (ActivityCompat.checkSelfPermission(mContext, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED) {
@@ -125,32 +122,43 @@ public class LocationResolver extends Thread {
                             @Override
                             public void onStatusChanged(String provider, int status, Bundle extras) {}
                         };
-                        locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, locationListener, null);
-                        locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
+                        if (locationManager.getAllProviders().contains(LocationManager.NETWORK_PROVIDER)) {
+                            locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, locationListener, null);
+                        }
+                        if (locationManager.getAllProviders().contains(LocationManager.GPS_PROVIDER)) {
+                            locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
+                        }
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {//newer implementation
-                            locationManager.getCurrentLocation(LocationManager.NETWORK_PROVIDER,
-                                    null, Runnable::run,
-                                    location -> {
-                                        if (location != null) {
-                                            sLatitude = location.getLatitude();
-                                            sLongitude = location.getLongitude();
-                                        }
-                                    });
-                            locationManager.getCurrentLocation(LocationManager.GPS_PROVIDER,
-                                    null, Runnable::run,
-                                    location -> {
-                                        if (location != null) {
-                                            sLatitude = location.getLatitude();
-                                            sLongitude = location.getLongitude();
-                                        }
-                                    });
+                            if (locationManager.getAllProviders().contains(LocationManager.NETWORK_PROVIDER)) {
+                                locationManager.getCurrentLocation(LocationManager.NETWORK_PROVIDER,
+                                        null, Runnable::run,
+                                        location -> {
+                                            if (location != null) {
+                                                sLatitude = location.getLatitude();
+                                                sLongitude = location.getLongitude();
+                                            }
+                                        });
+                            }
+                            if (locationManager.getAllProviders().contains(LocationManager.GPS_PROVIDER)) {
+                                locationManager.getCurrentLocation(LocationManager.GPS_PROVIDER,
+                                        null, Runnable::run,
+                                        location -> {
+                                            if (location != null) {
+                                                sLatitude = location.getLatitude();
+                                                sLongitude = location.getLongitude();
+                                            }
+                                        });
+                            }
                             long tenSeconds = System.currentTimeMillis() + 10000;
                             while ((sLatitude == 0 && sLongitude == 0) && System.currentTimeMillis() < tenSeconds) {
                                 Thread.sleep(0);//we MUST wait for the location data to be set or else the app will crash
                             }
                             if (sLatitude == 0 && sLongitude == 0) {//if 10 seconds passed and we still don't have the location, use the older implementation
-                                Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);//location might be old
-                                if (location == null) {
+                                Location location = null;
+                                if (locationManager.getAllProviders().contains(LocationManager.GPS_PROVIDER)) {
+                                    location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);//location might be old
+                                }
+                                if (location == null && locationManager.getAllProviders().contains(LocationManager.NETWORK_PROVIDER)) {
                                     location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                                 }
                                 if (location != null) {
@@ -159,8 +167,11 @@ public class LocationResolver extends Thread {
                                 }
                             }
                         } else {//older implementation
-                            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);//location might be old
-                            if (location == null) {
+                            Location location = null;
+                            if (locationManager.getAllProviders().contains(LocationManager.GPS_PROVIDER)) {
+                                location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);//location might be old
+                            }
+                            if (location == null && locationManager.getAllProviders().contains(LocationManager.NETWORK_PROVIDER)) {
                                 location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                             }
                             if (location != null) {

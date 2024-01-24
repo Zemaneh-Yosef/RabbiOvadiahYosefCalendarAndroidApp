@@ -2,8 +2,23 @@ package com.ej.rovadiahyosefcalendar.classes;
 
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
+/**
+ * This class follows the factory design pattern and it's purpose is to return a string containing
+ * the weekly parasha reading for Mondays and Thursdays. Taaniyot/Fasts and Purim are also taken into
+ * consideration. The readings follow the Halachot and minhagim of Rabbi Ovadiah Yosef ZT"L as
+ * recorded in the siddur "Chazon Eliyahu"
+ */
 public class WeeklyParashaReadings {
 
+    /**
+     * This method returns a string containing the weekly torah reading for the
+     * {@link com.kosherjava.zmanim.hebrewcalendar.JewishCalendar.Parsha} passed into the parameter.
+     * Taaniyot/Fasts and Purim can change the result of this method and should be set accordingly.
+     * @param parsha the current week's parasha as an Enum in {@link com.kosherjava.zmanim.hebrewcalendar.JewishCalendar.Parsha}
+     * @param isTaanit true if the current day for the reading is on a Taanit/Fast
+     * @param isPurim true if the current day for the reading is on Purim
+     * @return a string containing the weekly torah reading
+     */
     public static String getWeeklyParashaReading(JewishCalendar.Parsha parsha, boolean isTaanit, boolean isPurim) {
         String result = "";
 

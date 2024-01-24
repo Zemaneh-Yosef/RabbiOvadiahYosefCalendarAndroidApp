@@ -32,7 +32,7 @@ public class ChaiTables {
         this.currentLocation = currentLocation;
         this.jewishCalendar = jewishCalendar;
 
-        if (visibleSunriseFileExists(externalFilesDir, currentLocation, jewishCalendar)) {
+        if (visibleSunriseFileExists()) {
             File file = new File(externalFilesDir, "visibleSunriseTable"+ currentLocation + jewishCalendar.getJewishYear() +".csv");
             CSVReader visibleSunriseReader = new CSVReader(new FileReader(file));
 
@@ -102,12 +102,33 @@ public class ChaiTables {
     }
 
     /**
-     * This method checks is a static version the previous method @see visibleSunriseFileExists(). It will check if the file exists in the external files directory.
-     * @return True if the visible sunrise file exists in the external files directory, false otherwise.
+     * This method is a static version of {@link #visibleSunriseFileExists()}. It will check if the file exists in the external files directory.
+     * @return True if the visible sunrise file does not exist in the external files directory, false otherwise.
      */
-    public static boolean visibleSunriseFileExists(File externalFilesDir, String currentLocation, JewishCalendar jewishCalendar) {
+    public static boolean visibleSunriseFileDoesNotExist(File externalFilesDir, String currentLocation, JewishCalendar jewishCalendar) {
         File sunriseCSV = new File(externalFilesDir, "visibleSunriseTable" + currentLocation + jewishCalendar.getJewishYear() + ".csv");
-        return sunriseCSV.isFile();
+        return !sunriseCSV.isFile();
+    }
+
+    public String getFullChaiTable() {
+        StringBuilder tableString = new StringBuilder();
+
+        // Check if the list is not null
+        if (actualVSunriseTable != null) {
+            // Iterate through the list
+            for (String[] row : actualVSunriseTable) {
+                // Check if the array is not null
+                if (row != null) {
+                    // Iterate through the array and append each element to the string
+                    for (String cell : row) {
+                        tableString.append(cell).append("\t"); // Assuming you want to separate columns with a tab
+                    }
+                    tableString.append("\n"); // Move to the next line for the next row
+                }
+            }
+        }
+
+        return tableString.toString();
     }
 
 //Not needed for now, using android's shared preferences to save year of the table

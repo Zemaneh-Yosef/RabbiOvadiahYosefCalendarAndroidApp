@@ -15,6 +15,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 
@@ -74,7 +75,7 @@ public class ZmanimAppWidget extends AppWidgetProvider {
 
         String jewishDate = mJewishDateInfo.getJewishDate();
         String parsha = mJewishDateInfo.getThisWeeksParsha();
-        ZmanListEntry nextUpcomingZman = getNextUpcomingZman();
+        ZmanListEntry nextUpcomingZman = getNextUpcomingZman(context);
         String zman = nextUpcomingZman.getTitle();
         String time = sZmanimFormat.format(nextUpcomingZman.getZman());
         String tachanun = mJewishDateInfo.getIsTachanunSaid()
@@ -89,8 +90,10 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         RemoteViews views;
         if (mSharedPreferences.getInt("widgetMaxHeight" + appWidgetId, 0) > mSharedPreferences.getInt("widgetMaxWidth" + appWidgetId, 0)) {
             views = new RemoteViews(context.getPackageName(), R.layout.zmanim_app_widget_horizontal);
+            Log.d("App widget", "widget max height is greater than max width, setting layout to horizontal");
         } else {
             views = new RemoteViews(context.getPackageName(), R.layout.zmanim_app_widget);
+            Log.d("App widget", "widget max height is lesser than max width, setting layout to vertical");
         }
         views.setTextViewText(R.id.jewish_date, jewishDate);
         views.setTextViewText(R.id.parsha, parsha);
@@ -102,6 +105,7 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         if (!mSharedPreferences.getBoolean("widgetInitialized", false)) {
             views.setViewVisibility(R.id.widget_next_zman, View.GONE);// initially hide the other views
             views.setViewVisibility(R.id.widget_tachanun_daf, View.GONE);
+            Log.d("App widget", "widget has just been initialized, hiding other texts");
         }
 
         Intent configIntent = new Intent(context, MainActivity.class);
@@ -144,7 +148,19 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         return elevation;
     }
 
-    public static ZmanListEntry getNextUpcomingZman() {
+    public static ZmanListEntry getNextUpcomingZman(Context context) {
+        if (mROZmanimCalendar == null || mJewishDateInfo == null) {
+            mLocationResolver = new LocationResolver(context, new Activity());
+            mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
+            mSettingsPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+            setZmanimLanguageBools();
+            mROZmanimCalendar = getROZmanimCalendar(context);
+            mROZmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
+            mROZmanimCalendar.setCandleLightingOffset(Double.parseDouble(mSettingsPreferences.getString("CandleLightingOffset", "20")));
+            mROZmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(mSettingsPreferences.getString("EndOfShabbatOffset", "40")));
+            mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false), true);
+        }
+
         ZmanListEntry theZman = null;
         List<ZmanListEntry> zmanim = new ArrayList<>();
         Calendar today = Calendar.getInstance();
@@ -551,6 +567,7 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         // There may be multiple widgets active, so update all of them
         for (int appWidgetId : appWidgetIds) {
             updateAppWidget(context, appWidgetManager, appWidgetId);
+            Log.d("App widget", "updating all widgets, this widget's id is: " + appWidgetId);
         }
         scheduleUpdates(context);
     }
@@ -558,29 +575,39 @@ public class ZmanimAppWidget extends AppWidgetProvider {
     @Override
     public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager, int appWidgetId, Bundle newOptions) {
         super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions);
+        Log.d("App widget", "Widget has been changed, updating...");
 
         int minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
+        Log.d("App widget", "min width is: " + minWidth);
         int minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT);
+        Log.d("App widget", "min height is: " + minHeight);
         int maxWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH);
+        Log.d("App widget", "max width is: " + maxWidth);
         int maxHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT);
+        Log.d("App widget", "max height is: " + maxHeight);
 
         RemoteViews views;
         if (maxHeight > maxWidth) {
             views = new RemoteViews(context.getPackageName(), R.layout.zmanim_app_widget_horizontal);
+            Log.d("App widget", "widget max height is greater than max width, setting layout to horizontal");
         } else {
             views = new RemoteViews(context.getPackageName(), R.layout.zmanim_app_widget);
+            Log.d("App widget", "widget max height is lesser than max width, setting layout to vertical");
         }
 
         if (minWidth >= 250 || maxHeight > maxWidth) {// if the widget is wide enough, show the zman
             views.setViewVisibility(R.id.widget_next_zman, View.VISIBLE);
             views.setViewVisibility(R.id.widget_tachanun_daf, View.GONE);
+            Log.d("App widget", "widget is only wide enough to show the date and next upcoming zman");
         } else {
             views.setViewVisibility(R.id.widget_next_zman, View.GONE);
             views.setViewVisibility(R.id.widget_tachanun_daf, View.GONE);
+            Log.d("App widget", "widget is only wide enough to show the date");
         }
         if (minWidth >= 350 || maxHeight > maxWidth) {// if the widget is wide enough, show the daf as well
             views.setViewVisibility(R.id.widget_next_zman, View.VISIBLE);
             views.setViewVisibility(R.id.widget_tachanun_daf, View.VISIBLE);
+            Log.d("App widget", "widget is wide enough to show everything");
         }
 
         mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
@@ -632,7 +659,7 @@ public class ZmanimAppWidget extends AppWidgetProvider {
             if (alarmManager != null) {
                 alarmManager.set(
                         AlarmManager.RTC_WAKEUP,
-                        getNextUpcomingZman().getZman().getTime() + 100,
+                        getNextUpcomingZman(context).getZman().getTime() + 100,
                         pendingIntent
                 );
             }
