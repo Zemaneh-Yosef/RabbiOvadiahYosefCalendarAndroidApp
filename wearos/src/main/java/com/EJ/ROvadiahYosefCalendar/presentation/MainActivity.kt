@@ -10,24 +10,44 @@ import android.text.format.DateUtils
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.rotary.onRotaryScrollEvent
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Devices
@@ -37,12 +57,13 @@ import androidx.wear.compose.material.AutoCenteringParams
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.MaterialTheme
+import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.material.ScalingLazyColumn
-import androidx.wear.compose.material.ScalingLazyListState
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
 import androidx.wear.compose.material.curvedText
+import androidx.wear.compose.material.rememberScalingLazyListState
 import com.EJ.ROvadiahYosefCalendar.R
 import com.EJ.ROvadiahYosefCalendar.classes.JewishDateInfo
 import com.EJ.ROvadiahYosefCalendar.classes.LocationResolver
@@ -50,6 +71,7 @@ import com.EJ.ROvadiahYosefCalendar.classes.PreferenceListener
 import com.EJ.ROvadiahYosefCalendar.classes.ROZmanimCalendar
 import com.EJ.ROvadiahYosefCalendar.classes.ZmanListEntry
 import com.EJ.ROvadiahYosefCalendar.classes.ZmanimNames
+import com.EJ.ROvadiahYosefCalendar.presentation.theme.DarkGray
 import com.EJ.ROvadiahYosefCalendar.presentation.theme.RabbiOvadiahYosefCalendarTheme
 import com.kosherjava.zmanim.hebrewcalendar.Daf
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter
@@ -131,8 +153,6 @@ class MainActivity : ComponentActivity() {
             updateAppContents() // with the new preferences
         }, this)
         startService(Intent(this, listener.javaClass))
-
-        val test = sharedPref.all
     }
 
     private fun savePreferencesToLocalDevice(jsonPreferences: JSONObject) {
@@ -1419,11 +1439,31 @@ class MainActivity : ComponentActivity() {
             refreshing = false
         }
         val state = rememberPullRefreshState(refreshing, ::refresh)
+        val scalingLazyListState = rememberScalingLazyListState(initialCenterItemIndex = 0)
+        val height = remember { mutableIntStateOf(1) }
+        val focusRequester = remember { FocusRequester() }
+        val coroutineScope = rememberCoroutineScope()
         RabbiOvadiahYosefCalendarTheme {
             Scaffold(
                 timeText = { TimeText(
                     endLinearContent = { Text(text = "זמני יוסף") },
-                    endCurvedContent = { curvedText(text = "זמני יוסף")} ) }
+                    endCurvedContent = { curvedText(text = "זמני יוסף")} ) },
+                modifier = Modifier.onGloballyPositioned { height.intValue = it.size.height },
+                positionIndicator = {
+                    // Hack to ALWAYS show the scrollbars...Google happy now
+                    PositionIndicator(
+                        state = AlwaysShowScrollBarScalingLazyColumnStateAdapter(
+                            state = scalingLazyListState,
+                            viewportHeightPx = height,
+                        ),
+                        //region Original values from PositionIndicator
+                        indicatorHeight = 50.dp,
+                        indicatorWidth = 4.dp,
+                        paddingHorizontal = 5.dp,
+                        reverseDirection = false,
+                        //endregion
+                    )
+                }
             ) {
                 var swipedRight = false
                 Box(modifier = Modifier
@@ -1444,13 +1484,26 @@ class MainActivity : ComponentActivity() {
                             swipedRight = dragAmount <= 0
                         }
                     }) {
+                    LaunchedEffect(Unit) {
+                        focusRequester.requestFocus()
+                    }
                     ScalingLazyColumn(
                         modifier = Modifier
-                            .background(MaterialTheme.colors.background),
+                            .background(MaterialTheme.colors.background)
+                            .onRotaryScrollEvent {
+                                coroutineScope.launch {
+                                    scalingLazyListState.scrollBy(it.verticalScrollPixels)
+
+                                    scalingLazyListState.animateScrollBy(0f)
+                                }
+                                true
+                            }
+                            .focusRequester(focusRequester)
+                            .focusable(),
                         autoCentering = AutoCenteringParams(
                             itemIndex = 0
                         ),
-                        state = ScalingLazyListState(initialCenterItemIndex = 0) // remove this if second row is wanted
+                        state = scalingLazyListState
                     ) {
                         items(zmanimList.size) { index ->
                             if (refreshing.not()) {
@@ -1469,56 +1522,101 @@ class MainActivity : ComponentActivity() {
                                         } else {
                                             zmanimList[index].title + " : " + zmanTime
                                         }
-                                    Chip(
-                                        label = {
-                                            Text(
-                                                text = zmanTitleAndTime,
-                                                color = MaterialTheme.colors.primary,
-                                                textAlign = TextAlign.Center,
-                                                textDecoration = if (sNextUpcomingZman == zmanimList[index].zman) TextDecoration.Underline else TextDecoration.None
-                                            )
-                                        },
-                                        colors = ChipDefaults.chipColors(
-                                            backgroundColor = MaterialTheme.colors.secondary
-                                        ),
-                                        enabled = false,
-                                        onClick = { /* Handle chip click if needed */ },
-                                        modifier = Modifier
-                                            .padding(vertical = 8.dp)
-                                            .fillMaxWidth()
+                                    DarkChip(
+                                        text = zmanTitleAndTime,
+                                        textDecoration = if (sNextUpcomingZman == zmanimList[index].zman) TextDecoration.Underline else TextDecoration.None
                                     )
                                 } else {
-                                    Column {
+                                    Column(
+                                        verticalArrangement = Arrangement.Center,
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
                                         if (index == 0) {
-                                            if (!sharedPref.getBoolean("hasGottenDataFromApp", false)) {
-                                                Text(text = "Settings not received from the Main App. " +
-                                                        "Please open up the app on your phone.",
-                                                    textAlign = TextAlign.Center)
+                                            if (!sharedPref.getBoolean(
+                                                    "hasGottenDataFromApp",
+                                                    false
+                                                )
+                                            ) {
+                                                Text(
+                                                    text = "Settings not received from the Main App. " +
+                                                            "Please open up the app on your phone.",
+                                                    textAlign = TextAlign.Center
+                                                )
                                             }
                                         }
-                                        Chip(
-                                            label = {
-                                                Text(
-                                                    text = zmanimList[index].title,
-                                                    textAlign = TextAlign.Center,
-                                                    color = MaterialTheme.colors.primary,
-                                                )
-                                            },
-                                            colors = ChipDefaults.chipColors(
-                                                backgroundColor = MaterialTheme.colors.secondary
-                                            ),
-                                            enabled = false,
-                                            onClick = { /* Handle chip click if needed */ },
-                                            modifier = Modifier
-                                                .padding(vertical = 8.dp)
-                                                .fillMaxWidth()
-                                        )
+
+                                        DarkChip(text = zmanimList[index].title)
+
+                                        if (index == zmanimList.size - 1) {
+                                            RedChipWithWhiteX("", onRemove = { finish() })
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                     PullRefreshIndicator(refreshing, state, Modifier.align(Alignment.TopCenter))
+                }
+            }
+        }
+    }
+
+    @Composable
+    fun DarkChip(text: String, textDecoration: TextDecoration = TextDecoration.None) {
+        Box(modifier = Modifier.padding(8.dp)) {
+            Box(
+                modifier = Modifier
+                    .background(DarkGray, CircleShape)
+                    .padding(8.dp)
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = text,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colors.primary,
+                        textDecoration = textDecoration
+                    )
+                }
+            }
+        }
+    }
+
+    @Composable
+    fun RedChipWithWhiteX(text: String, onRemove: () -> Unit) {
+        Box(modifier = Modifier.padding(8.dp)) {
+            Box(
+                modifier = Modifier
+                    .background(Color.Red, CircleShape)
+                    .padding(8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Row(
+                    modifier = Modifier
+                        .padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = text,
+                        color = Color.White,
+                        style = MaterialTheme.typography.body2
+                    )
+
+                    IconButton(
+                        onClick = { onRemove() },
+                        modifier = Modifier.size(24.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Clear,
+                            contentDescription = null,
+                            tint = Color.White
+                        )
+                    }
                 }
             }
         }
