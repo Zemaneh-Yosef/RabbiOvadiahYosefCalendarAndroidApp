@@ -1,8 +1,6 @@
 <resources>
     <string name="app_name">Rabbi Ovadiah Yosef Calendar</string>
     <string name="ok">OK</string>
-    <string name="zipcode">Zipcode</string>
-    <string name="title_location_permission">No location permission</string>
     <string name="text_location_permission">
         Ideally, this app needs location permissions in order to accurately calculate the zmanim.
         Therefore, it is better to allow the app to see your location. We do not use your location
@@ -20,7 +18,6 @@
     <string name="manual">Manual</string>
     <string name="geonames_request">If you want to get this information from GeoNames.com,
         press this button:</string>
-    <string name="chaitables">ChaiTables</string>
 
     <string name="long_explanation">
         I have heard from Rabbi Darshan (creator of the Ohr HaChaim Luach in Israel) that Rabbi Ovadiah Yosef ZT\"L held that the actual sunrise/sunset that should be used for calculating zmanim is when sunrise/sunset is seen at the highest point in the city. However, Rabbi David Yosef Shlita writes that many have told him that Rabbi Ovadiah ZT\"L held to use Mishor (Sea Level) sunrise/sunset. Therefore, you can use the buttons below to choose the appropriate settings that you want. (See Halacha Berura vol. 14, in Otzrot Yosef (Kuntrus Ki Ba Hashemesh), Siman 6, Perek 21 for an in depth discussion)
@@ -38,24 +35,12 @@
  \n\nIn addition to all of this, there are features in place that will automatically tell you to update the elevation data or the visible sunrise tables. If you leave the city that you currently setup the app for, the app will prompt you to run the setup again. The reason for this feature is because elevation will change based on the city that you are located in and you will have to update it every time you change cities, however, this feature will only turn on if you use elevation.
     </string>
     <string name="contact_header">Contact the developer</string>
-    <string name="about">About</string>
     <string name="help">Help</string>
     <string name="search_for_a_place">Search for a place</string>
     <string name="title_activity_settings">Settings</string>
-    <string name="full_setup">Full Setup</string>
-    <string name="minhagim">Minhagim</string>
     <string name="are_you_in_israel">Are you in Israel?</string>
-    <string name="i_am_in_israel">I am in Israel</string>
-    <string name="i_am_not_in_israel">I am not in Israel</string>
-    <string name="quick_setup">Quick Setup</string>
     <string name="advanced_setup">Advanced Setup</string>
-    <string name="restart">Restart</string>
     <string name="download">Download</string>
-    <string name="setup_both_elevation_and_visible_sunrise">Setup both elevation and visible sunrise (advanced)</string>
-    <string name="setup_elevation_only">Setup Elevation Only</string>
-    <string name="setup_visible_sunrise_only">Setup Visible Sunrise Only</string>
-    <string name="do_not_setup_either_uses_mishor_sea_level_sunrise_sunset_for_both_zmanim_and_sunrise">Do Not setup anything\n\n(Uses Mishor/Sea Level Sunrise and Sunset for both zmanim and Sunrise)</string>
-    <string name="alternate_download_request">Press this button to download the visible sunrise table from the Chai Tables website:</string>
     <string name="intro" translatable="false">Welcome!\n\nThe goal of this app is to help you create your own zmanim calendar according to Rabbi Ovadiah Yosef Z\"tl as accurately as possible.\n\nThere are 2 options in order to setup the zmanim for your location.\n\nThe \"Setup your city!\" option will setup the calendar according to the way that the Ohr HaChaim calendar, in Israel, sets it\'s zmanim. Pressing the "Setup your city!" button will take you to a page that will ask you to choose your city/area. Once you choose your city, it will set the elevation data for your city and it will also download a table that lists the times for VISIBLE sunrise throughout the next 2 years from a website called ChaiTables.com. This table will automatically be updated each year if possible.\n\nThe \"Advanced Setup\" option allows you to choose whether you want to set the elevation data for your city, or download the visible sunrise tables, or to do neither one and use Mishor (Sea Level) sunrise.\n\nKnow that the elevation data changes for each and every city and you will need to set the elevation data of your city every time you change cities.</string>
     <string name="what_language_would_you_like_the_zmanim_to_be_in">What language would you like the zmanim to be in?</string>
     <string name="hebrew">Hebrew</string>
@@ -69,19 +54,13 @@
     <string name="the_molad_for_this_month_in_your_timezone">The Molad for this month in your timezone:</string>
     <string name="change_date">Change Date</string>
     <string name="the_molad_time_announced">The molad time announced:</string>
-    <string name="title_activity_shabbat">ShabbatActivity</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="shabbat_mode">Shabbat/Chag Mode</string>
-    <string name="refresh">Refresh</string>
     <string name="full_restart">Full Restart</string>
     <string name="translated_english">Translated English</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="show_introduction">Show Introduction?</string>
-    <string name="ohr_hachaim_nmode">Ohr HaChaim\nSetup</string>
     <string name="if_you_want_to_make_your_zmanim_like_the_ohr_hachaim_calendar_in_israel">Press the button below to download the visible sunrise times for your area. You can choose the advanced setup if you want to specify a link or more options.</string>
-    <string name="if_you_want_to_specify_what_to_setup">If you want to specify what to setup:</string>
     <string name="yalkut_yosef_quote">yalkut yosef quote</string>
     <string name="left">left</string>
     <string name="right">right</string>
@@ -89,7 +68,6 @@
     <string name="or">OR</string>
     <string name="give_location_permission">Give Location Permission</string>
     <string name="please_select_a_method_to_find_your_location">Please select a method to find your location</string>
-    <string name="simple_setup">Simple Setup</string>
     <string name="select_your_country">Select your country:</string>
     <string name="select_your_state">Select your state:</string>
     <string name="select_your_metro_area">Select your metro area:</string>
@@ -106,9 +84,7 @@
     <string name="weekly_view">Weekly View</string>
     <string name="website">Website</string>
     <string name="use_elevation">Use Elevation?</string>
-    <string name="add_widget">Add widget</string>
     <string name="app_widget_description">This widget will show the current days most important zmanim</string>
-    <string name="zmanim">Zmanim</string>
     <string name="are_u_in_israel">Are you in Israel now?</string>
     <string name="if_you_are_in_israel_now_please_confirm_below">If you are in Israel now, please confirm below.</string>
     <string name="yes_i_am_in_israel">Yes, I am in Israel</string>
@@ -242,7 +218,6 @@
     <string name="show_zmanim_notifications_on_shabbat_yom_tov">Show zmanim notifications on shabbat/yom tov?</string>
     <string name="notifications_on_shabbat_and_yom_tov">Notifications on Shabbat and Yom Tov?</string>
     <string name="alot_hashachar">Alot Hashachar</string>
-    <string name="alot">Alot</string>
     <string name="talit_and_tefilin">Talit And Tefilin</string>
     <string name="hanetz">HaNetz</string>
     <string name="sof_zman_shma_mga">Sof Zman Shma MGA</string>
@@ -273,10 +248,7 @@
     <string name="ohr_hachaim">Ohr HaChaim</string>
     <string name="what_s_the_difference">What\'s the difference?</string>
     <string name="skip_setup_not_recommended">Skip Setup (Not recommended)</string>
-    <string name="birchat_halevanah">Birchat Helavana</string>
     <string name="show_siddur">Daily Siddur</string>
-    <string name="until">until</string>
-    <string name="night_of">the night of</string>
     <string name="shacharit">שחרית</string>
     <string name="mussaf">מוסף</string>
     <string name="mincha">מנחה</string>
@@ -318,7 +290,6 @@
     <string name="chatzot_layla_dialog">This is the middle of the halachic night, when the sun is exactly in the middle of the sky beneath us.\n\nIt is best to have Melaveh Malka before this time.\n\nThis time is calculated as 6 zmaniyot/seasonal hours after sunset. The GR\"A calculates a zmaniyot/seasonal hour by taking the time between sunrise and sunset (elevation included) and divides it into 12 equal parts.\n\n</string>
     <string name="ulchaparat_pesha_dialog">When Rosh Chodesh happens during a leap year, we add the words, \"וּלְכַפָּרַת פֶּשַׁע\" during Musaf. We only add these words from Tishri until the second month of Adar. However, for the rest of the year and during non leap years we do not say it.</string>
     <string name="elevation_dialog">This number represents the amount of elevation that you are applying to your zmanim to see sunrise/sunset in your current city in meters. If the number is set to 0, then you are calculating the zmanim by mishor/sea level sunrise and sunset.\n\nThere is a debate as to what Rabbi Ovadiah Yosef Z\"TL held about using elevation for zmanim. (See Halacha Berura vol. 14, in Otzrot Yosef (Kuntrus Ki Ba Hashemesh), Siman 6, Perek 21 for an in depth discussion) The Ohr HaChaim calendar uses elevation for their zmanim, however, Rabbi David Yosef Z\"TL holds that the elevation is not used for zmanim.</string>
-    <string name="tekufa_dialog">This is the time that the tekufa (season) changes.\n\nThere are 4 tekufas every year: Tishri (autumn), Tevet (winter), Nissan (spring), and Tammuz (summer). Each Tekufa happens 91.3125 (365.25 / 4) days after the previous Tekufa.\n\nThe Achronim write that a person should not drink water when the seasons change. Rabbi Ovadiah Yosef Z\"TL writes (in Halichot Olam, Chelek 7, Page 183, Halacha 8) that a person should not drink water from a half hour before this time till a half hour after this time unless there is a slim piece of iron in the water.\n\nNOTE: This only applies to water, not to other drinks.\n\nBoth the Ohr HaChaim and the Amudei Horaah calendars use the above method to get the time for the tekufa. However, the Amudei Horaah calendar differs from the Ohr HaChaim calendar, by using the local midday time of Israel. Which causes a 21 minute difference. Therefore, the Amudei Horaah calendar time for the tekufa will always be 21 minutes before the Ohr HaChaim\'s time.\n\nIn practice, it is recommended to keep both times if possible as it is only adding an additional 21 minutes.</string>
     <string name="tachanun_dialog">Here is a list of days with no tachanun:\n\nRosh Chodesh\nThe entire month of Nissan\nPesach Sheni (14th of Iyar)\nLag Ba\'Omer\nRosh Chodesh Sivan until the 12th of Sivan (12th included)\n9th of Av\n15th of Av\nErev Rosh Hashanah and Rosh Hashanah\nErev Yom Kippur and Yom Kippur\nFrom the 11th of Tishrei until the end of Tishrei\nAll of Chanukah\n15th of Shevat\n14th and 15th of Adar I and Adar II (and only 14th of Adar I in a leap year)\nEvery Shabbat\nEvery Erev Rosh Chodesh\nFast of Esther\nTisha Be\'av\nTu Be\'Shvat\nLag Ba\'Omer\nPesach Sheni\nYom Yerushalayim but not Yom Ha\'atzmaut (according to the minhag of Rabbi Ovadiah ZT\"L)\n\nNote that there are other times you should not say tachanun, but this list is only for days with no tachanun. Sometimes you can skip tachanun if there are mourners making up majority of the minyan or if there is a simcha (joyous occasion).</string>
     <string name="three_weeks_dialog">During the time of the Three weeks/Nine days/Shevuah shechal bo certain restrictions apply:\n\nThree Weeks:\nNo listening to music\nBetter to delay shehechiyanu\n\nNine Days:\nNo listening to music\nBetter to delay shehechiyanu\nBetter to delay any construction\nNo weddings\nNo purchasing new clothing (unless there is great need ex: a sale)\nNo consumption of meat or wine (excludes Rosh Chodesh and Shabbat)\nNo wearing brand new clothing\n\nShevuah Shechal Bo:\nNo listening to music\nBetter to delay shehechiyanu\nNo construction\nNo weddings\nNo purchasing new clothing (unless there is great need ex: a sale)\nNo consumption of meat or wine\nNo wearing brand new clothing\nNo taking haircuts or shaving (Men Only)\nNo swimming\nNo showering (with hot water)\nNo laundry\nNo wearing freshly laundered clothing (excludes undergarments)\n</string>
     <string name="netz_message">Netz/Sunrise has passed. A new countdown will start at sunset, you can swipe down to restart the countdown now.</string>

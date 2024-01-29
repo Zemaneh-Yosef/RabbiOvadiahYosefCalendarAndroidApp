@@ -18,6 +18,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -224,7 +225,6 @@ public class LocationResolver extends Thread {
             e.printStackTrace();
         }
         if (addresses != null && addresses.size() > 0) {
-
             if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
                 Address address = null;
                 for (Address add:addresses) {
@@ -261,11 +261,13 @@ public class LocationResolver extends Thread {
                 }
             } else {
                 String city = addresses.get(0).getLocality();
+                Log.i("locationManager", "City: " + city);
                 if (city != null) {
                     result.append(city).append(", ");
                 }
 
                 String state = addresses.get(0).getAdminArea();
+                Log.i("locationManager", "State: " + state);
                 if (state != null) {
                     result.append(state);
                 }
@@ -276,6 +278,7 @@ public class LocationResolver extends Thread {
 
                 if (city == null && state == null) {
                     String country = addresses.get(0).getCountryName();
+                    Log.i("locationManager", "Country: " + country);
                     result.append(country);
                 }
             }
@@ -556,7 +559,7 @@ public class LocationResolver extends Thread {
                             Thread.sleep(0);//we MUST wait for the location data to be set or else the app will crash
                         }
                         if (mLatitude == 0 && mLongitude == 0) {//if 10 seconds passed and we still don't have the location, use the older implementation
-                            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);;//location might be old
+                            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER); //location might be old
                             if (location == null) {
                                 location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                             }
@@ -567,7 +570,7 @@ public class LocationResolver extends Thread {
                         }
                     } else {//older implementation
                         if (mLatitude == 0 && mLongitude == 0) {//if 10 seconds passed and we still don't have the location, use the older implementation
-                            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);;//location might be old
+                            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER); //location might be old
                             if (location == null) {
                                 location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                             }

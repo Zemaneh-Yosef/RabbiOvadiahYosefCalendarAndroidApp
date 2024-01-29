@@ -102,7 +102,6 @@
 
     <!-- This is where the zmanim for sunday are displayed -->
     <LinearLayout
-        android:id="@+id/sunday"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -204,7 +203,6 @@
 
     <!-- This is where the zmanim for monday are displayed -->
     <LinearLayout
-        android:id="@+id/monday"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -305,7 +303,6 @@
 
     <!-- This is where the zmanim for tuesday are displayed -->
     <LinearLayout
-        android:id="@+id/tuesday"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -406,7 +403,6 @@
 
     <!-- This is where the zmanim for wednesday are displayed -->
     <LinearLayout
-        android:id="@+id/wednesday"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -507,7 +503,6 @@
 
     <!-- This is where the zmanim for thursday are displayed -->
     <LinearLayout
-        android:id="@+id/thursday"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -609,7 +604,6 @@
 
     <!-- This is where the zmanim for friday are displayed -->
     <LinearLayout
-        android:id="@+id/friday"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -711,7 +705,6 @@
 
     <!-- This is where the zmanim for saturday are displayed -->
     <LinearLayout
-        android:id="@+id/saturday"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -841,7 +834,6 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/buttons"
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:layout_gravity="center"

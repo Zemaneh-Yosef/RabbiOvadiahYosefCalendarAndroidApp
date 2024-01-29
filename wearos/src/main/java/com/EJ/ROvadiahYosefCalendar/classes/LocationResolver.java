@@ -6,7 +6,6 @@ import static com.EJ.ROvadiahYosefCalendar.presentation.MainActivity.SHARED_PREF
 import static com.EJ.ROvadiahYosefCalendar.presentation.MainActivity.sCurrentLocationName;
 import static com.EJ.ROvadiahYosefCalendar.presentation.MainActivity.sLatitude;
 import static com.EJ.ROvadiahYosefCalendar.presentation.MainActivity.sLongitude;
-import static com.EJ.ROvadiahYosefCalendar.presentation.MainActivity.sElevation;
 import static com.EJ.ROvadiahYosefCalendar.presentation.MainActivity.sCurrentTimeZoneID;
 
 import android.app.Activity;
@@ -28,12 +27,9 @@ import com.EJ.ROvadiahYosefCalendar.R;
 import com.EJ.ROvadiahYosefCalendar.presentation.MainActivity;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Set;
 import java.util.TimeZone;
 
 import us.dustinj.timezonemap.TimeZoneMap;

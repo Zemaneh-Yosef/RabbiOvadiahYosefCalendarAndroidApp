@@ -2,7 +2,6 @@ package com.EJ.ROvadiahYosefCalendar.classes;
 
 import android.content.SharedPreferences;
 
-import com.EJ.ROvadiahYosefCalendar.presentation.MainActivity;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
 import java.util.ArrayList;

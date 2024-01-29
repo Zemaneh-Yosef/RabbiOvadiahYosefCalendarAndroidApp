@@ -3,10 +3,8 @@ package com.ej.rovadiahyosefcalendar.classes;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.fragment.app.FragmentActivity;
 
 import com.ej.rovadiahyosefcalendar.R;

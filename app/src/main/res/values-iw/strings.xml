@@ -4,10 +4,6 @@
 
     <string name="ok">בסדר</string>
 
-    <string name="zipcode">מיקוד</string>
-
-    <string name="title_location_permission">אין הרשאת מיקום</string>
-
     <string name="text_location_permission">ברעיינות מומלץ להעניק לאפליקציה הרשאות למיקום כדי לאפשר לה לחשב את הזמנים בדיוק. המידע האישי שמועבר מהמכשיר שלך אינו משמש למטרות אחרות חוץ מחישוב הזמנים.
 
 אם אתה עדיין לא רוצה להעניק הרשאות למיקום, תוכל לבחור לחפש לפי כתובת או מיקוד, והאפליקציה תמצא את מיקומך בהתאם לאזור האפרוקסימטי שלך. (עם זאת, מומלץ להשתמש בכתובת אם אתה מעוניין בזמנים מדויקים. לשימוש במיקוד לא מומלץ אם ברצונך בזמנים מדויקים.)</string>
@@ -24,8 +20,6 @@
 
     <string name="geonames_request">אם אתה רוצה לקבל מידע זה מ-GeoNames.com, לחץ על הכפתור הזה:</string>
 
-    <string name="chaitables">ChaiTables</string>
-
     <string name="long_explanation">שמעתי מהרב דרשן (יוצר אור החיים לו"ח בישראל) שהרב עובדיה יוסף זצ"ל קבע שהזריחה/שקיעה בפועל שיש להשתמש בה לחישוב זמנים היא כאשר רואים את הזריחה/שקיעה בנקודה הגבוהה ביותר ב. העיר. אולם הרב דוד יוסף שליט"א כותב שרבים אמרו לו שהרב עובדיה זצ"ל קיים להשתמש במישור (גובה פני הים) זריחה/שקיעה. לכן, אתה יכול להשתמש בלחצנים למטה כדי לבחור את ההגדרות המתאימות שאתה רוצה. (ראה הלכה ברורה כרך י"ד, באוצרות יוסף (קונטרוס כי ב השמש), סימן ו, פרק כ"א לדיון מעמיק)</string>
 
     <string name="settings">הגדרות</string>
@@ -34,41 +28,17 @@
 
     <string name="contact_header">צור קשר עם המפתח</string>
 
-    <string name="about">על אודות</string>
-
     <string name="help">עזרה על זמני יוסף</string>
 
     <string name="search_for_a_place">שינוי מקום</string>
 
     <string name="title_activity_settings">הגדרות</string>
 
-    <string name="full_setup">הגדרה מלאה</string>
-
-    <string name="minhagim">מנחים</string>
-
     <string name="are_you_in_israel">אתה בישראל?</string>
-
-    <string name="i_am_in_israel">אני בישראל</string>
-
-    <string name="i_am_not_in_israel">אני לא בישראל</string>
-
-    <string name="quick_setup">התקנה מהירה</string>
 
     <string name="advanced_setup">התקנה מתקדמת</string>
 
-    <string name="restart">איתחול</string>
-
     <string name="download">הורד</string>
-
-    <string name="setup_both_elevation_and_visible_sunrise">הגדר גם גובה וגם זריחה גלויה (מתקדם)</string>
-
-    <string name="setup_elevation_only">הגדר גובה בלבד</string>
-
-    <string name="setup_visible_sunrise_only">הגדר זריחה גלויה בלבד</string>
-
-    <string name="do_not_setup_either_uses_mishor_sea_level_sunrise_sunset_for_both_zmanim_and_sunrise">אל תגדיר שום דבר (משתמש במישור/זריחה ושקיעה בגובה פני הים עבור זמנים וזריחה גם יחד)</string>
-
-    <string name="alternate_download_request">לחץ על כפתור זה כדי להוריד את טבלת הזריחה הנראית מאתר</string>
 
     <string name="what_language_would_you_like_the_zmanim_to_be_in">באיזו שפה היית רוצה שהזמנים יהיו?</string>
 
@@ -94,15 +64,7 @@
 
     <string name="the_molad_time_announced">שעת המולד הכריזה:</string>
 
-    <string name="title_activity_shabbat">פעילות שבת</string>
-
-    <string name="dummy_button">כפתור דמה</string>
-
-    <string name="dummy_content">DUMMYתוכן</string>
-
     <string name="shabbat_mode">מצב שבת/חג</string>
-
-    <string name="refresh">לְרַעֲנֵן</string>
 
     <string name="full_restart">הפעלה מחדש מלאה</string>
 
@@ -114,11 +76,7 @@
 
     <string name="show_introduction">להראות מבוא?</string>
 
-    <string name="ohr_hachaim_nmode">אור החיים הגדרה</string>
-
     <string name="if_you_want_to_make_your_zmanim_like_the_ohr_hachaim_calendar_in_israel">לחץ על הלחצן למטה כדי להוריד את זמני הזריחה הנראים לאזור שלך. אתה יכול לבחור את ההגדרה המתקדמת אם אתה רוצה לציין קישור או אפשרויות נוספות.</string>
-
-    <string name="if_you_want_to_specify_what_to_setup">אם אתה רוצה לציין מה להגדיר:</string>
 
     <string name="yalkut_yosef_quote">ציטוט ילקוט יוסף</string>
 
@@ -133,8 +91,6 @@
     <string name="give_location_permission">תן הרשאת מיקום</string>
 
     <string name="please_select_a_method_to_find_your_location">אנא בחר שיטה כדי למצוא את המיקום שלך</string>
-
-    <string name="simple_setup">הגדרה פשוטה</string>
 
     <string name="select_your_country">בחר את המדינה שלך:</string>
 
@@ -168,11 +124,7 @@
 
     <string name="use_elevation">זמנים לפי גובה?</string>
 
-    <string name="add_widget">הוסף ווידג\'ט</string>
-
     <string name="app_widget_description">יישומון זה יציג את הזמנים החשובים ביותר בימים הנוכחיים</string>
-
-    <string name="zmanim">זמנים</string>
 
     <string name="are_u_in_israel">אתה בישראל עכשיו?</string>
 
@@ -440,8 +392,6 @@
 
     <string name="alot_hashachar">עלות השחר</string>
 
-    <string name="alot">עלות</string>
-
     <string name="talit_and_tefilin">טלית ותפילין</string>
 
     <string name="hanetz">הנץ</string>
@@ -493,10 +443,7 @@
     <string name="amudei_horaah">עמודי הוראה</string>
     <string name="ohr_hachaim">אור החיים</string>
     <string name="skip_setup_not_recommended">דלג על ההגדרות (לא מומלץ).</string>
-    <string name="birchat_halevanah">ברכת הלבנה</string>
     <string name="show_siddur">סידור יומי</string>
-    <string name="until">עד</string>
-    <string name="night_of">ליל</string>
     <string name="shacharit">שחרית</string>
     <string name="mussaf">מוסף</string>
     <string name="mincha">מנחה</string>
@@ -538,7 +485,6 @@
     <string name="chatzot_layla_dialog">זהו זמן אמצע הלילה ההלכתי, כאשר השמש נמצאת בדיוק באמצע השמיים מתחת לנו.  מומלץ לסיים את מלווה מלכא לפני זמן זה.  זמן זה מחושב כ-6 שעות זמניות לאחר השקיעה. הגר\"א מחשב שעה זמנית על ידי חלוקת הזמן בין הזריחה והשקיעה (עם התנגשות בחשבונות) ל-12 חלקים שווים.</string>
     <string name="ulchaparat_pesha_dialog">כאשר ראש חודש חולף במהלך שנה מעוברת, אנו מוסיפים את המילים \"וּלְכַפָּרַת פֶּשַׁע\" בתוך תפילת מוסף. אנו מוסיפים את המילים הללו מחודש תשרי עד החודש השני של אדר. אך לשאר השנה ובשנים רגילות, אנו אינו אומרים את המילים הללו.</string>
     <string name="elevation_dialog">מספר זה מייצג את גובה המיקום שאתה מחביא לזמנים שלך כדי לראות זריחה/שקיעה בעיר הנוכחית שלך במטרים. אם המספר מוגדר ל-0, אז אתה מחשב את הזמנים לפי זריחה ושקיעה במשור/ים הים.  יש טענות בנוגע לאיזו החלטה היה הרב עובדיה יוסף ז\"ל בנוגע לשימוש בגובה לצורך חישוב הזמנים. (ראה בהלכה ברורה כרך 14, באוצרות יוסף (קונטרוס כי בא השמש), סימן 6, פרק 21 לדיון מעמיק) לוח הער הוא מקור השתמש בגובה בחישובי הזמנים שלהם, אך רבי דוד יוסף ז\"ל החזיק כי גובה לא ישמש לחישובי הזמנים.</string>
-    <string name="tekufa_dialog">זהו הזמן בו משתנה התקופה (עונה).  ישנם 4 תקופות בכל שנה: תשרי (סתיו), טבת (חורף), ניסן (אביב), ותמוז (קיץ). כל תקופה מתרחשת לאחר 91.3125 ימים (365.25 / 4) מהתקופה הקודמת.  האחרונים כתבו שאדם לא ישתה מים כאשר התקופות משתנות. רבי עובדיה יוסף ז\"ל כתב (בספרו \"הליכות עולם\", חלק 7, עמוד 183, הלכה 8) שאדם לא ישתה מים מחצי שעה לפני הזמן הזה עד חצי שעה לאחריו, אלא אם יש פליט דק במים.  הערה: ההוראה הזו תקפה רק למים ולא לשתייה של משקאות אחרים.  שני לוחות הער והעמודי ההלכה משתמשים בשיטה הנ״ל כדי לחשב את הזמן של התקופה. אך לוח העמודי ההלכה מתחלק מלוח הער בכך שהוא משתמש בזמן הצהריים המקומי שבישראל, מה שגורם להבדלות של 21 דקות. לכן, הזמן לתקופה בלוח העמודי ההלכה תמיד יהיה 21 דקות לפני הזמן בלוח הער החי.  בפועל, מומלץ לשמור על שני הזמנים אם זה אפשרי, כי זה מוסיף רק 21 דקות נוספות.</string>
     <string name="tachanun_dialog">כאן רשימה של ימים בהם אין אומרים את התחנון:\n\n  ראש חודש חודש ניסן כולו\nפסח שני (י\"ד באייר) \nל\"ג בעומר \nראש חודש סיון עד ה-12 בסיון (כולל ה-12) \nתשעה באב \nט\"ו באב \nערב ראש השנה וראש השנה \nערב יום כיפור ויום כיפור \nמה-11 בתשרי עד סוף תשרי \nחנוכה כולה \nט\"ו בשבט \nי\"ד ו-ט\"ו באדר א\' ואדר ב\' (רק י\"ד באדר א\' בשנה מעוברת) \nכל שבת \nכל ערב ראש חודש \nתענית אסתר \nתשעה באב \nט\"ו בשבט \nל\"ג בעומר \nפסח שני \nיום ירושלים (אך לא יום העצמאות, לפי מנהג רבי עובדיה זצ\"ל). \n\nשימו לב שישנם גם זמנים נוספים בהם יש להחמיר ולא לאומר את התחנון, אך הרשימה הזו היא רק לימים בהם אין אומרים את התחנון בכלל. לפעמים ניתן לדלג על התחנון אם יש אבלים שמרכיבים רוב המניין או אם יש שמחה חשובה.</string>
     <string name="three_weeks_dialog">בזמן שלושת השבועות/תשעת הימים/שבוע שחל בו חוקים מסוימים:  שלושת השבועות:  אסור להאזין למוזיקה. מומלץ לדחות את ברכת שהחיינו (שהחיינו) למקום שבו ניתן. תשעת הימים:  אסור להאזין למוזיקה. מומלץ לדחות את ברכת שהחיינו (שהחיינו) למקום שבו ניתן. מומלץ לדחות כל פעולות בנייה. אסור לערוך חתונות. אסור לרכוש בגדים חדשים (אלא אם יש צורך גדול, לדוגמה: מבצע). אסור לצרוך בשר או יין (אכן בראש חודש ובשבת הם פוטרים). אסור ללבוש בגדים חדשים לגמרי. שבוע שחל בו שבוע שחל בו:  אסור להאזין למוזיקה. מומלץ לדחות את ברכת שהחיינו (שהחיינו) למקום שבו ניתן. אסור לערוך פעולות בנייה. אסור לערוך חתונות. אסור לרכוש בגדים חדשים (אלא אם יש צורך גדול, לדוגמה: מבצע). אסור לצרוך בשר או יין. אסור ללבוש בגדים חדשים לגמרי. אסור להסתפר או לגלח את הזקן (רק לגברים). אסור לשחות. אסור לרחוץ (במים חמים). אסור לכבס. אסור ללבוש בגדים שנכבסו פרט לבגדי תחתית.</string>
     <string name="netz_message">נץ (הזריחה) כבר עבר. מונה חדש יתחיל בשקיעה, או תוכל החלק את המסך כלפי מטה כדי להתחיל מחדש את הספירה עכשיו.</string>

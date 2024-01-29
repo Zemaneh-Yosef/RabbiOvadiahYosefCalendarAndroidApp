@@ -12,7 +12,6 @@
     tools:context=".activities.FullSetupActivity">
 
     <TextView
-        android:id="@+id/israel_question"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/are_you_in_israel"
