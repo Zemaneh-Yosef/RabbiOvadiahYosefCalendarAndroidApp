@@ -557,5 +557,6 @@
     <string name="enter_longitude">הזן קו אורך:</string>
     <string name="choose_timezone">בחר אזור זמן</string>
     <string name="dismiss_notifications">לבטל הודעות באופן אוטומטי</string>
+    <string name="settings_not_recieved">ההגדרות לא התקבלו מהאפליקציה הראשית. אנא פתח/י את האפליקציה על הטלפון שלך.</string>
 
 </resources>

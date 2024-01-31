@@ -228,7 +228,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     String parshaLink = "https://www.sefaria.org/" + parsha;
                     dialogBuilder.setTitle("Open Sefaria link for " + parsha + "?");
                     dialogBuilder.setMessage("This will open the Sefaria website or app in a new window with the weekly parsha.");
-                    dialogBuilder.setPositiveButton("Open", (dialog, which) -> {
+                    dialogBuilder.setPositiveButton(context.getString(R.string.ok), (dialog, which) -> {
                                 Intent intent = new Intent(Intent.ACTION_VIEW);
                                 intent.setData(Uri.parse(parshaLink));
                                 context.startActivity(intent);
@@ -269,12 +269,12 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     String dafYomiLink = "https://www.sefaria.org/" + masechta + "." + daf + "a";
                     dialogBuilder.setTitle("Open Sefaria link for " + zmanim.get(position).getTitle().replace("Daf Yomi: ", "") + "?");
                     dialogBuilder.setMessage("This will open the Sefaria website or app in a new window with the daf yomi.");
-                    dialogBuilder.setPositiveButton("Open", (dialog, which) -> {
+                    dialogBuilder.setPositiveButton(context.getString(R.string.ok), (dialog, which) -> {
                                 Intent intent = new Intent(Intent.ACTION_VIEW);
                                 intent.setData(Uri.parse(dafYomiLink));
                                 context.startActivity(intent);
                             });
-                    dialogBuilder.setNegativeButton("Dismiss", (dialog, which) -> dialog.dismiss());
+                    dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
                     dialogBuilder.show();
                     resetDialogBuilder();
                 }

@@ -11,8 +11,8 @@ android {
         applicationId "com.EJ.ROvadiahYosefCalendar"
         minSdk 25
         targetSdk 33 // TODO Update this to 34 when the play store allows it
-        versionCode 137
-        versionName "15.3"
+        versionCode 139
+        versionName "15.5"
         vectorDrawables {
             useSupportLibrary true
         }

@@ -338,6 +338,14 @@ public class LocationResolver extends Thread {
      * If the latitude and longitude are not known, it will use the default timezone ID.
      */
     public void setTimeZoneID() {
+        if (mSharedPreferences.getBoolean("useAdvanced", false) ||
+                mSharedPreferences.getBoolean("useLocation1", false) ||
+                mSharedPreferences.getBoolean("useLocation2", false) ||
+                mSharedPreferences.getBoolean("useLocation3", false) ||
+                mSharedPreferences.getBoolean("useLocation4", false) ||
+                mSharedPreferences.getBoolean("useLocation5", false)) {
+            return;
+        }
         if (mSharedPreferences.getBoolean("useZipcode", false)) {
             try {
                 TimeZoneMap timeZoneMap = TimeZoneMap.forRegion(

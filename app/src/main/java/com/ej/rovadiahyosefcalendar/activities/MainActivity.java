@@ -29,6 +29,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -179,6 +180,7 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences mSettingsPreferences;
     public static final String SHARED_PREF = "MyPrefsFile";
     public static ActivityResultLauncher<Intent> sSetupLauncher;
+    public static ActivityResultLauncher<Intent> sNotificationLauncher;
 
     /**
      * The current date shown in the main activity.
@@ -237,6 +239,7 @@ public class MainActivity extends AppCompatActivity {
         mGestureDetector = new GestureDetector(MainActivity.this, new ZmanimGestureListener());
         mZmanimFormatter.setTimeFormat(ZmanimFormatter.SEXAGESIMAL_FORMAT);
         initSetupResult();
+        initNotifResult();
         setupShabbatModeBanner();
         mLocationResolver = new LocationResolver(this, this);
         mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false), true);
@@ -252,6 +255,52 @@ public class MainActivity extends AppCompatActivity {
         findAllWeeklyViews();
         if ((!mInitialized && ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) == PERMISSION_GRANTED) || mSharedPreferences.getBoolean("useZipcode", false)) {
             initMainView();
+        }
+
+        Intent intent = getIntent();
+        String action = intent.getAction();
+        String type = intent.getType();
+
+        if (Intent.ACTION_SEND.equals(action) && type != null) {
+            if ("text/plain".equals(type)) {
+                String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
+                if (sharedText != null) {
+                    // Update UI to reflect text being shared
+                    // We set the zipcode location to what was sent to us
+                    setUseLocations(false, false, false, false, false);
+                    SharedPreferences.Editor editor = mSharedPreferences.edit();
+                    editor.putBoolean("useAdvanced", false).apply();
+                    editor.putBoolean("useZipcode", true).apply();
+                    editor.putString("Zipcode", sharedText).apply();
+                    mLocationResolver = new LocationResolver(this, this);
+                    mLocationResolver.getLatitudeAndLongitudeFromSearchQuery();
+                    if (mSharedPreferences.getBoolean("useElevation", true)) {
+                        mLocationResolver.start();
+                        try {
+                            mLocationResolver.join();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (!mInitialized) {
+                        initMainView();
+                    } else {
+                        mLocationResolver.setTimeZoneID();
+                        resolveElevationAndVisibleSunrise();
+                        instantiateZmanimCalendar();
+                        setNextUpcomingZman();
+                        if (mSharedPreferences.getBoolean("weeklyMode", false)) {
+                            updateWeeklyZmanim();
+                        } else {
+                            updateDailyZmanim();
+                        }
+                        checkIfUserIsInIsraelOrNot();
+                        saveGeoLocationInfo();
+                        setNotifications();
+                        sendPreferencesToWatch();
+                    }
+                }
+            }
         }
     }
 
@@ -318,6 +367,13 @@ public class MainActivity extends AppCompatActivity {
                         updateDailyZmanim();
                     }
                 }
+        );
+    }
+
+    private void initNotifResult() {
+        sNotificationLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> setNotifications()
         );
     }
 
@@ -653,13 +709,13 @@ public class MainActivity extends AppCompatActivity {
             builder.setTitle(R.string.would_you_like_to_receive_real_time_notifications_for_zmanim);
             builder.setMessage(R.string.if_you_would_like_to_receive_real_time_zmanim_notifications);
             builder.setCancelable(false);
-            builder.setPositiveButton("Yes", (dialog, which) -> {
+            builder.setPositiveButton(R.string.yes, (dialog, which) -> {
                 if (ActivityCompat.checkSelfPermission(this, ACCESS_BACKGROUND_LOCATION) != PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(this, new String[]{ACCESS_BACKGROUND_LOCATION}, 1);
                 }
                 mSharedPreferences.edit().putBoolean("askedForRealtimeNotifications", true).apply();
             });
-            builder.setNegativeButton("No", (dialog, which) -> {
+            builder.setNegativeButton(R.string.no, (dialog, which) -> {
                 mSharedPreferences.edit().putBoolean("askedForRealtimeNotifications", true).apply();
                 dialog.dismiss();
             });
@@ -1258,11 +1314,25 @@ public class MainActivity extends AppCompatActivity {
     private void setNotifications() {
         if (mSettingsPreferences.getBoolean("zmanim_notifications", true)) {//if the user wants notifications
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {// ask for permission to send notifications for newer versions of android ughhhh...
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1);
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS, Manifest.permission.SCHEDULE_EXACT_ALARM}, 1);// if the user
                 }
             }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !((AlarmManager) getSystemService(ALARM_SERVICE)).canScheduleExactAlarms()) {// more annoying android permission garbage
+                AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.alertDialog);
+                builder.setTitle(R.string.zmanim_notifications_will_not_work);
+                builder.setMessage(R.string.if_you_would_like_to_receive_zmanim_notifications);
+                builder.setCancelable(false);
+                builder.setPositiveButton(getString(R.string.yes), (dialog, which) -> sNotificationLauncher.launch(new Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:"+ getPackageName()))));
+                builder.setNegativeButton(getString(R.string.no), (dialog, which) -> dialog.dismiss());
+                builder.show();
+            }
         }
+        setAllNotifications();
+    }
+
+    private void setAllNotifications() {
         Calendar calendar = (Calendar) mROZmanimCalendar.getCalendar().clone();
         if (mROZmanimCalendar.getSunrise() != null) {
             calendar.setTimeInMillis(mROZmanimCalendar.getSunrise().getTime());

@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.absolutePadding
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -1537,11 +1539,11 @@ class MainActivity : ComponentActivity() {
                                                     false
                                                 )
                                             ) {
-                                                Text(
-                                                    text = "Settings not received from the Main App. " +
-                                                            "Please open up the app on your phone.",
-                                                    textAlign = TextAlign.Center
-                                                )
+                                                Box(modifier = Modifier.padding(vertical = 36.dp)) {
+                                                    DarkChip(
+                                                        text = getString(R.string.settings_not_recieved)
+                                                    )
+                                                }
                                             }
                                         }
 

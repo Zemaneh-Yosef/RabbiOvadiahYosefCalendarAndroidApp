@@ -557,5 +557,6 @@
     <string name="enter_longitude">הזן קו אורך:</string>
     <string name="choose_timezone">בחר אזור זמן</string>
     <string name="dismiss_notifications">לבטל הודעות באופן אוטומטי</string>
-
+    <string name="zmanim_notifications_will_not_work">התראות לזמנים לא יעבדו!</string>
+    <string name="if_you_would_like_to_receive_zmanim_notifications">האפליקציה כרגע אינה מסוגלת לשלוח לך התראות לזמנים. האם ברצונך לשנות הגדרה זו? (אם ברצונך להפסיק שהדיאלוג הזה יופיע, יש להשבית את ההתראות לזמנים בהגדרות)</string>
 </resources>
