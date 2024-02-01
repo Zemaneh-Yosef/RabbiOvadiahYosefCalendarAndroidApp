@@ -12,9 +12,6 @@ import androidx.preference.PreferenceManager;
 
 import com.ej.rovadiahyosefcalendar.R;
 
-import java.util.Arrays;
-import java.util.List;
-
 public class NotificationSettingsActivity extends AppCompatActivity {
 
     @Override

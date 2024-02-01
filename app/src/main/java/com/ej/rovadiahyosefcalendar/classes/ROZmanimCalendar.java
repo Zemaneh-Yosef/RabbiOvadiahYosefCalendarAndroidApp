@@ -1,7 +1,5 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sCurrentLocationName;
-
 import androidx.annotation.Nullable;
 
 import com.kosherjava.zmanim.AstronomicalCalendar;

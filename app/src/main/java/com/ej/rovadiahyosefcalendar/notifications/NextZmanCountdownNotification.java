@@ -130,23 +130,25 @@ public class NextZmanCountdownNotification extends Service {
         countdownRunnable = new Runnable() {
             @Override
             public void run() {
-                if (remainingTime <= 0) {
-                    nextZman = ZmanimFactory.getNextUpcomingZman(
-                            new GregorianCalendar(),
-                            mROZmanimCalendar,
-                            mJewishDateInfo,
-                            mSettingsPreferences,
-                            mSharedPreferences,
-                            mIsZmanimInHebrew,
-                            mIsZmanimEnglishTranslated);
-                    timeTillNextZman = nextZman.getZman().getTime() - new Date().getTime();
-                    updateNotification(nextZman.getTitle());
-                    remainingTime = timeTillNextZman;
-                    handler.postDelayed(this, 0);
-                } else {
-                    updateNotification(nextZman.getTitle());
-                    remainingTime -= COUNTDOWN_INTERVAL;
-                    handler.postDelayed(this, COUNTDOWN_INTERVAL);
+                if (mSettingsPreferences.getBoolean("showNextZmanNotification", false)) {
+                    if (remainingTime <= 0) {
+                        nextZman = ZmanimFactory.getNextUpcomingZman(
+                                new GregorianCalendar(),
+                                mROZmanimCalendar,
+                                mJewishDateInfo,
+                                mSettingsPreferences,
+                                mSharedPreferences,
+                                mIsZmanimInHebrew,
+                                mIsZmanimEnglishTranslated);
+                        timeTillNextZman = nextZman.getZman().getTime() - new Date().getTime();
+                        updateNotification(nextZman.getTitle());
+                        remainingTime = timeTillNextZman;
+                        handler.postDelayed(this, 0);
+                    } else {
+                        updateNotification(nextZman.getTitle());
+                        remainingTime -= COUNTDOWN_INTERVAL;
+                        handler.postDelayed(this, COUNTDOWN_INTERVAL);
+                    }
                 }
             }
         };

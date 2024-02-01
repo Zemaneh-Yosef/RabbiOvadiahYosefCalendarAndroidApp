@@ -17,7 +17,6 @@
         android:orientation="vertical">
 
     <TextView
-        android:id="@+id/calendar_question"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/choose_a_calendar"

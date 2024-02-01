@@ -19,7 +19,6 @@ import com.ej.rovadiahyosefcalendar.classes.SiddurAdapter;
 import com.ej.rovadiahyosefcalendar.classes.SiddurMaker;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class SiddurViewActivity extends AppCompatActivity {
 
