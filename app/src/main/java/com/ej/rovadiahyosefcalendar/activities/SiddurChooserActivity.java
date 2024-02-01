@@ -21,6 +21,7 @@ import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
+import java.util.Calendar;
 import java.util.Locale;
 
 public class SiddurChooserActivity extends AppCompatActivity {
@@ -92,11 +93,23 @@ public class SiddurChooserActivity extends AppCompatActivity {
 
         if (mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.TU_BESHVAT) {
             disclaimer.setVisibility(View.VISIBLE);
-            String text = "";
+            String text;
             if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
                 text = "טוב לאמר את התפילה הזו בטו בשבט:<br><br> <a href='https://elyahu41.github.io/Prayer%20for%20an%20Etrog.pdf'>תפילה לאתרוג</a>";
             } else {
                 text = "It is good to say this prayer on Tu'Beshvat:<br><br> <a href='https://elyahu41.github.io/Prayer%20for%20an%20Etrog.pdf'>Prayer for Etrog</a>";
+            }
+            disclaimer.setText(fromHtml(text, Html.FROM_HTML_MODE_COMPACT));
+        }
+
+        if (mJewishDateInfo.getJewishCalendar().getUpcomingParshah() == JewishCalendar.Parsha.BESHALACH &&
+                mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.TUESDAY) {
+            disclaimer.setVisibility(View.VISIBLE);
+            String text;
+            if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                text = "טוב לאמר את התפילה הזו היום:<br><br> <a href='https://www.tefillos.com/Parshas-Haman-3.pdf'>פרשת המן</a>";
+            } else {
+                text = "It is good to say this prayer today:<br><br> <a href='https://www.tefillos.com/Parshas-Haman-3.pdf'>Parshat Haman</a>";
             }
             disclaimer.setText(fromHtml(text, Html.FROM_HTML_MODE_COMPACT));
         }

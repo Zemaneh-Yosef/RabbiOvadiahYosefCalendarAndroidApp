@@ -339,4 +339,6 @@
     <string name="dismiss_notifications">Dismiss notifications automatically?</string>
     <string name="zmanim_notifications_will_not_work">Zmanim notifications will not work!</string>
    <string name="if_you_would_like_to_receive_zmanim_notifications">The app cannot currently send you zmanim notifications. Would you would like to change this setting? (If you want to stop this dialog from popping up, disable zmanim notifications in the settings)</string>
+    <string name="display_next_upcoming_zman_sticky_notification">Display Next Upcoming Zman Sticky Notification</string>
+   <string name="when_you_open_the_app_show_a_notification_that_will_tell_you_when_the_next_zman_is">When you open the app, show a notification that will tell you when the next zman is</string>
 </resources>

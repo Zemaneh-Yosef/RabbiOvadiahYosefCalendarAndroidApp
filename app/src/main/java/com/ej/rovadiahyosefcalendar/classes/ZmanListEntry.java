@@ -4,7 +4,7 @@ import java.util.Date;
 
 public class ZmanListEntry {
 
-    private final String title;
+    private String title;
     private final Date zman;
     private final boolean isZman;
     private boolean isNoteworthyZman;
@@ -33,6 +33,10 @@ public class ZmanListEntry {
 
     public String getTitle() {
         return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public Date getZman() {

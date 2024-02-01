@@ -4,6 +4,12 @@
     <PreferenceCategory app:title="@string/zmanim_notifications_settings"
         android:summary="@string/minutes_before_the_zman_for_notifications">
 
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="showNextZmanNotification"
+            android:summary="@string/when_you_open_the_app_show_a_notification_that_will_tell_you_when_the_next_zman_is"
+            android:title="@string/display_next_upcoming_zman_sticky_notification" />
+
         <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
             android:key="autoDismissNotifications"
             android:title="@string/dismiss_notifications"
