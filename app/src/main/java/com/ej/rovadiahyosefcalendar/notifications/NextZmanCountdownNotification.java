@@ -30,6 +30,8 @@ import com.ej.rovadiahyosefcalendar.classes.ZmanListEntry;
 import com.ej.rovadiahyosefcalendar.classes.ZmanimFactory;
 import com.kosherjava.zmanim.util.GeoLocation;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
@@ -45,14 +47,18 @@ public class NextZmanCountdownNotification extends Service {
     private long remainingTime;
     private long timeTillNextZman;
 
-    private static SharedPreferences mSharedPreferences;
-    private static SharedPreferences mSettingsPreferences;
-    private static LocationResolver mLocationResolver;
-    private static JewishDateInfo mJewishDateInfo;
-    private static ROZmanimCalendar mROZmanimCalendar;
-    private static boolean mIsZmanimInHebrew;
-    private static boolean mIsZmanimEnglishTranslated;
+    private SharedPreferences mSharedPreferences;
+    private SharedPreferences mSettingsPreferences;
+    private LocationResolver mLocationResolver;
+    private JewishDateInfo mJewishDateInfo;
+    private ROZmanimCalendar mROZmanimCalendar;
+    private boolean mIsZmanimInHebrew;
+    private boolean mIsZmanimEnglishTranslated;
+
+    private boolean shouldShowNotification = true;
     private ZmanListEntry nextZman;
+    private DateFormat zmanimFormat;
+    private SharedPreferences.OnSharedPreferenceChangeListener prefListener;
 
     @Override
     public void onCreate() {
@@ -60,7 +66,27 @@ public class NextZmanCountdownNotification extends Service {
         handler = new Handler();
         mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         mSettingsPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        prefListener = (prefs, key) -> {
+            if (key.equals("showNextZmanNotification")) {
+                shouldShowNotification = !shouldShowNotification;
+            }
+        };
+        mSettingsPreferences.registerOnSharedPreferenceChangeListener(prefListener);
         setZmanimLanguageBools();
+        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            if (mSettingsPreferences.getBoolean("ShowSeconds", false)) {
+                zmanimFormat = new SimpleDateFormat("H:mm:ss", Locale.getDefault());
+            } else {
+                zmanimFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
+            }
+        } else {
+            if (mSettingsPreferences.getBoolean("ShowSeconds", false)) {
+                zmanimFormat = new SimpleDateFormat("h:mm:ss aa", Locale.getDefault());
+            } else {
+                zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+            }
+        }
+        zmanimFormat.setTimeZone(TimeZone.getTimeZone(mSharedPreferences.getString("timezoneID", ""))); //set the formatters time zone
         mLocationResolver = new LocationResolver(this, new Activity());
         mROZmanimCalendar = getROZmanimCalendar(this);
         mROZmanimCalendar.setExternalFilesDir(getExternalFilesDir(null));
@@ -71,7 +97,7 @@ public class NextZmanCountdownNotification extends Service {
         startCountdown();
     }
 
-    private static void setZmanimLanguageBools() {
+    private void setZmanimLanguageBools() {
         if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
             mIsZmanimInHebrew = true;
             mIsZmanimEnglishTranslated = false;
@@ -84,7 +110,7 @@ public class NextZmanCountdownNotification extends Service {
         }
     }
 
-    private static ROZmanimCalendar getROZmanimCalendar(Context context) {
+    private ROZmanimCalendar getROZmanimCalendar(Context context) {
         if (ActivityCompat.checkSelfPermission(context, ACCESS_BACKGROUND_LOCATION) == PERMISSION_GRANTED) {
             mLocationResolver.getRealtimeNotificationData();
             if (mLocationResolver.getLatitude() != 0 && mLocationResolver.getLongitude() != 0) {
@@ -104,7 +130,7 @@ public class NextZmanCountdownNotification extends Service {
                 TimeZone.getTimeZone(mSharedPreferences.getString("timezoneID", ""))));
     }
 
-    private static double getLastKnownElevation(Context context) {
+    private double getLastKnownElevation(Context context) {
         double elevation;
         if (!mSharedPreferences.getBoolean("useElevation", true)) {//if the user has disabled the elevation setting, set the elevation to 0
             elevation = 0;
@@ -130,7 +156,7 @@ public class NextZmanCountdownNotification extends Service {
         countdownRunnable = new Runnable() {
             @Override
             public void run() {
-                if (mSettingsPreferences.getBoolean("showNextZmanNotification", false)) {
+                if (shouldShowNotification) {
                     if (remainingTime <= 0) {
                         nextZman = ZmanimFactory.getNextUpcomingZman(
                                 new GregorianCalendar(),
@@ -141,14 +167,16 @@ public class NextZmanCountdownNotification extends Service {
                                 mIsZmanimInHebrew,
                                 mIsZmanimEnglishTranslated);
                         timeTillNextZman = nextZman.getZman().getTime() - new Date().getTime();
-                        updateNotification(nextZman.getTitle());
+                        updateNotification(nextZman);
                         remainingTime = timeTillNextZman;
                         handler.postDelayed(this, 0);
                     } else {
-                        updateNotification(nextZman.getTitle());
+                        updateNotification(nextZman);
                         remainingTime -= COUNTDOWN_INTERVAL;
                         handler.postDelayed(this, COUNTDOWN_INTERVAL);
                     }
+                } else {
+                    dismissNotification();
                 }
             }
         };
@@ -156,15 +184,22 @@ public class NextZmanCountdownNotification extends Service {
         handler.post(countdownRunnable);
     }
 
-    private void updateNotification(String contentText) {
+    private void updateNotification(ZmanListEntry zman) {
         long seconds = (remainingTime / 1000) % 60;
         long minutes = (remainingTime / (1000 * 60)) % 60;
         long hours = (remainingTime / (1000 * 60 * 60)) % 24;
 
+        String text;
+        if (mIsZmanimInHebrew) {
+            text = String.format("%s : %s", zmanimFormat.format(zman.getZman()), zman.getTitle());
+        } else {
+            text = zman.getTitle() + " is at " + zmanimFormat.format(zman.getZman());
+        }
+
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.baseline_av_timer_24)
-                .setContentTitle(contentText)
+                .setContentTitle(text)
                 .setContentText(String.format(Locale.getDefault(),"%02dh:%02dm:%02ds", hours, minutes, seconds))
                 .setProgress((int) timeTillNextZman, (int) remainingTime, false)
                 .setOngoing(true);
@@ -177,11 +212,16 @@ public class NextZmanCountdownNotification extends Service {
         notificationManager.notify(NOTIFICATION_ID, notification);
     }
 
+    private void dismissNotification() {
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(NOTIFICATION_ID);
+    }
+
     private void createNotificationChannel() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             CharSequence name = "Next Zman Countdown Channel";
             String description = "Next Zman Countdown Channel";
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            int importance = NotificationManager.IMPORTANCE_LOW;
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
             channel.setDescription(description);
 
@@ -193,6 +233,7 @@ public class NextZmanCountdownNotification extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mSettingsPreferences.unregisterOnSharedPreferenceChangeListener(prefListener);
         handler.removeCallbacks(countdownRunnable);
         stopForeground(true);
     }

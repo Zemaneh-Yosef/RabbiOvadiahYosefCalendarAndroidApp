@@ -5,4 +5,20 @@
         <item name="android:windowSwipeToDismiss" tools:ignore="WearBackNavigation">false</item>
         Google does not like this. We will disable it for now and then enable it later. Hopefully it gets accepted then.-->
     </style>
+
+    <style name="Theme.App" parent="@android:style/Theme.DeviceDefault" />
+
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <!-- Set the splash screen background to black -->
+        <item name="windowSplashScreenBackground">@android:color/black</item>
+        <!-- Use windowSplashScreenAnimatedIcon to add a drawable or an animated
+             drawable. -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_screen</item>
+        <!-- Set the theme of the Activity that follows your splash screen. -->
+        <item name="postSplashScreenTheme">@style/Theme.App</item>
+
+        <!-- Set a white background behind the splash screen icon. -->
+        <item name="windowSplashScreenIconBackgroundColor">@android:color/white</item>
+
+    </style>
 </resources>
