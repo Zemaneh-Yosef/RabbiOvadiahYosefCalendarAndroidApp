@@ -200,6 +200,8 @@ public class NextZmanCountdownNotification extends Service {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.baseline_av_timer_24)
                 .setContentTitle(text)
+                .setSilent(true)
+                .setWhen(System.currentTimeMillis())
                 .setContentText(String.format(Locale.getDefault(),"%02dh:%02dm:%02ds", hours, minutes, seconds))
                 .setProgress((int) timeTillNextZman, (int) remainingTime, false)
                 .setOngoing(true);
@@ -221,9 +223,10 @@ public class NextZmanCountdownNotification extends Service {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             CharSequence name = "Next Zman Countdown Channel";
             String description = "Next Zman Countdown Channel";
-            int importance = NotificationManager.IMPORTANCE_LOW;
+            int importance = NotificationManager.IMPORTANCE_HIGH;
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
             channel.setDescription(description);
+            channel.enableVibration(false);
 
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);

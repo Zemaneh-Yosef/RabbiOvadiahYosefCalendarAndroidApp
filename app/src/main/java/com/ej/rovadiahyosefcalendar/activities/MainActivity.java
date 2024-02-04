@@ -3,7 +3,6 @@ package com.ej.rovadiahyosefcalendar.activities;
 import static android.Manifest.permission.ACCESS_BACKGROUND_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
-
 import static com.ej.rovadiahyosefcalendar.classes.ZmanimFactory.addZmanim;
 
 import android.Manifest;
@@ -19,7 +18,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -31,7 +29,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -82,7 +79,6 @@ import com.ej.rovadiahyosefcalendar.classes.WearableCapabilityChecker;
 import com.ej.rovadiahyosefcalendar.classes.ZmanAdapter;
 import com.ej.rovadiahyosefcalendar.classes.ZmanListEntry;
 import com.ej.rovadiahyosefcalendar.classes.ZmanimFactory;
-import com.ej.rovadiahyosefcalendar.classes.ZmanimNames;
 import com.ej.rovadiahyosefcalendar.notifications.DailyNotifications;
 import com.ej.rovadiahyosefcalendar.notifications.NextZmanCountdownNotification;
 import com.ej.rovadiahyosefcalendar.notifications.OmerNotifications;
@@ -130,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean mBackHasBeenPressed = false;
     private boolean mUpdateTablesDialogShown;
     private boolean mInitialized = false;
-    private int mCurrentPosition;//current top position in the list of zmanim to return to
+    private int mCurrentPosition;//current position in the list of zmanim to return to
     private double mElevation = 0;
     public static double sLatitude;
     public static double sLongitude;

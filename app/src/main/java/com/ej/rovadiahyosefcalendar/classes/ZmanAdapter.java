@@ -292,7 +292,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 //                    dialogBuilder.setPositiveButton("Dismiss", (dialog, which) -> dialog.dismiss());
 //                }
             }
-            if (zmanim.get(position).getTitle().equals(context.getString(R.string.show_siddur))) {
+            if (zmanim.get(position).getTitle().equals(context.getString(R.string.show_siddur)) ||
+                    zmanim.get(position).getTitle().equals(context.getString(R.string.show_siddur) + "*")) {
                 JewishCalendar jewishCalendar = new JewishCalendar();
                 jewishCalendar.setDate(zmanim.get(position).getZman());
                 context.startActivity(new Intent(context, SiddurChooserActivity.class)
