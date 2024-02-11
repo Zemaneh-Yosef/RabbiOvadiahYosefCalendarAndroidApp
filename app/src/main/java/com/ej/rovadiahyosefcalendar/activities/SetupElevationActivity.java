@@ -67,7 +67,6 @@ public class SetupElevationActivity extends AppCompatActivity {
             if (getIntent().getBooleanExtra("downloadTable",false)) {
                 downloadTablesAndFinish(sharedPreferences);
             } else {
-                editor.putBoolean("showMishorSunrise" + sCurrentLocationName, true).apply();
                 finish();
             }
         });

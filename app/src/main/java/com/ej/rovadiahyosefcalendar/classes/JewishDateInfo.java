@@ -561,7 +561,7 @@ public class JewishDateInfo {
         if (jewishCalendar.getJewishMonth() != JewishDate.AV) {
             if (DateUtils.isSameDay(jewishCalendar.getGregorianCalendar(), sevenDays)) {
                 if (isLocaleHebrew) {
-                    return "בִּרְכַּת הַלְּבָנָה מַתְחִילָה הַלַּיְלָה";
+                    return "ברכת הלבנה מתחילה הלילה";
                 }
                 return "Birchat HaLevana starts tonight";
             }
@@ -571,7 +571,7 @@ public class JewishDateInfo {
             }
             if (jewishCalendar.isTishaBav()) {
                 if (isLocaleHebrew) {
-                    return "בִּרְכַּת הַלְּבָנָה מַתְחִילָה הַלַּיְלָה";
+                    return "ברכת הלבנה מתחילה הלילה";
                 }
                 return "Birchat HaLevana starts tonight";
             }

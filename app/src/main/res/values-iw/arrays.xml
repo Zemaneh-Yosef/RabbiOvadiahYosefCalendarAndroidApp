@@ -1,8 +1,8 @@
 <resources>
     <string-array name="language_entries">
-        <item>System Default</item>
-        <item>English</item>
-        <item>Hebrew</item>
+        <item>ברירת המחדל של המערכת</item>
+        <item>אנגלית</item>
+        <item>עברית</item>
     </string-array>
 
     <string-array name="language_values">
@@ -12,13 +12,13 @@
     </string-array>
 
     <string-array name="candle_lighting_entries">
-        <item>15 Minutes</item>
-        <item>18 Minutes</item>
-        <item>20 Minutes</item>
-        <item>21 Minutes</item>
-        <item>22 Minutes</item>
-        <item>30 Minutes</item>
-        <item>40 Minutes</item>
+        <item>15 דקות</item>
+        <item>18 דקות</item>
+        <item>20 דקות</item>
+        <item>21 דקות</item>
+        <item>22 דקות</item>
+        <item>30 דקות</item>
+        <item>40 דקות</item>
     </string-array>
 
     <string-array name="candle_lighting_values">
@@ -32,9 +32,9 @@
     </string-array>
 
     <string-array name="tekufa_opinion_entries">
-        <item>12PM start time (Ohr HaChaim)</item>
-        <item>11:39AM start time (Amudei Horaah)</item>
-        <item>Show Both</item>
+        <item>שעת התחלה ב-12 בצהריים (אור החיים)</item>
+        <item>שעת התחלה ב-11:39 בבוקר (עמודי הוראה)</item>
+        <item>הצגת שניהם</item>
     </string-array>
 
     <string-array name="tekufa_opinion_values">
@@ -44,9 +44,9 @@
     </string-array>
 
     <string-array name="plag_opinion_entries">
-        <item>1 hour and 15 minutes before tzeit (Yalkut Yosef)</item>
-        <item>1 hour and 15 minutes before sunset (Halacha Berura)</item>
-        <item>Show Both</item>
+        <item>שעה ו-15 דקות לפני צאת הכוכבים (ילקוט יוסף)</item>
+        <item>שעה ו-15 דקות לפני השקיעה (הלכה בירורה)</item>
+        <item>הצגת שניהם</item>
     </string-array>
 
     <string-array name="plag_opinion_values">
@@ -56,9 +56,9 @@
     </string-array>
 
     <string-array name="shabbat_opinion_entries">
-        <item>Regular Minutes</item>
-        <item>7.14 Degrees</item>
-        <item>Lesser of the two</item>
+        <item>דקות רגילות</item>
+        <item>7.14 מעלות</item>
+        <item>הקטן מביניהם</item>
     </string-array>
 
     <string-array name="shabbat_opinion_values">
@@ -68,9 +68,9 @@
     </string-array>
 
     <string-array name="theme_entries">
-        <item>Auto (Follow System Theme)</item>
-        <item>Light</item>
-        <item>Dark</item>
+        <item>אוטומטי (עקוב אחר ערכת הנושא של המערכת)</item>
+        <item>בהיר</item>
+        <item>אפל</item>
     </string-array>
 
     <string-array name="theme_values">
@@ -80,8 +80,8 @@
     </string-array>
 
     <string-array name="shabbat_entries">
-        <item>Show Regular Minutes</item>
-        <item>Show Rabbeinu Tam</item>
+        <item>הצג דקות רגילות</item>
+        <item>הצג את רבינו תם</item>
     </string-array>
 
 </resources>

@@ -533,9 +533,15 @@ public class SiddurMaker {
 
         addAmidahToSiddur(false, false);
 
+        boolean isTachanunSaid = jewishDateInfo.getIsTachanunSaid().equals("Tachanun only in the morning")
+                || jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון רק בבוקר")
+                || jewishDateInfo.getIsTachanunSaid().equals("There is Tachanun today")
+                || jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון");
+
         if (jewishDateInfo.getJewishCalendar().isRoshChodesh()
          || jewishDateInfo.getJewishCalendar().isCholHamoed()
          || jewishDateInfo.getJewishCalendar().isChanukah()) {
+            addAvinuMalkeinu(isTachanunSaid);//Obviously, Avinu Malkeinu does not fall out on Rosh Chodesh or Chol Hamoed or Chanukah, however, we say it in a time of sorrow
             addHallel();
 
             if (jewishDateInfo.getJewishCalendar().isCholHamoedSuccos()) {
@@ -644,10 +650,20 @@ public class SiddurMaker {
                 addHalfKaddish(false);
 
                 if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                    if (jewishDateInfo.getJewishCalendar().isRoshChodesh()) {
+                        addToSiddurHighlighted(
+                                "הסרת תפילין כאן"
+                        );
+                    }
                     addToSiddurHighlighted(
                             "מוסף אומרים כאן, לחץ כאן כדי להמשיך למוסף"
                     );
                 } else {
+                    if (jewishDateInfo.getJewishCalendar().isRoshChodesh()) {
+                        addToSiddurHighlighted(
+                                "Remove your tefilin here"
+                        );
+                    }
                     addToSiddurHighlighted(
                             "Mussaf is said here, press here to go to Mussaf"
                     );
@@ -670,11 +686,6 @@ public class SiddurMaker {
             }
             return siddur;// Early return statement
         }
-
-        boolean isTachanunSaid = jewishDateInfo.getIsTachanunSaid().equals("Tachanun only in the morning")
-                || jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון רק בבוקר")
-                || jewishDateInfo.getIsTachanunSaid().equals("There is Tachanun today")
-                || jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון");
 
         addAvinuMalkeinu(isTachanunSaid);
 
@@ -2096,7 +2107,7 @@ public class SiddurMaker {
             "וְחָנֵּֽנוּ מֵאִתְּךָ חָכְמָה בִּינָה וָדָֽעַת: בָּרוּךְ אַתָּה יַהַוַהַ, חוֹנֵן הַדָּֽעַת: \n\n" +
             "הֲשִׁיבֵֽנוּ אָבִֽינוּ לְתֽוֹרָתֶֽךָ, וְקָֽרְבֵֽנוּ מַלְכֵּֽנוּ לַֽעֲבֽוֹדָתֶֽךָ, וְהַֽחֲזִירֵֽנוּ בִּתְשׁוּבָה שְׁלֵמָה לְפָנֶֽיךָ: בָּרוּךְ אַתָּה יֵהֵוֵהֵ, הָרוֹצֶה בִּתְשׁוּבָה: \n\n" +
             "סְלַח לָֽנוּ אָבִֽינוּ כִּי חָטָֽאנוּ, מְחוֹל לָֽנוּ מַלְכֵּֽנוּ כִּי פָשָֽׁעְנוּ, כִּי אֵל טוֹב וְסַלָּח אָֽתָּה: בָּרוּךְ אַתָּה יֶהֶוֶהֶ, חַנּוּן הַמַּרְבֶּה לִסְלֹחַ: \n\n" +
-            "רְאֵה נָא בְעָנְיֵֽנוּ, וְרִיבָֽה רִיבֵֽנוּ, וּמַהֵר לְגָאֳלֵֽנוּ גְאוּלָּה שְׁלֵמָה לְמַֽעַן שְׁמֶֽךָ, כִּי אֵל גּוֹאֵל חָזָק אָֽתָּה: בָּרוּךְ אַתָּה יְהְוְהְ, גּוֹאֵל יִשְׂרָאֵל:"
+            "רְאֵה נָא בְעָנְיֵֽנוּ, וְרִיבָֽה רִיבֵֽנוּ, וּמַהֵר לְגָאֳלֵֽנוּ גְּאוּלָּה שְׁלֵמָה לְמַֽעַן שְׁמֶֽךָ, כִּי אֵל גּוֹאֵל חָזָק אָֽתָּה: בָּרוּךְ אַתָּה יְהְוְהְ, גּוֹאֵל יִשְׂרָאֵל:"
         );
 
         if (jewishDateInfo.getJewishCalendar().isTaanis()

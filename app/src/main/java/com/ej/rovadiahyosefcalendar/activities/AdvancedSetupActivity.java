@@ -50,6 +50,7 @@ public class AdvancedSetupActivity extends AppCompatActivity {
                 String link = tableLink.getText().toString();
                 editor.putString("chaitablesLink" + sCurrentLocationName, link);
                 editor.putBoolean("UseTable" + sCurrentLocationName, true).apply();
+                editor.putBoolean("showMishorSunrise" + sCurrentLocationName, false).apply();
                 startActivity(new Intent(this, SetupElevationActivity.class)
                         .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
                         .putExtra("downloadTable", true)
