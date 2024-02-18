@@ -2,20 +2,19 @@ package com.ej.rovadiahyosefcalendar.notifications;
 
 import static android.Manifest.permission.ACCESS_BACKGROUND_LOCATION;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
-
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
 
 import android.app.Activity;
 import android.app.Notification;
-        import android.app.NotificationChannel;
-        import android.app.NotificationManager;
-        import android.app.PendingIntent;
-        import android.app.Service;
-        import android.content.Context;
-        import android.content.Intent;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.Service;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
-        import android.os.IBinder;
+import android.os.IBinder;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
@@ -40,7 +39,7 @@ import java.util.TimeZone;
 public class NextZmanCountdownNotification extends Service {
 
     private static final String CHANNEL_ID = "next_zman_countdown_channel";
-    private static final int NOTIFICATION_ID = 1;
+    private static final int NOTIFICATION_ID = 1000;
     private static final long COUNTDOWN_INTERVAL = 1000; // 1 second
     private Handler handler;
     private Runnable countdownRunnable;
@@ -94,7 +93,6 @@ public class NextZmanCountdownNotification extends Service {
         mROZmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(mSettingsPreferences.getString("EndOfShabbatOffset", "40")));
         mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false), true);
         createNotificationChannel();
-        startCountdown();
     }
 
     private void setZmanimLanguageBools() {
@@ -144,6 +142,8 @@ public class NextZmanCountdownNotification extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent,flags,startId);
+        startCountdown();
         return START_STICKY;
     }
 
@@ -153,35 +153,37 @@ public class NextZmanCountdownNotification extends Service {
     }
 
     private void startCountdown() {
-        countdownRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (shouldShowNotification) {
-                    if (remainingTime <= 0) {
-                        nextZman = ZmanimFactory.getNextUpcomingZman(
-                                new GregorianCalendar(),
-                                mROZmanimCalendar,
-                                mJewishDateInfo,
-                                mSettingsPreferences,
-                                mSharedPreferences,
-                                mIsZmanimInHebrew,
-                                mIsZmanimEnglishTranslated);
-                        timeTillNextZman = nextZman.getZman().getTime() - new Date().getTime();
-                        updateNotification(nextZman);
-                        remainingTime = timeTillNextZman;
-                        handler.postDelayed(this, 0);
+        if (countdownRunnable == null) {
+            countdownRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    if (shouldShowNotification) {
+                        if (remainingTime <= 0) {
+                            nextZman = ZmanimFactory.getNextUpcomingZman(
+                                    new GregorianCalendar(),
+                                    mROZmanimCalendar,
+                                    mJewishDateInfo,
+                                    mSettingsPreferences,
+                                    mSharedPreferences,
+                                    mIsZmanimInHebrew,
+                                    mIsZmanimEnglishTranslated);
+                            timeTillNextZman = nextZman.getZman().getTime() - new Date().getTime();
+                            updateNotification(nextZman);
+                            remainingTime = timeTillNextZman;
+                            handler.postDelayed(this, 0);
+                        } else {
+                            updateNotification(nextZman);
+                            remainingTime -= COUNTDOWN_INTERVAL;
+                            handler.postDelayed(this, COUNTDOWN_INTERVAL);
+                        }
                     } else {
-                        updateNotification(nextZman);
-                        remainingTime -= COUNTDOWN_INTERVAL;
-                        handler.postDelayed(this, COUNTDOWN_INTERVAL);
+                        dismissNotification();
                     }
-                } else {
-                    dismissNotification();
                 }
-            }
-        };
+            };
 
-        handler.post(countdownRunnable);
+            handler.post(countdownRunnable);
+        }
     }
 
     private void updateNotification(ZmanListEntry zman) {
@@ -196,11 +198,11 @@ public class NextZmanCountdownNotification extends Service {
             text = zman.getTitle() + " is at " + zmanimFormat.format(zman.getZman());
         }
 
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.baseline_av_timer_24)
                 .setContentTitle(text)
                 .setSilent(true)
+                .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
                 .setWhen(System.currentTimeMillis())
                 .setContentText(String.format(Locale.getDefault(),"%02dh:%02dm:%02ds", hours, minutes, seconds))
                 .setProgress((int) timeTillNextZman, (int) remainingTime, false)
@@ -211,7 +213,10 @@ public class NextZmanCountdownNotification extends Service {
         builder.setContentIntent(pendingIntent);
 
         Notification notification = builder.build();
-        notificationManager.notify(NOTIFICATION_ID, notification);
+        notification.flags = Notification.FLAG_ONGOING_EVENT;
+        startForeground(NOTIFICATION_ID, notification);
+        //NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        //notificationManager.notify(NOTIFICATION_ID, notification);
     }
 
     private void dismissNotification() {
@@ -221,10 +226,9 @@ public class NextZmanCountdownNotification extends Service {
 
     private void createNotificationChannel() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            CharSequence name = "Next Zman Countdown Channel";
             String description = "Next Zman Countdown Channel";
             int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, description, importance);
             channel.setDescription(description);
             channel.enableVibration(false);
 
@@ -238,7 +242,7 @@ public class NextZmanCountdownNotification extends Service {
         super.onDestroy();
         mSettingsPreferences.unregisterOnSharedPreferenceChangeListener(prefListener);
         handler.removeCallbacks(countdownRunnable);
-        stopForeground(true);
+        stopForeground(STOP_FOREGROUND_REMOVE);
     }
 }
 

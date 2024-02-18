@@ -1118,7 +1118,11 @@ public class MainActivity extends AppCompatActivity {
         mLastTimeUserWasInApp = new Date();
 
         if (mSettingsPreferences.getBoolean("showNextZmanNotification", false)) {
-            startService(new Intent(this, NextZmanCountdownNotification.class));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(new Intent(this, NextZmanCountdownNotification.class));
+            } else {
+                startService(new Intent(this, NextZmanCountdownNotification.class));
+            }
         }
 
         super.onResume();
