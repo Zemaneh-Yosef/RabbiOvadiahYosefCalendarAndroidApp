@@ -208,6 +208,16 @@ public class ZmanimNames {
         }
     }
 
+    public String getBirkatHachamaString() {
+        if (mIsZmanimInHebrew) {
+            return "סוף זמן ברכת החמה";
+        } else if (mIsZmanimEnglishTranslated) {
+            return "Latest Birchat HaChamah";
+        } else {
+            return "Sof Zman Birchat HaChamah";
+        }
+    }
+
     public String getShmaGraString() {
         if (mIsZmanimInHebrew) {
             return "סוף זמן שמע גר\"א";

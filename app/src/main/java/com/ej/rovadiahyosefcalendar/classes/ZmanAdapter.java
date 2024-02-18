@@ -223,7 +223,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
                 // second entry is always the date
 
-                if (position == 2 && !zmanim.get(position).getTitle().equals("No Weekly Parsha") && !zmanim.get(position).getTitle().equals("אֵין פָּרָשַׁת הַשָּׁבוּעַ")) {// third entry will always be the weekly parsha
+                if (position == 2 && !zmanim.get(position).getTitle().equals("No Weekly Parsha") && !zmanim.get(position).getTitle().equals("אין פרשת שבוע")) {// third entry will always be the weekly parsha
                     String parsha = zmanim.get(position).getTitle().split(" ")[0];//get first word
                     String parshaLink = "https://www.sefaria.org/" + parsha;
                     dialogBuilder.setTitle("Open Sefaria link for " + parsha + "?");
@@ -267,7 +267,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     String masechta = YomiCalculator.getDafYomiBavli(jewishCalendar).getMasechtaTransliterated();
                     int daf = YomiCalculator.getDafYomiBavli(jewishCalendar).getDaf();
                     String dafYomiLink = "https://www.sefaria.org/" + masechta + "." + daf + "a";
-                    dialogBuilder.setTitle("Open Sefaria link for " + zmanim.get(position).getTitle().replace("Daf Yomi: ", "") + "?");
+                    dialogBuilder.setTitle("Open Sefaria link for " + zmanim.get(position).getTitle().replace(context.getString(R.string.daf_yomi) + " ", "") + "?");
                     dialogBuilder.setMessage("This will open the Sefaria website or app in a new window with the daf yomi.");
                     dialogBuilder.setPositiveButton(context.getString(R.string.ok), (dialog, which) -> {
                                 Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -364,6 +364,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             showShmaMGADialog();
         } else if (zmanim.get(position).getTitle().contains("שמע גר\"א")) {
             showShmaGRADialog();
+        } else if (zmanim.get(position).getTitle().contains("ברכת החמה")) {
+            showBirchatHachamahDialog();
         } else if (zmanim.get(position).getTitle().contains("ברכות שמע")) {
             showBrachotShmaDialog();
         } else if (zmanim.get(position).getTitle().contains("חצות לילה")) {
@@ -412,6 +414,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             showShmaMGADialog();
         } else if (zmanim.get(position).getTitle().contains("Shma GR\"A")) {
             showShmaGRADialog();
+        } else if (zmanim.get(position).getTitle().contains("Birchat HaChamah")) {
+            showBirchatHachamahDialog();
         } else if (zmanim.get(position).getTitle().contains("Brachot Shma")) {
             showBrachotShmaDialog();
         } else if (zmanim.get(position).getTitle().contains("Mid-day")) {
@@ -460,6 +464,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             showShmaMGADialog();
         } else if (zmanim.get(position).getTitle().contains("Shma GR\"A")) {
             showShmaGRADialog();
+        } else if (zmanim.get(position).getTitle().contains("Birchat HaChamah")) {
+            showBirchatHachamahDialog();
         } else if (zmanim.get(position).getTitle().contains("Brachot Shma")) {
             showBrachotShmaDialog();
         } else if (zmanim.get(position).getTitle().contains("Chatzot Layla")) {
@@ -588,6 +594,12 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     private void showShmaGRADialog() {
         dialogBuilder.setTitle("Latest time for Shma (GR\"A) - שמע גר\"א - Shma GR\"A")
                 .setMessage(R.string.shmaGRAdialog)
+                .show();
+    }
+
+    private void showBirchatHachamahDialog() {
+        dialogBuilder.setTitle("Latest Birchat HaChamah - סוף זמן ברכת החמה - Sof Zman Birchat HaChamah")
+                .setMessage(R.string.birchat_hachama_dialog)
                 .show();
     }
 
