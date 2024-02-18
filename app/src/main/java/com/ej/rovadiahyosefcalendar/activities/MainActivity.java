@@ -2330,11 +2330,23 @@ public class MainActivity extends AppCompatActivity {
         if (locationOne.getText().equals("")) {
             locationOne.setVisibility(View.GONE);
         }
+        if (locationOne.getVisibility() != View.GONE) {
+            locationOne.setOnLongClickListener(view -> {
+                askUserIfTheyWantToDeleteThisEntry("location1", locationOne);
+                return false;
+            });
+        }
 
         Button locationTwo = new Button(this);
         locationTwo.setText(mSharedPreferences.getString("location2", ""));
         if (locationTwo.getText().equals("")) {
             locationTwo.setVisibility(View.GONE);
+        }
+        if (locationTwo.getVisibility() != View.GONE) {
+            locationTwo.setOnLongClickListener(view -> {
+                askUserIfTheyWantToDeleteThisEntry("location2", locationTwo);
+                return false;
+            });
         }
 
         Button locationThree = new Button(this);
@@ -2342,17 +2354,35 @@ public class MainActivity extends AppCompatActivity {
         if (locationThree.getText().equals("")) {
             locationThree.setVisibility(View.GONE);
         }
+        if (locationThree.getVisibility() != View.GONE) {
+            locationThree.setOnLongClickListener(view -> {
+                askUserIfTheyWantToDeleteThisEntry("location3", locationThree);
+                return false;
+            });
+        }
 
         Button locationFour = new Button(this);
         locationFour.setText(mSharedPreferences.getString("location4", ""));
         if (locationFour.getText().equals("")) {
             locationFour.setVisibility(View.GONE);
         }
+        if (locationFour.getVisibility() != View.GONE) {
+            locationFour.setOnLongClickListener(view -> {
+                askUserIfTheyWantToDeleteThisEntry("location4", locationFour);
+                return false;
+            });
+        }
 
         Button locationFive = new Button(this);
         locationFive.setText(mSharedPreferences.getString("location5", ""));
         if (locationFive.getText().equals("")) {
             locationFive.setVisibility(View.GONE);
+        }
+        if (locationFive.getVisibility() != View.GONE) {
+            locationFive.setOnLongClickListener(view -> {
+                askUserIfTheyWantToDeleteThisEntry("location5", locationFive);
+                return false;
+            });
         }
 
         linearLayout.addView(locationOne);
@@ -2667,6 +2697,19 @@ public class MainActivity extends AppCompatActivity {
             sendPreferencesToWatch();
             ad.dismiss();
         });
+    }
+
+    private void askUserIfTheyWantToDeleteThisEntry(String location, Button locationButton) {
+        String locationName = mSharedPreferences.getString("location1", "");
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this, R.style.alertDialog);
+        alertDialog.setTitle(locationName)
+                .setMessage(R.string.do_you_want_to_delete_this_location)
+                .setPositiveButton(getString(R.string.yes), (dialogInterface, i) -> {
+                    mSharedPreferences.edit().putString(location, "").apply();
+                    locationButton.setVisibility(View.GONE);
+                })
+                .setNegativeButton(getString(R.string.no), (dialogInterface, i) -> dialogInterface.dismiss())
+                .show();
     }
 
     private void setUseLocations(boolean location1, boolean location2, boolean location3, boolean location4, boolean location5) {

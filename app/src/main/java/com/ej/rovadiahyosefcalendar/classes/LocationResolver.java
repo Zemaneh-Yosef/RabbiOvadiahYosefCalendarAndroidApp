@@ -190,7 +190,7 @@ public class LocationResolver extends Thread {
 
     /**
      * Resolves the current location name to be a latitude and longitude if mCurrentLocationName is empty
-     * @see com.ej.rovadiahyosefcalendar.activities.MainActivity#sCurrentLocationName
+     * @see MainActivity#sCurrentLocationName
      */
     public void resolveCurrentLocationName() {
         sCurrentLocationName = getLocationAsName();

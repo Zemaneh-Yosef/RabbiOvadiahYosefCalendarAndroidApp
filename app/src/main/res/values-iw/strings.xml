@@ -561,4 +561,5 @@
     <string name="if_you_would_like_to_receive_zmanim_notifications">האפליקציה כרגע אינה מסוגלת לשלוח לך התראות לזמנים. האם ברצונך לשנות הגדרה זו? (אם ברצונך להפסיק שהדיאלוג הזה יופיע, יש להשבית את ההתראות לזמנים בהגדרות)</string>
     <string name="display_next_upcoming_zman_sticky_notification">הצגת התראה דביקה לזמן הקרוב ביותר</string>
     <string name="when_you_open_the_app_show_a_notification_that_will_tell_you_when_the_next_zman_is">כאשר אתה פותח את האפליקציה, הצג התראה שתציין מתי הזמן הקרוב ביותר</string>
+    <string name="do_you_want_to_delete_this_location">האם ברצונך למחוק מיקום זה?</string>
 </resources>
