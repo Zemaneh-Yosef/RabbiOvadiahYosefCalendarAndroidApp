@@ -57,20 +57,35 @@ public class NextZmanCountdownNotification extends Service {
     private boolean shouldShowNotification = true;
     private ZmanListEntry nextZman;
     private DateFormat zmanimFormat;
-    private SharedPreferences.OnSharedPreferenceChangeListener prefListener;
+    private SharedPreferences.OnSharedPreferenceChangeListener settingsPrefListener;
+    private SharedPreferences.OnSharedPreferenceChangeListener sharedPrefListener;
 
     @Override
     public void onCreate() {
         super.onCreate();
         handler = new Handler();
         mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
+        sharedPrefListener = (prefs, key) -> {
+            if (key.equals("isZmanimInHebrew") || key.equals("isZmanimEnglishTranslated")) {
+                setZmanimLanguageBools();
+                nextZman = ZmanimFactory.getNextUpcomingZman(
+                        new GregorianCalendar(),
+                        mROZmanimCalendar,
+                        mJewishDateInfo,
+                        mSettingsPreferences,
+                        mSharedPreferences,
+                        mIsZmanimInHebrew,
+                        mIsZmanimEnglishTranslated);
+            }
+        };
+        mSharedPreferences.registerOnSharedPreferenceChangeListener(sharedPrefListener);
         mSettingsPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        prefListener = (prefs, key) -> {
+        settingsPrefListener = (prefs, key) -> {
             if (key.equals("showNextZmanNotification")) {
                 shouldShowNotification = !shouldShowNotification;
             }
         };
-        mSettingsPreferences.registerOnSharedPreferenceChangeListener(prefListener);
+        mSettingsPreferences.registerOnSharedPreferenceChangeListener(settingsPrefListener);
         setZmanimLanguageBools();
         if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
             if (mSettingsPreferences.getBoolean("ShowSeconds", false)) {
@@ -240,7 +255,8 @@ public class NextZmanCountdownNotification extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mSettingsPreferences.unregisterOnSharedPreferenceChangeListener(prefListener);
+        mSharedPreferences.unregisterOnSharedPreferenceChangeListener(sharedPrefListener);
+        mSettingsPreferences.unregisterOnSharedPreferenceChangeListener(settingsPrefListener);
         handler.removeCallbacks(countdownRunnable);
         stopForeground(STOP_FOREGROUND_REMOVE);
     }
