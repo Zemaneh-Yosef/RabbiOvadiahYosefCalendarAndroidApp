@@ -630,10 +630,18 @@ public class MainActivity extends AppCompatActivity {
                 .put("alwaysShowTzeitLChumra", mSettingsPreferences.getBoolean("alwaysShowTzeitLChumra", false))
                 .put("AlwaysShowRT", mSettingsPreferences.getBoolean("AlwaysShowRT", false))
                 .put("useZipcode", mSharedPreferences.getBoolean("useZipcode", false))
-                .put("Zipcode", mSharedPreferences.getString("Zipcode", "None")) // we just need to pass in the zipcode and the location resolver in the watch app will handle saving the details
+                .put("Zipcode", mSharedPreferences.getString("Zipcode", "None"))
+                .put("oldLocationName", mSharedPreferences.getString("oldLocationName", ""))
+                .put("oldLat", mSharedPreferences.getLong("oldLat", 0))
+                .put("oldLong", mSharedPreferences.getLong("oldLong", 0))
                 .put("locationName", sCurrentLocationName) // needed because we are not sure if the watches current location is the same as the app's
                 .put("elevation" + sCurrentLocationName, mSharedPreferences.getString("elevation" + sCurrentLocationName, "0"))
                 .put("SetElevationToLastKnownLocation", mSettingsPreferences.getBoolean("SetElevationToLastKnownLocation", false))
+
+                .put("currentLN", sCurrentLocationName)
+                .put("currentLat", String.valueOf(sLatitude))
+                .put("currentLong", String.valueOf(sLongitude))
+                .put("currentTimezone", sCurrentTimeZoneID)
 
                 .put("useAdvanced", mSharedPreferences.getBoolean("useAdvanced", false))
                 .put("advancedLN", mSharedPreferences.getString("advancedLN", ""))

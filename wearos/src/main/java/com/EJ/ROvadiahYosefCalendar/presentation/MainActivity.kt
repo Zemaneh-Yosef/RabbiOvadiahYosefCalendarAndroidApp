@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.text.format.DateUtils
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -18,9 +19,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.absolutePadding
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -45,7 +43,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.rotary.onRotaryScrollEvent
@@ -57,8 +54,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.wear.compose.material.AutoCenteringParams
-import androidx.wear.compose.material.Chip
-import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.Scaffold
@@ -68,6 +63,7 @@ import androidx.wear.compose.material.TimeText
 import androidx.wear.compose.material.curvedText
 import androidx.wear.compose.material.rememberScalingLazyListState
 import com.EJ.ROvadiahYosefCalendar.R
+import com.EJ.ROvadiahYosefCalendar.classes.BooleanListener
 import com.EJ.ROvadiahYosefCalendar.classes.JewishDateInfo
 import com.EJ.ROvadiahYosefCalendar.classes.LocationResolver
 import com.EJ.ROvadiahYosefCalendar.classes.PreferenceListener
@@ -181,9 +177,18 @@ class MainActivity : ComponentActivity() {
             .putBoolean("AlwaysShowRT", jsonPreferences.getBoolean("AlwaysShowRT"))
             .putBoolean("useZipcode", jsonPreferences.getBoolean("useZipcode"))
             .putString("Zipcode", jsonPreferences.getString("Zipcode"))
+            .putString("oldZipcode", jsonPreferences.getString("oldZipcode"))
+            .putString("oldLocationName", jsonPreferences.getString("oldLocationName"))
+            .putLong("oldLat", jsonPreferences.getLong("oldLat"))
+            .putLong("oldLong", jsonPreferences.getLong("oldLong"))
             .putString("locationName", jsonPreferences.getString("locationName"))
             .putString("elevation" + jsonPreferences.getString("locationName"), jsonPreferences.getString("elevation" + jsonPreferences.getString("locationName")))//use the locationName in JSON since we do not know if the location name is the same in the watch
             .putBoolean("SetElevationToLastKnownLocation", jsonPreferences.getBoolean("SetElevationToLastKnownLocation"))
+
+            .putString("currentLN", jsonPreferences.getString("currentLN"))
+            .putString("currentLat", jsonPreferences.getString("currentLat"))
+            .putString("currentLong", jsonPreferences.getString("currentLong"))
+            .putString("currentTimezone", jsonPreferences.getString("currentTimezone"))
 
             .putBoolean("useAdvanced", jsonPreferences.getBoolean("useAdvanced"))
             .putString("advancedLN", jsonPreferences.getString("advancedLN"))
@@ -234,14 +239,26 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun updateAppContents() {
-        locationResolver.acquireLatitudeAndLongitude()
-        resolveElevation()
-        initZmanimCalendar()
-        sharedPref.edit().putString("name", sCurrentLocationName).apply()
-        setDateFormats() // should happen after we get the geolocation object because of the timezone
-        setNextUpcomingZman()
-        createBackgroundThreadForNextUpcomingZman()
-        updateZmanimList()
+        BooleanListener.setMyBoolean(false)
+        BooleanListener.addMyBooleanListener {
+            runOnUiThread {
+                setContent {
+                    WearApp(zmanim)
+                }
+            }
+        }
+        Thread {// I hope this offloads some of the work on the main thread
+            Looper.prepare()
+            locationResolver.acquireLatitudeAndLongitude()
+            resolveElevation()
+            initZmanimCalendar()
+            sharedPref.edit().putString("name", sCurrentLocationName).apply()
+            setDateFormats() // should happen after we get the geolocation object because of the timezone
+            setNextUpcomingZman()
+            createBackgroundThreadForNextUpcomingZman()
+            updateZmanimList()
+            BooleanListener.setMyBoolean(true)
+        }.start()
         setContent {
             WearApp(zmanim)
         }

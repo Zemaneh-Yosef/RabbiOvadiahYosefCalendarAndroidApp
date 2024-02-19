@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/molad_background"
+    android:background="@drawable/molad_background_720"
     tools:context=".activities.MoladActivity">
 
     <LinearLayout

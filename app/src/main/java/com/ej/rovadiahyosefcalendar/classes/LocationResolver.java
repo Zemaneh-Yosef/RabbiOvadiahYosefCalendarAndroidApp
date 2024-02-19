@@ -396,7 +396,7 @@ public class LocationResolver extends Thread {
                     .putString("location2Timezone", mSharedPreferences.getString("location1Timezone", "")).apply(); // swap location values
 
             mSharedPreferences.edit().putString("location1", sCurrentLocationName)
-                    .putLong("location1Lat",Double.doubleToRawLongBits(sLatitude))
+                    .putLong("location1Lat", Double.doubleToRawLongBits(sLatitude))
                     .putLong("location1Long", Double.doubleToRawLongBits(sLongitude))
                     .putString("location1Timezone", sCurrentTimeZoneID).apply(); // save the current location last and we will get the elevation later
         }

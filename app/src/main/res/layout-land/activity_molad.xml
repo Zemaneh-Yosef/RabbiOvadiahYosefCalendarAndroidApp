@@ -12,7 +12,7 @@
         android:layout_height="match_parent"
         android:contentDescription="@string/moon_background"
         android:scaleType="centerCrop"
-        android:src="@drawable/molad_background"
+        android:src="@drawable/molad_background_720"
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="0dp" />
 

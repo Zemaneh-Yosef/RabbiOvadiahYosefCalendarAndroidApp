@@ -1,7 +1,5 @@
 package com.EJ.ROvadiahYosefCalendar.classes;
 
-import static android.Manifest.permission.ACCESS_FINE_LOCATION;
-import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.EJ.ROvadiahYosefCalendar.presentation.MainActivity.SHARED_PREF;
 import static com.EJ.ROvadiahYosefCalendar.presentation.MainActivity.sCurrentLocationName;
 import static com.EJ.ROvadiahYosefCalendar.presentation.MainActivity.sCurrentTimeZoneID;
@@ -13,17 +11,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.Address;
 import android.location.Geocoder;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.Build;
-import android.os.Bundle;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-
-import com.EJ.ROvadiahYosefCalendar.R;
 import com.EJ.ROvadiahYosefCalendar.presentation.MainActivity;
 
 import java.io.IOException;
@@ -49,17 +37,14 @@ public class LocationResolver {
     }
 
     /**
-     * This method gets the devices last known latitude and longitude. It will ask for permission
-     * if we do not have it, and it will alert the user if location services is disabled.
-     * <p>
-     * As of Android 11 (API 30) there is a more accurate way of getting the current location of the
-     * device, however, the process is slower as it needs to actually make a call to the GPS service
-     * if the location has not been updated recently.
-     * <p>
-     * I originally wanted to just allow users to use a zip code to find their location, but I noticed that it also takes into account any address.
-     * The old keys for shared preferences are still there as zipcodes because I did not want to change them and undo the work the users have done.
+     * Currently this method will not try to request the user's current location as Google has made it
+     * increasingly difficult to request one time location updates on devices with API < 30. If we were
+     * to try and pause the app until we get the location like we currently do in the main app, our
+     * watch app crashes due to an ANR error with a time limit of 5 seconds (at least that is what
+     * seems to be the issue to me). Eventually this method should be changed to actually request the
+     * user's location, but I will personally wait until API 30 is the minimum on the play store to
+     * adopt that change. For now, we will just receive the current location data from the main app.
      */
-    @SuppressWarnings("BusyWait")
     public void acquireLatitudeAndLongitude() {
         if (mSharedPreferences.getBoolean("useAdvanced", false)) {
             sCurrentLocationName = mSharedPreferences.getString("advancedLN", "");
@@ -94,87 +79,11 @@ public class LocationResolver {
         } else if (mSharedPreferences.getBoolean("useZipcode", false)) {
             getLatitudeAndLongitudeFromSearchQuery();
         } else {
-            if (ActivityCompat.checkSelfPermission(mContext, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(mActivity, new String[]{ACCESS_FINE_LOCATION}, 1);
-            } else {
-                try {
-                    LocationManager locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-                    if (locationManager != null) {
-                        if (!locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) && !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                            Toast.makeText(mContext, mContext.getString(R.string.please_enable_gps), Toast.LENGTH_SHORT).show();
-                        }
-                        LocationListener locationListener = new LocationListener() {
-                            @Override
-                            public void onLocationChanged(@NonNull Location location) {}
-                            @Override
-                            public void onProviderEnabled(@NonNull String provider) {}
-                            @Override
-                            public void onProviderDisabled(@NonNull String provider) {}
-                            @Override
-                            public void onStatusChanged(String provider, int status, Bundle extras) {}
-                        };
-                        if (locationManager.getAllProviders().contains(LocationManager.NETWORK_PROVIDER)) {
-                            locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, locationListener, null);
-                        }
-                        if (locationManager.getAllProviders().contains(LocationManager.GPS_PROVIDER)) {
-                            locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
-                        }
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {//newer implementation
-                            if (locationManager.getAllProviders().contains(LocationManager.NETWORK_PROVIDER)) {
-                                locationManager.getCurrentLocation(LocationManager.NETWORK_PROVIDER,
-                                        null, Runnable::run,
-                                        location -> {
-                                            if (location != null) {
-                                                sLatitude = location.getLatitude();
-                                                sLongitude = location.getLongitude();
-                                            }
-                                        });
-                            }
-                            if (locationManager.getAllProviders().contains(LocationManager.GPS_PROVIDER)) {
-                                locationManager.getCurrentLocation(LocationManager.GPS_PROVIDER,
-                                        null, Runnable::run,
-                                        location -> {
-                                            if (location != null) {
-                                                sLatitude = location.getLatitude();
-                                                sLongitude = location.getLongitude();
-                                            }
-                                        });
-                            }
-                            long tenSeconds = System.currentTimeMillis() + 10000;
-                            while ((sLatitude == 0.0 && sLongitude == 0.0) && System.currentTimeMillis() < tenSeconds) {
-                                Thread.sleep(0);//we MUST wait for the location data to be set or else the app will crash
-                            }
-                            if (sLatitude == 0.0 && sLongitude == 0.0) {//if 10 seconds passed and we still don't have the location, use the older implementation
-                                Location location = null;
-                                if (locationManager.getAllProviders().contains(LocationManager.GPS_PROVIDER)) {
-                                    location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);//location might be old
-                                }
-                                if (location == null && locationManager.getAllProviders().contains(LocationManager.NETWORK_PROVIDER)) {
-                                    location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                                }
-                                if (location != null) {
-                                    sLatitude = location.getLatitude();
-                                    sLongitude = location.getLongitude();
-                                }
-                            }
-                        } else {//older implementation
-                            Location location = null;
-                            if (locationManager.getAllProviders().contains(LocationManager.GPS_PROVIDER)) {
-                                location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);//location might be old
-                            }
-                            if (location == null && locationManager.getAllProviders().contains(LocationManager.NETWORK_PROVIDER)) {
-                                location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                            }
-                            if (location != null) {
-                                sLatitude = location.getLatitude();
-                                sLongitude = location.getLongitude();
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
+            //TODO when wear os apps have a bare minimum requirement of API 30 and above, look into replacing this with actually getting the watch's location
+            sCurrentLocationName = mSharedPreferences.getString("currentLN", "");
+            sLatitude = Double.parseDouble(mSharedPreferences.getString("currentLat", "0"));
+            sLongitude = Double.parseDouble(mSharedPreferences.getString("currentLong", "0"));
+            sCurrentTimeZoneID = mSharedPreferences.getString("currentTimezone", "");
         }
         setTimeZoneID();
         resolveCurrentLocationName();
