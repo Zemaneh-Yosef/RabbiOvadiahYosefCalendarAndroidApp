@@ -555,7 +555,7 @@ class MainActivity : ComponentActivity() {
 
     private fun addZmanim(zmanim: MutableList<ZmanListEntry>) {
         if (sharedPref.getBoolean("LuachAmudeiHoraah", false)) {
-            addAmudeiHoraahZmanim()
+            addAmudeiHoraahZmanim(zmanim)
             return
         }
         val zmanimNames = ZmanimNames(
@@ -928,7 +928,7 @@ class MainActivity : ComponentActivity() {
         )
     }
 
-    private fun addAmudeiHoraahZmanim() {
+    private fun addAmudeiHoraahZmanim(zmanim: MutableList<ZmanListEntry>) {
         mROZmanimCalendar.isUseElevation = false
         val zmanimNames = ZmanimNames(
             sharedPref.getBoolean("isZmanimInHebrew", false),

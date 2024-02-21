@@ -13,6 +13,7 @@ import android.location.Address;
 import android.location.Geocoder;
 
 import com.EJ.ROvadiahYosefCalendar.presentation.MainActivity;
+import com.kosherjava.zmanim.util.GeoLocation;
 
 import java.io.IOException;
 import java.util.List;
@@ -259,5 +260,63 @@ public class LocationResolver {
         } else {
             MainActivity.sCurrentTimeZoneID = TimeZone.getDefault().getID();
         }
+    }
+
+    public static GeoLocation getLastGeoLocation(SharedPreferences mSharedPreferences) {
+        String locationName;
+        double lat;
+        double longitude;
+        String timeZone;
+
+        if (mSharedPreferences.getBoolean("useAdvanced", false)) {
+            locationName = mSharedPreferences.getString("advancedLN", "");
+            lat = Double.parseDouble(mSharedPreferences.getString("advancedLat", ""));
+            longitude = Double.parseDouble(mSharedPreferences.getString("advancedLong", ""));
+            timeZone = mSharedPreferences.getString("advancedTimezone", "");
+        } else if (mSharedPreferences.getBoolean("useLocation1", false)) {
+            locationName = mSharedPreferences.getString("location1", "");
+            lat = Double.longBitsToDouble(mSharedPreferences.getLong("location1Lat", 0));
+            longitude = Double.longBitsToDouble(mSharedPreferences.getLong("location1Long", 0));
+            timeZone = mSharedPreferences.getString("location1Timezone", "");
+        } else if (mSharedPreferences.getBoolean("useLocation2", false)) {
+            locationName = mSharedPreferences.getString("location2", "");
+            lat = Double.longBitsToDouble(mSharedPreferences.getLong("location2Lat", 0));
+            longitude = Double.longBitsToDouble(mSharedPreferences.getLong("location2Long", 0));
+            timeZone = mSharedPreferences.getString("location2Timezone", "");
+        } else if (mSharedPreferences.getBoolean("useLocation3", false)) {
+            locationName = mSharedPreferences.getString("location3", "");
+            lat = Double.longBitsToDouble(mSharedPreferences.getLong("location3Lat", 0));
+            longitude = Double.longBitsToDouble(mSharedPreferences.getLong("location3Long", 0));
+            timeZone = mSharedPreferences.getString("location3Timezone", "");
+        } else if (mSharedPreferences.getBoolean("useLocation4", false)) {
+            locationName = mSharedPreferences.getString("location4", "");
+            lat = Double.longBitsToDouble(mSharedPreferences.getLong("location4Lat", 0));
+            longitude = Double.longBitsToDouble(mSharedPreferences.getLong("location4Long", 0));
+            timeZone = mSharedPreferences.getString("location4Timezone", "");
+        } else if (mSharedPreferences.getBoolean("useLocation5", false)) {
+            locationName = mSharedPreferences.getString("location5", "");
+            lat = Double.longBitsToDouble(mSharedPreferences.getLong("location5Lat", 0));
+            longitude = Double.longBitsToDouble(mSharedPreferences.getLong("location5Long", 0));
+            timeZone = mSharedPreferences.getString("location5Timezone", "");
+        } else if (mSharedPreferences.getBoolean("useZipcode", false)) {
+            locationName = mSharedPreferences.getString("oldLocationName", "");
+            lat = Double.longBitsToDouble(mSharedPreferences.getLong("oldLat", 0));
+            longitude = Double.longBitsToDouble(mSharedPreferences.getLong("oldLong", 0));
+            try {
+                TimeZoneMap timeZoneMap = TimeZoneMap.forRegion(
+                        Math.floor(lat), Math.floor(longitude),
+                        Math.ceil(lat), Math.ceil(longitude));//trying to avoid using the forEverywhere() method
+                timeZone = Objects.requireNonNull(timeZoneMap.getOverlappingTimeZone(lat, longitude)).getZoneId();
+            } catch (IllegalArgumentException e) {
+                timeZone = TimeZone.getDefault().getID();
+            }
+        } else {
+            //TODO when wear os apps have a bare minimum requirement of API 30 and above, look into replacing this with actually getting the watch's location
+            locationName = mSharedPreferences.getString("currentLN", "");
+            lat = Double.parseDouble(mSharedPreferences.getString("currentLat", "0"));
+            longitude = Double.parseDouble(mSharedPreferences.getString("currentLong", "0"));
+            timeZone = mSharedPreferences.getString("currentTimezone", "");
+        }
+        return new GeoLocation(locationName,lat,longitude, TimeZone.getTimeZone(timeZone));
     }
 }

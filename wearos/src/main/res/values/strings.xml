@@ -5,6 +5,7 @@
     values-round/strings.xml for round devices.
     -->
     <string name="tile_label" translatable="false">ROYC Wear OS</string>
+   <string name="tile_description" translatable="false">ROYC</string>
     <string name="title_activity_presentation._main" translatable="false">presentation.MainActivity</string>
     <string name="title_activity_main" translatable="false">MainActivity</string>
     <string name="complication_label" translatable="false">ROYC Wear OS</string>
@@ -346,4 +347,5 @@
     <string name="choose_timezone">Choose a timezone</string>
     <string name="dismiss_notifications">Dismiss notifications automatically?</string>
    <string name="settings_not_recieved">Settings not received from the Main App. Please open up the app on your phone.</string>
+   <string name="next_zman">Next Zman:</string>
 </resources>

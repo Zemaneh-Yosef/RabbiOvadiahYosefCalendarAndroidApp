@@ -558,5 +558,6 @@
     <string name="choose_timezone">בחר אזור זמן</string>
     <string name="dismiss_notifications">לבטל הודעות באופן אוטומטי</string>
     <string name="settings_not_recieved">ההגדרות לא התקבלו מהאפליקציה הראשית. אנא פתח/י את האפליקציה על הטלפון שלך.</string>
+    <string name="next_zman">זמן הבא:</string>
 
 </resources>
