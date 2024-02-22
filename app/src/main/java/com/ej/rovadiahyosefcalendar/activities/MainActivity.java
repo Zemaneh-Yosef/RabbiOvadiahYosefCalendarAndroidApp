@@ -536,7 +536,6 @@ public class MainActivity extends AppCompatActivity {
         checkIfUserIsInIsraelOrNot();
         askForRealTimeNotificationPermissions();
         updateWidget();
-        sendPreferencesToWatch();
     }
 
     private void sendPreferencesToWatch() {
@@ -630,7 +629,8 @@ public class MainActivity extends AppCompatActivity {
                 .put("alwaysShowTzeitLChumra", mSettingsPreferences.getBoolean("alwaysShowTzeitLChumra", false))
                 .put("AlwaysShowRT", mSettingsPreferences.getBoolean("AlwaysShowRT", false))
                 .put("useZipcode", mSharedPreferences.getBoolean("useZipcode", false))
-                .put("Zipcode", mSharedPreferences.getString("Zipcode", "None"))
+                .put("Zipcode", mSharedPreferences.getString("Zipcode", ""))
+                .put("oldZipcode", mSharedPreferences.getString("oldZipcode", "None"))
                 .put("oldLocationName", mSharedPreferences.getString("oldLocationName", ""))
                 .put("oldLat", mSharedPreferences.getLong("oldLat", 0))
                 .put("oldLong", mSharedPreferences.getLong("oldLong", 0))
@@ -1132,6 +1132,8 @@ public class MainActivity extends AppCompatActivity {
                 startService(new Intent(this, NextZmanCountdownNotification.class));
             }
         }
+
+        sendPreferencesToWatch();
 
         super.onResume();
     }
