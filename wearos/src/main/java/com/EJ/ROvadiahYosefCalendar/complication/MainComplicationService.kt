@@ -6,6 +6,8 @@ import androidx.wear.watchface.complications.data.PlainComplicationText
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.complications.datasource.ComplicationRequest
 import androidx.wear.watchface.complications.datasource.SuspendingComplicationDataSourceService
+import com.EJ.ROvadiahYosefCalendar.classes.JewishDateInfo
+import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter
 import java.util.Calendar
 
 /**
@@ -14,22 +16,25 @@ import java.util.Calendar
 class MainComplicationService : SuspendingComplicationDataSourceService() {
 
     override fun getPreviewData(type: ComplicationType): ComplicationData? {
-        if (type != ComplicationType.SHORT_TEXT) {
-            return null
+        val jewishDateInfo = JewishDateInfo(false, true)// in Israel should not matter
+        val hebrewDateFormatter = HebrewDateFormatter()
+        hebrewDateFormatter.isHebrewFormat = true
+        if (type == ComplicationType.SHORT_TEXT) {
+            return createComplicationData(hebrewDateFormatter.formatDayOfWeek(jewishDateInfo.jewishCalendar), jewishDateInfo.jewishDayOfWeek)
+        } else if (type == ComplicationType.LONG_TEXT) {
+            return createComplicationData(jewishDateInfo.jewishDate, jewishDateInfo.jewishDate)
         }
-        return createComplicationData("Mon", "Monday")
+        return null
     }
 
     override suspend fun onComplicationRequest(request: ComplicationRequest): ComplicationData {
-        return when (Calendar.getInstance().get(Calendar.DAY_OF_WEEK)) {
-            Calendar.SUNDAY -> createComplicationData("Sun", "Sunday")
-            Calendar.MONDAY -> createComplicationData("Mon", "Monday")
-            Calendar.TUESDAY -> createComplicationData("Tue", "Tuesday")
-            Calendar.WEDNESDAY -> createComplicationData("Wed", "Wednesday")
-            Calendar.THURSDAY -> createComplicationData("Thu", "Thursday")
-            Calendar.FRIDAY -> createComplicationData("Fri!", "Friday!")
-            Calendar.SATURDAY -> createComplicationData("Sat", "Saturday")
-            else -> throw IllegalArgumentException("too many days")
+        val jewishDateInfo = JewishDateInfo(false, true)// in Israel should not matter
+        val hebrewDateFormatter = HebrewDateFormatter()
+        hebrewDateFormatter.isHebrewFormat = true
+        return if (request.complicationType == ComplicationType.SHORT_TEXT) {
+            createComplicationData(hebrewDateFormatter.formatDayOfWeek(jewishDateInfo.jewishCalendar), jewishDateInfo.jewishDayOfWeek)
+        } else {
+            createComplicationData(jewishDateInfo.jewishDate, jewishDateInfo.jewishDate)
         }
     }
 

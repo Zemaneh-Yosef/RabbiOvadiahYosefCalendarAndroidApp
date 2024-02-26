@@ -549,6 +549,7 @@
     <string name="see_full_text">ראה את הטקסט המלא</string>
     <string name="show_shmita_year">הצג שנת שמיטה</string>
     <string name="choose_whether_or_not_to_show_if_the_year_is_a_shmita_year_or_not">בחר האם להציג האם השנה היא שנת שמיטה</string>
+    <string name="complication_label">יום בעברית</string>
     <string name="this_year_is_a_shmita_year">שנה זו היא שנת שמיטה</string>
     <string name="this_year_is_not_a_shmita_year">שנה זו אינה שנת שמיטה</string>
     <string name="advanced">מתקדם</string>
@@ -559,5 +560,6 @@
     <string name="dismiss_notifications">לבטל הודעות באופן אוטומטי</string>
     <string name="settings_not_recieved">ההגדרות לא התקבלו מהאפליקציה הראשית. אנא פתח/י את האפליקציה על הטלפון שלך.</string>
     <string name="next_zman">זמן הבא:</string>
+    <string name="next_zman_complication_label">זמן הבא</string>
 
 </resources>

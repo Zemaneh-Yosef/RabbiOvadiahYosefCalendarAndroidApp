@@ -1,18 +1,16 @@
-package com.EJ.ROvadiahYosefCalendar.tile
+package com.EJ.ROvadiahYosefCalendar.complication
 
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
-import android.os.IBinder
-import androidx.wear.protolayout.ColorBuilders.argb
-import androidx.wear.protolayout.ResourceBuilders
-import androidx.wear.protolayout.TimelineBuilders.Timeline
-import androidx.wear.protolayout.material.Text
-import androidx.wear.protolayout.material.Typography
-import androidx.wear.tiles.EventBuilders
-import androidx.wear.tiles.RequestBuilders
-import androidx.wear.tiles.TileBuilders.Tile
-import androidx.wear.tiles.TileService
+import android.graphics.drawable.Icon
+import android.support.wearable.complications.ComplicationText
+import androidx.wear.watchface.complications.data.ComplicationData
+import androidx.wear.watchface.complications.data.ComplicationType
+import androidx.wear.watchface.complications.data.MonochromaticImage
+import androidx.wear.watchface.complications.data.PlainComplicationText
+import androidx.wear.watchface.complications.data.RangedValueComplicationData
+import androidx.wear.watchface.complications.datasource.ComplicationRequest
+import androidx.wear.watchface.complications.datasource.SuspendingComplicationDataSourceService
 import com.EJ.ROvadiahYosefCalendar.R
 import com.EJ.ROvadiahYosefCalendar.classes.JewishDateInfo
 import com.EJ.ROvadiahYosefCalendar.classes.LocationResolver
@@ -20,20 +18,14 @@ import com.EJ.ROvadiahYosefCalendar.classes.ROZmanimCalendar
 import com.EJ.ROvadiahYosefCalendar.classes.ZmanListEntry
 import com.EJ.ROvadiahYosefCalendar.classes.ZmanimNames
 import com.EJ.ROvadiahYosefCalendar.presentation.MainActivity
-import com.google.common.util.concurrent.Futures
-import com.google.common.util.concurrent.ListenableFuture
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar
 import com.kosherjava.zmanim.util.GeoLocation
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-import java.util.concurrent.Executors
-import java.util.concurrent.ScheduledExecutorService
-import java.util.concurrent.TimeUnit
 
-private const val RESOURCES_VERSION = "1"
-class MainTileService : TileService() {
+class NextZmanComplicationService : SuspendingComplicationDataSourceService() {
 
     private lateinit var sharedPref: SharedPreferences
     private var mCurrentDateShown = Calendar.getInstance()
@@ -43,33 +35,66 @@ class MainTileService : TileService() {
     private lateinit var visibleSunriseFormat: SimpleDateFormat
     private lateinit var roundUpFormat: SimpleDateFormat
 
-    override fun onCreate() {
-        super.onCreate()
-        sharedPref = getSharedPreferences(MainActivity.SHARED_PREF, MODE_PRIVATE)
+    override fun getPreviewData(type: ComplicationType): ComplicationData =
+        getComplicationData()
+
+    override suspend fun onComplicationRequest(request: ComplicationRequest): ComplicationData? {
+        if (request.complicationType != ComplicationType.RANGED_VALUE) {
+            return null
+        }
+        return getComplicationData()
     }
 
-    override fun onTileRequest(requestParams: RequestBuilders.TileRequest): ListenableFuture<Tile> =
-        Futures.immediateFuture(getNextUpcomingZman(applicationContext)?.zman?.let {
-            Tile.Builder()
-                .setResourcesVersion(RESOURCES_VERSION)
-                .setFreshnessIntervalMillis(it.time)
-                .setTileTimeline(Timeline.fromLayoutElement(
-                    Text.Builder(this, getNextUpcomingZmanAsString(applicationContext))
-                        .setTypography(Typography.TYPOGRAPHY_BUTTON)
-                        .setMaxLines(10)
-                        .setColor(argb(0xFFFFFFFF.toInt()))
-                        .build())
-                ).build()
+    private fun getComplicationData(): ComplicationData {
+        val monochromaticImage: MonochromaticImage?
+        val minValue = 0
+        val maxValue = 100
+        val currentTime = Date().time
+        val nextZmanTime = getNextUpcomingZman(applicationContext)?.zman?.time ?: 0
+        val totalTime = nextZmanTime - currentTime
+        val timeElapsed = Date().time - nextZmanTime
+        val percentage = (timeElapsed.toFloat() / totalTime) * 100
+
+        val percentageLeft = if (percentage in 0.0..100.0) {
+            (100 - percentage).toInt()
+        } else {
+            1
         }
+
+        val text = PlainComplicationText.Builder(
+            text = getNextUpcomingZmanTimeAsString(applicationContext)
+        ).build()
+
+        monochromaticImage = MonochromaticImage.Builder(
+            image = Icon.createWithResource(this, R.drawable.baseline_av_timer_24),
+        ).setAmbientImage(
+            ambientImage = Icon.createWithResource(
+                this,
+                R.drawable.baseline_av_timer_24_burn_protect,
+            ),
+        ).build()
+
+        // Create a content description that includes the value information
+        val contentDescription = PlainComplicationText.Builder(
+            text = "$percentageLeft complete until next zman."
+        ).build()
+
+        return RangedValueComplicationData.Builder(
+            value = percentageLeft.toFloat(),
+            min = minValue.toFloat(),
+            max = maxValue.toFloat(),
+            contentDescription = contentDescription,
         )
+            .setText(text)
+            .setMonochromaticImage(monochromaticImage)
+            .setTitle(getNextUpcomingZman(applicationContext)?.let {
+                PlainComplicationText.Builder(text = it.title).build()
+            })
+            //.setTapAction(tapAction)
+            .build()
+    }
 
-    override fun onTileResourcesRequest(requestParams: RequestBuilders.ResourcesRequest): ListenableFuture<ResourceBuilders.Resources> =
-        Futures.immediateFuture(
-            ResourceBuilders.Resources.Builder()
-            .setVersion(RESOURCES_VERSION)
-            .build())
-
-    private fun getNextUpcomingZmanAsString(context: Context?): String {
+    private fun getNextUpcomingZmanTimeAsString(context: Context?): String {
         val theZman: ZmanListEntry? = getNextUpcomingZman(context)
 
         if (theZman != null) {
@@ -81,11 +106,7 @@ class MainTileService : TileService() {
                 } else { // just format it normally
                     zmanimFormat.format(theZman.zman)
                 }
-
-            if (Locale.getDefault().getDisplayLanguage(Locale("en", "US")) == "Hebrew") {
-                return getString(R.string.next_zman) + "\n\n" + theZman.title + "\n\n" + zmanTime
-            }
-            return getString(R.string.next_zman) + "\n\n" + theZman.title + "\n\nis at\n\n" + zmanTime
+            return zmanTime
         }
         return ""
     }
@@ -111,7 +132,7 @@ class MainTileService : TileService() {
         mROZmanimCalendar.setSharedPreferences(sharedPref)
 
         var sUserIsOffline = false
-        var elevation = 0.0
+        var elevation: Double
         if (mROZmanimCalendar.geoLocation.locationName.contains("Lat:") && mROZmanimCalendar.geoLocation.locationName.contains(
                 "Long:"
             )
@@ -912,4 +933,3 @@ class MainTileService : TileService() {
         } else Date(date.time + 60000)
     }
 }
-

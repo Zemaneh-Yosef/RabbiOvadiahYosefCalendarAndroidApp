@@ -19,6 +19,8 @@
         <service
             android:name=".complication.MainComplicationService"
             android:exported="true"
+            android:icon="@drawable/baseline_calendar_today_24"
+            android:roundIcon="@drawable/baseline_calendar_today_24"
             android:label="@string/complication_label"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
             <intent-filter>
@@ -27,10 +29,28 @@
 
             <meta-data
                 android:name="android.support.wearable.complications.SUPPORTED_TYPES"
-                android:value="SHORT_TEXT" />
+                android:value="SHORT_TEXT,LONG_TEXT" />
             <meta-data
                 android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
-                android:value="0" />
+                android:value="3600" />
+        </service>
+        <service
+            android:name=".complication.NextZmanComplicationService"
+            android:exported="true"
+            android:icon="@drawable/baseline_av_timer_24"
+            android:roundIcon="@drawable/baseline_av_timer_24"
+            android:label="@string/next_zman_complication_label"
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
+            <intent-filter>
+                <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+                android:value="RANGED_VALUE" />
+            <meta-data
+                android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+                android:value="1800" />
         </service>
         <service
             android:name=".tile.MainTileService"

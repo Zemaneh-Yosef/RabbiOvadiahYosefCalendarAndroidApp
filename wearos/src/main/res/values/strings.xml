@@ -8,8 +8,9 @@
    <string name="tile_description" translatable="false">ROYC</string>
     <string name="title_activity_presentation._main" translatable="false">presentation.MainActivity</string>
     <string name="title_activity_main" translatable="false">MainActivity</string>
-    <string name="complication_label" translatable="false">ROYC Wear OS</string>
-    <string name="this_year_is_a_shmita_year">This year is a Shmita Year</string>
+    <string name="complication_label">Hebrew Day</string>
+   <string name="next_zman_complication_label">Next Zman</string>
+   <string name="this_year_is_a_shmita_year">This year is a Shmita Year</string>
     <string name="this_year_is_not_a_shmita_year">This year is not a Shmita year</string>
     <string name="birchat_hachamah_is_said_today">Birchat HaChamah is said today</string>
     <string name="no_daf_yomi_yerushalmi">No Daf Yomi Yerushalmi</string>
@@ -347,5 +348,5 @@
     <string name="choose_timezone">Choose a timezone</string>
     <string name="dismiss_notifications">Dismiss notifications automatically?</string>
    <string name="settings_not_recieved">Settings not received from the Main App. Please open up the app on your phone.</string>
-   <string name="next_zman">Next Zman:</string>
+   <string name="next_zman" translatable="false">Next Zman:</string>
 </resources>

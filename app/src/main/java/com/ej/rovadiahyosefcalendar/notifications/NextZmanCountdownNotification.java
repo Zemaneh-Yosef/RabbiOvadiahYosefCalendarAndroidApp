@@ -216,6 +216,7 @@ public class NextZmanCountdownNotification extends Service {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.baseline_av_timer_24)
                 .setContentTitle(text)
+                .setSubText(mROZmanimCalendar.getGeoLocation().getLocationName())
                 .setSilent(true)
                 .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
                 .setWhen(System.currentTimeMillis())
@@ -230,8 +231,6 @@ public class NextZmanCountdownNotification extends Service {
         Notification notification = builder.build();
         notification.flags = Notification.FLAG_ONGOING_EVENT;
         startForeground(NOTIFICATION_ID, notification);
-        //NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        //notificationManager.notify(NOTIFICATION_ID, notification);
     }
 
     private void dismissNotification() {
