@@ -170,7 +170,7 @@
             app:entries="@array/language_entries"
             app:entryValues="@array/language_values"
             app:key="language"
-            app:summary="@string/manually_override_which_language_the_app_is_set_to"
+            app:summary=""
             app:title="@string/manually_set_the_language_of_the_app" />
 
         <SwitchPreferenceCompat

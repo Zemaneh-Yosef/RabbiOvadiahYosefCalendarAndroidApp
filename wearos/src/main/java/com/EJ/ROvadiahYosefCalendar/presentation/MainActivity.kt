@@ -62,6 +62,7 @@ import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
 import androidx.wear.compose.material.curvedText
 import androidx.wear.compose.material.rememberScalingLazyListState
+import androidx.wear.tiles.TileService
 import com.EJ.ROvadiahYosefCalendar.R
 import com.EJ.ROvadiahYosefCalendar.classes.BooleanListener
 import com.EJ.ROvadiahYosefCalendar.classes.JewishDateInfo
@@ -72,6 +73,7 @@ import com.EJ.ROvadiahYosefCalendar.classes.ZmanListEntry
 import com.EJ.ROvadiahYosefCalendar.classes.ZmanimNames
 import com.EJ.ROvadiahYosefCalendar.presentation.theme.DarkGray
 import com.EJ.ROvadiahYosefCalendar.presentation.theme.RabbiOvadiahYosefCalendarTheme
+import com.EJ.ROvadiahYosefCalendar.tile.MainTileService
 import com.kosherjava.zmanim.hebrewcalendar.Daf
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar
@@ -122,6 +124,7 @@ class MainActivity : ComponentActivity() {
     private var zmanim: MutableList<ZmanListEntry> = ArrayList()
     private var mROZmanimCalendar = ROZmanimCalendar(GeoLocation())
     private var mJewishDateInfo = JewishDateInfo(false, true)
+    private var mLastTimeUserWasInApp: Date = Date()
     private val mHebrewDateFormatter = HebrewDateFormatter()
     private val mZmanimFormatter = ZmanimFormatter(TimeZone.getDefault())
     private lateinit var zmanimFormat: SimpleDateFormat
@@ -236,6 +239,15 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         updateAppContents()
+        TileService.getUpdater(applicationContext).requestUpdate(MainTileService::class.java)
+        if (!DateUtils.isToday(mCurrentDateShown.time.time)
+            && Date().time - mLastTimeUserWasInApp.time > 7200000) { //two hours
+            mCurrentDateShown.time = Date()
+            mROZmanimCalendar.calendar = mCurrentDateShown
+            mJewishDateInfo.setCalendar(mCurrentDateShown)
+            updateAppContents()
+        }
+        mLastTimeUserWasInApp = Date()
     }
 
     private fun updateAppContents() {

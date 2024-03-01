@@ -1,15 +1,18 @@
 package com.EJ.ROvadiahYosefCalendar.tile
 
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
-import android.os.IBinder
+import androidx.wear.protolayout.ActionBuilders.LoadAction
 import androidx.wear.protolayout.ColorBuilders.argb
+import androidx.wear.protolayout.DimensionBuilders
+import androidx.wear.protolayout.ModifiersBuilders
+import androidx.wear.protolayout.ModifiersBuilders.Border
+import androidx.wear.protolayout.ModifiersBuilders.Clickable
+import androidx.wear.protolayout.ModifiersBuilders.Semantics
 import androidx.wear.protolayout.ResourceBuilders
 import androidx.wear.protolayout.TimelineBuilders.Timeline
 import androidx.wear.protolayout.material.Text
 import androidx.wear.protolayout.material.Typography
-import androidx.wear.tiles.EventBuilders
 import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.TileBuilders.Tile
 import androidx.wear.tiles.TileService
@@ -28,9 +31,6 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-import java.util.concurrent.Executors
-import java.util.concurrent.ScheduledExecutorService
-import java.util.concurrent.TimeUnit
 
 private const val RESOURCES_VERSION = "1"
 class MainTileService : TileService() {
@@ -52,9 +52,19 @@ class MainTileService : TileService() {
         Futures.immediateFuture(getNextUpcomingZman(applicationContext)?.zman?.let {
             Tile.Builder()
                 .setResourcesVersion(RESOURCES_VERSION)
-                .setFreshnessIntervalMillis(it.time)
+                .setFreshnessIntervalMillis(it.time - Date().time + 100) // add 100 just in case
                 .setTileTimeline(Timeline.fromLayoutElement(
-                    Text.Builder(this, getNextUpcomingZmanAsString(applicationContext))
+                    Text.Builder(applicationContext, getNextUpcomingZmanAsString(applicationContext))
+                        .setModifiers(
+                            ModifiersBuilders.Modifiers
+                                .Builder()
+                                .setClickable(
+                                    Clickable.Builder()
+                                        .setId("refresh")
+                                        .setOnClick(LoadAction.Builder().build())
+                                        .build()
+                                ).build()
+                        )
                         .setTypography(Typography.TYPOGRAPHY_BUTTON)
                         .setMaxLines(10)
                         .setColor(argb(0xFFFFFFFF.toInt()))

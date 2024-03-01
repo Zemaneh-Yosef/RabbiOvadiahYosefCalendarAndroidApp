@@ -1,6 +1,9 @@
 package com.EJ.ROvadiahYosefCalendar.complication
 
+import android.app.PendingIntent
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.drawable.Icon
 import android.support.wearable.complications.ComplicationText
@@ -51,14 +54,12 @@ class NextZmanComplicationService : SuspendingComplicationDataSourceService() {
         val maxValue = 100
         val currentTime = Date().time
         val nextZmanTime = getNextUpcomingZman(applicationContext)?.zman?.time ?: 0
-        val totalTime = nextZmanTime - currentTime
-        val timeElapsed = Date().time - nextZmanTime
-        val percentage = (timeElapsed.toFloat() / totalTime) * 100
+        val totalTime = nextZmanTime - currentTime // time in milliseconds until next zman
+        val totalTimeInSeconds = totalTime / 1000
+        var totalTimeInMinutes = totalTimeInSeconds / 60 // if it's >= 100 minutes, show full bar
 
-        val percentageLeft = if (percentage in 0.0..100.0) {
-            (100 - percentage).toInt()
-        } else {
-            1
+        if (totalTimeInMinutes > 100) {
+            totalTimeInMinutes = 100
         }
 
         val text = PlainComplicationText.Builder(
@@ -76,11 +77,11 @@ class NextZmanComplicationService : SuspendingComplicationDataSourceService() {
 
         // Create a content description that includes the value information
         val contentDescription = PlainComplicationText.Builder(
-            text = "$percentageLeft complete until next zman."
+            text = "$totalTimeInMinutes complete until next zman."
         ).build()
 
         return RangedValueComplicationData.Builder(
-            value = percentageLeft.toFloat(),
+            value = totalTimeInMinutes.toFloat(),
             min = minValue.toFloat(),
             max = maxValue.toFloat(),
             contentDescription = contentDescription,
@@ -88,9 +89,14 @@ class NextZmanComplicationService : SuspendingComplicationDataSourceService() {
             .setText(text)
             .setMonochromaticImage(monochromaticImage)
             .setTitle(getNextUpcomingZman(applicationContext)?.let {
-                PlainComplicationText.Builder(text = it.title).build()
+                PlainComplicationText.Builder(text = it.title
+                    .replace("סוף זמן ", "")
+                    .replace("Earliest ","")
+                    .replace("Sof Zman ", "")
+                    .replace("Hacochavim", "")
+                    .replace("Latest ", "")).build()
             })
-            //.setTapAction(tapAction)
+            .setTapAction(PendingIntent.getActivity(this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
             .build()
     }
 

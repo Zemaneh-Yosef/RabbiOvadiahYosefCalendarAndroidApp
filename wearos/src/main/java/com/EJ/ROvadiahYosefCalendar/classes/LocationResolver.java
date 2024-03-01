@@ -257,8 +257,8 @@ public class LocationResolver {
             } catch (IllegalArgumentException e) {
                 MainActivity.sCurrentTimeZoneID = TimeZone.getDefault().getID();
             }
-        } else {
-            MainActivity.sCurrentTimeZoneID = TimeZone.getDefault().getID();
+//        } else {right now the timezone is set by shared preferences, this will need to be reset after API 30
+//            MainActivity.sCurrentTimeZoneID = TimeZone.getDefault().getID();
         }
     }
 
