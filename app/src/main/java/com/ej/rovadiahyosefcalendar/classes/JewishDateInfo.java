@@ -235,9 +235,9 @@ public class JewishDateInfo {
         if (dayOfOmer != -1) {
             if (isLocaleHebrew) {
                 if (!result.isEmpty()) {
-                    result += " / " + "יום " + hebrewDateFormatter.formatHebrewNumber(dayOfOmer) + " של עומר";
+                    result += " / " + hebrewDateFormatter.formatHebrewNumber(dayOfOmer) + " ימים לעומר";
                 } else {
-                    result = "יום " + hebrewDateFormatter.formatHebrewNumber(dayOfOmer) + " של עומר";
+                    result = hebrewDateFormatter.formatHebrewNumber(dayOfOmer) + " ימים לעומר";
                 }
             } else {
                 if (!result.isEmpty()) {
@@ -256,7 +256,9 @@ public class JewishDateInfo {
      */
     private String getYomTov() {
         if (isLocaleHebrew) {
-            return hebrewDateFormatter.formatYomTov(jewishCalendar);
+            return hebrewDateFormatter.formatYomTov(jewishCalendar)
+                    .replace("פורים שושן", "שושן פורים")
+                    .replace("פורים שושן קטן", "שושן פורים קטן");
         }
         switch (jewishCalendar.getYomTovIndex()) {
             case JewishCalendar.EREV_PESACH:
@@ -668,23 +670,22 @@ public class JewishDateInfo {
      * If you are not allowed to listen to music, it will return "No Music". If you are allowed to listen to music, it will return an empty string.
      */
     public String isOKToListenToMusic() {
-
         if (jewishCalendar.getDayOfOmer() >= 8 && jewishCalendar.getDayOfOmer() <= 32) {
             if (isLocaleHebrew) {
-                return "אין שמיעת מוזיקה";
+                return "לא שומעים מוזיקה";
             }
             return "No Music";
         } else if (jewishCalendar.getJewishMonth() == JewishDate.TAMMUZ) {
             if (jewishCalendar.getJewishDayOfMonth() >= 17) {
                 if (isLocaleHebrew) {
-                    return "אין שמיעת מוזיקה";
+                    return "לא שומעים מוזיקה";
                 }
                 return "No Music";
             }
         } else if (jewishCalendar.getJewishMonth() == JewishDate.AV) {
             if (jewishCalendar.getJewishDayOfMonth() <= 9) {
                 if (isLocaleHebrew) {
-                    return "אין שמיעת מוזיקה";
+                    return "לא שומעים מוזיקה";
                 }
                 return "No Music";
             }

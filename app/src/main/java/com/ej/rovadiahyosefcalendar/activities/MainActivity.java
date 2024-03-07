@@ -844,9 +844,17 @@ public class MainActivity extends AppCompatActivity {
                 mElevation,
                 TimeZone.getTimeZone(sCurrentTimeZoneID)));
         mROZmanimCalendar.setExternalFilesDir(getExternalFilesDir(null));
-        mROZmanimCalendar.setCandleLightingOffset(Double.parseDouble(mSettingsPreferences.getString("CandleLightingOffset", "20")));
-        mROZmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(mSettingsPreferences.getString("EndOfShabbatOffset", mSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40")));
-        if (mSharedPreferences.getBoolean("inIsrael", false) && mSettingsPreferences.getString("EndOfShabbatOffset", "40").equals("40")) {
+        String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
+        if (candles.isEmpty()) {
+            candles = "20";
+        }
+        mROZmanimCalendar.setCandleLightingOffset(Double.parseDouble(candles));
+        String shabbat = mSettingsPreferences.getString("EndOfShabbatOffset", mSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40");
+        if (shabbat.isEmpty()) {// for some reason this is happening
+            shabbat = "40";
+        }
+        mROZmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(shabbat));
+        if (mSharedPreferences.getBoolean("inIsrael", false) && shabbat.equals("40")) {
             mROZmanimCalendar.setAteretTorahSunsetOffset(30);
         }
     }
@@ -1873,8 +1881,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         String masechta = "";
-        String yerushalmiMasechta = "";
         String daf = "";
+        Daf yerushalmi;
+        String yerushalmiMasechta = "";
         String yerushalmiDaf = "";
 
         if (!mCurrentDateShown.before(dafYomiStartDate)) {
@@ -1882,8 +1891,21 @@ public class MainActivity extends AppCompatActivity {
             daf = mHebrewDateFormatter.formatHebrewNumber(YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getDaf());
         }
         if (!mCurrentDateShown.before(dafYomiYerushalmiStartDate)) {
-            yerushalmiMasechta = YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getMasechta();
-            yerushalmiDaf = mHebrewDateFormatter.formatHebrewNumber(YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getDaf());
+            yerushalmi = YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar());
+            if (yerushalmi != null) {
+                yerushalmiMasechta = yerushalmi.getYerushalmiMasechta();
+                yerushalmiDaf = mHebrewDateFormatter.formatHebrewNumber(yerushalmi.getDaf());
+            } else {//yerushalmi yomi daf is null on sunday
+                mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
+                mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
+
+                yerushalmi = YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar());
+                yerushalmiMasechta = yerushalmi.getYerushalmiMasechta();
+                yerushalmiDaf = mHebrewDateFormatter.formatHebrewNumber(yerushalmi.getDaf());
+
+                mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);//reset
+                mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
+            }
         }
 
         for (int i = 0; i < 7; i++) {
@@ -1960,17 +1982,31 @@ public class MainActivity extends AppCompatActivity {
         } else {
             masechta += " " + daf + " - " + mHebrewDateFormatter.formatHebrewNumber(YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getDaf());
         }
-        if (!yerushalmiMasechta.equals(YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getMasechta())) {
-            if (YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getDaf() == 0) {
+        yerushalmi = YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar());
+        if (yerushalmi != null && !yerushalmiMasechta.equals(yerushalmi.getYerushalmiMasechta())) {
+            yerushalmiMasechta += " " + yerushalmiDaf + " - " + yerushalmi.getYerushalmiMasechta() + " " +
+                    mHebrewDateFormatter.formatHebrewNumber(yerushalmi.getDaf());
+        } else {
+            if (yerushalmi != null) {
+                yerushalmiMasechta += " " + yerushalmiDaf + " - " + mHebrewDateFormatter.formatHebrewNumber(yerushalmi.getDaf());
+            } else {
                 mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);
                 mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
+
+                yerushalmi = YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar());
+
+                mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);//reset
+                mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
+
+                if (!yerushalmiMasechta.equals(yerushalmi.getYerushalmiMasechta())) {
+                    yerushalmiMasechta += " " + yerushalmiDaf + " - " + yerushalmi.getYerushalmiMasechta() + " " +
+                            mHebrewDateFormatter.formatHebrewNumber(yerushalmi.getDaf());
+                } else {
+                    yerushalmiMasechta += " " + yerushalmiDaf + " - " + mHebrewDateFormatter.formatHebrewNumber(yerushalmi.getDaf());
+                }
             }
-            yerushalmiMasechta += " " + yerushalmiDaf + " - " + YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getMasechta() + " " +
-                    mHebrewDateFormatter.formatHebrewNumber(YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getDaf());
-        } else {
-            yerushalmiMasechta += " " + yerushalmiDaf + " - " + mHebrewDateFormatter.formatHebrewNumber(YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()).getDaf());
         }
-        String dafs = getString(R.string.daf_yomi) + " " + masechta + "       " + getString(R.string.yerushalmi_yomi) + " " + yerushalmiMasechta;
+        String dafs = getString(R.string.daf_yomi) + " " + masechta + "       " + getString(R.string.just_yerushalmi_yomi) + " " + yerushalmiMasechta;
         String monthYear = month + " " + year;
         mEnglishMonthYear.setText(monthYear);
         if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
@@ -2460,7 +2496,7 @@ public class MainActivity extends AppCompatActivity {
                     locationName.setGravity(Gravity.CENTER);
 
                     EditText locationInput = new EditText(this);
-                    locationInput.setHint(R.string.enter_location_name);
+                    locationInput.setHint(R.string.location_hint);
                     locationInput.setGravity(Gravity.CENTER);
 
                     TextView latitude = new TextView(this);
@@ -2468,7 +2504,7 @@ public class MainActivity extends AppCompatActivity {
                     latitude.setGravity(Gravity.CENTER);
 
                     EditText latInput = new EditText(this);
-                    latInput.setHint(R.string.enter_latitude);
+                    latInput.setHint("ex: 73.09876543");
                     latInput.setGravity(Gravity.CENTER);
 
                     TextView longitude = new TextView(this);
@@ -2476,7 +2512,7 @@ public class MainActivity extends AppCompatActivity {
                     longitude.setGravity(Gravity.CENTER);
 
                     EditText longInput = new EditText(this);
-                    longInput.setHint(R.string.enter_longitude);
+                    longInput.setHint("ex: -103.098765");
                     longInput.setGravity(Gravity.CENTER);
 
                     TextView elevation = new TextView(this);
@@ -2484,7 +2520,7 @@ public class MainActivity extends AppCompatActivity {
                     elevation.setGravity(Gravity.CENTER);
 
                     EditText elevationInput = new EditText(this);
-                    elevationInput.setHint(R.string.enter_elevation_in_meters);
+                    elevationInput.setHint("ex: 805");
                     elevationInput.setGravity(Gravity.CENTER);
 
                     TextView timezone = new TextView(this);

@@ -28,19 +28,12 @@ import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
 import com.ej.rovadiahyosefcalendar.classes.ZmanListEntry;
 import com.ej.rovadiahyosefcalendar.classes.ZmanimFactory;
-import com.ej.rovadiahyosefcalendar.classes.ZmanimNames;
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
-import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.util.GeoLocation;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 import java.util.TimeZone;
 
 /**
@@ -63,8 +56,19 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         setZmanimLanguageBools();
         mROZmanimCalendar = getROZmanimCalendar(context);
         mROZmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
-        mROZmanimCalendar.setCandleLightingOffset(Double.parseDouble(mSettingsPreferences.getString("CandleLightingOffset", "20")));
-        mROZmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(mSettingsPreferences.getString("EndOfShabbatOffset", "40")));
+        String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
+        if (candles.isEmpty()) {
+            candles = "20";
+        }
+        mROZmanimCalendar.setCandleLightingOffset(Double.parseDouble(candles));
+        String shabbat = mSettingsPreferences.getString("EndOfShabbatOffset", mSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40");
+        if (shabbat.isEmpty()) {// for some reason this is happening
+            shabbat = "40";
+        }
+        mROZmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(shabbat));
+        if (mSharedPreferences.getBoolean("inIsrael", false) && shabbat.equals("40")) {
+            mROZmanimCalendar.setAteretTorahSunsetOffset(30);
+        }
         mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false), true);
         SimpleDateFormat sZmanimFormat;
         if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {

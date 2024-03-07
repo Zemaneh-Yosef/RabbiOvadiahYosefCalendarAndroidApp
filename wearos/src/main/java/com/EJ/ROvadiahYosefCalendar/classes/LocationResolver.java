@@ -49,8 +49,13 @@ public class LocationResolver {
     public void acquireLatitudeAndLongitude() {
         if (mSharedPreferences.getBoolean("useAdvanced", false)) {
             sCurrentLocationName = mSharedPreferences.getString("advancedLN", "");
-            sLatitude = Double.parseDouble(mSharedPreferences.getString("advancedLat", ""));
-            sLongitude = Double.parseDouble(mSharedPreferences.getString("advancedLong", ""));
+            try {
+                sLatitude = Double.parseDouble(mSharedPreferences.getString("advancedLat", ""));
+                sLongitude = Double.parseDouble(mSharedPreferences.getString("advancedLong", ""));
+            } catch (NumberFormatException e) {
+                sLatitude = 0.0;
+                sLongitude = 0.0;
+            }
             sCurrentTimeZoneID = mSharedPreferences.getString("advancedTimezone", "");
         } else if (mSharedPreferences.getBoolean("useLocation1", false)) {
             sCurrentLocationName = mSharedPreferences.getString("location1", "");

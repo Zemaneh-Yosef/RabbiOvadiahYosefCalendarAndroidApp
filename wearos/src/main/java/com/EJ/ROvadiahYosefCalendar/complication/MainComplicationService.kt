@@ -1,5 +1,7 @@
 package com.EJ.ROvadiahYosefCalendar.complication
 
+import android.app.PendingIntent
+import android.content.Intent
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.PlainComplicationText
@@ -7,6 +9,7 @@ import androidx.wear.watchface.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.complications.datasource.ComplicationRequest
 import androidx.wear.watchface.complications.datasource.SuspendingComplicationDataSourceService
 import com.EJ.ROvadiahYosefCalendar.classes.JewishDateInfo
+import com.EJ.ROvadiahYosefCalendar.presentation.MainActivity
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter
 import java.util.Calendar
 
@@ -42,5 +45,7 @@ class MainComplicationService : SuspendingComplicationDataSourceService() {
             ShortTextComplicationData.Builder(
                     text = PlainComplicationText.Builder(text).build(),
                     contentDescription = PlainComplicationText.Builder(contentDescription).build()
-            ).build()
+            )
+                .setTapAction(PendingIntent.getActivity(this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
+                .build()
 }

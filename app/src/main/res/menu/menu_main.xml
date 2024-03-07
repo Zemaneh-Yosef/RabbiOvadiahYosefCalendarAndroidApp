@@ -2,13 +2,6 @@
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-<!--    <item-->
-<!--        android:id="@+id/refresh"-->
-<!--        android:icon="@drawable/refresh"-->
-<!--        android:title="@string/refresh"-->
-<!--        app:showAsAction="always"-->
-<!--        />-->
-
     <group android:id="@+id/group_divider">
 
         <item
@@ -31,6 +24,7 @@
             android:title="@string/molad_calculator" />
 
     </group>
+
     <item
         android:id="@+id/fullSetup"
         android:title="@string/setup" />
@@ -43,4 +37,5 @@
     <item
         android:id="@+id/settings"
         android:title="@string/settings" />
+
 </menu>

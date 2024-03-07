@@ -46,7 +46,7 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
         Button englishTranslated = findViewById(R.id.englishTranslated);
 
         String hebrewText = "עלות השחר\n" +
-                "תלית ותפילין\n" +
+                "טלית ותפילין\n" +
                 "הנץ\n" +
                 "סוף זמן שמע מג\"א\n" +
                 "סוף זמן שמע גר\"א\n" +

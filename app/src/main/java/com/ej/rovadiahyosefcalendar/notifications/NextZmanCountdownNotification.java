@@ -104,8 +104,19 @@ public class NextZmanCountdownNotification extends Service {
         mLocationResolver = new LocationResolver(this, new Activity());
         mROZmanimCalendar = getROZmanimCalendar(this);
         mROZmanimCalendar.setExternalFilesDir(getExternalFilesDir(null));
-        mROZmanimCalendar.setCandleLightingOffset(Double.parseDouble(mSettingsPreferences.getString("CandleLightingOffset", "20")));
-        mROZmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(mSettingsPreferences.getString("EndOfShabbatOffset", "40")));
+        String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
+        if (candles.isEmpty()) {
+            candles = "20";
+        }
+        mROZmanimCalendar.setCandleLightingOffset(Double.parseDouble(candles));
+        String shabbat = mSettingsPreferences.getString("EndOfShabbatOffset", mSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40");
+        if (shabbat.isEmpty()) {// for some reason this is happening
+            shabbat = "40";
+        }
+        mROZmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(shabbat));
+        if (mSharedPreferences.getBoolean("inIsrael", false) && shabbat.equals("40")) {
+            mROZmanimCalendar.setAteretTorahSunsetOffset(30);
+        }
         mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false), true);
         createNotificationChannel();
     }
