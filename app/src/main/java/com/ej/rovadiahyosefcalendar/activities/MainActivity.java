@@ -877,6 +877,7 @@ public class MainActivity extends AppCompatActivity {
                 resolveElevationAndVisibleSunrise();
                 instantiateZmanimCalendar();
                 setNextUpcomingZman();
+                mSharedPreferences.edit().putString("Full"+mROZmanimCalendar.getGeoLocation().getLocationName(), "").apply();
                 runOnUiThread(this::updateDailyZmanim);
                 runOnUiThread(() -> mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable()));
             }
@@ -902,7 +903,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     private void updateDailyZmanim() {
 //        ZmanAdapter zmanAdapter = (ZmanAdapter) mMainRecyclerView.getAdapter();
 //        if (zmanAdapter != null) {
@@ -1569,7 +1569,15 @@ public class MainActivity extends AppCompatActivity {
     private List<ZmanListEntry> getZmanimList() {
         List<ZmanListEntry> zmanim = new ArrayList<>();
 
-        zmanim.add(new ZmanListEntry(mROZmanimCalendar.getGeoLocation().getLocationName()));
+        String locationName = mSharedPreferences.getString("Full"+mROZmanimCalendar.getGeoLocation().getLocationName(), "");
+        if (locationName.isEmpty()) {
+            locationName = mLocationResolver.getFullLocationName();
+            mSharedPreferences.edit().putString("Full"+mROZmanimCalendar.getGeoLocation().getLocationName(), locationName).apply();
+        }
+        if (locationName.isEmpty()) {//if it's still empty, use backup
+            locationName = mROZmanimCalendar.getGeoLocation().getLocationName();
+        }
+        zmanim.add(new ZmanListEntry(locationName));
 
         StringBuilder sb = new StringBuilder();
 

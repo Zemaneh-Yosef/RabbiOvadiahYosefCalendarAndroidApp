@@ -202,14 +202,14 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
                 if (position == 0) {// first entry will always be the location name
                     dialogBuilder.setTitle("Location info for: " + zmanim.get(position).getTitle());
-                    String locationInfo = "Current Location: " + sCurrentLocationName + "\n" +
-                            "Current Latitude: " + sLatitude + "\n" +
-                            "Current Longitude: " + sLongitude + "\n" +
+                    String locationInfo = "Location Name: " + sCurrentLocationName + "\n" +
+                            "Latitude: " + sLatitude + "\n" +
+                            "Longitude: " + sLongitude + "\n" +
                             "Elevation: " +
                             (mSharedPreferences.getBoolean("useElevation", true) ?
                                     mSharedPreferences.getString("elevation" + sCurrentLocationName, "0") : "0")
                             + " meters" + "\n" +
-                            "Current Time Zone: " + sCurrentTimeZoneID;
+                            "Time Zone: " + sCurrentTimeZoneID;
                     dialogBuilder.setMessage(locationInfo);
                     //dialogBuilder.setNeutralButton("Change Location", (dialog, which) ->
                     //        sSetupLauncher.launch(new Intent(context, CurrentLocationActivity.class)));//Look into this later

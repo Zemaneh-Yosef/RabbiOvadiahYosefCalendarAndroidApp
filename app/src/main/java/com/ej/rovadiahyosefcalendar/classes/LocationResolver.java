@@ -207,6 +207,99 @@ public class LocationResolver extends Thread {
         }
     }
 
+    public String getFullLocationName() {
+        StringBuilder result = new StringBuilder();
+        List<Address> addresses = null;
+        try {
+            if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                addresses = mGeocoder.getFromLocation(sLatitude, sLongitude, 5);
+            } else {
+                addresses = mGeocoder.getFromLocation(sLatitude, sLongitude, 1);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (addresses != null && addresses.size() > 0) {
+            if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                Address address = null;
+                for (Address add : addresses) {
+                    if (add.getLocale().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                        address = add;
+                    }
+                }
+                String city = null;
+                if (address != null) {
+                    city = address.getLocality();
+                }
+                if (city != null) {
+                    result.append(city).append(", ");
+                }
+
+                String state = null;
+                if (address != null) {
+                    state = address.getAdminArea();
+                }
+                if (state != null) {
+                    result.append(state);
+                }
+
+                if (result.toString().endsWith(", ")) {
+                    result.deleteCharAt(result.length() - 2);
+                }
+
+                if (city == null && state == null) {
+                    String country = null;
+                    if (address != null) {
+                        country = address.getCountryName();
+                    }
+                    result.append(country);
+                }
+            } else {
+                String featureName = addresses.get(0).getFeatureName();
+                if (featureName != null && !featureName.matches("^[0-9-]*$") && !addresses.get(0).getAddressLine(0).startsWith(featureName)) {
+                    if (!featureName.equals(addresses.get(0).getCountryName())) {
+                        result.append(featureName).append(", ");
+                    }
+                }
+
+                String city = addresses.get(0).getLocality();
+                if (city != null && (featureName == null || !featureName.equals(city))) {
+                    result.append(city).append(", ");
+                }
+
+                String county = addresses.get(0).getSubAdminArea();
+                if (county != null && (city == null || !county.contains(city))) {
+                    // County code made for City of Los Angeles, that has a county of "Los Angeles County"
+                    result.append(county).append(", ");
+                }
+
+                String state = addresses.get(0).getAdminArea();
+                if (state != null) {
+                    result.append(state);
+                }
+
+                if (featureName != null && featureName.equals(addresses.get(0).getCountryName())) {
+                    result.append(", ").append(featureName);// for places like Israel
+                }
+
+                if (result.toString().endsWith(", ")) {
+                    result.deleteCharAt(result.length() - 2);
+                }
+
+                if (city == null && state == null) {
+                    String country = addresses.get(0).getCountryName();
+                    result.append(country);
+                }
+
+                String postalCode = addresses.get(0).getPostalCode();
+                if (postalCode != null) {
+                    result.append(" (").append(postalCode).append(")");
+                }
+            }
+        }
+        return result.toString().trim();
+    }
+
     /**
      * This method uses the Geocoder class to try and get the current location's name. I have
      * tried to make my results similar to the zmanim app by JGindin on the Play Store. In america,
@@ -232,7 +325,7 @@ public class LocationResolver extends Thread {
 
             if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
                 Address address = null;
-                for (Address add:addresses) {
+                for (Address add : addresses) {
                     if (add.getLocale().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
                         address = add;
                     }
