@@ -255,11 +255,14 @@ public class LocationResolver extends Thread {
                     result.append(country);
                 }
             } else {
+                String country = addresses.get(0).getCountryName();
+
                 String featureName = addresses.get(0).getFeatureName();
-                if (featureName != null && !featureName.matches("^[0-9-]*$") && !addresses.get(0).getAddressLine(0).startsWith(featureName)) {
-                    if (!featureName.equals(addresses.get(0).getCountryName())) {
-                        result.append(featureName).append(", ");
-                    }
+                if (featureName != null
+                        && !featureName.matches("^[0-9-]*$")
+                        && !addresses.get(0).getAddressLine(0).startsWith(featureName)
+                        && !featureName.equals(country)) {
+                    result.append(featureName).append(", ");
                 }
 
                 String city = addresses.get(0).getLocality();
@@ -269,26 +272,31 @@ public class LocationResolver extends Thread {
 
                 String county = addresses.get(0).getSubAdminArea();
                 if (county != null && (city == null || !county.contains(city))) {
-                    // County code made for City of Los Angeles, that has a county of "Los Angeles County"
+                    // County city check made for Los Angeles, that has a county of "Los Angeles County"
                     result.append(county).append(", ");
                 }
 
                 String state = addresses.get(0).getAdminArea();
-                if (state != null) {
+                if (state != null && (city == null || !state.contains(city)) && (!state.equals(county))) {
+                    // State city check made for Jerusalem, that has a county of "Jerusalem"
+                    // County equals check to account Rio De Jenairo
                     result.append(state);
                 }
 
-                if (featureName != null && featureName.equals(addresses.get(0).getCountryName())) {
-                    result.append(", ").append(featureName);// for places like Israel
+                if (result.toString().endsWith(", ")) {
+                    result.deleteCharAt(result.length() - 1);
+                    result.deleteCharAt(result.length() - 1);
+                }
+
+                if ((city == null && state == null) || (featureName != null && featureName.equals(addresses.get(0).getCountryName()))) {
+                    if (featureName != null && featureName.equals(addresses.get(0).getCountryName())) {
+                        result.append(", ");
+                    }
+                    result.append(country);
                 }
 
                 if (result.toString().endsWith(", ")) {
                     result.deleteCharAt(result.length() - 2);
-                }
-
-                if (city == null && state == null) {
-                    String country = addresses.get(0).getCountryName();
-                    result.append(country);
                 }
 
                 String postalCode = addresses.get(0).getPostalCode();
