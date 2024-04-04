@@ -258,12 +258,15 @@ public class LocationResolver {
                 TimeZoneMap timeZoneMap = TimeZoneMap.forRegion(
                         Math.floor(sLatitude), Math.floor(sLongitude),
                         Math.ceil(sLatitude), Math.ceil(sLongitude));//trying to avoid using the forEverywhere() method
-                MainActivity.sCurrentTimeZoneID = Objects.requireNonNull(timeZoneMap.getOverlappingTimeZone(sLatitude, sLongitude)).getZoneId();
+                sCurrentTimeZoneID = Objects.requireNonNull(timeZoneMap.getOverlappingTimeZone(sLatitude, sLongitude)).getZoneId();
             } catch (IllegalArgumentException e) {
-                MainActivity.sCurrentTimeZoneID = TimeZone.getDefault().getID();
+                sCurrentTimeZoneID = TimeZone.getDefault().getID();
             }
 //        } else {right now the timezone is set by shared preferences, this will need to be reset after API 30
 //            MainActivity.sCurrentTimeZoneID = TimeZone.getDefault().getID();
+        }
+        if (sCurrentTimeZoneID.equals("Asia/Gaza") || sCurrentTimeZoneID.equals("Asia/Hebron")) {
+            sCurrentTimeZoneID = "Asia/Jerusalem";
         }
     }
 
@@ -322,6 +325,9 @@ public class LocationResolver {
             longitude = Double.parseDouble(mSharedPreferences.getString("currentLong", "0"));
             timeZone = mSharedPreferences.getString("currentTimezone", "");
         }
-        return new GeoLocation(locationName,lat,longitude, TimeZone.getTimeZone(timeZone));
+        return new GeoLocation(locationName,lat,longitude, TimeZone.getTimeZone(timeZone
+                .replace("Asia/Gaza", "Asia/Jerusalem")
+                .replace("Asia/Hebron", "Asia/Jerusalem")
+        ));
     }
 }

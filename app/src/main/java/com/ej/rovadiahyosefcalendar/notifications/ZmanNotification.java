@@ -59,6 +59,7 @@ public class ZmanNotification extends BroadcastReceiver {
             }
             channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
             channel.setLightColor(Color.BLUE);
+            channel.setImportance(NotificationManager.IMPORTANCE_HIGH);
             notificationManager.createNotificationChannel(channel);
         }
 
@@ -136,6 +137,7 @@ public class ZmanNotification extends BroadcastReceiver {
                     .setColor(context.getColor(R.color.dark_gold))
                     .setAutoCancel(true)
                     .setWhen(System.currentTimeMillis())
+                    //.extend(new NotificationCompat.WearableExtender().setBridgeTag(""))//TODO later
                     .setContentIntent(pendingIntent);
             if (mSettingsSharedPreferences.getInt("autoDismissNotifications", -1) != -1) {
                 builder.setTimeoutAfter((mSettingsSharedPreferences.getInt("autoDismissNotifications", -1) * MINUTE_MILLI) + 3000); // add 3 seconds because 0 milliseconds doesn't do anything

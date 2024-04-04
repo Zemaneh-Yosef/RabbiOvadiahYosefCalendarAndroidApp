@@ -90,6 +90,18 @@
             android:background="@drawable/colorful_gradient_square">
         </Button>
 
+        <Button
+            android:id="@+id/birchat_hamazon"
+            android:layout_width="312dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="@string/birchat_hamazon"
+            android:textStyle="bold"
+            android:textSize="26sp"
+            android:textColor="@color/black"
+            android:background="@drawable/colorful_gradient_square">
+        </Button>
+
         <TextView
             android:id="@+id/siddur_disclaimer"
             android:layout_width="wrap_content"

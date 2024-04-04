@@ -214,7 +214,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     //dialogBuilder.setNeutralButton("Change Location", (dialog, which) ->
                     //        sSetupLauncher.launch(new Intent(context, CurrentLocationActivity.class)));//Look into this later
                     if (!PreferenceManager.getDefaultSharedPreferences(context).getBoolean("LuachAmudeiHoraah", false)) {
-                        dialogBuilder.setNegativeButton("Change Elevation", (dialog, which) ->
+                        dialogBuilder.setNegativeButton(context.getString(R.string.setup_elevation), (dialog, which) ->
                                 sSetupLauncher.launch(new Intent(context, SetupElevationActivity.class).putExtra("fromMenu",true)));
                     }
                     dialogBuilder.show();

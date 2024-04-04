@@ -458,16 +458,22 @@ public class LocationResolver extends Thread {
                         Math.floor(sLatitude), Math.floor(sLongitude),
                         Math.ceil(sLatitude), Math.ceil(sLongitude));//trying to avoid using the forEverywhere() method
                 String zoneID = Objects.requireNonNull(timeZoneMap.getOverlappingTimeZone(sLatitude, sLongitude)).getZoneId();
-                MainActivity.sCurrentTimeZoneID = zoneID;
+                sCurrentTimeZoneID = zoneID;
                 mTimeZone = TimeZone.getTimeZone(zoneID);
                 saveLocationInformation();
             } catch (IllegalArgumentException e) {
-                MainActivity.sCurrentTimeZoneID = TimeZone.getDefault().getID();
+                sCurrentTimeZoneID = TimeZone.getDefault().getID();
                 mTimeZone = TimeZone.getDefault();
             }
         } else {
-            MainActivity.sCurrentTimeZoneID = TimeZone.getDefault().getID();
+            sCurrentTimeZoneID = TimeZone.getDefault().getID();
             mTimeZone = TimeZone.getDefault();
+        }
+        if (sCurrentTimeZoneID.equals("Asia/Gaza") || sCurrentTimeZoneID.equals("Asia/Hebron")) {
+            sCurrentTimeZoneID = "Asia/Jerusalem";
+        }
+        if (mTimeZone.getID().equals("Asia/Gaza") || mTimeZone.getID().equals("Asia/Hebron")) {
+            mTimeZone = TimeZone.getTimeZone("Asia/Jerusalem");
         }
     }
 

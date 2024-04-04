@@ -3,6 +3,7 @@ package com.ej.rovadiahyosefcalendar.activities;
 import static android.text.Html.fromHtml;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Html;
@@ -82,6 +83,14 @@ public class SiddurChooserActivity extends AppCompatActivity {
         Button arvit = findViewById(R.id.arvit);
         arvit.setOnClickListener(v -> startSiddurActivity(getString(R.string.arvit)));
 
+        Button bh = findViewById(R.id.birchat_hamazon);
+        bh.setOnClickListener(v -> new AlertDialog.Builder(this, R.style.alertDialog)
+                .setTitle(R.string.when_did_you_start_your_meal)
+                .setMessage(R.string.did_you_start_your_meal_during_the_day)
+                .setPositiveButton(getString(R.string.yes), (dialog, which) -> startNextDaySiddurActivity(getString(R.string.birchat_hamazon)))
+                .setNegativeButton(getString(R.string.no), (dialog, which) -> startSiddurActivity(getString(R.string.birchat_hamazon)))
+                .show());
+
         TextView disclaimer = findViewById(R.id.siddur_disclaimer);
         disclaimer.setGravity(Gravity.CENTER);
         disclaimer.setClickable(true);
@@ -119,6 +128,15 @@ public class SiddurChooserActivity extends AppCompatActivity {
         startActivity(new Intent(this, SiddurViewActivity.class)
                 .putExtra("prayer", prayer)
                 .putExtra("JewishDay", mJewishDateInfo.getJewishCalendar().getJewishDayOfMonth())
+                .putExtra("JewishMonth", mJewishDateInfo.getJewishCalendar().getJewishMonth())
+                .putExtra("JewishYear", mJewishDateInfo.getJewishCalendar().getJewishYear())
+        );
+    }
+
+    private void startNextDaySiddurActivity(String prayer) {
+        startActivity(new Intent(this, SiddurViewActivity.class)
+                .putExtra("prayer", prayer)
+                .putExtra("JewishDay", mJewishDateInfo.getJewishCalendar().getJewishDayOfMonth() + 1)
                 .putExtra("JewishMonth", mJewishDateInfo.getJewishCalendar().getJewishMonth())
                 .putExtra("JewishYear", mJewishDateInfo.getJewishCalendar().getJewishYear())
         );
