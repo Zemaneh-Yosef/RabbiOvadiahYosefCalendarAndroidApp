@@ -121,7 +121,7 @@
     <string name="no_i_have_not_left_israel">No, I have not left Israel</string>
     <string name="please_enable_gps">Please Enable GPS</string>
     <string name="would_you_like_to_receive_real_time_notifications_for_zmanim">Would you like to receive real-time notifications for zmanim?</string>
-    <string name="if_you_would_like_to_receive_real_time_zmanim_notifications">If you would like to receive real-time zmanim notifications for your current location, please navigate to the settings page and enable location services all the time for this app. Would you like to do this now?</string>
+    <string name="if_you_would_like_to_receive_real_time_zmanim_notifications">If you would like to receive real-time zmanim notifications for your current location, please navigate to the settings page and enable location services all the time for this app. Do not forget to check your battery saver settings as well. Would you like to do this now?</string>
     <string name="update_tables">Update Tables?</string>
     <string name="the_visible_sunrise_tables_for_the_current_location_and_year_need_to_be_updated_do_you_want_to_update_the_tables_now">The visible sunrise tables for the current location and year need to be updated.\n\nDo you want to update the tables now?</string>
     <string name="PESACH">PESACH</string>
@@ -347,5 +347,4 @@
     <string name="birchat_hamazon">ברכת המזון</string>
     <string name="when_did_you_start_your_meal">When did you start your meal?</string>
     <string name="did_you_start_your_meal_during_the_day">Did you start your meal during the day?</string>
-    <string name="title_activity_location_search">LocationSearchActivity</string>
 </resources>
