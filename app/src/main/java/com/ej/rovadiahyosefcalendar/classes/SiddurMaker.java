@@ -3286,6 +3286,7 @@ public class SiddurMaker {
 
         if (jewishDateInfo.getJewishCalendar().isRoshChodesh()
                 || (jewishDateInfo.getJewishCalendar().isAssurBemelacha() && !jewishDateInfo.getJewishCalendar().isYomKippur())
+                || jewishDateInfo.getJewishCalendar().isCholHamoed()
                 || jewishDateInfo.getJewishCalendar().isPurim()) {// apparently milah and siyum masechet as well, but not going to include those
             addToSiddurHighlighted("מִגְדּ֖וֹל");
         } else {
