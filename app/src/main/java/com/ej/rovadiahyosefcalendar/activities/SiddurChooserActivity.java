@@ -87,8 +87,8 @@ public class SiddurChooserActivity extends AppCompatActivity {
         bh.setOnClickListener(v -> new AlertDialog.Builder(this, R.style.alertDialog)
                 .setTitle(R.string.when_did_you_start_your_meal)
                 .setMessage(R.string.did_you_start_your_meal_during_the_day)
-                .setPositiveButton(getString(R.string.yes), (dialog, which) -> startNextDaySiddurActivity(getString(R.string.birchat_hamazon)))
-                .setNegativeButton(getString(R.string.no), (dialog, which) -> startSiddurActivity(getString(R.string.birchat_hamazon)))
+                .setPositiveButton(getString(R.string.yes), (dialog, which) -> startSiddurActivity(getString(R.string.birchat_hamazon)))
+                .setNegativeButton(getString(R.string.no), (dialog, which) -> startNextDaySiddurActivity(getString(R.string.birchat_hamazon)))
                 .show());
 
         TextView disclaimer = findViewById(R.id.siddur_disclaimer);
