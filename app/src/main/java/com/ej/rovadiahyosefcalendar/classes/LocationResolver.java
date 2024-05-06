@@ -675,26 +675,15 @@ public class LocationResolver extends Thread {
                         while ((mLatitude == 0 && mLongitude == 0) && System.currentTimeMillis() < tenSeconds) {
                             Thread.sleep(0);//we MUST wait for the location data to be set or else the app will crash
                         }
-                        if (mLatitude == 0 && mLongitude == 0) {//if 10 seconds passed and we still don't have the location, use the older implementation
-                            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);;//location might be old
-                            if (location == null) {
-                                location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                            }
-                            if (location != null) {
-                                mLatitude = location.getLatitude();
-                                mLongitude = location.getLongitude();
-                            }
+                    }
+                    if (mLatitude == 0 && mLongitude == 0) {//if 10 seconds passed and we still don't have the location, use the older implementation
+                        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);;//location might be old
+                        if (location == null) {
+                            location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                         }
-                    } else {//older implementation
-                        if (mLatitude == 0 && mLongitude == 0) {//if 10 seconds passed and we still don't have the location, use the older implementation
-                            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);;//location might be old
-                            if (location == null) {
-                                location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                            }
-                            if (location != null) {
-                                mLatitude = location.getLatitude();
-                                mLongitude = location.getLongitude();
-                            }
+                        if (location != null) {
+                            mLatitude = location.getLatitude();
+                            mLongitude = location.getLongitude();
                         }
                     }
                 }

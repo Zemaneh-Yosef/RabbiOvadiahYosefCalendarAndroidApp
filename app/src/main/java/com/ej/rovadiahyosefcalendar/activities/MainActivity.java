@@ -1329,13 +1329,13 @@ public class MainActivity extends AppCompatActivity {
                 mCurrentDateShown.setTimeInMillis(calendar.getTime().getTime());
                 mROZmanimCalendar.setCalendar(calendar);
                 mJewishDateInfo.setCalendar(calendar);
+                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable());
                 setShabbatBannerColors(false);
                 if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                     updateWeeklyZmanim();
                 } else {
                     updateDailyZmanim();
                 }
-                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable());
                 mHandler.removeCallbacks(mZmanimUpdater);
                 mHandler.postDelayed(mZmanimUpdater, TWENTY_FOUR_HOURS_IN_MILLI);//run the update in 24 hours
             };
@@ -1476,7 +1476,7 @@ public class MainActivity extends AppCompatActivity {
                 mShabbatModeBanner.setBackgroundColor(getColor(R.color.dark_blue));
                 mShabbatModeBanner.setTextColor(getColor(R.color.white));
                 mCalendarButton.setBackgroundColor(getColor(R.color.dark_blue));
-                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable());
+                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawableLight());
         }
 
         if (isFirstTime) {
@@ -2854,6 +2854,9 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 updateDailyZmanim();
             }
+            return true;
+        } else if (id == R.id.jerDirection) {
+            startActivity(new Intent(this, JerusalemDirectionMapsActivity.class));
             return true;
         } else if (id == R.id.netzView) {
             startActivity(new Intent(this, NetzActivity.class));

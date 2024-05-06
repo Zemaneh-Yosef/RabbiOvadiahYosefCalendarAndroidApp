@@ -368,7 +368,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             showBirchatHachamahDialog();
         } else if (zmanim.get(position).getTitle().contains("ברכות שמע")) {
             showBrachotShmaDialog();
-        } else if (zmanim.get(position).getTitle().contains("חצות לילה")) {
+        } else if (zmanim.get(position).getTitle().contains("חצות הלילה")) {
             showChatzotLaylaDialog();
         } else if (zmanim.get(position).getTitle().contains("מנחה גדולה")) {
             showMinchaGedolaDialog();

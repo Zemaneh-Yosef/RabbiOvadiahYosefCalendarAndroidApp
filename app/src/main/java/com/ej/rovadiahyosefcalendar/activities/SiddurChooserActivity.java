@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.Gravity;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -20,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
+import com.ej.rovadiahyosefcalendar.classes.SiddurMaker;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
 import java.util.Calendar;
@@ -84,12 +86,23 @@ public class SiddurChooserActivity extends AppCompatActivity {
         arvit.setOnClickListener(v -> startSiddurActivity(getString(R.string.arvit)));
 
         Button bh = findViewById(R.id.birchat_hamazon);
-        bh.setOnClickListener(v -> new AlertDialog.Builder(this, R.style.alertDialog)
-                .setTitle(R.string.when_did_you_start_your_meal)
-                .setMessage(R.string.did_you_start_your_meal_during_the_day)
-                .setPositiveButton(getString(R.string.yes), (dialog, which) -> startSiddurActivity(getString(R.string.birchat_hamazon)))
-                .setNegativeButton(getString(R.string.no), (dialog, which) -> startNextDaySiddurActivity(getString(R.string.birchat_hamazon)))
-                .show());
+        bh.setOnClickListener(v -> {
+            JewishDateInfo tomorrow = new JewishDateInfo(getSharedPreferences(SHARED_PREF, MODE_PRIVATE).getBoolean("inIsrael", false), true);
+            Calendar calendar = (Calendar) mJewishDateInfo.getJewishCalendar().getGregorianCalendar().clone();
+            calendar.add(Calendar.DATE, 1);
+            tomorrow.setCalendar(calendar);
+
+            if (new SiddurMaker(mJewishDateInfo).getBirchatHamazonPrayers().equals(new SiddurMaker(tomorrow).getBirchatHamazonPrayers())) {
+                startSiddurActivity(getString(R.string.birchat_hamazon));//doesn't matter which day
+            } else {
+                new AlertDialog.Builder(this, R.style.alertDialog)
+                        .setTitle(R.string.when_did_you_start_your_meal)
+                        .setMessage(R.string.did_you_start_your_meal_during_the_day)
+                        .setPositiveButton(getString(R.string.yes), (dialog, which) -> startSiddurActivity(getString(R.string.birchat_hamazon)))
+                        .setNegativeButton(getString(R.string.no), (dialog, which) -> startNextDaySiddurActivity(getString(R.string.birchat_hamazon)))
+                        .show();
+            }
+        });
 
         TextView disclaimer = findViewById(R.id.siddur_disclaimer);
         disclaimer.setGravity(Gravity.CENTER);
@@ -143,9 +156,17 @@ public class SiddurChooserActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.siddur_chooser_menu, menu);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             onBackPressed();
+        } else if (item.getItemId() == R.id.jerDirection) {
+            startActivity(new Intent(this, JerusalemDirectionMapsActivity.class));
         }
         return super.onOptionsItemSelected(item);
     }
