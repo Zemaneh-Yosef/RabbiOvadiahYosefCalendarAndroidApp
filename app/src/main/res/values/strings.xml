@@ -351,7 +351,6 @@
     <string name="north_pointer">North pointer</string>
     <string name="holy_of_holies">Holy of Holies</string>
     <string name="jer_dir_help_text"><![CDATA[When praying the Amidah, one should direct himself towards Israel, Jerusalem, the temple mount and the Kodesh Hakodashim (Holy of Holies) area (Berakhot Bavli 30a, based on Kings I 8:35–48 & Chronicles II 6:32). Determining which direction that is in can be done through the \"Rhumb line\" method, which \"draws\" a line from one\'s location to a specific point (which in our case, would be the Temple mount). Once the line is drawn, you are expected to pray in the direction the line is drawn in through matching your direction with its degree angle. Please note that even if the Aron in the synagogue that you are in is misplaced, you should not separate from the others. Rather, you should only adjust your head to the right direction.]]></string>
-    <string name="title_activity_get_user_location_with_map">GetUserLocationWithMapActivity</string>
     <string name="search_for_a_place_legacy">Search for a place (Legacy)</string>
     <string name="confirm">Confirm</string>
     <string name="change_location">Change Location</string>
