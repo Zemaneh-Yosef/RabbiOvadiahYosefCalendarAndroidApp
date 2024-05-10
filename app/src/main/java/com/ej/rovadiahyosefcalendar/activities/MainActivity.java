@@ -14,7 +14,6 @@ import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
@@ -32,7 +31,6 @@ import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -40,14 +38,10 @@ import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Spinner;
 import android.widget.TextClock;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -267,7 +261,12 @@ public class MainActivity extends AppCompatActivity {
                 if (sharedText != null) {
                     // Update UI to reflect text being shared
                     // We set the zipcode location to what was sent to us
-                    setUseLocations(false, false, false, false, false);
+                    mSharedPreferences.edit().putBoolean("useLocation1", false)
+                            .putBoolean("useLocation2", false)
+                            .putBoolean("useLocation3", false)
+                            .putBoolean("useLocation4", false)
+                            .putBoolean("useLocation5", false)
+                            .apply();
                     SharedPreferences.Editor editor = mSharedPreferences.edit();
                     editor.putBoolean("useAdvanced", false).apply();
                     editor.putBoolean("useZipcode", true).apply();
@@ -362,6 +361,24 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         updateDailyZmanim();
                     }
+
+//                    if (!mInitialized) {
+//                        initMainView();
+//                    } else {
+//                        mLocationResolver.setTimeZoneID();
+//                        resolveElevationAndVisibleSunrise();
+//                        instantiateZmanimCalendar();
+//                        setNextUpcomingZman();
+//                        if (mSharedPreferences.getBoolean("weeklyMode", false)) {
+//                            updateWeeklyZmanim();
+//                        } else {
+//                            updateDailyZmanim();
+//                        }
+//                        checkIfUserIsInIsraelOrNot();
+//                        saveGeoLocationInfo();
+//                        setNotifications();
+//                        sendPreferencesToWatch();
+//                    }
                 }
         );
     }
@@ -1064,6 +1081,7 @@ public class MainActivity extends AppCompatActivity {
             mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false), true);
             mJewishDateInfo.setCalendar(mCurrentDateShown);
             setZmanimLanguageBools();
+            resolveElevationAndVisibleSunrise();
             instantiateZmanimCalendar();
             mROZmanimCalendar.setCalendar(mCurrentDateShown);
             setNextUpcomingZman();
@@ -1074,7 +1092,6 @@ public class MainActivity extends AppCompatActivity {
                 updateDailyZmanim();
                 mMainRecyclerView.scrollToPosition(mCurrentPosition);
             }
-            resolveElevationAndVisibleSunrise();
             resetTheme();
             //this is to update the zmanim notifications if the user changed the settings to start showing them
             PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(
@@ -1087,6 +1104,7 @@ public class MainActivity extends AppCompatActivity {
             } catch (PendingIntent.CanceledException e) {
                 e.printStackTrace();
             }
+            checkIfUserIsInIsraelOrNot();
             mSharedPreferences.edit().putBoolean("shouldRefresh", false).apply();
         }
 
@@ -2368,413 +2386,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * This method will create a new AlertDialog that asks the user to use their location and it
-     * will also give the option to enter an address/zipcode through the EditText field.
-     */
-    private void createZipcodeDialog() {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this, R.style.alertDialog);
-
-        LinearLayout linearLayout = new LinearLayout(this);
-        linearLayout.setOrientation(LinearLayout.VERTICAL);
-        linearLayout.setGravity(Gravity.CENTER);
-
-        Button locationOne = new Button(this);
-        locationOne.setText(mSharedPreferences.getString("location1", ""));
-        if (locationOne.getText().equals("")) {
-            locationOne.setVisibility(View.GONE);
-        }
-        if (locationOne.getVisibility() != View.GONE) {
-            locationOne.setOnLongClickListener(view -> {
-                askUserIfTheyWantToDeleteThisEntry("location1", locationOne);
-                return false;
-            });
-        }
-
-        Button locationTwo = new Button(this);
-        locationTwo.setText(mSharedPreferences.getString("location2", ""));
-        if (locationTwo.getText().equals("")) {
-            locationTwo.setVisibility(View.GONE);
-        }
-        if (locationTwo.getVisibility() != View.GONE) {
-            locationTwo.setOnLongClickListener(view -> {
-                askUserIfTheyWantToDeleteThisEntry("location2", locationTwo);
-                return false;
-            });
-        }
-
-        Button locationThree = new Button(this);
-        locationThree.setText(mSharedPreferences.getString("location3", ""));
-        if (locationThree.getText().equals("")) {
-            locationThree.setVisibility(View.GONE);
-        }
-        if (locationThree.getVisibility() != View.GONE) {
-            locationThree.setOnLongClickListener(view -> {
-                askUserIfTheyWantToDeleteThisEntry("location3", locationThree);
-                return false;
-            });
-        }
-
-        Button locationFour = new Button(this);
-        locationFour.setText(mSharedPreferences.getString("location4", ""));
-        if (locationFour.getText().equals("")) {
-            locationFour.setVisibility(View.GONE);
-        }
-        if (locationFour.getVisibility() != View.GONE) {
-            locationFour.setOnLongClickListener(view -> {
-                askUserIfTheyWantToDeleteThisEntry("location4", locationFour);
-                return false;
-            });
-        }
-
-        Button locationFive = new Button(this);
-        locationFive.setText(mSharedPreferences.getString("location5", ""));
-        if (locationFive.getText().equals("")) {
-            locationFive.setVisibility(View.GONE);
-        }
-        if (locationFive.getVisibility() != View.GONE) {
-            locationFive.setOnLongClickListener(view -> {
-                askUserIfTheyWantToDeleteThisEntry("location5", locationFive);
-                return false;
-            });
-        }
-
-        linearLayout.addView(locationOne);
-        linearLayout.addView(locationTwo);
-        linearLayout.addView(locationThree);
-        linearLayout.addView(locationFour);
-        linearLayout.addView(locationFive);
-
-        final EditText input = new EditText(this);
-        input.setGravity(Gravity.CENTER_HORIZONTAL);
-        input.setHint(R.string.enter_zipcode_or_address);
-        input.setSingleLine();
-        input.setImeOptions(EditorInfo.IME_ACTION_DONE);
-        linearLayout.addView(input);
-
-        alertDialog.setTitle(R.string.search_for_a_place)
-                .setMessage(R.string.warning_zmanim_will_be_based_on_your_approximate_area)
-                .setView(linearLayout)
-                .setPositiveButton(R.string.ok, (dialog, which) -> {
-                    if (input.getText().toString().isEmpty()) {
-                        Toast.makeText(this, R.string.please_enter_something, Toast.LENGTH_SHORT).show();
-                        createZipcodeDialog();
-                    } else {
-                        setUseLocations(false, false, false, false, false);
-                        SharedPreferences.Editor editor = mSharedPreferences.edit();
-                        editor.putBoolean("useAdvanced", false).apply();
-                        editor.putBoolean("useZipcode", true).apply();
-                        editor.putString("Zipcode", input.getText().toString()).apply();
-                        mLocationResolver = new LocationResolver(this, this);
-                        mLocationResolver.getLatitudeAndLongitudeFromSearchQuery();
-                        if (mSharedPreferences.getBoolean("useElevation", true)) {
-                            mLocationResolver.start();
-                            try {
-                                mLocationResolver.join();
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        if (!mInitialized) {
-                            initMainView();
-                        } else {
-                            mLocationResolver.setTimeZoneID();
-                            resolveElevationAndVisibleSunrise();
-                            instantiateZmanimCalendar();
-                            setNextUpcomingZman();
-                            if (mSharedPreferences.getBoolean("weeklyMode", false)) {
-                                updateWeeklyZmanim();
-                            } else {
-                                updateDailyZmanim();
-                            }
-                            checkIfUserIsInIsraelOrNot();
-                            saveGeoLocationInfo();
-                            setNotifications();
-                            sendPreferencesToWatch();
-                        }
-                    }
-                })
-                .setNegativeButton(R.string.advanced, (dialog, which) -> {
-                    LinearLayout layout = new LinearLayout(this);
-                    layout.setOrientation(LinearLayout.VERTICAL);
-                    layout.setGravity(Gravity.CENTER);
-
-                    TextView locationName = new TextView(this);
-                    locationName.setText(R.string.enter_location_name);
-                    locationName.setGravity(Gravity.CENTER);
-
-                    EditText locationInput = new EditText(this);
-                    locationInput.setHint(R.string.location_hint);
-                    locationInput.setGravity(Gravity.CENTER);
-
-                    TextView latitude = new TextView(this);
-                    latitude.setText(R.string.enter_latitude);
-                    latitude.setGravity(Gravity.CENTER);
-
-                    EditText latInput = new EditText(this);
-                    latInput.setHint("ex: 73.09876543");
-                    latInput.setGravity(Gravity.CENTER);
-
-                    TextView longitude = new TextView(this);
-                    longitude.setText(R.string.enter_longitude);
-                    longitude.setGravity(Gravity.CENTER);
-
-                    EditText longInput = new EditText(this);
-                    longInput.setHint("ex: -103.098765");
-                    longInput.setGravity(Gravity.CENTER);
-
-                    TextView elevation = new TextView(this);
-                    elevation.setText(R.string.enter_elevation_in_meters);
-                    elevation.setGravity(Gravity.CENTER);
-
-                    EditText elevationInput = new EditText(this);
-                    elevationInput.setHint("ex: 805");
-                    elevationInput.setGravity(Gravity.CENTER);
-
-                    TextView timezone = new TextView(this);
-                    timezone.setText(R.string.choose_timezone);
-                    timezone.setGravity(Gravity.CENTER);
-
-                    Spinner timezones = new Spinner(this);
-                    timezones.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, TimeZone.getAvailableIDs()));
-                    timezones.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                        @Override
-                        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                            String s = (String) parent.getItemAtPosition(position);
-                            mSharedPreferences.edit().putString("advancedTimezone", s).apply();
-                        }
-
-                        @Override
-                        public void onNothingSelected(AdapterView<?> parent) {
-                        }
-                    });
-
-                    layout.addView(locationName);
-                    layout.addView(locationInput);
-
-                    layout.addView(latitude);
-                    layout.addView(latInput);
-
-                    layout.addView(longitude);
-                    layout.addView(longInput);
-
-                    layout.addView(elevation);
-                    layout.addView(elevationInput);
-
-                    layout.addView(timezone);
-                    layout.addView(timezones);
-
-                    AlertDialog.Builder advancedAlert = new AlertDialog.Builder(this, R.style.alertDialog);
-
-                    advancedAlert.setTitle(R.string.advanced)
-                            .setView(layout)
-                            .setPositiveButton(R.string.ok, (dialogAd, whichAd) -> {
-                                if (locationInput.getText().toString().isEmpty()) {
-                                    Toast.makeText(this, R.string.please_enter_something, Toast.LENGTH_SHORT).show();
-                                    createZipcodeDialog();
-                                } else {
-                                    setUseLocations(false, false, false, false, false);
-                                    SharedPreferences.Editor editor = mSharedPreferences.edit();
-                                    editor.putBoolean("useAdvanced", true).apply();
-                                    editor.putString("advancedLN", locationInput.getText().toString()).apply();
-                                    editor.putString("advancedLat", latInput.getText().toString()).apply();
-                                    editor.putString("advancedLong", longInput.getText().toString()).apply();
-                                    editor.putString(
-                                            "elevation" + locationInput.getText().toString(),
-                                            elevationInput.getText().toString()).apply();
-
-                                    mLocationResolver = new LocationResolver(this, this);
-                                    mLocationResolver.acquireLatitudeAndLongitude();
-
-                                    if (!mInitialized) {
-                                        initMainView();
-                                    } else {
-                                        resolveElevationAndVisibleSunrise();
-                                        instantiateZmanimCalendar();
-                                        setNextUpcomingZman();
-                                        if (mSharedPreferences.getBoolean("weeklyMode", false)) {
-                                            updateWeeklyZmanim();
-                                        } else {
-                                            updateDailyZmanim();
-                                        }
-                                        checkIfUserIsInIsraelOrNot();
-                                        saveGeoLocationInfo();
-                                        setNotifications();
-                                        sendPreferencesToWatch();
-                                    }
-                                }
-                            });
-                    advancedAlert.create().show();
-                })
-                .setNeutralButton(R.string.use_location, (dialog, which) -> {
-                    setUseLocations(false, false, false, false, false);
-                    SharedPreferences.Editor editor = mSharedPreferences.edit();
-                    editor.putBoolean("useAdvanced", false).apply();
-                    editor.putBoolean("useZipcode", false).apply();
-                    mLocationResolver = new LocationResolver(this, this);
-                    mLocationResolver.acquireLatitudeAndLongitude();
-                    mLocationResolver.setTimeZoneID();
-                    if (mSharedPreferences.getBoolean("useElevation", true)) {
-                        mLocationResolver.start();
-                        try {
-                            mLocationResolver.join();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    resolveElevationAndVisibleSunrise();
-                    instantiateZmanimCalendar();
-                    setNextUpcomingZman();
-                    if (mSharedPreferences.getBoolean("weeklyMode", false)) {
-                        updateWeeklyZmanim();
-                    } else {
-                        updateDailyZmanim();
-                    }
-                    checkIfUserIsInIsraelOrNot();
-                    saveGeoLocationInfo();
-                    setNotifications();
-                    sendPreferencesToWatch();
-                });
-
-        AlertDialog ad = alertDialog.create();
-        ad.show();
-
-        input.setOnEditorActionListener((textView, actionId, keyEvent) -> {
-            if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_NULL) {
-                ad.getButton(DialogInterface.BUTTON_POSITIVE).performClick();
-                return true;
-            }
-            return false;
-        });
-
-        locationOne.setOnClickListener(view -> {
-            setUseLocations(true, false, false, false, false);
-            sCurrentLocationName = (String) locationOne.getText();
-            sLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location1Lat", 0));
-            sLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location1Long", 0));
-            sCurrentTimeZoneID = mSharedPreferences.getString("location1Timezone", "");
-            resolveElevationAndVisibleSunrise();
-            instantiateZmanimCalendar();
-            setNextUpcomingZman();
-            if (mSharedPreferences.getBoolean("weeklyMode", false)) {
-                updateWeeklyZmanim();
-            } else {
-                updateDailyZmanim();
-            }
-            checkIfUserIsInIsraelOrNot();
-            saveGeoLocationInfo();
-            setNotifications();
-            sendPreferencesToWatch();
-            ad.dismiss();
-        });
-
-        locationTwo.setOnClickListener(view -> {
-            setUseLocations(false, true, false, false, false);
-            sCurrentLocationName = (String) locationTwo.getText();
-            sLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location2Lat", 0));
-            sLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location2Long", 0));
-            sCurrentTimeZoneID = mSharedPreferences.getString("location2Timezone", "");
-            resolveElevationAndVisibleSunrise();
-            instantiateZmanimCalendar();
-            setNextUpcomingZman();
-            if (mSharedPreferences.getBoolean("weeklyMode", false)) {
-                updateWeeklyZmanim();
-            } else {
-                updateDailyZmanim();
-            }
-            checkIfUserIsInIsraelOrNot();
-            saveGeoLocationInfo();
-            setNotifications();
-            sendPreferencesToWatch();
-            ad.dismiss();
-        });
-
-        locationThree.setOnClickListener(view -> {
-            setUseLocations(false, false, true, false, false);
-            sCurrentLocationName = (String) locationThree.getText();
-            sLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location3Lat", 0));
-            sLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location3Long", 0));
-            sCurrentTimeZoneID = mSharedPreferences.getString("location3Timezone", "");
-            resolveElevationAndVisibleSunrise();
-            instantiateZmanimCalendar();
-            setNextUpcomingZman();
-            if (mSharedPreferences.getBoolean("weeklyMode", false)) {
-                updateWeeklyZmanim();
-            } else {
-                updateDailyZmanim();
-            }
-            checkIfUserIsInIsraelOrNot();
-            saveGeoLocationInfo();
-            setNotifications();
-            sendPreferencesToWatch();
-            ad.dismiss();
-        });
-
-        locationFour.setOnClickListener(view -> {
-            setUseLocations(false, false, false, true, false);
-            sCurrentLocationName = (String) locationFour.getText();
-            sLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location4Lat", 0));
-            sLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location4Long", 0));
-            sCurrentTimeZoneID = mSharedPreferences.getString("location4Timezone", "");
-            resolveElevationAndVisibleSunrise();
-            instantiateZmanimCalendar();
-            setNextUpcomingZman();
-            if (mSharedPreferences.getBoolean("weeklyMode", false)) {
-                updateWeeklyZmanim();
-            } else {
-                updateDailyZmanim();
-            }
-            checkIfUserIsInIsraelOrNot();
-            saveGeoLocationInfo();
-            setNotifications();
-            sendPreferencesToWatch();
-            ad.dismiss();
-        });
-
-        locationFive.setOnClickListener(view -> {
-            setUseLocations(false, false, false, false, true);
-            sCurrentLocationName = (String) locationFive.getText();
-            sLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location5Lat", 0));
-            sLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location5Long", 0));
-            sCurrentTimeZoneID = mSharedPreferences.getString("location5Timezone", "");
-            resolveElevationAndVisibleSunrise();
-            instantiateZmanimCalendar();
-            setNextUpcomingZman();
-            if (mSharedPreferences.getBoolean("weeklyMode", false)) {
-                updateWeeklyZmanim();
-            } else {
-                updateDailyZmanim();
-            }
-            checkIfUserIsInIsraelOrNot();
-            saveGeoLocationInfo();
-            setNotifications();
-            sendPreferencesToWatch();
-            ad.dismiss();
-        });
-    }
-
-    private void askUserIfTheyWantToDeleteThisEntry(String location, Button locationButton) {
-        String locationName = mSharedPreferences.getString("location1", "");
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this, R.style.alertDialog);
-        alertDialog.setTitle(locationName)
-                .setMessage(R.string.do_you_want_to_delete_this_location)
-                .setPositiveButton(getString(R.string.yes), (dialogInterface, i) -> {
-                    mSharedPreferences.edit().putString(location, "").apply();
-                    locationButton.setVisibility(View.GONE);
-                })
-                .setNegativeButton(getString(R.string.no), (dialogInterface, i) -> dialogInterface.dismiss())
-                .show();
-    }
-
-    private void setUseLocations(boolean location1, boolean location2, boolean location3, boolean location4, boolean location5) {
-        mSharedPreferences.edit().putBoolean("useLocation1", location1)
-                .putBoolean("useLocation2", location2)
-                .putBoolean("useLocation3", location3)
-                .putBoolean("useLocation4", location4)
-                .putBoolean("useLocation5", location5)
-                .apply();
-    }
-
     @Override
     public void onBackPressed() {
         if (!mBackHasBeenPressed) {
@@ -2797,6 +2408,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.findItem(R.id.weekly_mode).setChecked(mSharedPreferences.getBoolean("weeklyMode", false));
         menu.findItem(R.id.use_elevation).setChecked(mSharedPreferences.getBoolean("useElevation", true));
+        menu.findItem(R.id.use_elevation).setVisible(!mSharedPreferences.getBoolean("LuachAmudeiHoraah", false));
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -2804,8 +2416,9 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.enterZipcode) {
-            createZipcodeDialog();
+        if (id == R.id.search_for_a_place) {
+            mSharedPreferences.edit().putBoolean("shouldRefresh", true).apply();
+            startActivity(new Intent(this, GetUserLocationWithMapActivity.class));
             return true;
         } else if (id == R.id.shabbat_mode) {
             if (!sShabbatMode && mJewishDateInfo != null && mROZmanimCalendar != null && mMainRecyclerView != null) {

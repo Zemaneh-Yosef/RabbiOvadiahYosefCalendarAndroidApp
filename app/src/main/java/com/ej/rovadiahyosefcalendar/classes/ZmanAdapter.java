@@ -28,6 +28,7 @@ import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ej.rovadiahyosefcalendar.R;
+import com.ej.rovadiahyosefcalendar.activities.GetUserLocationWithMapActivity;
 import com.ej.rovadiahyosefcalendar.activities.MainActivity;
 import com.ej.rovadiahyosefcalendar.activities.SetupChooserActivity;
 import com.ej.rovadiahyosefcalendar.activities.SetupElevationActivity;
@@ -211,8 +212,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                             + " meters" + "\n" +
                             "Time Zone: " + sCurrentTimeZoneID;
                     dialogBuilder.setMessage(locationInfo);
-                    //dialogBuilder.setNeutralButton("Change Location", (dialog, which) ->
-                    //        sSetupLauncher.launch(new Intent(context, CurrentLocationActivity.class)));//Look into this later
+                    dialogBuilder.setNeutralButton(R.string.change_location, (dialog, which) ->
+                            context.startActivity(new Intent(context, GetUserLocationWithMapActivity.class)));
                     if (!PreferenceManager.getDefaultSharedPreferences(context).getBoolean("LuachAmudeiHoraah", false)) {
                         dialogBuilder.setNegativeButton(context.getString(R.string.setup_elevation), (dialog, which) ->
                                 sSetupLauncher.launch(new Intent(context, SetupElevationActivity.class).putExtra("fromMenu",true)));

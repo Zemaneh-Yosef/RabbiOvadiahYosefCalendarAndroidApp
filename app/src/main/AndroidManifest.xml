@@ -60,11 +60,14 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="${MAPS_API_KEY}" /> <!-- Hidden in local.properties -->
-
+        <activity
+            android:name=".activities.GetUserLocationWithMapActivity"
+            android:exported="false"
+            android:label="@string/search_for_a_place" />
         <activity
             android:name=".activities.JerusalemDirectionMapsActivity"
             android:exported="false"
-            android:label="Jerusalem Direction" />
+            android:label="@string/jerusalem_direction" />
         <activity
             android:name=".activities.OmerActivity"
             android:exported="false" />
@@ -107,9 +110,6 @@
             android:exported="false"
             android:label="@string/title_activity_notification_settings"
             android:theme="@style/MaterialTheme" />
-        <activity
-            android:name=".activities.CurrentLocationActivity"
-            android:exported="false" />
         <activity
             android:name=".activities.MoladActivity"
             android:exported="true"

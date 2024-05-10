@@ -477,6 +477,29 @@ public class LocationResolver extends Thread {
         }
     }
 
+    public void aquireTimeZoneID() {
+        if (!mSharedPreferences.getBoolean("useAdvanced", false)) {
+            return;
+        }
+        try {
+            TimeZoneMap timeZoneMap = TimeZoneMap.forRegion(
+                    Math.floor(sLatitude), Math.floor(sLongitude),
+                    Math.ceil(sLatitude), Math.ceil(sLongitude));//trying to avoid using the forEverywhere() method
+            String zoneID = Objects.requireNonNull(timeZoneMap.getOverlappingTimeZone(sLatitude, sLongitude)).getZoneId();
+            sCurrentTimeZoneID = zoneID;
+            mTimeZone = TimeZone.getTimeZone(zoneID);
+        } catch (IllegalArgumentException e) {
+            sCurrentTimeZoneID = TimeZone.getDefault().getID();
+            mTimeZone = TimeZone.getDefault();
+        }
+        if (sCurrentTimeZoneID.equals("Asia/Gaza") || sCurrentTimeZoneID.equals("Asia/Hebron")) {
+            sCurrentTimeZoneID = "Asia/Jerusalem";
+        }
+        if (mTimeZone.getID().equals("Asia/Gaza") || mTimeZone.getID().equals("Asia/Hebron")) {
+            mTimeZone = TimeZone.getTimeZone("Asia/Jerusalem");
+        }
+    }
+
     private void saveLocationInformation() {
         Set<String> locations = new HashSet<>();
         locations.add(mSharedPreferences.getString("location1", ""));
@@ -515,6 +538,9 @@ public class LocationResolver extends Thread {
     }
 
     public void getElevationFromWebService() throws IOException {
+        if (!mSharedPreferences.getString("elevation" + sCurrentLocationName, "").isEmpty()) {
+            return;
+        }
         WebService.setUserName("Elyahu41");
         ArrayList<Integer> elevations = new ArrayList<>();
         int sum = 0;

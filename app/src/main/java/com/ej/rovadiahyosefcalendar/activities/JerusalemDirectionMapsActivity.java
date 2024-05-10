@@ -92,15 +92,12 @@ public class JerusalemDirectionMapsActivity extends FragmentActivity implements 
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
      * If Google Play services is not installed on the device, the user will be prompted to install
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
      */
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
-
         DisplayMetrics displayMetrics = new DisplayMetrics();
         if (getWindowManager() != null) {
             getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
@@ -133,7 +130,6 @@ public class JerusalemDirectionMapsActivity extends FragmentActivity implements 
             markerJerusalem.showInfoWindow();
         }
 
-        googleMap.setOnMapClickListener(null);
         googleMap.setOnMapClickListener(
                 latLng -> {
                     if (markerJerusalem != null) {
@@ -142,7 +138,6 @@ public class JerusalemDirectionMapsActivity extends FragmentActivity implements 
                 }
         );
 
-        googleMap.setOnMarkerClickListener(null);
         googleMap.setOnMarkerClickListener(marker -> {
             if (markerJerusalem != null) {
                 markerJerusalem.showInfoWindow();

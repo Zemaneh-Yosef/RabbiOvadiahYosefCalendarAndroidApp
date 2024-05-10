@@ -46,8 +46,9 @@ public class ZmanimFactory {
         }
         zmanim.add(new ZmanListEntry(zmanimNames.getShmaMgaString(), mROZmanimCalendar.getSofZmanShmaMGA72MinutesZmanis(), true));
         if (mJewishDateInfo.getJewishCalendar().isBirkasHachamah()) {
-            //TODO make sure this is supposed to be calculated as 3 GRA hours
-            zmanim.add(new ZmanListEntry(zmanimNames.getBirkatHachamaString(), mROZmanimCalendar.getSofZmanShmaGRA(), true));
+            ZmanListEntry birchatHachama = new ZmanListEntry(zmanimNames.getBirkatHachamaString(), mROZmanimCalendar.getSofZmanShmaGRA(), true);
+            birchatHachama.setNoteworthyZman(true);
+            zmanim.add(birchatHachama);
         }
         zmanim.add(new ZmanListEntry(zmanimNames.getShmaGraString(), mROZmanimCalendar.getSofZmanShmaGRA(), true));
         if (mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.EREV_PESACH) {
@@ -243,8 +244,9 @@ public class ZmanimFactory {
         }
         zmanim.add(new ZmanListEntry(zmanimNames.getShmaMgaString(), mROZmanimCalendar.getSofZmanShmaMGA72MinutesZmanisAmudeiHoraah(), true));
         if (mJewishDateInfo.getJewishCalendar().isBirkasHachamah()) {
-            //TODO make sure this is supposed to be calculated as 3 GRA hours
-            zmanim.add(new ZmanListEntry(zmanimNames.getBirkatHachamaString(), mROZmanimCalendar.getSofZmanShmaGRA(), true));
+            ZmanListEntry birchatHachama = new ZmanListEntry(zmanimNames.getBirkatHachamaString(), mROZmanimCalendar.getSofZmanShmaGRA(), true);
+            birchatHachama.setNoteworthyZman(true);
+            zmanim.add(birchatHachama);
         }
         zmanim.add(new ZmanListEntry(zmanimNames.getShmaGraString(), mROZmanimCalendar.getSofZmanShmaGRA(), true));
         if (mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.EREV_PESACH) {

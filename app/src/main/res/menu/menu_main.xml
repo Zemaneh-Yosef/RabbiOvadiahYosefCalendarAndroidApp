@@ -32,7 +32,7 @@
         android:id="@+id/fullSetup"
         android:title="@string/setup" />
     <item
-        android:id="@+id/enterZipcode"
+        android:id="@+id/search_for_a_place"
         android:title="@string/search_for_a_place" />
     <item
         android:id="@+id/website"

@@ -86,7 +86,7 @@ public class CalendarChooserActivity extends AppCompatActivity {
     }
 
     private void saveInfoAndFinish(boolean b) {
-        mSettingsPreferences.edit().putBoolean("LuachAmudeiHoraah", b).apply();
+        mSettingsPreferences.edit().putBoolean("LuachAmudeiHoraah", b).putBoolean("useElevation", !b).apply();
         finish();
     }
 

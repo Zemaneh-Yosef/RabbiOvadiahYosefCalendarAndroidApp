@@ -28,6 +28,7 @@ import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import java.util.Locale;
 import java.util.Objects;
 
+@Deprecated //This class is not currently used, however, I will keep the code here because it might be used in the future.
 public class CurrentLocationActivity extends AppCompatActivity {
 
     private SharedPreferences mSharedPreferences;
@@ -97,8 +98,6 @@ public class CurrentLocationActivity extends AppCompatActivity {
                         } catch (InterruptedException e) {
                             throw new RuntimeException(e);
                         }
-                        mSharedPreferences.edit().putBoolean("UseTable" + sCurrentLocationName, false).apply();
-                        mSharedPreferences.edit().putBoolean("showMishorSunrise" + sCurrentLocationName, true).apply();
                         mSharedPreferences.edit().putBoolean("isSetup", true).apply();
                         mSharedPreferences.edit().putBoolean("useElevation", true).apply();
                         if (!mSharedPreferences.getBoolean("inIsrael", false)) {

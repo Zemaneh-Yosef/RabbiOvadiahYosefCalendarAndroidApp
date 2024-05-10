@@ -147,7 +147,7 @@
     <string name="meters">meters</string>
     <string name="there_is_tachanun_today">There is Tachanun today</string>
     <string name="enter_zipcode_or_address">Enter Zipcode or Address</string>
-    <string name="warning_zmanim_will_be_based_on_your_approximate_area">WARNING! Zmanim will be based on your approximate area and will not be accurate! Using an address/zipcode will give you zmanim based on approximately where you are. For more accurate zmanim, please allow the app to see your location.</string>
+    <string name="warning_zmanim_will_be_based_on_your_approximate_area">WARNING! Entering a zipcode will give you zmanim based on approximately where you are, and they will not be as accurate. For more accurate zmanim, please allow the app to see your location or enter an EXACT address.</string>
     <string name="please_enter_something">Please enter something</string>
     <string name="use_location">Use location</string>
     <string name="press_back_again_to_close_the_app">Press back again to close the app</string>
@@ -350,5 +350,11 @@
     <string name="jerusalem_direction">Jerusalem Direction</string>
     <string name="north_pointer">North pointer</string>
     <string name="holy_of_holies">Holy of Holies</string>
-   <string name="jer_dir_help_text"><![CDATA[When praying the Amidah, one should direct himself towards Israel, Jerusalem, the temple mount and the Kodesh Hakodashim (Holy of Holies) area (Berakhot Bavli 30a, based on Kings I 8:35–48 & Chronicles II 6:32). Determining which direction that is in can be done through the \"Rhumb line\" method, which \"draws\" a line from one\'s location to a specific point (which in our case, would be the Temple mount). Once the line is drawn, you are expected to pray in the direction the line is drawn in through matching your direction with its degree angle. Please note that even if the Aron in the synagogue that you are in is misplaced, you should not separate from the others. Rather, you should only adjust your head to the right direction.]]></string>
+    <string name="jer_dir_help_text"><![CDATA[When praying the Amidah, one should direct himself towards Israel, Jerusalem, the temple mount and the Kodesh Hakodashim (Holy of Holies) area (Berakhot Bavli 30a, based on Kings I 8:35–48 & Chronicles II 6:32). Determining which direction that is in can be done through the \"Rhumb line\" method, which \"draws\" a line from one\'s location to a specific point (which in our case, would be the Temple mount). Once the line is drawn, you are expected to pray in the direction the line is drawn in through matching your direction with its degree angle. Please note that even if the Aron in the synagogue that you are in is misplaced, you should not separate from the others. Rather, you should only adjust your head to the right direction.]]></string>
+    <string name="title_activity_get_user_location_with_map">GetUserLocationWithMapActivity</string>
+    <string name="search_for_a_place_legacy">Search for a place (Legacy)</string>
+    <string name="confirm">Confirm</string>
+    <string name="change_location">Change Location</string>
+    <string name="location_deleted">Location deleted</string>
+    <string name="search">Search</string>
 </resources>
