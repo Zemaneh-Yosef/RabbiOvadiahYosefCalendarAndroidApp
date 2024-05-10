@@ -601,4 +601,6 @@
     <string name="change_location">שינוי מקום</string>
     <string name="location_deleted">המיקום נמחק</string>
     <string name="search">חיפוש</string>
+    <string name="the_application_will_not_track_your_location">היישום לא יעקוב אחר מיקומך</string>
+    <string name="the_application_will_keep_requesting_your_location">היישום ימשיך לבקש את מיקומך</string>
 </resources>

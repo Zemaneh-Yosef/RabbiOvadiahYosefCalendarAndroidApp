@@ -356,4 +356,6 @@
     <string name="change_location">Change Location</string>
     <string name="location_deleted">Location deleted</string>
     <string name="search">Search</string>
+    <string name="the_application_will_not_track_your_location">The application will NOT track your location</string>
+   <string name="the_application_will_keep_requesting_your_location">The application will keep requesting your location</string>
 </resources>

@@ -53,15 +53,13 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.wear.compose.material.AutoCenteringParams
+import androidx.wear.compose.foundation.lazy.*
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.Scaffold
-import androidx.wear.compose.material.ScalingLazyColumn
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
 import androidx.wear.compose.material.curvedText
-import androidx.wear.compose.material.rememberScalingLazyListState
 import androidx.wear.tiles.TileService
 import com.EJ.ROvadiahYosefCalendar.R
 import com.EJ.ROvadiahYosefCalendar.classes.BooleanListener
@@ -91,7 +89,6 @@ import java.util.Date
 import java.util.GregorianCalendar
 import java.util.Locale
 import java.util.TimeZone
-
 
 class MainActivity : ComponentActivity() {
 
@@ -1655,7 +1652,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    @Preview(device = Devices.WEAR_OS_SQUARE, showSystemUi = true, uiMode = UI_MODE_NIGHT_YES)
+    @Preview(device = "id:wearos_square", showSystemUi = true, uiMode = UI_MODE_NIGHT_YES)
     @Composable
     fun DefaultPreview() {
         WearApp(zmanimList = arrayListOf(

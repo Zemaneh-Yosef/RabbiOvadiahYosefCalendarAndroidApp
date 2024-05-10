@@ -121,7 +121,7 @@ class MainTileService : TileService() {
         mROZmanimCalendar.setSharedPreferences(sharedPref)
 
         var sUserIsOffline = false
-        var elevation = 0.0
+        var elevation: Double
         if (mROZmanimCalendar.geoLocation.locationName.contains("Lat:") && mROZmanimCalendar.geoLocation.locationName.contains(
                 "Long:"
             )

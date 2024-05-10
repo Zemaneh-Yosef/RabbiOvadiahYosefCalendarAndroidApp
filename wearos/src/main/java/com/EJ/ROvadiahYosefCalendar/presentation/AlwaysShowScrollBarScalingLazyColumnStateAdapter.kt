@@ -1,15 +1,14 @@
 package com.EJ.ROvadiahYosefCalendar.presentation
 
 import androidx.compose.runtime.State
+import androidx.wear.compose.foundation.lazy.ScalingLazyListAnchorType
+import androidx.wear.compose.foundation.lazy.ScalingLazyListAnchorType.Companion.ItemCenter
+import androidx.wear.compose.foundation.lazy.ScalingLazyListItemInfo
 import androidx.wear.compose.material.PositionIndicatorState
 import androidx.wear.compose.material.PositionIndicatorVisibility
-import androidx.wear.compose.material.ScalingLazyListAnchorType
-import androidx.wear.compose.material.ScalingLazyListAnchorType.Companion.ItemCenter
-import androidx.wear.compose.material.ScalingLazyListItemInfo
-import androidx.wear.compose.material.ScalingLazyListState
 
 class AlwaysShowScrollBarScalingLazyColumnStateAdapter(
-    private val state: ScalingLazyListState,
+    private val state: androidx.wear.compose.foundation.lazy.ScalingLazyListState,
     private val viewportHeightPx: State<Int?>,
     private val anchorType: ScalingLazyListAnchorType = ItemCenter,
 ) : PositionIndicatorState {

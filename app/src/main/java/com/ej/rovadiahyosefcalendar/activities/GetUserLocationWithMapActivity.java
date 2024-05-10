@@ -8,6 +8,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
@@ -131,6 +132,10 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                     LatLng northEastCorner = SphericalUtil.computeOffset(chosenLocation, 950000.0 / 100, 45.0);
                     LatLng southWestCorner = SphericalUtil.computeOffset(chosenLocation, 950000.0 / 100, 225.0);
                     mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(new LatLngBounds(southWestCorner, northEastCorner), 0));
+                    Snackbar.make(GetUserLocationWithMapActivity.this, binding.getRoot(), getString(R.string.the_application_will_keep_requesting_your_location), Snackbar.LENGTH_SHORT)
+                            .setBackgroundTint(getColor(R.color.green))
+                            .setTextColor(getColor(R.color.black))
+                            .show();
                 }
             }
         });
@@ -166,6 +171,9 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                 LatLng northEastCorner = SphericalUtil.computeOffset(chosenLocation, 950000.0 / 100, 45.0);
                 LatLng southWestCorner = SphericalUtil.computeOffset(chosenLocation, 950000.0 / 100, 225.0);
                 mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(new LatLngBounds(southWestCorner, northEastCorner), 0));
+                Snackbar.make(GetUserLocationWithMapActivity.this, binding.getRoot(), getString(R.string.the_application_will_not_track_your_location), Snackbar.LENGTH_SHORT)
+                        .setBackgroundTint(Color.RED)
+                        .show();
                 updateRV("");
                 return false;
             }
@@ -291,6 +299,9 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                     .position(latLng)
                     .title(locationResolver.getFullLocationName()));
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+            Snackbar.make(GetUserLocationWithMapActivity.this, binding.getRoot(), getString(R.string.the_application_will_not_track_your_location), Snackbar.LENGTH_SHORT)
+                    .setBackgroundTint(Color.RED)
+                    .show();
         });
     }
 
@@ -699,6 +710,9 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                 LatLng southWestCorner = SphericalUtil.computeOffset(chosenLocation, 950000.0 / 100, 225.0);
                 mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(new LatLngBounds(southWestCorner, northEastCorner), 0));
                 binding.searchRV.setVisibility(View.GONE);
+                Snackbar.make(GetUserLocationWithMapActivity.this, binding.getRoot(), getString(R.string.the_application_will_not_track_your_location), Snackbar.LENGTH_SHORT)
+                        .setBackgroundTint(Color.RED)
+                        .show();
             });
         }
 

@@ -32,7 +32,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.TimeZone;
 
-public class ZmanimNotifications extends BroadcastReceiver {
+public class ZmanimNotifications extends BroadcastReceiver {//TODO bring this over to watch app
 
     private SharedPreferences mSharedPreferences;
     private SharedPreferences mSettingsSharedPreferences;
