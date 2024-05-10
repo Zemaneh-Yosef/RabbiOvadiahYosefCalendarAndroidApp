@@ -406,9 +406,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                         finish();
                     }
                 })
-                .setNegativeButton(R.string.advanced, (dialog, which) -> {
-                    createAdvancedDialog();
-                })
+                .setNegativeButton(R.string.advanced, (dialog, which) -> createAdvancedDialog())
                 .setNeutralButton(R.string.use_location, (dialog, which) -> {
                     boolean isSetup = mSharedPreferences.getBoolean("isSetup", false);
                     setUseLocations(false, false, false, false, false);
