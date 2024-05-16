@@ -277,15 +277,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        updateAppContents()
         TileService.getUpdater(applicationContext).requestUpdate(MainTileService::class.java)
-        if (!DateUtils.isToday(mCurrentDateShown.time.time)
-            && Date().time - mLastTimeUserWasInApp.time > 7200000) { //two hours
-            mCurrentDateShown.time = Date()
-            mROZmanimCalendar.calendar = mCurrentDateShown
-            mJewishDateInfo.setCalendar(mCurrentDateShown)
-            updateAppContents()
-        }
+        mCurrentDateShown.time = Date()
+        mROZmanimCalendar.calendar = mCurrentDateShown
+        mJewishDateInfo.setCalendar(mCurrentDateShown)
+        updateAppContents()
         mLastTimeUserWasInApp = Date()
     }
 
@@ -528,9 +524,13 @@ class MainActivity : ComponentActivity() {
             )
         }
 
-        val day: String = mJewishDateInfo.getSpecialDay(true)
+        val day: String = mJewishDateInfo.getSpecialDay(false)
         if (day.isNotEmpty()) {
             zmanim.add(ZmanListEntry(day))
+        }
+        val dayOfOmer = mJewishDateInfo.addDayOfOmer("")
+        if (dayOfOmer.isNotEmpty()) {
+            zmanim.add(ZmanListEntry(dayOfOmer))
         }
 
         if (mJewishDateInfo.jewishCalendar.yomTovIndex == JewishCalendar.ROSH_HASHANA &&
@@ -1554,6 +1554,9 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterialApi::class)
     @Composable
     fun WearApp(zmanimList: MutableList<ZmanListEntry>) {
+        if (zmanimList.size == 0) {
+            zmanimList.add(ZmanListEntry(""))
+        }
         val refreshScope = rememberCoroutineScope()
         var refreshing by remember { mutableStateOf(false) }
 

@@ -230,22 +230,22 @@ public class JewishDateInfo {
      * This method is used to add the Day of Omer to the current holiday if it is on the current day.
      * @return a string containing the Day of Omer and the current holiday
      */
-    private String addDayOfOmer(String result) {
+    public String addDayOfOmer(String result) {
         int dayOfOmer = jewishCalendar.getDayOfOmer();
         if (dayOfOmer != -1) {
             if (isLocaleHebrew) {
                 hebrewDateFormatter.setUseGershGershayim(true);
                 if (!result.isEmpty()) {
-                    result += " / " + hebrewDateFormatter.formatHebrewNumber(dayOfOmer) + " ימים לעומר";
+                    result += " / " + hebrewDateFormatter.formatHebrewNumber(dayOfOmer) + " ימים לעומר (לפני השקיעה)";
                 } else {
-                    result = hebrewDateFormatter.formatHebrewNumber(dayOfOmer) + " ימים לעומר";
+                    result = hebrewDateFormatter.formatHebrewNumber(dayOfOmer) + " ימים לעומר (לפני השקיעה)";
                 }
                 hebrewDateFormatter.setUseGershGershayim(false);
             } else {
                 if (!result.isEmpty()) {
-                    result += " / " + getOrdinal(dayOfOmer) + " day of Omer";
+                    result += " / " + getOrdinal(dayOfOmer) + " day of Omer (before sunset)";
                 } else {
-                    result = getOrdinal(dayOfOmer) + " day of Omer";
+                    result = getOrdinal(dayOfOmer) + " day of Omer (before sunset)";
                 }
             }
         }

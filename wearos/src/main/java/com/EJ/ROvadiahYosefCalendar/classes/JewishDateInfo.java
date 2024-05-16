@@ -230,7 +230,7 @@ public class JewishDateInfo {
      * This method is used to add the Day of Omer to the current holiday if it is on the current day.
      * @return a string containing the Day of Omer and the current holiday
      */
-    private String addDayOfOmer(String result) {
+    public String addDayOfOmer(String result) {
         int dayOfOmer = jewishCalendar.getDayOfOmer();
         if (dayOfOmer != -1) {
             if (isLocaleHebrew) {

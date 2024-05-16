@@ -1317,6 +1317,9 @@ public class MainActivity extends AppCompatActivity {
             setShabbatBannerColors(true);
             mShabbatModeBanner.setVisibility(View.VISIBLE);
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                getWindow().setHideOverlayWindows(true);
+            }
             WindowManager windowManager =  (WindowManager) getSystemService(Context.WINDOW_SERVICE);
             Configuration configuration = getResources().getConfiguration();
             int rotation = windowManager.getDefaultDisplay().getRotation();
@@ -1587,6 +1590,9 @@ public class MainActivity extends AppCompatActivity {
             mShabbatModeBanner.setVisibility(View.GONE);
             mHandler.removeCallbacksAndMessages(mZmanimUpdater);
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                getWindow().setHideOverlayWindows(false);
+            }
             if (mSharedPreferences.getBoolean("useDefaultCalButtonColor", true)) {
                 mCalendarButton.setBackgroundColor(getColor(R.color.dark_blue));
             } else {
@@ -1666,9 +1672,13 @@ public class MainActivity extends AppCompatActivity {
                             .getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, new Locale("he","IL"))));
         }
 
-        String day = mJewishDateInfo.getSpecialDay(true);
+        String day = mJewishDateInfo.getSpecialDay(false);
         if (!day.isEmpty()) {
             zmanim.add(new ZmanListEntry(day));
+        }
+        String dayOfOmer = mJewishDateInfo.addDayOfOmer("");
+        if (!dayOfOmer.isEmpty()) {
+            zmanim.add(new ZmanListEntry(dayOfOmer));
         }
 
         if (mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.ROSH_HASHANA &&

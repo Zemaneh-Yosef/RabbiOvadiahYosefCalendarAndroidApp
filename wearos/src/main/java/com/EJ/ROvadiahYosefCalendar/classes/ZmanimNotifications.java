@@ -60,8 +60,8 @@ public class ZmanimNotifications extends BroadcastReceiver {
     private ROZmanimCalendar getROZmanimCalendar() {
         return new ROZmanimCalendar(new GeoLocation(
                 mSharedPreferences.getString("currentLN", ""),
-                Double.longBitsToDouble(mSharedPreferences.getLong("currentLat", 0)),
-                Double.longBitsToDouble(mSharedPreferences.getLong("currentLong", 0)),
+                Double.parseDouble(mSharedPreferences.getString("currentLat", "0")),
+                Double.parseDouble(mSharedPreferences.getString("currentLong", "0")),
                 getLastKnownElevation(),
                 TimeZone.getTimeZone(mSharedPreferences.getString("currentTimezone", ""))));
     }
