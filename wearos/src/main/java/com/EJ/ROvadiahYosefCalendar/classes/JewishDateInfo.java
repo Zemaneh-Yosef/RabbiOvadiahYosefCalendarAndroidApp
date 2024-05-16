@@ -234,11 +234,13 @@ public class JewishDateInfo {
         int dayOfOmer = jewishCalendar.getDayOfOmer();
         if (dayOfOmer != -1) {
             if (isLocaleHebrew) {
+                hebrewDateFormatter.setUseGershGershayim(true);
                 if (!result.isEmpty()) {
                     result += " / " + hebrewDateFormatter.formatHebrewNumber(dayOfOmer) + " ימים לעומר";
                 } else {
                     result = hebrewDateFormatter.formatHebrewNumber(dayOfOmer) + " ימים לעומר";
                 }
+                hebrewDateFormatter.setUseGershGershayim(false);
             } else {
                 if (!result.isEmpty()) {
                     result += " / " + getOrdinal(dayOfOmer) + " day of Omer";
@@ -330,7 +332,7 @@ public class JewishDateInfo {
                 return "Yom Hashoah";
             case JewishCalendar.YOM_HAZIKARON:
                 return "Yom Hazikaron";
-            case JewishCalendar.YOM_HAATZMAUT://tachanun is said
+            case JewishCalendar.YOM_HAATZMAUT:
                 return "Yom Haatzmaut";
             case JewishCalendar.YOM_YERUSHALAYIM:
                 return "Yom Yerushalayim";
@@ -411,7 +413,6 @@ public class JewishDateInfo {
                 || yomTovIndex == JewishCalendar.SHUSHAN_PURIM_KATAN
                 || yomTovIndex == JewishCalendar.PURIM
                 || yomTovIndex == JewishCalendar.SHUSHAN_PURIM
-                || yomTovIndex == JewishCalendar.YOM_YERUSHALAYIM //tachanun erev before, however, Rav ovadia would not say on the day itself
                 || jewishCalendar.isChanukah()
                 || jewishCalendar.getJewishMonth() == JewishDate.NISSAN
                 || (jewishCalendar.getJewishMonth() == JewishDate.SIVAN && jewishCalendar.getJewishDayOfMonth() <= 12)
@@ -446,6 +447,21 @@ public class JewishDateInfo {
             }
             return "Tachanun only in the morning";
         }
+        // According to Rabbi Meir Gavriel Elbaz, Rabbi Ovadiah would only skip tachanun on the day of Yom Yerushalayim itself as is the custom of the Yeshiva of Yechaveh Daat.
+        // He WOULD say tachanun on Erev Yom Yerushalayim and on Yom Ha'atmaut. However, since there are disagreements, it was recommended for the app to just say that "Some say tachanun" on both days.
+        if (yomTovIndex == JewishCalendar.YOM_YERUSHALAYIM || yomTovIndex == JewishCalendar.YOM_HAATZMAUT) {
+            if (isLocaleHebrew) {
+                return "יש אומרים תחנון";
+            }
+            return "Some say Tachanun today";
+        }
+        if (yomTovIndexForNextDay == JewishCalendar.YOM_YERUSHALAYIM || yomTovIndexForNextDay == JewishCalendar.YOM_HAATZMAUT) {
+            if (isLocaleHebrew) {
+                return "יש אומרים תחנון רק בבוקר";
+            }
+            return "Some say Tachanun only in the morning";
+        }
+
         if (currentDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
             return "צדקתך";
         }

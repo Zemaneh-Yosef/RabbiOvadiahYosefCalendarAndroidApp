@@ -1,15 +1,27 @@
 
 package com.EJ.ROvadiahYosefCalendar.presentation
 
+import android.Manifest
+import android.app.AlarmManager
+import android.app.AlertDialog
+import android.app.PendingIntent
+import android.app.PendingIntent.CanceledException
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
 import android.text.format.DateUtils
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.animateScrollBy
@@ -49,9 +61,10 @@ import androidx.compose.ui.input.rotary.onRotaryScrollEvent
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.wear.compose.foundation.lazy.*
 import androidx.wear.compose.material.MaterialTheme
@@ -69,6 +82,7 @@ import com.EJ.ROvadiahYosefCalendar.classes.PreferenceListener
 import com.EJ.ROvadiahYosefCalendar.classes.ROZmanimCalendar
 import com.EJ.ROvadiahYosefCalendar.classes.ZmanListEntry
 import com.EJ.ROvadiahYosefCalendar.classes.ZmanimNames
+import com.EJ.ROvadiahYosefCalendar.classes.ZmanimNotifications
 import com.EJ.ROvadiahYosefCalendar.presentation.theme.DarkGray
 import com.EJ.ROvadiahYosefCalendar.presentation.theme.RabbiOvadiahYosefCalendarTheme
 import com.EJ.ROvadiahYosefCalendar.tile.MainTileService
@@ -131,10 +145,12 @@ class MainActivity : ComponentActivity() {
     private val dafYomiStartDate: Calendar = GregorianCalendar(1923, Calendar.SEPTEMBER, 11)
     private val dafYomiYerushalmiStartDate: Calendar = GregorianCalendar(1980, Calendar.FEBRUARY, 2)
     private val listener: PreferenceListener = PreferenceListener()
+    private var sNotificationLauncher: ActivityResultLauncher<Intent>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
+        sNotificationLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { setNotifications() }
         mHebrewDateFormatter.isUseGershGershayim = false
         mZmanimFormatter.setTimeFormat(ZmanimFormatter.SEXAGESIMAL_FORMAT)
         sharedPref = getSharedPreferences(SHARED_PREF, MODE_PRIVATE)
@@ -225,6 +241,32 @@ class MainActivity : ComponentActivity() {
             .putLong("location5Lat", jsonPreferences.getLong("location5Lat"))
             .putLong("location5Long", jsonPreferences.getLong("location5Long"))
             .putString("location5Timezone", jsonPreferences.getString("location5Timezone"))
+
+            .putBoolean("zmanim_notifications", jsonPreferences.getBoolean("zmanim_notifications"))
+            .putInt("NightChatzot", jsonPreferences.getInt("NightChatzot"))
+            .putInt("RT", jsonPreferences.getInt("RT"))
+            .putInt("ShabbatEnd", jsonPreferences.getInt("ShabbatEnd"))
+            .putInt("FastEndStringent", jsonPreferences.getInt("FastEndStringent"))
+            .putInt("FastEnd", jsonPreferences.getInt("FastEnd"))
+            .putInt("TzeitHacochavimLChumra", jsonPreferences.getInt("TzeitHacochavimLChumra"))
+            .putInt("TzeitHacochavim", jsonPreferences.getInt("TzeitHacochavim"))
+            .putInt("Shkia", jsonPreferences.getInt("Shkia"))
+            .putInt("CandleLighting", jsonPreferences.getInt("CandleLighting"))
+            .putInt("PlagHaMinchaYY", jsonPreferences.getInt("PlagHaMinchaYY"))
+            .putInt("PlagHaMinchaHB", jsonPreferences.getInt("PlagHaMinchaHB"))
+            .putInt("MinchaKetana", jsonPreferences.getInt("MinchaKetana"))
+            .putInt("MinchaGedola", jsonPreferences.getInt("MinchaGedola"))
+            .putInt("Chatzot", jsonPreferences.getInt("Chatzot"))
+            .putInt("SofZmanBiurChametz", jsonPreferences.getInt("SofZmanBiurChametz"))
+            .putInt("SofZmanTefila", jsonPreferences.getInt("SofZmanTefila"))
+            .putInt("SofZmanAchilatChametz", jsonPreferences.getInt("SofZmanAchilatChametz"))
+            .putInt("SofZmanShmaGRA", jsonPreferences.getInt("SofZmanShmaGRA"))
+            .putInt("SofZmanShmaMGA", jsonPreferences.getInt("SofZmanShmaMGA"))
+            .putInt("HaNetz", jsonPreferences.getInt("HaNetz"))
+            .putInt("TalitTefilin", jsonPreferences.getInt("TalitTefilin"))
+            .putInt("Alot", jsonPreferences.getInt("Alot"))
+            .putBoolean("zmanim_notifications_on_shabbat", jsonPreferences.getBoolean("zmanim_notifications_on_shabbat"))
+            .putInt("autoDismissNotifications", jsonPreferences.getInt("autoDismissNotifications"))
             .apply()
 
         if (sharedPref.getBoolean("ShowWhenShabbatChagEnds", false)) {
@@ -255,6 +297,7 @@ class MainActivity : ComponentActivity() {
                     WearApp(zmanim)
                 }
             }
+            setNotifications()
         }
         Thread {// I hope this offloads some of the work on the main thread
             Looper.prepare()
@@ -270,6 +313,67 @@ class MainActivity : ComponentActivity() {
         }.start()
         setContent {
             WearApp(zmanim)
+        }
+    }
+
+    private fun setNotifications() {
+        if (sharedPref.getBoolean(
+                "zmanim_notifications",
+                false
+            )
+        ) { //if the user wants notifications
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // ask for permission to send notifications for newer versions of android ughhhh...
+                if (ContextCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.POST_NOTIFICATIONS
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    ActivityCompat.requestPermissions(
+                        this,
+                        arrayOf(
+                            Manifest.permission.POST_NOTIFICATIONS,
+                            Manifest.permission.SCHEDULE_EXACT_ALARM
+                        ),
+                        1
+                    )
+                }
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !(getSystemService(ALARM_SERVICE) as AlarmManager).canScheduleExactAlarms()) { // more annoying android permission garbage
+                val builder = AlertDialog.Builder(this)
+                builder.setTitle(R.string.zmanim_notifications_will_not_work)
+                builder.setMessage(R.string.if_you_would_like_to_receive_zmanim_notifications)
+                builder.setCancelable(false)
+                builder.setPositiveButton(
+                    getString(R.string.yes)
+                ) { _: DialogInterface?, _: Int ->
+                    sNotificationLauncher?.launch(
+                        Intent(
+                            Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
+                            Uri.parse("package:$packageName")
+                        )
+                    )
+                }
+                builder.setNegativeButton(
+                    getString(R.string.no)
+                ) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
+                builder.show()
+            }
+        }
+        setAllNotifications()
+    }
+
+    private fun setAllNotifications() {
+        val zmanIntent = Intent(applicationContext, ZmanimNotifications::class.java)
+        val zmanimPendingIntent = PendingIntent.getBroadcast(
+            applicationContext,
+            0,
+            zmanIntent,
+            PendingIntent.FLAG_IMMUTABLE
+        )
+        try {
+            zmanimPendingIntent.send()
+        } catch (e: CanceledException) {
+            e.printStackTrace()
         }
     }
 

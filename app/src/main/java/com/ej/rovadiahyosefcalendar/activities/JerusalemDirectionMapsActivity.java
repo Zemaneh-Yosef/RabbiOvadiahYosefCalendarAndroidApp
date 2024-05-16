@@ -36,6 +36,7 @@ import com.kosherjava.zmanim.util.GeoLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Objects;
 
 public class JerusalemDirectionMapsActivity extends FragmentActivity implements OnMapReadyCallback, SensorEventListener {
@@ -47,18 +48,19 @@ public class JerusalemDirectionMapsActivity extends FragmentActivity implements 
     private final float[] magnetometerReading = new float[3];
     private final float[] rotationMatrix = new float[9];
     private final float[] orientationAngles = new float[3];
-    private static final float ALPHA = 0.3f; // Low-pass filter constant, seems like 0.3 is a good number but it might need to be fine tuned later
+    private final LinkedList<Double> m_window = new LinkedList<>();
     private float smoothedAzimuthDegrees = 0.0f;
     private Marker triMarker;
     private final LatLng jer = new LatLng(31.778015, 35.235413);
     private final LatLng currentLocation = new LatLng(MainActivity.sLatitude, MainActivity.sLongitude);
     private boolean isTriGreen = false;
+    private float previousZoomLevel = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        com.ej.rovadiahyosefcalendar.databinding.ActivityJerusalemDirectionMapsBinding binding = ActivityJerusalemDirectionMapsBinding.inflate(getLayoutInflater());
+        ActivityJerusalemDirectionMapsBinding binding = ActivityJerusalemDirectionMapsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         setActionBar(binding.toolbar);
@@ -79,8 +81,8 @@ public class JerusalemDirectionMapsActivity extends FragmentActivity implements 
     @Override
     protected void onResume() {
         super.onResume();
-        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-        sensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, accelerometer, 66000);
+        sensorManager.registerListener(this, magnetometer, 66000);
     }
 
     @Override
@@ -112,7 +114,7 @@ public class JerusalemDirectionMapsActivity extends FragmentActivity implements 
         googleMap.getUiSettings().setAllGesturesEnabled(false);
         googleMap.getUiSettings().setMapToolbarEnabled(false);
         googleMap.getUiSettings().setMyLocationButtonEnabled(false);
-        googleMap.getUiSettings().setZoomControlsEnabled(false);
+        googleMap.getUiSettings().setZoomControlsEnabled(true);
 
         // Add a marker in Jerusalem and move the camera
         googleMap.addMarker(new MarkerOptions().position(jer).title(getString(R.string.holy_of_holies)));
@@ -180,21 +182,59 @@ public class JerusalemDirectionMapsActivity extends FragmentActivity implements 
         } else {
             googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 0));
         }
+
+        googleMap.setOnCameraIdleListener(() -> {
+            float currentZoomLevel = googleMap.getCameraPosition().zoom;
+            // Check if zoom level has changed
+            if (previousZoomLevel != -1 && currentZoomLevel != previousZoomLevel) {
+                // Zoom event has occurred, move to current location
+                googleMap.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
+            }
+            // Update the previous zoom level
+            previousZoomLevel = currentZoomLevel;
+        });
+    }
+
+    private float filtrate(Double value) {//Credit to Rafael Sheink
+        m_window.add(value);
+        if (m_window.size() > 50) {
+            m_window.remove();
+        }
+
+        double sumx = 0.0;
+        double sumy = 0.0;
+        Object[] arr = m_window.toArray();
+        for (Object anArr : arr) {
+            if (anArr instanceof Double) {
+                sumx += Math.cos((Double) anArr / 360 * (2 * Math.PI));
+                sumy += Math.sin((Double) anArr / 360 * (2 * Math.PI));
+            }
+        }
+
+        double avgx = sumx / m_window.size();
+        double avgy = sumy / m_window.size();
+
+        double temp = Math.atan2(avgy, avgx) / (2 * Math.PI) * 360;
+        if (temp == 0.0) {
+            return 0.0f;
+        }
+
+        if (temp > 0) {
+            return (float) temp;
+        } else {
+            return (((float) temp) + 360) % 360;
+        }
     }
 
     private void updateOrientation() {
-        SensorManager.getRotationMatrix(rotationMatrix, null, accelerometerReading, magnetometerReading);
-        SensorManager.getOrientation(rotationMatrix, orientationAngles);
+        if (SensorManager.getRotationMatrix(rotationMatrix, new float[9], accelerometerReading, magnetometerReading)) {
+            SensorManager.getOrientation(rotationMatrix, orientationAngles);
 
-        // Convert radians to degrees
-        float azimuthDegrees = (float) Math.toDegrees(orientationAngles[0]);
+            smoothedAzimuthDegrees = filtrate(orientationAngles[0] / (2 * Math.PI) * 360);
 
-        // Apply low-pass filter
-        smoothedAzimuthDegrees = smoothedAzimuthDegrees + ALPHA * (azimuthDegrees - smoothedAzimuthDegrees);
-
-        // Update marker rotation
-        if (triMarker != null) {
-            triMarker.setRotation(smoothedAzimuthDegrees);
+            if (triMarker != null) {
+                triMarker.setRotation(smoothedAzimuthDegrees);
+            }
         }
 
         checkIfTriangleShouldBeGreen();
@@ -206,9 +246,7 @@ public class JerusalemDirectionMapsActivity extends FragmentActivity implements 
 
         double bearing = current.getRhumbLineBearing(jerusalemLocation);// Specifically use the Rhumb Line method as instructed by Rav Elbaz
 
-        float markerDirection = smoothedAzimuthDegrees; // Get the direction of the marker
-
-        double directionDifference = Math.abs(markerDirection - bearing);
+        double directionDifference = Math.abs((smoothedAzimuthDegrees - bearing));
 
         double threshold = 10.0; // Adjust this threshold as needed
 
@@ -222,7 +260,7 @@ public class JerusalemDirectionMapsActivity extends FragmentActivity implements 
                 triMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.tri));
                 isTriGreen = false;
             }
-        }//TODO stop the issue with the triangle flipping 180 degrees when moved too fast
+        }
     }
 
     @Override
@@ -242,21 +280,19 @@ public class JerusalemDirectionMapsActivity extends FragmentActivity implements 
                     .show();
             return true;
         } else if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
+            getOnBackPressedDispatcher().onBackPressed();
         }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-    }
-
-    @Override
     public void onSensorChanged(SensorEvent event) {
-        if (event.sensor == accelerometer) {
+        if (event == null) {
+            return;
+        }
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             System.arraycopy(event.values, 0, accelerometerReading, 0, accelerometerReading.length);
-        } else if (event.sensor == magnetometer) {
+        } else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
             System.arraycopy(event.values, 0, magnetometerReading, 0, magnetometerReading.length);
         }
 

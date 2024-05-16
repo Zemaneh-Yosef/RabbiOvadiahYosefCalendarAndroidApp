@@ -234,11 +234,13 @@ public class JewishDateInfo {
         int dayOfOmer = jewishCalendar.getDayOfOmer();
         if (dayOfOmer != -1) {
             if (isLocaleHebrew) {
+                hebrewDateFormatter.setUseGershGershayim(true);
                 if (!result.isEmpty()) {
                     result += " / " + hebrewDateFormatter.formatHebrewNumber(dayOfOmer) + " ימים לעומר";
                 } else {
                     result = hebrewDateFormatter.formatHebrewNumber(dayOfOmer) + " ימים לעומר";
                 }
+                hebrewDateFormatter.setUseGershGershayim(false);
             } else {
                 if (!result.isEmpty()) {
                     result += " / " + getOrdinal(dayOfOmer) + " day of Omer";

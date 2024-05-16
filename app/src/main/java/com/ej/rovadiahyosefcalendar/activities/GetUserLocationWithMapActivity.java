@@ -164,6 +164,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                         .putBoolean("useZipcode", true)
                         .putString("Zipcode", query)
                         .apply();
+                binding.searchView.clearFocus();
                 LocationResolver mLocationResolver = new LocationResolver(GetUserLocationWithMapActivity.this, GetUserLocationWithMapActivity.this);
                 mLocationResolver.getLatitudeAndLongitudeFromSearchQuery();
                 chosenLocation = new LatLng(sLatitude, sLongitude);

@@ -694,7 +694,33 @@ public class MainActivity extends AppCompatActivity {
                 .put("location5", mSharedPreferences.getString("location5", ""))
                 .put("location5Lat", mSharedPreferences.getLong("location5Lat", 0))
                 .put("location5Long", mSharedPreferences.getLong("location5Long", 0))
-                .put("location5Timezone", mSharedPreferences.getString("location5Timezone", ""));
+                .put("location5Timezone", mSharedPreferences.getString("location5Timezone", ""))
+
+                .put("zmanim_notifications", mSettingsPreferences.getBoolean("zmanim_notifications", false))
+                .put("NightChatzot", mSettingsPreferences.getInt("NightChatzot", -1))
+                .put("RT", mSettingsPreferences.getInt("RT", -1))
+                .put("ShabbatEnd", mSettingsPreferences.getInt("ShabbatEnd", -1))
+                .put("FastEndStringent", mSettingsPreferences.getInt("FastEndStringent", -1))
+                .put("FastEnd", mSettingsPreferences.getInt("FastEnd", -1))
+                .put("TzeitHacochavimLChumra", mSettingsPreferences.getInt("TzeitHacochavimLChumra", -1))
+                .put("TzeitHacochavim", mSettingsPreferences.getInt("TzeitHacochavim", -1))
+                .put("Shkia", mSettingsPreferences.getInt("Shkia", -1))
+                .put("CandleLighting", mSettingsPreferences.getInt("CandleLighting", -1))
+                .put("PlagHaMinchaYY", mSettingsPreferences.getInt("PlagHaMinchaYY", -1))
+                .put("PlagHaMinchaHB", mSettingsPreferences.getInt("PlagHaMinchaHB", -1))
+                .put("MinchaKetana", mSettingsPreferences.getInt("MinchaKetana", -1))
+                .put("MinchaGedola", mSettingsPreferences.getInt("MinchaGedola", -1))
+                .put("Chatzot", mSettingsPreferences.getInt("Chatzot", -1))
+                .put("SofZmanBiurChametz", mSettingsPreferences.getInt("SofZmanBiurChametz", -1))
+                .put("SofZmanTefila", mSettingsPreferences.getInt("SofZmanTefila", -1))
+                .put("SofZmanAchilatChametz", mSettingsPreferences.getInt("SofZmanAchilatChametz", -1))
+                .put("SofZmanShmaGRA", mSettingsPreferences.getInt("SofZmanShmaGRA", -1))
+                .put("SofZmanShmaMGA", mSettingsPreferences.getInt("SofZmanShmaMGA", -1))
+                .put("HaNetz", mSettingsPreferences.getInt("HaNetz", -1))
+                .put("TalitTefilin", mSettingsPreferences.getInt("TalitTefilin", -1))
+                .put("Alot", mSettingsPreferences.getInt("Alot", -1))
+                .put("zmanim_notifications_on_shabbat", mSettingsPreferences.getBoolean("zmanim_notifications_on_shabbat", false))
+                .put("autoDismissNotifications", mSettingsPreferences.getInt("autoDismissNotifications", -1));
 
         return jsonObject;
     }
@@ -1210,7 +1236,7 @@ public class MainActivity extends AppCompatActivity {
         if (mSettingsPreferences.getBoolean("zmanim_notifications", true)) {//if the user wants notifications
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {// ask for permission to send notifications for newer versions of android ughhhh...
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS, Manifest.permission.SCHEDULE_EXACT_ALARM}, 1);// if the user
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS, Manifest.permission.SCHEDULE_EXACT_ALARM}, 1);
                 }
             }
 

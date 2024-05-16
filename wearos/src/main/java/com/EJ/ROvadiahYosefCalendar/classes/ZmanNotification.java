@@ -1,7 +1,7 @@
-package com.ej.rovadiahyosefcalendar.notifications;
+package com.EJ.ROvadiahYosefCalendar.classes;
 
 import static android.content.Context.MODE_PRIVATE;
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
+import static com.EJ.ROvadiahYosefCalendar.presentation.MainActivity.SHARED_PREF;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -18,10 +18,9 @@ import android.net.Uri;
 import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
-import androidx.preference.PreferenceManager;
 
-import com.ej.rovadiahyosefcalendar.R;
-import com.ej.rovadiahyosefcalendar.activities.MainActivity;
+import com.EJ.ROvadiahYosefCalendar.R;
+import com.EJ.ROvadiahYosefCalendar.presentation.MainActivity;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
 import java.text.DateFormat;
@@ -35,36 +34,30 @@ public class ZmanNotification extends BroadcastReceiver {
 
     private static final long MINUTE_MILLI = 60_000;
     private SharedPreferences mSharedPreferences;
-    private SharedPreferences mSettingsSharedPreferences;
 
     @Override
     public void onReceive(Context context, Intent intent) {
         mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
-        mSettingsSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        if (mSharedPreferences.getBoolean("isSetup",false)
-                && mSettingsSharedPreferences.getBoolean("zmanim_notifications", true)) {
+        if (mSharedPreferences.getBoolean("zmanim_notifications", true)) {
             notifyUser(context, new JewishCalendar(), intent.getStringExtra("zman"));
         }
     }
 
     private void notifyUser(Context context, JewishCalendar jewishCalendar, String zman) {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel("Zmanim", "Daily Zmanim Notifications", NotificationManager.IMPORTANCE_HIGH);
-            channel.setDescription("This notification will display when zmanim are about to begin.");
-            channel.enableLights(true);
-            channel.enableVibration(true);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                channel.setAllowBubbles(true);
-            }
-            channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
-            channel.setLightColor(Color.BLUE);
-            channel.setImportance(NotificationManager.IMPORTANCE_HIGH);
-            notificationManager.createNotificationChannel(channel);
+        NotificationChannel channel = new NotificationChannel("Zmanim", "Daily Zmanim Notifications", NotificationManager.IMPORTANCE_HIGH);
+        channel.setDescription("This notification will display when zmanim are about to begin.");
+        channel.enableLights(true);
+        channel.enableVibration(true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            channel.setAllowBubbles(true);
         }
+        channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+        channel.setLightColor(Color.BLUE);
+        channel.setImportance(NotificationManager.IMPORTANCE_HIGH);
+        notificationManager.createNotificationChannel(channel);
 
         Intent notificationIntent = new Intent(context, MainActivity.class);
-        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,
                 notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
@@ -77,13 +70,13 @@ public class ZmanNotification extends BroadcastReceiver {
             String zmanTime = zmanSeparated[1];
 
             Date zmanAsDate = new Date(Long.parseLong(zmanTime));
-            if ((jewishCalendar.isAssurBemelacha() && !mSettingsSharedPreferences.getBoolean("zmanim_notifications_on_shabbat", true))) {
+            if ((jewishCalendar.isAssurBemelacha() && !mSharedPreferences.getBoolean("zmanim_notifications_on_shabbat", true))) {
                 return;//if the user does not want to be notified on shabbat/yom tov, then return
             }
             Calendar calendar = Calendar.getInstance();
             calendar.add(Calendar.DATE, 1);
             jewishCalendar.setDate(calendar);
-            if ((jewishCalendar.isAssurBemelacha() && !mSettingsSharedPreferences.getBoolean("zmanim_notifications_on_shabbat", true))) {
+            if ((jewishCalendar.isAssurBemelacha() && !mSharedPreferences.getBoolean("zmanim_notifications_on_shabbat", true))) {
                 //if tomorrow is shabbat/yom tov, then return if the zman is Tzait, Rabbeinu Tam, or Chatzot Layla (since they are obviously after shabbat/yom tov has started)
                 if (zmanName.equals("חצות לילה") ||
                         zmanName.equals("Midnight") ||
@@ -100,19 +93,19 @@ public class ZmanNotification extends BroadcastReceiver {
 
             DateFormat zmanimFormat;
             if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
-                if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowSeconds", false)) {
+                if (mSharedPreferences.getBoolean("ShowSeconds", false)) {
                     zmanimFormat = new SimpleDateFormat("H:mm:ss", Locale.getDefault());
                 } else {
                     zmanimFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
                 }
             } else {
-                if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowSeconds", false)) {
+                if (mSharedPreferences.getBoolean("ShowSeconds", false)) {
                     zmanimFormat = new SimpleDateFormat("h:mm:ss aa", Locale.getDefault());
                 } else {
                     zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
                 }
             }
-            zmanimFormat.setTimeZone(TimeZone.getTimeZone(mSharedPreferences.getString("timezoneID", ""))); //set the formatters time zone
+            zmanimFormat.setTimeZone(TimeZone.getTimeZone(mSharedPreferences.getString("currentTimezone", ""))); //set the formatters time zone
 
             String text;
             if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
@@ -124,7 +117,7 @@ public class ZmanNotification extends BroadcastReceiver {
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "Zmanim")
                     .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
-                    .setSmallIcon(R.drawable.ic_baseline_alarm_24)
+                    .setSmallIcon(R.drawable.baseline_av_timer_24)
                     .setContentTitle(zmanName)
                     .setContentText(text)
                     .setStyle(new NotificationCompat.BigTextStyle()
@@ -135,14 +128,14 @@ public class ZmanNotification extends BroadcastReceiver {
                     .setCategory(NotificationCompat.CATEGORY_REMINDER)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setSound(alarmSound)
-                    .setColor(context.getColor(R.color.dark_gold))
+                    .setColor(0xFFC6AA14)
                     .setAutoCancel(true)
                     .setWhen(System.currentTimeMillis())
                     .extend(new NotificationCompat.WearableExtender()
                             .setDismissalId(zman + notificationID))
                     .setContentIntent(pendingIntent);
-            if (mSettingsSharedPreferences.getInt("autoDismissNotifications", -1) != -1) {
-                builder.setTimeoutAfter((mSettingsSharedPreferences.getInt("autoDismissNotifications", -1) * MINUTE_MILLI) + 3000); // add 3 seconds because 0 milliseconds doesn't do anything
+            if (mSharedPreferences.getInt("autoDismissNotifications", -1) != -1) {
+                builder.setTimeoutAfter((mSharedPreferences.getInt("autoDismissNotifications", -1) * MINUTE_MILLI) + 3000); // add 3 seconds because 0 milliseconds doesn't do anything
             }
             if (mSharedPreferences.getString("lastNotifiedZman", "").equals(zman + notificationID)) {
                 return;// just in case, so we don't get two of the same zman
