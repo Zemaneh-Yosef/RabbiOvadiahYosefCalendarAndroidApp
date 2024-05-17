@@ -227,7 +227,7 @@ public class JerusalemDirectionMapsActivity extends FragmentActivity implements 
     }
 
     private void updateOrientation() {
-        if (SensorManager.getRotationMatrix(rotationMatrix, new float[9], accelerometerReading, magnetometerReading)) {
+        if (SensorManager.getRotationMatrix(rotationMatrix, null, accelerometerReading, magnetometerReading)) {
             SensorManager.getOrientation(rotationMatrix, orientationAngles);
 
             smoothedAzimuthDegrees = filtrate(orientationAngles[0] / (2 * Math.PI) * 360);

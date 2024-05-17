@@ -276,13 +276,13 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onResume() {
-        super.onResume()
         TileService.getUpdater(applicationContext).requestUpdate(MainTileService::class.java)
         mCurrentDateShown.time = Date()
         mROZmanimCalendar.calendar = mCurrentDateShown
         mJewishDateInfo.setCalendar(mCurrentDateShown)
         updateAppContents()
         mLastTimeUserWasInApp = Date()
+        return super.onResume()
     }
 
     private fun updateAppContents() {
@@ -313,25 +313,13 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun setNotifications() {
-        if (sharedPref.getBoolean(
-                "zmanim_notifications",
-                false
-            )
-        ) { //if the user wants notifications
+        if (sharedPref.getBoolean("zmanim_notifications", false)) { //if the user wants notifications
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // ask for permission to send notifications for newer versions of android ughhhh...
-                if (ContextCompat.checkSelfPermission(
-                        this,
-                        Manifest.permission.POST_NOTIFICATIONS
-                    ) != PackageManager.PERMISSION_GRANTED
-                ) {
-                    ActivityCompat.requestPermissions(
-                        this,
-                        arrayOf(
-                            Manifest.permission.POST_NOTIFICATIONS,
-                            Manifest.permission.SCHEDULE_EXACT_ALARM
-                        ),
-                        1
-                    )
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                    if (!sharedPref.getBoolean("hasAskedForNotificationPermissions", false)) {
+                        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1)
+                        sharedPref.edit().putBoolean("hasAskedForNotificationPermissions", true).apply()
+                    }
                 }
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !(getSystemService(ALARM_SERVICE) as AlarmManager).canScheduleExactAlarms()) { // more annoying android permission garbage
@@ -339,19 +327,10 @@ class MainActivity : ComponentActivity() {
                 builder.setTitle(R.string.zmanim_notifications_will_not_work)
                 builder.setMessage(R.string.if_you_would_like_to_receive_zmanim_notifications)
                 builder.setCancelable(false)
-                builder.setPositiveButton(
-                    getString(R.string.yes)
-                ) { _: DialogInterface?, _: Int ->
-                    sNotificationLauncher?.launch(
-                        Intent(
-                            Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
-                            Uri.parse("package:$packageName")
-                        )
-                    )
+                builder.setPositiveButton(getString(R.string.yes)) { _: DialogInterface?, _: Int ->
+                    sNotificationLauncher?.launch(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:$packageName")))
                 }
-                builder.setNegativeButton(
-                    getString(R.string.no)
-                ) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
+                builder.setNegativeButton(getString(R.string.no)) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
                 builder.show()
             }
         }

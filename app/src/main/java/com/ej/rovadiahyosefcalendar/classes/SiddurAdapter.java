@@ -26,17 +26,21 @@ import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.SiddurViewActivity;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
-public class SiddurAdapter extends ArrayAdapter<String> {
+public class SiddurAdapter extends ArrayAdapter<String> implements SensorEventListener {
 
     private final Context context;
     private final ArrayList<HighlightString> siddur;
     private final JewishDateInfo jewishDateInfo;
     private int textSize;
-    private float[] gravity = new float[3];
-    private float[] geomagnetic = new float[3];
-    private float azimuth;
+    private final float[] accelerometerReading = new float[3];
+    private final float[] magnetometerReading = new float[3];
+    private final float[] rotationMatrix = new float[9];
+    private final float[] orientationAngles = new float[3];
+    private final LinkedList<Double> m_window = new LinkedList<>();
     private float currentDegree = 0f;
+    private ImageView compass;
 
     public SiddurAdapter(Context context, ArrayList<HighlightString> siddur, int textSize, JewishDateInfo jewishDateInfo) {
         super(context, 0);
@@ -58,11 +62,6 @@ public class SiddurAdapter extends ArrayAdapter<String> {
     @Override
     public String getItem(int position) {
         return siddur.get(position).toString();
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return position;
     }
 
     @NonNull
@@ -108,7 +107,7 @@ public class SiddurAdapter extends ArrayAdapter<String> {
                 context.startActivity(browserIntent);
             }
             if (siddur.get(position).toString().equals("Mussaf is said here, press here to go to Mussaf")
-            || siddur.get(position).toString().equals("מוסף אומרים כאן, לחץ כאן כדי להמשיך למוסף")) {
+                    || siddur.get(position).toString().equals("מוסף אומרים כאן, לחץ כאן כדי להמשיך למוסף")) {
                 context.startActivity(new Intent(context, SiddurViewActivity.class)
                         .putExtra("prayer", "מוסף")
                         .putExtra("JewishDay", jewishDateInfo.getJewishCalendar().getJewishDayOfMonth())
@@ -117,7 +116,7 @@ public class SiddurAdapter extends ArrayAdapter<String> {
                 );
             }
         });
-        viewHolder.textView.setTypeface(Typeface.createFromAsset(context.getAssets(),"TaameyFrankCLM-Bold.ttf"), Typeface.BOLD);
+        viewHolder.textView.setTypeface(Typeface.createFromAsset(context.getAssets(), "TaameyFrankCLM-Bold.ttf"), Typeface.BOLD);
 
         if (siddur.get(position).toString().endsWith("לַמְנַצֵּ֥חַ בִּנְגִינֹ֗ת מִזְמ֥וֹר שִֽׁיר׃ אֱֽלֹהִ֗ים יְחׇנֵּ֥נוּ וִיבָרְכֵ֑נוּ יָ֤אֵֽר פָּנָ֖יו אִתָּ֣נוּ סֶֽלָה׃ לָדַ֣עַת בָּאָ֣רֶץ דַּרְכֶּ֑ךָ בְּכׇל־גּ֝וֹיִ֗ם יְשׁוּעָתֶֽךָ׃ יוֹד֖וּךָ עַמִּ֥ים ׀ אֱלֹהִ֑ים י֝וֹד֗וּךָ עַמִּ֥ים כֻּלָּֽם׃ יִ֥שְׂמְח֥וּ וִירַנְּנ֗וּ לְאֻ֫מִּ֥ים כִּֽי־תִשְׁפֹּ֣ט עַמִּ֣ים מִישֹׁ֑ר וּלְאֻמִּ֓ים ׀ בָּאָ֖רֶץ תַּנְחֵ֣ם סֶֽלָה׃ יוֹד֖וּךָ עַמִּ֥ים ׀ אֱלֹהִ֑ים י֝וֹד֗וּךָ עַמִּ֥ים כֻּלָּֽם׃ אֶ֭רֶץ נָתְנָ֣ה יְבוּלָ֑הּ יְ֝בָרְכֵ֗נוּ אֱלֹהִ֥ים אֱלֹהֵֽינוּ׃ יְבָרְכֵ֥נוּ אֱלֹהִ֑ים וְיִֽירְא֥וּ א֝וֹת֗וֹ כׇּל־אַפְסֵי־אָֽרֶץ׃")) {
             viewHolder.imageView.setVisibility(View.VISIBLE);
@@ -133,82 +132,14 @@ public class SiddurAdapter extends ArrayAdapter<String> {
             viewHolder.textView.setTextColor(Color.YELLOW);
             viewHolder.imageView.setVisibility(View.VISIBLE);
             viewHolder.imageView.setImageResource(R.drawable.compass);
+            compass = viewHolder.imageView;
             SensorManager sensorManager = (SensorManager) context.getSystemService(SENSOR_SERVICE);
             Sensor accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
             Sensor magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
-            if (accelerometer != null) {
-                sensorManager.registerListener(new SensorEventListener() {
-                    @Override
-                    public void onSensorChanged(SensorEvent event) {
-                        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-                            gravity = event.values;
-                        }
-
-                        float[] rotationMatrix = new float[9];
-                        if (SensorManager.getRotationMatrix(rotationMatrix, null, gravity, geomagnetic)) {
-                            float[] orientationValues = new float[3];
-                            SensorManager.getOrientation(rotationMatrix, orientationValues);
-
-                            azimuth = (float) Math.toDegrees(orientationValues[0]);
-                            azimuth = (azimuth + 360) % 360;
-
-                            RotateAnimation ra = new RotateAnimation(
-                                    currentDegree,
-                                    -azimuth,
-                                    Animation.RELATIVE_TO_SELF, 0.5f,
-                                    Animation.RELATIVE_TO_SELF, 0.5f
-                            );
-
-                            ra.setDuration(250);
-                            ra.setFillAfter(true);
-
-                            //viewHolder.imageView.startAnimation(ra);
-                            currentDegree = -azimuth;
-                        }
-                    }
-
-                    @Override
-                    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-                    }
-                }, accelerometer, SensorManager.SENSOR_DELAY_UI);
-            }
-            if (magnetometer != null) {
-                sensorManager.registerListener(new SensorEventListener() {
-                    @Override
-                    public void onSensorChanged(SensorEvent event) {
-                        if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-                            geomagnetic = event.values;
-                        }
-
-                        float[] rotationMatrix = new float[9];
-                        if (SensorManager.getRotationMatrix(rotationMatrix, null, gravity, geomagnetic)) {
-                            float[] orientationValues = new float[3];
-                            SensorManager.getOrientation(rotationMatrix, orientationValues);
-
-                            azimuth = (float) Math.toDegrees(orientationValues[0]);
-                            azimuth = (azimuth + 360) % 360;
-
-                            RotateAnimation ra = new RotateAnimation(
-                                    currentDegree,
-                                    -azimuth,
-                                    Animation.RELATIVE_TO_SELF, 0.5f,
-                                    Animation.RELATIVE_TO_SELF, 0.5f
-                            );
-
-                            ra.setDuration(250);
-                            ra.setFillAfter(true);
-
-                            viewHolder.imageView.startAnimation(ra);
-                            currentDegree = -azimuth;
-                        }
-                    }
-
-                    @Override
-                    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-                    }
-                }, magnetometer, SensorManager.SENSOR_DELAY_UI);
+            if (accelerometer != null || magnetometer != null) {
+                sensorManager.registerListener(this, accelerometer, 66000);
+                sensorManager.registerListener(this, magnetometer, 66000);
             }
 
             if (accelerometer == null && magnetometer == null) {
@@ -222,6 +153,70 @@ public class SiddurAdapter extends ArrayAdapter<String> {
         }
 
         return convertView;
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event == null) {
+            return;
+        }
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            System.arraycopy(event.values, 0, accelerometerReading, 0, accelerometerReading.length);
+        } else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+            System.arraycopy(event.values, 0, magnetometerReading, 0, magnetometerReading.length);
+        }
+
+        if (SensorManager.getRotationMatrix(rotationMatrix, null, accelerometerReading, magnetometerReading)) {
+            SensorManager.getOrientation(rotationMatrix, orientationAngles);
+
+            float smoothedAzimuthDegrees = filtrate(orientationAngles[0] / (2 * Math.PI) * 360);
+
+            RotateAnimation ra = new RotateAnimation(
+                    currentDegree,
+                    -smoothedAzimuthDegrees,
+                    Animation.RELATIVE_TO_SELF, 0.5f,
+                    Animation.RELATIVE_TO_SELF, 0.5f
+            );
+
+            ra.setDuration(100);
+            compass.startAnimation(ra);
+            currentDegree = -smoothedAzimuthDegrees;
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    }
+
+    private float filtrate(Double value) {//Credit to Rafael Sheink
+        m_window.add(value);
+        if (m_window.size() > 50) {
+            m_window.remove();
+        }
+
+        double sumx = 0.0;
+        double sumy = 0.0;
+        Object[] arr = m_window.toArray();
+        for (Object anArr : arr) {
+            if (anArr instanceof Double) {
+                sumx += Math.cos((Double) anArr / 360 * (2 * Math.PI));
+                sumy += Math.sin((Double) anArr / 360 * (2 * Math.PI));
+            }
+        }
+
+        double avgx = sumx / m_window.size();
+        double avgy = sumy / m_window.size();
+
+        double temp = Math.atan2(avgy, avgx) / (2 * Math.PI) * 360;
+        if (temp == 0.0) {
+            return 0.0f;
+        }
+
+        if (temp > 0) {
+            return (float) temp;
+        } else {
+            return (((float) temp) + 360) % 360;
+        }
     }
 
     static class ViewHolder {
