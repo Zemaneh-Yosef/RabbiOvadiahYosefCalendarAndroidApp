@@ -10,7 +10,7 @@ android {
         minSdk 25
         compileSdk 34
         targetSdk 34
-        versionCode 175
+        versionCode 176
         versionName "19.2"
         multiDexEnabled true
 
