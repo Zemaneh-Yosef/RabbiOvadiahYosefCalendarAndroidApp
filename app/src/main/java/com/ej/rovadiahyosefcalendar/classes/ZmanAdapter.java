@@ -9,7 +9,6 @@ import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sLongitude;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sNextUpcomingZman;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sSetupLauncher;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -23,6 +22,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.ContextCompat;
 import androidx.core.text.HtmlCompat;
@@ -35,6 +35,7 @@ import com.ej.rovadiahyosefcalendar.activities.MainActivity;
 import com.ej.rovadiahyosefcalendar.activities.SetupChooserActivity;
 import com.ej.rovadiahyosefcalendar.activities.SetupElevationActivity;
 import com.ej.rovadiahyosefcalendar.activities.SiddurChooserActivity;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.YomiCalculator;
 
@@ -57,7 +58,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     private List<ZmanListEntry> zmanim;
     private final SharedPreferences mSharedPreferences;
     private final Context context;
-    private AlertDialog.Builder dialogBuilder;
+    private MaterialAlertDialogBuilder dialogBuilder;
     private final DateFormat zmanimFormat;
     private final DateFormat visibleSunriseFormat;
     private final DateFormat roundUpFormat;
@@ -102,7 +103,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             roundUpFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
         }
         roundUpFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
-        dialogBuilder = new AlertDialog.Builder(this.context, R.style.zmanListAlertDialog);
+        dialogBuilder = new MaterialAlertDialogBuilder(context);
         dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
         dialogBuilder.create();
     }
@@ -353,7 +354,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void resetDialogBuilder() {
-        dialogBuilder = new AlertDialog.Builder(this.context, R.style.zmanListAlertDialog);
+        dialogBuilder = new MaterialAlertDialogBuilder(context);
         dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
         dialogBuilder.create();
     }
@@ -551,21 +552,24 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             String alotHTML = renderer.render(document);
 
             if (locale.getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
-                dialogBuilder.setTitle("Dawn - עלות השחר - Alot HaShachar")
+                AlertDialog alertDialog =  dialogBuilder.setTitle("Dawn - עלות השחר - Alot HaShachar")
                         .setMessage(R.string.alot_dialog)
-                        .show();
+                        .create();
+                alertDialog.show();
             } else {
-                dialogBuilder.setTitle("Dawn - עלות השחר - Alot HaShachar")
+                AlertDialog alertDialog =  dialogBuilder.setTitle("Dawn - עלות השחר - Alot HaShachar")
                         .setMessage(HtmlCompat.fromHtml(alotHTML, HtmlCompat.FROM_HTML_MODE_LEGACY))
-                        .show();
+                        .create();
+                alertDialog.show();
             }
         } catch (Exception ignored) {}
     }
 
     private void showEarliestTalitTefilinDialog() {
-        dialogBuilder.setTitle("Earliest Talit/Tefilin - טלית ותפילין - Misheyakir")
+        AlertDialog alertDialog = dialogBuilder.setTitle("Earliest Talit/Tefilin - טלית ותפילין - Misheyakir")
                 .setMessage(R.string.misheyakir_dialog)
-                .show();
+                .create();
+        alertDialog.show();
     }
 
     private void showSunriseDialog() {
@@ -587,131 +591,153 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void showAchilatChametzDialog() {
-        dialogBuilder.setTitle("Eating Chametz - אכילת חמץ - Achilat Chametz")
+        AlertDialog alertDialog = dialogBuilder.setTitle("Eating Chametz - אכילת חמץ - Achilat Chametz")
                 .setMessage(R.string.achilat_chametz_dialog)
-                .show();
+                .create();
+        alertDialog.show();
     }
 
     private void showBiurChametzDialog() {
-        dialogBuilder.setTitle("Burning Chametz - ביעור חמץ - Biur Chametz")
+        AlertDialog alertDialog = dialogBuilder.setTitle("Burning Chametz - ביעור חמץ - Biur Chametz")
                 .setMessage(R.string.biur_chametz_dialog)
-                .show();
+                .create();
+        alertDialog.show();
     }
 
     private void showShmaMGADialog() {
-        dialogBuilder.setTitle("Latest time for Shma (MG\"A) - שמע מג\"א - Shma MG\"A")
+        AlertDialog alertDialog = dialogBuilder.setTitle("Latest time for Shma (MG\"A) - שמע מג\"א - Shma MG\"A")
                 .setMessage(R.string.shmaMGAdialog)
-                .show();
+                .create();
+        alertDialog.show();
     }
 
     private void showShmaGRADialog() {
-        dialogBuilder.setTitle("Latest time for Shma (GR\"A) - שמע גר\"א - Shma GR\"A")
+        AlertDialog alertDialog = dialogBuilder.setTitle("Latest time for Shma (GR\"A) - שמע גר\"א - Shma GR\"A")
                 .setMessage(R.string.shmaGRAdialog)
-                .show();
+                .create();
+        alertDialog.show();
     }
 
     private void showBirchatHachamahDialog() {
-        dialogBuilder.setTitle("Latest Birchat HaChamah - סוף זמן ברכת החמה - Sof Zman Birchat HaChamah")
+        AlertDialog alertDialog = dialogBuilder.setTitle("Latest Birchat HaChamah - סוף זמן ברכת החמה - Sof Zman Birchat HaChamah")
                 .setMessage(R.string.birchat_hachama_dialog)
-                .show();
+                .create();
+        alertDialog.show();
     }
 
     private void showBrachotShmaDialog() {
-        dialogBuilder.setTitle("Brachot Shma - ברכות שמע - Brachot Shma")
+        AlertDialog alertDialog = dialogBuilder.setTitle("Brachot Shma - ברכות שמע - Brachot Shma")
                 .setMessage(R.string.brachotSHMAdialog)
-                .show();
+                .create();
+        alertDialog.show();
     }
 
     private void showChatzotDialog() {
-        dialogBuilder.setTitle("Mid-day - חצות - Chatzot")
+        AlertDialog alertDialog = dialogBuilder.setTitle("Mid-day - חצות - Chatzot")
                 .setMessage(R.string.chatzot_dialog)
-                .show();
+                .create();
+        alertDialog.show();
     }
 
     private void showMinchaGedolaDialog() {
-        dialogBuilder.setTitle("Earliest Mincha - מנחה גדולה - Mincha Gedolah")
+        AlertDialog alertDialog = dialogBuilder.setTitle("Earliest Mincha - מנחה גדולה - Mincha Gedolah")
                 .setMessage(R.string.mincha_gedola_dialog)
-                .show();
+                .create();
+        alertDialog.show();
     }
 
     private void showMinchaKetanaDialog() {
-        dialogBuilder.setTitle("Mincha Ketana - מנחה קטנה")
+        AlertDialog alertDialog = dialogBuilder.setTitle("Mincha Ketana - מנחה קטנה")
                 .setMessage(R.string.mincha_ketana_dialog)
-                .show();
+                .create();
+        alertDialog.show();
+
     }
 
     private void showPlagDialog() {
-        dialogBuilder.setTitle("Plag HaMincha - פלג המנחה")
+        AlertDialog alertDialog = dialogBuilder.setTitle("Plag HaMincha - פלג המנחה")
                 .setMessage(R.string.plag_dialog)
-                .show();
+                .create();
+        alertDialog.show();
     }
 
     private void showCandleLightingDialog() {
-        dialogBuilder.setTitle("Candle Lighting - הדלקת נרות")
+        AlertDialog alertDialog = dialogBuilder.setTitle("Candle Lighting - הדלקת נרות")
                 .setMessage(String.format(context.getString(R.string.candle_lighting_dialog), PreferenceManager.getDefaultSharedPreferences(context).getString("CandleLightingOffset", "20")))
-                .show();
+                .create();
+        alertDialog.show();
     }
 
     private void showShkiaDialog() {
-        dialogBuilder.setTitle("Sunset - שקיעה - Shkia")
+        AlertDialog alertDialog = dialogBuilder.setTitle("Sunset - שקיעה - Shkia")
                 .setMessage(R.string.sunset_dialog)
-                .show();
+                .create();
+        alertDialog.show();
     }
 
     private void showTzaitDialog() {
-        dialogBuilder.setTitle("Nightfall - צאת הכוכבים - Tzeit Hacochavim")
+        AlertDialog alertDialog = dialogBuilder.setTitle("Nightfall - צאת הכוכבים - Tzeit Hacochavim")
                 .setMessage(R.string.tzait_dialog)
-                .show();
+                .create();
+        alertDialog.show();
     }
 
     private void showTzaitLChumraDialog() {
-        dialogBuilder.setTitle("Nightfall (Stringent) - צאת הכוכבים לחומרא - Tzeit Hacochavim L'Chumra")
+        AlertDialog alertDialog = dialogBuilder.setTitle("Nightfall (Stringent) - צאת הכוכבים לחומרא - Tzeit Hacochavim L'Chumra")
                 .setMessage(R.string.tzait_lchumra_dialog)
-                .show();
+                .create();
+        alertDialog.show();
     }
 
     private void showTzaitTaanitDialog() {
-        dialogBuilder.setTitle("Fast Ends - צאת תענית - Tzeit Taanit")
+        AlertDialog alertDialog = dialogBuilder.setTitle("Fast Ends - צאת תענית - Tzeit Taanit")
                 .setMessage(R.string.taanit_ends_dialog)
-                .show();
+                .create();
+        alertDialog.show();
     }
 
     private void showTzaitTaanitLChumraDialog() {
-        dialogBuilder.setTitle("Fast Ends (Stringent) - צאת תענית לחומרא - Tzeit Taanit L'Chumra")
+        AlertDialog alertDialog = dialogBuilder.setTitle("Fast Ends (Stringent) - צאת תענית לחומרא - Tzeit Taanit L'Chumra")
                 .setMessage(R.string.taanit_ends_lchumra_dialog)
-                .show();
+                .create();
+        alertDialog.show();
     }
 
     private void showTzaitShabbatDialog() {
-        dialogBuilder.setTitle("Shabbat/Chag Ends - צאת שבת/חג - Tzeit Shabbat/Chag")
+        AlertDialog alertDialog = dialogBuilder.setTitle("Shabbat/Chag Ends - צאת שבת/חג - Tzeit Shabbat/Chag")
                 .setMessage(String.format(context.getString(R.string.tzait_shabbat_dialog), PreferenceManager.getDefaultSharedPreferences(context).getString("EndOfShabbatOffset", "40")))
-                .show();
+                .create();
+        alertDialog.show();
     }
 
     private void showRTDialog() {
-        dialogBuilder.setTitle("Rabbeinu Tam - רבינו תם")
+        AlertDialog alertDialog = dialogBuilder.setTitle("Rabbeinu Tam - רבינו תם")
                 .setMessage(R.string.rt_dialog)
-                .show();
+                .create();
+        alertDialog.show();
     }
 
     private void showChatzotLaylaDialog() {
-        dialogBuilder.setTitle("Midnight - חצות לילה - Chatzot Layla")
+        AlertDialog alertDialog = dialogBuilder.setTitle("Midnight - חצות לילה - Chatzot Layla")
                 .setMessage(R.string.chatzot_layla_dialog)
-                .show();
+                .create();
+        alertDialog.show();
     }
 
     private void showUlChaparatPeshaDialog() {
-        dialogBuilder.setTitle("וּלְכַפָּרַת פֶּשַׁע")
+        AlertDialog alertDialog = dialogBuilder.setTitle("וּלְכַפָּרַת פֶּשַׁע")
                 .setMessage(R.string.ulchaparat_pesha_dialog)
-                .show();
+                .create();
+        alertDialog.show();
     }
 
     private void showElevationDialog() {
-        dialogBuilder.setTitle(context.getString(R.string.elevation))
+        AlertDialog alertDialog = dialogBuilder.setTitle(context.getString(R.string.elevation))
                 .setMessage(R.string.elevation_dialog)
                 .setNegativeButton(context.getString(R.string.setup_elevation), (dialog, which) ->
                         sSetupLauncher.launch(new Intent(context, SetupElevationActivity.class).putExtra("fromMenu",true)))
-                .show();
+                .create();
+        alertDialog.show();
         resetDialogBuilder();
     }
 
@@ -730,26 +756,30 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             String tekufaHTMLHebrew = renderer.render(documentHB);
 
             if (locale.getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
-                dialogBuilder.setTitle("Tekufa - Season - תקופה")
+                AlertDialog alertDialog = dialogBuilder.setTitle("Tekufa - Season - תקופה")
                         .setMessage(HtmlCompat.fromHtml(tekufaHTMLHebrew, HtmlCompat.FROM_HTML_MODE_LEGACY))
-                        .show();
+                        .create();
+                alertDialog.show();
             } else {
-                dialogBuilder.setTitle("Tekufa - Season - תקופה")
+                AlertDialog alertDialog = dialogBuilder.setTitle("Tekufa - Season - תקופה")
                         .setMessage(HtmlCompat.fromHtml(tekufaHTMLEnglish, HtmlCompat.FROM_HTML_MODE_LEGACY))
-                        .show();
+                        .create();
+                alertDialog.show();
             }
         } catch (Exception ignored) {}
     }
 
     private void showTachanunDialog() {
-        dialogBuilder.setTitle("Tachanun - תחנון")
+        AlertDialog alertDialog = dialogBuilder.setTitle("Tachanun - תחנון")
                 .setMessage(R.string.tachanun_dialog)
-                .show();
+                .create();
+        alertDialog.show();
     }
 
     private void showThreeWeeksDialog(String title) {
-        dialogBuilder.setTitle(title)
+        AlertDialog alertDialog = dialogBuilder.setTitle(title)
                 .setMessage(R.string.three_weeks_dialog)
-                .show();
+                .create();
+        alertDialog.show();
     }
 }

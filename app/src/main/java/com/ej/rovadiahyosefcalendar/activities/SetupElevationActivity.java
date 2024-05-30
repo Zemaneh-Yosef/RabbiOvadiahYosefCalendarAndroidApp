@@ -4,7 +4,6 @@ import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sCurrentLocationName;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Paint;
@@ -25,6 +24,7 @@ import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesScraper;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
 
 import java.util.Locale;
@@ -46,7 +46,7 @@ public class SetupElevationActivity extends AppCompatActivity {
         materialToolbar.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
             if (id == R.id.help) {
-                new AlertDialog.Builder(this, R.style.alertDialog)
+                new MaterialAlertDialogBuilder(this)
                         .setTitle(R.string.help_using_this_app)
                         .setPositiveButton(R.string.ok, null)
                         .setMessage(R.string.helper_text)
@@ -87,7 +87,7 @@ public class SetupElevationActivity extends AppCompatActivity {
             input.setGravity(Gravity.CENTER_HORIZONTAL);
             input.setHint(R.string.enter_elevation_in_meters);
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.alertDialog);
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
             builder.setTitle(R.string.enter_elevation_in_meters);
             builder.setView(input);
             builder.setPositiveButton(R.string.ok, (dialog, which) -> {

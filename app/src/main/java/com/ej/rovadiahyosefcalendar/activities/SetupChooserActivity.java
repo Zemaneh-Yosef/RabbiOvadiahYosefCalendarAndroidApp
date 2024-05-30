@@ -1,6 +1,5 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Paint;
 import android.os.Bundle;
@@ -10,10 +9,12 @@ import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.Locale;
 
@@ -34,7 +35,7 @@ public class SetupChooserActivity extends AppCompatActivity {
         materialToolbar.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
             if (id == R.id.help) {
-                new AlertDialog.Builder(this, R.style.alertDialog)
+                new MaterialAlertDialogBuilder(this)
                         .setTitle(R.string.help_using_this_app)
                         .setPositiveButton(R.string.ok, null)
                         .setMessage(R.string.helper_text)
@@ -51,7 +52,7 @@ public class SetupChooserActivity extends AppCompatActivity {
             return false;
         });
 
-        mAlertDialog = new AlertDialog.Builder(this, R.style.alertDialog)
+        mAlertDialog = new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.Introduction)
                 .setMessage(R.string.intro)
                 .setPositiveButton(R.string.ok, (dialogInterface, i) -> dialogInterface.dismiss())

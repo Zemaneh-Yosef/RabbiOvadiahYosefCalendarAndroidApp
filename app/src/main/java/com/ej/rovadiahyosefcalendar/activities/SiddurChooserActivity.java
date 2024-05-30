@@ -3,7 +3,6 @@ package com.ej.rovadiahyosefcalendar.activities;
 import static android.text.Html.fromHtml;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Html;
@@ -21,6 +20,7 @@ import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.SiddurMaker;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
 import java.util.Calendar;
@@ -104,7 +104,7 @@ public class SiddurChooserActivity extends AppCompatActivity {
             if (new SiddurMaker(mJewishDateInfo).getBirchatHamazonPrayers().equals(new SiddurMaker(tomorrow).getBirchatHamazonPrayers())) {
                 startSiddurActivity(getString(R.string.birchat_hamazon));//doesn't matter which day
             } else {
-                new AlertDialog.Builder(this, R.style.alertDialog)
+                new MaterialAlertDialogBuilder(this)
                         .setTitle(R.string.when_did_you_start_your_meal)
                         .setMessage(R.string.did_you_start_your_meal_during_the_day)
                         .setPositiveButton(getString(R.string.yes), (dialog, which) -> startSiddurActivity(getString(R.string.birchat_hamazon)))

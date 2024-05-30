@@ -6,7 +6,6 @@ import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sLatitude;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sLongitude;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -31,6 +30,7 @@ import com.ej.rovadiahyosefcalendar.classes.ChaiTablesOptionsList;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesScraper;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
 
 import java.util.Arrays;
@@ -58,7 +58,7 @@ public class SimpleSetupActivity extends AppCompatActivity {
         materialToolbar.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
             if (id == R.id.help) {
-                new AlertDialog.Builder(this, R.style.alertDialog)
+                new MaterialAlertDialogBuilder(this)
                         .setTitle(R.string.help_using_this_app)
                         .setPositiveButton(R.string.ok, null)
                         .setMessage(R.string.helper_text)

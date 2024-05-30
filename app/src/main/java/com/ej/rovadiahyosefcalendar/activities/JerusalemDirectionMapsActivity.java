@@ -1,7 +1,6 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
 import android.Manifest;
-import android.app.AlertDialog;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.hardware.Sensor;
@@ -32,6 +31,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.maps.android.SphericalUtil;
 import com.kosherjava.zmanim.util.GeoLocation;
 
@@ -69,7 +69,7 @@ public class JerusalemDirectionMapsActivity extends FragmentActivity implements 
         materialToolbar.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
             if (id == R.id.help) {
-                new AlertDialog.Builder(this, R.style.alertDialog)
+                new MaterialAlertDialogBuilder(this)
                         .setTitle(getString(R.string.help))
                         .setPositiveButton(R.string.ok, (dialog, which) -> dialog.dismiss())
                         .setMessage(R.string.jer_dir_help_text)

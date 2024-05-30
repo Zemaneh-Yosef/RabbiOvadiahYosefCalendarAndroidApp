@@ -3,37 +3,12 @@
     <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="actionOverflowMenuStyle">@style/popupOverflowMenu</item>
-        <item name="alertDialogStyle">@style/alertDialog</item>
-        <item name="alertDialogTheme">@style/Theme.MaterialComponents.DayNight.Dialog.Alert</item>
-        <item name="materialAlertDialogTheme">@style/MaterialAlertDialog.Material3</item>
         <item name="android:windowAllowReturnTransitionOverlap">true</item>
         <item name="android:windowAllowEnterTransitionOverlap">true</item>
-        <item name="colorButtonNormal">@color/dark_gold</item>
     </style>
 
     <style name="popupOverflowMenu" parent="@style/Widget.Material3.PopupMenu.Overflow">
         <item name="android:popupBackground">@drawable/overflow_menu_bg</item>
-    </style>
-
-    <style name="alertDialog" parent="@style/Theme.Material3.DayNight.Dialog.Alert">
-        <item name="android:windowBackground">@drawable/overflow_menu_bg</item>
-        <item name="android:buttonBarPositiveButtonStyle">@style/alertDialog.button</item>
-        <item name="android:buttonBarNegativeButtonStyle">@style/alertDialog.button</item>
-        <item name="android:buttonBarNeutralButtonStyle">@style/alertDialog.button</item>
-        <item name="alertDialogTheme">@style/Theme.MaterialComponents.DayNight.Dialog.Alert</item>
-    </style>
-
-    <style name="zmanListAlertDialog" parent="@style/Theme.Material3.DayNight.Dialog.Alert">
-        <item name="android:windowBackground">@drawable/overflow_menu_bg</item>
-        <item name="android:buttonBarPositiveButtonStyle">@style/Theme.MaterialComponents.DayNight.Bridge</item>
-        <item name="android:buttonBarNegativeButtonStyle">@style/alertDialog.button</item>
-        <item name="android:buttonBarNeutralButtonStyle">@style/alertDialog.button</item>
-        <item name="alertDialogTheme">@style/Theme.MaterialComponents.DayNight.Dialog.Alert</item>
-    </style>
-
-    <style name="alertDialog.button" parent="Theme.MaterialComponents.DayNight.Bridge">
-        <item name="android:backgroundTint">@color/dark_gold</item>
-        <item name="android:textColor">@color/black</item>
     </style>
 
     <style name="SplashTheme" parent="AppTheme">

@@ -71,7 +71,7 @@ public class CurrentLocationActivity extends AppCompatActivity {
      * will also give the option to use a zipcode through the EditText field.
      */
     private void createZipcodeDialog() {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this, R.style.alertDialog);
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         final EditText input = new EditText(this);
         input.setGravity(Gravity.CENTER_HORIZONTAL);
         input.setHint(R.string.enter_zipcode_or_address);

@@ -4,7 +4,6 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -18,6 +17,7 @@ import androidx.core.app.ActivityCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.Locale;
 
@@ -37,7 +37,7 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
         materialToolbar.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
             if (id == R.id.help) {
-                new AlertDialog.Builder(this, androidx.appcompat.R.style.Theme_AppCompat_DayNight)
+                new MaterialAlertDialogBuilder(this, androidx.appcompat.R.style.Theme_AppCompat_DayNight)
                         .setTitle(R.string.help_using_this_app)
                         .setPositiveButton(R.string.ok, null)
                         .setMessage(R.string.helper_text)

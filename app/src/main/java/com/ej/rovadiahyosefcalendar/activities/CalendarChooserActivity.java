@@ -1,6 +1,5 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -15,6 +14,7 @@ import androidx.preference.PreferenceManager;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.Locale;
 
@@ -46,7 +46,7 @@ public class CalendarChooserActivity extends AppCompatActivity {
         materialToolbar.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
             if (id == R.id.help) {
-                new AlertDialog.Builder(this, R.style.alertDialog)
+                new MaterialAlertDialogBuilder(this)
                         .setTitle(R.string.help_using_this_app)
                         .setPositiveButton(R.string.ok, null)
                         .setMessage(R.string.helper_text)
@@ -74,7 +74,7 @@ public class CalendarChooserActivity extends AppCompatActivity {
         amudeiHoraah.setOnClickListener(v -> saveInfoAndFinish(true));
 
         Button difference = findViewById(R.id.calendar_chooser_difference);
-        difference.setOnClickListener(v -> new AlertDialog.Builder(this, R.style.alertDialog)
+        difference.setOnClickListener(v -> new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.what_s_the_difference)
                 .setPositiveButton(R.string.ok, (dialog, which) -> dialog.dismiss())
                 .setMessage(calendarDifference)

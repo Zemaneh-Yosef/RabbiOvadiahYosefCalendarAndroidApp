@@ -2,7 +2,6 @@ package com.ej.rovadiahyosefcalendar.activities;
 
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -28,6 +27,7 @@ import androidx.preference.PreferenceManager;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.rarepebble.colorpicker.ColorPreference;
 
 import java.io.File;
@@ -146,7 +146,7 @@ public class SettingsActivity extends AppCompatActivity {
                 showSecondsPref.setOnPreferenceClickListener(preference  -> {
                     boolean isOn = Objects.requireNonNull(preference.getSharedPreferences()).getBoolean("ShowSeconds",false);
                     if (isOn) {
-                        new AlertDialog.Builder(getContext(), R.style.alertDialog)
+                        new MaterialAlertDialogBuilder(requireContext())
                                 .setTitle(R.string.do_not_rely_on_the_seconds)
                                 .setMessage(R.string.do_not_rely_on_the_seconds_message)
                                 .setPositiveButton(R.string.ok, (dialogInterface, i) -> dialogInterface.dismiss())
@@ -251,7 +251,7 @@ public class SettingsActivity extends AppCompatActivity {
             Preference haskamaPref = findPreference("haskamot");
             if (haskamaPref != null) {
                 haskamaPref.setOnPreferenceClickListener(v -> {
-                    new AlertDialog.Builder(getContext(), R.style.alertDialog)
+                    new MaterialAlertDialogBuilder(requireContext())
                             .setTitle(R.string.haskamot)
                             .setMessage(R.string.haskamot_message)
                             .setPositiveButton(R.string.by_rav_elbaz, (dialog, which) -> {
@@ -271,7 +271,7 @@ public class SettingsActivity extends AppCompatActivity {
             Preference help = findPreference("help");
             if (help != null) {
                 help.setOnPreferenceClickListener(v -> {
-                    new AlertDialog.Builder(requireContext(), R.style.alertDialog)
+                    new MaterialAlertDialogBuilder(requireContext())
                             .setTitle(R.string.help_using_this_app)
                             .setPositiveButton(R.string.ok, null)
                             .setMessage(R.string.helper_text)

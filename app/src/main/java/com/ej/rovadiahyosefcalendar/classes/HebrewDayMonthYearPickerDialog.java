@@ -18,10 +18,10 @@ import android.view.View;
 import android.widget.NumberPicker;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 import com.ej.rovadiahyosefcalendar.R;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
 import java.util.Locale;
@@ -60,7 +60,7 @@ public class HebrewDayMonthYearPickerDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity(), R.style.alertDialog);
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireActivity());
 
         LayoutInflater inflater = requireActivity().getLayoutInflater();// Get the layout inflater
 

@@ -4,7 +4,6 @@ import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sLatitude;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sLongitude;
 
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -29,6 +28,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -47,6 +47,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.maps.android.SphericalUtil;
 
@@ -338,7 +339,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
     }
 
     private void createZipcodeDialog() {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this, R.style.alertDialog);
+        MaterialAlertDialogBuilder alertDialog = new MaterialAlertDialogBuilder(this);
 
         LinearLayout linearLayout = new LinearLayout(this);
         linearLayout.setOrientation(LinearLayout.VERTICAL);
@@ -586,7 +587,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
         layout.addView(timezone);
         layout.addView(timezones);
 
-        AlertDialog.Builder advancedAlert = new AlertDialog.Builder(this, R.style.alertDialog);
+        MaterialAlertDialogBuilder advancedAlert = new MaterialAlertDialogBuilder(this);
 
         advancedAlert.setTitle(R.string.advanced)
                 .setView(layout)
@@ -618,7 +619,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
 
     private void askUserIfTheyWantToDeleteThisEntry(String location, Button locationButton) {
         String locationName = mSharedPreferences.getString("location1", "");
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this, R.style.alertDialog);
+        MaterialAlertDialogBuilder alertDialog = new MaterialAlertDialogBuilder(this);
         alertDialog.setTitle(locationName)
                 .setMessage(R.string.do_you_want_to_delete_this_location)
                 .setPositiveButton(getString(R.string.yes), (dialogInterface, i) -> {
