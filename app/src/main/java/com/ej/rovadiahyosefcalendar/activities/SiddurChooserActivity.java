@@ -9,12 +9,16 @@ import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
@@ -144,6 +148,18 @@ public class SiddurChooserActivity extends AppCompatActivity {
             }
             disclaimer.setText(fromHtml(text, Html.FROM_HTML_MODE_COMPACT));
         }
+
+        ViewCompat.setOnApplyWindowInsetsListener(disclaimer, (v, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+            mlp.leftMargin = insets.left;
+            mlp.bottomMargin = insets.bottom;
+            mlp.rightMargin = insets.right;
+            v.setLayoutParams(mlp);
+            // Return CONSUMED if you don't want want the window insets to keep passing
+            // down to descendant views.
+            return WindowInsetsCompat.CONSUMED;
+        });
     }
 
     private void startSiddurActivity(String prayer) {
@@ -162,19 +178,5 @@ public class SiddurChooserActivity extends AppCompatActivity {
                 .putExtra("JewishMonth", mJewishDateInfo.getJewishCalendar().getJewishMonth())
                 .putExtra("JewishYear", mJewishDateInfo.getJewishCalendar().getJewishYear())
         );
-    }
-
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) {
-            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-        }
-    }
-
-    @Override
-    public void onUserInteraction() {
-        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-        super.onUserInteraction();
     }
 }
