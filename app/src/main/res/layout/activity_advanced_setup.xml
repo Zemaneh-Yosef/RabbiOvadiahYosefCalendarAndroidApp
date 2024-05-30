@@ -7,8 +7,32 @@
     android:layout_height="match_parent"
     android:background="?android:attr/colorBackground"
     android:orientation="vertical"
-    android:gravity="center"
-    tools:context=".activities.SimpleSetupActivity">
+    tools:context=".activities.AdvancedSetupActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topAppBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="?attr/actionBarSize"
+            app:title="@string/app_name"
+            app:titleCentered="true"
+            app:subtitle="@string/short_app_name"
+            app:subtitleCentered="true"
+            app:menu="@menu/setup_menu" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
 
     <TextView
         android:layout_width="wrap_content"
@@ -29,7 +53,7 @@
         android:hint="@string/table_link"
         android:textSize="20sp"
         android:textColor="?android:attr/textColorPrimary"
-        />
+        android:autofillHints="website" />
 
     <Button
         android:id="@+id/set_link_button"
@@ -38,10 +62,10 @@
         android:drawableEnd="@android:drawable/ic_menu_today"
         android:text="@string/set_link"
         android:background="@drawable/colorful_gradient_square"
+        app:backgroundTint="@null"
         android:textColor="@color/black"
         android:padding="16dp"
-        android:layout_marginBottom="16dp"
-        />
+        android:layout_marginBottom="16dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -57,19 +81,23 @@
         android:text="@string/go_to_the_website_in_the_app"
         android:drawableEnd="@drawable/ic_baseline_ad_units_24"
         android:background="@drawable/colorful_gradient_square"
+        app:backgroundTint="@null"
         android:textColor="@color/black"
         android:padding="16dp"
         android:layout_marginBottom="16dp"
         />
 
-    <TextView
+    <Button
         android:id="@+id/skip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:backgroundTint="@color/lightYellow"
+        android:textColor="@color/black"
         android:text="@string/skip"
         android:textSize="18sp"
         android:padding="8dp"
         android:gravity="center"
         />
 
+    </LinearLayout>
 </LinearLayout>

@@ -1,19 +1,19 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
-import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.Gravity;
-import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.content.res.AppCompatResources;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.classes.CustomDatePickerDialog;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
 
@@ -37,15 +37,14 @@ public class MoladActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_molad);
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
+        MaterialToolbar materialToolbar = findViewById(R.id.topAppBar);
+        materialToolbar.setNavigationIcon(AppCompatResources.getDrawable(this, R.drawable.baseline_arrow_back_24));
+        materialToolbar.setNavigationOnClickListener(v -> finish());
         if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
             mSDF = new SimpleDateFormat("EEE MMM d H:mm:ss", Locale.getDefault());
-            mHebrewMonths = new String[]{ "ניסן", "אייר", "סיון", "תמוז", "אב",
-                    "אלול", "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר", "אדר ב", "אדר א"};
+            mHebrewMonths = new String[]{ "ניסן", "אייר", "סיון", "תמוז", "אב", "אלול", "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר", "אדר ב", "אדר א"};
         }
 
         mCurrentMonths = findViewById(R.id.currentMonths);
@@ -65,8 +64,20 @@ public class MoladActivity extends AppCompatActivity {
                     mUserChosenDate.get(Calendar.DAY_OF_MONTH));
             dialog.show();
         });
+    }
 
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+        }
+    }
 
+    @Override
+    public void onUserInteraction() {
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+        super.onUserInteraction();
     }
 
     private DatePickerDialog createDialog() {
@@ -83,7 +94,6 @@ public class MoladActivity extends AppCompatActivity {
                 mJewishCalendar);
     }
 
-    @SuppressLint("SetTextI18n")
     private void updateMoladDates() {
         String currentHebrewMonth;
         if (mJewishCalendar.isJewishLeapYear() && mJewishCalendar.getJewishMonth() == JewishDate.ADAR) {
@@ -116,14 +126,5 @@ public class MoladActivity extends AppCompatActivity {
         mMoladDate.setText(mSDF.format(mJewishCalendar.getMoladAsDate()));
         mMoladDate7Days.setText(mSDF.format(mJewishCalendar.getTchilasZmanKidushLevana7Days()));
         mMoladDate15Days.setText(R.string.the_whole_night_of_the_15th_day_of_the_hebrew_month);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 }

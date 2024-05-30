@@ -56,7 +56,7 @@
     <string name="setup_visible_sunrise_only">Setup Visible Sunrise Only</string>
     <string name="do_not_setup_either_uses_mishor_sea_level_sunrise_sunset_for_both_zmanim_and_sunrise">Do Not setup anything\n\n(Uses Mishor/Sea Level Sunrise and Sunset for both zmanim and Sunrise)</string>
     <string name="alternate_download_request">Press this button to download the visible sunrise table from the Chai Tables website:</string>
-    <string name="intro" translatable="false">Welcome!\n\nThe goal of this app is to help you create your own zmanim calendar according to Rabbi Ovadiah Yosef Z\"tl as accurately as possible.\n\nThere are 2 options in order to setup the zmanim for your location.\n\nThe \"Setup your city!\" option will setup the calendar according to the way that the Ohr HaChaim calendar, in Israel, sets it\'s zmanim. Pressing the "Setup your city!" button will take you to a page that will ask you to choose your city/area. Once you choose your city, it will set the elevation data for your city and it will also download a table that lists the times for VISIBLE sunrise throughout the next 2 years from a website called ChaiTables.com. This table will automatically be updated each year if possible.\n\nThe \"Advanced Setup\" option allows you to choose whether you want to set the elevation data for your city, or download the visible sunrise tables, or to do neither one and use Mishor (Sea Level) sunrise.\n\nKnow that the elevation data changes for each and every city and you will need to set the elevation data of your city every time you change cities.</string>
+    <string name="intro">There are 2 options in order to setup the zmanim for your location.\n\nThe \"Setup your city!\" option will setup the calendar according to the way that the Ohr HaChaim calendar, in Israel, sets it\'s zmanim. Pressing the "Setup your city!" button will take you to a page that will ask you to choose your city/area. Once you choose your city, it will download a table that lists the times for VISIBLE sunrise throughout the next 2 years from a website called ChaiTables.com. This table will automatically be updated each year if possible.\n\nThe \"Advanced Setup\" option allows you to choose whether you want to set the elevation data for your city, or download the visible sunrise tables, or to do neither one and use Mishor (Sea Level) sunrise.\n\nKnow that the elevation data changes for each and every city and you will need to set the elevation data of your city every time you change cities.</string>
     <string name="what_language_would_you_like_the_zmanim_to_be_in">What language would you like the zmanim to be in?</string>
     <string name="hebrew">Hebrew</string>
     <string name="english">English</string>
@@ -78,7 +78,7 @@
     <string name="translated_english">Translated English</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="show_introduction">Show Introduction?</string>
+    <string name="show_introduction">Show Introduction</string>
     <string name="ohr_hachaim_nmode">Ohr HaChaim\nSetup</string>
     <string name="if_you_want_to_make_your_zmanim_like_the_ohr_hachaim_calendar_in_israel">Press the button below to download the visible sunrise times for your area. You can choose the advanced setup if you want to specify a link or more options.</string>
     <string name="if_you_want_to_specify_what_to_setup">If you want to specify what to setup:</string>
@@ -97,7 +97,7 @@
     <string name="go_to_the_website_in_the_app">Go to the website in the app</string>
     <string name="set_link">Set Link</string>
     <string name="table_link">Table link</string>
-    <string name="skip">Skip?</string>
+    <string name="skip">Skip</string>
     <string name="geonames">GeoNames</string>
     <string name="area_not_listed">Area not listed?</string>
     <string name="setup_your_city">Setup your city!</string>
@@ -289,7 +289,7 @@
     <string name="by_rav_elbaz">Haskama by Rabbi Elbaz</string>
     <string name="haskamot_message">Choose which haskama you would like to view below.</string>
     <string name="by_rav_dahan">Haskama by Rabbi Dahan</string>
-    <string name="short_app_name">ROYC</string>
+    <string name="short_app_name">זמני יוסף</string>
     <string name="selichot">סליחות</string>
     <string name="purim_disclaimer">Purim prayers will show on the 14th (yesterday)</string>
     <string name="title_activity_netz">Netz Countdown</string>
@@ -342,7 +342,7 @@
     <string name="display_next_upcoming_zman_sticky_notification">Display Next Upcoming Zman Sticky Notification</string>
     <string name="when_you_open_the_app_show_a_notification_that_will_tell_you_when_the_next_zman_is">When you open the app, show a notification that will tell you when the next zman is</string>
     <string name="do_you_want_to_delete_this_location">Do you want to delete this location?</string>
-    <string name="birchat_hachama_dialog">Birchat HaChamah is said today! This occurs once every 28 years, and a person should be careful to say the beracha on the sun early in the morning on this day.\n\nAccording to many poskim, you can say the beracha on the sun all day, however, Rabbi Ovadiah Yosef ZT\"L writes in Chazon Ovadiah Berachot that a person should try to say the beracha before 3 zmaniyot hours into the day. If this time passes, he should say the beracha without hashem\'s name.\n\n Therefore, the minhag of Am Yisrael is to wake up early and pray at Netz on this day and after the Amidah (Kadish Titkabal), they go outside to say the beracha.</string>
+    <string name="birchat_hachama_dialog">Birchat HaChamah is said today! This occurs once every 28 years, and a person should be careful to say the beracha on the sun early in the morning on this day.\n\nAccording to many poskim, you can say the beracha on the sun all day, however, Rabbi Ovadiah Yosef ZT\"L writes in Chazon Ovadiah Berachot that a person should try to say the beracha before 3 zmaniyot hours into the day. If this time passes, he should say the beracha without hashem\'s name.\n\nIt should be noted that it is the minhag of Am Yisrael to wake up early and pray at Netz on this day and after the Amidah (Kadish Titkabal), they go outside to say the beracha.</string>
     <string name="location_hint">ex: New York, USA</string>
     <string name="birchat_hamazon">ברכת המזון</string>
     <string name="when_did_you_start_your_meal">When did you start your meal?</string>

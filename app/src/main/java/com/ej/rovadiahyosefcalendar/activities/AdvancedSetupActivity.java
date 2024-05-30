@@ -8,22 +8,22 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
-import androidx.annotation.NonNull;
+import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.ej.rovadiahyosefcalendar.R;
+import com.google.android.material.appbar.MaterialToolbar;
 
-import org.jetbrains.annotations.NotNull;
+import java.util.Locale;
 
 public class AdvancedSetupActivity extends AppCompatActivity {
 
@@ -31,13 +31,34 @@ public class AdvancedSetupActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_advanced_setup);
+        MaterialToolbar materialToolbar = findViewById(R.id.topAppBar);
+        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            materialToolbar.setSubtitle("");
+        }
+        materialToolbar.setOnMenuItemClickListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.help) {
+                new AlertDialog.Builder(this, R.style.alertDialog)
+                        .setTitle(R.string.help_using_this_app)
+                        .setPositiveButton(R.string.ok, null)
+                        .setMessage(R.string.helper_text)
+                        .show();
+                return true;
+            } else if (id == R.id.restart) {
+                startActivity(new Intent(this, FullSetupActivity.class));
+                finish();
+                return true;
+            }
+            return false;
+        });
         SharedPreferences.Editor editor = getSharedPreferences(SHARED_PREF, MODE_PRIVATE).edit();
 
         EditText tableLink = findViewById(R.id.tableLink);
         Button setLink = findViewById(R.id.set_link_button);
         Button website = findViewById(R.id.chaitables_button);
-        TextView skip = findViewById(R.id.skip);
+        Button skip = findViewById(R.id.skip);
 
         setLink.setOnClickListener(v -> {
             if (tableLink.getText().toString().isEmpty()) {
@@ -91,7 +112,7 @@ public class AdvancedSetupActivity extends AppCompatActivity {
             showDialogBox();
         });
 
-        skip.setPaintFlags(skip.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        skip.setTypeface(Typeface.DEFAULT_BOLD);
         skip.setOnClickListener(v -> {
             editor.putBoolean("UseTable" + sCurrentLocationName, false).apply();
             editor.putBoolean("showMishorSunrise" + sCurrentLocationName, true).apply();
@@ -100,6 +121,16 @@ public class AdvancedSetupActivity extends AppCompatActivity {
                     .putExtra("downloadTable", false)
                     .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
             finish();
+        });
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                startActivity(new Intent(AdvancedSetupActivity.this, SetupChooserActivity.class)
+                        .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+                        .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
+                finish();
+            }
         });
     }
 
@@ -129,35 +160,16 @@ public class AdvancedSetupActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onBackPressed() {
-        startActivity(new Intent(this, SetupChooserActivity.class)
-                .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-                .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
-        finish();
-        super.onBackPressed();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.setup_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull @NotNull MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.help) {
-            new AlertDialog.Builder(this, androidx.appcompat.R.style.Theme_AppCompat_DayNight)
-                    .setTitle(R.string.help_using_this_app)
-                    .setPositiveButton(R.string.ok, null)
-                    .setMessage(R.string.helper_text)
-                    .show();
-            return true;
-        } else if (id == R.id.restart) {
-            startActivity(new Intent(this, FullSetupActivity.class));
-            finish();
-            return true;
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
         }
-        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onUserInteraction() {
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+        super.onUserInteraction();
     }
 }

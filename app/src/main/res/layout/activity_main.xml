@@ -11,6 +11,36 @@
     android:animateLayoutChanges="true"
     tools:context=".activities.MainActivity">
 
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topAppBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="?attr/actionBarSize"
+            app:title="@string/app_name"
+            app:titleCentered="true"
+            app:subtitle="@string/short_app_name"
+            app:subtitleCentered="true"
+            app:menu="@menu/menu_main" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <TextClock
+        android:id="@+id/clock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:format12Hour="h:mm:ss a"
+        android:format24Hour="H:mm:ss"
+        android:layout_gravity="center"
+        android:textSize="20sp"
+        android:gravity="center"
+        tools:text="4:15 PM"/>
+
     <TextView
         android:id="@+id/shabbat_mode"
         android:layout_width="match_parent"
@@ -858,10 +888,10 @@
             android:layout_weight="1"
             android:layout_height="44dp"
             android:padding="1dp"
-            android:background="?android:attr/colorPrimary"
+            android:backgroundTint="?android:attr/colorBackground"
             android:contentDescription="@string/left"
-            android:drawableBottom="@drawable/ic_baseline_arrow_left_24"
-            style="?android:attr/buttonBarButtonStyle" />
+            android:drawableLeft="@drawable/baseline_arrow_back_24"
+            style="?android:attr/button" />
 
         <Button
             android:id="@+id/calendar"
@@ -869,9 +899,9 @@
             android:layout_weight="1"
             android:layout_height="44dp"
             android:padding="10dp"
-            android:background="@color/dark_blue"
+            android:backgroundTint="@color/dark_blue"
             android:contentDescription="@string/change_date"
-            style="?android:attr/buttonBarButtonStyle" />
+            style="?android:attr/button" />
 
         <Button
             android:id="@+id/next_day"
@@ -879,10 +909,10 @@
             android:layout_weight="1"
             android:layout_height="44dp"
             android:padding="1dp"
-            android:background="?android:attr/colorPrimary"
+            android:backgroundTint="?android:attr/colorBackground"
             android:contentDescription="@string/right"
-            android:drawableBottom="@drawable/ic_baseline_arrow_right_24"
-            style="?android:attr/buttonBarButtonStyle" />
+            android:drawableEnd="@drawable/baseline_arrow_forward_24"
+            style="?android:attr/button" />
 
     </LinearLayout>
 </LinearLayout>

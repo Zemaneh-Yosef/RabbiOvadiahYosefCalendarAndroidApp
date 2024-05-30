@@ -101,8 +101,8 @@
             app:title="@string/theme" />
 
         <com.rarepebble.colorpicker.ColorPreference
-            android:defaultValue="@color/colorPrimary"
-            app:colorpicker_selectNoneButtonText="Default/בְּרִירַת מֶחדָל"
+            android:defaultValue="?attr/colorOnBackground"
+            app:colorpicker_selectNoneButtonText="Default/ברירת מחדל"
             app:key="backgroundColor"
             app:selectable="true"
             app:summary="@string/choose_the_color_of_the_background"
@@ -117,14 +117,14 @@
         <com.rarepebble.colorpicker.ColorPreference
             android:defaultValue="#FFFFFFFF"
             app:key="textColor"
-            app:colorpicker_selectNoneButtonText="Default/בְּרִירַת מֶחדָל"
+            app:colorpicker_selectNoneButtonText="Default/ברירת מחדל"
             app:selectable="true"
             app:summary="@string/choose_the_color_of_the_text"
             app:title="@string/set_text_color" />
 
         <com.rarepebble.colorpicker.ColorPreference
             android:defaultValue="@color/dark_blue"
-            app:colorpicker_selectNoneButtonText="Default/בְּרִירַת מֶחדָל"
+            app:colorpicker_selectNoneButtonText="Default/ברירת מחדל"
             app:key="calendarButtonColor"
             app:selectable="true"
             app:summary="@string/choose_the_color_of_the_calendar_button"

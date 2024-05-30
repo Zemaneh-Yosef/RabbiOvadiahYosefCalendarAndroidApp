@@ -10,10 +10,11 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.view.Menu;
-import android.view.MenuItem;
 
+import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
 
@@ -30,14 +31,12 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.maps.android.SphericalUtil;
 import com.kosherjava.zmanim.util.GeoLocation;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.Objects;
 
 public class JerusalemDirectionMapsActivity extends FragmentActivity implements OnMapReadyCallback, SensorEventListener {
 
@@ -59,12 +58,28 @@ public class JerusalemDirectionMapsActivity extends FragmentActivity implements 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
 
         ActivityJerusalemDirectionMapsBinding binding = ActivityJerusalemDirectionMapsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        setActionBar(binding.toolbar);
-        Objects.requireNonNull(getActionBar()).setDisplayHomeAsUpEnabled(true);
+        MaterialToolbar materialToolbar = findViewById(R.id.topAppBar);
+        materialToolbar.setNavigationIcon(AppCompatResources.getDrawable(this, R.drawable.baseline_arrow_back_24));
+        materialToolbar.setNavigationOnClickListener(v -> finish());
+        materialToolbar.setOnMenuItemClickListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.help) {
+                new AlertDialog.Builder(this, R.style.alertDialog)
+                        .setTitle(getString(R.string.help))
+                        .setPositiveButton(R.string.ok, (dialog, which) -> dialog.dismiss())
+                        .setMessage(R.string.jer_dir_help_text)
+                        .show();
+                return true;
+            } else if (item.getItemId() == android.R.id.home) {
+                getOnBackPressedDispatcher().onBackPressed();
+            }
+            return false;
+        });
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -76,13 +91,20 @@ public class JerusalemDirectionMapsActivity extends FragmentActivity implements 
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
         }
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                finish();
+            }
+        });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        sensorManager.registerListener(this, accelerometer, 66000);
-        sensorManager.registerListener(this, magnetometer, 66000);
+        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
+        sensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_UI);
     }
 
     @Override
@@ -234,10 +256,9 @@ public class JerusalemDirectionMapsActivity extends FragmentActivity implements 
 
             if (triMarker != null) {
                 triMarker.setRotation(smoothedAzimuthDegrees);
+                checkIfTriangleShouldBeGreen();
             }
         }
-
-        checkIfTriangleShouldBeGreen();
     }
 
     private void checkIfTriangleShouldBeGreen() {
@@ -261,28 +282,6 @@ public class JerusalemDirectionMapsActivity extends FragmentActivity implements 
                 isTriGreen = false;
             }
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.jer_dir_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull @NotNull MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.help) {
-            new AlertDialog.Builder(this, R.style.alertDialog)
-                    .setTitle(getString(R.string.help))
-                    .setPositiveButton(R.string.ok, (dialog, which) -> dialog.dismiss())
-                    .setMessage(R.string.jer_dir_help_text)
-                    .show();
-            return true;
-        } else if (item.getItemId() == android.R.id.home) {
-            getOnBackPressedDispatcher().onBackPressed();
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override

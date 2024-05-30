@@ -138,8 +138,8 @@ public class SiddurAdapter extends ArrayAdapter<String> implements SensorEventLi
             Sensor magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
             if (accelerometer != null || magnetometer != null) {
-                sensorManager.registerListener(this, accelerometer, 66000);
-                sensorManager.registerListener(this, magnetometer, 66000);
+                sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
+                sensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_UI);
             }
 
             if (accelerometer == null && magnetometer == null) {
@@ -185,8 +185,7 @@ public class SiddurAdapter extends ArrayAdapter<String> implements SensorEventLi
     }
 
     @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-    }
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 
     private float filtrate(Double value) {//Credit to Rafael Sheink
         m_window.add(value);

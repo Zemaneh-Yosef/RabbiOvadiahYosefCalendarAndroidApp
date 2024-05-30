@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -12,109 +13,131 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="12dp"
-        android:gravity="center"
-        android:text="@string/what_language_would_you_like_the_zmanim_to_be_in"
-        android:textColor="?android:attr/textColorPrimary"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:layout_gravity="center"
-        android:layout_margin="28dp"/>
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fitsSystemWindows="true">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="8dp">
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/topAppBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="?attr/actionBarSize"
+                app:title="@string/app_name"
+                app:titleCentered="true"
+                app:subtitle="@string/short_app_name"
+                app:subtitleCentered="true"
+                app:menu="@menu/setup_menu" />
+
+        </com.google.android.material.appbar.AppBarLayout>
 
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:padding="12dp"
             android:gravity="center"
-            android:padding="4dp"
-            android:layout_gravity="bottom"
-            android:layout_weight="1"
-            android:text="@string/hebrew"
+            android:text="@string/what_language_would_you_like_the_zmanim_to_be_in"
             android:textColor="?android:attr/textColorPrimary"
             android:textSize="28sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:layout_gravity="center"
+            android:layout_margin="28dp"/>
 
-        <TextView
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:layout_gravity="bottom"
-            android:layout_weight="1"
-            android:padding="4dp"
-            android:text="@string/english"
-            android:textColor="?android:attr/textColorPrimary"
-            android:textSize="28sp"
-            android:textStyle="bold" />
+            android:padding="8dp">
 
-        <TextView
-            android:layout_width="0dp"
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="4dp"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:text="@string/hebrew"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:padding="4dp"
+                android:text="@string/english"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="4dp"
+                android:layout_weight="1"
+                android:text="@string/translated_english"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:padding="4dp"
-            android:layout_weight="1"
-            android:text="@string/translated_english"
-            android:textColor="?android:attr/textColorPrimary"
-            android:textSize="22sp"
-            android:textStyle="bold" />
-    </LinearLayout>
+            android:orientation="horizontal">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="bottom"
-        android:gravity="bottom"
-        android:orientation="horizontal">
+            <Button
+                android:id="@+id/hebrew"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:background="@drawable/colorful_gradient_square"
+                android:padding="2dp"
+                android:text="@string/hebrew"
+                android:textAlignment="center"
+                android:textAllCaps="false"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:backgroundTint="@null" />
 
-    <Button
-        android:id="@+id/hebrew"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:background="@drawable/colorful_gradient_square"
-        android:layout_margin="4dp"
-        android:padding="2dp"
-        android:text="@string/hebrew"
-        android:textAllCaps="false"
-        android:textColor="@color/black"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_weight="1"
-        style="?android:attr/buttonBarButtonStyle" />
+            <Button
+                android:id="@+id/english"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:background="@drawable/colorful_gradient_square"
+                android:padding="2dp"
+                android:text="@string/english"
+                android:textAlignment="center"
+                android:textAllCaps="false"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                app:backgroundTint="@null" />
 
-    <Button
-        android:id="@+id/english"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:background="@drawable/colorful_gradient_square"
-        android:layout_margin="4dp"
-        android:padding="2dp"
-        android:text="@string/english"
-        android:textAllCaps="false"
-        android:textColor="@color/black"
-        android:textSize="18sp"
-        android:layout_weight="1"
-        style="?android:attr/buttonBarButtonStyle" />
-
-    <Button
-        android:id="@+id/englishTranslated"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:background="@drawable/colorful_gradient_square"
-        android:layout_margin="4dp"
-        android:padding="2dp"
-        android:text="@string/translated_english"
-        android:textAllCaps="false"
-        android:textColor="@color/black"
-        android:textSize="18sp"
-        android:layout_weight="1"
-        style="?android:attr/buttonBarButtonStyle" />
-    </LinearLayout>
+            <Button
+                android:id="@+id/englishTranslated"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:background="@drawable/colorful_gradient_square"
+                android:padding="2dp"
+                android:text="@string/translated_english"
+                android:textAlignment="center"
+                android:textAllCaps="false"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:backgroundTint="@null" />
+        </LinearLayout>
 
     </LinearLayout>
 

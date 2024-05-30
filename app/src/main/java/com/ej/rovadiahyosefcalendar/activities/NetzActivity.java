@@ -4,7 +4,6 @@ import static android.Manifest.permission.ACCESS_BACKGROUND_LOCATION;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -17,6 +16,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowInsets;
 
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -56,15 +56,14 @@ public class NetzActivity extends AppCompatActivity {
      * and a change of the status and navigation bar.
      */
     private static final int UI_ANIMATION_DELAY = 300;
-    private final Handler mHideHandler = new Handler(Looper.myLooper());
+    private final Handler mHideHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
     private View mContentView;
     private final Runnable mHidePart2Runnable = new Runnable() {
-        @SuppressLint("InlinedApi")
         @Override
         public void run() {
             // Delayed removal of status and navigation bar
             if (Build.VERSION.SDK_INT >= 30) {
-                mContentView.getWindowInsetsController().hide(
+                Objects.requireNonNull(mContentView.getWindowInsetsController()).hide(
                         WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars());
             } else {
                 // Note that some of these constants are new as of API 16 (Jelly Bean)
@@ -124,7 +123,7 @@ public class NetzActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        EdgeToEdge.enable(this);
         binding = ActivityNetzBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -303,7 +302,7 @@ public class NetzActivity extends AppCompatActivity {
     private void show() {
         // Show the system bar
         if (Build.VERSION.SDK_INT >= 30) {
-            mContentView.getWindowInsetsController().show(
+            Objects.requireNonNull(mContentView.getWindowInsetsController()).show(
                     WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars());
         } else {
             mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN

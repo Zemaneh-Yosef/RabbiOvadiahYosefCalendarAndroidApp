@@ -47,6 +47,7 @@ public class ZmanimFactory {
         zmanim.add(new ZmanListEntry(zmanimNames.getShmaMgaString(), mROZmanimCalendar.getSofZmanShmaMGA72MinutesZmanis(), true));
         if (mJewishDateInfo.getJewishCalendar().isBirkasHachamah()) {
             ZmanListEntry birchatHachama = new ZmanListEntry(zmanimNames.getBirkatHachamaString(), mROZmanimCalendar.getSofZmanShmaGRA(), true);
+            birchatHachama.setBirchatHachamahZman(true);
             birchatHachama.setNoteworthyZman(true);
             zmanim.add(birchatHachama);
         }
@@ -245,6 +246,7 @@ public class ZmanimFactory {
         zmanim.add(new ZmanListEntry(zmanimNames.getShmaMgaString(), mROZmanimCalendar.getSofZmanShmaMGA72MinutesZmanisAmudeiHoraah(), true));
         if (mJewishDateInfo.getJewishCalendar().isBirkasHachamah()) {
             ZmanListEntry birchatHachama = new ZmanListEntry(zmanimNames.getBirkatHachamaString(), mROZmanimCalendar.getSofZmanShmaGRA(), true);
+            birchatHachama.setBirchatHachamahZman(true);
             birchatHachama.setNoteworthyZman(true);
             zmanim.add(birchatHachama);
         }

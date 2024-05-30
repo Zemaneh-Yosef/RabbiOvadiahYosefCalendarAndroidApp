@@ -25,7 +25,10 @@ public class CustomDatePickerDialog extends DatePickerDialog {
         mContext = context;
         mListener = listener;
         mJewishCalendar = jewishCalendar;
+        setButton(DialogInterface.BUTTON_POSITIVE, context.getString(R.string.ok), this);
+        setButton(DialogInterface.BUTTON_NEGATIVE, context.getString(R.string.cancel), this);
         setButton(DialogInterface.BUTTON_NEUTRAL, context.getString(R.string.switch_calendar), this);
+
     }
 
     @Override
@@ -37,6 +40,8 @@ public class CustomDatePickerDialog extends DatePickerDialog {
             hdmypd.setListener(mListener);
             final FragmentActivity activity = (FragmentActivity) mContext;
             hdmypd.show(activity.getSupportFragmentManager(), null);
+        } else if (which == BUTTON_NEGATIVE) {
+            dialog.dismiss();
         }
     }
 }

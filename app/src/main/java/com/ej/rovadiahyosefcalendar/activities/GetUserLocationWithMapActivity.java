@@ -13,8 +13,6 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -28,7 +26,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -49,11 +50,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.maps.android.SphericalUtil;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.Locale;
 import java.util.TimeZone;
 
 public class GetUserLocationWithMapActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -83,10 +82,23 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
         super.onCreate(savedInstanceState);
 
         binding = ActivityGetUserLocationWithMapBinding.inflate(getLayoutInflater());
+        EdgeToEdge.enable(this);
         setContentView(binding.getRoot());
-
-        setActionBar(binding.toolbar);
-        Objects.requireNonNull(getActionBar()).setDisplayHomeAsUpEnabled(true);
+        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            binding.topAppBar.setSubtitle("");
+        }
+        binding.topAppBar.setNavigationIcon(AppCompatResources.getDrawable(this, R.drawable.baseline_arrow_back_24));
+        binding.topAppBar.setNavigationOnClickListener(v -> finish());
+        binding.topAppBar.setOnMenuItemClickListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.search_for_a_place_legacy) {
+                createZipcodeDialog();
+                return true;
+            } else if (item.getItemId() == R.id.advanced) {
+                createAdvancedDialog();
+            }
+            return false;
+        });
 
         mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
 
@@ -208,6 +220,25 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                     startActivity(new Intent(this, CalendarChooserActivity.class).setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
                 }
                 mSharedPreferences.edit().putBoolean("isSetup", true).apply();
+                finish();
+            }
+        });
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                MainActivity.sCurrentLocationName = bLocationName;
+                sLatitude = bLat;
+                sLongitude = bLong;
+                MainActivity.sCurrentTimeZoneID = bTimezoneID;
+                mSharedPreferences.edit().putString("Zipcode", bZipcode)
+                        .putBoolean("useZipcode", bUseZipcode)
+                        .putBoolean("useAdvanced", bUseAdvanced)
+                        .putBoolean("useLocation1", bUseLocation1)
+                        .putBoolean("useLocation2", bUseLocation2)
+                        .putBoolean("useLocation3", bUseLocation3)
+                        .putBoolean("useLocation4", bUseLocation4)
+                        .putBoolean("useLocation5", bUseLocation5).apply();
                 finish();
             }
         });
@@ -608,40 +639,17 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.search_place_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull @NotNull MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.search_for_a_place_legacy) {
-            createZipcodeDialog();
-            return true;
-        } else if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
-        } else if (item.getItemId() == R.id.advanced) {
-            createAdvancedDialog();
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
         }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        MainActivity.sCurrentLocationName = bLocationName;
-        sLatitude = bLat;
-        sLongitude = bLong;
-        MainActivity.sCurrentTimeZoneID = bTimezoneID;
-        mSharedPreferences.edit().putString("Zipcode", bZipcode)
-                .putBoolean("useZipcode", bUseZipcode)
-                .putBoolean("useAdvanced", bUseAdvanced)
-                .putBoolean("useLocation1", bUseLocation1)
-                .putBoolean("useLocation2", bUseLocation2)
-                .putBoolean("useLocation3", bUseLocation3)
-                .putBoolean("useLocation4", bUseLocation4)
-                .putBoolean("useLocation5", bUseLocation5).apply();
+    public void onUserInteraction() {
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+        super.onUserInteraction();
     }
 
     class ItemAdapter extends RecyclerView.Adapter<ItemViewHolder> {

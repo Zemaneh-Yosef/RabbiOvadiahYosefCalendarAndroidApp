@@ -535,6 +535,26 @@ public class JewishDateInfo {
     }
 
     /**
+     * This method will return the haftarah or haftorah of the current week by rolling the calendar to saturday.
+     * @see WeeklyHaftarahReading
+     * @return a string containing the haftarah or haftorah of the current week
+     */
+    public String getThisWeeksHaftarah() {
+
+        currentDate = jewishCalendar.getGregorianCalendar();
+        Calendar parshaCalendar = jewishCalendar.getGregorianCalendar();
+
+        while (parshaCalendar.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY) {
+            parshaCalendar.add(Calendar.DATE, 1);
+        }
+
+        jewishCalendar.setDate(parshaCalendar);
+        String haftarah = WeeklyHaftarahReading.getThisWeeksHaftarah(jewishCalendar);
+        jewishCalendar.setDate(currentDate);
+        return haftarah;
+    }
+
+    /**
      * This method will return the ordinal of a number. For example, the number 1 will return 1st.
      * @param number the number to get the ordinal number of
      */

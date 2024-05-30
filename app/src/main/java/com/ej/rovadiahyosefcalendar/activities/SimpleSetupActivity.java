@@ -10,23 +10,19 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.graphics.Paint;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
-import android.widget.TextClock;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
+import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.ej.rovadiahyosefcalendar.R;
@@ -34,14 +30,12 @@ import com.ej.rovadiahyosefcalendar.classes.ChaiTablesCountries;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesOptionsList;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesScraper;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Set;
 
 public class SimpleSetupActivity extends AppCompatActivity {
@@ -54,10 +48,29 @@ public class SimpleSetupActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_simple_setup);
 
-        Objects.requireNonNull(getSupportActionBar()).setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-        getSupportActionBar().setCustomView(R.layout.action_bar_custom);//center the title
+        MaterialToolbar materialToolbar = findViewById(R.id.topAppBar);
+        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            materialToolbar.setSubtitle("");
+        }
+        materialToolbar.setOnMenuItemClickListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.help) {
+                new AlertDialog.Builder(this, R.style.alertDialog)
+                        .setTitle(R.string.help_using_this_app)
+                        .setPositiveButton(R.string.ok, null)
+                        .setMessage(R.string.helper_text)
+                        .show();
+                return true;
+            } else if (id == R.id.restart) {
+                startActivity(new Intent(this, FullSetupActivity.class));
+                finish();
+                return true;
+            }
+            return false;
+        });
 
         JewishDate jewishDate = new JewishDate();
         LocationResolver locationResolver = new LocationResolver(this, this);
@@ -215,6 +228,22 @@ public class SimpleSetupActivity extends AppCompatActivity {
             finish();
         });
 
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (getIntent().getBooleanExtra("onlyTable", false)) {
+                    startActivity(new Intent(SimpleSetupActivity.this, AdvancedSetupActivity.class)
+                            .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+                            .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
+                } else {
+                    startActivity(new Intent(SimpleSetupActivity.this, SetupChooserActivity.class)
+                            .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+                            .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
+                }
+                finish();
+            }
+        });
+
         /*This code is from https://stackoverflow.com/questions/7477003/calculating-new-longitude-latitude-from-old-n-meters
         It may be useful in the future if we want to find the highest point in the area.
         double meters = 50;
@@ -238,53 +267,19 @@ public class SimpleSetupActivity extends AppCompatActivity {
         mCountrySpinner.setSelection(mSharedPreferences.getInt("selectedCountry", 0));
         mStateSpinner.setSelection(mSharedPreferences.getInt("selectedState", 0));
         mMetroAreaSpinner.setSelection(mSharedPreferences.getInt("selectedMetroArea", 0));
-        TextClock clock = Objects.requireNonNull(getSupportActionBar()).getCustomView().findViewById(R.id.clock);
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            clock.setVisibility(View.VISIBLE);
-            if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
-                clock.setFormat24Hour("H:mm:ss");
-            }
-        } else {
-            clock.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
         }
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.setup_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull @NotNull MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.help) {
-            new AlertDialog.Builder(this, androidx.appcompat.R.style.Theme_AppCompat_DayNight)
-                    .setTitle(R.string.help_using_this_app)
-                    .setPositiveButton(R.string.ok, null)
-                    .setMessage(R.string.helper_text)
-                    .show();
-            return true;
-        } else if (id == R.id.restart) {
-            startActivity(new Intent(this, FullSetupActivity.class));
-            finish();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (getIntent().getBooleanExtra("onlyTable", false)) {
-            startActivity(new Intent(this, AdvancedSetupActivity.class)
-                    .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-                    .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
-        } else {
-            startActivity(new Intent(this, SetupChooserActivity.class)
-                    .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-                    .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
-        }
-        finish();
-        super.onBackPressed();
+    public void onUserInteraction() {
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+        super.onUserInteraction();
     }
 }

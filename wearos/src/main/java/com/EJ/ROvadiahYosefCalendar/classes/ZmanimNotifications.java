@@ -33,6 +33,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
             Runnable mAlarmUpdater = () -> {
                 JewishCalendar jewishCalendar = new JewishCalendar();
                 ROZmanimCalendar zmanimCalendar = getROZmanimCalendar();
+                zmanimCalendar.setSharedPreferences(mSharedPreferences);
                 String candles = mSharedPreferences.getString("CandleLightingOffset", "20");
                 if (candles.isEmpty()) {
                     candles = "20";

@@ -11,20 +11,23 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
 import android.util.Log;
-import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
 import com.ej.rovadiahyosefcalendar.R;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.rarepebble.colorpicker.ColorPreference;
 
 import java.io.File;
@@ -58,23 +61,35 @@ public class SettingsActivity extends AppCompatActivity {
                 }
                 break;
         }
+        EdgeToEdge.enable(this);
         setContentView(R.layout.settings_activity);
+        MaterialToolbar materialToolbar = findViewById(R.id.topAppBar);
+        materialToolbar.setNavigationIcon(AppCompatResources.getDrawable(this, R.drawable.baseline_arrow_back_24));
+        materialToolbar.setNavigationOnClickListener(v -> finish());
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                finish();
+            }
+        });
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.settings, new SettingsFragment())
                 .commit();
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
         }
     }
 
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
-        }
-        return super.onOptionsItemSelected(item);
+    public void onUserInteraction() {
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+        super.onUserInteraction();
     }
 
     public static class SettingsFragment extends PreferenceFragmentCompat {
@@ -256,7 +271,7 @@ public class SettingsActivity extends AppCompatActivity {
             Preference help = findPreference("help");
             if (help != null) {
                 help.setOnPreferenceClickListener(v -> {
-                    new AlertDialog.Builder(requireContext(), androidx.appcompat.R.style.Theme_AppCompat_DayNight)
+                    new AlertDialog.Builder(requireContext(), R.style.alertDialog)
                             .setTitle(R.string.help_using_this_app)
                             .setPositiveButton(R.string.ok, null)
                             .setMessage(R.string.helper_text)
@@ -284,9 +299,8 @@ public class SettingsActivity extends AppCompatActivity {
                     switch (preference1.getKey()) {
                         case "backgroundColor"://FIXME there is a bug with the dialog that will make the color transparent by default. Only happens for the background
                             if (newValue == null) {
-                                newValue = 0x32312C;//default gray hex
                                 editor.putBoolean("useDefaultBackgroundColor", true)
-                                        .putInt("bColor", (Integer) newValue)
+                                        .putInt("bColor", (Integer) 0x32312C)
                                         .apply();
                             } else {
                                 editor.putBoolean("useDefaultBackgroundColor", false)
@@ -295,7 +309,6 @@ public class SettingsActivity extends AppCompatActivity {
                             }
                             editor.putBoolean("useImage", false)
                                     .putBoolean("customBackgroundColor", true)
-                                    .putInt("bColor", (Integer) newValue)
                                     .apply();
                             break;
                         case "textColor":
@@ -349,10 +362,5 @@ public class SettingsActivity extends AppCompatActivity {
                 break;
         }
         super.onResume();
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
     }
 }

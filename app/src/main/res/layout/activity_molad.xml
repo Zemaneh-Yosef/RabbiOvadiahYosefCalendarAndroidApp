@@ -1,11 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/molad_background_720"
     tools:context=".activities.MoladActivity">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/molad_background_720"
+        android:scaleType="centerCrop"
+        android:contentDescription="@string/molad_calculator" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,6 +25,28 @@
         android:layout_gravity="center"
         android:paddingTop="56dp"
         android:gravity="center">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@null"
+            android:background="@null"
+            android:fitsSystemWindows="true">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/topAppBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="?attr/actionBarSize"
+                android:backgroundTint="@null"
+                android:background="@null"
+                app:title="@string/molad_calculator"
+                app:titleCentered="true"
+                app:subtitle="@string/short_app_name"
+                app:subtitleCentered="true" />
+
+        </com.google.android.material.appbar.AppBarLayout>
 
     <TextView
         android:id="@+id/currentMonths"
@@ -140,4 +173,6 @@
 
     </LinearLayout>
 
-</ScrollView>
+    </ScrollView>
+
+</FrameLayout>

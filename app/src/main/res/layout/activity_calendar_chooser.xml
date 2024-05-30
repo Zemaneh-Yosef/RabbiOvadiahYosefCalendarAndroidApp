@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -12,8 +13,33 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fitsSystemWindows="true">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/topAppBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="?attr/actionBarSize"
+                app:title="@string/app_name"
+                app:titleCentered="true"
+                app:subtitle="@string/short_app_name"
+                app:subtitleCentered="true"
+                app:menu="@menu/setup_menu" />
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_gravity="center"
+        android:layout_marginTop="80dp"
         android:orientation="vertical">
 
     <TextView
@@ -41,14 +67,14 @@
             android:layout_height="150dp"
             android:layout_margin="20dp"
             android:background="@drawable/colorful_gradient"
+            app:backgroundTint="@null"
             android:gravity="center"
             android:padding="8dp"
             android:text="@string/ohr_hachaim"
             android:textColor="@color/black"
             android:textStyle="bold"
             android:textAllCaps="false"
-            android:textSize="28sp"
-            style="?android:attr/buttonBarButtonStyle" />
+            android:textSize="28sp" />
 
         <Button
             android:id="@+id/amudeiHoraahButton"
@@ -57,13 +83,13 @@
             android:padding="8dp"
             android:layout_margin="20dp"
             android:background="@drawable/colorful_gradient"
+            app:backgroundTint="@null"
             android:gravity="center"
             android:text="@string/amudei_horaah"
             android:textColor="@color/black"
             android:textAllCaps="false"
             android:textStyle="bold"
-            android:textSize="28sp"
-            style="?android:attr/buttonBarButtonStyle" />
+            android:textSize="28sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -78,20 +104,25 @@
             android:id="@+id/calendar_chooser_difference"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/what_s_the_difference"
-            style="?android:attr/buttonBarButtonStyle">
+            android:backgroundTint="@color/dark_gold"
+            android:textColor="@color/black"
+            android:drawableEnd="@drawable/baseline_info_outline_24"
+            android:drawableTint="@color/black"
+            android:layout_marginBottom="20dp"
+            android:text="@string/what_s_the_difference">
         </Button>
 
         <Button
             android:id="@+id/calendar_chooser_skip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/skip"
-            style="?android:attr/buttonBarButtonStyle">
+            android:backgroundTint="@color/lightYellow"
+            android:textColor="@color/black"
+            android:text="@string/skip">
         </Button>
 
     </LinearLayout>
-
+    </LinearLayout>
     </LinearLayout>
 
 </ScrollView>

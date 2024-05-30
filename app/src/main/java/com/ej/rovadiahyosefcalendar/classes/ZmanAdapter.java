@@ -19,9 +19,11 @@ import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.ContextCompat;
 import androidx.core.text.HtmlCompat;
 import androidx.preference.PreferenceManager;
@@ -100,8 +102,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             roundUpFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
         }
         roundUpFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
-        dialogBuilder = new AlertDialog.Builder(this.context, R.style.alertDialog);
-        dialogBuilder.setPositiveButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
+        dialogBuilder = new AlertDialog.Builder(this.context, R.style.zmanListAlertDialog);
+        dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
         dialogBuilder.create();
     }
 
@@ -322,6 +324,12 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             holder.mLeftTextView.setTextColor(context.getResources().getColor(com.rarepebble.colorpicker.R.color.disabled_gray, context.getTheme()));
             holder.mRightTextView.setTextColor(context.getResources().getColor(com.rarepebble.colorpicker.R.color.disabled_gray, context.getTheme()));
         }
+
+        if (zmanim.get(position).isBirchatHachamahZman()) {// it only happens every twenty eight years, so we should highlight it
+            holder.itemView.setBackground(AppCompatResources.getDrawable(context, R.drawable.colorful_gradient_square));
+            holder.mLeftTextView.setTextColor(context.getResources().getColor(R.color.black, context.getTheme()));
+            holder.mRightTextView.setTextColor(context.getResources().getColor(R.color.black, context.getTheme()));
+        }
     }
 
     @Override
@@ -345,8 +353,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void resetDialogBuilder() {
-        dialogBuilder = new AlertDialog.Builder(this.context, R.style.alertDialog);
-        dialogBuilder.setPositiveButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
+        dialogBuilder = new AlertDialog.Builder(this.context, R.style.zmanListAlertDialog);
+        dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
         dialogBuilder.create();
     }
 
@@ -563,12 +571,16 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     private void showSunriseDialog() {
         dialogBuilder.setTitle("Sunrise - הנץ - HaNetz")
                 .setMessage(R.string.sunrise_dialog)
-                .setNegativeButton(R.string.setup_visible_sunrise, (dialog, which) ->
-                        sSetupLauncher.launch(new Intent(context, SetupChooserActivity.class).putExtra("fromMenu",true)));
+                .setPositiveButton(R.string.setup_visible_sunrise, (dialog, which) ->
+                        sSetupLauncher.launch(new Intent(context, SetupChooserActivity.class).putExtra("fromMenu",true)))
+                .setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
         AlertDialog dialog = dialogBuilder.create();
         dialog.setOnShowListener(dialogInterface -> {//Make the button stick out for people to see it
-            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setBackground(ContextCompat.getDrawable(context, R.drawable.colorful_gradient_square));
-            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(context.getColor(R.color.black));
+            Button visibleSunrise = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            visibleSunrise.setBackgroundTintMode(null);
+            visibleSunrise.setBackground(ContextCompat.getDrawable(context, R.drawable.colorful_gradient_square));
+            visibleSunrise.setTextColor(context.getColor(R.color.black));
+            visibleSunrise.setTypeface(Typeface.DEFAULT_BOLD);
         });
         dialog.show();
         resetDialogBuilder();

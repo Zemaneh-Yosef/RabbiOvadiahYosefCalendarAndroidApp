@@ -32,7 +32,6 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
@@ -46,10 +45,10 @@ import android.widget.TextClock;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
@@ -81,6 +80,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.Wearable;
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.shape.MaterialShapeDrawable;
 import com.kosherjava.zmanim.hebrewcalendar.Daf;
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
@@ -196,14 +198,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
+        //splashScreen.setKeepOnScreenCondition(() -> false);
+        EdgeToEdge.enable(this);
         if (getActionBar() != null) {// only for emulator
             getActionBar().hide();
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Objects.requireNonNull(getSupportActionBar()).setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-        getSupportActionBar().setCustomView(R.layout.action_bar_custom);//center the title
+        AppBarLayout appBarLayout = findViewById(R.id.app_bar_layout);
+        appBarLayout.setStatusBarForeground(MaterialShapeDrawable.createWithElevationOverlay(this));
         getWindow().getDecorView().setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
 
         mHebrewDateFormatter.setUseGershGershayim(false);
@@ -232,6 +236,7 @@ public class MainActivity extends AppCompatActivity {
         }
         mGestureDetector = new GestureDetector(MainActivity.this, new ZmanimGestureListener());
         mZmanimFormatter.setTimeFormat(ZmanimFormatter.SEXAGESIMAL_FORMAT);
+        initMenu();
         initSetupResult();
         initNotifResult();
         setupShabbatModeBanner();
@@ -297,6 +302,98 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+    }
+
+    private void initMenu() {
+        MaterialToolbar materialToolbar = findViewById(R.id.topAppBar);
+        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            materialToolbar.setSubtitle("");
+        }
+        materialToolbar.setOnMenuItemClickListener(item -> {
+            int id = item.getItemId();
+
+            if (id == R.id.search_for_a_place) {
+                mSharedPreferences.edit().putBoolean("shouldRefresh", true).apply();
+                startActivity(new Intent(MainActivity.this, GetUserLocationWithMapActivity.class));
+                return true;
+            } else if (id == R.id.shabbat_mode) {
+                if (!sShabbatMode && mJewishDateInfo != null && mROZmanimCalendar != null && mMainRecyclerView != null) {
+                    mCurrentDateShown.setTime(new Date());
+                    mJewishDateInfo.setCalendar(new GregorianCalendar());
+                    mROZmanimCalendar.setCalendar(new GregorianCalendar());
+                    startShabbatMode();
+                    if (mSharedPreferences.getBoolean("weeklyMode", false)) {
+                        updateWeeklyZmanim();
+                    } else {
+                        updateDailyZmanim();
+                    }
+                    item.setChecked(true);
+                } else {
+                    endShabbatMode();
+                    if (mSharedPreferences.getBoolean("weeklyMode", false)) {
+                        updateWeeklyZmanim();
+                    } else {
+                        updateDailyZmanim();
+                    }
+                    item.setChecked(false);
+                }
+                return true;
+            } else if (id == R.id.weekly_mode) {
+                mSharedPreferences.edit().putBoolean("weeklyMode", !mSharedPreferences.getBoolean("weeklyMode", false)).apply();
+                item.setChecked(mSharedPreferences.getBoolean("weeklyMode", false));//save the state of the menu item
+                if (mMainRecyclerView == null) {
+                    return true;// Prevent a crash
+                }
+                if (mSharedPreferences.getBoolean("weeklyMode", false)) {
+                    showWeeklyTextViews();
+                    updateWeeklyZmanim();
+                } else {
+                    hideWeeklyTextViews();
+                    updateDailyZmanim();
+                }
+                return true;
+            } else if (id == R.id.use_elevation) {
+                item.setChecked(mSharedPreferences.getBoolean("useElevation", false));//save the state of the menu item
+                mSharedPreferences.edit().putBoolean("useElevation", !mSharedPreferences.getBoolean("useElevation", false)).apply();
+                resolveElevationAndVisibleSunrise();
+                instantiateZmanimCalendar();
+                setNextUpcomingZman();
+                if (mSharedPreferences.getBoolean("weeklyMode", false)) {
+                    updateWeeklyZmanim();
+                } else {
+                    updateDailyZmanim();
+                }
+                return true;
+            } else if (id == R.id.jerDirection) {
+                startActivity(new Intent(MainActivity.this, JerusalemDirectionMapsActivity.class));
+                return true;
+            } else if (id == R.id.netzView) {
+                startActivity(new Intent(MainActivity.this, NetzActivity.class));
+                return true;
+            } else if (id == R.id.molad) {
+                startActivity(new Intent(MainActivity.this, MoladActivity.class));
+                return true;
+            } else if (id == R.id.fullSetup) {
+                mSharedPreferences.edit().putBoolean("shouldRefresh", true).apply();
+                sSetupLauncher.launch(new Intent(MainActivity.this, FullSetupActivity.class)
+                        .putExtra("fromMenu",true));
+                return true;
+            } else if (id == R.id.settings) {
+                mSharedPreferences.edit().putBoolean("shouldRefresh", true).apply();
+                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+                return true;
+            } else if (id == R.id.website) {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.royzmanim.com"));
+                startActivity(browserIntent);
+                return true;
+            }
+            return false;
+        });
+        Menu menu = materialToolbar.getMenu();
+        MenuCompat.setGroupDividerEnabled(menu, true);
+        menu.findItem(R.id.weekly_mode).setChecked(mSharedPreferences.getBoolean("weeklyMode", false));
+        menu.findItem(R.id.use_elevation).setChecked(mSharedPreferences.getBoolean("useElevation", true));
+        menu.findItem(R.id.use_elevation).setVisible(!mSharedPreferences.getBoolean("LuachAmudeiHoraah", false));
     }
 
     public void setLocale(Locale locale) {
@@ -902,6 +999,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void setupRecyclerViewAndTextViews() {
         SwipeRefreshLayout swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
         swipeRefreshLayout.setOnRefreshListener(() -> new Thread(() -> {
@@ -1134,7 +1232,7 @@ public class MainActivity extends AppCompatActivity {
             mSharedPreferences.edit().putBoolean("shouldRefresh", false).apply();
         }
 
-        TextClock clock = Objects.requireNonNull(getSupportActionBar()).getCustomView().findViewById(R.id.clock);
+        TextClock clock = findViewById(R.id.clock);
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             clock.setVisibility(View.VISIBLE);
             if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
@@ -1153,6 +1251,8 @@ public class MainActivity extends AppCompatActivity {
         } else if (mSharedPreferences.getBoolean("customBackgroundColor", false) &&
                 !mSharedPreferences.getBoolean("useDefaultBackgroundColor", false)) {
             mLayout.setBackgroundColor(mSharedPreferences.getInt("bColor", 0x32312C));
+        } else {
+            mLayout.setBackgroundColor(0);
         }
         if (!sShabbatMode) {
             if (mSharedPreferences.getBoolean("useDefaultCalButtonColor", true)) {
@@ -1297,10 +1397,19 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        if (!hasFocus)
+        if (!hasFocus) {
             if (sShabbatMode) {
                 startShabbatMode();
             }
+        } else {
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+        }
+    }
+
+    @Override
+    public void onUserInteraction() {
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+        super.onUserInteraction();
     }
 
     /**
@@ -1358,11 +1467,9 @@ public class MainActivity extends AppCompatActivity {
                         break;
                 }
             }
-            TextClock clock = Objects.requireNonNull(getSupportActionBar()).getCustomView().findViewById(R.id.clock);
+            TextClock clock = findViewById(R.id.clock);
             if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
                 clock.setVisibility(View.VISIBLE);
-                TextView title = getSupportActionBar().getCustomView().findViewById(R.id.appCompatTextView);
-                title.setText(getString(R.string.short_app_name));
                 if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
                     clock.setFormat24Hour("hh:mm:ss");
                 }
@@ -1601,11 +1708,9 @@ public class MainActivity extends AppCompatActivity {
             mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawable());
             mNextDate.setVisibility(View.VISIBLE);
             mPreviousDate.setVisibility(View.VISIBLE);
-            TextClock clock = Objects.requireNonNull(getSupportActionBar()).getCustomView().findViewById(R.id.clock);
+            TextClock clock = findViewById(R.id.clock);
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
                 clock.setVisibility(View.GONE);
-                TextView title = getSupportActionBar().getCustomView().findViewById(R.id.appCompatTextView);
-                title.setText(getString(R.string.app_name));
             }
         }
     }
@@ -1650,6 +1755,8 @@ public class MainActivity extends AppCompatActivity {
         zmanim.add(new ZmanListEntry(sb.toString()));
 
         zmanim.add(new ZmanListEntry(mJewishDateInfo.getThisWeeksParsha()));
+
+        //zmanim.add(new ZmanListEntry(mJewishDateInfo.getThisWeeksHaftarah()));//TODO WIP
 
         mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
         mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
@@ -2126,15 +2233,15 @@ public class MainActivity extends AppCompatActivity {
                         }
                         rtFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
                         if (!Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
-                            mZmanimForAnnouncements.add(rtFormat.format(zman.getZman()) + " : " + zman.getTitle().replaceAll("\\(.*\\)", "").trim());
+                            mZmanimForAnnouncements.add(rtFormat.format(zman.getZman()) + " :" + zman.getTitle().replaceAll("\\(.*\\)", "").trim());
                         } else {
-                            mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + " : " + rtFormat.format(zman.getZman()));
+                            mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + ": " + rtFormat.format(zman.getZman()));
                         }
                     } else {
                         if (!Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
-                            mZmanimForAnnouncements.add(zmanimFormat.format(zman.getZman()) + " : " + zman.getTitle().replaceAll("\\(.*\\)", "").trim());
+                            mZmanimForAnnouncements.add(zmanimFormat.format(zman.getZman()) + " :" + zman.getTitle().replaceAll("\\(.*\\)", "").trim());
                         } else {
-                            mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + " : " + zmanimFormat.format(zman.getZman()));
+                            mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + ": " + zmanimFormat.format(zman.getZman()));
                         }
                     }
                     zmansToRemove.add(zman);
@@ -2146,9 +2253,9 @@ public class MainActivity extends AppCompatActivity {
                     if (zman.isRTZman() && mSettingsPreferences.getBoolean("RoundUpRT", false)) {
                         DateFormat rtFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
                         rtFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
-                        mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + ":" + rtFormat.format(zman.getZman()));
+                        mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + ": " + rtFormat.format(zman.getZman()));
                     } else {
-                        mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + ":" + zmanimFormat.format(zman.getZman()));
+                        mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + ": " + zmanimFormat.format(zman.getZman()));
                     }
                     zmansToRemove.add(zman);
                 }
@@ -2177,15 +2284,15 @@ public class MainActivity extends AppCompatActivity {
                     }
                     rtFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
                     if (!Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
-                        shortZmanim[zmanim.indexOf(zman)] = rtFormat.format(zman.getZman()) + " : " +  zman.getTitle();
+                        shortZmanim[zmanim.indexOf(zman)] = rtFormat.format(zman.getZman()) + " :" +  zman.getTitle();
                     } else {
                         shortZmanim[zmanim.indexOf(zman)] = zman.getTitle() + " : " +  rtFormat.format(zman.getZman());
                     }
                 } else {
                     if (!Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
-                        shortZmanim[zmanim.indexOf(zman)] = zmanimFormat.format(zman.getZman()) + " : " + zman.getTitle().replace("סוף זמן ", "");
+                        shortZmanim[zmanim.indexOf(zman)] = zmanimFormat.format(zman.getZman()) + " :" + zman.getTitle().replace("סוף זמן ", "");
                     } else {
-                        shortZmanim[zmanim.indexOf(zman)] = zman.getTitle().replace("סוף זמן ", "") + " : " + zmanimFormat.format(zman.getZman());
+                        shortZmanim[zmanim.indexOf(zman)] = zman.getTitle().replace("סוף זמן ", "") + ": " + zmanimFormat.format(zman.getZman());
                     }
                 }
                 if (zman.getZman().equals(sNextUpcomingZman)) {
@@ -2201,14 +2308,14 @@ public class MainActivity extends AppCompatActivity {
                 if (zman.isRTZman() && mSettingsPreferences.getBoolean("RoundUpRT", false)) {
                     DateFormat rtFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
                     rtFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
-                    shortZmanim[zmanim.indexOf(zman)] = zman.getTitle() + " : " + rtFormat.format(zman.getZman());
+                    shortZmanim[zmanim.indexOf(zman)] = zman.getTitle() + ": " + rtFormat.format(zman.getZman());
                 } else {
                     shortZmanim[zmanim.indexOf(zman)] = zman.getTitle()
                             .replace("Earliest ","")
                             .replace("Sof Zman ", "")
                             .replace("Hacochavim", "")
                             .replace("Latest ", "")
-                            + " : " + zmanimFormat.format(zman.getZman());
+                            + ": " + zmanimFormat.format(zman.getZman());
                 }
                 if (zman.getZman().equals(sNextUpcomingZman)) {
                     if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
@@ -2392,12 +2499,14 @@ public class MainActivity extends AppCompatActivity {
      * @see LocationResolver#getLocationAsName()
      */
     private void resolveElevationAndVisibleSunrise() {
-        if (sCurrentLocationName.contains("Lat:") && sCurrentLocationName.contains("Long:")
-                && mSettingsPreferences.getBoolean("SetElevationToLastKnownLocation", false)) {//only if the user has enabled the setting to set the elevation to the last known location
-            sUserIsOffline = true;
-            mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mSharedPreferences.getString("name", ""), "0"));//lastKnownLocation
-        } else {//user is online, get the elevation from the shared preferences for the current location
-            mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));//get the last value of the current location or 0 if it doesn't exist
+        if (sCurrentLocationName != null) {// Somehow it is null and crashing in some places
+            if (sCurrentLocationName.contains("Lat:") && sCurrentLocationName.contains("Long:")
+                    && mSettingsPreferences.getBoolean("SetElevationToLastKnownLocation", false)) {//only if the user has enabled the setting to set the elevation to the last known location
+                sUserIsOffline = true;
+                mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mSharedPreferences.getString("name", ""), "0"));//lastKnownLocation
+            } else {//user is online, get the elevation from the shared preferences for the current location
+                mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));//get the last value of the current location or 0 if it doesn't exist
+            }
         }
 
         if (!sUserIsOffline && mSharedPreferences.getBoolean("useElevation", true)
@@ -2431,103 +2540,6 @@ public class MainActivity extends AppCompatActivity {
         }
         finish();
         super.onBackPressed();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        MenuCompat.setGroupDividerEnabled(menu, true);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        menu.findItem(R.id.weekly_mode).setChecked(mSharedPreferences.getBoolean("weeklyMode", false));
-        menu.findItem(R.id.use_elevation).setChecked(mSharedPreferences.getBoolean("useElevation", true));
-        menu.findItem(R.id.use_elevation).setVisible(!mSharedPreferences.getBoolean("LuachAmudeiHoraah", false));
-        return super.onPrepareOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.search_for_a_place) {
-            mSharedPreferences.edit().putBoolean("shouldRefresh", true).apply();
-            startActivity(new Intent(this, GetUserLocationWithMapActivity.class));
-            return true;
-        } else if (id == R.id.shabbat_mode) {
-            if (!sShabbatMode && mJewishDateInfo != null && mROZmanimCalendar != null && mMainRecyclerView != null) {
-                mCurrentDateShown.setTime(new Date());
-                mJewishDateInfo.setCalendar(new GregorianCalendar());
-                mROZmanimCalendar.setCalendar(new GregorianCalendar());
-                startShabbatMode();
-                if (mSharedPreferences.getBoolean("weeklyMode", false)) {
-                    updateWeeklyZmanim();
-                } else {
-                    updateDailyZmanim();
-                }
-                item.setChecked(true);
-            } else {
-                endShabbatMode();
-                if (mSharedPreferences.getBoolean("weeklyMode", false)) {
-                    updateWeeklyZmanim();
-                } else {
-                    updateDailyZmanim();
-                }
-                item.setChecked(false);
-            }
-            return true;
-        } else if (id == R.id.weekly_mode) {
-            mSharedPreferences.edit().putBoolean("weeklyMode", !mSharedPreferences.getBoolean("weeklyMode", false)).apply();
-            item.setChecked(mSharedPreferences.getBoolean("weeklyMode", false));//save the state of the menu item
-            if (mMainRecyclerView == null) {
-                return true;// Prevent a crash
-            }
-            if (mSharedPreferences.getBoolean("weeklyMode", false)) {
-                showWeeklyTextViews();
-                updateWeeklyZmanim();
-            } else {
-                hideWeeklyTextViews();
-                updateDailyZmanim();
-            }
-            return true;
-        } else if (id == R.id.use_elevation) {
-            item.setChecked(mSharedPreferences.getBoolean("useElevation", false));//save the state of the menu item
-            mSharedPreferences.edit().putBoolean("useElevation", !mSharedPreferences.getBoolean("useElevation", false)).apply();
-            resolveElevationAndVisibleSunrise();
-            instantiateZmanimCalendar();
-            setNextUpcomingZman();
-            if (mSharedPreferences.getBoolean("weeklyMode", false)) {
-                updateWeeklyZmanim();
-            } else {
-                updateDailyZmanim();
-            }
-            return true;
-        } else if (id == R.id.jerDirection) {
-            startActivity(new Intent(this, JerusalemDirectionMapsActivity.class));
-            return true;
-        } else if (id == R.id.netzView) {
-            startActivity(new Intent(this, NetzActivity.class));
-            return true;
-        } else if (id == R.id.molad) {
-            startActivity(new Intent(this, MoladActivity.class));
-            return true;
-        } else if (id == R.id.fullSetup) {
-            mSharedPreferences.edit().putBoolean("shouldRefresh", true).apply();
-            sSetupLauncher.launch(new Intent(this, FullSetupActivity.class)
-                    .putExtra("fromMenu",true));
-            return true;
-        } else if (id == R.id.settings) {
-            mSharedPreferences.edit().putBoolean("shouldRefresh", true).apply();
-            startActivity(new Intent(MainActivity.this, SettingsActivity.class));
-            return true;
-        } else if (id == R.id.website) {
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.royzmanim.com"));
-            startActivity(browserIntent);
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     /**

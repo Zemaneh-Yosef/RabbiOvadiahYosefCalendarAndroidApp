@@ -7,26 +7,20 @@ import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.TextClock;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
+import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
-
-import org.jetbrains.annotations.NotNull;
+import com.google.android.material.appbar.MaterialToolbar;
 
 import java.util.Locale;
-import java.util.Objects;
 
 public class FullSetupActivity extends AppCompatActivity {
 
@@ -35,10 +29,31 @@ public class FullSetupActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_full_setup);
-
-        Objects.requireNonNull(getSupportActionBar()).setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-        getSupportActionBar().setCustomView(R.layout.action_bar_custom);//center the title
+        MaterialToolbar materialToolbar = findViewById(R.id.topAppBar);
+        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            materialToolbar.setSubtitle("");
+        }
+        materialToolbar.setOnMenuItemClickListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.help) {
+                new AlertDialog.Builder(this, R.style.alertDialog)
+                        .setTitle(R.string.help_using_this_app)
+                        .setPositiveButton(R.string.ok, null)
+                        .setMessage(R.string.helper_text)
+                        .show();
+                return true;
+            } else if (id == R.id.skipSetup) {
+                finish();
+                return true;
+            } else if (id == R.id.restart) {
+                startActivity(new Intent(this, FullSetupActivity.class));
+                finish();
+                return true;
+            }
+            return false;
+        });
 
         LinearLayout layout = findViewById(R.id.israel_buttons);
         float screenWidth = getResources().getDisplayMetrics().widthPixels / getResources().getDisplayMetrics().density;
@@ -52,20 +67,13 @@ public class FullSetupActivity extends AppCompatActivity {
 
         inIsraelButton.setOnClickListener(v -> saveInfoAndStartActivity(true));
         notInIsrael.setOnClickListener(v -> saveInfoAndStartActivity(false));
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        TextClock clock = Objects.requireNonNull(getSupportActionBar()).getCustomView().findViewById(R.id.clock);
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            clock.setVisibility(View.VISIBLE);
-            if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
-                clock.setFormat24Hour("H:mm:ss");
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                finish();
             }
-        } else {
-            clock.setVisibility(View.GONE);
-        }
+        });
     }
 
     private void saveInfoAndStartActivity(boolean b) {
@@ -90,34 +98,16 @@ public class FullSetupActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.setup_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull @NotNull MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.help) {
-            new AlertDialog.Builder(this, androidx.appcompat.R.style.Theme_AppCompat_DayNight)
-                    .setTitle(R.string.help_using_this_app)
-                    .setPositiveButton(R.string.ok, null)
-                    .setMessage(R.string.helper_text)
-                    .show();
-            return true;
-        } else if (id == R.id.skipSetup) {
-            finish();
-            return true;
-        } else if (id == R.id.restart) {
-            startActivity(new Intent(this, FullSetupActivity.class));
-            finish();
-            return true;
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
         }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
+    public void onUserInteraction() {
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+        super.onUserInteraction();
     }
 }

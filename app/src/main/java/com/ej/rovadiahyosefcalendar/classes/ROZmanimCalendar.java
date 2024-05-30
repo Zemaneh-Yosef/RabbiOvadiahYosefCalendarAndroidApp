@@ -161,8 +161,8 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     }
 
     /**
-     * This method returns the time earliest time that your are allowed to put on your Talit and Tefilin. This is calculated by taking the
-     * {@link #getAlos72Zmanis()} method and adding 6 Shaot Zmaniyot to it. This is the same calculation that is used in the Ohr HaChaim calendar.
+     * This method returns the earliest time that your are allowed to put on your Talit and Tefilin, otherwise known as Misheyakir. This is calculated by taking the
+     * {@link #getAlos72Zmanis()} method and adding 6 Dakot Zmaniyot to it. This is the same calculation that is used in the Ohr HaChaim calendar.
      * @return the earliest time that your are allowed to put on your Talit and Tefilin based on the Ohr HaChaim calendar. 66 minutes before sunrise.
      */
     public Date getEarliestTalitTefilin() {
@@ -248,7 +248,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
 
     /**
      * This method returns the time for the latest time to do Biur Chametz (Burning Chametz). The calculation is based on the Ohr HaChaim calendar
-     * which uses 5 zmaniyot hours based on the MG"A.
+     * which uses 5 zmaniyot hours into the day based on the MG"A.
      * @return the time for the latest time to do Biur Chametz (Burning Chametz) based on the Ohr HaChaim calendar.
      */
     public Date getSofZmanBiurChametzMGA() {
@@ -259,7 +259,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     /**
      * Returns mid-day but with elevation included if set to true. The {@link #getSunTransit()} method uses sea level sunrise and sunset. Whereas, all
      * of the zmanim in the Ohr HaChaim use the sunrise and sunset adjusted for elevation. This method allows the option of using elevation.
-     * This does not affect the time for mid-day by that much.
+     * This has almost no effect on the time for mid-day.
      * @return mid-day but with elevation included if set, and setUseElevation() was set to true.
      */
     public Date getChatzot() {
