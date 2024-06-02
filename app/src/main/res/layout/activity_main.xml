@@ -66,14 +66,14 @@
         android:layout_weight="1"
         tools:visibility="gone">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/mainRV"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:focusable="true"
-        android:descendantFocusability="afterDescendants"
-        app:layout_constrainedHeight="true" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/mainRV"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:focusable="true"
+            android:descendantFocusability="afterDescendants"
+            app:layout_constrainedHeight="true" />
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
@@ -85,792 +85,806 @@
         android:layoutDirection="ltr"
         android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/location_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        tools:text="Great Neck, New York"
-        android:textStyle="bold"
-        android:textSize="11sp"
-        android:textColor="?android:attr/textColorPrimary"
-        android:gravity="center"
-        android:background="@drawable/border"
-        tools:visibility="visible"
-        />
+        <TextView
+            android:id="@+id/location_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="Great Neck, New York"
+            android:textStyle="bold"
+            android:textSize="11sp"
+            android:textColor="?android:attr/textColorPrimary"
+            android:gravity="center"
+            android:background="@drawable/border"
+            tools:visibility="visible"
+            />
 
-    <LinearLayout
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:background="@drawable/border">
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:background="@drawable/border">
+
+            <TextView
+                android:id="@+id/englishMonthYear"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                tools:text="December - January 2022 - 2023"
+                android:textStyle="bold"
+                android:textSize="13sp"
+                android:textColor="?android:attr/textColorPrimary"
+                tools:visibility="visible"
+                />
+
+            <TextView
+                android:id="@+id/hebrewMonthYear"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                tools:text="Nissan 5782 - 5783"
+                android:textStyle="bold"
+                android:textSize="13sp"
+                android:textColor="?android:attr/textColorPrimary"
+                android:gravity="end"
+                tools:visibility="visible"
+                />
+
+        </LinearLayout>
+
+        <!-- This is where the zmanim for sunday are displayed -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:baselineAligned="false"
+            tools:visibility="visible"
+            android:background="@drawable/border">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                tools:ignore="NestedWeights"
+                android:baselineAligned="false">
+
+                <ListView
+                    android:id="@+id/zmanim"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:padding="2dp"
+                    android:textColor="?android:attr/textColorPrimary" />
+
+                <ScrollView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+                    <TextView
+                        android:id="@+id/announcements"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:padding="2dp"
+                        android:background="@drawable/border"
+                        tools:text="Rosh Chodesh \nUlChaparat Pesha" />
+                </ScrollView>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:background="@drawable/border">
+
+                <TextView
+                    android:id="@+id/hebrewDay"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:textSize="16sp"
+                    android:textColor="?android:attr/textColorPrimary"
+                    tools:ignore="NestedWeights"
+                    tools:text="ראשון" />
+
+                <TextView
+                    android:id="@+id/hebrewDate"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:textSize="26sp"
+                    android:textStyle="bold"
+                    android:textColor="?android:attr/textColorPrimary"
+                    tools:text="א" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/englishDay"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="16sp"
+                        android:textColor="?android:attr/textColorPrimary"
+                        tools:ignore="NestedWeights"
+                        tools:text="Sun" />
+
+                    <TextView
+                        android:id="@+id/englishDateNumber"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="?android:attr/textColorPrimary"
+                        tools:text="1" />
+
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- This is where the zmanim for monday are displayed -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:baselineAligned="false"
+            tools:visibility="visible"
+            android:background="@drawable/border">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                tools:ignore="NestedWeights"
+                android:baselineAligned="false">
+
+                <ListView
+                    android:id="@+id/zmanim2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:padding="2dp"
+                    android:textColor="?android:attr/textColorPrimary" />
+
+                <ScrollView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+                    <TextView
+                        android:id="@+id/announcements2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:padding="2dp"
+                        android:background="@drawable/border"
+                        android:textColor="?android:attr/textColorPrimary"
+                        tools:text="Rosh Chodesh \nUlChaparat Pesha" />
+                </ScrollView>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:background="@drawable/border">
+
+                <TextView
+                    android:id="@+id/hebrewDay2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:textSize="16sp"
+                    android:textColor="?android:attr/textColorPrimary"
+                    tools:ignore="NestedWeights"
+                    tools:text="שני" />
+
+                <TextView
+                    android:id="@+id/hebrewDate2"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:textSize="26sp"
+                    android:textStyle="bold"
+                    android:textColor="?android:attr/textColorPrimary"
+                    tools:text="ב" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/englishDay2"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="16sp"
+                        tools:ignore="NestedWeights"
+                        android:textColor="?android:attr/textColorPrimary"
+                        tools:text="Mon" />
+
+                    <TextView
+                        android:id="@+id/englishDateNumber2"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="?android:attr/textColorPrimary"
+                        tools:text="2" />
+
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- This is where the zmanim for tuesday are displayed -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:baselineAligned="false"
+            tools:visibility="visible"
+            android:background="@drawable/border">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                tools:ignore="NestedWeights"
+                android:baselineAligned="false">
+
+                <ListView
+                    android:id="@+id/zmanim3"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:padding="2dp"
+                    android:textColor="?android:attr/textColorPrimary" />
+
+                <ScrollView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+                    <TextView
+                        android:id="@+id/announcements3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:padding="2dp"
+                        android:background="@drawable/border"
+                        android:textColor="?android:attr/textColorPrimary"
+                        tools:text="Rosh Chodesh \nUlChaparat Pesha" />
+                </ScrollView>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:background="@drawable/border">
+
+                <TextView
+                    android:id="@+id/hebrewDay3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:textSize="16sp"
+                    tools:ignore="NestedWeights"
+                    android:textColor="?android:attr/textColorPrimary"
+                    tools:text="שלישי" />
+
+                <TextView
+                    android:id="@+id/hebrewDate3"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:textSize="26sp"
+                    android:textStyle="bold"
+                    android:textColor="?android:attr/textColorPrimary"
+                    tools:text="ג" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/englishDay3"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="16sp"
+                        android:textColor="?android:attr/textColorPrimary"
+                        tools:ignore="NestedWeights"
+                        tools:text="Tues" />
+
+                    <TextView
+                        android:id="@+id/englishDateNumber3"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="?android:attr/textColorPrimary"
+                        tools:text="3" />
+
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- This is where the zmanim for wednesday are displayed -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:baselineAligned="false"
+            tools:visibility="visible"
+            android:background="@drawable/border">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                tools:ignore="NestedWeights"
+                android:baselineAligned="false">
+
+                <ListView
+                    android:id="@+id/zmanim4"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:padding="2dp"
+                    android:textColor="?android:attr/textColorPrimary" />
+
+                <ScrollView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+                    <TextView
+                        android:id="@+id/announcements4"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:padding="2dp"
+                        android:background="@drawable/border"
+                        android:textColor="?android:attr/textColorPrimary"
+                        tools:text="Rosh Chodesh \nUlChaparat Pesha" />
+                </ScrollView>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:background="@drawable/border">
+
+                <TextView
+                    android:id="@+id/hebrewDay4"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:textSize="16sp"
+                    android:textColor="?android:attr/textColorPrimary"
+                    tools:ignore="NestedWeights"
+                    tools:text="רביעי" />
+
+                <TextView
+                    android:id="@+id/hebrewDate4"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:textSize="26sp"
+                    android:textStyle="bold"
+                    android:textColor="?android:attr/textColorPrimary"
+                    tools:text="ד" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/englishDay4"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="16sp"
+                        android:textColor="?android:attr/textColorPrimary"
+                        tools:ignore="NestedWeights"
+                        tools:text="Wed" />
+
+                    <TextView
+                        android:id="@+id/englishDateNumber4"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="?android:attr/textColorPrimary"
+                        tools:text="4" />
+
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- This is where the zmanim for thursday are displayed -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:baselineAligned="false"
+            tools:visibility="visible"
+            android:background="@drawable/border">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                tools:ignore="NestedWeights"
+                android:baselineAligned="false">
+
+                <ListView
+                    android:id="@+id/zmanim5"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:padding="2dp"
+                    android:textColor="?android:attr/textColorPrimary" />
+
+                <ScrollView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+                    <TextView
+                        android:id="@+id/announcements5"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:padding="2dp"
+                        android:background="@drawable/border"
+                        android:textColor="?android:attr/textColorPrimary"
+                        tools:text="Rosh Chodesh \nUlChaparat Pesha" />
+                </ScrollView>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:background="@drawable/border">
+
+                <TextView
+                    android:id="@+id/hebrewDay5"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:textSize="16sp"
+                    android:textColor="?android:attr/textColorPrimary"
+                    tools:ignore="NestedWeights"
+                    tools:text="חמישי" />
+
+                <TextView
+                    android:id="@+id/hebrewDate5"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:textSize="26sp"
+                    android:textStyle="bold"
+                    android:textColor="?android:attr/textColorPrimary"
+                    tools:text="ה" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/englishDay5"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="16sp"
+                        android:textColor="?android:attr/textColorPrimary"
+                        tools:ignore="NestedWeights"
+                        tools:text="Thu" />
+
+                    <TextView
+                        android:id="@+id/englishDateNumber5"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="?android:attr/textColorPrimary"
+                        tools:text="5" />
+
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- This is where the zmanim for friday are displayed -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:baselineAligned="false"
+            tools:visibility="visible"
+            android:background="@drawable/border">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                tools:ignore="NestedWeights"
+                android:baselineAligned="false">
+
+                <ListView
+                    android:id="@+id/zmanim6"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:padding="2dp"
+                    android:textColor="?android:attr/textColorPrimary" />
+
+                <ScrollView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+                    <TextView
+                        android:id="@+id/announcements6"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:padding="2dp"
+                        android:background="@drawable/border"
+                        android:textColor="?android:attr/textColorPrimary"
+                        tools:text="Rosh Chodesh \nUlChaparat Pesha" />
+                </ScrollView>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:background="@drawable/border">
+
+                <TextView
+                    android:id="@+id/hebrewDay6"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:textSize="16sp"
+                    android:textColor="?android:attr/textColorPrimary"
+                    tools:ignore="NestedWeights"
+                    tools:text="שישי" />
+
+                <TextView
+                    android:id="@+id/hebrewDate6"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:textSize="26sp"
+                    android:textStyle="bold"
+                    android:textColor="?android:attr/textColorPrimary"
+                    tools:text="ו" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/englishDay6"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="16sp"
+                        android:textColor="?android:attr/textColorPrimary"
+                        tools:ignore="NestedWeights"
+                        tools:text="Fri" />
+
+                    <TextView
+                        android:id="@+id/englishDateNumber6"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="?android:attr/textColorPrimary"
+                        tools:text="6" />
+
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- This is where the zmanim for saturday are displayed -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:baselineAligned="false"
+            tools:visibility="visible"
+            android:background="@drawable/border">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                tools:ignore="NestedWeights"
+                android:baselineAligned="false">
+
+                <ListView
+                    android:id="@+id/zmanim7"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:padding="2dp"
+                    android:textColor="?android:attr/textColorPrimary" />
+
+                <ScrollView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+                    <TextView
+                        android:id="@+id/announcements7"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:padding="2dp"
+                        android:background="@drawable/border"
+                        android:textColor="?android:attr/textColorPrimary"
+                        tools:text="Rosh Chodesh \nUlChaparat Pesha" />
+                </ScrollView>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:background="@drawable/border">
+
+                <TextView
+                    android:id="@+id/hebrewDay7"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:textSize="16sp"
+                    android:textColor="?android:attr/textColorPrimary"
+                    tools:ignore="NestedWeights"
+                    tools:text="שבת" />
+
+                <TextView
+                    android:id="@+id/hebrewDate7"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:textSize="26sp"
+                    android:textStyle="bold"
+                    android:textColor="?android:attr/textColorPrimary"
+                    tools:text="ז" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/englishDay7"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="16sp"
+                        android:textColor="?android:attr/textColorPrimary"
+                        tools:ignore="NestedWeights"
+                        tools:text="Sat" />
+
+                    <TextView
+                        android:id="@+id/englishDateNumber7"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="?android:attr/textColorPrimary"
+                        tools:text="7" />
+
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
 
         <TextView
-            android:id="@+id/englishMonthYear"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+            android:id="@+id/weeklyDafs"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            tools:text="December - January 2022 - 2023"
+            tools:text="Daf Yomi: בבא קמא דף יג       Yerushalmi Yomi: תורה דף יג"
+            android:textSize="11sp"
+            android:autoSizeTextType="uniform"
+            android:autoSizeMaxTextSize="22sp"
+            android:autoSizeMinTextSize="8sp"
+            android:maxLines="1"
             android:textStyle="bold"
-            android:textSize="13sp"
+            android:gravity="center"
+            android:visibility="gone"
+            android:background="@drawable/border"
+            android:textColor="?android:attr/textColorPrimary"
+            tools:visibility="visible"
+            tools:ignore="UnusedAttribute" />
+
+        <TextView
+            android:id="@+id/weeklyParsha"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="Noach"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:visibility="gone"
+            android:background="@drawable/border"
             android:textColor="?android:attr/textColorPrimary"
             tools:visibility="visible"
             />
 
         <TextView
-            android:id="@+id/hebrewMonthYear"
-            android:layout_width="0dp"
+            android:id="@+id/weeklyHaftorah"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            tools:text="Nissan 5782 - 5783"
+            tools:text="מפטירין: מחר חודש שמואל א כ"
+            android:textSize="16sp"
             android:textStyle="bold"
-            android:textSize="13sp"
+            android:gravity="center"
+            android:visibility="gone"
+            android:background="@drawable/border"
             android:textColor="?android:attr/textColorPrimary"
-            android:gravity="end"
             tools:visibility="visible"
             />
-
-    </LinearLayout>
-
-    <!-- This is where the zmanim for sunday are displayed -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:baselineAligned="false"
-        tools:visibility="visible"
-        android:background="@drawable/border">
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="3"
-            tools:ignore="NestedWeights"
-            android:baselineAligned="false">
-
-            <ListView
-                android:id="@+id/zmanim"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:padding="2dp"
-                android:textColor="?android:attr/textColorPrimary" />
-
-            <ScrollView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1">
-            <TextView
-                android:id="@+id/announcements"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:textColor="?android:attr/textColorPrimary"
-                android:padding="2dp"
-                android:background="@drawable/border"
-                tools:text="Rosh Chodesh \nUlChaparat Pesha" />
-            </ScrollView>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:background="@drawable/border">
-
-            <TextView
-                android:id="@+id/hebrewDay"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:textSize="16sp"
-                android:textColor="?android:attr/textColorPrimary"
-                tools:ignore="NestedWeights"
-                tools:text="ראשון" />
-
-            <TextView
-                android:id="@+id/hebrewDate"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:textSize="26sp"
-                android:textStyle="bold"
-                android:textColor="?android:attr/textColorPrimary"
-                tools:text="א" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/englishDay"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:textSize="16sp"
-                    android:textColor="?android:attr/textColorPrimary"
-                    tools:ignore="NestedWeights"
-                    tools:text="Sun" />
-
-                <TextView
-                    android:id="@+id/englishDateNumber"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="?android:attr/textColorPrimary"
-                    tools:text="1" />
-
-            </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
-
-    <!-- This is where the zmanim for monday are displayed -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:baselineAligned="false"
-        tools:visibility="visible"
-        android:background="@drawable/border">
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="3"
-            tools:ignore="NestedWeights"
-            android:baselineAligned="false">
-
-            <ListView
-                android:id="@+id/zmanim2"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:padding="2dp"
-                android:textColor="?android:attr/textColorPrimary" />
-
-            <ScrollView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1">
-            <TextView
-                android:id="@+id/announcements2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:padding="2dp"
-                android:background="@drawable/border"
-                android:textColor="?android:attr/textColorPrimary"
-                tools:text="Rosh Chodesh \nUlChaparat Pesha" />
-        </ScrollView>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:background="@drawable/border">
-
-            <TextView
-                android:id="@+id/hebrewDay2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:textSize="16sp"
-                android:textColor="?android:attr/textColorPrimary"
-                tools:ignore="NestedWeights"
-                tools:text="שני" />
-
-            <TextView
-                android:id="@+id/hebrewDate2"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:textSize="26sp"
-                android:textStyle="bold"
-                android:textColor="?android:attr/textColorPrimary"
-                tools:text="ב" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/englishDay2"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:textSize="16sp"
-                    tools:ignore="NestedWeights"
-                    android:textColor="?android:attr/textColorPrimary"
-                    tools:text="Mon" />
-
-                <TextView
-                    android:id="@+id/englishDateNumber2"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="?android:attr/textColorPrimary"
-                    tools:text="2" />
-
-            </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
-
-    <!-- This is where the zmanim for tuesday are displayed -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:baselineAligned="false"
-        tools:visibility="visible"
-        android:background="@drawable/border">
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="3"
-            tools:ignore="NestedWeights"
-            android:baselineAligned="false">
-
-            <ListView
-                android:id="@+id/zmanim3"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:padding="2dp"
-                android:textColor="?android:attr/textColorPrimary" />
-
-            <ScrollView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1">
-            <TextView
-                android:id="@+id/announcements3"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:padding="2dp"
-                android:background="@drawable/border"
-                android:textColor="?android:attr/textColorPrimary"
-                tools:text="Rosh Chodesh \nUlChaparat Pesha" />
-        </ScrollView>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:background="@drawable/border">
-
-            <TextView
-                android:id="@+id/hebrewDay3"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:textSize="16sp"
-                tools:ignore="NestedWeights"
-                android:textColor="?android:attr/textColorPrimary"
-                tools:text="שלישי" />
-
-            <TextView
-                android:id="@+id/hebrewDate3"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:textSize="26sp"
-                android:textStyle="bold"
-                android:textColor="?android:attr/textColorPrimary"
-                tools:text="ג" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/englishDay3"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:textSize="16sp"
-                    android:textColor="?android:attr/textColorPrimary"
-                    tools:ignore="NestedWeights"
-                    tools:text="Tues" />
-
-                <TextView
-                    android:id="@+id/englishDateNumber3"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="?android:attr/textColorPrimary"
-                    tools:text="3" />
-
-            </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
-
-    <!-- This is where the zmanim for wednesday are displayed -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:baselineAligned="false"
-        tools:visibility="visible"
-        android:background="@drawable/border">
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="3"
-            tools:ignore="NestedWeights"
-            android:baselineAligned="false">
-
-            <ListView
-                android:id="@+id/zmanim4"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:padding="2dp"
-                android:textColor="?android:attr/textColorPrimary" />
-
-            <ScrollView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1">
-            <TextView
-                android:id="@+id/announcements4"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:padding="2dp"
-                android:background="@drawable/border"
-                android:textColor="?android:attr/textColorPrimary"
-                tools:text="Rosh Chodesh \nUlChaparat Pesha" />
-        </ScrollView>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:background="@drawable/border">
-
-            <TextView
-                android:id="@+id/hebrewDay4"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:textSize="16sp"
-                android:textColor="?android:attr/textColorPrimary"
-                tools:ignore="NestedWeights"
-                tools:text="רביעי" />
-
-            <TextView
-                android:id="@+id/hebrewDate4"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:textSize="26sp"
-                android:textStyle="bold"
-                android:textColor="?android:attr/textColorPrimary"
-                tools:text="ד" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/englishDay4"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:textSize="16sp"
-                    android:textColor="?android:attr/textColorPrimary"
-                    tools:ignore="NestedWeights"
-                    tools:text="Wed" />
-
-                <TextView
-                    android:id="@+id/englishDateNumber4"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="?android:attr/textColorPrimary"
-                    tools:text="4" />
-
-            </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
-
-    <!-- This is where the zmanim for thursday are displayed -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:baselineAligned="false"
-        tools:visibility="visible"
-        android:background="@drawable/border">
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="3"
-            tools:ignore="NestedWeights"
-            android:baselineAligned="false">
-
-            <ListView
-                android:id="@+id/zmanim5"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:padding="2dp"
-                android:textColor="?android:attr/textColorPrimary" />
-
-            <ScrollView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1">
-            <TextView
-                android:id="@+id/announcements5"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:padding="2dp"
-                android:background="@drawable/border"
-                android:textColor="?android:attr/textColorPrimary"
-                tools:text="Rosh Chodesh \nUlChaparat Pesha" />
-            </ScrollView>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:background="@drawable/border">
-
-            <TextView
-                android:id="@+id/hebrewDay5"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:textSize="16sp"
-                android:textColor="?android:attr/textColorPrimary"
-                tools:ignore="NestedWeights"
-                tools:text="חמישי" />
-
-            <TextView
-                android:id="@+id/hebrewDate5"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:textSize="26sp"
-                android:textStyle="bold"
-                android:textColor="?android:attr/textColorPrimary"
-                tools:text="ה" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/englishDay5"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:textSize="16sp"
-                    android:textColor="?android:attr/textColorPrimary"
-                    tools:ignore="NestedWeights"
-                    tools:text="Thu" />
-
-                <TextView
-                    android:id="@+id/englishDateNumber5"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="?android:attr/textColorPrimary"
-                    tools:text="5" />
-
-            </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
-
-    <!-- This is where the zmanim for friday are displayed -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:baselineAligned="false"
-        tools:visibility="visible"
-        android:background="@drawable/border">
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="3"
-            tools:ignore="NestedWeights"
-            android:baselineAligned="false">
-
-            <ListView
-                android:id="@+id/zmanim6"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:padding="2dp"
-                android:textColor="?android:attr/textColorPrimary" />
-
-            <ScrollView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1">
-            <TextView
-                android:id="@+id/announcements6"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:padding="2dp"
-                android:background="@drawable/border"
-                android:textColor="?android:attr/textColorPrimary"
-                tools:text="Rosh Chodesh \nUlChaparat Pesha" />
-            </ScrollView>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:background="@drawable/border">
-
-            <TextView
-                android:id="@+id/hebrewDay6"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:textSize="16sp"
-                android:textColor="?android:attr/textColorPrimary"
-                tools:ignore="NestedWeights"
-                tools:text="שישי" />
-
-            <TextView
-                android:id="@+id/hebrewDate6"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:textSize="26sp"
-                android:textStyle="bold"
-                android:textColor="?android:attr/textColorPrimary"
-                tools:text="ו" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/englishDay6"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:textSize="16sp"
-                    android:textColor="?android:attr/textColorPrimary"
-                    tools:ignore="NestedWeights"
-                    tools:text="Fri" />
-
-                <TextView
-                    android:id="@+id/englishDateNumber6"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="?android:attr/textColorPrimary"
-                    tools:text="6" />
-
-            </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
-
-    <!-- This is where the zmanim for saturday are displayed -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:baselineAligned="false"
-        tools:visibility="visible"
-        android:background="@drawable/border">
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="3"
-            tools:ignore="NestedWeights"
-            android:baselineAligned="false">
-
-            <ListView
-                android:id="@+id/zmanim7"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:padding="2dp"
-                android:textColor="?android:attr/textColorPrimary" />
-
-            <ScrollView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1">
-            <TextView
-                android:id="@+id/announcements7"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:padding="2dp"
-                android:background="@drawable/border"
-                android:textColor="?android:attr/textColorPrimary"
-                tools:text="Rosh Chodesh \nUlChaparat Pesha" />
-            </ScrollView>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:background="@drawable/border">
-
-            <TextView
-                android:id="@+id/hebrewDay7"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:textSize="16sp"
-                android:textColor="?android:attr/textColorPrimary"
-                tools:ignore="NestedWeights"
-                tools:text="שבת" />
-
-            <TextView
-                android:id="@+id/hebrewDate7"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:textSize="26sp"
-                android:textStyle="bold"
-                android:textColor="?android:attr/textColorPrimary"
-                tools:text="ז" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/englishDay7"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:textSize="16sp"
-                    android:textColor="?android:attr/textColorPrimary"
-                    tools:ignore="NestedWeights"
-                    tools:text="Sat" />
-
-                <TextView
-                    android:id="@+id/englishDateNumber7"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="?android:attr/textColorPrimary"
-                    tools:text="7" />
-
-            </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/weeklyDafs"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        tools:text="Daf Yomi: בבא קמא דף יג       Yerushalmi Yomi: תורה דף יג"
-        android:textSize="11sp"
-        android:autoSizeTextType="uniform"
-        android:autoSizeMaxTextSize="22sp"
-        android:autoSizeMinTextSize="8sp"
-        android:maxLines="1"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:visibility="gone"
-        android:background="@drawable/border"
-        android:textColor="?android:attr/textColorPrimary"
-        tools:visibility="visible"
-        tools:ignore="UnusedAttribute" />
-
-    <TextView
-        android:id="@+id/weeklyParsha"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        tools:text="Noach"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:visibility="gone"
-        android:background="@drawable/border"
-        android:textColor="?android:attr/textColorPrimary"
-        tools:visibility="visible"
-        />
 
     </LinearLayout>
 

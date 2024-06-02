@@ -158,8 +158,9 @@ public class MainActivity extends AppCompatActivity {
     private final TextView[] mThursday = new TextView[6];
     private final TextView[] mFriday = new TextView[6];
     private final TextView[] mSaturday = new TextView[6];
-    private TextView mWeeklyParsha;
     private TextView mWeeklyDafs;
+    private TextView mWeeklyParsha;
+    private TextView mWeeklyHaftorah;
 
     //This array holds the zmanim that we want to display in the announcements section of the weekly view:
     private ArrayList<String> mZmanimForAnnouncements;
@@ -497,8 +498,9 @@ public class MainActivity extends AppCompatActivity {
         mLocationName.setVisibility(View.VISIBLE);
         mHebrewMonthYear.setVisibility(View.VISIBLE);
         mainWeekly.setVisibility(View.VISIBLE);
-        mWeeklyParsha.setVisibility(View.VISIBLE);
         mWeeklyDafs.setVisibility(View.VISIBLE);
+        mWeeklyParsha.setVisibility(View.VISIBLE);
+        mWeeklyHaftorah.setVisibility(View.VISIBLE);
         mMainRecyclerView.setVisibility(View.GONE);
         SwipeRefreshLayout swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
         swipeRefreshLayout.setVisibility(View.GONE);
@@ -511,8 +513,9 @@ public class MainActivity extends AppCompatActivity {
         mLocationName.setVisibility(View.GONE);
         mHebrewMonthYear.setVisibility(View.GONE);
         mainWeekly.setVisibility(View.GONE);
-        mWeeklyParsha.setVisibility(View.GONE);
         mWeeklyDafs.setVisibility(View.GONE);
+        mWeeklyParsha.setVisibility(View.GONE);
+        mWeeklyHaftorah.setVisibility(View.GONE);
         mMainRecyclerView.setVisibility(View.VISIBLE);
         SwipeRefreshLayout swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
         swipeRefreshLayout.setVisibility(View.VISIBLE);
@@ -574,6 +577,7 @@ public class MainActivity extends AppCompatActivity {
 
         mWeeklyDafs = findViewById(R.id.weeklyDafs);
         mWeeklyParsha = findViewById(R.id.weeklyParsha);
+        mWeeklyHaftorah = findViewById(R.id.weeklyHaftorah);
         updateWeeklyTextViewTextColor();
     }
     
@@ -628,6 +632,7 @@ public class MainActivity extends AppCompatActivity {
 
             mWeeklyDafs.setTextColor(textColor);
             mWeeklyParsha.setTextColor(textColor);
+            mWeeklyHaftorah.setTextColor(textColor);
         }
     }
 
@@ -1154,7 +1159,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Setup the calendar button.
      */
-    private void setupCalendarButton() {
+    private void setupCalendarButton() {//TODO replace old DatePickerDialog with new MaterialDatePickerDialog
         mCalendarButton = findViewById(R.id.calendar);
         DatePickerDialog dialog = createDialog();
         dialog.setCancelable(true);
@@ -1762,7 +1767,7 @@ public class MainActivity extends AppCompatActivity {
 
         zmanim.add(new ZmanListEntry(mJewishDateInfo.getThisWeeksParsha()));
 
-        //zmanim.add(new ZmanListEntry(mJewishDateInfo.getThisWeeksHaftarah()));//TODO WIP
+        zmanim.add(new ZmanListEntry(mJewishDateInfo.getThisWeeksHaftarah()));
 
         mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
         mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
@@ -2193,6 +2198,7 @@ public class MainActivity extends AppCompatActivity {
         mHebrewMonthYear.setText(hebrewMonthYear);
         mWeeklyDafs.setText(dafs);
         mWeeklyParsha.setText(mJewishDateInfo.getThisWeeksParsha());
+        mWeeklyHaftorah.setText(mJewishDateInfo.getThisWeeksHaftarah());
         mROZmanimCalendar.getCalendar().setTimeInMillis(backupCal.getTimeInMillis());
         mJewishDateInfo.setCalendar(backupCal);
         mCurrentDateShown = backupCal;
