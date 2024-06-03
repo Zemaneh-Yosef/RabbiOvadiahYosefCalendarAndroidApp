@@ -466,6 +466,11 @@ class MainActivity : ComponentActivity() {
         zmanim.add(ZmanListEntry(sb.toString()))
 
         zmanim.add(ZmanListEntry(mJewishDateInfo.thisWeeksParsha))
+        
+        val haftorah = mJewishDateInfo.thisWeeksHaftarah
+        if (haftorah.isNotEmpty()) {
+            zmanim.add(ZmanListEntry(haftorah))
+        }
 
         mROZmanimCalendar.calendar.add(Calendar.DATE, 1)
         mJewishDateInfo.setCalendar(mROZmanimCalendar.calendar)

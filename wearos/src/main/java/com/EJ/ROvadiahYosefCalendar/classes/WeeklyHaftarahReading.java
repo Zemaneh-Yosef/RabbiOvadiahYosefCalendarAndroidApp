@@ -1,4 +1,4 @@
-package com.ej.rovadiahyosefcalendar.classes;
+package com.EJ.ROvadiahYosefCalendar.classes;
 
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
@@ -14,7 +14,7 @@ public class WeeklyHaftarahReading {
     /**
      * This method returns a string that contains the weekly Haftorah. The {@link JewishCalendar}
      * object passed into this method should be set to Saturday because the {@link JewishCalendar#getParshah()}
-     * method returns {@link com.kosherjava.zmanim.hebrewcalendar.JewishCalendar.Parsha#NONE} during
+     * method returns {@link JewishCalendar.Parsha#NONE} during
      * the week.
      * @param jewishCalendar the JewishCalendar object set to Saturday
      * @return The haftorah for this week as a string

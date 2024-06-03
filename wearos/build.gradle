@@ -11,8 +11,8 @@ android {
         applicationId "com.EJ.ROvadiahYosefCalendar"
         minSdk 26
         targetSdk 33 // TODO Update this to 34 when the play store allows it
-        versionCode 174
-        versionName "19.0"
+        versionCode 177
+        versionName "19.3"
         multiDexEnabled true
         vectorDrawables {
             useSupportLibrary true
@@ -57,9 +57,9 @@ dependencies {
     implementation "androidx.compose.material:material:1.6.7"
     implementation "androidx.wear.compose:compose-material:$wear_compose_version"
     implementation "androidx.wear.compose:compose-foundation:$wear_compose_version"
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.7.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.1'
     implementation 'androidx.activity:activity-compose:1.9.0'
-    implementation 'com.google.android.gms:play-services-wearable:18.1.0'
+    implementation 'com.google.android.gms:play-services-wearable:18.2.0'
     implementation "androidx.wear.tiles:tiles:$wear_tiles_version"
     implementation "androidx.wear.tiles:tiles-material:$wear_tiles_version"
     implementation "com.google.android.horologist:horologist-compose-tools:$horologist_version"

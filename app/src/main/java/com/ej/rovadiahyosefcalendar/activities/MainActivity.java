@@ -1767,7 +1767,10 @@ public class MainActivity extends AppCompatActivity {
 
         zmanim.add(new ZmanListEntry(mJewishDateInfo.getThisWeeksParsha()));
 
-        zmanim.add(new ZmanListEntry(mJewishDateInfo.getThisWeeksHaftarah()));
+        String haftorah = mJewishDateInfo.getThisWeeksHaftarah();
+        if (!haftorah.isEmpty()) {
+            zmanim.add(new ZmanListEntry(haftorah));
+        }
 
         mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
         mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
@@ -2198,7 +2201,11 @@ public class MainActivity extends AppCompatActivity {
         mHebrewMonthYear.setText(hebrewMonthYear);
         mWeeklyDafs.setText(dafs);
         mWeeklyParsha.setText(mJewishDateInfo.getThisWeeksParsha());
-        mWeeklyHaftorah.setText(mJewishDateInfo.getThisWeeksHaftarah());
+        if (mJewishDateInfo.getThisWeeksHaftarah().isEmpty()) {
+            mWeeklyHaftorah.setVisibility(View.GONE);
+        } else {
+            mWeeklyHaftorah.setText(mJewishDateInfo.getThisWeeksHaftarah());
+        }
         mROZmanimCalendar.getCalendar().setTimeInMillis(backupCal.getTimeInMillis());
         mJewishDateInfo.setCalendar(backupCal);
         mCurrentDateShown = backupCal;
