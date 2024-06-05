@@ -2,12 +2,12 @@ Dawn is the time that rays of sun can be seen in the lit up Eastern part of the 
 
 - The Night-Time Shema (when omitted due to negligence), Tikkun Hatzot, and the evening prayer are no longer recitable past this time.
 - The obligation to start fulfilling daytime commandments start from this time. As such, since there is an explicit prohibition to eat before prayer, one may not eat anymore.
-   - However, this is not an ideal time to fulfil commandments; they should only be fulfilled at this point when one has a pressing need. Otherwise, it should be delayed until after sunrise (הנץ החמה). Nevertheless, if one erroneously did it at this point, they are still exempt.
+   - However, this is not an ideal time to fulfill commandments; they should only be fulfilled at this point when one has a pressing need. Otherwise, it should be delayed until after sunrise (הנץ החמה). Nevertheless, if one erroneously did it at this point, they are still exempt.
    - Wearing Tallit & Tefilin requires Misheyakir, as they have an explicit start time within Brachot Bavli.
 
 ---
 
-The Talmud Bavli in Pesachim (92b-94a) measures the time between sunset and calculative nightfall, which is then matched to the time interval from dawn to sunrise. We hold by Rabbi Yehuda, who measured the time at 4 mil. Since a singular mil is 18 minutes (Rambam Pirush Mishnayot Brachot 1:1 & Shulchan Aruch O.C. 459:1), one can multiply the length of a mil by the amount of mil needed to find that Alot is 72 seasonal minutes before sunrise.
+The Talmud Bavli in Pesachim (92b-94a) measures the time between sunset and calculative nightfall (72 seasonal minutes), which is then matched to the time interval from dawn to sunrise. We hold by Rabbi Yehuda, who measured the time at 4 mil. Since a singular mil is 18 minutes (Rambam Pirush Mishnayot Brachot 1:1 & Shulchan Aruch O.C. 459:1), one can multiply the length of a mil by the amount of mil needed to find that Alot is 72 seasonal minutes before sunrise.
 - This is the Halichot Olam’s interpretation of “Rambam Pe’er HaDor 44”, recorded in volume 1, pages 106 and 248-250.
 - The definition of *calculative* nightfall (72 seasonal minutes) is not to be confused with what we halachically maintain nightfall is (13.5 seasonal minutes).
 

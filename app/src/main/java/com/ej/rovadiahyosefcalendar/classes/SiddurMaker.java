@@ -538,7 +538,14 @@ public class SiddurMaker {
                 || jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun today")
                 || jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון")
                 || jewishDateInfo.getIsTachanunSaid().equals("There is Tachanun today")
-                || jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון");
+                || jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון")
+                || jewishDateInfo.getIsTachanunSaid().equals("יש מדלגים תחנון במנחה")
+                || jewishDateInfo.getIsTachanunSaid().equals("Some skip Tachanun by mincha");
+
+        if (jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun today")
+                || jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון")) {
+            addToSiddur("[" + jewishDateInfo.getIsTachanunSaid() + "]");
+        }
 
         if (jewishDateInfo.getJewishCalendar().isRoshChodesh()
          || jewishDateInfo.getJewishCalendar().isCholHamoed()
@@ -2791,7 +2798,16 @@ public class SiddurMaker {
         boolean isTachanunSaid = jewishDateInfo.getIsTachanunSaid().equals("There is Tachanun today")
                 || jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון")
                 || jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun today")
-                || jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון");
+                || jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון")
+                || jewishDateInfo.getIsTachanunSaid().equals("יש מדלגים תחנון במנחה")
+                || jewishDateInfo.getIsTachanunSaid().equals("Some skip Tachanun by mincha");
+
+        if (jewishDateInfo.getIsTachanunSaid().equals("Some skip Tachanun by mincha")
+                || jewishDateInfo.getIsTachanunSaid().equals("יש מדלגים תחנון במנחה")
+                || jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun today")
+                || jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון")) {
+            addToSiddur("[" + jewishDateInfo.getIsTachanunSaid() + "]");
+        }
 
         addAvinuMalkeinu(isTachanunSaid);// If Aseret Ymei Tshuvah
 

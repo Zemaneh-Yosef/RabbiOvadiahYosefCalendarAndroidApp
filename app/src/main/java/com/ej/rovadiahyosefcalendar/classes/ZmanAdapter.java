@@ -189,8 +189,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             holder.mMiddleTextView.setText(zmanim.get(position).getTitle());
         }
 
-        if (position == 2) {
-            //make text bold
+        if (position == 2) {// make parasha text bold
             holder.mMiddleTextView.setTypeface(null, Typeface.BOLD);
         }
 
@@ -215,8 +214,16 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                             + " meters" + "\n" +
                             "Time Zone: " + sCurrentTimeZoneID;
                     dialogBuilder.setMessage(locationInfo);
-                    dialogBuilder.setNeutralButton(R.string.change_location, (dialog, which) ->
-                            context.startActivity(new Intent(context, GetUserLocationWithMapActivity.class)));
+                    dialogBuilder.setPositiveButton(R.string.share, ((dialog, which) -> {
+                        Intent sendIntent = new Intent(Intent.ACTION_SEND);
+                        sendIntent.setType("text/plain");
+                        sendIntent.putExtra(Intent.EXTRA_TEXT, "https://royzmanim.com/calendar?locationName=" + sCurrentLocationName.replace(" ", "+").replace(",", "%2C") + "&lat=" + sLatitude + "&long="+ sLongitude + "&elevation=" + getElevation() + "&timeZone=" + sCurrentTimeZoneID);
+                        context.startActivity(Intent.createChooser(sendIntent, context.getString(R.string.share)));
+                    }));
+                    dialogBuilder.setNeutralButton(R.string.change_location, (dialog, which) -> {
+                        mSharedPreferences.edit().putBoolean("shouldRefresh", true).apply();
+                        context.startActivity(new Intent(context, GetUserLocationWithMapActivity.class));
+                    });
                     if (!PreferenceManager.getDefaultSharedPreferences(context).getBoolean("LuachAmudeiHoraah", false)) {
                         dialogBuilder.setNegativeButton(context.getString(R.string.setup_elevation), (dialog, which) ->
                                 sSetupLauncher.launch(new Intent(context, SetupElevationActivity.class).putExtra("fromMenu",true)));
@@ -336,6 +343,15 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     @Override
     public int getItemCount() {
         return zmanim.size();
+    }
+
+    private String getElevation() {
+        double elevation;
+        if (!mSharedPreferences.getBoolean("useElevation", true)) {//if the user has disabled the elevation setting, set the elevation to 0
+            return "0";
+        } else {
+            return mSharedPreferences.getString("elevation" + sCurrentLocationName, "0");
+        }
     }
 
     static class ZmanViewHolder extends RecyclerView.ViewHolder {

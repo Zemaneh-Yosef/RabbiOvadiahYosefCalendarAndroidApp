@@ -457,9 +457,9 @@ public class JewishDateInfo {
         }
         if (yomTovIndexForNextDay == JewishCalendar.YOM_YERUSHALAYIM || yomTovIndexForNextDay == JewishCalendar.YOM_HAATZMAUT) {
             if (isLocaleHebrew) {
-                return "יש אומרים תחנון רק בבוקר";
+                return "יש מדלגים תחנון במנחה";
             }
-            return "Some say Tachanun only in the morning";
+            return "Some skip Tachanun by mincha";
         }
 
         if (currentDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {

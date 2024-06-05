@@ -98,6 +98,7 @@ public class FullSetupActivity extends AppCompatActivity {
             mSharedPreferences.edit().putBoolean("isZmanimEnglishTranslated", false).apply();
             if (ActivityCompat.checkSelfPermission(getApplicationContext(), ACCESS_FINE_LOCATION) != PERMISSION_GRANTED &&
                     !mSharedPreferences.getBoolean("useZipcode", false)) {
+                mSharedPreferences.edit().putBoolean("shouldRefresh", true).apply();
                 startActivity(new Intent(this, GetUserLocationWithMapActivity.class).setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
             } else {
                 if (!b) { // not in israel

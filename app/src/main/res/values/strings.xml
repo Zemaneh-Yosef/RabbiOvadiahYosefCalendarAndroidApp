@@ -358,4 +358,5 @@
     <string name="search">Search</string>
     <string name="the_application_will_not_track_your_location">The application will NOT track your location</string>
    <string name="the_application_will_keep_requesting_your_location">The application will keep requesting your location</string>
+    <string name="share">Share</string>
 </resources>
