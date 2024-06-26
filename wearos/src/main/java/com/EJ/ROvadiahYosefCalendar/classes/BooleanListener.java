@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BooleanListener {
-    private static boolean myBoolean;
+    private static Boolean myBoolean;
     private static final List<BooleanChangedListener> listeners = new ArrayList<>();
 
-    public static boolean getMyBoolean() { return myBoolean; }
-
     public static void setMyBoolean(boolean value) {
-        myBoolean = value;
+        synchronized (myBoolean) {
+            myBoolean = value;
+        }
 
         for (BooleanChangedListener l : listeners) {
             l.OnMyBooleanChanged();

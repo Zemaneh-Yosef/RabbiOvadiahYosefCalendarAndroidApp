@@ -35,6 +35,7 @@ import com.ej.rovadiahyosefcalendar.activities.MainActivity;
 import com.ej.rovadiahyosefcalendar.activities.SetupChooserActivity;
 import com.ej.rovadiahyosefcalendar.activities.SetupElevationActivity;
 import com.ej.rovadiahyosefcalendar.activities.SiddurChooserActivity;
+import com.ej.rovadiahyosefcalendar.activities.SiddurViewActivity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.YomiCalculator;
@@ -193,6 +194,11 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             holder.mMiddleTextView.setTypeface(null, Typeface.BOLD);
         }
 
+        if (zmanim.get(position).getTitle().equals(context.getString(R.string.show_siddur)) ||
+                zmanim.get(position).getTitle().equals(context.getString(R.string.show_siddur) + "*")) {// make parasha text bold
+            holder.mMiddleTextView.setTypeface(null, Typeface.BOLD);
+        }
+
         holder.itemView.setOnClickListener(v -> {
             if (!MainActivity.sShabbatMode && PreferenceManager.getDefaultSharedPreferences(context).getBoolean("showZmanDialogs", true)) {
                 if (isZmanimInHebrew) {
@@ -232,7 +238,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     resetDialogBuilder();
                 }
 
-                // second entry is always the date
+                // second entry (position 1) is always the date
 
                 if (position == 2 && !zmanim.get(position).getTitle().equals("No Weekly Parsha") && !zmanim.get(position).getTitle().equals("אין פרשת שבוע")) {// third entry will always be the weekly parsha
                     String parsha = zmanim.get(position).getTitle().split(" ")[0];//get first word
@@ -257,6 +263,10 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
                 if (zmanim.get(position).getTitle().contains("וּלְכַפָּרַת פֶּשַׁע")) {
                     showUlChaparatPeshaDialog();
+                }
+
+                if (zmanim.get(position).getTitle().contains("ברכת הלבנה") || zmanim.get(position).getTitle().contains("Birchat HaLevana")) {
+                    showBirchatLevanaDialog();
                 }
 
                 if (zmanim.get(position).getTitle().contains(context.getString(R.string.elevation))) {
@@ -747,10 +757,19 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         alertDialog.show();
     }
 
+    private void showBirchatLevanaDialog() {
+        AlertDialog alertDialog = dialogBuilder.setTitle("ברכת הלבנה - Birchat Halevana")
+                .setMessage(R.string.birchat_halevana_)
+                .setPositiveButton(context.getString(R.string.see_full_text), (dialog, which) ->
+                        context.startActivity(new Intent(context, SiddurViewActivity.class).putExtra("prayer", context.getString(R.string.birchat_levana))))
+                .create();
+        alertDialog.show();
+    }
+
     private void showElevationDialog() {
         AlertDialog alertDialog = dialogBuilder.setTitle(context.getString(R.string.elevation))
                 .setMessage(R.string.elevation_dialog)
-                .setNegativeButton(context.getString(R.string.setup_elevation), (dialog, which) ->
+                .setPositiveButton(context.getString(R.string.setup_elevation), (dialog, which) ->
                         sSetupLauncher.launch(new Intent(context, SetupElevationActivity.class).putExtra("fromMenu",true)))
                 .create();
         alertDialog.show();

@@ -18,26 +18,42 @@ import java.util.Locale;
  * @version 1.0
  * @since 1.0
  * @see com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter
+ * @see com.kosherjava.zmanim.hebrewcalendar.TefilaRules
  * @see com.kosherjava.zmanim.hebrewcalendar.JewishCalendar
  * @see com.kosherjava.zmanim.hebrewcalendar.JewishDate
  */
 public class JewishDateInfo {
 
+    /**
+     * The internal Jewish Calendar to manipulate and keep track of the date
+     */
     private final JewishCalendar jewishCalendar;
+    /**
+     * The formatter class used to change the raw numbers/enums from the Jewish Calendar to text
+     */
     private final HebrewDateFormatter hebrewDateFormatter;
+    /**
+     * A class that has multiple methods that can help you find out the "rules" of the day for tefilot/prayers
+     */
     private final TefilaRules tefilaRules;
+    /**
+     * The internal gregorian calendar to manipulate and keep track of the date
+     */
     private Calendar currentDate = Calendar.getInstance();
+    /**
+     * A boolean that in instantiated by the constructor that checks if the user's device is using Hebrew as it's main language
+     */
     private boolean isLocaleHebrew = false;
 
     /**
-     * Constructor of the class.
+     * Constructor of the class that initializes the objects and variables to the current date.
+     * It will also check the user's device to see if it's using Hebrew as it's main language.
      * @param inIsrael boolean value that indicates if the user is in Israel or not
-     * @param useModernHoliday boolean value to indicate whether or not to use modern holidays
      */
-    public JewishDateInfo(boolean inIsrael, boolean useModernHoliday) {
+    public JewishDateInfo(boolean inIsrael) {
         jewishCalendar = new JewishCalendarWithExtraMethods();
         jewishCalendar.setInIsrael(inIsrael);
-        jewishCalendar.setUseModernHolidays(useModernHoliday);
+        jewishCalendar.setUseModernHolidays(true);
         hebrewDateFormatter = new HebrewDateFormatter();
         hebrewDateFormatter.setUseGershGershayim(false);
         if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
@@ -48,7 +64,7 @@ public class JewishDateInfo {
     }
 
     /**
-     * This method is used to get the current calendar object.
+     * This method is used to get the current jewish calendar object.
      * @return the current jewish calendar object
      */
     public JewishCalendarWithExtraMethods getJewishCalendar() {
@@ -65,7 +81,8 @@ public class JewishDateInfo {
     }
 
     /**
-     * This method is used to get the current Rosh Chodesh or Erev Rosh Chodesh.
+     * This method is used to get the current Rosh Chodesh or Erev Rosh Chodesh as a string.
+     * For example: "Erev Rosh Chodesh Nissan" or "Rosh Chodesh Nissan"
      * @return a string containing the current Rosh Chodesh or Erev Rosh Chodesh
      */
     private String getRoshChodeshOrErevRoshChodesh() {
@@ -103,7 +120,10 @@ public class JewishDateInfo {
 
     /**
      * This method is the main method used to get the current holiday or special day and the next holiday or special day if there is one.
-     * @return a string containing the current holiday and the next holiday if there is one
+     * Strings produced by this method will look like this: "Lag Ba'Omer" or if there's more than one
+     * special thing occurring on that day or the next day, it will separate each entry with a slash "/".
+     * If {@link #isLocaleHebrew} is set to true by the constructor, the string produced will be in hebrew.
+     * @return a string containing the current special day and the next special day if there is one.
      */
     public String getSpecialDay(boolean addOmer) {
         String result = "";
@@ -146,7 +166,8 @@ public class JewishDateInfo {
     }
 
     /**
-     * This method is used to add the Taanit Bechorot to the current holiday if it is on the current day.
+     * This method checks if Taanit Bechorot is on the the current day and if it is, it will concat it to the string passed in.
+     * If {@link #isLocaleHebrew} is set to true by the constructor, the string produced will be in hebrew.
      * @return a string containing taanit bechorot or erev taanit bechorot
      */
     private String addTaanitBechorot(String result) {
@@ -186,7 +207,7 @@ public class JewishDateInfo {
     }
 
     /**
-     * This method is used to check if the next day is Taanit Bechorot.
+     * Utility method to check if the next day is Taanit Bechorot.
      * @return a boolean value indicating if the next day is Taanit Bechorot
      */
     private boolean tomorrowIsTaanitBechorot() {
@@ -253,8 +274,10 @@ public class JewishDateInfo {
     }
 
     /**
-     * This method is used to get the holiday for the current day in the form of a string.
-     * @return a string containing the current holiday
+     * This method is used to convert the int constants in the {@link JewishCalendar} class into a string.
+     * TODO: consider replacing this method with a simpler one that uses the {@link HebrewDateFormatter#setTransliteratedHolidayList(String[])} method
+     * @return a string containing the {@link JewishCalendar} class's int constants as a string
+     * @see JewishCalendar
      */
     private String getYomTov() {
         if (isLocaleHebrew) {
@@ -348,30 +371,32 @@ public class JewishDateInfo {
     }
 
     /**
-     * This method is used to get the holiday for the next day in the form of a string.
-     * @return a string containing the next day's holiday
+     * Utility method used to get the yom tov/holiday for the next day in the form of a string.
+     * @return a string containing the next day's yom tov/holiday
      */
     private String getYomTovForNextDay() {
         jewishCalendar.forward(Calendar.DATE, 1);
         String result = getYomTov();
-        jewishCalendar.setDate(currentDate);
+        jewishCalendar.setDate(currentDate);//reset
         return result;
     }
 
     /**
-     * This method is used to get the holiday for the next day in the form of a int as the index in the @see JewishCalendar.getYomTovIndex()
+     * Utility method used to get the yom tov/holiday int constant for the next day
+     * @see JewishCalendar#getYomTovIndex()
      * @return an int containing the next day's holiday as an index
      */
     private int getYomTovIndexForNextDay() {
         jewishCalendar.forward(Calendar.DATE, 1);
         int result = jewishCalendar.getYomTovIndex();
-        jewishCalendar.setDate(currentDate);
+        jewishCalendar.setDate(currentDate);//reset
         return result;
     }
 
     /**
      * This method will return a string containing when to say tachanun for the current date.
      * Here are a list of holidays that it will return a string for no tachanun:
+     * TODO fix this list
      * Rosh Chodesh
      * The entire month of Nissan
      * Pesach Sheni (14th of Iyar)
@@ -474,7 +499,7 @@ public class JewishDateInfo {
     /**
      * This method will return the jewish date as a string.
      * @return a string containing the jewish date. The format is: 15, Iyar 5782
-     * If the Locale language is hebrew, it will be: ט"ו, אייר תשפ"ב
+     * If {@link #isLocaleHebrew} is true, it will be: ט"ו, אייר תשפ"ב
      */
     public String getJewishDate() {
         return jewishCalendar.toString().replace("Teves", "Tevet");
@@ -482,7 +507,8 @@ public class JewishDateInfo {
 
     /**
      * This method will return whether or not this jewish year is a leap year.
-     * @return "This year is a jewish leap year!" if the jewish year is a leap year, "This year is a not a jewish leap year!" otherwise
+     * @return "This year is a jewish leap year!" if the jewish year is a leap year, "This year is a not a jewish leap year!" otherwise.
+     * If {@link #isLocaleHebrew} is true, it will be: "שנה מעוברת" or "אינה שנת מעוברת" respectively
      */
     public String isJewishLeapYear() {
         if (jewishCalendar.isJewishLeapYear()) {
@@ -585,8 +611,7 @@ public class JewishDateInfo {
 
     /**
      * This method will return whether or not the current date is the start time, middle, or end time
-     * for Birchat HaLevana or an empty string
-     * either of those days
+     * for Birchat HaLevana or an empty string on neither of those days
      * @return a string containing the status of birchat halevana this month
      */
     public String getBirchatLevana() {
@@ -603,7 +628,7 @@ public class JewishDateInfo {
                 }
                 return "Birchat HaLevana starts tonight";
             }
-        } else {// Special case for Tisha Beav
+        } else {// Special case for Tisha Beav, see Shulchan Aruch Orach Chaim 426:2
             if (jewishCalendar.getJewishDayOfMonth() < 9) {
                 return "";
             }

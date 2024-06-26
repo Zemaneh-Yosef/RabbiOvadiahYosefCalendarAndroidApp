@@ -39,7 +39,7 @@ public class TekufaNotifications extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         SharedPreferences sp = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
-        JewishDateInfo jewishDateInfo = new JewishDateInfo(sp.getBoolean("inIsrael",false), true);
+        JewishDateInfo jewishDateInfo = new JewishDateInfo(sp.getBoolean("inIsrael",false));
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 

@@ -173,7 +173,7 @@ public class ZmanimFactory {
                 endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString()
                         + " (" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")", mROZmanimCalendar.getTzaisAteretTorah(), true);
             } else if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("2")) {
-                endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString(), mROZmanimCalendar.getTzaitShabbatAmudeiHoraah(), true);
+                endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString() + " (7.14°)", mROZmanimCalendar.getTzaitShabbatAmudeiHoraah(), true);
             } else {
                 endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString(), mROZmanimCalendar.getTzaitShabbatAmudeiHoraahLesserThan40(), true);
             }
@@ -330,7 +330,19 @@ public class ZmanimFactory {
             zmanim.add(fastEnds);
         }
         if (mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting()) {
-            ZmanListEntry endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString(), mROZmanimCalendar.getTzaitShabbatAmudeiHoraah(), true);
+            ZmanListEntry endShabbat;
+            if (!mSettingsPreferences.getBoolean("overrideAHEndShabbatTime", false)) {// default zman
+                endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString() + " (7.14°)", mROZmanimCalendar.getTzaitShabbatAmudeiHoraah(), true);
+            } else {// if user wants to override
+                if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("1")) {
+                    endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString()
+                            + " (" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")", mROZmanimCalendar.getTzaisAteretTorah(), true);
+                } else if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("2")) {
+                    endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString() + " (7.14°)", mROZmanimCalendar.getTzaitShabbatAmudeiHoraah(), true);
+                } else {
+                    endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString(), mROZmanimCalendar.getTzaitShabbatAmudeiHoraahLesserThan40(), true);
+                }
+            }
             endShabbat.setNoteworthyZman(true);
             zmanim.add(endShabbat);
             if (mSettingsPreferences.getBoolean("RoundUpRT", true)) {
@@ -344,7 +356,7 @@ public class ZmanimFactory {
                 rt.setNoteworthyZman(true);
                 zmanim.add(rt);
             }
-            //If it is shabbat/yom tov,we want to dim the tzeit hacochavim zmanim in the GUI
+            //If it is shabbat/yom tov, we want to dim the tzeit hacochavim zmanim in the GUI
             for (ZmanListEntry zman: zmanim) {
                 if (zman.getTitle().equals(zmanimNames.getTzaitHacochavimString()) ||
                         zman.getTitle().equals(zmanimNames.getTzaitHacochavimString() + " " + zmanimNames.getLChumraString())) {

@@ -117,7 +117,7 @@ public class NextZmanCountdownNotification extends Service {
         if (mSharedPreferences.getBoolean("inIsrael", false) && shabbat.equals("40")) {
             mROZmanimCalendar.setAteretTorahSunsetOffset(30);
         }
-        mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false), true);
+        mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false));
         createNotificationChannel();
     }
 

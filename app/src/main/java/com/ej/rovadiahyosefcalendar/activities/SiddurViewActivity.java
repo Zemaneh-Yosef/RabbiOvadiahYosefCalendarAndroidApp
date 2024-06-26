@@ -46,7 +46,7 @@ public class SiddurViewActivity extends AppCompatActivity {
             materialToolbar.setSubtitle("");
         }
 
-        JewishDateInfo mJewishDateInfo = new JewishDateInfo(getSharedPreferences(SHARED_PREF, MODE_PRIVATE).getBoolean("inIsrael", false), true);
+        JewishDateInfo mJewishDateInfo = new JewishDateInfo(getSharedPreferences(SHARED_PREF, MODE_PRIVATE).getBoolean("inIsrael", false));
         mJewishDateInfo.getJewishCalendar().setJewishDate(
                 getIntent().getIntExtra("JewishYear", mJewishDateInfo.getJewishCalendar().getJewishYear()),
                 getIntent().getIntExtra("JewishMonth", mJewishDateInfo.getJewishCalendar().getJewishMonth()),
@@ -75,6 +75,9 @@ public class SiddurViewActivity extends AppCompatActivity {
                     break;
                 case "ברכת המזון":
                     prayers = siddurMaker.getBirchatHamazonPrayers();
+                    break;
+                case "ברכת הלבנה":
+                    prayers = siddurMaker.getBirchatHalevanaPrayers();
                     break;
             }
         }

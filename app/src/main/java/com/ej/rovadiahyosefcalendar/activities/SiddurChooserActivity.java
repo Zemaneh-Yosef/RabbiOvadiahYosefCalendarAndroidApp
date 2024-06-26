@@ -54,7 +54,7 @@ public class SiddurChooserActivity extends AppCompatActivity {
             return false;
         });
 
-        mJewishDateInfo = new JewishDateInfo(getSharedPreferences(SHARED_PREF, MODE_PRIVATE).getBoolean("inIsrael", false), true);
+        mJewishDateInfo = new JewishDateInfo(getSharedPreferences(SHARED_PREF, MODE_PRIVATE).getBoolean("inIsrael", false));
         mJewishDateInfo.getJewishCalendar().setJewishDate(
                 getIntent().getIntExtra("JewishYear", mJewishDateInfo.getJewishCalendar().getJewishYear()),
                 getIntent().getIntExtra("JewishMonth", mJewishDateInfo.getJewishCalendar().getJewishMonth()),
@@ -100,7 +100,7 @@ public class SiddurChooserActivity extends AppCompatActivity {
 
         Button bh = findViewById(R.id.birchat_hamazon);
         bh.setOnClickListener(v -> {
-            JewishDateInfo tomorrow = new JewishDateInfo(getSharedPreferences(SHARED_PREF, MODE_PRIVATE).getBoolean("inIsrael", false), true);
+            JewishDateInfo tomorrow = new JewishDateInfo(mJewishDateInfo.getJewishCalendar().getInIsrael());
             Calendar calendar = (Calendar) mJewishDateInfo.getJewishCalendar().getGregorianCalendar().clone();
             calendar.add(Calendar.DATE, 1);
             tomorrow.setCalendar(calendar);
@@ -116,6 +116,13 @@ public class SiddurChooserActivity extends AppCompatActivity {
                         .show();
             }
         });
+
+        Button birchatLevana = findViewById(R.id.birchat_halevana);
+        birchatLevana.setOnClickListener(v -> startSiddurActivity(getString(R.string.birchat_levana)));
+
+        if (mJewishDateInfo.getBirchatLevana().isEmpty()) {// hide the button if there's no status text returned
+            birchatLevana.setVisibility(View.GONE);
+        }
 
         TextView disclaimer = findViewById(R.id.siddur_disclaimer);
         disclaimer.setGravity(Gravity.CENTER);

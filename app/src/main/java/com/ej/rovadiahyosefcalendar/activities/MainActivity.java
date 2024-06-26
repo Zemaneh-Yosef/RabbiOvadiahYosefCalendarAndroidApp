@@ -45,6 +45,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -245,7 +246,7 @@ public class MainActivity extends AppCompatActivity {
         initNotifResult();
         setupShabbatModeBanner();
         mLocationResolver = new LocationResolver(this, this);
-        mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false), true);
+        mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false));
         if (ChaiTables.visibleSunriseFileDoesNotExist(getExternalFilesDir(null), sCurrentLocationName, mJewishDateInfo.getJewishCalendar())
                 && mSharedPreferences.getBoolean("UseTable" + sCurrentLocationName, true)
                 && !mSharedPreferences.getBoolean("isSetup", false)
@@ -260,12 +261,24 @@ public class MainActivity extends AppCompatActivity {
             initMainView();
         }
 
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (!mBackHasBeenPressed) {
+                    mBackHasBeenPressed = true;
+                    Toast.makeText(MainActivity.this, R.string.press_back_again_to_close_the_app, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                finish();
+            }
+        });
+
         Intent intent = getIntent();
         String action = intent.getAction();
         String type = intent.getType();
 
         if (Intent.ACTION_SEND.equals(action) && type != null) {
-            if ("text/plain".equals(type)) {
+            if (type.equals("text/plain")) {
                 String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
                 if (sharedText != null) {
                     // Update UI to reflect text being shared
@@ -899,7 +912,8 @@ public class MainActivity extends AppCompatActivity {
                         .setPositiveButton(R.string.yes_i_am_in_israel, (dialog, which) -> {
                             mSharedPreferences.edit().putBoolean("inIsrael", true).apply();
                             mSettingsPreferences.edit().putBoolean("LuachAmudeiHoraah", false).apply();
-                            mJewishDateInfo = new JewishDateInfo(true, true);
+                            mJewishDateInfo = new JewishDateInfo(true);
+                            initMenu();
                             Toast.makeText(this, R.string.settings_updated, Toast.LENGTH_SHORT).show();
                             if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                                 updateWeeklyZmanim();
@@ -926,7 +940,7 @@ public class MainActivity extends AppCompatActivity {
                         .setMessage(R.string.if_you_are_not_in_israel_now_please_confirm_below_otherwise_ignore_this_message)
                         .setPositiveButton(R.string.yes_i_have_left_israel, (dialog, which) -> {
                             mSharedPreferences.edit().putBoolean("inIsrael", false).apply();
-                            mJewishDateInfo = new JewishDateInfo(false, true);
+                            mJewishDateInfo = new JewishDateInfo(false);
                             Toast.makeText(this, R.string.settings_updated, Toast.LENGTH_SHORT).show();
                             if (mSharedPreferences.getBoolean("weeklyMode", false)) {
                                 updateWeeklyZmanim();
@@ -1221,7 +1235,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         if (mSharedPreferences.getBoolean("shouldRefresh", false)) {
-            mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false), true);
+            mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false));
             mJewishDateInfo.setCalendar(mCurrentDateShown);
             setZmanimLanguageBools();
             resolveElevationAndVisibleSunrise();
@@ -2548,17 +2562,6 @@ public class MainActivity extends AppCompatActivity {
         if (!mSharedPreferences.getBoolean("useElevation", true)) {//if the user has disabled the elevation setting, set the elevation to 0
             mElevation = 0;
         }
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (!mBackHasBeenPressed) {
-            mBackHasBeenPressed = true;
-            Toast.makeText(this, R.string.press_back_again_to_close_the_app, Toast.LENGTH_SHORT).show();
-            return;
-        }
-        finish();
-        super.onBackPressed();
     }
 
     /**

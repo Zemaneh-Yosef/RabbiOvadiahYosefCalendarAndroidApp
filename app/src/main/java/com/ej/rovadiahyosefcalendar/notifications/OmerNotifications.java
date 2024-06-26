@@ -50,7 +50,7 @@ public class OmerNotifications extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
-        JewishDateInfo jewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false), true);
+        JewishDateInfo jewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false));
         mLocationResolver = new LocationResolver(context, new Activity());
 
         if (mSharedPreferences.getBoolean("isSetup", false)) {

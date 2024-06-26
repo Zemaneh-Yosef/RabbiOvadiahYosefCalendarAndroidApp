@@ -8,23 +8,23 @@
     tools:context=".activities.SiddurChooserActivity">
 
     <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/app_bar_layout"
+        android:id="@+id/app_bar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topAppBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fitsSystemWindows="true">
+            android:minHeight="?attr/actionBarSize"
+            app:title="@string/app_name"
+            app:titleCentered="true"
+            app:subtitle="@string/short_app_name"
+            app:subtitleCentered="true"
+            app:menu="@menu/siddur_chooser_menu" />
 
-            <com.google.android.material.appbar.MaterialToolbar
-                android:id="@+id/topAppBar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="?attr/actionBarSize"
-                app:title="@string/app_name"
-                app:titleCentered="true"
-                app:subtitle="@string/short_app_name"
-                app:subtitleCentered="true"
-                app:menu="@menu/siddur_chooser_menu" />
-
-        </com.google.android.material.appbar.AppBarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -37,114 +37,127 @@
             android:layout_gravity="center"
             android:gravity="center">
 
-        <TextView
-            android:id="@+id/jewish_special_day"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="36dp"
-            android:textSize="26sp"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:textColor="?android:attr/textColorPrimary"
-            />
+            <TextView
+                android:id="@+id/jewish_special_day"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="36dp"
+                android:textSize="26sp"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textColor="?android:attr/textColorPrimary"
+                />
 
-        <Button
-            android:id="@+id/selichot"
-            android:layout_width="312dp"
-            android:layout_height="wrap_content"
-            android:text="@string/selichot"
-            android:textStyle="bold"
-            android:textSize="26sp"
-            android:textColor="@color/black"
-            app:backgroundTint="@null"
-            android:background="@drawable/colorful_gradient_square">
-        </Button>
-        <Button
-            android:id="@+id/shacharit"
-            android:layout_width="312dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:text="@string/shacharit"
-            android:textStyle="bold"
-            android:textSize="26sp"
-            android:textColor="@color/black"
-            app:backgroundTint="@null"
-            android:background="@drawable/colorful_gradient_square">
-        </Button>
-        <Button
-            android:id="@+id/mussaf"
-            android:layout_width="312dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:text="@string/mussaf"
-            android:textStyle="bold"
-            android:textSize="26sp"
-            android:textColor="@color/black"
-            app:backgroundTint="@null"
-            android:background="@drawable/colorful_gradient_square">
-        </Button>
-        <Button
-            android:id="@+id/mincha"
-            android:layout_width="312dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:text="@string/mincha"
-            android:textStyle="bold"
-            android:textSize="26sp"
-            android:textColor="@color/black"
-            app:backgroundTint="@null"
-            android:background="@drawable/colorful_gradient_square">
-        </Button>
-        <Button
-            android:id="@+id/neilah"
-            android:layout_width="312dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:text="@string/neilah"
-            android:textStyle="bold"
-            android:textSize="26sp"
-            android:textColor="@color/black"
-            app:backgroundTint="@null"
-            android:background="@drawable/colorful_gradient_square">
-        </Button>
-        <Button
-            android:id="@+id/arvit"
-            android:layout_width="312dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:text="@string/arvit"
-            android:textStyle="bold"
-            android:textSize="26sp"
-            android:textColor="@color/black"
-            app:backgroundTint="@null"
-            android:background="@drawable/colorful_gradient_square">
-        </Button>
+            <Button
+                android:id="@+id/selichot"
+                android:layout_width="312dp"
+                android:layout_height="wrap_content"
+                android:text="@string/selichot"
+                android:textStyle="bold"
+                android:textSize="26sp"
+                android:textColor="@color/black"
+                app:backgroundTint="@null"
+                android:background="@drawable/colorful_gradient_square">
+            </Button>
+            <Button
+                android:id="@+id/shacharit"
+                android:layout_width="312dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:text="@string/shacharit"
+                android:textStyle="bold"
+                android:textSize="26sp"
+                android:textColor="@color/black"
+                app:backgroundTint="@null"
+                android:background="@drawable/colorful_gradient_square">
+            </Button>
+            <Button
+                android:id="@+id/mussaf"
+                android:layout_width="312dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:text="@string/mussaf"
+                android:textStyle="bold"
+                android:textSize="26sp"
+                android:textColor="@color/black"
+                app:backgroundTint="@null"
+                android:background="@drawable/colorful_gradient_square">
+            </Button>
+            <Button
+                android:id="@+id/mincha"
+                android:layout_width="312dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:text="@string/mincha"
+                android:textStyle="bold"
+                android:textSize="26sp"
+                android:textColor="@color/black"
+                app:backgroundTint="@null"
+                android:background="@drawable/colorful_gradient_square">
+            </Button>
+            <Button
+                android:id="@+id/neilah"
+                android:layout_width="312dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:text="@string/neilah"
+                android:textStyle="bold"
+                android:textSize="26sp"
+                android:textColor="@color/black"
+                app:backgroundTint="@null"
+                android:background="@drawable/colorful_gradient_square">
+            </Button>
+            <Button
+                android:id="@+id/arvit"
+                android:layout_width="312dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:text="@string/arvit"
+                android:textStyle="bold"
+                android:textSize="26sp"
+                android:textColor="@color/black"
+                app:backgroundTint="@null"
+                android:background="@drawable/colorful_gradient_square">
+            </Button>
 
-        <Button
-            android:id="@+id/birchat_hamazon"
-            android:layout_width="312dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:text="@string/birchat_hamazon"
-            android:textStyle="bold"
-            android:textSize="26sp"
-            android:textColor="@color/black"
-            app:backgroundTint="@null"
-            android:background="@drawable/colorful_gradient_square">
-        </Button>
+            <Button
+                android:id="@+id/birchat_hamazon"
+                android:layout_width="312dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:text="@string/birchat_hamazon"
+                android:textStyle="bold"
+                android:textSize="26sp"
+                android:textColor="@color/black"
+                app:backgroundTint="@null"
+                android:background="@drawable/colorful_gradient_square">
+            </Button>
 
-        <TextView
-            android:id="@+id/siddur_disclaimer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="36dp"
-            android:linksClickable="true"
-            android:visibility="gone"
-            tools:visibility="visible"
-            tools:text="Purim prayers will show yesterday (the 14th)"
-            />
+            <Button
+                android:id="@+id/birchat_halevana"
+                android:layout_width="312dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:text="@string/birchat_levana"
+                android:textStyle="bold"
+                android:textSize="26sp"
+                android:textColor="@color/black"
+                app:backgroundTint="@null"
+                android:background="@drawable/colorful_gradient_square">
+            </Button>
 
-    </LinearLayout>
+            <TextView
+                android:id="@+id/siddur_disclaimer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="36dp"
+                android:linksClickable="true"
+                android:visibility="gone"
+                tools:visibility="visible"
+                tools:text="Purim prayers will show yesterday (the 14th)"
+                />
+
+        </LinearLayout>
 
     </ScrollView>
 
