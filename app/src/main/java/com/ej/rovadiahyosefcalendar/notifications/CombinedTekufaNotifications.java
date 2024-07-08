@@ -78,7 +78,7 @@ public class CombinedTekufaNotifications extends BroadcastReceiver {
 
         if (earlierTekufaTime != null) {//it should never be null, but just in case
             Date halfHourBefore = new Date(earlierTekufaTime.getTime() - DateUtils.MILLIS_PER_HOUR/2);
-            Date tekufaTime = new Date(earlierTekufaTime.getTime() + DateUtils.MILLIS_PER_MINUTE + 21);
+            Date tekufaTime = new Date(earlierTekufaTime.getTime() + (DateUtils.MILLIS_PER_MINUTE * 21));
             Date halfHourAfterPlus21Minutes = new Date(earlierTekufaTime.getTime() + DateUtils.MILLIS_PER_HOUR/2 + (DateUtils.MILLIS_PER_MINUTE * 21));
 
             NotificationCompat.Builder mNotifyBuilder;

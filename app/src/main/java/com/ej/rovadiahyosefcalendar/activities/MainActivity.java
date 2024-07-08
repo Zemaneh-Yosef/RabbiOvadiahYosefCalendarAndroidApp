@@ -27,6 +27,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -1378,7 +1379,7 @@ public class MainActivity extends AppCompatActivity {
                 builder.setTitle(R.string.zmanim_notifications_will_not_work);
                 builder.setMessage(R.string.if_you_would_like_to_receive_zmanim_notifications);
                 builder.setCancelable(false);
-                builder.setPositiveButton(getString(R.string.yes), (dialog, which) -> sNotificationLauncher.launch(new Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:"+ getPackageName()))));
+                builder.setPositiveButton(getString(R.string.yes), (dialog, which) -> sNotificationLauncher.launch(new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:"+ getPackageName()))));
                 builder.setNegativeButton(getString(R.string.no), (dialog, which) -> dialog.dismiss());
                 builder.show();
             }
@@ -1860,16 +1861,17 @@ public class MainActivity extends AppCompatActivity {
         }
 
         String tekufaOpinions = mSettingsPreferences.getString("TekufaOpinions", "1");
-        if (tekufaOpinions.equals("1")) {
+        if (tekufaOpinions.equals("1") && !mSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
             addTekufaTime(zmanim, false);
         }
-        if (tekufaOpinions.equals("2")) {
+        if (tekufaOpinions.equals("2") || mSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
             addAmudeiHoraahTekufaTime(zmanim, false);
         }
         if (tekufaOpinions.equals("3")) {
-            addTekufaTime(zmanim, false);
             addAmudeiHoraahTekufaTime(zmanim, false);
+            addTekufaTime(zmanim, false);
         }
+        addTekufaLength(zmanim, tekufaOpinions);
 
         addZmanim(zmanim, false, mSettingsPreferences, mSharedPreferences, mROZmanimCalendar, mJewishDateInfo, mIsZmanimInHebrew, mIsZmanimEnglishTranslated);
 
@@ -2028,15 +2030,15 @@ public class MainActivity extends AppCompatActivity {
 
         List<ZmanListEntry> tekufa = new ArrayList<>();
         String tekufaOpinions = mSettingsPreferences.getString("TekufaOpinions", "1");
-        if (tekufaOpinions.equals("1")) {
-            addTekufaTime(tekufa, true);
+        if (tekufaOpinions.equals("1") && !mSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
+            addTekufaTime(tekufa, false);
         }
-        if (tekufaOpinions.equals("2")) {
-            addAmudeiHoraahTekufaTime(tekufa, true);
+        if (tekufaOpinions.equals("2") || mSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
+            addAmudeiHoraahTekufaTime(tekufa, false);
         }
         if (tekufaOpinions.equals("3")) {
-            addTekufaTime(tekufa, true);
-            addAmudeiHoraahTekufaTime(tekufa, true);
+            addAmudeiHoraahTekufaTime(tekufa, false);
+            addTekufaTime(tekufa, false);
         }
         if (!tekufa.isEmpty()) {
             for (ZmanListEntry tekufaEntry : tekufa) {
@@ -2378,7 +2380,7 @@ public class MainActivity extends AppCompatActivity {
         zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
         mROZmanimCalendar.getCalendar().add(Calendar.DATE,1);//check next day for tekufa, because the tekufa time can go back a day
         mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
-        mROZmanimCalendar.getCalendar().add(Calendar.DATE,-1);//reset the calendar
+        mROZmanimCalendar.getCalendar().add(Calendar.DATE,-1);//reset the calendar to check for the current date
         if (mJewishDateInfo.getJewishCalendar().getTekufa() != null) {
 
             final Calendar cal1 = (Calendar) mROZmanimCalendar.getCalendar().clone();
@@ -2458,7 +2460,7 @@ public class MainActivity extends AppCompatActivity {
         zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
         mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);//check next day for tekufa, because the tekufa time can go back a day
         mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
-        mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);//reset the calendar
+        mROZmanimCalendar.getCalendar().add(Calendar.DATE,-1);//reset the calendar to check for the current date
 
         if (mJewishDateInfo.getJewishCalendar().getTekufa() != null) {
 
@@ -2518,6 +2520,85 @@ public class MainActivity extends AppCompatActivity {
                         zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " is today at " +
                                 zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
                     }
+                }
+            }
+        }
+    }
+
+    public void addTekufaLength(List<ZmanListEntry> zmanim, String opinion) {
+        DateFormat zmanimFormat;
+        if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+            zmanimFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
+        } else {
+            zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+        }
+        zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
+
+        Date tekufa = null;
+        Date aHTekufa = null;
+
+        mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);//check next day for tekufa, because the tekufa time can go back a day
+        mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
+        mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);//reset the calendar to check for the current date
+
+        if (mJewishDateInfo.getJewishCalendar().getTekufa() != null) {
+
+            final Calendar cal1 = (Calendar) mROZmanimCalendar.getCalendar().clone();
+            final Calendar cal2 = (Calendar) mROZmanimCalendar.getCalendar().clone();
+            cal2.setTime(mJewishDateInfo.getJewishCalendar().getTekufaAsDate());// should not be null in this if block
+
+            if (cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA) &&
+                    cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+                    cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
+                tekufa = mJewishDateInfo.getJewishCalendar().getTekufaAsDate();
+                aHTekufa = mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate();
+            }
+        }
+        mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());//reset
+
+        //else the tekufa time is on the same day as the current date, so we can add it normally
+        if (mJewishDateInfo.getJewishCalendar().getTekufa() != null) {
+
+            final Calendar cal1 = (Calendar) mROZmanimCalendar.getCalendar().clone();
+            final Calendar cal2 = (Calendar) mROZmanimCalendar.getCalendar().clone();
+            cal2.setTime(mJewishDateInfo.getJewishCalendar().getTekufaAsDate());// should not be null in this if block
+
+            if (cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA) &&
+                    cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+                    cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
+                tekufa = mJewishDateInfo.getJewishCalendar().getTekufaAsDate();
+                aHTekufa = mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate();
+            }
+        }
+
+        if (tekufa != null && aHTekufa != null) {
+            Date halfHourBefore;
+            Date halfHourAfter;
+            if (opinion.equals("1") && !mSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
+                halfHourBefore = new Date(tekufa.getTime() - (DateUtils.MILLIS_PER_HOUR / 2));
+                halfHourAfter = new Date(tekufa.getTime() + (DateUtils.MILLIS_PER_HOUR / 2));
+                if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                    zmanim.add(new ZmanListEntry(getString(R.string.tekufa_length) + zmanimFormat.format(halfHourAfter) + " - " + zmanimFormat.format(halfHourBefore)));
+                } else {
+                    zmanim.add(new ZmanListEntry(getString(R.string.tekufa_length) + zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfter)));
+                }
+            }
+            if (opinion.equals("2") || mSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
+                halfHourBefore = new Date(aHTekufa.getTime() - (DateUtils.MILLIS_PER_HOUR / 2));
+                halfHourAfter = new Date(aHTekufa.getTime() + (DateUtils.MILLIS_PER_HOUR / 2));
+                if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                    zmanim.add(new ZmanListEntry(getString(R.string.tekufa_length) + zmanimFormat.format(halfHourAfter) + " - " + zmanimFormat.format(halfHourBefore)));
+                } else {
+                    zmanim.add(new ZmanListEntry(getString(R.string.tekufa_length) + zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfter)));
+                }
+            }
+            if (opinion.equals("3")) {
+                halfHourBefore = new Date(aHTekufa.getTime() - (DateUtils.MILLIS_PER_HOUR / 2));
+                halfHourAfter = new Date(tekufa.getTime() + (DateUtils.MILLIS_PER_HOUR / 2));
+                if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                    zmanim.add(new ZmanListEntry(getString(R.string.tekufa_length) + zmanimFormat.format(halfHourAfter) + " - " + zmanimFormat.format(halfHourBefore)));
+                } else {
+                    zmanim.add(new ZmanListEntry(getString(R.string.tekufa_length) + zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfter)));
                 }
             }
         }

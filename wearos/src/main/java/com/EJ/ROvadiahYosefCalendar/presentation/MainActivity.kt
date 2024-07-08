@@ -134,7 +134,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var locationResolver: LocationResolver
     private var zmanim: MutableList<ZmanListEntry> = ArrayList()
     private var mROZmanimCalendar = ROZmanimCalendar(GeoLocation())
-    private var mJewishDateInfo = JewishDateInfo(false, true)
+    private var mJewishDateInfo = JewishDateInfo(false)
     private var mLastTimeUserWasInApp: Date = Date()
     private val mHebrewDateFormatter = HebrewDateFormatter()
     private val mZmanimFormatter = ZmanimFormatter(TimeZone.getDefault())
@@ -562,15 +562,15 @@ class MainActivity : ComponentActivity() {
         }
 
         val tekufaOpinions: String? = sharedPref.getString("TekufaOpinions", "1")
-        if (tekufaOpinions == "1" || tekufaOpinions == null) {
+        if ((tekufaOpinions == "1" || tekufaOpinions == null) && !sharedPref.getBoolean("LuachAmudeiHoraah", false)) {
             addTekufaTime()
         }
-        if (tekufaOpinions == "2") {
+        if (tekufaOpinions == "2" || sharedPref.getBoolean("LuachAmudeiHoraah", false)) {
             addAmudeiHoraahTekufaTime()
         }
         if (tekufaOpinions == "3") {
-            addTekufaTime()
             addAmudeiHoraahTekufaTime()
+            addTekufaTime()
         }
 
         addZmanim(zmanim)

@@ -33,7 +33,7 @@ class NextZmanComplicationService : SuspendingComplicationDataSourceService() {
     private lateinit var sharedPref: SharedPreferences
     private var mCurrentDateShown = Calendar.getInstance()
     private var mROZmanimCalendar = ROZmanimCalendar(GeoLocation())
-    private var mJewishDateInfo = JewishDateInfo(false, true)
+    private var mJewishDateInfo = JewishDateInfo(false)
     private lateinit var zmanimFormat: SimpleDateFormat
     private lateinit var visibleSunriseFormat: SimpleDateFormat
     private lateinit var roundUpFormat: SimpleDateFormat

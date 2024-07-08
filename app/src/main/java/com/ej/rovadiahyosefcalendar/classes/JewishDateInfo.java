@@ -705,18 +705,18 @@ public class JewishDateInfo {
                     month == JewishCalendar.ADAR ||
                     month == JewishCalendar.ADAR_II) {
                     if (isLocaleHebrew) {
-                        return "אוֹמְרִים וּלְכַפָּרַת פֶּשַׁע";
+                        return "אומרים וּלְכַפָּרַת פֶּשַׁע";
                     }
                     return "Say וּלְכַפָּרַת פֶּשַׁע";
                 } else {
                     if (isLocaleHebrew) {
-                        return "לֹא אוֹמְרִים וּלְכַפָּרַת פֶּשַׁע";
+                        return "לא אומרים וּלְכַפָּרַת פֶּשַׁע";
                     }
                     return "Do not say וּלְכַפָּרַת פֶּשַׁע";
                 }
             } else {
                 if (isLocaleHebrew) {
-                    return "לֹא אוֹמְרִים וּלְכַפָּרַת פֶּשַׁע";
+                    return "לא אומרים וּלְכַפָּרַת פֶּשַׁע";
                 }
                 return "Do not say וּלְכַפָּרַת פֶּשַׁע";
             }

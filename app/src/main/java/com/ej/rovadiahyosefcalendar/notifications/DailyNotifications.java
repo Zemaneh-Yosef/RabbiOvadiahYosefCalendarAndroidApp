@@ -134,10 +134,10 @@ public class DailyNotifications extends BroadcastReceiver {
             }
             Calendar cal = Calendar.getInstance();
             String tekufaOpinions = PreferenceManager.getDefaultSharedPreferences(context).getString("TekufaOpinions", "1");
-            if (tekufaOpinions.equals("1")) {
+            if (tekufaOpinions.equals("1") && !PreferenceManager.getDefaultSharedPreferences(context).getBoolean("LuachAmudeiHoraah", false)) {
                 checkIfTekufaIsToday(context, jewishDateInfo, cal);
             }
-            if (tekufaOpinions.equals("2")) {
+            if (tekufaOpinions.equals("2") || PreferenceManager.getDefaultSharedPreferences(context).getBoolean("LuachAmudeiHoraah", false)) {
                 checkIfAmudeiHoraahTekufaIsToday(context, jewishDateInfo, cal);
             }
             if (tekufaOpinions.equals("3")) {

@@ -498,6 +498,7 @@ public class LocationResolver extends Thread {
         if (mTimeZone.getID().equals("Asia/Gaza") || mTimeZone.getID().equals("Asia/Hebron")) {
             mTimeZone = TimeZone.getTimeZone("Asia/Jerusalem");
         }
+        mSharedPreferences.edit().putString("advancedTimezone", sCurrentTimeZoneID).apply();
     }
 
     private void saveLocationInformation() {

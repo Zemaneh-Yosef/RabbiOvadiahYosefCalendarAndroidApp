@@ -363,4 +363,5 @@
    <string name="birchat_levana">ברכת הלבנה</string>
    <string name="override_the_time_for_when_shabbat_ends_to_use_the_below_settings">Override the time for when shabbat ends to use the below settings</string>
    <string name="use_regular_minutes_for_shabbat_end">Override The Time For Shabbat End</string>
+    <string name="tekufa_length">"Tekufa Length: "</string>
 </resources>

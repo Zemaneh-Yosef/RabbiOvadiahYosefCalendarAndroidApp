@@ -7,7 +7,6 @@ import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
  * This class's main goal is to return the Weekly Haftorah reading said after the Weekly Parasha
  * reading. Which readings to say were taken from the Chumash "L'maan Shemo B'Ahavah" according to
  * the Sephardic Minhag.
- * @see WeeklyParashaReadings
  */
 public class WeeklyHaftarahReading {
 
