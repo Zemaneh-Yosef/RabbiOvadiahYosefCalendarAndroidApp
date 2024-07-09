@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BooleanListener {
-    private static Boolean myBoolean;
+    private static Boolean myBoolean = false;
     private static final List<BooleanChangedListener> listeners = new ArrayList<>();
 
     public static void setMyBoolean(boolean value) {

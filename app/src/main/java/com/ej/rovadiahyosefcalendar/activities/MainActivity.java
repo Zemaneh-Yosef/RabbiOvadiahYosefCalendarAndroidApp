@@ -2031,14 +2031,14 @@ public class MainActivity extends AppCompatActivity {
         List<ZmanListEntry> tekufa = new ArrayList<>();
         String tekufaOpinions = mSettingsPreferences.getString("TekufaOpinions", "1");
         if (tekufaOpinions.equals("1") && !mSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
-            addTekufaTime(tekufa, false);
+            addTekufaTime(tekufa, true);
         }
         if (tekufaOpinions.equals("2") || mSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
-            addAmudeiHoraahTekufaTime(tekufa, false);
+            addAmudeiHoraahTekufaTime(tekufa, true);
         }
         if (tekufaOpinions.equals("3")) {
-            addAmudeiHoraahTekufaTime(tekufa, false);
-            addTekufaTime(tekufa, false);
+            addAmudeiHoraahTekufaTime(tekufa, true);
+            addTekufaTime(tekufa, true);
         }
         if (!tekufa.isEmpty()) {
             for (ZmanListEntry tekufaEntry : tekufa) {
