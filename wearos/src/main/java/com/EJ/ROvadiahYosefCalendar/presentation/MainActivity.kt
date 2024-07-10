@@ -572,6 +572,7 @@ class MainActivity : ComponentActivity() {
             addAmudeiHoraahTekufaTime()
             addTekufaTime()
         }
+        addTekufaLength(zmanim, tekufaOpinions)
 
         addZmanim(zmanim)
 
@@ -1451,6 +1452,115 @@ class MainActivity : ComponentActivity() {
                         ZmanListEntry(
                             "Tekufa " + mJewishDateInfo.jewishCalendar.tekufaName + " is today at " +
                                     zmanimFormat.format(mJewishDateInfo.jewishCalendar.amudeiHoraahTekufaAsDate)
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    private fun addTekufaLength(zmanim: MutableList<ZmanListEntry>, opinion: String?) {
+        val millis_per_hour = 3_600_000
+        val zmanimFormat: DateFormat = if (Locale.getDefault().getDisplayLanguage(Locale("en", "US")) == "Hebrew") {
+            SimpleDateFormat("H:mm", Locale.getDefault())
+        } else {
+            SimpleDateFormat("h:mm aa", Locale.getDefault())
+        }
+        zmanimFormat.timeZone = TimeZone.getTimeZone(sCurrentTimeZoneID)
+
+        var tekufa: Date? = null
+        var aHTekufa: Date? = null
+
+        mROZmanimCalendar.calendar.add(Calendar.DATE, 1) //check next day for tekufa, because the tekufa time can go back a day
+        mJewishDateInfo.setCalendar(mROZmanimCalendar.calendar)
+        mROZmanimCalendar.calendar.add(Calendar.DATE, -1) //reset the calendar to check for the current date
+
+        if (mJewishDateInfo.jewishCalendar.tekufa != null) {
+            val cal1 = mROZmanimCalendar.calendar.clone() as Calendar
+            val cal2 = mROZmanimCalendar.calendar.clone() as Calendar
+            cal2.time = mJewishDateInfo.jewishCalendar.tekufaAsDate // should not be null in this if block
+
+            if (cal1[Calendar.ERA] == cal2[Calendar.ERA] && cal1[Calendar.YEAR] == cal2[Calendar.YEAR] && cal1[Calendar.DAY_OF_YEAR] == cal2[Calendar.DAY_OF_YEAR]) {
+                tekufa = mJewishDateInfo.jewishCalendar.tekufaAsDate
+                aHTekufa = mJewishDateInfo.jewishCalendar.amudeiHoraahTekufaAsDate
+            }
+        }
+        mJewishDateInfo.setCalendar(mROZmanimCalendar.calendar) //reset
+
+        //else the tekufa time is on the same day as the current date, so we can add it normally
+        if (mJewishDateInfo.jewishCalendar.tekufa != null) {
+            val cal1 = mROZmanimCalendar.calendar.clone() as Calendar
+            val cal2 = mROZmanimCalendar.calendar.clone() as Calendar
+            cal2.time = mJewishDateInfo.jewishCalendar.tekufaAsDate // should not be null in this if block
+
+            if (cal1[Calendar.ERA] == cal2[Calendar.ERA] && cal1[Calendar.YEAR] == cal2[Calendar.YEAR] && cal1[Calendar.DAY_OF_YEAR] == cal2[Calendar.DAY_OF_YEAR]) {
+                tekufa = mJewishDateInfo.jewishCalendar.tekufaAsDate
+                aHTekufa = mJewishDateInfo.jewishCalendar.amudeiHoraahTekufaAsDate
+            }
+        }
+
+        if (tekufa != null && aHTekufa != null) {
+            var halfHourBefore: Date?
+            var halfHourAfter: Date?
+            if ((opinion == "1" || opinion == null) && !sharedPref.getBoolean("LuachAmudeiHoraah", false)) {
+                halfHourBefore = Date(tekufa.time - (millis_per_hour / 2))
+                halfHourAfter = Date(tekufa.time + (millis_per_hour / 2))
+                if (Locale.getDefault().getDisplayLanguage(Locale("en", "US")) == "Hebrew") {
+                    zmanim.add(
+                        ZmanListEntry(
+                            getString(R.string.tekufa_length) + zmanimFormat.format(
+                                halfHourAfter
+                            ) + " - " + zmanimFormat.format(halfHourBefore)
+                        )
+                    )
+                } else {
+                    zmanim.add(
+                        ZmanListEntry(
+                            getString(R.string.tekufa_length) + zmanimFormat.format(
+                                halfHourBefore
+                            ) + " - " + zmanimFormat.format(halfHourAfter)
+                        )
+                    )
+                }
+            }
+            if (opinion == "2" || sharedPref.getBoolean("LuachAmudeiHoraah", false)) {
+                halfHourBefore = Date(aHTekufa.time - (millis_per_hour / 2))
+                halfHourAfter = Date(aHTekufa.time + (millis_per_hour / 2))
+                if (Locale.getDefault().getDisplayLanguage(Locale("en", "US")) == "Hebrew") {
+                    zmanim.add(
+                        ZmanListEntry(
+                            getString(R.string.tekufa_length) + zmanimFormat.format(
+                                halfHourAfter
+                            ) + " - " + zmanimFormat.format(halfHourBefore)
+                        )
+                    )
+                } else {
+                    zmanim.add(
+                        ZmanListEntry(
+                            getString(R.string.tekufa_length) + zmanimFormat.format(
+                                halfHourBefore
+                            ) + " - " + zmanimFormat.format(halfHourAfter)
+                        )
+                    )
+                }
+            }
+            if (opinion == "3") {
+                halfHourBefore = Date(aHTekufa.time - (millis_per_hour / 2))
+                halfHourAfter = Date(tekufa.time + (millis_per_hour / 2))
+                if (Locale.getDefault().getDisplayLanguage(Locale("en", "US")) == "Hebrew") {
+                    zmanim.add(
+                        ZmanListEntry(
+                            getString(R.string.tekufa_length) + zmanimFormat.format(
+                                halfHourAfter
+                            ) + " - " + zmanimFormat.format(halfHourBefore)
+                        )
+                    )
+                } else {
+                    zmanim.add(
+                        ZmanListEntry(
+                            getString(R.string.tekufa_length) + zmanimFormat.format(
+                                halfHourBefore
+                            ) + " - " + zmanimFormat.format(halfHourAfter)
                         )
                     )
                 }

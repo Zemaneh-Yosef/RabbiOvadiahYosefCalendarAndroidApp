@@ -351,5 +351,6 @@
    <string name="next_zman" translatable="false">Next Zman:</string>
    <string name="zmanim_notifications_will_not_work">Zmanim notifications will not work!</string>
    <string name="if_you_would_like_to_receive_zmanim_notifications">The app cannot currently send you zmanim notifications. Would you would like to change this setting? (If you want to stop this dialog from popping up, disable zmanim notifications in the settings)</string>
+   <string name="tekufa_length">"Tekufa Length: "</string>
 
 </resources>
