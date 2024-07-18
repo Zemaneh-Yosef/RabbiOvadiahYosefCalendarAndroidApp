@@ -1,5 +1,6 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
+import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
@@ -96,7 +97,8 @@ public class FullSetupActivity extends AppCompatActivity {
         if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
             mSharedPreferences.edit().putBoolean("isZmanimInHebrew", true).apply();
             mSharedPreferences.edit().putBoolean("isZmanimEnglishTranslated", false).apply();
-            if (ActivityCompat.checkSelfPermission(getApplicationContext(), ACCESS_FINE_LOCATION) != PERMISSION_GRANTED &&
+            if ((ActivityCompat.checkSelfPermission(getApplicationContext(), ACCESS_FINE_LOCATION) != PERMISSION_GRANTED
+                    && ActivityCompat.checkSelfPermission(getApplicationContext(), ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED) &&
                     !mSharedPreferences.getBoolean("useZipcode", false)) {
                 mSharedPreferences.edit().putBoolean("shouldRefresh", true).apply();
                 startActivity(new Intent(this, GetUserLocationWithMapActivity.class).setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));

@@ -8,6 +8,7 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:orientation="vertical">
 
         <TextView
@@ -17,7 +18,7 @@
             android:layout_margin="8dp"
             android:textSize="14sp"
             android:textStyle="bold"
-            android:gravity="fill"
+            android:gravity="center"
             android:maxLines="1"
             android:text="4 Adar, 5783"/>
 
@@ -27,6 +28,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
             android:textSize="14sp"
+            android:gravity="center"
             android:text="תרומה"/>
 
     </LinearLayout>
@@ -34,6 +36,7 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:orientation="vertical">
 
         <TextView
@@ -61,6 +64,7 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:orientation="vertical">
 
         <TextView

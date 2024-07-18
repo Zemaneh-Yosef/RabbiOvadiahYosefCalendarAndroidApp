@@ -248,6 +248,14 @@ public class ZmanimNames {
         }
     }
 
+    public String getBetterString() {
+        if (mIsZmanimInHebrew) {
+            return "(העדיף)";
+        } else {
+            return "(Better)";
+        }
+    }
+
     public String getElevatedString() {
         if (mIsZmanimInHebrew) {
             return "(גבוה)";

@@ -172,6 +172,15 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     }
 
     /**
+     * This method returns the earliest time that your are allowed to put on your Talit and Tefilin, otherwise known as Misheyakir. This is calculated by taking the
+     * {@link #getElevationAdjustedSunrise()} method and subtracting 1 zmaniyot hour from it.
+     * @return the earliest time that your are allowed to put on your Talit and Tefilin. 60 seasonal minutes before sunrise.
+     */
+    public Date getEarliestProperTalitTefilin() {
+        return getTimeOffset(getElevationAdjustedSunrise(), -getTemporalHour(getElevationAdjustedSunrise(), getElevationAdjustedSunset()));//use getTimeOffset to handle nulls
+    }
+
+    /**
      * This method returns the time for Visible Sunrise calculated by the Chai Tables website. This is the same calculation that is used in the
      * Ohr HaChaim calendar. If the date is out of scope of the file which lasts for 1 jewish year, then the method will return null.
      * @return the time for Visible Sunrise calculated by the Chai Tables website, otherwise null.
@@ -488,7 +497,16 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
      * explanation on top of the {@link AstronomicalCalendar} documentation.
      */
     public Date getTzaitShabbatAmudeiHoraah() {
-        return getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 7.14);
+        Date tzait = getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 7.14);
+        if (tzait != null) {
+            if (getTzaitTaanit().after(tzait)) { // if shabbat ends before 20 minutes after sunset, use 20 minutes
+                return getTzaitTaanit();
+            }
+            if (getSolarMidnight().before(tzait)) { // if chatzot is before when shabbat ends, just use chatzot
+                return getSolarMidnight();
+            }
+        }
+        return tzait;
     }
 
     /**
@@ -593,13 +611,14 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         return riseSetToTwilight / shaahZmanis;
     }
 
+    // override super method to use chatzot based on sunrise and sunset
     @Override
     public Date getMinchaGedolaGreaterThan30() {
         Date minchaGedola30 = getTimeOffset(getChatzot(), MILLISECONDS_PER_MINUTE * 30);
         Date minchaGedola = getMinchaGedola();
 
         if (minchaGedola30 == null || minchaGedola == null) {
-            return null;
+            return null; // no point in returning super.getMinchaGedolaGreaterThan30 because it is already checked above
         } else {
             return minchaGedola30.compareTo(minchaGedola) > 0 ? minchaGedola30
                     : minchaGedola;

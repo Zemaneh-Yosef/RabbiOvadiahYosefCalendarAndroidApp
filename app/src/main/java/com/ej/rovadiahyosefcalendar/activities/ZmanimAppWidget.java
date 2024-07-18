@@ -14,8 +14,11 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.ArrayMap;
 import android.util.Log;
+import android.util.SizeF;
 import android.view.View;
 import android.widget.RemoteViews;
 
@@ -34,6 +37,7 @@ import com.kosherjava.zmanim.util.GeoLocation;
 import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 
 /**
@@ -91,34 +95,36 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         hebrewDateFormatter.setUseGershGershayim(false);
         String dafYomi = mJewishDateInfo.getJewishCalendar().getDafYomiBavli().getMasechta()
                 + " " + hebrewDateFormatter.formatHebrewNumber(mJewishDateInfo.getJewishCalendar().getDafYomiBavli().getDaf());
+        String omerCount = mJewishDateInfo.addDayOfOmer("");
 
+        Map<SizeF, RemoteViews> viewMapping = getViewMapping(context,true, jewishDate, parsha, zman, time, tachanun, dafYomi, omerCount);
         RemoteViews views;
-        if (mSharedPreferences.getInt("widgetMaxHeight" + appWidgetId, 0) > mSharedPreferences.getInt("widgetMaxWidth" + appWidgetId, 0)) {
-            views = new RemoteViews(context.getPackageName(), R.layout.zmanim_app_widget_horizontal);
-            Log.d("App widget", "widget max height is greater than max width, setting layout to horizontal");
-        } else {
-            views = new RemoteViews(context.getPackageName(), R.layout.zmanim_app_widget);
-            Log.d("App widget", "widget max height is lesser than max width, setting layout to vertical");
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            views = new RemoteViews(viewMapping);
+        } else { // old implementation
+            if (mSharedPreferences.getInt("widgetMaxHeight" + appWidgetId, 0) > mSharedPreferences.getInt("widgetMaxWidth" + appWidgetId, 0)) {
+                views = new RemoteViews(context.getPackageName(), R.layout.zmanim_app_widget_vertical);
+            } else {
+                views = new RemoteViews(context.getPackageName(), R.layout.zmanim_app_widget);
+            }
+            setTexts(context, views, jewishDate, parsha, zman, time, tachanun, dafYomi);
+            if (!mSharedPreferences.getBoolean("widgetInitialized", false)) {
+                views.setViewVisibility(R.id.widget_next_zman, View.GONE);// initially hide the other views
+                views.setViewVisibility(R.id.widget_tachanun_daf, View.GONE);
+            }
         }
+        // Instruct the widget manager to update the widget
+        appWidgetManager.updateAppWidget(appWidgetId, views);
+    }
+
+    private static void setTexts(Context context, RemoteViews views, String jewishDate, String parsha, String zman, String time, String tachanun, String dafYomi) {
         views.setTextViewText(R.id.jewish_date, jewishDate);
         views.setTextViewText(R.id.parsha, parsha);
         views.setTextViewText(R.id.zman, zman);
         views.setTextViewText(R.id.zman_time, time);
         views.setTextViewText(R.id.tachanun, tachanun);
         views.setTextViewText(R.id.daf, dafYomi);
-
-        if (!mSharedPreferences.getBoolean("widgetInitialized", false)) {
-            views.setViewVisibility(R.id.widget_next_zman, View.GONE);// initially hide the other views
-            views.setViewVisibility(R.id.widget_tachanun_daf, View.GONE);
-            Log.d("App widget", "widget has just been initialized, hiding other texts");
-        }
-
-        Intent configIntent = new Intent(context, MainActivity.class);
-        PendingIntent configPendingIntent = PendingIntent.getActivity(context, 0, configIntent, PendingIntent.FLAG_IMMUTABLE);
-        views.setOnClickPendingIntent(R.id.widget, configPendingIntent);
-
-        // Instruct the widget manager to update the widget
-        appWidgetManager.updateAppWidget(appWidgetId, views);
+        views.setOnClickPendingIntent(R.id.widget, PendingIntent.getActivity(context, 0, new Intent(context, MainActivity.class), PendingIntent.FLAG_IMMUTABLE));
     }
 
     private static ROZmanimCalendar getROZmanimCalendar(Context context) {
@@ -186,7 +192,6 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         // There may be multiple widgets active, so update all of them
         for (int appWidgetId : appWidgetIds) {
             updateAppWidget(context, appWidgetManager, appWidgetId);
-            Log.d("App widget", "updating all widgets, this widget's id is: " + appWidgetId);
         }
         scheduleUpdates(context);
     }
@@ -194,49 +199,87 @@ public class ZmanimAppWidget extends AppWidgetProvider {
     @Override
     public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager, int appWidgetId, Bundle newOptions) {
         super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions);
-        Log.d("App widget", "Widget has been changed, updating...");
 
         int minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
-        Log.d("App widget", "min width is: " + minWidth);
-        int minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT);
-        Log.d("App widget", "min height is: " + minHeight);
+        Log.d("App widget", "MIN Width: " + minWidth);
         int maxWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH);
-        Log.d("App widget", "max width is: " + maxWidth);
+        Log.d("App widget", "MAX Width: " + maxWidth);
+        int minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT);
+        Log.d("App widget", "MIN Height: " + minHeight);
         int maxHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT);
-        Log.d("App widget", "max height is: " + maxHeight);
+        Log.d("App widget", "MAX Height: " + maxHeight);
 
+        Map<SizeF, RemoteViews> viewMapping = getViewMapping(context,
+                false, null, null, null, null, null, null, null);
         RemoteViews views;
-        if (maxHeight > maxWidth) {
-            views = new RemoteViews(context.getPackageName(), R.layout.zmanim_app_widget_horizontal);
-            Log.d("App widget", "widget max height is greater than max width, setting layout to horizontal");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            views = new RemoteViews(viewMapping);
         } else {
-            views = new RemoteViews(context.getPackageName(), R.layout.zmanim_app_widget);
-            Log.d("App widget", "widget max height is lesser than max width, setting layout to vertical");
+            if (maxHeight > maxWidth) {
+                views = new RemoteViews(context.getPackageName(), R.layout.zmanim_app_widget_vertical);
+            } else {
+                views = new RemoteViews(context.getPackageName(), R.layout.zmanim_app_widget);
+            }
+            if (minWidth >= 250 || maxHeight > maxWidth) {// if the widget is wide enough, show the zman
+                views.setViewVisibility(R.id.widget_next_zman, View.VISIBLE);
+                views.setViewVisibility(R.id.widget_tachanun_daf, View.GONE);
+            } else {
+                views.setViewVisibility(R.id.widget_next_zman, View.GONE);
+                views.setViewVisibility(R.id.widget_tachanun_daf, View.GONE);
+            }
+            if (minWidth >= 350 || maxHeight > maxWidth) {// if the widget is wide enough, show the daf as well
+                views.setViewVisibility(R.id.widget_next_zman, View.VISIBLE);
+                views.setViewVisibility(R.id.widget_tachanun_daf, View.VISIBLE);
+            }
+            mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
+            mSharedPreferences.edit().putInt("widgetMaxWidth" + appWidgetId, maxWidth).apply();
+            mSharedPreferences.edit().putInt("widgetMaxHeight" + appWidgetId, maxHeight).apply();
+            mSharedPreferences.edit().putBoolean("widgetInitialized", true).apply();
         }
-
-        if (minWidth >= 250 || maxHeight > maxWidth) {// if the widget is wide enough, show the zman
-            views.setViewVisibility(R.id.widget_next_zman, View.VISIBLE);
-            views.setViewVisibility(R.id.widget_tachanun_daf, View.GONE);
-            Log.d("App widget", "widget is only wide enough to show the date and next upcoming zman");
-        } else {
-            views.setViewVisibility(R.id.widget_next_zman, View.GONE);
-            views.setViewVisibility(R.id.widget_tachanun_daf, View.GONE);
-            Log.d("App widget", "widget is only wide enough to show the date");
-        }
-        if (minWidth >= 350 || maxHeight > maxWidth) {// if the widget is wide enough, show the daf as well
-            views.setViewVisibility(R.id.widget_next_zman, View.VISIBLE);
-            views.setViewVisibility(R.id.widget_tachanun_daf, View.VISIBLE);
-            Log.d("App widget", "widget is wide enough to show everything");
-        }
-
-        mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
-        mSharedPreferences.edit().putInt("widgetMaxWidth" + appWidgetId, maxWidth).apply();
-        mSharedPreferences.edit().putInt("widgetMaxHeight" + appWidgetId, maxHeight).apply();
-        mSharedPreferences.edit().putBoolean("widgetInitialized", true).apply();
-
         appWidgetManager.updateAppWidget(appWidgetId, views);
-
         updateAppWidget(context, appWidgetManager, appWidgetId);
+    }
+
+    public static Map<SizeF, RemoteViews> getViewMapping(Context context, boolean shouldSetTexts, String jewishDate, String parsha, String zman, String time, String tachanun, String dafYomi, String omer) {
+        Map<SizeF, RemoteViews> viewMapping = new ArrayMap<>();
+        RemoteViews small = new RemoteViews(context.getPackageName(), R.layout.zmanim_app_widget_small);
+        RemoteViews smallTall = new RemoteViews(context.getPackageName(), R.layout.zmanim_app_widget_small_tall);
+        RemoteViews mediumTall = new RemoteViews(context.getPackageName(), R.layout.zmanim_app_widget_medium_tall);
+        RemoteViews tall = new RemoteViews(context.getPackageName(), R.layout.zmanim_app_widget_vertical);
+        RemoteViews veryTall = new RemoteViews(context.getPackageName(), R.layout.zmanim_app_widget_very_tall);
+        RemoteViews wide = new RemoteViews(context.getPackageName(), R.layout.zmanim_app_widget);
+        RemoteViews wideTall = new RemoteViews(context.getPackageName(), R.layout.zmanim_app_widget_tall);
+        if (shouldSetTexts) {
+            setTexts(context, small, jewishDate, parsha, zman, time, tachanun, dafYomi);
+            setTexts(context, smallTall, jewishDate, parsha, zman, time, tachanun, dafYomi);
+            setTexts(context, mediumTall, jewishDate, parsha, zman, time, tachanun, dafYomi);
+            setTexts(context, tall, jewishDate, parsha, zman, time, tachanun, dafYomi);
+            setTexts(context, veryTall, jewishDate, parsha, zman, time, tachanun, dafYomi);
+            if (omer.isEmpty()) {
+                wideTall.setViewVisibility(R.id.widget_omer_layout, View.GONE);
+                veryTall.setViewVisibility(R.id.widget_omer_layout, View.GONE);
+            } else {
+                wideTall.setViewVisibility(R.id.widget_omer_layout, View.VISIBLE);
+                wideTall.setTextViewText(R.id.widget_omer_count, omer);
+                veryTall.setViewVisibility(R.id.widget_omer_layout, View.VISIBLE);
+                veryTall.setTextViewText(R.id.widget_omer_count, omer);
+            }
+            setTexts(context, wide, jewishDate, parsha, zman, time, tachanun, dafYomi);
+            setTexts(context, wideTall, jewishDate, parsha, zman, time, tachanun, dafYomi);
+        }
+        // not that wide, but tall views
+        viewMapping.put(new SizeF(50f, 50f), small);
+        viewMapping.put(new SizeF(50f, 100f), smallTall);
+        viewMapping.put(new SizeF(50f, 200f), mediumTall);
+        viewMapping.put(new SizeF(50f, 300f), tall);
+        // wide
+        viewMapping.put(new SizeF(200f, 50f), wide);
+        viewMapping.put(new SizeF(200f, 125f), wideTall);
+        // wide and tall views
+        viewMapping.put(new SizeF(150f, 200f), tall);
+        viewMapping.put(new SizeF(150f, 350f), veryTall);
+        viewMapping.put(new SizeF(250f, 300f), veryTall);
+        return viewMapping;
     }
 
     @Override

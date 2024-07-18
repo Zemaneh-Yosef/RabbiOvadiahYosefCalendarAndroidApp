@@ -31,6 +31,9 @@ public class ZmanimFactory {
         }
         zmanim.add(new ZmanListEntry(zmanimNames.getAlotString(), mROZmanimCalendar.getAlos72Zmanis(), true));
         zmanim.add(new ZmanListEntry(zmanimNames.getTalitTefilinString(), mROZmanimCalendar.getEarliestTalitTefilin(), true));
+        if (mSettingsPreferences.getBoolean("showPreferredMisheyakirZman", false)) {
+            zmanim.add(new ZmanListEntry(zmanimNames.getTalitTefilinString() + " " + zmanimNames.getBetterString(), mROZmanimCalendar.getEarliestProperTalitTefilin(), true));
+        }
         if (mSettingsPreferences.getBoolean("ShowElevatedSunrise", false)) {
             zmanim.add(new ZmanListEntry(zmanimNames.getHaNetzString() + " " + zmanimNames.getElevatedString(), mROZmanimCalendar.getSunrise(), true));
         }

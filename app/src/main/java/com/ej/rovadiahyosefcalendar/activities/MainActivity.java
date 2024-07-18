@@ -1,6 +1,7 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
 import static android.Manifest.permission.ACCESS_BACKGROUND_LOCATION;
+import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.classes.ZmanimFactory.addZmanim;
@@ -258,7 +259,9 @@ public class MainActivity extends AppCompatActivity {
             mLocationResolver.acquireLatitudeAndLongitude();
         }
         findAllWeeklyViews();
-        if ((!mInitialized && ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) == PERMISSION_GRANTED) || mSharedPreferences.getBoolean("useZipcode", false)) {
+        if ((!mInitialized
+                && (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) == PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(this, ACCESS_COARSE_LOCATION) == PERMISSION_GRANTED))
+                || mSharedPreferences.getBoolean("useZipcode", false)) {
             initMainView();
         }
 
@@ -371,8 +374,8 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return true;
             } else if (id == R.id.use_elevation) {
-                item.setChecked(mSharedPreferences.getBoolean("useElevation", false));//save the state of the menu item
                 mSharedPreferences.edit().putBoolean("useElevation", !mSharedPreferences.getBoolean("useElevation", false)).apply();
+                item.setChecked(mSharedPreferences.getBoolean("useElevation", false));//save the state of the menu item
                 resolveElevationAndVisibleSunrise();
                 instantiateZmanimCalendar();
                 setNextUpcomingZman();

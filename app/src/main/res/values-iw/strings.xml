@@ -610,4 +610,6 @@
     <string name="override_the_time_for_when_shabbat_ends_to_use_the_below_settings">עקוף את הזמן לסיום שבת והשתמש בהגדרות הבאות.</string>
     <string name="use_regular_minutes_for_shabbat_end">עקוף את זמן סיום השבת</string>
     <string name="tekufa_length">"משך התקופה: "</string>
+    <string name="show_the_ideal_zman_for_talit_tefilin_60_seasonal_minutes_before_sunrise">הצג את הזמן העדיף לטלית ותפילין (60 דקות זמניות לפני הזריחה)</string>
+    <string name="show_preferred_misheyakir_time">הצג זמן משיכיר מועדף</string>
 </resources>

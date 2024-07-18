@@ -4,6 +4,7 @@
     style="@style/Widget.RabbiOvadiahYosefCalendar.AppWidget.Container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:theme="@style/AppTheme.AppWidgetContainer">
 
     <LinearLayout
@@ -104,5 +105,27 @@
             tools:text="בבא בתרא ב"/>
 
     </LinearLayout>
+
     </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/widget_omer_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/widget_omer_count"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:autoSizeMaxTextSize="36dp"
+            android:autoSizeTextType="uniform"
+            android:gravity="center"
+            tools:text="23rd Day Of Omer (Before sunset)"/>
+    </LinearLayout>
+
 </LinearLayout>

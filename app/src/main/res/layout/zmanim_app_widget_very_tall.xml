@@ -1,20 +1,24 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/widget"
     style="@style/Widget.RabbiOvadiahYosefCalendar.AppWidget.Container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
     android:theme="@style/AppTheme.AppWidgetContainer">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:baselineAligned="false">
+        android:layout_height="match_parent"
+        android:gravity="fill"
+        android:orientation="vertical">
 
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_height="match_parent"
         android:gravity="center"
         android:orientation="vertical">
 
@@ -22,31 +26,30 @@
             android:id="@+id/jewish_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:autoSizeMinTextSize="4dp"
+            android:padding="8dp"
             android:autoSizeMaxTextSize="36dp"
             android:autoSizeTextType="uniform"
             android:textStyle="bold"
             android:gravity="center"
-            tools:text="28 Cheshvan, 5783"/>
+            tools:text="29 Cheshvan, 5783"/>
 
         <TextView
             android:id="@+id/parsha"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="16dp"
-            android:autoSizeMinTextSize="4dp"
             android:autoSizeMaxTextSize="36dp"
             android:autoSizeTextType="uniform"
             android:gravity="center"
-            tools:text="וַיַּקְהֵל פְּקוּדֵי / הַחֹדֶשׁ"/>
+            android:padding="8dp"
+            tools:text="תרומה"/>
 
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/widget_next_zman"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_height="match_parent"
         android:gravity="center"
         android:orientation="vertical">
 
@@ -54,18 +57,17 @@
             android:id="@+id/zman"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:autoSizeMinTextSize="4dp"
+            android:padding="8dp"
             android:autoSizeMaxTextSize="36dp"
             android:autoSizeTextType="uniform"
             android:gravity="center"
-            tools:text="Mincha Ketana"/>
+            tools:text="Chatzot"/>
 
         <TextView
             android:id="@+id/zman_time"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="16dp"
-            android:autoSizeMinTextSize="4dp"
+            android:padding="8dp"
             android:autoSizeMaxTextSize="36dp"
             android:autoSizeTextType="uniform"
             android:gravity="center"
@@ -76,9 +78,9 @@
 
     <LinearLayout
         android:id="@+id/widget_tachanun_daf"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_height="match_parent"
         android:gravity="center"
         android:orientation="vertical">
 
@@ -86,23 +88,44 @@
             android:id="@+id/tachanun"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:autoSizeMinTextSize="4dp"
+            android:padding="8dp"
             android:autoSizeMaxTextSize="36dp"
             android:autoSizeTextType="uniform"
             android:gravity="center"
-            tools:text="Tachanun morning only"/>
+            tools:text="Tachanun"/>
 
         <TextView
             android:id="@+id/daf"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="16dp"
-            android:autoSizeMinTextSize="4dp"
+            android:padding="8dp"
             android:autoSizeMaxTextSize="36dp"
             android:autoSizeTextType="uniform"
             android:gravity="center"
-            tools:text="בבא בתרא ב"/>
+            tools:text="Daf Yomi"/>
 
     </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/widget_omer_layout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:visibility="gone"
+            tools:visibility="visible"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/widget_omer_count"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:autoSizeMaxTextSize="36dp"
+                android:autoSizeTextType="uniform"
+                android:gravity="center"
+                tools:text="23rd Day Of Omer (Before sunset)"/>
+        </LinearLayout>
+
     </LinearLayout>
 </LinearLayout>

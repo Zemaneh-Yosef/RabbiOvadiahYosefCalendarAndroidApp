@@ -8,10 +8,10 @@ android {
     defaultConfig {
         applicationId "com.EJ.ROvadiahYosefCalendar"
         minSdk 25
-        compileSdk 34
-        targetSdk 34
-        versionCode 183
-        versionName "19.9"
+        compileSdk 35
+        targetSdk 35
+        versionCode 184
+        versionName "20.0"
         multiDexEnabled true
 
         ndk { debugSymbolLevel 'FULL' }
@@ -49,7 +49,6 @@ android {
 
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'com.google.android.material:material:1.12.0'
     implementation "androidx.core:core-splashscreen:1.0.1"
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.vectordrawable:vectordrawable:1.2.0'
@@ -74,6 +73,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.11.0'
     implementation 'com.google.android.gms:play-services-maps:19.0.0'
     implementation 'com.google.maps.android:android-maps-utils:3.8.2'
+    implementation 'com.google.android.material:material:1.13.0-alpha04'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'

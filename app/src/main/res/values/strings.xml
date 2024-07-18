@@ -235,10 +235,10 @@
     <string name="these_settings_only_apply_if_you_do_not_use_the_luach_amudei_horaah_setting">These settings only apply if you do not use the Luach Amudei Horaah setting</string>
     <string name="candle_lighting_time">Candle Lighting Time</string>
     <string name="enter_the_amount_of_minutes_for_candle_lighting">Enter the amount of minutes for candle lighting</string>
-    <string name="choose_which_opinions_to_use_for_the_time_for_the_tekufas">Choose which opinions to use for the time for the tekufas</string>
+    <string name="choose_which_opinions_to_use_for_the_time_for_the_tekufas">Choose which opinions to use for the time of the tekufas</string>
     <string name="tekufa_opinion">Tekufa Opinion</string>
-    <string name="luach_amudei_horaah">Luach Amudei Horaah</string>
-    <string name="make_the_zmanim_like_the_luach_amudei_horaah_only_outside_israel">Make the zmanim like the Luach Amudei Horaah (Only outside Israel)</string>
+    <string name="luach_amudei_horaah">Amudei Horaah Mode</string>
+    <string name="make_the_zmanim_like_the_luach_amudei_horaah_only_outside_israel">Apply a deviation to the zmanim like the Amudei Horaah calendar does (Only outside Israel)</string>
     <string name="minutes_before_the_zman_for_notifications">Minutes before the zman for notifications</string>
     <string name="show_zmanim_notifications_on_shabbat_yom_tov">Show zmanim notifications on shabbat/yom tov?</string>
     <string name="notifications_on_shabbat_and_yom_tov">Notifications on Shabbat and Yom Tov?</string>
@@ -364,4 +364,6 @@
    <string name="override_the_time_for_when_shabbat_ends_to_use_the_below_settings">Override the time for when shabbat ends to use the below settings</string>
    <string name="use_regular_minutes_for_shabbat_end">Override The Time For Shabbat End</string>
     <string name="tekufa_length">"Tekufa Length: "</string>
+   <string name="show_the_ideal_zman_for_talit_tefilin_60_seasonal_minutes_before_sunrise">Show the ideal zman for Talit Tefilin (60 seasonal minutes before sunrise)</string>
+   <string name="show_preferred_misheyakir_time">Show Preferred Misheyakir Time</string>
 </resources>

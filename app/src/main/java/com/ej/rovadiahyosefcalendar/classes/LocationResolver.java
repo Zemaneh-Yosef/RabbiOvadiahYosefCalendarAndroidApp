@@ -1,5 +1,6 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
+import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
@@ -108,8 +109,8 @@ public class LocationResolver extends Thread {
         } else if (mSharedPreferences.getBoolean("useZipcode", false)) {
             getLatitudeAndLongitudeFromSearchQuery();
         } else {
-            if (ActivityCompat.checkSelfPermission(mContext, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(mActivity, new String[]{ACCESS_FINE_LOCATION}, 1);
+            if (ActivityCompat.checkSelfPermission(mContext, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mContext, ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(mActivity, new String[]{ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION}, 1);
             } else {
                 try {
                     LocationManager locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
@@ -219,7 +220,7 @@ public class LocationResolver extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if (addresses != null && addresses.size() > 0) {
+        if (addresses != null && !addresses.isEmpty()) {
             if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
                 Address address = null;
                 for (Address add : addresses) {
@@ -329,7 +330,7 @@ public class LocationResolver extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if (addresses != null && addresses.size() > 0) {
+        if (addresses != null && !addresses.isEmpty()) {
 
             if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
                 Address address = null;
@@ -729,7 +730,7 @@ public class LocationResolver extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if (addresses != null && addresses.size() > 0) {
+        if (addresses != null && !addresses.isEmpty()) {
 
             if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
                 Address address = null;
