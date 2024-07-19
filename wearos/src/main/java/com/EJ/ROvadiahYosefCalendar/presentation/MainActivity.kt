@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -60,7 +61,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.rotary.onRotaryScrollEvent
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
@@ -146,6 +146,7 @@ class MainActivity : ComponentActivity() {
     private val dafYomiYerushalmiStartDate: Calendar = GregorianCalendar(1980, Calendar.FEBRUARY, 2)
     private val listener: PreferenceListener = PreferenceListener()
     private var sNotificationLauncher: ActivityResultLauncher<Intent>? = null
+    private var nextUpcomingZmanIndex = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -302,9 +303,9 @@ class MainActivity : ComponentActivity() {
             initZmanimCalendar()
             sharedPref.edit().putString("name", sCurrentLocationName).apply()
             setDateFormats() // should happen after we get the geolocation object because of the timezone
+            updateZmanimList()
             setNextUpcomingZman()
             createBackgroundThreadForNextUpcomingZman()
-            updateZmanimList()
             BooleanListener.setMyBoolean(true)
         }.start()
         setContent {
@@ -1594,6 +1595,15 @@ class MainActivity : ComponentActivity() {
             }
         }
         sNextUpcomingZman = theZman
+        setNextUpcomingZmanIndex()
+    }
+
+    private fun setNextUpcomingZmanIndex() {
+        for ((index, entry) in zmanim.asSequence().withIndex()) {
+            if (entry.zman == sNextUpcomingZman) {
+                nextUpcomingZmanIndex = index
+            }
+        }
     }
 
     private fun getShabbatAndOrChag(): String {
@@ -1628,8 +1638,8 @@ class MainActivity : ComponentActivity() {
 
     private fun createBackgroundThreadForNextUpcomingZman() {
         val nextZmanUpdater = Runnable {
-            setNextUpcomingZman()
             updateZmanimList()
+            setNextUpcomingZman()
             createBackgroundThreadForNextUpcomingZman() //start a new thread to update the next upcoming zman
         }
         if (sNextUpcomingZman != null) {
@@ -1661,16 +1671,16 @@ class MainActivity : ComponentActivity() {
             mCurrentDateShown = Calendar.getInstance()
             syncCalendars()
             setDateFormats() // should happen after we get the geolocation object because of the timezone
+            updateZmanimList()
             setNextUpcomingZman()
             createBackgroundThreadForNextUpcomingZman()
-            updateZmanimList()
             setContent {
                 WearApp(zmanim)
             }
             refreshing = false
         }
-        val state = rememberPullRefreshState(refreshing, ::refresh)
-        val scalingLazyListState = rememberScalingLazyListState(initialCenterItemIndex = 0)
+        val pullRefreshState = rememberPullRefreshState(refreshing, ::refresh)
+        val scalingLazyListState = rememberScalingLazyListState(initialCenterItemIndex = nextUpcomingZmanIndex)
         val height = remember { mutableIntStateOf(1) }
         val focusRequester = remember { FocusRequester() }
         val coroutineScope = rememberCoroutineScope()
@@ -1698,7 +1708,7 @@ class MainActivity : ComponentActivity() {
             ) {
                 var swipedRight = false
                 Box(modifier = Modifier
-                    .pullRefresh(state)
+                    .pullRefresh(pullRefreshState)
                     .pointerInput(Unit) {
                         detectHorizontalDragGestures(onDragEnd = {
                             if (swipedRight) {
@@ -1724,7 +1734,6 @@ class MainActivity : ComponentActivity() {
                             .onRotaryScrollEvent {
                                 coroutineScope.launch {
                                     scalingLazyListState.scrollBy(it.verticalScrollPixels)
-
                                     scalingLazyListState.animateScrollBy(0f)
                                 }
                                 true
@@ -1749,13 +1758,13 @@ class MainActivity : ComponentActivity() {
                                         }
                                     val zmanTitleAndTime: String =
                                         if (sharedPref.getBoolean("isZmanimInHebrew", false)) {
-                                            zmanTime + " : " + zmanimList[index].title
+                                            zmanTime + " :" + zmanimList[index].title
                                         } else {
-                                            zmanimList[index].title + " : " + zmanTime
+                                            zmanimList[index].title + ": " + zmanTime
                                         }
                                     DarkChip(
                                         text = zmanTitleAndTime,
-                                        textDecoration = if (sNextUpcomingZman == zmanimList[index].zman) TextDecoration.Underline else TextDecoration.None
+                                        upcoming = sNextUpcomingZman == zmanimList[index].zman
                                     )
                                 } else {
                                     Column(
@@ -1786,34 +1795,33 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     }
-                    PullRefreshIndicator(refreshing, state, Modifier.align(Alignment.TopCenter))
+                    PullRefreshIndicator(refreshing, pullRefreshState, Modifier.align(Alignment.TopCenter))
                 }
             }
         }
     }
 
     @Composable
-    fun DarkChip(text: String, textDecoration: TextDecoration = TextDecoration.None) {
-        Box(modifier = Modifier.padding(8.dp)) {
-            Box(
-                modifier = Modifier
-                    .background(DarkGray, CircleShape)
-                    .padding(8.dp)
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = text,
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colors.primary,
-                        textDecoration = textDecoration
-                    )
-                }
-            }
+    fun DarkChip(text: String, upcoming: Boolean = false) {
+        var modifier = Modifier
+            .background(if (upcoming) DarkGray else Color.Transparent, CircleShape)
+            .fillMaxWidth()
+
+        modifier = if (upcoming) {
+            modifier.aspectRatio(1.toFloat())
+        } else {
+            modifier.padding(8.dp)
+        }
+        Row(
+            modifier,
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            Text(
+                text = text,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colors.primary
+            )
         }
     }
 
@@ -1853,7 +1861,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    @Preview(device = "id:wearos_square", showSystemUi = true, uiMode = UI_MODE_NIGHT_YES)
+    @Preview(device = "id:wearos_large_round", showSystemUi = true, uiMode = UI_MODE_NIGHT_YES)
     @Composable
     fun DefaultPreview() {
         WearApp(zmanimList = arrayListOf(
