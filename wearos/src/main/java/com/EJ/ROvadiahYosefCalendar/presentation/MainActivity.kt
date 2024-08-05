@@ -4,9 +4,12 @@ package com.EJ.ROvadiahYosefCalendar.presentation
 import android.Manifest
 import android.app.AlarmManager
 import android.app.AlertDialog
+import android.app.DatePickerDialog
 import android.app.PendingIntent
 import android.app.PendingIntent.CanceledException
 import android.content.DialogInterface
+import android.content.DialogInterface.BUTTON_NEUTRAL
+import android.content.DialogInterface.BUTTON_POSITIVE
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -18,14 +21,18 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.text.format.DateUtils
+import android.view.View
+import android.view.WindowInsets
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,6 +43,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -52,11 +60,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.rotary.onRotaryScrollEvent
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -75,7 +88,8 @@ import androidx.wear.compose.material.TimeText
 import androidx.wear.compose.material.curvedText
 import androidx.wear.tiles.TileService
 import com.EJ.ROvadiahYosefCalendar.R
-import com.EJ.ROvadiahYosefCalendar.classes.BooleanListener
+import com.EJ.ROvadiahYosefCalendar.classes.HebrewDatePickerDialog
+import com.EJ.ROvadiahYosefCalendar.classes.OnChangeListener
 import com.EJ.ROvadiahYosefCalendar.classes.JewishDateInfo
 import com.EJ.ROvadiahYosefCalendar.classes.LocationResolver
 import com.EJ.ROvadiahYosefCalendar.classes.PreferenceListener
@@ -93,6 +107,8 @@ import com.kosherjava.zmanim.hebrewcalendar.YerushalmiYomiCalculator
 import com.kosherjava.zmanim.hebrewcalendar.YomiCalculator
 import com.kosherjava.zmanim.util.GeoLocation
 import com.kosherjava.zmanim.util.ZmanimFormatter
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.nio.charset.StandardCharsets
@@ -133,7 +149,7 @@ class MainActivity : ComponentActivity() {
     private var mCurrentDateShown = Calendar.getInstance()
     private lateinit var locationResolver: LocationResolver
     private var zmanim: MutableList<ZmanListEntry> = ArrayList()
-    private var mROZmanimCalendar = ROZmanimCalendar(GeoLocation())
+    private var mROZmanimCalendar = ROZmanimCalendar(GeoLocation(), null)
     private var mJewishDateInfo = JewishDateInfo(false)
     private var mLastTimeUserWasInApp: Date = Date()
     private val mHebrewDateFormatter = HebrewDateFormatter()
@@ -170,6 +186,7 @@ class MainActivity : ComponentActivity() {
             updateAppContents() // with the new preferences
         }, this)
         startService(Intent(this, listener.javaClass))
+        updateAppContents()
     }
 
     private fun savePreferencesToLocalDevice(jsonPreferences: JSONObject) {
@@ -276,19 +293,59 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+
+    private fun showHebrewDatePickerDialog() {
+        val hebrewDatePickerDialog = HebrewDatePickerDialog(
+            this, this,
+            { _, selectedYear, selectedMonth, selectedDay ->
+                mCurrentDateShown = GregorianCalendar(selectedYear, selectedMonth, selectedDay)
+            },
+            mJewishDateInfo.jewishCalendar,
+            {
+                syncCalendars()
+                updateAppContents() },
+            { showDatePickerDialog() },
+            {  }//Do nothing the dismiss function will be called internally
+        )
+        hebrewDatePickerDialog.show()
+    }
+
+    private fun showDatePickerDialog() {
+        val datePickerDialog = DatePickerDialog(this)
+        datePickerDialog.datePicker.init(
+            mCurrentDateShown.get(Calendar.YEAR),
+            mCurrentDateShown.get(Calendar.MONTH),
+            mCurrentDateShown.get(Calendar.DAY_OF_MONTH))
+        { _, selectedYear, selectedMonth, selectedDay ->
+            mCurrentDateShown = GregorianCalendar(selectedYear, selectedMonth, selectedDay)
+        }
+        datePickerDialog.setButton(BUTTON_POSITIVE, getString(R.string.ok)) { _, _ ->
+            syncCalendars()
+            updateAppContents()
+        }
+        datePickerDialog.setButton(BUTTON_NEUTRAL, getString(R.string.switch_calendar)) { dialog, _ ->
+            dialog.dismiss()
+            showHebrewDatePickerDialog()
+        }
+        datePickerDialog.setButton(-2, getString(R.string.cancel)) { dialog, _ ->
+            dialog.dismiss()
+        }
+        datePickerDialog.show()
+    }
+
     override fun onResume() {
         TileService.getUpdater(applicationContext).requestUpdate(MainTileService::class.java)
-        mCurrentDateShown.time = Date()
-        mROZmanimCalendar.calendar = mCurrentDateShown
-        mJewishDateInfo.setCalendar(mCurrentDateShown)
-        updateAppContents()
-        mLastTimeUserWasInApp = Date()
+        if (System.currentTimeMillis() - mLastTimeUserWasInApp.time > 120_000) {
+            mCurrentDateShown.time = Date()
+            syncCalendars()
+            updateAppContents()
+            mLastTimeUserWasInApp = Date()
+        }
         return super.onResume()
     }
 
     private fun updateAppContents() {
-        BooleanListener.setMyBoolean(false)
-        BooleanListener.addMyBooleanListener {
+        OnChangeListener.addListener {
             runOnUiThread {
                 setContent {
                     WearApp(zmanim)
@@ -306,7 +363,8 @@ class MainActivity : ComponentActivity() {
             updateZmanimList()
             setNextUpcomingZman()
             createBackgroundThreadForNextUpcomingZman()
-            BooleanListener.setMyBoolean(true)
+            OnChangeListener.notifyListeners()
+            OnChangeListener.removeAllListeners()
         }.start()
         setContent {
             WearApp(zmanim)
@@ -361,7 +419,8 @@ class MainActivity : ComponentActivity() {
                 sLongitude,
                 sElevation,
                 TimeZone.getTimeZone(sCurrentTimeZoneID)
-            )
+            ),
+            sharedPref
         )
         mROZmanimCalendar.candleLightingOffset =
             (sharedPref.getString("CandleLightingOffset", "20")?.toDouble() ?: 0) as Double
@@ -376,7 +435,7 @@ class MainActivity : ComponentActivity() {
         ) {
             mROZmanimCalendar.ateretTorahSunsetOffset = 30.0
         }
-        mROZmanimCalendar.setSharedPreferences(sharedPref)
+        mROZmanimCalendar.calendar = mCurrentDateShown
     }
 
     private fun resolveElevation() {
@@ -1461,7 +1520,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun addTekufaLength(zmanim: MutableList<ZmanListEntry>, opinion: String?) {
-        val millis_per_hour = 3_600_000
+        val millisPerHour = 3_600_000
         val zmanimFormat: DateFormat = if (Locale.getDefault().getDisplayLanguage(Locale("en", "US")) == "Hebrew") {
             SimpleDateFormat("H:mm", Locale.getDefault())
         } else {
@@ -1504,8 +1563,8 @@ class MainActivity : ComponentActivity() {
             var halfHourBefore: Date?
             var halfHourAfter: Date?
             if ((opinion == "1" || opinion == null) && !sharedPref.getBoolean("LuachAmudeiHoraah", false)) {
-                halfHourBefore = Date(tekufa.time - (millis_per_hour / 2))
-                halfHourAfter = Date(tekufa.time + (millis_per_hour / 2))
+                halfHourBefore = Date(tekufa.time - (millisPerHour / 2))
+                halfHourAfter = Date(tekufa.time + (millisPerHour / 2))
                 if (Locale.getDefault().getDisplayLanguage(Locale("en", "US")) == "Hebrew") {
                     zmanim.add(
                         ZmanListEntry(
@@ -1525,8 +1584,8 @@ class MainActivity : ComponentActivity() {
                 }
             }
             if (opinion == "2" || sharedPref.getBoolean("LuachAmudeiHoraah", false)) {
-                halfHourBefore = Date(aHTekufa.time - (millis_per_hour / 2))
-                halfHourAfter = Date(aHTekufa.time + (millis_per_hour / 2))
+                halfHourBefore = Date(aHTekufa.time - (millisPerHour / 2))
+                halfHourAfter = Date(aHTekufa.time + (millisPerHour / 2))
                 if (Locale.getDefault().getDisplayLanguage(Locale("en", "US")) == "Hebrew") {
                     zmanim.add(
                         ZmanListEntry(
@@ -1546,8 +1605,8 @@ class MainActivity : ComponentActivity() {
                 }
             }
             if (opinion == "3") {
-                halfHourBefore = Date(aHTekufa.time - (millis_per_hour / 2))
-                halfHourAfter = Date(tekufa.time + (millis_per_hour / 2))
+                halfHourBefore = Date(aHTekufa.time - (millisPerHour / 2))
+                halfHourAfter = Date(tekufa.time + (millisPerHour / 2))
                 if (Locale.getDefault().getDisplayLanguage(Locale("en", "US")) == "Hebrew") {
                     zmanim.add(
                         ZmanListEntry(
@@ -1585,8 +1644,7 @@ class MainActivity : ComponentActivity() {
         mROZmanimCalendar.calendar = today
         mJewishDateInfo.setCalendar(today)
         addZmanim(zmanim) //for the next day
-        mROZmanimCalendar.calendar = mCurrentDateShown
-        mJewishDateInfo.setCalendar(mCurrentDateShown) //reset
+        syncCalendars() //reset
         //find the next upcoming zman that is after the current time and before all the other zmanim
         for (zmanEntry in zmanim) {
             val zman: Date? = zmanEntry.zman
@@ -1681,9 +1739,23 @@ class MainActivity : ComponentActivity() {
         }
         val pullRefreshState = rememberPullRefreshState(refreshing, ::refresh)
         val scalingLazyListState = rememberScalingLazyListState(initialCenterItemIndex = nextUpcomingZmanIndex)
+        val isDragged = remember { mutableStateOf(false) }
         val height = remember { mutableIntStateOf(1) }
         val focusRequester = remember { FocusRequester() }
         val coroutineScope = rememberCoroutineScope()
+        val nestedScrollConnection = remember {
+            object : NestedScrollConnection {
+                override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                    isDragged.value = true
+                    return super.onPreScroll(available, source)
+                }
+
+                override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
+                    isDragged.value = true
+                    return super.onPostScroll(consumed, available, source)
+                }
+            }
+        }
         RabbiOvadiahYosefCalendarTheme {
             Scaffold(
                 timeText = { TimeText(
@@ -1731,6 +1803,7 @@ class MainActivity : ComponentActivity() {
                     ScalingLazyColumn(
                         modifier = Modifier
                             .background(MaterialTheme.colors.background)
+                            .nestedScroll(nestedScrollConnection)
                             .onRotaryScrollEvent {
                                 coroutineScope.launch {
                                     scalingLazyListState.scrollBy(it.verticalScrollPixels)
@@ -1764,7 +1837,8 @@ class MainActivity : ComponentActivity() {
                                         }
                                     DarkChip(
                                         text = zmanTitleAndTime,
-                                        upcoming = sNextUpcomingZman == zmanimList[index].zman
+                                        upcoming = sNextUpcomingZman == zmanimList[index].zman,
+                                        isDragged = isDragged.value
                                     )
                                 } else {
                                     Column(
@@ -1779,13 +1853,13 @@ class MainActivity : ComponentActivity() {
                                             ) {
                                                 Box(modifier = Modifier.padding(vertical = 36.dp)) {
                                                     DarkChip(
-                                                        text = getString(R.string.settings_not_recieved)
+                                                        text = getString(R.string.settings_not_recieved), isDragged = false
                                                     )
                                                 }
                                             }
                                         }
 
-                                        DarkChip(text = zmanimList[index].title)
+                                        DarkChip(text = zmanimList[index].title, isDragged = false, onClick = {if (index == 1) showDatePickerDialog() }, isEnabled = index == 1)
 
                                         if (index == zmanimList.size - 1) {
                                             RedChipWithWhiteX("", onRemove = { finish() })
@@ -1802,12 +1876,13 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun DarkChip(text: String, upcoming: Boolean = false) {
+    fun DarkChip(text: String, upcoming: Boolean = false, isDragged: Boolean, onClick: () -> Unit = { }, isEnabled: Boolean = false) {
         var modifier = Modifier
-            .background(if (upcoming) DarkGray else Color.Transparent, CircleShape)
+            .clickable(onClick = onClick, enabled = isEnabled)
+            .background(if (upcoming) DarkGray else Color.Transparent, if (resources.configuration.isScreenRound) CircleShape else RoundedCornerShape(2))
             .fillMaxWidth()
 
-        modifier = if (upcoming) {
+        modifier = if (upcoming && !isDragged) {
             modifier.aspectRatio(1.toFloat())
         } else {
             modifier.padding(8.dp)

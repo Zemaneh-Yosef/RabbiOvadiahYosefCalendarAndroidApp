@@ -1,4 +1,4 @@
-package com.ej.rovadiahyosefcalendar.classes;
+package com.EJ.ROvadiahYosefCalendar.classes;
 
 import static com.kosherjava.zmanim.hebrewcalendar.JewishDate.ADAR;
 import static com.kosherjava.zmanim.hebrewcalendar.JewishDate.ADAR_II;
@@ -6,98 +6,97 @@ import static com.kosherjava.zmanim.hebrewcalendar.JewishDate.CHESHVAN;
 import static com.kosherjava.zmanim.hebrewcalendar.JewishDate.ELUL;
 import static com.kosherjava.zmanim.hebrewcalendar.JewishDate.IYAR;
 import static com.kosherjava.zmanim.hebrewcalendar.JewishDate.KISLEV;
-import static com.kosherjava.zmanim.hebrewcalendar.JewishDate.NISSAN;
 import static com.kosherjava.zmanim.hebrewcalendar.JewishDate.TAMMUZ;
 import static com.kosherjava.zmanim.hebrewcalendar.JewishDate.TEVES;
 import static com.kosherjava.zmanim.hebrewcalendar.JewishDate.getDaysInJewishYear;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.content.Context;
 import android.view.View;
+import android.widget.Button;
 import android.widget.NumberPicker;
 
-import androidx.annotation.NonNull;
-import androidx.fragment.app.DialogFragment;
-
-import com.ej.rovadiahyosefcalendar.R;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.EJ.ROvadiahYosefCalendar.R;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
 import java.util.Locale;
-import java.util.Objects;
 
-public class HebrewDayMonthYearPickerDialog extends DialogFragment {
+public class HebrewDatePickerDialog extends Dialog {
 
-    private final int MIN_YEAR;
-    private final int MAX_YEAR;
-    private DatePickerDialog.OnDateSetListener listener;
-    private final CustomDatePickerDialog mCustomDatePickerDialog;
+    private final NumberPicker mMonthPicker;
+    private final NumberPicker mDayPicker;
     private final JewishCalendar mJewishCalendar;
+    private final NumberPicker mYearPicker;
+    DatePickerDialog.OnDateSetListener mListener;
     private String[] mHebrewMonths = {"Nissan", "Iyar", "Sivan", "Tammuz", "Av",
             "Elul", "Tishri", "Cheshvan", "Kislev", "Tevet", "Shevat", "Adar"};
     private String[] mHebrewMonthsLeap = {"Nissan", "Iyar", "Sivan", "Tammuz", "Av",
             "Elul", "Tishri", "Cheshvan", "Kislev", "Tevet", "Shevat", "Adar I", "Adar II"};
-    private NumberPicker mDayPicker;
-    private NumberPicker mMonthPicker;
-    private NumberPicker mYearPicker;
 
-    public HebrewDayMonthYearPickerDialog(CustomDatePickerDialog customDatePickerDialog, JewishCalendar jewishCalendar) {
-        super();
-        mCustomDatePickerDialog = customDatePickerDialog;
-        mJewishCalendar = jewishCalendar;
-        MIN_YEAR = jewishCalendar.getJewishYear() - 100;
-        MAX_YEAR = jewishCalendar.getJewishYear() + 100;
+    public HebrewDatePickerDialog(Activity activity, Context context,
+                                  DatePickerDialog.OnDateSetListener listener,
+                                  JewishCalendar jewishCalendar,
+                                  View.OnClickListener okOnClick,
+                                  View.OnClickListener switchOnClick,
+                                  View.OnClickListener cancelOnClick) {
+        super(context, 0);
+        mListener = listener;
         if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
             mHebrewMonths = new String[]{"ניסן", "אייר", "סיון", "תמוז", "אב", "אלול", "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר"};
             mHebrewMonthsLeap = new String[]{"ניסן", "אייר", "סיון", "תמוז", "אב", "אלול", "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר א׳", "אדר ב׳"};
         }
-    }
+        View pickers = activity.getLayoutInflater().inflate(R.layout.hebrew_date_picker, null);
 
-    public void setListener(DatePickerDialog.OnDateSetListener listener) {
-        this.listener = listener;
-    }
-
-    @NonNull
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireActivity());
-
-        LayoutInflater inflater = requireActivity().getLayoutInflater();// Get the layout inflater
-
-        View dialog = inflater.inflate(R.layout.hebrew_date_picker_dialog, null);
-        mDayPicker = dialog.findViewById(R.id.picker_day);
-        mMonthPicker = dialog.findViewById(R.id.picker_month);
-        mYearPicker = dialog.findViewById(R.id.picker_year);
-
+        mDayPicker = pickers.findViewById(R.id.picker_day);
         mDayPicker.setMinValue(1);
+        mJewishCalendar = jewishCalendar;
         int month = mJewishCalendar.getJewishMonth();
-        if ((month == IYAR) || (month == TAMMUZ) || (month == ELUL) || ((month == CHESHVAN) && !(isCheshvanLong(mJewishCalendar.getJewishYear())))
-                || ((month == KISLEV) && isKislevShort(mJewishCalendar.getJewishYear())) || (month == TEVES)
-                || ((month == ADAR) && !(isJewishLeapYear(mJewishCalendar.getJewishYear()))) || (month == ADAR_II)) {
+        if ((month == IYAR) || (month == TAMMUZ) || (month == ELUL) || ((month == CHESHVAN) && !(isCheshvanLong(jewishCalendar.getJewishYear())))
+                || ((month == KISLEV) && isKislevShort(jewishCalendar.getJewishYear())) || (month == TEVES)
+                || ((month == ADAR) && !(isJewishLeapYear(jewishCalendar.getJewishYear()))) || (month == ADAR_II)) {
             mDayPicker.setMaxValue(29);
         } else {
             mDayPicker.setMaxValue(30);
         }
-        mDayPicker.setValue(mJewishCalendar.getJewishDayOfMonth());
+        mDayPicker.setValue(jewishCalendar.getJewishDayOfMonth());
 
-        mMonthPicker.setMinValue(NISSAN);
-        if (isJewishLeapYear(mJewishCalendar.getJewishYear())) {
+        mMonthPicker = pickers.findViewById(R.id.picker_month);
+        mMonthPicker.setMinValue(JewishCalendar.NISSAN);
+        if (isJewishLeapYear(jewishCalendar.getJewishYear())) {
             mMonthPicker.setMaxValue(ADAR_II);
         } else {
             mMonthPicker.setMaxValue(ADAR);
         }
-        mMonthPicker.setValue(mJewishCalendar.getJewishMonth());
-        if (isJewishLeapYear(mJewishCalendar.getJewishYear())) {
+        if (isJewishLeapYear(jewishCalendar.getJewishYear())) {
             mMonthPicker.setDisplayedValues(mHebrewMonthsLeap);
         } else {
             mMonthPicker.setDisplayedValues(mHebrewMonths);
         }
+        mMonthPicker.setValue(jewishCalendar.getJewishMonth());
 
-        mYearPicker.setMinValue(MIN_YEAR);
-        mYearPicker.setMaxValue(MAX_YEAR);
-        mYearPicker.setValue(mJewishCalendar.getJewishYear());
+        mYearPicker = pickers.findViewById(R.id.picker_year);
+        mYearPicker.setMinValue(jewishCalendar.getJewishYear() - 100);
+        mYearPicker.setMaxValue(jewishCalendar.getJewishYear() + 100);
+        mYearPicker.setValue(jewishCalendar.getJewishYear());
+
+        Button ok = pickers.findViewById(R.id.OK);
+        ok.setOnClickListener(l -> {
+            dismiss();
+            listener.onDateSet(null, mJewishCalendar.getGregorianYear(), mJewishCalendar.getGregorianMonth(), mJewishCalendar.getGregorianDayOfMonth());
+            okOnClick.onClick(ok);
+        });
+        Button switch_calendars = pickers.findViewById(R.id.Switch_Calendar);
+        switch_calendars.setOnClickListener(l -> {
+            dismiss();
+            switchOnClick.onClick(switch_calendars);
+        });
+        Button cancel = pickers.findViewById(R.id.Cancel);
+        cancel.setOnClickListener(l -> {
+            dismiss();
+            cancelOnClick.onClick(cancel);
+        });
 
         NumberPicker.OnValueChangeListener onValueChangeListener = (picker, oldVal, newVal) -> {
             int monthPickerValue = mMonthPicker.getValue();
@@ -123,18 +122,7 @@ public class HebrewDayMonthYearPickerDialog extends DialogFragment {
         mMonthPicker.setOnValueChangedListener(onValueChangeListener);
         mYearPicker.setOnValueChangedListener(onValueChangeListener);
 
-        builder.setView(dialog)
-                .setPositiveButton(R.string.ok, (dialog1, id) -> {
-                    mJewishCalendar.setJewishDate(mYearPicker.getValue(), mMonthPicker.getValue(), mDayPicker.getValue());
-                    listener.onDateSet(null,
-                            mJewishCalendar.getGregorianYear(), mJewishCalendar.getGregorianMonth(), mJewishCalendar.getGregorianDayOfMonth());
-                })
-                .setNegativeButton(requireContext().getString(R.string.cancel), (dialog2, id) -> Objects.requireNonNull(HebrewDayMonthYearPickerDialog.this.getDialog()).cancel())
-                .setNeutralButton(requireContext().getString(R.string.switch_calendar), (dialog3, which) -> {
-                    mCustomDatePickerDialog.create();
-                    mCustomDatePickerDialog.show();
-                });
-        return builder.create();
+        setContentView(pickers);
     }
 
     private static boolean isJewishLeapYear(int year) {
@@ -169,9 +157,5 @@ public class HebrewDayMonthYearPickerDialog extends DialogFragment {
         } else {
             mMonthPicker.setDisplayedValues(mHebrewMonths);
         }
-    }
-
-    public void updateDate(int year, int month, int dayOfMonth) {
-        mJewishCalendar.setGregorianDate(year, month, dayOfMonth);
     }
 }

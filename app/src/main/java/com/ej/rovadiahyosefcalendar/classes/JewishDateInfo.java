@@ -10,6 +10,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 /**
@@ -473,7 +474,7 @@ public class JewishDateInfo {
             return "Tachanun only in the morning";
         }
         // According to Rabbi Meir Gavriel Elbaz, Rabbi Ovadiah would only skip tachanun on the day of Yom Yerushalayim itself as is the custom of the Yeshiva of Yechaveh Daat.
-        // He WOULD say tachanun on Erev Yom Yerushalayim and on Yom Ha'atmaut. However, since there are disagreements, it was recommended for the app to just say that "Some say tachanun" on both days.
+        // He WOULD say tachanun on Erev Yom Yerushalayim and on Yom Ha'atmaut. However, since there are disagreements (for example: Rabbi Yonatan Nacson writes that you may skip tachanun on both days), it was recommended for the app to just say that "Some say tachanun" on both days.
         if (yomTovIndex == JewishCalendar.YOM_YERUSHALAYIM || yomTovIndex == JewishCalendar.YOM_HAATZMAUT) {
             if (isLocaleHebrew) {
                 return "יש אומרים תחנון";
@@ -755,10 +756,10 @@ public class JewishDateInfo {
     }
 
     /**
-     * This method returns a string containing the words Hallel or Chatzi Hallel depending on the occasion.
+     * This method returns a string containing the words הלל שלם or חצי הלל depending on the occasion.
      * Hallel is said on the first day of Pesach, Shavuot, Succot, and Shmini Atzeret. It is also said everyday of Chanukah and chol hamoed Succot.
      * Chatzi Hallel is said on Rosh Chodesh, Chol Hamoed Pesach, and the last day of Pesach.
-     * @return a string containing whether or not to say Hallel or Chatzi Hallel in Hebrew.
+     * @return a string containing whether הלל שלם or חצי הלל in Hebrew. It will be empty if there is no hallel said.
      */
     public String getHallelOrChatziHallel() {
         int yomTovIndex = jewishCalendar.getYomTovIndex();
@@ -782,6 +783,10 @@ public class JewishDateInfo {
         }
     }
 
+    /**
+     * Returns true if the current date is within the three weeks known as Bein Hametzarim.
+     * @return Returns true if the current date is within the three weeks known as Bein Hametzarim
+     */
     public boolean is3Weeks() {
         if (jewishCalendar.getJewishMonth() == JewishDate.TAMMUZ) {
             return jewishCalendar.getJewishDayOfMonth() >= 17;
@@ -791,6 +796,10 @@ public class JewishDateInfo {
         return false;
     }
 
+    /**
+     * Returns true if the current date is within the nine days between Rosh Chodesh Av and Tisha Beav.
+     * @return Returns true if the current date is within the nine days.
+     */
     public boolean is9Days() {
         if (jewishCalendar.getJewishMonth() == JewishDate.AV) {
             return jewishCalendar.getJewishDayOfMonth() < 9;
@@ -798,6 +807,10 @@ public class JewishDateInfo {
         return false;
     }
 
+    /**
+     * Returns true if the current date is within Shevua Shechal Bo, which occurs between Sunday of the week that Tisha Beav falls on until Tisha Beav.
+     * @return Returns true if the current date is within Shevua Shechal Bo.
+     */
     public boolean isShevuahShechalBo() {
         if (jewishCalendar.getJewishMonth() != JewishDate.AV) {
             return false;
@@ -822,6 +835,10 @@ public class JewishDateInfo {
         return daysOfShevuahShechalBo.contains(jewishCalendar.getJewishDayOfMonth());
     }
 
+    /**
+     * Returns true if Selichot are said on the current date, which occurs between the beginning of Elul (excluding Rosh Chodesh) until Yom Kippur.
+     * @return Returns true Selichot are said on the current date.
+     */
     public boolean isSelichotSaid() {
         if (jewishCalendar.getJewishMonth() == JewishDate.ELUL) {
             if (!jewishCalendar.isRoshChodesh()) {
@@ -841,5 +858,66 @@ public class JewishDateInfo {
      */
     public boolean isShmitaYear() {
         return jewishCalendar.getJewishYear() % 7 == 0;
+    }
+
+    /**
+     * Returns true if for the current date (i.e. the night before) we say Tikkun Chatzot.
+     * @return Returns true if for the current date (i.e. the night before) we say Tikkun Chatzot
+     * @see #isOnlyTikkunLeiaSaid(boolean, boolean)
+     */
+    public boolean isNightTikkunChatzotSaid() {
+        // These are all days that Tikkun Chatzot is not said at all, so we NOT it to know if Tikkun Chatzot IS said
+        return !(jewishCalendar.getDayOfWeek() == 7 ||
+                jewishCalendar.isRoshHashana() ||
+                jewishCalendar.isYomKippur() ||
+                jewishCalendar.getYomTovIndex() == JewishCalendar.SUCCOS ||
+                jewishCalendar.getYomTovIndex() == JewishCalendar.SHEMINI_ATZERES ||
+                jewishCalendar.isPesach() || jewishCalendar.isShavuos());
+    }
+
+    /**
+     * Returns true if for the current date (daytime) we say Tikkun Chatzot. The minhag is to say Tikkun Rachel during the three weeks from chatzot
+     * until sunset.
+     * @return Returns true if for the current date (daytime) we say Tikkun Chatzot (Tikkun Rachel)
+     * @see #is3Weeks()
+     * @see #isOnlyTikkunLeiaSaid(boolean, boolean)
+     */
+    public boolean isDayTikkunChatzotSaid() {
+        // Tikkun Rachel is said during the daytime for the three weeks, but not in these cases. Tikkun Rachel IS said on Erev Tisha Beav
+        return !((jewishCalendar.isErevRoshChodesh() && jewishCalendar.getJewishMonth() == JewishDate.TAMMUZ) ||// Use tammuz to check for erev rosh chodesh Av
+                jewishCalendar.isRoshChodesh() ||
+                jewishCalendar.getDayOfWeek() == 6 ||
+                getIsTachanunSaid().equals("No Tachanun today") || getIsTachanunSaid().equals("לא אומרים תחנון"));
+    }
+
+    /**
+     * Returns true if for the current date (i.e. the night before) we say the SECOND part of Tikkun Chatzot i.e. Tikkun Leia. Tikkun Leia contains
+     * prayers that praise Hashem for his glory. It is usually not skipped, however, there are exceptions like Tisha Beav night.
+     * @return Returns true if for the current date (i.e. the night before) we say the SECOND part of Tikkun Chatzot i.e. Tikkun Leia
+     */
+    public boolean isOnlyTikkunLeiaSaid(boolean forNightTikkun, boolean isTikkunChatzotSaid) {
+        if (forNightTikkun) {
+            if (isTikkunChatzotSaid) {
+                // These are days where we ONLY say Tikkun Leia
+                int currentHebrewMonth = jewishCalendar.getJewishMonth();
+                while (currentHebrewMonth == jewishCalendar.getJewishMonth() && !jewishCalendar.isRoshChodesh()) {
+                    jewishCalendar.forward(Calendar.DATE, 1); // go forward until the next month
+                }
+                Date molad = jewishCalendar.getMoladAsDate(); // now we can get the molad for the next month
+                Date roshChodesh = jewishCalendar.getGregorianCalendar().getTime();
+                jewishCalendar.setDate(currentDate); // reset
+                boolean afterMoladBeforeRoshChodesh = molad.before(new Date()) && roshChodesh.after(new Date()) && !jewishCalendar.isRoshChodesh(); // Tikkun Leia (only) is said if it is after the molad but before Rosh Chodesh, this condition is time based even though all the other methods are date based
+                return (jewishCalendar.isAseresYemeiTeshuva() ||
+                        jewishCalendar.isCholHamoedSuccos() ||
+                        jewishCalendar.getDayOfOmer() != -1 ||
+                        (jewishCalendar.getInIsrael() && isShmitaYear()) ||
+                        getIsTachanunSaid().equals("No Tachanun today") || getIsTachanunSaid().equals("לא אומרים תחנון") ||
+                        afterMoladBeforeRoshChodesh);
+                // Tikkun Rachel is also skipped in the house of a Mourner, Chatan, or Brit Milah (Specifically the father of the boy)
+            }
+        } else { // for day tikkun, we do not say Tikkun Rachel if there is no tachanun
+            return getIsTachanunSaid().equals("No Tachanun today") || getIsTachanunSaid().equals("לא אומרים תחנון");
+        }
+        return false;
     }
 }

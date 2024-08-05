@@ -2,8 +2,12 @@ package com.ej.rovadiahyosefcalendar.activities;
 
 import static android.text.Html.fromHtml;
 import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sCurrentTimeZoneID;
+import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sLatitude;
+import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sLongitude;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
@@ -22,17 +26,23 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
+import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
 import com.ej.rovadiahyosefcalendar.classes.SiddurMaker;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
+import com.kosherjava.zmanim.util.GeoLocation;
 
+import java.text.DateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 public class SiddurChooserActivity extends AppCompatActivity {
 
     private JewishDateInfo mJewishDateInfo;
+    private ROZmanimCalendar mZmanimCalendar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,13 +70,18 @@ public class SiddurChooserActivity extends AppCompatActivity {
                 getIntent().getIntExtra("JewishMonth", mJewishDateInfo.getJewishCalendar().getJewishMonth()),
                 getIntent().getIntExtra("JewishDay", mJewishDateInfo.getJewishCalendar().getJewishDayOfMonth())
         );
-        mJewishDateInfo.setCalendar(mJewishDateInfo.getJewishCalendar().getGregorianCalendar());// not my best work
+        mJewishDateInfo.setCalendar(mJewishDateInfo.getJewishCalendar().getGregorianCalendar());// not my best work, we need to call setCalendar
 
         TextView specialDay = findViewById(R.id.jewish_special_day);
-        specialDay.setText(mJewishDateInfo.getSpecialDay(false));
-        if (specialDay.getText().toString().isEmpty()) {
-            specialDay.setVisibility(View.GONE);
+        Calendar calendar = mJewishDateInfo.getJewishCalendar().getGregorianCalendar();
+        String dateAndSpecialDay = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault())
+                + "\n" +
+                mJewishDateInfo.getJewishCalendar().toString();
+        String specialDayString = mJewishDateInfo.getSpecialDay(false);
+        if (!specialDayString.isEmpty()) {
+            dateAndSpecialDay += "\n" + specialDayString;
         }
+        specialDay.setText(dateAndSpecialDay);
 
         Button selichot = findViewById(R.id.selichot);
         if (mJewishDateInfo.isSelichotSaid()) {
@@ -95,24 +110,87 @@ public class SiddurChooserActivity extends AppCompatActivity {
             neilah.setVisibility(View.GONE);
         //}
 
+        TextView nightDayOfWeek = findViewById(R.id.nightDayOfWeek);
+        Calendar calendarPlusOne = (Calendar) mJewishDateInfo.getJewishCalendar().getGregorianCalendar().clone();
+        calendarPlusOne.add(Calendar.DATE, 1);
+        mJewishDateInfo.setCalendar(calendarPlusOne);
+        String nextDateAndSpecialDay = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault())
+                + "\n" + getString(R.string.after_sunset) + "\n" +
+                mJewishDateInfo.getJewishCalendar().toString();
+        String nextSpecialDayString = mJewishDateInfo.getSpecialDay(false);
+        if (!nextSpecialDayString.isEmpty()) {
+            nextDateAndSpecialDay += "\n" + nextSpecialDayString;
+        }
+        nightDayOfWeek.setText(nextDateAndSpecialDay);
+        mJewishDateInfo.setCalendar(calendar);//reset
+
         Button arvit = findViewById(R.id.arvit);
         arvit.setOnClickListener(v -> startSiddurActivity(getString(R.string.arvit)));
+
+        Button kriatShemaAlHamita = findViewById(R.id.kriat_shema_al_hamita);
+        kriatShemaAlHamita.setOnClickListener(v -> startNextDaySiddurActivity(getString(R.string.kriatShema), false));
+
+        Button tikkunChatzot = findViewById(R.id.tikkun_chatzot);
+        tikkunChatzot.setOnClickListener(v -> {
+            if (mJewishDateInfo.is3Weeks()) {
+                boolean isTachanunSaid = mJewishDateInfo.getIsTachanunSaid().equals("Tachanun only in the morning")
+                        || mJewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון רק בבוקר")
+                        || mJewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון")
+                        || mJewishDateInfo.getIsTachanunSaid().equals("There is Tachanun today");// TODO see if tikkun chatzot for the day is said on shabbat
+                if (mJewishDateInfo.isDayTikkunChatzotSaid() && isTachanunSaid) {
+                    new MaterialAlertDialogBuilder(this)
+                            .setTitle(R.string.do_you_want_to_say_tikkun_chatzot_for_the_day)
+                            .setMessage(R.string.looking_to_say_this_version_of_tikkun_chatzot)
+                            .setPositiveButton(getString(R.string.yes), (dialog, which) -> startSiddurActivity(getString(R.string.tikkun_chatzot)))
+                            .setNegativeButton(getString(R.string.no), (dialog, which) -> startNextDaySiddurActivity(getString(R.string.tikkun_chatzot), true))
+                            .show();
+                } else {
+                    mJewishDateInfo.setCalendar(calendarPlusOne);
+                    if (mJewishDateInfo.isNightTikkunChatzotSaid()) {
+                        startNextDaySiddurActivity(getString(R.string.tikkun_chatzot), true);
+                    } else {
+                        new MaterialAlertDialogBuilder(this)
+                                .setTitle(R.string.tikkun_chatzot_is_not_said_today_or_tonight)
+                                .setMessage(R.string.tikkun_chatzot_is_not_said_today_or_tonight_possible_reasons)
+                                .setPositiveButton(getString(R.string.ok), (dialog, which) -> dialog.dismiss())
+                                .show();
+                    }
+                    mJewishDateInfo.setCalendar(calendar);
+                }
+            } else {
+                mJewishDateInfo.setCalendar(calendarPlusOne);
+                if (mJewishDateInfo.isNightTikkunChatzotSaid()) {
+                    startNextDaySiddurActivity(getString(R.string.tikkun_chatzot), true);
+                } else {
+                    new MaterialAlertDialogBuilder(this)
+                            .setTitle(R.string.tikkun_chatzot_is_not_said_tonight)
+                            .setMessage(R.string.tikkun_chatzot_is_not_said_tonight_possible_reasons)
+                            .setPositiveButton(getString(R.string.ok), (dialog, which) -> dialog.dismiss())
+                            .show();
+                }
+                mJewishDateInfo.setCalendar(calendar);
+            }
+        });
+
+        mZmanimCalendar = new ROZmanimCalendar(new GeoLocation("", sLatitude, sLongitude, getLastKnownElevation(getSharedPreferences(SHARED_PREF, MODE_PRIVATE)), TimeZone.getTimeZone(sCurrentTimeZoneID)));
+        mZmanimCalendar.setCalendar(calendar);
+        String sunset = DateFormat.getTimeInstance(DateFormat.SHORT).format(mZmanimCalendar.getSunset());
 
         Button bh = findViewById(R.id.birchat_hamazon);
         bh.setOnClickListener(v -> {
             JewishDateInfo tomorrow = new JewishDateInfo(mJewishDateInfo.getJewishCalendar().getInIsrael());
-            Calendar calendar = (Calendar) mJewishDateInfo.getJewishCalendar().getGregorianCalendar().clone();
-            calendar.add(Calendar.DATE, 1);
-            tomorrow.setCalendar(calendar);
+            Calendar nextDayCalendar = (Calendar) mJewishDateInfo.getJewishCalendar().getGregorianCalendar().clone();
+            nextDayCalendar.add(Calendar.DATE, 1);
+            tomorrow.setCalendar(nextDayCalendar);
 
             if (new SiddurMaker(mJewishDateInfo).getBirchatHamazonPrayers().equals(new SiddurMaker(tomorrow).getBirchatHamazonPrayers())) {
                 startSiddurActivity(getString(R.string.birchat_hamazon));//doesn't matter which day
             } else {
                 new MaterialAlertDialogBuilder(this)
                         .setTitle(R.string.when_did_you_start_your_meal)
-                        .setMessage(R.string.did_you_start_your_meal_during_the_day)
+                        .setMessage(getString(R.string.did_you_start_your_meal_during_the_day) + " (" + sunset + ")")
                         .setPositiveButton(getString(R.string.yes), (dialog, which) -> startSiddurActivity(getString(R.string.birchat_hamazon)))
-                        .setNegativeButton(getString(R.string.no), (dialog, which) -> startNextDaySiddurActivity(getString(R.string.birchat_hamazon)))
+                        .setNegativeButton(getString(R.string.no), (dialog, which) -> startNextDaySiddurActivity(getString(R.string.birchat_hamazon), false))
                         .show();
             }
         });
@@ -175,15 +253,30 @@ public class SiddurChooserActivity extends AppCompatActivity {
                 .putExtra("JewishDay", mJewishDateInfo.getJewishCalendar().getJewishDayOfMonth())
                 .putExtra("JewishMonth", mJewishDateInfo.getJewishCalendar().getJewishMonth())
                 .putExtra("JewishYear", mJewishDateInfo.getJewishCalendar().getJewishYear())
+                .putExtra("isNightTikkunChatzot", false)
         );
     }
 
-    private void startNextDaySiddurActivity(String prayer) {
+    private void startNextDaySiddurActivity(String prayer, boolean isNightTikkunChatzot) {
+        mJewishDateInfo.getJewishCalendar().forward(Calendar.DATE, 1);
         startActivity(new Intent(this, SiddurViewActivity.class)
                 .putExtra("prayer", prayer)
-                .putExtra("JewishDay", mJewishDateInfo.getJewishCalendar().getJewishDayOfMonth() + 1)
+                .putExtra("JewishDay", mJewishDateInfo.getJewishCalendar().getJewishDayOfMonth())
                 .putExtra("JewishMonth", mJewishDateInfo.getJewishCalendar().getJewishMonth())
                 .putExtra("JewishYear", mJewishDateInfo.getJewishCalendar().getJewishYear())
+                .putExtra("isBeforeChatzot", new Date().before(mZmanimCalendar.getSolarMidnight()))
+                .putExtra("isNightTikkunChatzot", isNightTikkunChatzot)
         );
+        mJewishDateInfo.getJewishCalendar().back();//reset
+    }
+
+    private static double getLastKnownElevation(SharedPreferences mSharedPreferences) {
+        double elevation;
+        if (!mSharedPreferences.getBoolean("useElevation", true)) {//if the user has disabled the elevation setting, set the elevation to 0
+            elevation = 0;
+        } else {
+            elevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mSharedPreferences.getString("name", ""), "0"));//lastKnownLocation
+        }
+        return elevation;
     }
 }

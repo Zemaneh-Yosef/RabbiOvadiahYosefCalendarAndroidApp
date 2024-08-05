@@ -32,7 +32,7 @@ class NextZmanComplicationService : SuspendingComplicationDataSourceService() {
 
     private lateinit var sharedPref: SharedPreferences
     private var mCurrentDateShown = Calendar.getInstance()
-    private var mROZmanimCalendar = ROZmanimCalendar(GeoLocation())
+    private var mROZmanimCalendar = ROZmanimCalendar(GeoLocation(), null)
     private var mJewishDateInfo = JewishDateInfo(false)
     private lateinit var zmanimFormat: SimpleDateFormat
     private lateinit var visibleSunriseFormat: SimpleDateFormat
@@ -121,7 +121,7 @@ class NextZmanComplicationService : SuspendingComplicationDataSourceService() {
         if (context != null) {
             sharedPref = context.getSharedPreferences(MainActivity.SHARED_PREF, MODE_PRIVATE)
         }
-        mROZmanimCalendar = ROZmanimCalendar(LocationResolver.getLastGeoLocation(sharedPref))
+        mROZmanimCalendar = ROZmanimCalendar(LocationResolver.getLastGeoLocation(sharedPref), sharedPref)
         mROZmanimCalendar.candleLightingOffset =
             (sharedPref.getString("CandleLightingOffset", "20")?.toDouble() ?: 0) as Double
         mROZmanimCalendar.ateretTorahSunsetOffset = (sharedPref.getString(
@@ -135,7 +135,6 @@ class NextZmanComplicationService : SuspendingComplicationDataSourceService() {
         ) {
             mROZmanimCalendar.ateretTorahSunsetOffset = 30.0
         }
-        mROZmanimCalendar.setSharedPreferences(sharedPref)
 
         var sUserIsOffline = false
         var elevation: Double

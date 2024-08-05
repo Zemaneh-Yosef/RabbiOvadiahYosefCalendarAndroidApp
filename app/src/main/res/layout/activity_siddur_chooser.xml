@@ -39,14 +39,18 @@
 
             <TextView
                 android:id="@+id/jewish_special_day"
-                android:layout_width="wrap_content"
+                android:layout_width="312dp"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="36dp"
                 android:textSize="26sp"
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:textColor="?android:attr/textColorPrimary"
                 />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
             <Button
                 android:id="@+id/selichot"
@@ -107,11 +111,29 @@
                 app:backgroundTint="@null"
                 android:background="@drawable/colorful_gradient_square">
             </Button>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/nightDayOfWeek"
+                android:layout_width="312dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:textSize="26sp"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textColor="?android:attr/textColorPrimary"
+                />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
             <Button
                 android:id="@+id/arvit"
                 android:layout_width="312dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
+                android:layout_marginTop="8dp"
                 android:text="@string/arvit"
                 android:textStyle="bold"
                 android:textSize="26sp"
@@ -121,11 +143,49 @@
             </Button>
 
             <Button
-                android:id="@+id/birchat_hamazon"
+                android:id="@+id/kriat_shema_al_hamita"
                 android:layout_width="312dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
+                android:text="@string/kriatShema"
+                android:textStyle="bold"
+                android:textSize="26sp"
+                android:textColor="@color/black"
+                app:backgroundTint="@null"
+                android:background="@drawable/colorful_gradient_square">
+            </Button>
+
+            <Button
+                android:id="@+id/tikkun_chatzot"
+                android:layout_width="312dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:text="@string/tikkun_chatzot"
+                android:textStyle="bold"
+                android:textSize="26sp"
+                android:textColor="@color/black"
+                app:backgroundTint="@null"
+                android:background="@drawable/colorful_gradient_square">
+            </Button>
+        </LinearLayout>
+
+            <TextView
+                android:layout_width="312dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:textSize="26sp"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="@string/misc"
+                android:textColor="?android:attr/textColorPrimary"
+                />
+
+            <Button
+                android:id="@+id/birchat_hamazon"
+                android:layout_width="312dp"
+                android:layout_height="wrap_content"
                 android:text="@string/birchat_hamazon"
+                android:layout_marginTop="8dp"
                 android:textStyle="bold"
                 android:textSize="26sp"
                 android:textColor="@color/black"

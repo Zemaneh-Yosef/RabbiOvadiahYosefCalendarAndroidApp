@@ -79,6 +79,12 @@ public class SiddurViewActivity extends AppCompatActivity {
                 case "ברכת הלבנה":
                     prayers = siddurMaker.getBirchatHalevanaPrayers();
                     break;
+                case "תיקון חצות":
+                    prayers = siddurMaker.getTikkunChatzotPrayers(getIntent().getBooleanExtra("isNightTikkunChatzot", true));
+                    break;
+                case "ק״ש שעל המיטה":
+                    prayers = siddurMaker.getKriatShemaShealHamitaPrayers(getIntent().getBooleanExtra("isBeforeChatzot", false));
+                    break;
             }
         }
         ListView siddur = findViewById(R.id.siddur);

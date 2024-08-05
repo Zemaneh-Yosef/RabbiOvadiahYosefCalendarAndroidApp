@@ -130,175 +130,176 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             }
         });
         holder.setIsRecyclable(false);
-        if (zmanim.get(position).isZman()) {
-            if (isZmanimInHebrew) {
-                holder.mRightTextView.setTypeface(Typeface.DEFAULT_BOLD);
-                holder.mRightTextView.setText(zmanim.get(position).getTitle());//zman name
-
-                String zmanTime;
-
-                if (zmanim.get(position).isRTZman() && roundUpRT) {
-                    if (zmanim.get(position).getZman() == null) {
-                        zmanTime = "XX:XX";
-                    } else {
-                        zmanTime = roundUpFormat.format(zmanim.get(position).getZman());
-                    }
-                } else if (zmanim.get(position).isVisibleSunriseZman()) {
-                        zmanTime = visibleSunriseFormat.format(zmanim.get(position).getZman());
-                } else {
-                    if (zmanim.get(position).getZman() == null) {
-                        zmanTime = "XX:XX";
-                    } else {
-                        zmanTime = zmanimFormat.format(zmanim.get(position).getZman());
-                    }
-                }
-                if (zmanim.get(position).getZman() != null) {
-                    if (zmanim.get(position).getZman().equals(sNextUpcomingZman)) {
-                        zmanTime += "◄";
-                    }
-                }
-                holder.mLeftTextView.setText(zmanTime);
-            } else {//switch the views for english
-                holder.mLeftTextView.setTypeface(Typeface.DEFAULT_BOLD);
-                holder.mLeftTextView.setText(zmanim.get(position).getTitle());//zman name
-
-                String zmanTime = "➤";
-                if (zmanim.get(position).getZman() != null) {
-                    if (!zmanim.get(position).getZman().equals(sNextUpcomingZman)) {
-                        zmanTime = "";//remove arrow
-                    }
-                }
-
-                if (zmanim.get(position).isRTZman() && roundUpRT) {
-                    if (zmanim.get(position).getZman() == null) {
-                        zmanTime = "XX:XX";
-                    } else {
-                        zmanTime += roundUpFormat.format(zmanim.get(position).getZman());
-                    }
-                } else if (zmanim.get(position).isVisibleSunriseZman()) {
-                    zmanTime = visibleSunriseFormat.format(zmanim.get(position).getZman());
-                } else {
-                    if (zmanim.get(position).getZman() == null) {
-                        zmanTime = "XX:XX";
-                    } else {
-                        zmanTime += zmanimFormat.format(zmanim.get(position).getZman());
-                    }
-                }
-                holder.mRightTextView.setText(zmanTime);
-            }
-        } else {
-            holder.mMiddleTextView.setText(zmanim.get(position).getTitle());
-        }
-
-        if (position == 2) {// make parasha text bold
-            holder.mMiddleTextView.setTypeface(null, Typeface.BOLD);
-        }
-
-        if (zmanim.get(position).getTitle().equals(context.getString(R.string.show_siddur)) ||
-                zmanim.get(position).getTitle().equals(context.getString(R.string.show_siddur) + "*")) {// make parasha text bold
-            holder.mMiddleTextView.setTypeface(null, Typeface.BOLD);
-        }
-
-        holder.itemView.setOnClickListener(v -> {
-            if (!MainActivity.sShabbatMode && PreferenceManager.getDefaultSharedPreferences(context).getBoolean("showZmanDialogs", true)) {
+        if (zmanim.get(position) != null) {
+            if (zmanim.get(position).isZman()) {
                 if (isZmanimInHebrew) {
-                    checkHebrewZmanimForDialog(position);
-                } else if (mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false)) {
-                    checkTranslatedEnglishZmanimForDialog(position);
-                } else {
-                    checkEnglishZmanimForDialog(position);
-                }
+                    holder.mRightTextView.setTypeface(Typeface.DEFAULT_BOLD);
+                    holder.mRightTextView.setText(zmanim.get(position).getTitle());//zman name
 
-                if (position == 0) {// first entry will always be the location name
-                    dialogBuilder.setTitle("Location info for: " + zmanim.get(position).getTitle());
-                    String locationInfo = "Location Name: " + sCurrentLocationName + "\n" +
-                            "Latitude: " + sLatitude + "\n" +
-                            "Longitude: " + sLongitude + "\n" +
-                            "Elevation: " +
-                            (mSharedPreferences.getBoolean("useElevation", true) ?
-                                    mSharedPreferences.getString("elevation" + sCurrentLocationName, "0") : "0")
-                            + " meters" + "\n" +
-                            "Time Zone: " + sCurrentTimeZoneID;
-                    dialogBuilder.setMessage(locationInfo);
-                    dialogBuilder.setPositiveButton(R.string.share, ((dialog, which) -> {
-                        Intent sendIntent = new Intent(Intent.ACTION_SEND);
-                        sendIntent.setType("text/plain");
-                        sendIntent.putExtra(Intent.EXTRA_TEXT, "https://royzmanim.com/calendar?locationName=" + sCurrentLocationName.replace(" ", "+").replace(",", "%2C") + "&lat=" + sLatitude + "&long="+ sLongitude + "&elevation=" + getElevation() + "&timeZone=" + sCurrentTimeZoneID);
-                        context.startActivity(Intent.createChooser(sendIntent, context.getString(R.string.share)));
-                    }));
-                    dialogBuilder.setNeutralButton(R.string.change_location, (dialog, which) -> {
-                        mSharedPreferences.edit().putBoolean("shouldRefresh", true).apply();
-                        context.startActivity(new Intent(context, GetUserLocationWithMapActivity.class));
-                    });
-                    if (!PreferenceManager.getDefaultSharedPreferences(context).getBoolean("LuachAmudeiHoraah", false)) {
-                        dialogBuilder.setNegativeButton(context.getString(R.string.setup_elevation), (dialog, which) ->
-                                sSetupLauncher.launch(new Intent(context, SetupElevationActivity.class).putExtra("fromMenu",true)));
+                    String zmanTime;
+
+                    if (zmanim.get(position).isRTZman() && roundUpRT) {
+                        if (zmanim.get(position).getZman() == null) {
+                            zmanTime = "XX:XX";
+                        } else {
+                            zmanTime = roundUpFormat.format(zmanim.get(position).getZman());
+                        }
+                    } else if (zmanim.get(position).isVisibleSunriseZman()) {
+                        zmanTime = visibleSunriseFormat.format(zmanim.get(position).getZman());
+                    } else {
+                        if (zmanim.get(position).getZman() == null) {
+                            zmanTime = "XX:XX";
+                        } else {
+                            zmanTime = zmanimFormat.format(zmanim.get(position).getZman());
+                        }
                     }
-                    dialogBuilder.show();
-                    resetDialogBuilder();
-                }
+                    if (zmanim.get(position).getZman() != null) {
+                        if (zmanim.get(position).getZman().equals(sNextUpcomingZman)) {
+                            zmanTime += "◄";
+                        }
+                    }
+                    holder.mLeftTextView.setText(zmanTime);
+                } else {//switch the views for english
+                    holder.mLeftTextView.setTypeface(Typeface.DEFAULT_BOLD);
+                    holder.mLeftTextView.setText(zmanim.get(position).getTitle());//zman name
 
-                // second entry (position 1) is always the date
+                    String zmanTime = "➤";
+                    if (zmanim.get(position).getZman() != null) {
+                        if (!zmanim.get(position).getZman().equals(sNextUpcomingZman)) {
+                            zmanTime = "";//remove arrow
+                        }
+                    }
 
-                if (position == 2 && !zmanim.get(position).getTitle().equals("No Weekly Parsha") && !zmanim.get(position).getTitle().equals("אין פרשת שבוע")) {// third entry will always be the weekly parsha
-                    String parsha = zmanim.get(position).getTitle().split(" ")[0];//get first word
-                    String parshaLink = "https://www.sefaria.org/" + parsha;
-                    dialogBuilder.setTitle("Open Sefaria link for " + parsha + "?");
-                    dialogBuilder.setMessage("This will open the Sefaria website or app in a new window with the weekly parsha.");
-                    dialogBuilder.setPositiveButton(context.getString(R.string.ok), (dialog, which) -> {
-                                Intent intent = new Intent(Intent.ACTION_VIEW);
-                                intent.setData(Uri.parse(parshaLink));
-                                context.startActivity(intent);
-                            });
-                    dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
-                    dialogBuilder.show();
-                    resetDialogBuilder();
+                    if (zmanim.get(position).isRTZman() && roundUpRT) {
+                        if (zmanim.get(position).getZman() == null) {
+                            zmanTime = "XX:XX";
+                        } else {
+                            zmanTime += roundUpFormat.format(zmanim.get(position).getZman());
+                        }
+                    } else if (zmanim.get(position).isVisibleSunriseZman()) {
+                        zmanTime = visibleSunriseFormat.format(zmanim.get(position).getZman());
+                    } else {
+                        if (zmanim.get(position).getZman() == null) {
+                            zmanTime = "XX:XX";
+                        } else {
+                            zmanTime += zmanimFormat.format(zmanim.get(position).getZman());
+                        }
+                    }
+                    holder.mRightTextView.setText(zmanTime);
                 }
+            } else {
+                holder.mMiddleTextView.setText(zmanim.get(position).getTitle());
+            }
 
-                if (zmanim.get(position).getTitle().contains(context.getString(R.string.three_weeks))
-                || zmanim.get(position).getTitle().contains(context.getString(R.string.nine_days))
-                || zmanim.get(position).getTitle().contains(context.getString(R.string.shevuah_shechal_bo))) {
-                    showThreeWeeksDialog(zmanim.get(position).getTitle());
-                }
+            if (position == 2) {// make parasha text bold
+                holder.mMiddleTextView.setTypeface(null, Typeface.BOLD);
+            }
 
-                if (zmanim.get(position).getTitle().contains("וּלְכַפָּרַת פֶּשַׁע")) {
-                    showUlChaparatPeshaDialog();
-                }
+            if (zmanim.get(position).getTitle().equals(context.getString(R.string.show_siddur)) ||
+                    zmanim.get(position).getTitle().equals(context.getString(R.string.show_siddur) + "*")) {// make parasha text bold
+                holder.mMiddleTextView.setTypeface(null, Typeface.BOLD);
+            }
 
-                if (zmanim.get(position).getTitle().contains("ברכת הלבנה") || zmanim.get(position).getTitle().contains("Birchat HaLevana")) {
-                    showBirchatLevanaDialog();
-                }
+            holder.itemView.setOnClickListener(v -> {
+                if (!MainActivity.sShabbatMode && PreferenceManager.getDefaultSharedPreferences(context).getBoolean("showZmanDialogs", true)) {
+                    if (isZmanimInHebrew) {
+                        checkHebrewZmanimForDialog(position);
+                    } else if (mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false)) {
+                        checkTranslatedEnglishZmanimForDialog(position);
+                    } else {
+                        checkEnglishZmanimForDialog(position);
+                    }
 
-                if (zmanim.get(position).getTitle().contains(context.getString(R.string.elevation))) {
-                    showElevationDialog();
-                }
+                    if (position == 0) {// first entry will always be the location name
+                        dialogBuilder.setTitle("Location info for: " + zmanim.get(position).getTitle());
+                        String locationInfo = "Location Name: " + sCurrentLocationName + "\n" +
+                                "Latitude: " + sLatitude + "\n" +
+                                "Longitude: " + sLongitude + "\n" +
+                                "Elevation: " +
+                                (mSharedPreferences.getBoolean("useElevation", true) ?
+                                        mSharedPreferences.getString("elevation" + sCurrentLocationName, "0") : "0")
+                                + " meters" + "\n" +
+                                "Time Zone: " + sCurrentTimeZoneID;
+                        dialogBuilder.setMessage(locationInfo);
+                        dialogBuilder.setPositiveButton(R.string.share, ((dialog, which) -> {
+                            Intent sendIntent = new Intent(Intent.ACTION_SEND);
+                            sendIntent.setType("text/plain");
+                            sendIntent.putExtra(Intent.EXTRA_TEXT, "https://royzmanim.com/calendar?locationName=" + sCurrentLocationName.replace(" ", "+").replace(",", "%2C") + "&lat=" + sLatitude + "&long=" + sLongitude + "&elevation=" + getElevation() + "&timeZone=" + sCurrentTimeZoneID);
+                            context.startActivity(Intent.createChooser(sendIntent, context.getString(R.string.share)));
+                        }));
+                        dialogBuilder.setNeutralButton(R.string.change_location, (dialog, which) -> {
+                            mSharedPreferences.edit().putBoolean("shouldRefresh", true).apply();
+                            context.startActivity(new Intent(context, GetUserLocationWithMapActivity.class));
+                        });
+                        if (!PreferenceManager.getDefaultSharedPreferences(context).getBoolean("LuachAmudeiHoraah", false)) {
+                            dialogBuilder.setNegativeButton(context.getString(R.string.setup_elevation), (dialog, which) ->
+                                    sSetupLauncher.launch(new Intent(context, SetupElevationActivity.class).putExtra("fromMenu", true)));
+                        }
+                        dialogBuilder.show();
+                        resetDialogBuilder();
+                    }
 
-                if (zmanim.get(position).getTitle().contains("Tekufa") || zmanim.get(position).getTitle().contains("תקופת")) {
-                    showTekufaDialog();
-                }
+                    // second entry (position 1) is always the date
 
-                if (zmanim.get(position).getTitle().contains("Tachanun") || zmanim.get(position).getTitle().contains("תחנון") || zmanim.get(position).getTitle().contains("צדקתך")) {
-                    showTachanunDialog();
-                }
+                    if (position == 2 && !zmanim.get(position).getTitle().equals("No Weekly Parsha") && !zmanim.get(position).getTitle().equals("אין פרשת שבוע")) {// third entry will always be the weekly parsha
+                        String parsha = zmanim.get(position).getTitle().split(" ")[0];//get first word
+                        String parshaLink = "https://www.sefaria.org/" + parsha;
+                        dialogBuilder.setTitle("Open Sefaria link for " + parsha + "?");
+                        dialogBuilder.setMessage("This will open the Sefaria website or app in a new window with the weekly parsha.");
+                        dialogBuilder.setPositiveButton(context.getString(R.string.ok), (dialog, which) -> {
+                            Intent intent = new Intent(Intent.ACTION_VIEW);
+                            intent.setData(Uri.parse(parshaLink));
+                            context.startActivity(intent);
+                        });
+                        dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
+                        dialogBuilder.show();
+                        resetDialogBuilder();
+                    }
 
-                if (zmanim.get(position).getTitle().contains(context.getString(R.string.daf_yomi))) {
-                    ZmanListEntry zman = zmanim.get(position);
-                    JewishCalendar jewishCalendar = new JewishCalendar();
-                    jewishCalendar.setDate(zman.getZman());
-                    String masechta = YomiCalculator.getDafYomiBavli(jewishCalendar).getMasechtaTransliterated();
-                    int daf = YomiCalculator.getDafYomiBavli(jewishCalendar).getDaf();
-                    String dafYomiLink = "https://www.sefaria.org/" + masechta + "." + daf + "a";
-                    dialogBuilder.setTitle("Open Sefaria link for " + zmanim.get(position).getTitle().replace(context.getString(R.string.daf_yomi) + " ", "") + "?");
-                    dialogBuilder.setMessage("This will open the Sefaria website or app in a new window with the daf yomi.");
-                    dialogBuilder.setPositiveButton(context.getString(R.string.ok), (dialog, which) -> {
-                                Intent intent = new Intent(Intent.ACTION_VIEW);
-                                intent.setData(Uri.parse(dafYomiLink));
-                                context.startActivity(intent);
-                            });
-                    dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
-                    dialogBuilder.show();
-                    resetDialogBuilder();
-                }
+                    if (zmanim.get(position).getTitle().contains(context.getString(R.string.three_weeks))
+                            || zmanim.get(position).getTitle().contains(context.getString(R.string.nine_days))
+                            || zmanim.get(position).getTitle().contains(context.getString(R.string.shevuah_shechal_bo))) {
+                        showThreeWeeksDialog(zmanim.get(position).getTitle());
+                    }
+
+                    if (zmanim.get(position).getTitle().contains("וּלְכַפָּרַת פֶּשַׁע")) {
+                        showUlChaparatPeshaDialog();
+                    }
+
+                    if (zmanim.get(position).getTitle().contains("ברכת הלבנה") || zmanim.get(position).getTitle().contains("Birchat HaLevana")) {
+                        showBirchatLevanaDialog();
+                    }
+
+                    if (zmanim.get(position).getTitle().contains(context.getString(R.string.elevation))) {
+                        showElevationDialog();
+                    }
+
+                    if (zmanim.get(position).getTitle().contains("Tekufa") || zmanim.get(position).getTitle().contains("תקופת")) {
+                        showTekufaDialog();
+                    }
+
+                    if (zmanim.get(position).getTitle().contains("Tachanun") || zmanim.get(position).getTitle().contains("תחנון") || zmanim.get(position).getTitle().contains("צדקתך")) {
+                        showTachanunDialog();
+                    }
+
+                    if (zmanim.get(position).getTitle().contains(context.getString(R.string.daf_yomi))) {
+                        ZmanListEntry zman = zmanim.get(position);
+                        JewishCalendar jewishCalendar = new JewishCalendar();
+                        jewishCalendar.setDate(zman.getZman());
+                        String masechta = YomiCalculator.getDafYomiBavli(jewishCalendar).getMasechtaTransliterated();
+                        int daf = YomiCalculator.getDafYomiBavli(jewishCalendar).getDaf();
+                        String dafYomiLink = "https://www.sefaria.org/" + masechta + "." + daf + "a";
+                        dialogBuilder.setTitle("Open Sefaria link for " + zmanim.get(position).getTitle().replace(context.getString(R.string.daf_yomi) + " ", "") + "?");
+                        dialogBuilder.setMessage("This will open the Sefaria website or app in a new window with the daf yomi.");
+                        dialogBuilder.setPositiveButton(context.getString(R.string.ok), (dialog, which) -> {
+                            Intent intent = new Intent(Intent.ACTION_VIEW);
+                            intent.setData(Uri.parse(dafYomiLink));
+                            context.startActivity(intent);
+                        });
+                        dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
+                        dialogBuilder.show();
+                        resetDialogBuilder();
+                    }
 //                if (zmanim.get(position).getTitle().contains("Yerushalmi Yomi")) {//TODO: add sefaria link for yerushalmi yomi
 //                    // open sefaria link for yerushalmi yomi
 //                    String yerushalmiYomiLink = "https://www.sefaria.org/" + zmanim.get(position).getTitle().replace("Yerushalmi Yomi: ", "");
@@ -312,41 +313,42 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 //                    dialogBuilder.show();
 //                    dialogBuilder.setPositiveButton("Dismiss", (dialog, which) -> dialog.dismiss());
 //                }
+                }
+                if (zmanim.get(position).getTitle().equals(context.getString(R.string.show_siddur)) ||
+                        zmanim.get(position).getTitle().equals(context.getString(R.string.show_siddur) + "*")) {
+                    JewishCalendar jewishCalendar = new JewishCalendar();
+                    jewishCalendar.setDate(zmanim.get(position).getZman());
+                    context.startActivity(new Intent(context, SiddurChooserActivity.class)
+                            .putExtra("JewishDay", jewishCalendar.getJewishDayOfMonth())
+                            .putExtra("JewishMonth", jewishCalendar.getJewishMonth())
+                            .putExtra("JewishYear", jewishCalendar.getJewishYear())
+                    );
+                }
+            });
+
+            if (mSharedPreferences.getBoolean("useImage", false)) {
+                holder.itemView.setBackgroundResource(0);
+            } else if (mSharedPreferences.getBoolean("customBackgroundColor", false) &&
+                    !mSharedPreferences.getBoolean("useDefaultBackgroundColor", false)) {
+                holder.itemView.setBackgroundColor(mSharedPreferences.getInt("bColor", 0x32312C));
             }
-            if (zmanim.get(position).getTitle().equals(context.getString(R.string.show_siddur)) ||
-                    zmanim.get(position).getTitle().equals(context.getString(R.string.show_siddur) + "*")) {
-                JewishCalendar jewishCalendar = new JewishCalendar();
-                jewishCalendar.setDate(zmanim.get(position).getZman());
-                context.startActivity(new Intent(context, SiddurChooserActivity.class)
-                        .putExtra("JewishDay", jewishCalendar.getJewishDayOfMonth())
-                        .putExtra("JewishMonth", jewishCalendar.getJewishMonth())
-                        .putExtra("JewishYear", jewishCalendar.getJewishYear())
-                );
+
+            if (mSharedPreferences.getBoolean("customTextColor", false)) {
+                holder.mLeftTextView.setTextColor(mSharedPreferences.getInt("tColor", 0xFFFFFFFF));
+                holder.mMiddleTextView.setTextColor(mSharedPreferences.getInt("tColor", 0xFFFFFFFF));
+                holder.mRightTextView.setTextColor(mSharedPreferences.getInt("tColor", 0xFFFFFFFF));
             }
-        });
 
-        if (mSharedPreferences.getBoolean("useImage", false)) {
-            holder.itemView.setBackgroundResource(0);
-        } else if (mSharedPreferences.getBoolean("customBackgroundColor", false) &&
-                !mSharedPreferences.getBoolean("useDefaultBackgroundColor", false)) {
-            holder.itemView.setBackgroundColor(mSharedPreferences.getInt("bColor", 0x32312C));
-        }
+            if (zmanim.get(position).isShouldBeDimmed()) {
+                holder.mLeftTextView.setTextColor(context.getResources().getColor(R.color.disabled_gray, context.getTheme()));
+                holder.mRightTextView.setTextColor(context.getResources().getColor(R.color.disabled_gray, context.getTheme()));
+            }
 
-        if (mSharedPreferences.getBoolean("customTextColor", false)) {
-            holder.mLeftTextView.setTextColor(mSharedPreferences.getInt("tColor", 0xFFFFFFFF));
-            holder.mMiddleTextView.setTextColor(mSharedPreferences.getInt("tColor", 0xFFFFFFFF));
-            holder.mRightTextView.setTextColor(mSharedPreferences.getInt("tColor", 0xFFFFFFFF));
-        }
-
-        if (zmanim.get(position).isShouldBeDimmed()) {
-            holder.mLeftTextView.setTextColor(context.getResources().getColor(com.rarepebble.colorpicker.R.color.disabled_gray, context.getTheme()));
-            holder.mRightTextView.setTextColor(context.getResources().getColor(com.rarepebble.colorpicker.R.color.disabled_gray, context.getTheme()));
-        }
-
-        if (zmanim.get(position).isBirchatHachamahZman()) {// it only happens every twenty eight years, so we should highlight it
-            holder.itemView.setBackground(AppCompatResources.getDrawable(context, R.drawable.colorful_gradient_square));
-            holder.mLeftTextView.setTextColor(context.getResources().getColor(R.color.black, context.getTheme()));
-            holder.mRightTextView.setTextColor(context.getResources().getColor(R.color.black, context.getTheme()));
+            if (zmanim.get(position).isBirchatHachamahZman()) {// it only happens every twenty eight years, so we should highlight it
+                holder.itemView.setBackground(AppCompatResources.getDrawable(context, R.drawable.colorful_gradient_square));
+                holder.mLeftTextView.setTextColor(context.getResources().getColor(R.color.black, context.getTheme()));
+                holder.mRightTextView.setTextColor(context.getResources().getColor(R.color.black, context.getTheme()));
+            }
         }
     }
 
@@ -356,7 +358,6 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private String getElevation() {
-        double elevation;
         if (!mSharedPreferences.getBoolean("useElevation", true)) {//if the user has disabled the elevation setting, set the elevation to 0
             return "0";
         } else {
@@ -364,7 +365,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         }
     }
 
-    static class ZmanViewHolder extends RecyclerView.ViewHolder {
+    public static class ZmanViewHolder extends RecyclerView.ViewHolder {
 
         TextView mRightTextView;
         TextView mMiddleTextView;

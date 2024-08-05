@@ -152,14 +152,12 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     private static final int MINUTES_PER_HOUR = 60;
     private static final int MILLISECONDS_PER_MINUTE = 60_000;
     private SharedPreferences sharedPreferences;
-    public void setSharedPreferences(SharedPreferences sharedPreferences) {
-        this.sharedPreferences = sharedPreferences;
-    }
 
-    public ROZmanimCalendar(GeoLocation location) {
+    public ROZmanimCalendar(GeoLocation location, SharedPreferences sharedPreferences) {
         super(location);
         jewishCalendar = new JewishCalendar();
         setUseElevation(true);
+        this.sharedPreferences = sharedPreferences;
     }
 
     /**

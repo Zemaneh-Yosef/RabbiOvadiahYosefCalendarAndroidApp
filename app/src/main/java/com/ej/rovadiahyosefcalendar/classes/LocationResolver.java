@@ -540,9 +540,6 @@ public class LocationResolver extends Thread {
     }
 
     public void getElevationFromWebService() throws IOException {
-        if (!mSharedPreferences.getString("elevation" + sCurrentLocationName, "").isEmpty()) {
-            return;
-        }
         WebService.setUserName("Elyahu41");
         ArrayList<Integer> elevations = new ArrayList<>();
         int sum = 0;

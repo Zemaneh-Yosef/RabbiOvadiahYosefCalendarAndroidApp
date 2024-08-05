@@ -105,6 +105,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
         });
 
         mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
+        mSharedPreferences.edit().putBoolean("shouldRefresh", true).apply();//
 
         // Backup old location details if the user goes back without finishing
         bLocationName = MainActivity.sCurrentLocationName;

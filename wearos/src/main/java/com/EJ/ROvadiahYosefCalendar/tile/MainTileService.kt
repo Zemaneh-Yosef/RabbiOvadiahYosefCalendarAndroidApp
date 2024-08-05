@@ -2,6 +2,7 @@ package com.EJ.ROvadiahYosefCalendar.tile
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.wear.protolayout.ActionBuilders
 import androidx.wear.protolayout.ActionBuilders.LoadAction
 import androidx.wear.protolayout.ColorBuilders.argb
 import androidx.wear.protolayout.DimensionBuilders
@@ -37,7 +38,7 @@ class MainTileService : TileService() {
 
     private lateinit var sharedPref: SharedPreferences
     private var mCurrentDateShown = Calendar.getInstance()
-    private var mROZmanimCalendar = ROZmanimCalendar(GeoLocation())
+    private var mROZmanimCalendar = ROZmanimCalendar(GeoLocation(), null)
     private var mJewishDateInfo = JewishDateInfo(false)
     private lateinit var zmanimFormat: SimpleDateFormat
     private lateinit var visibleSunriseFormat: SimpleDateFormat
@@ -60,8 +61,14 @@ class MainTileService : TileService() {
                                 .Builder()
                                 .setClickable(
                                     Clickable.Builder()
-                                        .setId("refresh")
-                                        .setOnClick(LoadAction.Builder().build())
+                                        .setId("launchApp")
+                                        .setOnClick(
+                                            ActionBuilders.LaunchAction.Builder()
+                                                .setAndroidActivity(ActionBuilders.AndroidActivity.Builder()
+                                                    .setPackageName(applicationContext.packageName)
+                                                    .setClassName("com.EJ.ROvadiahYosefCalendar.presentation.MainActivity").build())
+                                                .build()
+                                        )
                                         .build()
                                 ).build()
                         )
@@ -93,9 +100,9 @@ class MainTileService : TileService() {
                 }
 
             if (Locale.getDefault().getDisplayLanguage(Locale("en", "US")) == "Hebrew") {
-                return getString(R.string.next_zman) + "\n\n" + theZman.title + "\n\n" + zmanTime
+                return theZman.title + "\n\n" + zmanTime
             }
-            return getString(R.string.next_zman) + "\n\n" + theZman.title + "\n\nis at\n\n" + zmanTime
+            return theZman.title + "\n\nis at\n\n" + zmanTime
         }
         return ""
     }
@@ -104,7 +111,7 @@ class MainTileService : TileService() {
         if (context != null) {
             sharedPref = context.getSharedPreferences(MainActivity.SHARED_PREF, MODE_PRIVATE)
         }
-        mROZmanimCalendar = ROZmanimCalendar(LocationResolver.getLastGeoLocation(sharedPref))
+        mROZmanimCalendar = ROZmanimCalendar(LocationResolver.getLastGeoLocation(sharedPref), sharedPref)
         mROZmanimCalendar.candleLightingOffset =
             (sharedPref.getString("CandleLightingOffset", "20")?.toDouble() ?: 0) as Double
         mROZmanimCalendar.ateretTorahSunsetOffset = (sharedPref.getString(
@@ -118,7 +125,6 @@ class MainTileService : TileService() {
         ) {
             mROZmanimCalendar.ateretTorahSunsetOffset = 30.0
         }
-        mROZmanimCalendar.setSharedPreferences(sharedPref)
 
         var sUserIsOffline = false
         var elevation: Double

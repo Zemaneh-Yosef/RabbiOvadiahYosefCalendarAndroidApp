@@ -242,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         mGestureDetector = new GestureDetector(MainActivity.this, new ZmanimGestureListener());
-        mZmanimFormatter.setTimeFormat(ZmanimFormatter.SEXAGESIMAL_FORMAT);
+        mZmanimFormatter.setTimeFormat(ZmanimFormatter.SEXAGESIMAL_SECONDS_FORMAT);
         initMenu();
         initSetupResult();
         initNotifResult();
@@ -261,7 +261,13 @@ public class MainActivity extends AppCompatActivity {
         findAllWeeklyViews();
         if ((!mInitialized
                 && (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) == PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(this, ACCESS_COARSE_LOCATION) == PERMISSION_GRANTED))
-                || mSharedPreferences.getBoolean("useZipcode", false)) {
+                || mSharedPreferences.getBoolean("useAdvanced", false)
+                || mSharedPreferences.getBoolean("useZipcode", false)
+                || mSharedPreferences.getBoolean("useLocation1", false)
+                || mSharedPreferences.getBoolean("useLocation2", false)
+                || mSharedPreferences.getBoolean("useLocation3", false)
+                || mSharedPreferences.getBoolean("useLocation4", false)
+                || mSharedPreferences.getBoolean("useLocation5", false)) {
             initMainView();
         }
 
@@ -351,11 +357,6 @@ public class MainActivity extends AppCompatActivity {
                     item.setChecked(true);
                 } else {
                     endShabbatMode();
-                    if (mSharedPreferences.getBoolean("weeklyMode", false)) {
-                        updateWeeklyZmanim();
-                    } else {
-                        updateDailyZmanim();
-                    }
                     item.setChecked(false);
                 }
                 return true;
@@ -1758,7 +1759,7 @@ public class MainActivity extends AppCompatActivity {
             locationName = mLocationResolver.getFullLocationName();
             mSharedPreferences.edit().putString("Full"+mROZmanimCalendar.getGeoLocation().getLocationName(), locationName).apply();
         }
-        if (locationName.isEmpty()) {//if it's still empty, use backup
+        if (locationName != null && locationName.isEmpty()) {//if it's still empty, use backup. NPE was thrown here for some reason
             locationName = mROZmanimCalendar.getGeoLocation().getLocationName();
         }
         zmanim.add(new ZmanListEntry(locationName));
@@ -1912,12 +1913,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (!mSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
-            zmanim.add(new ZmanListEntry(getString(R.string.shaah_zmanit_gr_a) + " " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanisGra())
-                    + " " + getString(R.string.mg_a) + " " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanis72MinutesZmanis())));
+            zmanim.add(new ZmanListEntry(getString(R.string.shaah_zmanit_gr_a) + " " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanisGra())));
+            zmanim.add(new ZmanListEntry(getString(R.string.mg_a) + " (" + getString(R.string.ohr_hachaim) + ") " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanis72MinutesZmanis())));
         } else {
             long shaahZmanitMGA = mROZmanimCalendar.getTemporalHour(mROZmanimCalendar.getAlotAmudeiHoraah(), mROZmanimCalendar.getTzais72ZmanisAmudeiHoraah());
-            zmanim.add(new ZmanListEntry(getString(R.string.shaah_zmanit_gr_a) + " " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanisGra())
-                    + " " + getString(R.string.mg_a) + " " + mZmanimFormatter.format(shaahZmanitMGA)));
+            zmanim.add(new ZmanListEntry(getString(R.string.shaah_zmanit_gr_a) + " " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanisGra())));
+            zmanim.add(new ZmanListEntry(getString(R.string.mg_a) + " (" + getString(R.string.amudei_horaah) + ") " + mZmanimFormatter.format(shaahZmanitMGA)));
         }
 
         if (mSettingsPreferences.getBoolean("ShowLeapYear", false)) {
