@@ -131,28 +131,38 @@ public class SiddurChooserActivity extends AppCompatActivity {
         kriatShemaAlHamita.setOnClickListener(v -> startNextDaySiddurActivity(getString(R.string.kriatShema), false));
 
         Button tikkunChatzot = findViewById(R.id.tikkun_chatzot);
-        tikkunChatzot.setOnClickListener(v -> {
+        Button tikkunChatzot3Weeks = findViewById(R.id.tikkun_chatzot_3Weeks);
+
+        if (mJewishDateInfo.is3Weeks()) {
+            tikkunChatzot.setVisibility(View.GONE);
+            tikkunChatzot3Weeks.setVisibility(View.VISIBLE);
+        } else {
+            tikkunChatzot.setVisibility(View.VISIBLE);
+            tikkunChatzot3Weeks.setVisibility(View.GONE);
+        }
+
+        View.OnClickListener tikkunChatzotOnClickListener = v -> {
             if (mJewishDateInfo.is3Weeks()) {
                 boolean isTachanunSaid = mJewishDateInfo.getIsTachanunSaid().equals("Tachanun only in the morning")
                         || mJewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון רק בבוקר")
                         || mJewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון")
                         || mJewishDateInfo.getIsTachanunSaid().equals("There is Tachanun today");// TODO see if tikkun chatzot for the day is said on shabbat
                 if (mJewishDateInfo.isDayTikkunChatzotSaid() && isTachanunSaid) {
-                    new MaterialAlertDialogBuilder(this)
+                    new MaterialAlertDialogBuilder(SiddurChooserActivity.this)
                             .setTitle(R.string.do_you_want_to_say_tikkun_chatzot_for_the_day)
                             .setMessage(R.string.looking_to_say_this_version_of_tikkun_chatzot)
-                            .setPositiveButton(getString(R.string.yes), (dialog, which) -> startSiddurActivity(getString(R.string.tikkun_chatzot)))
-                            .setNegativeButton(getString(R.string.no), (dialog, which) -> startNextDaySiddurActivity(getString(R.string.tikkun_chatzot), true))
+                            .setPositiveButton(SiddurChooserActivity.this.getString(R.string.yes), (dialog, which) -> SiddurChooserActivity.this.startSiddurActivity(SiddurChooserActivity.this.getString(R.string.tikkun_chatzot)))
+                            .setNegativeButton(SiddurChooserActivity.this.getString(R.string.no), (dialog, which) -> SiddurChooserActivity.this.startNextDaySiddurActivity(SiddurChooserActivity.this.getString(R.string.tikkun_chatzot), true))
                             .show();
                 } else {
                     mJewishDateInfo.setCalendar(calendarPlusOne);
                     if (mJewishDateInfo.isNightTikkunChatzotSaid()) {
-                        startNextDaySiddurActivity(getString(R.string.tikkun_chatzot), true);
+                        SiddurChooserActivity.this.startNextDaySiddurActivity(SiddurChooserActivity.this.getString(R.string.tikkun_chatzot), true);
                     } else {
-                        new MaterialAlertDialogBuilder(this)
+                        new MaterialAlertDialogBuilder(SiddurChooserActivity.this)
                                 .setTitle(R.string.tikkun_chatzot_is_not_said_today_or_tonight)
                                 .setMessage(R.string.tikkun_chatzot_is_not_said_today_or_tonight_possible_reasons)
-                                .setPositiveButton(getString(R.string.ok), (dialog, which) -> dialog.dismiss())
+                                .setPositiveButton(SiddurChooserActivity.this.getString(R.string.ok), (dialog, which) -> dialog.dismiss())
                                 .show();
                     }
                     mJewishDateInfo.setCalendar(calendar);
@@ -160,17 +170,20 @@ public class SiddurChooserActivity extends AppCompatActivity {
             } else {
                 mJewishDateInfo.setCalendar(calendarPlusOne);
                 if (mJewishDateInfo.isNightTikkunChatzotSaid()) {
-                    startNextDaySiddurActivity(getString(R.string.tikkun_chatzot), true);
+                    SiddurChooserActivity.this.startNextDaySiddurActivity(SiddurChooserActivity.this.getString(R.string.tikkun_chatzot), true);
                 } else {
-                    new MaterialAlertDialogBuilder(this)
+                    new MaterialAlertDialogBuilder(SiddurChooserActivity.this)
                             .setTitle(R.string.tikkun_chatzot_is_not_said_tonight)
                             .setMessage(R.string.tikkun_chatzot_is_not_said_tonight_possible_reasons)
-                            .setPositiveButton(getString(R.string.ok), (dialog, which) -> dialog.dismiss())
+                            .setPositiveButton(SiddurChooserActivity.this.getString(R.string.ok), (dialog, which) -> dialog.dismiss())
                             .show();
                 }
                 mJewishDateInfo.setCalendar(calendar);
             }
-        });
+        };
+
+        tikkunChatzot.setOnClickListener(tikkunChatzotOnClickListener);
+        tikkunChatzot3Weeks.setOnClickListener(tikkunChatzotOnClickListener);
 
         mZmanimCalendar = new ROZmanimCalendar(new GeoLocation("", sLatitude, sLongitude, getLastKnownElevation(getSharedPreferences(SHARED_PREF, MODE_PRIVATE)), TimeZone.getTimeZone(sCurrentTimeZoneID)));
         mZmanimCalendar.setCalendar(calendar);
@@ -207,12 +220,10 @@ public class SiddurChooserActivity extends AppCompatActivity {
         disclaimer.setClickable(true);
         disclaimer.setMovementMethod(LinkMovementMethod.getInstance());
         if (mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM) {
-            disclaimer.setVisibility(View.VISIBLE);
             disclaimer.setText(getString(R.string.purim_disclaimer));
         }
 
         if (mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.TU_BESHVAT) {
-            disclaimer.setVisibility(View.VISIBLE);
             String text;
             if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
                 text = "טוב לאמר את התפילה הזו בטו בשבט:<br><br> <a href='https://elyahu41.github.io/Prayer%20for%20an%20Etrog.pdf'>תפילה לאתרוג</a>";
@@ -224,7 +235,6 @@ public class SiddurChooserActivity extends AppCompatActivity {
 
         if (mJewishDateInfo.getJewishCalendar().getUpcomingParshah() == JewishCalendar.Parsha.BESHALACH &&
                 mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.TUESDAY) {
-            disclaimer.setVisibility(View.VISIBLE);
             String text;
             if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
                 text = "טוב לאמר את התפילה הזו היום:<br><br> <a href='https://www.tefillos.com/Parshas-Haman-3.pdf'>פרשת המן</a>";
