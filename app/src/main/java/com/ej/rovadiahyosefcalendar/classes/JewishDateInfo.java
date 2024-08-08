@@ -887,6 +887,7 @@ public class JewishDateInfo {
         return !((jewishCalendar.isErevRoshChodesh() && jewishCalendar.getJewishMonth() == JewishDate.TAMMUZ) ||// Use tammuz to check for erev rosh chodesh Av
                 jewishCalendar.isRoshChodesh() ||
                 jewishCalendar.getDayOfWeek() == 6 ||
+                jewishCalendar.getDayOfWeek() == 7 ||
                 getIsTachanunSaid().equals("No Tachanun today") || getIsTachanunSaid().equals("לא אומרים תחנון"));
     }
 
@@ -900,7 +901,7 @@ public class JewishDateInfo {
             if (isTikkunChatzotSaid) {
                 // These are days where we ONLY say Tikkun Leia
                 int currentHebrewMonth = jewishCalendar.getJewishMonth();
-                while (currentHebrewMonth == jewishCalendar.getJewishMonth() && !jewishCalendar.isRoshChodesh()) {
+                while (currentHebrewMonth == jewishCalendar.getJewishMonth()) {
                     jewishCalendar.forward(Calendar.DATE, 1); // go forward until the next month
                 }
                 Date molad = jewishCalendar.getMoladAsDate(); // now we can get the molad for the next month

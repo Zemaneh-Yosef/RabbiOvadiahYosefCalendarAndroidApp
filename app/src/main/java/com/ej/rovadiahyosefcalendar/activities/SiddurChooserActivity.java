@@ -146,7 +146,7 @@ public class SiddurChooserActivity extends AppCompatActivity {
                 boolean isTachanunSaid = mJewishDateInfo.getIsTachanunSaid().equals("Tachanun only in the morning")
                         || mJewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון רק בבוקר")
                         || mJewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון")
-                        || mJewishDateInfo.getIsTachanunSaid().equals("There is Tachanun today");// TODO see if tikkun chatzot for the day is said on shabbat
+                        || mJewishDateInfo.getIsTachanunSaid().equals("There is Tachanun today");
                 if (mJewishDateInfo.isDayTikkunChatzotSaid() && isTachanunSaid) {
                     new MaterialAlertDialogBuilder(SiddurChooserActivity.this)
                             .setTitle(R.string.do_you_want_to_say_tikkun_chatzot_for_the_day)
