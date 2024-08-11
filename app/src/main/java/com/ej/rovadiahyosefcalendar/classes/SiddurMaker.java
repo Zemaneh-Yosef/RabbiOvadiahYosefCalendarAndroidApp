@@ -9,8 +9,11 @@ import java.util.Locale;
 
 public class SiddurMaker {
 
-    ArrayList<HighlightString> siddur = new ArrayList<>();
-    JewishDateInfo jewishDateInfo;
+    private ArrayList<HighlightString> siddur = new ArrayList<>();
+    private final JewishDateInfo jewishDateInfo;
+    private final boolean isTachanunSaidInTheMorning;
+    private final boolean isTachanunSaidByMincha;
+    private final String menorah = "לַמְנַצֵּ֥חַ בִּנְגִינֹ֗ת מִזְמ֥וֹר שִֽׁיר׃ אֱֽלֹהִ֗ים יְחׇנֵּ֥נוּ וִיבָרְכֵ֑נוּ יָ֤אֵֽר פָּנָ֖יו אִתָּ֣נוּ סֶֽלָה׃ לָדַ֣עַת בָּאָ֣רֶץ דַּרְכֶּ֑ךָ בְּכׇל־גּ֝וֹיִ֗ם יְשׁוּעָתֶֽךָ׃ יוֹד֖וּךָ עַמִּ֥ים ׀ אֱלֹהִ֑ים י֝וֹד֗וּךָ עַמִּ֥ים כֻּלָּֽם׃ יִ֥שְׂמְח֥וּ וִירַנְּנ֗וּ לְאֻ֫מִּ֥ים כִּֽי־תִשְׁפֹּ֣ט עַמִּ֣ים מִישֹׁ֑ר וּלְאֻמִּ֓ים ׀ בָּאָ֖רֶץ תַּנְחֵ֣ם סֶֽלָה׃ יוֹד֖וּךָ עַמִּ֥ים ׀ אֱלֹהִ֑ים י֝וֹד֗וּךָ עַמִּ֥ים כֻּלָּֽם׃ אֶ֭רֶץ נָתְנָ֣ה יְבוּלָ֑הּ יְ֝בָרְכֵ֗נוּ אֱלֹהִ֥ים אֱלֹהֵֽינוּ׃ יְבָרְכֵ֥נוּ אֱלֹהִ֑ים וְיִֽירְא֥וּ א֝וֹת֗וֹ כׇּל־אַפְסֵי־אָֽרֶץ׃";
 
     /**
      * This goal of this class is to create the proper tefilot/prayers for the day with the date set in the
@@ -27,6 +30,21 @@ public class SiddurMaker {
      */
     public SiddurMaker(JewishDateInfo jewishDateInfo) {
         this.jewishDateInfo = jewishDateInfo;
+        this.isTachanunSaidInTheMorning = jewishDateInfo.getIsTachanunSaid().equals("Tachanun only in the morning")
+                || jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון רק בבוקר")
+                || jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun today")
+                || jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון")
+                || jewishDateInfo.getIsTachanunSaid().equals("There is Tachanun today")
+                || jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון")
+                || jewishDateInfo.getIsTachanunSaid().equals("יש מדלגים תחנון במנחה")
+                || jewishDateInfo.getIsTachanunSaid().equals("Some skip Tachanun by mincha");
+
+        this.isTachanunSaidByMincha = jewishDateInfo.getIsTachanunSaid().equals("There is Tachanun today")
+                || jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון")
+                || jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun today")
+                || jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון")
+                || jewishDateInfo.getIsTachanunSaid().equals("יש מדלגים תחנון במנחה")
+                || jewishDateInfo.getIsTachanunSaid().equals("Some skip Tachanun by mincha");
     }
 
     public ArrayList<HighlightString> getSelichotPrayers(boolean isInAMinyan) {
@@ -473,7 +491,7 @@ public class SiddurMaker {
                         "יְהֹוָה מֶֽלֶךְ, יְהֹוָה מָלָֽךְ יְהֹוָ֥ה ׀ יִמְלֹ֖ךְ לְעֹלָ֥ם וָעֶֽד:  שתי פעמים/(twice)  \n\n" +
                         "וְהָיָ֧ה יְהֹוָ֛ה לְמֶ֖לֶךְ עַל־כׇּל־הָאָ֑רֶץ בַּיּ֣וֹם הַה֗וּא יִהְיֶ֧ה יְהֹוָ֛ה אֶחָ֖ד וּשְׁמ֥וֹ אֶחָֽד:   \n\n" +
                         "הוֹשִׁיעֵ֨נוּ ׀ יְהֹ֘וָ֤ה אֱלֹהֵ֗ינוּ וְקַבְּצֵנוּ֮ מִֽן־הַגּ֫וֹיִ֥ם לְ֭הֹדוֹת לְשֵׁ֣ם קׇדְשֶׁ֑ךָ לְ֝הִשְׁתַּבֵּ֗חַ בִּתְהִלָּתֶֽךָ: בָּ֤רֽוּךְ יְהֹוָ֨ה אֱלֹהֵ֪י יִשְׂרָאֵ֡ל מִן־הָ֤עוֹלָ֨ם ׀ וְעַ֬ד הָעוֹלָ֗ם וְאָמַ֖ר כׇּל־הָעָ֥ם אָמֵ֗ן הַֽלְלוּיָֽהּ: כֹּ֣ל הַ֭נְּשָׁמָה תְּהַלֵּ֥ל יָ֗הּ הַֽלְלוּיָֽהּ:  \n\n" +
-                        "לַמְנַצֵּ֥חַ בִּנְגִינֹ֗ת מִזְמ֥וֹר שִֽׁיר׃ אֱֽלֹהִ֗ים יְחׇנֵּ֥נוּ וִיבָרְכֵ֑נוּ יָ֤אֵֽר פָּנָ֖יו אִתָּ֣נוּ סֶֽלָה׃ לָדַ֣עַת בָּאָ֣רֶץ דַּרְכֶּ֑ךָ בְּכׇל־גּ֝וֹיִ֗ם יְשׁוּעָתֶֽךָ׃ יוֹד֖וּךָ עַמִּ֥ים ׀ אֱלֹהִ֑ים י֝וֹד֗וּךָ עַמִּ֥ים כֻּלָּֽם׃ יִ֥שְׂמְח֥וּ וִירַנְּנ֗וּ לְאֻ֫מִּ֥ים כִּֽי־תִשְׁפֹּ֣ט עַמִּ֣ים מִישֹׁ֑ר וּלְאֻמִּ֓ים ׀ בָּאָ֖רֶץ תַּנְחֵ֣ם סֶֽלָה׃ יוֹד֖וּךָ עַמִּ֥ים ׀ אֱלֹהִ֑ים י֝וֹד֗וּךָ עַמִּ֥ים כֻּלָּֽם׃ אֶ֭רֶץ נָתְנָ֣ה יְבוּלָ֑הּ יְ֝בָרְכֵ֗נוּ אֱלֹהִ֥ים אֱלֹהֵֽינוּ׃ יְבָרְכֵ֥נוּ אֱלֹהִ֑ים וְיִֽירְא֥וּ א֝וֹת֗וֹ כׇּל־אַפְסֵי־אָֽרֶץ׃"
+                        menorah
         );
 
         addToSiddurHighlighted(
@@ -533,19 +551,10 @@ public class SiddurMaker {
 
         addAmidahToSiddur(false, false);
 
-        boolean isTachanunSaid = jewishDateInfo.getIsTachanunSaid().equals("Tachanun only in the morning")
-                || jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון רק בבוקר")
-                || jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun today")
-                || jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון")
-                || jewishDateInfo.getIsTachanunSaid().equals("There is Tachanun today")
-                || jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון")
-                || jewishDateInfo.getIsTachanunSaid().equals("יש מדלגים תחנון במנחה")
-                || jewishDateInfo.getIsTachanunSaid().equals("Some skip Tachanun by mincha");
-
         if (jewishDateInfo.getJewishCalendar().isRoshChodesh()
          || jewishDateInfo.getJewishCalendar().isCholHamoed()
          || jewishDateInfo.getJewishCalendar().isChanukah()) {
-            addAvinuMalkeinu(isTachanunSaid);//Obviously, Avinu Malkeinu does not fall out on Rosh Chodesh or Chol Hamoed or Chanukah, however, we say it in a time of sorrow
+            addAvinuMalkeinu(isTachanunSaidInTheMorning);//Obviously, Avinu Malkeinu does not fall out on Rosh Chodesh or Chol Hamoed or Chanukah, however, we say it in a time of sorrow
             addHallel();
 
             if (jewishDateInfo.getJewishCalendar().isCholHamoedSuccos()) {
@@ -816,14 +825,14 @@ public class SiddurMaker {
             return siddur;// Early return statement
         }
 
-        addAvinuMalkeinu(isTachanunSaid);
+        addAvinuMalkeinu(isTachanunSaidInTheMorning);
 
         if (jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun today")
                 || jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון")) {
             addToSiddur("[" + jewishDateInfo.getIsTachanunSaid() + "]");
         }
 
-        if (isTachanunSaid) {
+        if (isTachanunSaidInTheMorning) {
             addTachanun();
             if (jewishDateInfo.getJewishCalendar().isTaanis() && jewishDateInfo.getJewishCalendar().getYomTovIndex() != JewishCalendar.YOM_KIPPUR) {
                 addFastSelichot();
@@ -867,7 +876,7 @@ public class SiddurMaker {
                 || jewishDateInfo.getJewishCalendar().isPurim()
                 || jewishDateInfo.getJewishCalendar().isTaanis()) {
             if (!jewishDateInfo.getJewishCalendar().isTishaBav()) {
-                if (isTachanunSaid) {
+                if (isTachanunSaidInTheMorning) {
                     addToSiddur(
                             "אֶל אֶרֶךְ אַפַּיִם וְרַב חֶסֶד וֶאֱמֶת, אֶל בְּאַפְּךָ תוֹכִיחֵנוּ, חוּסָה יְהֹוָה עַל יִשְׂרָאֵל עַמֶּךָ, וְהוֹשִׁיעֵנוּ מִכָּל רָע, חָטָאנוּ לְךָ, אָדוֹן סְלַח נָא, כְּרֹב רַחֲמֶיךָ אֶל: \n\n" +
                                     "אֶל אֶרֶךְ אַפַּיִם וּמַלֵּא רַחֲמִים, אֶל תַּסְתֵּר פָּנֶיךָ מִמֶּנּוּ, חוּסָה יְהֹוָה עַל שְׁאֵרִית יִשְׂרָאֵל עַמֶּךָ, וְהַצִּילֵנוּ מִכָּל רָע, חָטָאנוּ לְךָ, אֲדוֹן סְלַח נָא, כְּרֹב רַחֲמֶיךָ אֶל:"
@@ -981,7 +990,7 @@ public class SiddurMaker {
                         "תְּהִלָּ֗ה לְדָ֫וִ֥ד אֲרוֹמִמְךָ֣ אֱלוֹהַ֣י הַמֶּ֑לֶךְ וַאֲבָרְכָ֥ה שִׁ֝מְךָ֗ לְעוֹלָ֥ם וָעֶֽד׃ בְּכָל־י֥וֹם אֲבָֽרְכֶ֑ךָּ וַאֲהַֽלְלָ֥ה שִׁ֝מְךָ֗ לְעוֹלָ֥ם וָעֶֽד׃ גָּ֘ד֤וֹל יְהֹוָ֣ה וּמְהֻלָּ֣ל מְאֹ֑ד וְ֝לִגְדֻלָּת֗וֹ אֵ֣ין חֵֽקֶר׃ דּ֣וֹר לְ֭דוֹר יְשַׁבַּ֣ח מַעֲשֶׂ֑יךָ וּגְב֖וּרֹתֶ֣יךָ יַגִּֽידוּ׃ הֲ֭דַר כְּב֣וֹד הוֹדֶ֑ךָ וְדִבְרֵ֖י נִפְלְאֹתֶ֣יךָ אָשִֽׂיחָה׃ וֶעֱז֣וּז נֽוֹרְאֹתֶ֣יךָ יֹאמֵ֑רוּ וּגְדֻלָּתְךָ֥ אֲסַפְּרֶֽנָּה׃ זֵ֣כֶר רַב־טוּבְךָ֣ יַבִּ֑יעוּ וְצִדְקָתְךָ֥ יְרַנֵּֽנוּ׃ חַנּ֣וּן וְרַח֣וּם יְהֹוָ֑ה אֶ֥רֶךְ אַ֝פַּ֗יִם וּגְדׇל־חָֽסֶד׃ טוֹב־יְהֹוָ֥ה לַכֹּ֑ל וְ֝רַחֲמָ֗יו עַל־כׇּל־מַעֲשָֽׂיו׃ יוֹד֣וּךָ יְ֭הֹוָה כׇּל־מַעֲשֶׂ֑יךָ וַ֝חֲסִידֶ֗יךָ יְבָרְכֽוּכָה׃ כְּב֣וֹד מַלְכוּתְךָ֣ יֹאמֵ֑רוּ וּגְבוּרָתְךָ֥ יְדַבֵּֽרוּ׃ לְהוֹדִ֤יעַ  ׀ לִבְנֵ֣י הָ֭אָדָם גְּבוּרֹתָ֑יו וּ֝כְב֗וֹד הֲדַ֣ר מַלְכוּתֽוֹ׃ מַֽלְכוּתְךָ֗ מַלְכ֥וּת כׇּל־עֹלָמִ֑ים וּ֝מֶֽמְשַׁלְתְּךָ֗ בְּכׇל־דּ֥וֹר וָדֹֽר׃ סוֹמֵ֣ךְ יְ֭הֹוָה לְכׇל־הַנֹּפְלִ֑ים וְ֝זוֹקֵ֗ף לְכׇל־הַכְּפוּפִֽים׃ עֵֽינֵי־כֹ֭ל אֵלֶ֣יךָ יְשַׂבֵּ֑רוּ וְאַתָּ֤ה נֽוֹתֵן־לָהֶ֖ם אֶת־אׇכְלָ֣ם בְּעִתּֽוֹ׃ פּוֹתֵ֥חַ אֶת־יָדֶ֑ךָ וּמַשְׂבִּ֖יעַ לְכׇל־חַ֣י רָצֽוֹן׃ צַדִּ֣יק יְ֭הֹוָה בְּכׇל־דְּרָכָ֑יו וְ֝חָסִ֗יד בְּכׇל־מַעֲשָֽׂיו׃ קָר֣וֹב יְ֭הֹוָה לְכׇל־קֹרְאָ֑יו לְכֹ֤ל אֲשֶׁ֖ר יִקְרָאֻ֣הוּ בֶֽאֱמֶֽת׃ רְצוֹן־יְרֵאָ֥יו יַעֲשֶׂ֑ה וְֽאֶת־שַׁוְעָתָ֥ם יִ֝שְׁמַ֗ע וְיוֹשִׁיעֵֽם׃ שׁוֹמֵ֣ר יְ֭הֹוָה אֶת־כׇּל־אֹהֲבָ֑יו וְאֵ֖ת כׇּל־הָרְשָׁעִ֣ים יַשְׁמִֽיד׃ תְּהִלַּ֥ת יְהֹוָ֗ה יְֽדַבֶּ֫ר פִּ֥י וִיבָרֵ֣ךְ כׇּל־בָּ֭שָׂר שֵׁ֥ם קׇדְשׁ֗וֹ לְעוֹלָ֥ם וָעֶֽד׃ וַאֲנַ֤חְנוּ ׀ נְבָ֘רֵ֤ךְ יָ֗הּ מֵעַתָּ֥ה וְעַד־עוֹלָ֗ם הַֽלְלוּיָֽהּ׃"
         );
 
-        if (isTachanunSaid) {
+        if (isTachanunSaidInTheMorning) {
             addToSiddur(
                     "לַמְנַצֵּ֗חַ מִזְמ֥וֹר לְדָוִֽד׃ יַֽעַנְךָ֣ יְ֭הֹוָה בְּי֣וֹם צָרָ֑ה יְ֝שַׂגֶּבְךָ֗ שֵׁ֤ם ׀ אֱלֹהֵ֬י יַעֲקֹֽב׃ יִשְׁלַֽח־עֶזְרְךָ֥ מִקֹּ֑דֶשׁ וּ֝מִצִּיּ֗וֹן יִסְעָדֶֽךָּ׃ יִזְכֹּ֥ר כׇּל־מִנְחֹתֶ֑ךָ וְעוֹלָתְךָ֖ יְדַשְּׁנֶ֣ה סֶֽלָה׃ יִֽתֶּן־לְךָ֥ כִלְבָבֶ֑ךָ וְֽכׇל־עֲצָתְךָ֥ יְמַלֵּֽא׃ נְרַנְּנָ֤ה ׀ בִּ֘ישׁ֤וּעָתֶ֗ךָ וּבְשֵֽׁם־אֱלֹהֵ֥ינוּ נִדְגֹּ֑ל יְמַלֵּ֥א יְ֝הֹוָ֗ה כׇּל־מִשְׁאֲלוֹתֶֽיךָ׃ עַתָּ֤ה יָדַ֗עְתִּי כִּ֤י הוֹשִׁ֥יעַ ׀ יְהֹוָ֗ה מְשִׁ֫יח֥וֹ יַ֭עֲנֵהוּ מִשְּׁמֵ֣י קׇדְשׁ֑וֹ בִּ֝גְבֻר֗וֹת יֵ֣שַׁע יְמִינֽוֹ׃ אֵ֣לֶּה בָ֭רֶכֶב וְאֵ֣לֶּה בַסּוּסִ֑ים וַאֲנַ֓חְנוּ ׀ בְּשֵׁם־יְהֹוָ֖ה אֱלֹהֵ֣ינוּ נַזְכִּֽיר׃ הֵ֭מָּה כָּרְע֣וּ וְנָפָ֑לוּ וַאֲנַ֥חְנוּ קַּ֝֗מְנוּ וַנִּתְעוֹדָֽד׃ יְהֹוָ֥ה הוֹשִׁ֑יעָה הַ֝מֶּ֗לֶךְ יַעֲנֵ֥נוּ בְיוֹם־קׇרְאֵֽנוּ׃"
             );
@@ -1034,7 +1043,7 @@ public class SiddurMaker {
                     "אַשְׁרֵ֤י ׀ שֶׁיֹּאחֵ֓ז וְנִפֵּ֬ץ אֶֽת־עֹלָלַ֗יִךְ אֶל־הַסָּֽלַע׃");
         }
 
-        if (isTachanunSaid) {
+        if (isTachanunSaidInTheMorning) {
             addToSiddur(
                     "תְּפִלָּ֗ה לְדָ֫וִ֥ד הַטֵּֽה־יְהֹוָ֣ה אׇזְנְךָ֣ עֲנֵ֑נִי כִּֽי־עָנִ֖י וְאֶבְי֣וֹן אָֽנִי׃ שָׁ֥מְרָ֣ה נַפְשִׁי֮ כִּֽי־חָסִ֢יד אָ֥נִי הוֹשַׁ֣ע עַ֭בְדְּךָ אַתָּ֣ה אֱלֹהַ֑י הַבּוֹטֵ֥חַ אֵלֶֽיךָ׃ חׇנֵּ֥נִי אֲדֹנָ֑י כִּ֥י אֵלֶ֥יךָ אֶ֝קְרָ֗א כׇּל־הַיּֽוֹם׃ שַׂ֭מֵּחַ נֶ֣פֶשׁ עַבְדֶּ֑ךָ כִּ֥י אֵלֶ֥יךָ אֲ֝דֹנָ֗י נַפְשִׁ֥י אֶשָּֽׂא׃ כִּֽי־אַתָּ֣ה אֲ֭דֹנָי ט֣וֹב וְסַלָּ֑ח וְרַב־חֶ֗֝סֶד לְכׇל־קֹֽרְאֶֽיךָ׃ הַאֲזִ֣ינָה יְ֭הֹוָה תְּפִלָּתִ֑י וְ֝הַקְשִׁ֗יבָה בְּק֣וֹל תַּחֲנוּנוֹתָֽי׃ בְּי֣וֹם צָ֭רָתִ֥י אֶקְרָאֶ֗ךָּ כִּ֣י תַעֲנֵֽנִי׃ אֵין־כָּמ֖וֹךָ בָאֱלֹהִ֥ים ׀ אֲדֹנָ֗י וְאֵ֣ין כְּֽמַעֲשֶֽׂיךָ׃ כׇּל־גּוֹיִ֤ם ׀ אֲשֶׁ֥ר עָשִׂ֗יתָ יָב֤וֹאוּ ׀ וְיִשְׁתַּֽחֲו֣וּ לְפָנֶ֣יךָ אֲדֹנָ֑י וִ֖יכַבְּד֣וּ לִשְׁמֶֽךָ׃ כִּֽי־גָד֣וֹל אַ֭תָּה וְעֹשֵׂ֣ה נִפְלָא֑וֹת אַתָּ֖ה אֱלֹהִ֣ים לְבַדֶּֽךָ׃ ה֘וֹרֵ֤נִי יְהֹוָ֨ה ׀ דַּרְכֶּ֗ךָ אֲהַלֵּ֥ךְ בַּאֲמִתֶּ֑ךָ יַחֵ֥ד לְ֝בָבִ֗י לְיִרְאָ֥ה שְׁמֶֽךָ׃ אוֹדְךָ֤ ׀ אֲדֹנָ֣י אֱ֭לֹהַי בְּכׇל־לְבָבִ֑י וַאֲכַבְּדָ֖ה שִׁמְךָ֣ לְעוֹלָֽם׃ כִּֽי־חַ֭סְדְּךָ גָּד֣וֹל עָלָ֑י וְהִצַּ֥לְתָּ נַ֝פְשִׁ֗י מִשְּׁא֥וֹל תַּחְתִּיָּֽה׃ אֱלֹהִ֤ים ׀ זֵ֘דִ֤ים קָֽמוּ־עָלַ֗י וַעֲדַ֣ת עָ֭רִיצִים בִּקְשׁ֣וּ נַפְשִׁ֑י וְלֹ֖א שָׂמ֣וּךָ לְנֶגְדָּֽם׃ וְאַתָּ֣ה אֲ֭דֹנָי אֵל־רַח֣וּם וְחַנּ֑וּן אֶ֥רֶךְ אַ֝פַּ֗יִם וְרַב־חֶ֥סֶד וֶאֱמֶֽת׃ פְּנֵ֥ה אֵלַ֗י וְחָ֫נֵּ֥נִי תְּנָֽה־עֻזְּךָ֥ לְעַבְדֶּ֑ךָ וְ֝הוֹשִׁ֗יעָה לְבֶן־אֲמָתֶֽךָ׃ עֲשֵֽׂה־עִמִּ֥י א֗וֹת לְט֫וֹבָ֥ה וְיִרְא֣וּ שֹׂנְאַ֣י וְיֵבֹ֑שׁוּ כִּֽי־אַתָּ֥ה יְ֝הֹוָ֗ה עֲזַרְתַּ֥נִי וְנִחַמְתָּֽנִי׃"
             );
@@ -2914,14 +2923,7 @@ public class SiddurMaker {
 
         addAmidahToSiddur(true, false);
 
-        boolean isTachanunSaid = jewishDateInfo.getIsTachanunSaid().equals("There is Tachanun today")
-                || jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון")
-                || jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun today")
-                || jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון")
-                || jewishDateInfo.getIsTachanunSaid().equals("יש מדלגים תחנון במנחה")
-                || jewishDateInfo.getIsTachanunSaid().equals("Some skip Tachanun by mincha");
-
-        addAvinuMalkeinu(isTachanunSaid);// If Aseret Ymei Tshuvah
+        addAvinuMalkeinu(isTachanunSaidByMincha);// If Aseret Ymei Tshuvah
 
         if (jewishDateInfo.getIsTachanunSaid().equals("Some skip Tachanun by mincha")
                 || jewishDateInfo.getIsTachanunSaid().equals("יש מדלגים תחנון במנחה")
@@ -2930,7 +2932,7 @@ public class SiddurMaker {
             addToSiddur("[" + jewishDateInfo.getIsTachanunSaid() + "]");
         }
 
-        if (isTachanunSaid) {
+        if (isTachanunSaidByMincha) {
             addTachanun();
         } else {
             addToSiddurHighlighted(
@@ -2947,9 +2949,7 @@ public class SiddurMaker {
                     "יְהֹוָ֣ה מָלָךְ֮ גֵּא֢וּת לָ֫בֵ֥שׁ לָבֵ֣שׁ יְ֭הֹוָה עֹ֣ז הִתְאַזָּ֑ר אַף־תִּכּ֥וֹן תֵּ֝בֵ֗ל בַּל־תִּמּֽוֹט׃ נָכ֣וֹן כִּסְאֲךָ֣ מֵאָ֑ז מֵעוֹלָ֣ם אָֽתָּה׃ נָשְׂא֤וּ נְהָר֨וֹת ׀ יְֽהֹוָ֗ה נָשְׂא֣וּ נְהָר֣וֹת קוֹלָ֑ם יִשְׂא֖וּ נְהָר֣וֹת דׇּכְיָֽם׃ מִקֹּל֨וֹת ׀ מַ֤יִם רַבִּ֗ים אַדִּירִ֣ים מִשְׁבְּרֵי־יָ֑ם אַדִּ֖יר בַּמָּר֣וֹם יְהֹוָֽה׃ עֵֽדֹתֶ֨יךָ ׀ נֶאֶמְנ֬וּ מְאֹ֗ד לְבֵיתְךָ֥ נַאֲוָה־קֹ֑דֶשׁ יְ֝הֹוָ֗ה לְאֹ֣רֶךְ יָמִֽים׃"
             );
         } else {
-            addToSiddur(
-                    "לַמְנַצֵּ֥חַ בִּנְגִינֹ֗ת מִזְמ֥וֹר שִֽׁיר׃ אֱֽלֹהִ֗ים יְחׇנֵּ֥נוּ וִיבָרְכֵ֑נוּ יָ֤אֵֽר פָּנָ֖יו אִתָּ֣נוּ סֶֽלָה׃ לָדַ֣עַת בָּאָ֣רֶץ דַּרְכֶּ֑ךָ בְּכׇל־גּ֝וֹיִ֗ם יְשׁוּעָתֶֽךָ׃ יוֹד֖וּךָ עַמִּ֥ים ׀ אֱלֹהִ֑ים י֝וֹד֗וּךָ עַמִּ֥ים כֻּלָּֽם׃ יִ֥שְׂמְח֥וּ וִירַנְּנ֗וּ לְאֻ֫מִּ֥ים כִּֽי־תִשְׁפֹּ֣ט עַמִּ֣ים מִישֹׁ֑ר וּלְאֻמִּ֓ים ׀ בָּאָ֖רֶץ תַּנְחֵ֣ם סֶֽלָה׃ יוֹד֖וּךָ עַמִּ֥ים ׀ אֱלֹהִ֑ים י֝וֹד֗וּךָ עַמִּ֥ים כֻּלָּֽם׃ אֶ֭רֶץ נָתְנָ֣ה יְבוּלָ֑הּ יְ֝בָרְכֵ֗נוּ אֱלֹהִ֥ים אֱלֹהֵֽינוּ׃ יְבָרְכֵ֥נוּ אֱלֹהִ֑ים וְיִֽירְא֥וּ א֝וֹת֗וֹ כׇּל־אַפְסֵי־אָֽרֶץ׃"
-            );
+            addToSiddur(menorah);
         }
 
         if (jewishDateInfo.getJewishCalendar().isTaanis()
@@ -3405,7 +3405,7 @@ public class SiddurMaker {
         siddur = new ArrayList<>();
 
         addToSiddur("יטול מים אחרונים, ויאמר (Wash your hands for mayim acharonim and say)");
-        addToSiddur("לַמְנַצֵּ֥חַ בִּנְגִינֹ֗ת מִזְמ֥וֹר שִֽׁיר׃ אֱֽלֹהִ֗ים יְחׇנֵּ֥נוּ וִיבָרְכֵ֑נוּ יָ֤אֵֽר פָּנָ֖יו אִתָּ֣נוּ סֶֽלָה׃ לָדַ֣עַת בָּאָ֣רֶץ דַּרְכֶּ֑ךָ בְּכׇל־גּ֝וֹיִ֗ם יְשׁוּעָתֶֽךָ׃ יוֹד֖וּךָ עַמִּ֥ים ׀ אֱלֹהִ֑ים י֝וֹד֗וּךָ עַמִּ֥ים כֻּלָּֽם׃ יִ֥שְׂמְח֥וּ וִירַנְּנ֗וּ לְאֻ֫מִּ֥ים כִּֽי־תִשְׁפֹּ֣ט עַמִּ֣ים מִישֹׁ֑ר וּלְאֻמִּ֓ים ׀ בָּאָ֖רֶץ תַּנְחֵ֣ם סֶֽלָה׃ יוֹד֖וּךָ עַמִּ֥ים ׀ אֱלֹהִ֑ים י֝וֹד֗וּךָ עַמִּ֥ים כֻּלָּֽם׃ אֶ֭רֶץ נָתְנָ֣ה יְבוּלָ֑הּ יְ֝בָרְכֵ֗נוּ אֱלֹהִ֥ים אֱלֹהֵֽינוּ׃ יְבָרְכֵ֥נוּ אֱלֹהִ֑ים וְיִֽירְא֥וּ א֝וֹת֗וֹ כׇּל־אַפְסֵי־אָֽרֶץ׃");
+        addToSiddur(menorah);
         addToSiddur("אֲבָרְכָ֣ה אֶת־יְהֹוָ֣ה בְּכׇל־עֵ֑ת תָּ֝מִ֗יד תְּֽהִלָּת֥וֹ בְּפִֽי׃ ס֥וֹף דָּבָ֖ר הַכֹּ֣ל נִשְׁמָ֑ע אֶת־הָאֱלֹהִ֤ים יְרָא֙ וְאֶת־מִצְוֺתָ֣יו שְׁמ֔וֹר כִּי־זֶ֖ה כׇּל־הָאָדָֽם: תְּהִלַּ֥ת יְהֹוָ֗ה יְֽדַבֶּ֫ר פִּ֥י וִיבָרֵ֣ךְ כׇּל־בָּ֭שָׂר שֵׁ֥ם קׇדְשׁ֗וֹ לְעוֹלָ֥ם וָעֶֽד: וַאֲנַ֤חְנוּ ׀ נְבָ֘רֵ֤ךְ יָ֗הּ מֵעַתָּ֥ה וְעַד־עוֹלָ֗ם הַֽלְלוּיָֽהּ: וַיְדַבֵּ֣ר אֵלַ֔י זֶ֚ה הַשֻּׁלְחָ֔ן אֲשֶׁ֖ר לִפְנֵ֥י יְהֹוָֽה:  \n\n" +
                         "אם המסובים שלושה או יותר אומרים (If there are three or more people, we say) \n\n" +
                         "יאמר המזמן (The leader says) \n\n" +
@@ -3631,16 +3631,11 @@ public class SiddurMaker {
 
         addToSiddurHighlighted(isForNight ? "תיקון חצות (לילה)" : "תיקון חצות (יום)");
 
-        boolean isTachanunSaid = jewishDateInfo.getIsTachanunSaid().equals("Tachanun only in the morning")
-                || jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון רק בבוקר")
-                || jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון")
-                || jewishDateInfo.getIsTachanunSaid().equals("There is Tachanun today");
-
         String vidduy =  "נוהגים לומר וידוי קודם אמירת תיקון חצות, אמנם אם כבר אמר וידוי בתוך ק\"ש שעל המטה, או בתוך הסליחות [בחודש אלול], או בתפלת מנחה [בימי בין-המצרים], אין לו לחזור ולומר וידוי שוב קודם תיקון חצות, כיון שאין ראוי לומר וידוי פעמיים בסמוך./It is custom to say the viduy prayer before Tikkun Chatzot, however, if you already said the viduy prayer beforehand, for example you just said Kriat Shema SheAl Hamita, or Selichot (in Elul), or you just finished mincha (during the three weeks). You should not say viduy again because it is not proper to say viduy twice close to each other (בא\"ח ש\"ר וישלח יג, ילקו\"י א, נד)\n\n" + "אָנָּא יְהֹוָה אֱלֹהֵינוּ וֵאלֹהֵי אֲבוֹתֵינוּ. תָּבֹא לְפָנֶיךָ תְּפִלָּתֵנוּ. וְאַל תִּתְעַלַּם מַלְכֵּנוּ מִתְּחִנָּתֵנוּ. שֶׁאֵין אֲנַחְנוּ עַזֵּי פָנִים וּקְשֵׁי עֹרֶף לוֹמַר לְפָנֶיךָ יְהֹוָה אֱלֹהֵינוּ וֵאלֹהֵי אֲבוֹתֵינוּ צַדִּיקִים אֲנַחְנוּ וְלא חָטָאנוּ. אֲבָל חָטָאנוּ. עָוִינוּ. פָּשַׁעְנוּ. אֲנַחְנוּ וַאֲבוֹתֵינוּ וְאַנְשֵׁי בֵיתֵנוּ: אָשַׁמְנוּ. בָּגַדְנוּ. גָּזַלְנוּ. דִּבַּרְנוּ דֹפִי וְלָשׁון הָרָע. הֶעֱוִינוּ. וְהִרְשַׁעְנוּ. זַדְנוּ. חָמַסְנוּ. טָפַלְנוּ שֶׁקֶר וּמִרְמָה. יָעַצְנוּ עֵצוֹת רָעוֹת. כִּזַּבְנוּ. כָּעַסְנוּ. לַצְנוּ. מָרַדְנוּ. מָרִינוּ דְבָרֶיךָ. נִאַצְנוּ. נִאַפְנוּ. סָרַרְנוּ. עָוִינוּ. פָּשַׁעְנוּ. פָּגַמְנוּ. צָרַרְנוּ. צִעַרְנוּ אָב וָאֵם. קִשִּׁינוּ עֹרֶף. רָשַׁעְנוּ. שִׁחַתְנוּ. תִּעַבְנוּ. תָּעִינוּ וְתִעֲתַעְנוּ. וְסַרְנוּ מִמִּצְוֹתֶיךָ וּמִמִּשְׁפָּטֶיךָ הַטּוֹבִים וְלֹא שָׁוָה לָנוּ. וְאַתָּה צַדִּיק עַל כָּל הַבָּא עָלֵינוּ. כִּי אֱמֶת עָשִׂיתָ. וַאֲנַחְנוּ הִרְשָׁעְנוּ:  \n\n" +
                 "מַה־נֹּאמַר לְפָנֶיךָ יוֹשֵׁב מָרוֹם, וּמַה־נְסַפֵּר לְפָנֶיךָ שׁוֹכֵן שְׁחָקִים, הֲלֹא כָּל־הַנִּסְתָּרוֹת וְהַנִּגְלוֹת אַתָּה יוֹדֵעַ, אַתָּה יוֹדֵעַ רָזֵי עוֹלָם, וְתַעֲלוּמוֹת סִתְרֵי כָּל־חָי, אַתָּה חוֹפֵשׂ כָּל־חַדְרֵי בָטֶן, רוֹאֶה כְלָיוֹת וְלֵב, אֵין דָּבָר נֶעְלָם מִמְּךָּ, וְאֵין נִסְתָּר מִנֶּגֶד עֵינֶיךָ: יְהִי רָצוֹן מִלְּפָנֶיךָ, יְהֹוָה אֱלֹהֵינוּ וֵאלֹהֵי אֲבוֹתֵינוּ, שֶתִמְחוֹל לָנוּ אֶת־כָּל־חַטְּאוֹתֵינוּ, וּתְכַפֵּר לָנוּ אֶת־כָּל־עֲוֹנוֹתֵינוּ, וְתִמְחוֹל וְתִסְלַח לְכָל־פְּשָׁעֵינוּ:";
 
         if (!isForNight) {
-            if (isTachanunSaid) {
+            if (isTachanunSaidInTheMorning) {
                 addToSiddur(vidduy);
                 addToSiddurHighlighted("תיקון רחל");
                 addTikkunRachel(true);
@@ -3656,14 +3651,14 @@ public class SiddurMaker {
             addTikkunRachel(false);
             return siddur;// Do not add Tikkun Leah
         } else if (!jewishDateInfo.isOnlyTikkunLeiaSaid(true, true)) {
-            if (isTachanunSaid) {
+            if (isTachanunSaidInTheMorning) {
                 addToSiddur(vidduy);
             }
             addToSiddurHighlighted("תיקון רחל");
             addTikkunRachel(false);
         }
         addToSiddurHighlighted("תיקון לאה");
-        addTikkunLeah(isTachanunSaid);
+        addTikkunLeah(isTachanunSaidInTheMorning);
 
         return siddur;
     }
@@ -3730,7 +3725,7 @@ public class SiddurMaker {
             jewishDateInfo.setCalendar(calendar);
         }
 
-        if (jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון") || jewishDateInfo.getIsTachanunSaid().equals("There is Tachanun today")) {
+        if (isTachanunSaidInTheMorning) {
             addToSiddurHighlighted("אָנָּא יְהֹוָה אֱלֹהֵינוּ וֵאלֹהֵי אֲבוֹתֵינוּ. תָּבֹא לְפָנֶיךָ תְּפִלָּתֵנוּ. וְאַל־תִּתְעַלַּם מַלְכֵּנוּ מִתְּחִנָּתֵנוּ. שֶׁאֵין אֲנַחְנוּ עַזֵּי פָנִים וּקְשֵׁי עֹרֶף לוֹמַר לְפָנֶיךָ יְהֹוָה אֱלֹהֵינוּ וֵאלֹהֵי אֲבוֹתֵינוּ צַדִּיקִים אֲנַחְנוּ וְלֹא חָטָאנוּ. אֲבָל חָטָאנוּ. עָוִינוּ. פָּשַׁעְנוּ. אֲנַחְנוּ וַאֲבוֹתֵינוּ וְאַנְשֵׁי בֵיתֵנוּ: אָשַׁמְנוּ. בָּגַדְנוּ. גָּזַלְנוּ. דִּבַּרְנוּ דֹפִי וְלָשׁוֹן הָרָע. הֶעֱוִינוּ. וְהִרְשַׁעְנוּ. זַדְנוּ. חָמַסְנוּ. טָפַלְנוּ שֶׁקֶר וּמִרְמָה. יָעַצְנוּ עֵצוֹת רָעוֹת. כִּזַּבְנוּ. כָּעַסְנוּ. לַצְנוּ. מָרַדְנוּ. מָרִינוּ דְבָרֶיךָ. נִאַצְנוּ. נִאַפְנוּ. סָרַרְנוּ. עָוִינוּ. פָּשַׁעְנוּ. פָּגַמְנוּ. צָרַרְנוּ. צִעַרְנוּ אָב וָאֵם. קִשִּׁינוּ עֹרֶף. רָשַׁעְנוּ. שִׁחַתְנוּ. תִּעַבְנוּ. תָּעִינוּ וְתִעֲתַעְנוּ. וְסַרְנוּ מִמִּצְוֹתֶיךָ וּמִמִּשְׁפָּטֶיךָ הַטּוֹבִים וְלֹא שָׁוָה לָנוּ. וְאַתָּה צַדִּיק עַל־כָּל־הַבָּא עָלֵינוּ. כִּי אֱמֶת עָשִׂיתָ. וַאֲנַחְנוּ הִרְשָׁעְנוּ:");
         }
 
