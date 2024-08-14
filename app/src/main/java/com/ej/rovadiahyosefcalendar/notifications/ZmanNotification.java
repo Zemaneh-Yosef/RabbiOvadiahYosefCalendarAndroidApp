@@ -54,6 +54,7 @@ public class ZmanNotification extends BroadcastReceiver {
             channel.setDescription("This notification will display when zmanim are about to begin.");
             channel.enableLights(true);
             channel.enableVibration(true);
+            //channel.setVibrationPattern(new long[]{0, 100, 200, 300});
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 channel.setAllowBubbles(true);
             }

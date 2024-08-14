@@ -14,16 +14,22 @@ import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.classes.HighlightString;
+import com.ej.rovadiahyosefcalendar.classes.HorizontalAdapter;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.SiddurAdapter;
 import com.ej.rovadiahyosefcalendar.classes.SiddurMaker;
 import com.google.android.material.appbar.MaterialToolbar;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.Locale;
+import java.util.Map;
 
 public class SiddurViewActivity extends AppCompatActivity {
 
@@ -90,6 +96,25 @@ public class SiddurViewActivity extends AppCompatActivity {
         ListView siddur = findViewById(R.id.siddur);
         siddur.setAdapter(new SiddurAdapter(this, prayers, sharedPreferences.getInt("siddurTextSize", 20), mJewishDateInfo));
         siddur.setDivider(null);
+        Map<Integer, HighlightString> categories = new LinkedHashMap<>();
+        int index = 0;
+        for (HighlightString string: prayers) {
+            if (string.isCategory()) {
+                categories.put(index, string);
+                index++;
+            }
+        }
+        RecyclerView tefilotCategories = findViewById(R.id.tefilot_categories);
+        tefilotCategories.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        tefilotCategories.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.HORIZONTAL));
+        ArrayList<HighlightString> finalPrayers = prayers;
+        HorizontalAdapter.OnItemClickListener listener = category -> {
+            int position = finalPrayers.indexOf(category);
+            if (position != -1) {
+                siddur.setSelection(position);
+            }
+        };
+        tefilotCategories.setAdapter(new HorizontalAdapter(new ArrayList<>(categories.values()), listener));
 
         SeekBar seekBar = findViewById(R.id.siddur_seekBar);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {

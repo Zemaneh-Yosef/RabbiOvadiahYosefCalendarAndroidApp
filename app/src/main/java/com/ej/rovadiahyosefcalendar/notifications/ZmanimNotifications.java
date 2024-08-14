@@ -150,6 +150,8 @@ public class ZmanimNotifications extends BroadcastReceiver {
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         if (am.canScheduleExactAlarms()) {
+//                            AlarmManager.AlarmClockInfo alarmClockInfo = new AlarmManager.AlarmClockInfo(System.currentTimeMillis() + 60000, zmanPendingIntent);
+//                            am.setAlarmClock(alarmClockInfo, zmanPendingIntent);
                             am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, zmanimOver3Days.get(i).getZmanDate().getTime() - (60_000L * zmanimOver3Days.get(i).getNotificationDelay()), zmanPendingIntent);
                         }
                     } else {// on lower android version, app will not crash by setting exact alarms
