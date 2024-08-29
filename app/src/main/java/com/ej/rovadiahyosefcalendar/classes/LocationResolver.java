@@ -3,11 +3,11 @@ package com.ej.rovadiahyosefcalendar.classes;
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sCurrentLocationName;
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sCurrentTimeZoneID;
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sLatitude;
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sLongitude;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentLocationName;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentTimeZoneID;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLatitude;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLongitude;
 
 import android.app.Activity;
 import android.content.Context;
@@ -25,7 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
-import com.ej.rovadiahyosefcalendar.activities.MainActivity;
+import com.ej.rovadiahyosefcalendar.activities.MainFragmentManager;
 
 import org.geonames.WebService;
 
@@ -37,6 +37,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.function.Consumer;
 
 import us.dustinj.timezonemap.TimeZoneMap;
 
@@ -69,8 +70,7 @@ public class LocationResolver extends Thread {
      * I originally wanted to just allow users to use a zip code to find their location, but I noticed that it also takes into account any address.
      * The old keys for shared preferences are still there as zipcodes because I did not want to change them and undo the work the users have done.
      */
-    @SuppressWarnings("BusyWait")
-    public void acquireLatitudeAndLongitude() {
+    public void acquireLatitudeAndLongitude(Consumer<Location> consumer) {
         if (mSharedPreferences.getBoolean("useAdvanced", false)) {
             sCurrentLocationName = mSharedPreferences.getString("advancedLN", "");
             try {
@@ -136,30 +136,12 @@ public class LocationResolver extends Thread {
                         }
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {//newer implementation
                             if (locationManager.getAllProviders().contains(LocationManager.NETWORK_PROVIDER)) {
-                                locationManager.getCurrentLocation(LocationManager.NETWORK_PROVIDER,
-                                        null, Runnable::run,
-                                        location -> {
-                                            if (location != null) {
-                                                sLatitude = location.getLatitude();
-                                                sLongitude = location.getLongitude();
-                                            }
-                                        });
+                                locationManager.getCurrentLocation(LocationManager.NETWORK_PROVIDER, null, Runnable::run, consumer);
                             }
                             if (locationManager.getAllProviders().contains(LocationManager.GPS_PROVIDER)) {
-                                locationManager.getCurrentLocation(LocationManager.GPS_PROVIDER,
-                                        null, Runnable::run,
-                                        location -> {
-                                            if (location != null) {
-                                                sLatitude = location.getLatitude();
-                                                sLongitude = location.getLongitude();
-                                            }
-                                        });
+                                locationManager.getCurrentLocation(LocationManager.GPS_PROVIDER, null, Runnable::run, consumer);
                             }
-                            long tenSeconds = System.currentTimeMillis() + 10000;
-                            while ((sLatitude == 0 && sLongitude == 0) && System.currentTimeMillis() < tenSeconds) {
-                                Thread.sleep(0);//we MUST wait for the location data to be set or else the app will crash
-                            }
-                            if (sLatitude == 0 && sLongitude == 0) {//if 10 seconds passed and we still don't have the location, use the older implementation
+                            if (sLatitude == 0 && sLongitude == 0) {//use the older implementation until the consumer updates the data
                                 Location location = null;
                                 if (locationManager.getAllProviders().contains(LocationManager.GPS_PROVIDER)) {
                                     location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);//location might be old
@@ -196,7 +178,7 @@ public class LocationResolver extends Thread {
 
     /**
      * Resolves the current location name to be a latitude and longitude if mCurrentLocationName is empty
-     * @see MainActivity#sCurrentLocationName
+     * @see MainFragmentManager#sCurrentLocationName
      */
     public void resolveCurrentLocationName() {
         sCurrentLocationName = getLocationAsName();

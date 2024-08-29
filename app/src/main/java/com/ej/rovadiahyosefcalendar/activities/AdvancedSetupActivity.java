@@ -1,7 +1,7 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sCurrentLocationName;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentLocationName;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;

@@ -1,10 +1,13 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
 
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SeekBar;
 
@@ -52,20 +55,22 @@ public class SiddurViewActivity extends AppCompatActivity {
             materialToolbar.setSubtitle("");
         }
 
-        JewishDateInfo mJewishDateInfo = new JewishDateInfo(getSharedPreferences(SHARED_PREF, MODE_PRIVATE).getBoolean("inIsrael", false));
+        JewishDateInfo mJewishDateInfo = new JewishDateInfo(sharedPreferences.getBoolean("inIsrael", false));
         mJewishDateInfo.getJewishCalendar().setJewishDate(
                 getIntent().getIntExtra("JewishYear", mJewishDateInfo.getJewishCalendar().getJewishYear()),
                 getIntent().getIntExtra("JewishMonth", mJewishDateInfo.getJewishCalendar().getJewishMonth()),
                 getIntent().getIntExtra("JewishDay", mJewishDateInfo.getJewishCalendar().getJewishDayOfMonth())
         );
         mJewishDateInfo.setCalendar(mJewishDateInfo.getJewishCalendar().getGregorianCalendar());// not my best work
+        mJewishDateInfo.getJewishCalendar().setIsMukafChoma(sharedPreferences.getBoolean("isMukafChoma", false));
+        mJewishDateInfo.getJewishCalendar().setIsSafekMukafChoma(sharedPreferences.getBoolean("isSafekMukafChoma", false));
 
         SiddurMaker siddurMaker = new SiddurMaker(mJewishDateInfo);
         ArrayList<HighlightString> prayers = new ArrayList<>();
         if (siddurTitle != null) {
             switch (siddurTitle) {
                 case "סליחות":
-                    prayers = siddurMaker.getSelichotPrayers(false);
+                    prayers = siddurMaker.getSelichotPrayers(false, getIntent().getBooleanExtra("isAfterChatzot", false));
                     break;
                 case "שחרית":
                     prayers = siddurMaker.getShacharitPrayers();
@@ -91,15 +96,25 @@ public class SiddurViewActivity extends AppCompatActivity {
                 case "ק״ש שעל המיטה":
                     prayers = siddurMaker.getKriatShemaShealHamitaPrayers(getIntent().getBooleanExtra("isBeforeChatzot", false));
                     break;
+                case "ברכת מעין שלוש":
+                    prayers = siddurMaker.getBirchatMeeyinShaloshPrayers();
+                    break;
             }
         }
         ListView siddur = findViewById(R.id.siddur);
-        siddur.setAdapter(new SiddurAdapter(this, prayers, sharedPreferences.getInt("siddurTextSize", 20), mJewishDateInfo));
+        siddur.setAdapter(new SiddurAdapter(this,
+                prayers,
+                sharedPreferences.getInt("siddurTextSize", 20),
+                sharedPreferences.getBoolean("isJustified", false),
+                mJewishDateInfo));
         siddur.setDivider(null);
         Map<Integer, HighlightString> categories = new LinkedHashMap<>();
         int index = 0;
         for (HighlightString string: prayers) {
             if (string.isCategory()) {
+                if (categories.containsValue(string)) {
+                    string.setString(string + "\u200E");// this unicode character is invisible. So it will always increment without showing in the UI
+                }
                 categories.put(index, string);
                 index++;
             }
@@ -131,6 +146,21 @@ public class SiddurViewActivity extends AppCompatActivity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+
+        Button textAlignment = findViewById(R.id.textAlignment);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {// Justified text is not supported before Q
+            textAlignment.setVisibility(View.GONE);
+        }
+        textAlignment.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, sharedPreferences.getBoolean("isJustified", false) ? R.drawable.baseline_format_align_justify_24 : R.drawable.baseline_format_align_right_24);
+        textAlignment.setOnClickListener(v -> {
+            boolean isJustified = sharedPreferences.getBoolean("isJustified", false);
+            isJustified = !isJustified;
+            sharedPreferences.edit().putBoolean("isJustified", isJustified).apply();
+            textAlignment.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, sharedPreferences.getBoolean("isJustified", false) ? R.drawable.baseline_format_align_justify_24 : R.drawable.baseline_format_align_right_24);
+            SiddurAdapter sa = (SiddurAdapter) siddur.getAdapter();
+            sa.setIsJustified(isJustified);
+            siddur.invalidateViews();
         });
 
         ViewCompat.setOnApplyWindowInsetsListener(seekBar, (v, windowInsets) -> {

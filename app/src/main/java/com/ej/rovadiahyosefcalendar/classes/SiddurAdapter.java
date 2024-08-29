@@ -6,11 +6,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.text.LineBreaker;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.Uri;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +36,7 @@ public class SiddurAdapter extends ArrayAdapter<String> implements SensorEventLi
     private final ArrayList<HighlightString> siddur;
     private final JewishDateInfo jewishDateInfo;
     private int textSize;
+    private boolean isJustified;
     private final float[] accelerometerReading = new float[3];
     private final float[] magnetometerReading = new float[3];
     private final float[] rotationMatrix = new float[9];
@@ -42,16 +45,21 @@ public class SiddurAdapter extends ArrayAdapter<String> implements SensorEventLi
     private float currentDegree = 0f;
     private ImageView compass;
 
-    public SiddurAdapter(Context context, ArrayList<HighlightString> siddur, int textSize, JewishDateInfo jewishDateInfo) {
+    public SiddurAdapter(Context context, ArrayList<HighlightString> siddur, int textSize, boolean isJustified, JewishDateInfo jewishDateInfo) {
         super(context, 0);
         this.context = context;
         this.siddur = siddur;
         this.textSize = textSize;
+        this.isJustified = isJustified;
         this.jewishDateInfo = jewishDateInfo;
     }
 
     public void setTextSize(int size) {
         textSize = size;
+    }
+
+    public void setIsJustified(boolean isJustified) {
+        this.isJustified = isJustified;
     }
 
     @Override
@@ -84,6 +92,13 @@ public class SiddurAdapter extends ArrayAdapter<String> implements SensorEventLi
         String itemText = siddur.get(position).toString();
         viewHolder.textView.setText(itemText);
         viewHolder.textView.setTextSize(textSize);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (isJustified) {
+                viewHolder.textView.setJustificationMode(LineBreaker.JUSTIFICATION_MODE_INTER_WORD);
+            } else {
+                viewHolder.textView.setJustificationMode(LineBreaker.JUSTIFICATION_MODE_NONE);
+            }
+        }
 
         if (siddur.get(position).shouldBeHighlighted()) {
             convertView.setBackgroundColor(Color.YELLOW);

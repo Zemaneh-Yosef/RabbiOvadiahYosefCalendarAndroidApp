@@ -151,7 +151,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     private final JewishCalendar jewishCalendar;
     private static final int MINUTES_PER_HOUR = 60;
     private static final int MILLISECONDS_PER_MINUTE = 60_000;
-    private SharedPreferences sharedPreferences;
+    private final SharedPreferences sharedPreferences;
 
     public ROZmanimCalendar(GeoLocation location, SharedPreferences sharedPreferences) {
         super(location);
@@ -180,7 +180,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         jewishCalendar.setDate(getCalendar());
         ChaiTables chaiTables = new ChaiTables(getGeoLocation().getLocationName(), jewishCalendar, sharedPreferences);
         String currentVisibleSunrise = chaiTables.getVisibleSunrise();
-        if (currentVisibleSunrise.equals("")) {
+        if (currentVisibleSunrise.isEmpty()) {
             return null;
         }
         int visibleSunriseHour = Integer.parseInt(currentVisibleSunrise.substring(0, 1));

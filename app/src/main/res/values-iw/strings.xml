@@ -496,6 +496,7 @@
     <string name="skip_setup_not_recommended">דלג על ההגדרות (לא מומלץ).</string>
     <string name="birchat_halevanah">ברכת הלבנה</string>
     <string name="show_siddur">סידור יומי</string>
+    <string name="siddur">סידור</string>
     <string name="until">עד</string>
     <string name="night_of">ליל</string>
     <string name="shacharit">שחרית</string>
@@ -593,6 +594,7 @@
     <string name="when_did_you_start_your_meal">מתי התחלת את ארוחתך?</string>
     <string name="did_you_start_your_meal_during_the_day">האם התחלת את ארוחתך לפני שקיעה?</string>
     <string name="jerusalem_direction">כיוון ירושלים</string>
+    <string name="jerusalem">ירושלים</string>
     <string name="north_pointer">מצביע צפוני</string>
     <string name="holy_of_holies">קודש הקדשים</string>
     <string name="jer_dir_help_text">בעת התפילה בעמידה, יש להכווין את עצמו לכיוון ירושלים, בית המקדש ואזור קודש הקדשים (ברכות בבלי ל: א), (מלכים א\' ח: לה-מח, ודברי הימים ב\' ו: לב). לקביעת הכיוון הנכון ניתן להשתמש בשיטת \"קו רומב\" המציירת קו ממקום המתפלל ישירות לנקודה ספציפית (שבמקרה שלנו, יהיה זה הר הבית). לאחר שהקו נמשך, מומלץ להתפלל לפי הכיוון של הקו באמצעות התאמת כיוון התפילה לזווית המדרגה שלו. יש לשים לב כי גם אם ארון הקודש בבית הכנסת בו אתה נמצא מותקף, לא רקוב זה אינו מנותק מהמתפללים האחרים. במקום זאת, יש להתאים רק את הראש לכיוון הנכון.</string>
@@ -622,4 +624,5 @@
     <string name="tikkun_chatzot_is_not_said_tonight_possible_reasons">תיקון חצות לא נאמר הלילה. סיבות אפשריות לכך: זהו ליל שבת, ראש השנה, יום כיפור, סוכות/שמיני עצרת, פסח או שבועות</string>
     <string name="tikkun_chatzot_is_not_said_today_or_tonight">תיקון חצות לא נאמר היום או הלילה</string>
     <string name="tikkun_chatzot_is_not_said_today_or_tonight_possible_reasons">תיקון חצות לא נאמר היום או הלילה. סיבות אפשריות לכך הן: זה יום שישי/ליל שישי, אין אומרים תחנון היום, ערב ראש חודש אב, ראש חודש, ראש השנה, יום כיפור, סוכות/שמיני עצרת, פסח או שבועות</string>
+    <string name="birchat_meyin_shalosh">ברכת מעין שלוש</string>
 </resources>

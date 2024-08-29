@@ -1,7 +1,7 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sCurrentLocationName;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentLocationName;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.ej.rovadiahyosefcalendar.R;
+import com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 
 import java.util.Locale;
@@ -45,7 +46,7 @@ public class CurrentLocationActivity extends AppCompatActivity {
         mLocationResolver = new LocationResolver(this, this);
 
         Button allowLocationButton = findViewById(R.id.allow_location_button);
-        allowLocationButton.setOnClickListener(v -> mLocationResolver.acquireLatitudeAndLongitude());
+        allowLocationButton.setOnClickListener(v -> mLocationResolver.acquireLatitudeAndLongitude(new ZmanimFragment()));
 
         Button enterZipcodeButton = findViewById(R.id.enter_zipcode_button);
         enterZipcodeButton.setOnClickListener(v -> createZipcodeDialog());
@@ -130,7 +131,7 @@ public class CurrentLocationActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
             if (grantResults.length > 0 && grantResults[0] == 0) {
-                mLocationResolver.acquireLatitudeAndLongitude();
+                mLocationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
                 mLocationResolver.setTimeZoneID();
                 mLocationResolver.start();
                 try {

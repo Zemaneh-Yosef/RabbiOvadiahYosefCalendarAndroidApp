@@ -81,9 +81,6 @@
             android:name=".activities.SiddurViewActivity"
             android:exported="false" />
         <activity
-            android:name=".activities.SiddurChooserActivity"
-            android:exported="false" />
-        <activity
             android:name=".activities.CalendarChooserActivity"
             android:exported="false" />
         <activity
@@ -129,7 +126,7 @@
             android:label="@string/title_activity_settings" />
         <activity android:name=".activities.SetupElevationActivity" />
         <activity
-            android:name=".activities.MainActivity"
+            android:name=".activities.MainFragmentManager"
             android:exported="true"
             android:theme="@style/Theme.App.Starting">
             <intent-filter>

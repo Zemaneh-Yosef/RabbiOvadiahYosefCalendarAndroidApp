@@ -20,8 +20,10 @@ import android.widget.NumberPicker;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
 
 import com.ej.rovadiahyosefcalendar.R;
+import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
@@ -33,7 +35,8 @@ public class HebrewDayMonthYearPickerDialog extends DialogFragment {
     private final int MIN_YEAR;
     private final int MAX_YEAR;
     private DatePickerDialog.OnDateSetListener listener;
-    private final CustomDatePickerDialog mCustomDatePickerDialog;
+    private final MaterialDatePicker<Long> materialDatePicker;
+    private final FragmentManager fragmentManager;
     private final JewishCalendar mJewishCalendar;
     private String[] mHebrewMonths = {"Nissan", "Iyar", "Sivan", "Tammuz", "Av",
             "Elul", "Tishri", "Cheshvan", "Kislev", "Tevet", "Shevat", "Adar"};
@@ -43,9 +46,10 @@ public class HebrewDayMonthYearPickerDialog extends DialogFragment {
     private NumberPicker mMonthPicker;
     private NumberPicker mYearPicker;
 
-    public HebrewDayMonthYearPickerDialog(CustomDatePickerDialog customDatePickerDialog, JewishCalendar jewishCalendar) {
+    public HebrewDayMonthYearPickerDialog(MaterialDatePicker<Long> materialDatePicker, FragmentManager fragmentManager, JewishCalendar jewishCalendar) {
         super();
-        mCustomDatePickerDialog = customDatePickerDialog;
+        this.materialDatePicker = materialDatePicker;
+        this.fragmentManager = fragmentManager;
         mJewishCalendar = jewishCalendar;
         MIN_YEAR = jewishCalendar.getJewishYear() - 100;
         MAX_YEAR = jewishCalendar.getJewishYear() + 100;
@@ -131,8 +135,7 @@ public class HebrewDayMonthYearPickerDialog extends DialogFragment {
                 })
                 .setNegativeButton(requireContext().getString(R.string.cancel), (dialog2, id) -> Objects.requireNonNull(HebrewDayMonthYearPickerDialog.this.getDialog()).cancel())
                 .setNeutralButton(requireContext().getString(R.string.switch_calendar), (dialog3, which) -> {
-                    mCustomDatePickerDialog.create();
-                    mCustomDatePickerDialog.show();
+                    materialDatePicker.show(fragmentManager, null);
                 });
         return builder.create();
     }

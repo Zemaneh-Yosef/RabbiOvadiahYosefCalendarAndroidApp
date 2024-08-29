@@ -1,13 +1,14 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
 import static android.content.Context.MODE_PRIVATE;
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sCurrentLocationName;
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sCurrentTimeZoneID;
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sLatitude;
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sLongitude;
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sNextUpcomingZman;
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sSetupLauncher;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentLocationName;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentTimeZoneID;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLatitude;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLongitude;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSetupLauncher;
+import static com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment.sNextUpcomingZman;
+import static com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment.sShabbatMode;
 
 import android.content.Context;
 import android.content.Intent;
@@ -31,10 +32,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.GetUserLocationWithMapActivity;
-import com.ej.rovadiahyosefcalendar.activities.MainActivity;
 import com.ej.rovadiahyosefcalendar.activities.SetupChooserActivity;
 import com.ej.rovadiahyosefcalendar.activities.SetupElevationActivity;
-import com.ej.rovadiahyosefcalendar.activities.SiddurChooserActivity;
 import com.ej.rovadiahyosefcalendar.activities.SiddurViewActivity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
@@ -85,6 +84,9 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             } else {
                 zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
             }
+        }
+        if (sCurrentTimeZoneID == null) {
+            sCurrentTimeZoneID = TimeZone.getDefault().getID();
         }
         zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
 
@@ -201,7 +203,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             }
 
             holder.itemView.setOnClickListener(v -> {
-                if (!MainActivity.sShabbatMode && PreferenceManager.getDefaultSharedPreferences(context).getBoolean("showZmanDialogs", true)) {
+                if (!sShabbatMode && PreferenceManager.getDefaultSharedPreferences(context).getBoolean("showZmanDialogs", true)) {
                     if (isZmanimInHebrew) {
                         checkHebrewZmanimForDialog(position);
                     } else if (mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false)) {
@@ -313,16 +315,6 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 //                    dialogBuilder.show();
 //                    dialogBuilder.setPositiveButton("Dismiss", (dialog, which) -> dialog.dismiss());
 //                }
-                }
-                if (zmanim.get(position).getTitle().equals(context.getString(R.string.show_siddur)) ||
-                        zmanim.get(position).getTitle().equals(context.getString(R.string.show_siddur) + "*")) {
-                    JewishCalendar jewishCalendar = new JewishCalendar();
-                    jewishCalendar.setDate(zmanim.get(position).getZman());
-                    context.startActivity(new Intent(context, SiddurChooserActivity.class)
-                            .putExtra("JewishDay", jewishCalendar.getJewishDayOfMonth())
-                            .putExtra("JewishMonth", jewishCalendar.getJewishMonth())
-                            .putExtra("JewishYear", jewishCalendar.getJewishYear())
-                    );
                 }
             });
 

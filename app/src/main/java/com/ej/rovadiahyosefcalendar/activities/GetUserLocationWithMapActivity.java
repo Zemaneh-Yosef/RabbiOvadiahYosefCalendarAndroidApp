@@ -1,8 +1,11 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sLatitude;
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sLongitude;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentLocationName;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentTimeZoneID;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sElevation;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLatitude;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLongitude;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -40,6 +43,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ej.rovadiahyosefcalendar.R;
+import com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.databinding.ActivityGetUserLocationWithMapBinding;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -108,10 +112,10 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
         mSharedPreferences.edit().putBoolean("shouldRefresh", true).apply();//
 
         // Backup old location details if the user goes back without finishing
-        bLocationName = MainActivity.sCurrentLocationName;
+        bLocationName = sCurrentLocationName;
         bLat = sLatitude;
         bLong = sLongitude;
-        bTimezoneID = MainActivity.sCurrentTimeZoneID;
+        bTimezoneID = sCurrentTimeZoneID;
         bZipcode = mSharedPreferences.getString("Zipcode", "");
         bUseZipcode = mSharedPreferences.getBoolean("useZipcode", false);
         bUseAdvanced = mSharedPreferences.getBoolean("useAdvanced", false);
@@ -142,7 +146,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                         .apply();
 
                 LocationResolver locationResolver = new LocationResolver(this, this);
-                locationResolver.acquireLatitudeAndLongitude();
+                locationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
                 if (sLatitude != 0 && sLongitude != 0) {
                     chosenLocation = new LatLng(sLatitude, sLongitude);
                     currentLocation = mMap.addMarker(new MarkerOptions().position(chosenLocation).draggable(true).title(locationResolver.getFullLocationName()));
@@ -244,10 +248,10 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                MainActivity.sCurrentLocationName = bLocationName;
+                sCurrentLocationName = bLocationName;
                 sLatitude = bLat;
                 sLongitude = bLong;
-                MainActivity.sCurrentTimeZoneID = bTimezoneID;
+                sCurrentTimeZoneID = bTimezoneID;
                 mSharedPreferences.edit().putString("Zipcode", bZipcode)
                         .putBoolean("useZipcode", bUseZipcode)
                         .putBoolean("useAdvanced", bUseAdvanced)
@@ -314,7 +318,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
         // Add a marker in the current location and move the camera
         if (sLatitude != 0 && sLongitude != 0) {
             LatLng current = new LatLng(sLatitude, sLongitude);
-            currentLocation = mMap.addMarker(new MarkerOptions().position(current).draggable(true).title(MainActivity.sCurrentLocationName));
+            currentLocation = mMap.addMarker(new MarkerOptions().position(current).draggable(true).title(sCurrentLocationName));
             mMap.moveCamera(CameraUpdateFactory.newLatLng(current));
             LatLng northEastCorner = SphericalUtil.computeOffset(current, 950000.0 / 100, 45.0);
             LatLng southWestCorner = SphericalUtil.computeOffset(current, 950000.0 / 100, 225.0);
@@ -337,10 +341,10 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
             sLatitude = latLng.latitude;
             sLongitude = latLng.longitude;
             LocationResolver locationResolver = new LocationResolver(GetUserLocationWithMapActivity.this, GetUserLocationWithMapActivity.this);
-            MainActivity.sCurrentLocationName = locationResolver.getLocationName();
+            sCurrentLocationName = locationResolver.getLocationName();
 
             mSharedPreferences.edit()
-                    .putString("advancedLN", MainActivity.sCurrentLocationName)
+                    .putString("advancedLN", sCurrentLocationName)
                     .putString("advancedLat", String.valueOf(sLatitude))
                     .putString("advancedLong", String.valueOf(sLongitude)).apply();
 
@@ -475,7 +479,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                             .putBoolean("useZipcode", false)
                             .apply();
                     LocationResolver mLocationResolver = new LocationResolver(this, this);
-                    mLocationResolver.acquireLatitudeAndLongitude();
+                    mLocationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
                     mLocationResolver.setTimeZoneID();
                     if (mSharedPreferences.getBoolean("useElevation", true)) {
                         mLocationResolver.start();
@@ -543,6 +547,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
         locationName.setGravity(Gravity.CENTER);
 
         EditText locationInput = new EditText(this);
+        locationInput.setText(sCurrentLocationName);
         locationInput.setHint(R.string.location_hint);
         locationInput.setGravity(Gravity.CENTER);
 
@@ -551,6 +556,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
         latitude.setGravity(Gravity.CENTER);
 
         EditText latInput = new EditText(this);
+        latInput.setText(String.valueOf(sLatitude));
         latInput.setHint("ex: 73.09876543");
         latInput.setGravity(Gravity.CENTER);
 
@@ -559,6 +565,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
         longitude.setGravity(Gravity.CENTER);
 
         EditText longInput = new EditText(this);
+        longInput.setText(String.valueOf(sLongitude));
         longInput.setHint("ex: -103.098765");
         longInput.setGravity(Gravity.CENTER);
 
@@ -567,6 +574,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
         elevation.setGravity(Gravity.CENTER);
 
         EditText elevationInput = new EditText(this);
+        elevationInput.setText(String.valueOf(sElevation));
         elevationInput.setHint("ex: 805");
         elevationInput.setGravity(Gravity.CENTER);
 
@@ -584,8 +592,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
 
         layout.addView(locationName);
@@ -623,7 +630,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                                 elevationInput.getText().toString()).apply();
 
                         LocationResolver mLocationResolver = new LocationResolver(this, this);
-                        mLocationResolver.acquireLatitudeAndLongitude();
+                        mLocationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
                         if (!mSharedPreferences.getBoolean("inIsrael", false) && !isSetup) {
                             startActivity(new Intent(this, CalendarChooserActivity.class).setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
                         }
@@ -707,7 +714,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                         .putBoolean("useLocation5", location5)
                         .apply();
                 LocationResolver mLocationResolver = new LocationResolver(GetUserLocationWithMapActivity.this, GetUserLocationWithMapActivity.this);
-                mLocationResolver.acquireLatitudeAndLongitude();
+                mLocationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
                 if (mSharedPreferences.getBoolean("useElevation", true)) {
                     mLocationResolver.start();
                     try {
@@ -717,7 +724,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                     }
                 }
                 chosenLocation = new LatLng(sLatitude, sLongitude);
-                mMap.addMarker(new MarkerOptions().position(chosenLocation).title(MainActivity.sCurrentLocationName));
+                mMap.addMarker(new MarkerOptions().position(chosenLocation).title(sCurrentLocationName));
                 LatLng northEastCorner = SphericalUtil.computeOffset(chosenLocation, 950000.0 / 100, 45.0);
                 LatLng southWestCorner = SphericalUtil.computeOffset(chosenLocation, 950000.0 / 100, 225.0);
                 mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(new LatLngBounds(southWestCorner, northEastCorner), 0));

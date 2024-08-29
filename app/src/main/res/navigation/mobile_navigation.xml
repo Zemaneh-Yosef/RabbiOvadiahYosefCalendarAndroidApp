@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_zmanim">
+
+    <fragment
+        android:id="@+id/navigation_zmanim"
+        android:name="com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment"
+        android:label="@string/zmanim"
+        tools:layout="@layout/fragment_zmanim" />
+
+    <fragment
+        android:id="@+id/navigation_limud"
+        android:name="com.ej.rovadiahyosefcalendar.activities.ui.limudiim.LimudFragment"
+        android:label="@string/limudim_hillulot"
+        tools:layout="@layout/fragment_limud" />
+
+    <fragment
+        android:id="@+id/navigation_siddur"
+        android:name="com.ej.rovadiahyosefcalendar.activities.ui.siddur.SiddurFragment"
+        android:label="@string/siddur"
+        tools:layout="@layout/fragment_siddur" />
+</navigation>

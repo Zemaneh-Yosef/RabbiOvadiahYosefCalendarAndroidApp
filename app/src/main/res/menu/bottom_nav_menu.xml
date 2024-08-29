@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_limud"
+        android:title="@string/limudim_hillulot"
+        android:icon="@drawable/baseline_format_align_justify_24"/>
+    <item
+        android:id="@+id/navigation_zmanim"
+        android:title="@string/zmanim"
+        android:icon="@drawable/ic_baseline_alarm_24"/>
+
+    <item
+        android:id="@+id/navigation_siddur"
+        android:title="@string/siddur"
+        android:icon="@drawable/baseline_menu_book_24"/>
+
+</menu>

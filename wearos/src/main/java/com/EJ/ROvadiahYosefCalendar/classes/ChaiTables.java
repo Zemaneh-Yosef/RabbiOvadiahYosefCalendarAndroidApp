@@ -35,8 +35,8 @@ public class ChaiTables {
      */
     public String getVisibleSunrise() {
         String visibleSunriseTable = sharedPreferences.getString("chaiTable" + currentLocation, "");
-        if (visibleSunriseTable.equals("")) {
-            return ""; // string is empty return an empty string
+        if (visibleSunriseTable.isEmpty()) {
+            return visibleSunriseTable; // string is empty; return an empty string
         }
 
         int currentHebrewMonth = jewishCalendar.getJewishMonth();

@@ -2,7 +2,7 @@ package com.ej.rovadiahyosefcalendar.activities;
 
 import static android.Manifest.permission.ACCESS_BACKGROUND_LOCATION;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
 
 import android.app.Activity;
 import android.content.Context;

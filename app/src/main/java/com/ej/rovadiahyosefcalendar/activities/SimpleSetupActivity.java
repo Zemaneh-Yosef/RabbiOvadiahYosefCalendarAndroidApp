@@ -1,9 +1,9 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sCurrentLocationName;
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sLatitude;
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sLongitude;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentLocationName;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLatitude;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLongitude;
 
 import android.app.Activity;
 import android.content.Context;
@@ -29,6 +29,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
+import com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesCountries;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesOptionsList;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesScraper;
@@ -78,7 +79,7 @@ public class SimpleSetupActivity extends AppCompatActivity {
 
         JewishDate jewishDate = new JewishDate();
         LocationResolver locationResolver = new LocationResolver(this, this);
-        locationResolver.acquireLatitudeAndLongitude();
+        locationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
         TextView locationTextView = findViewById(R.id.location);
         locationTextView.setText(sCurrentLocationName);
 

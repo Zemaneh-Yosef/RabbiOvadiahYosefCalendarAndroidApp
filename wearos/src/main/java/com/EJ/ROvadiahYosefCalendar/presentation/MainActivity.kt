@@ -1859,7 +1859,7 @@ class MainActivity : ComponentActivity() {
                                             }
                                         }
 
-                                        DarkChip(text = zmanimList[index].title, isDragged = false, onClick = {if (index == 1) showDatePickerDialog() }, isEnabled = index == 1)
+                                        DarkChip(text = zmanimList[index].title, upcoming = index == 1, isDragged = index == 1, onClick = {if (index == 1) showDatePickerDialog() }, isEnabled = index == 1)
 
                                         if (index == zmanimList.size - 1) {
                                             RedChipWithWhiteX("", onRemove = { finish() })

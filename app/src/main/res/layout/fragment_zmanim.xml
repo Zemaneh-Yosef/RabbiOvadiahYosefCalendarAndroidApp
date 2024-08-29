@@ -11,25 +11,6 @@
     android:animateLayoutChanges="true"
     tools:context=".activities.MainActivity">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/app_bar_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fitsSystemWindows="true">
-
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/topAppBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="?attr/actionBarSize"
-            app:title="@string/app_name"
-            app:titleCentered="true"
-            app:subtitle="@string/short_app_name"
-            app:subtitleCentered="true"
-            app:menu="@menu/menu_main" />
-
-    </com.google.android.material.appbar.AppBarLayout>
-
     <TextClock
         android:id="@+id/clock"
         android:layout_width="wrap_content"
@@ -39,6 +20,7 @@
         android:layout_gravity="center"
         android:textSize="20sp"
         android:gravity="center"
+        android:visibility="gone"
         tools:text="4:15 PM"/>
 
     <TextView
@@ -147,7 +129,7 @@
                 android:baselineAligned="false">
 
                 <ListView
-                    android:id="@+id/zmanim"
+                    android:id="@+id/zmanim1"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -913,7 +895,6 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="44dp"
-            android:padding="10dp"
             android:backgroundTint="@color/dark_blue"
             android:contentDescription="@string/change_date"
             style="?android:attr/button" />
@@ -930,4 +911,5 @@
             style="?android:attr/button" />
 
     </LinearLayout>
+
 </LinearLayout>

@@ -1,5 +1,8 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLatitude;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLongitude;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
@@ -56,7 +59,7 @@ public class JerusalemDirectionMapsActivity extends FragmentActivity implements 
     private float smoothedAzimuthDegrees = 0.0f;
     private Marker triMarker;
     private final LatLng jer = new LatLng(31.778015, 35.235413);
-    private final LatLng currentLocation = new LatLng(MainActivity.sLatitude, MainActivity.sLongitude);
+    private final LatLng currentLocation = new LatLng(sLatitude, sLongitude);
     private boolean isTriGreen = false;
     private float previousZoomLevel = -1;
 
@@ -188,7 +191,7 @@ public class JerusalemDirectionMapsActivity extends FragmentActivity implements 
 
         Polyline polyline = googleMap.addPolyline(new PolylineOptions().width(4.5f).color(Color.BLUE));
         ArrayList<LatLng> points = new ArrayList<>();
-        points.add(new LatLng(MainActivity.sLatitude, MainActivity.sLongitude));
+        points.add(new LatLng(sLatitude, sLongitude));
         points.add(jer);
         polyline.setPoints(points);
         //polyline.setGeodesic(true);// If we want to add the Great Circle method
@@ -199,7 +202,8 @@ public class JerusalemDirectionMapsActivity extends FragmentActivity implements 
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.tri))
                         .draggable(false));
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             googleMap.setMyLocationEnabled(true);
         }
 

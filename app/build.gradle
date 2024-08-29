@@ -11,8 +11,8 @@ android {
         minSdk 25
         compileSdk 35
         targetSdk 35
-        versionCode 187
-        versionName "20.3"
+        versionCode 188
+        versionName "20.4"
         multiDexEnabled true
 
         ndk { debugSymbolLevel 'FULL' }
@@ -52,6 +52,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation "androidx.core:core-splashscreen:1.0.1"
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.viewpager2:viewpager2:1.1.0'
     implementation 'androidx.vectordrawable:vectordrawable:1.2.0'
     implementation 'androidx.navigation:navigation-fragment:2.7.7'
     implementation 'androidx.navigation:navigation-ui:2.7.7'
@@ -74,7 +75,10 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.11.0'
     implementation 'com.google.android.gms:play-services-maps:19.0.0'
     implementation 'com.google.maps.android:android-maps-utils:3.8.2'
-    implementation 'com.google.android.material:material:1.13.0-alpha04'
+    implementation 'com.google.android.material:material:1.13.0-alpha05'
+    implementation 'androidx.activity:activity:1.9.1'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.8.4'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.4'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'

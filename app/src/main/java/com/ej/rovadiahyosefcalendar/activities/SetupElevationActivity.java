@@ -1,7 +1,7 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.sCurrentLocationName;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentLocationName;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -25,6 +25,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
+import com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesScraper;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -61,7 +62,7 @@ public class SetupElevationActivity extends AppCompatActivity {
         });
 
         LocationResolver locationResolver = new LocationResolver(this, this);
-        locationResolver.acquireLatitudeAndLongitude();
+        locationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
         locationResolver.setTimeZoneID();
 
         SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);

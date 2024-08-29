@@ -2,7 +2,7 @@ package com.ej.rovadiahyosefcalendar.notifications;
 
 import static android.content.Context.ALARM_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;

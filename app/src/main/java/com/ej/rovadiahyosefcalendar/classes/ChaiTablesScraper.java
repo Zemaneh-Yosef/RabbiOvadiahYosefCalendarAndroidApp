@@ -1,8 +1,9 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentLocationName;
+
 import android.os.Environment;
 
-import com.ej.rovadiahyosefcalendar.activities.MainActivity;
 import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
 
 import org.jsoup.Jsoup;
@@ -237,7 +238,7 @@ public class ChaiTablesScraper extends Thread {
         if (!Environment.MEDIA_MOUNTED.equals(state)) {
             throw new IOException("Something went wrong writing to disk");
         }
-        String filename = "visibleSunriseTable" + MainActivity.sCurrentLocationName + jewishDate.getJewishYear() + ".csv";
+        String filename = "visibleSunriseTable" + sCurrentLocationName + jewishDate.getJewishYear() + ".csv";
         File file = new File(mExt, filename);
         FileOutputStream outputStream;
         try {

@@ -15,14 +15,16 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
-import com.ej.rovadiahyosefcalendar.classes.CustomDatePickerDialog;
+import com.ej.rovadiahyosefcalendar.classes.HebrewDayMonthYearPickerDialog;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.datepicker.MaterialDatePicker;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.TimeZone;
 
 public class MoladActivity extends AppCompatActivity {
 
@@ -59,13 +61,42 @@ public class MoladActivity extends AppCompatActivity {
         updateMoladDates();
 
         Button moladButton = findViewById(R.id.molad_button);
-        DatePickerDialog dialog = createDialog();
 
         moladButton.setOnClickListener(v -> {
-            dialog.updateDate(mUserChosenDate.get(Calendar.YEAR),
-                    mUserChosenDate.get(Calendar.MONTH),
-                    mUserChosenDate.get(Calendar.DAY_OF_MONTH));
-            dialog.show();
+                MaterialDatePicker.Builder<Long> builder = MaterialDatePicker.Builder.datePicker();
+                MaterialDatePicker<Long> materialDatePicker = builder
+                        .setPositiveButtonText(R.string.ok)
+                        .setNegativeButtonText(R.string.switch_calendar)
+                        .setSelection(mUserChosenDate.getTimeInMillis())// can be in local timezone
+                        .build();
+                materialDatePicker.addOnPositiveButtonClickListener(selection -> {
+                    Calendar epoch = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+                    epoch.setTimeInMillis(selection);
+                    mUserChosenDate.set(
+                            epoch.get(Calendar.YEAR),
+                            epoch.get(Calendar.MONTH),
+                            epoch.get(Calendar.DATE),
+                            epoch.get(Calendar.HOUR_OF_DAY),
+                            epoch.get(Calendar.MINUTE)
+                    );
+                    mJewishCalendar.setDate(mUserChosenDate);
+                    updateMoladDates();
+                });
+                DatePickerDialog.OnDateSetListener onDateSetListener = (view, year, month, day) -> {
+                    Calendar mUserChosenDate = Calendar.getInstance();
+                    mUserChosenDate.set(year, month, day);
+                    mJewishCalendar.setDate(mUserChosenDate);
+                    updateMoladDates();
+                };
+                materialDatePicker.addOnNegativeButtonClickListener(selection -> {
+                    HebrewDayMonthYearPickerDialog hdmypd = new HebrewDayMonthYearPickerDialog(materialDatePicker, getSupportFragmentManager(), mJewishCalendar);
+                    hdmypd.updateDate(mJewishCalendar.getGregorianYear(),
+                            mJewishCalendar.getGregorianMonth(),
+                            mJewishCalendar.getGregorianDayOfMonth());
+                    hdmypd.setListener(onDateSetListener);
+                    hdmypd.show(getSupportFragmentManager(), null);
+                });
+                materialDatePicker.show(getSupportFragmentManager(), null);
         });
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.molad_disclaimer), (v, windowInsets) -> {
@@ -79,20 +110,6 @@ public class MoladActivity extends AppCompatActivity {
             // down to descendant views.
             return WindowInsetsCompat.CONSUMED;
         });
-    }
-
-    private DatePickerDialog createDialog() {
-        DatePickerDialog.OnDateSetListener onDateSetListener = (view, year, month, day) -> {
-            mUserChosenDate.set(year, month, day);
-            mJewishCalendar.setDate(mUserChosenDate);
-            updateMoladDates();
-        };
-
-        return new CustomDatePickerDialog(this, onDateSetListener,
-                mUserChosenDate.get(Calendar.YEAR),
-                mUserChosenDate.get(Calendar.MONTH),
-                mUserChosenDate.get(Calendar.DAY_OF_MONTH),
-                mJewishCalendar);
     }
 
     private void updateMoladDates() {

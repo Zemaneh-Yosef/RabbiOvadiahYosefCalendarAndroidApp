@@ -311,7 +311,7 @@ public class ZmanimFactory {
         mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
         mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);
         if (mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.TISHA_BEAV) {
-            zmanim.add(new ZmanListEntry(zmanimNames.getTaanitString() + zmanimNames.getStartsString(), mROZmanimCalendar.getSunset(), true));
+            zmanim.add(new ZmanListEntry(zmanimNames.getTaanitString() + zmanimNames.getStartsString(), mROZmanimCalendar.getSeaLevelSunset(), true));
         }
         mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
         zmanim.add(new ZmanListEntry(zmanimNames.getSunsetString(), mROZmanimCalendar.getSeaLevelSunset(), true));

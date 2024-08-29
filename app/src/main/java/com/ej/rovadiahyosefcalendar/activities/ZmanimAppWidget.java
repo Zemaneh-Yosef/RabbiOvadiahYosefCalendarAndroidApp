@@ -3,7 +3,7 @@ package com.ej.rovadiahyosefcalendar.activities;
 import static android.Manifest.permission.ACCESS_BACKGROUND_LOCATION;
 import static android.content.Context.MODE_PRIVATE;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
-import static com.ej.rovadiahyosefcalendar.activities.MainActivity.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
 
 import android.app.Activity;
 import android.app.AlarmManager;
@@ -124,7 +124,7 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         views.setTextViewText(R.id.zman_time, time);
         views.setTextViewText(R.id.tachanun, tachanun);
         views.setTextViewText(R.id.daf, dafYomi);
-        views.setOnClickPendingIntent(R.id.widget, PendingIntent.getActivity(context, 0, new Intent(context, MainActivity.class), PendingIntent.FLAG_IMMUTABLE));
+        views.setOnClickPendingIntent(R.id.widget, PendingIntent.getActivity(context, 0, new Intent(context, MainFragmentManager.class), PendingIntent.FLAG_IMMUTABLE));
     }
 
     private static ROZmanimCalendar getROZmanimCalendar(Context context) {

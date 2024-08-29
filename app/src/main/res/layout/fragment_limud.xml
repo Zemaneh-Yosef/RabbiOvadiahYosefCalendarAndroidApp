@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".activities.ui.limudiim.LimudFragment">
+
+    <TextView
+        android:id="@+id/hillulotDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="26sp"
+        tools:text="29 Aug, 2024         25 Av, 5784"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/limudim"
+            android:textStyle="bold"
+            app:drawableEndCompat="@drawable/baseline_menu_book_24" />
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/hillulot"
+            android:textStyle="bold"
+            app:drawableEndCompat="@drawable/baseline_local_fire_department_24" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/limudRV"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:focusable="true"
+            android:descendantFocusability="afterDescendants"
+            app:layout_constrainedHeight="true" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/HillulotRV"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:focusable="true"
+            android:descendantFocusability="afterDescendants"
+            app:layout_constrainedHeight="true" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/date_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:layoutDirection="ltr"
+        tools:ignore="TooManyViews">
+
+        <Button
+            android:id="@+id/prev_day"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="44dp"
+            android:padding="1dp"
+            android:backgroundTint="?android:attr/colorBackground"
+            android:contentDescription="@string/left"
+            android:drawableLeft="@drawable/baseline_arrow_back_24"
+            style="?android:attr/button" />
+
+        <Button
+            android:id="@+id/calendar"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="44dp"
+            android:backgroundTint="@color/dark_blue"
+            android:contentDescription="@string/change_date"
+            style="?android:attr/button" />
+
+        <Button
+            android:id="@+id/next_day"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="44dp"
+            android:padding="1dp"
+            android:backgroundTint="?android:attr/colorBackground"
+            android:contentDescription="@string/right"
+            android:drawableEnd="@drawable/baseline_arrow_forward_24"
+            style="?android:attr/button" />
+
+    </LinearLayout>
+
+</LinearLayout>
