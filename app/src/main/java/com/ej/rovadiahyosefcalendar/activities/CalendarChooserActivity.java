@@ -1,5 +1,7 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -84,7 +86,10 @@ public class CalendarChooserActivity extends AppCompatActivity {
                 .show());
 
         Button skip = findViewById(R.id.calendar_chooser_skip);
-        skip.setOnClickListener(v -> finish());
+        skip.setOnClickListener(v -> {
+            getSharedPreferences(SHARED_PREF, MODE_PRIVATE).edit().putBoolean("isSetup", true).apply();
+            finish();
+        });
 
         ViewCompat.setOnApplyWindowInsetsListener(skip, (v, windowInsets) -> {
             Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -107,7 +112,11 @@ public class CalendarChooserActivity extends AppCompatActivity {
     }
 
     private void saveInfoAndFinish(boolean b) {
-        mSettingsPreferences.edit().putBoolean("LuachAmudeiHoraah", b).putBoolean("useElevation", !b).apply();
+        mSettingsPreferences.edit()
+                .putBoolean("LuachAmudeiHoraah", b)
+                .putBoolean("useElevation", !b)
+                .apply();
+        getSharedPreferences(SHARED_PREF, MODE_PRIVATE).edit().putBoolean("isSetup", true).apply();
         finish();
     }
 }

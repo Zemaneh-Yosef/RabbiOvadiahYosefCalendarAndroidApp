@@ -32,8 +32,8 @@ import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.classes.CalendarDrawable;
 import com.ej.rovadiahyosefcalendar.classes.HebrewDayMonthYearPickerDialog;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
-import com.ej.rovadiahyosefcalendar.classes.ZmanAdapter;
-import com.ej.rovadiahyosefcalendar.classes.ZmanListEntry;
+import com.ej.rovadiahyosefcalendar.classes.LimudAdapter;
+import com.ej.rovadiahyosefcalendar.classes.LimudListEntry;
 import com.ej.rovadiahyosefcalendar.databinding.FragmentLimudBinding;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.kosherjava.zmanim.hebrewcalendar.Daf;
@@ -131,33 +131,32 @@ public class LimudFragment extends Fragment {
     }
 
     private void updateLists() {
-        limudRV.setAdapter(new ZmanAdapter(mContext, getLimudList()));
-        hillulotRV.setAdapter(new ZmanAdapter(mContext, getHillulotList()));
+        limudRV.setAdapter(new LimudAdapter(mContext, getLimudList()));
+        hillulotRV.setAdapter(new LimudAdapter(mContext, getHillulotList()));
     }
 
-    private List<ZmanListEntry> getLimudList() {
-        List<ZmanListEntry> limudim = new ArrayList<>();
+    private List<LimudListEntry> getLimudList() {
+        List<LimudListEntry> limudim = new ArrayList<>();
         if (!mCurrentDateShown.before(dafYomiStartDate)) {
-            limudim.add(new ZmanListEntry(getString(R.string.daf_yomi)  + " " + YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getMasechta()
+            limudim.add(new LimudListEntry(getString(R.string.daf_yomi)  + " " + YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getMasechta()
                     + " " +
-                    mHebrewDateFormatter.formatHebrewNumber(YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getDaf()),
-                    mJewishDateInfo.getJewishCalendar().getGregorianCalendar().getTime(),false));
+                    mHebrewDateFormatter.formatHebrewNumber(YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getDaf())));
         }
         if (!mCurrentDateShown.before(dafYomiYerushalmiStartDate)) {
             Daf dafYomiYerushalmi = YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar());
             if (dafYomiYerushalmi != null) {
                 String masechta = dafYomiYerushalmi.getYerushalmiMasechta();
                 String daf = mHebrewDateFormatter.formatHebrewNumber(dafYomiYerushalmi.getDaf());
-                limudim.add(new ZmanListEntry(getString(R.string.yerushalmi_yomi) + " " + masechta + " " + daf));
+                limudim.add(new LimudListEntry(getString(R.string.yerushalmi_yomi) + " " + masechta + " " + daf));
             } else {
-                limudim.add(new ZmanListEntry(getString(R.string.no_daf_yomi_yerushalmi)));
+                limudim.add(new LimudListEntry(getString(R.string.no_daf_yomi_yerushalmi)));
             }
         }
         return limudim;
     }
 
-    private List<ZmanListEntry> getHillulotList() {
-        List<ZmanListEntry> hillulot = new ArrayList<>();
+    private List<LimudListEntry> getHillulotList() {
+        List<LimudListEntry> hillulot = new ArrayList<>();
 
         // Read JSON file from the 'raw' directory
         String jsonFileString = readJSONFromRawResource(mContext,
@@ -184,9 +183,10 @@ public class LimudFragment extends Fragment {
                 for (int i = 0; i < currentHillulot.length(); i++) {
                     String name = (String) currentHillulot.getJSONObject(i).get("name");
                     String src = (String) currentHillulot.getJSONObject(i).get("src");
-                    hillulot.add(new ZmanListEntry(name));
                     if (!src.isEmpty() && !src.equals("-")) {
-                        hillulot.add(new ZmanListEntry("(" + src + ")"));
+                        hillulot.add(new LimudListEntry(name,"(" + src + ")"));
+                    } else {
+                        hillulot.add(new LimudListEntry(name));
                     }
                 }
             } catch (JSONException e) {

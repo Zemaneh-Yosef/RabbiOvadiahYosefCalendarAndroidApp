@@ -1,5 +1,8 @@
 package com.ej.rovadiahyosefcalendar.activities.ui.zmanim;
 
+import static android.Manifest.permission.ACCESS_BACKGROUND_LOCATION;
+import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.Context.ALARM_SERVICE;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.dafYomiStartDate;
@@ -175,6 +178,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     public static ActivityResultLauncher<Intent> sNotificationLauncher;
     private Handler mHandler = null;
     private Runnable mZmanimUpdater;
+    private SharedPreferences.OnSharedPreferenceChangeListener sharedPrefListener;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -201,7 +205,15 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             findAllWeeklyViews();
         }
 
-        initMainView();
+        if (sSharedPreferences.getBoolean("isSetup", false)) {
+            initMainView();
+        }
+        sharedPrefListener = (prefs, key) -> {
+            if (key != null && key.equals("isSetup")) {
+                initMainView();
+            }
+        };
+        sSharedPreferences.registerOnSharedPreferenceChangeListener(sharedPrefListener);
 
         Intent intent = mActivity.getIntent();
         String action = intent.getAction();
@@ -278,6 +290,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         createBackgroundThreadForNextUpcomingZman();
         setupButtons();
         setNotifications();
+        askForRealTimeNotificationPermissions();
         checkIfUserIsInIsraelOrNot();
     }
 
@@ -746,6 +759,29 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         editor.putString("timezoneID", sCurrentTimeZoneID).apply();
     }
 
+    private void askForRealTimeNotificationPermissions() {
+        if (ActivityCompat.checkSelfPermission(mContext, ACCESS_FINE_LOCATION) == PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(mContext, ACCESS_COARSE_LOCATION) == PERMISSION_GRANTED) {
+            if (!sSharedPreferences.getBoolean("askedForRealtimeNotifications", false)
+                    && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext);
+                builder.setTitle(R.string.would_you_like_to_receive_real_time_notifications_for_zmanim);
+                builder.setMessage(R.string.if_you_would_like_to_receive_real_time_zmanim_notifications);
+                builder.setCancelable(false);
+                builder.setPositiveButton(R.string.yes, (dialog, which) -> {
+                    if (ActivityCompat.checkSelfPermission(mContext, ACCESS_BACKGROUND_LOCATION) != PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(mActivity, new String[]{ACCESS_BACKGROUND_LOCATION}, 1);
+                    }
+                    sSharedPreferences.edit().putBoolean("askedForRealtimeNotifications", true).apply();
+                });
+                builder.setNegativeButton(R.string.no, (dialog, which) -> {
+                    sSharedPreferences.edit().putBoolean("askedForRealtimeNotifications", true).apply();
+                    dialog.dismiss();
+                });
+                builder.show();
+            }
+        }
+    }
 
     /**
      * This method will be called every time the user opens the app. It will reset the notifications every time the app is opened since the user might
@@ -2250,6 +2286,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+        sSharedPreferences.unregisterOnSharedPreferenceChangeListener(sharedPrefListener);
     }
 
     /**
@@ -2258,21 +2295,23 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      */
     @Override
     public void accept(Location location) {
-        sLatitude = location.getLatitude();
-        sLongitude = location.getLongitude();
-        mLocationResolver.resolveCurrentLocationName();
-        mLocationResolver.setTimeZoneID();
-        if (mMainRecyclerView.isFocusable()) {
-            resolveElevationAndVisibleSunrise();
-            instantiateZmanimCalendar();
-            mROZmanimCalendar.setCalendar(mCurrentDateShown);
-            setNextUpcomingZman();
-            if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                updateWeeklyTextViewTextColor();
-                updateWeeklyZmanim();
-            } else {
-                updateDailyZmanim();
-                mMainRecyclerView.scrollToPosition(mCurrentPosition);
+        if (location != null) {
+            sLatitude = location.getLatitude();
+            sLongitude = location.getLongitude();
+            mLocationResolver.resolveCurrentLocationName();
+            mLocationResolver.setTimeZoneID();
+            if (mMainRecyclerView.isFocusable()) {
+                resolveElevationAndVisibleSunrise();
+                instantiateZmanimCalendar();
+                mROZmanimCalendar.setCalendar(mCurrentDateShown);
+                setNextUpcomingZman();
+                if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                    updateWeeklyTextViewTextColor();
+                    updateWeeklyZmanim();
+                } else {
+                    updateDailyZmanim();
+                    mMainRecyclerView.scrollToPosition(mCurrentPosition);
+                }
             }
         }
     }

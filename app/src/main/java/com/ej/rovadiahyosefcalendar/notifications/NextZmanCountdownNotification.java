@@ -66,7 +66,7 @@ public class NextZmanCountdownNotification extends Service {
         handler = new Handler();
         mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         sharedPrefListener = (prefs, key) -> {
-            if (key.equals("isZmanimInHebrew") || key.equals("isZmanimEnglishTranslated")) {
+            if (key != null && (key.equals("isZmanimInHebrew") || key.equals("isZmanimEnglishTranslated"))) {
                 setZmanimLanguageBools();
                 nextZman = ZmanimFactory.getNextUpcomingZman(
                         new GregorianCalendar(),
@@ -81,7 +81,7 @@ public class NextZmanCountdownNotification extends Service {
         mSharedPreferences.registerOnSharedPreferenceChangeListener(sharedPrefListener);
         mSettingsPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         settingsPrefListener = (prefs, key) -> {
-            if (key.equals("showNextZmanNotification")) {
+            if (key != null && key.equals("showNextZmanNotification")) {
                 shouldShowNotification = !shouldShowNotification;
             }
         };

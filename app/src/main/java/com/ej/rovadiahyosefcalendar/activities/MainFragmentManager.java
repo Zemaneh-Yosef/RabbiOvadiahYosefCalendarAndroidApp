@@ -1,9 +1,5 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
-import static android.Manifest.permission.ACCESS_BACKGROUND_LOCATION;
-import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
-import static android.Manifest.permission.ACCESS_FINE_LOCATION;
-import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment.sShabbatMode;
 
 import android.appwidget.AppWidgetManager;
@@ -12,7 +8,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -24,7 +19,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.splashscreen.SplashScreen;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -44,7 +38,6 @@ import com.ej.rovadiahyosefcalendar.databinding.ActivityMainFragmentManagerBindi
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
@@ -135,6 +128,7 @@ public class MainFragmentManager extends AppCompatActivity {
         }
         mLocationResolver = new LocationResolver(this, this);
         mJewishDateInfo = new JewishDateInfo(sSharedPreferences.getBoolean("inIsrael", false));
+        initSetupResult();
         if (ChaiTables.visibleSunriseFileDoesNotExist(getExternalFilesDir(null), sCurrentLocationName, mJewishDateInfo.getJewishCalendar())
                 && sSharedPreferences.getBoolean("UseTable" + sCurrentLocationName, true)
                 && !sSharedPreferences.getBoolean("isSetup", false)
@@ -146,12 +140,7 @@ public class MainFragmentManager extends AppCompatActivity {
                 mLocationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
             }
         }
-        initSetupResult();
         updateWidget();
-
-        if (sLatitude != 0 && sLongitude != 0) {
-            askForRealTimeNotificationPermissions();
-        }
 
         setSupportActionBar(new MaterialToolbar(this));
         ViewPager2 viewPager = findViewById(R.id.viewPager);
@@ -290,30 +279,6 @@ public class MainFragmentManager extends AppCompatActivity {
         sSettingsPreferences.edit().putInt("ShabbatEnd", -1).apply();
         sSettingsPreferences.edit().putInt("RT", 0).apply();
         sSettingsPreferences.edit().putInt("NightChatzot", -1).apply();
-    }
-
-    private void askForRealTimeNotificationPermissions() {
-        if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(this, ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED) {
-            return;//if the user is using a zipcode, we don't need to ask for background location permission as we don't use the device's location
-        }
-        if (!sSharedPreferences.getBoolean("askedForRealtimeNotifications", false)
-                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
-            builder.setTitle(R.string.would_you_like_to_receive_real_time_notifications_for_zmanim);
-            builder.setMessage(R.string.if_you_would_like_to_receive_real_time_zmanim_notifications);
-            builder.setCancelable(false);
-            builder.setPositiveButton(R.string.yes, (dialog, which) -> {
-                if (ActivityCompat.checkSelfPermission(this, ACCESS_BACKGROUND_LOCATION) != PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(this, new String[]{ACCESS_BACKGROUND_LOCATION}, 1);
-                }
-                sSharedPreferences.edit().putBoolean("askedForRealtimeNotifications", true).apply();
-            });
-            builder.setNegativeButton(R.string.no, (dialog, which) -> {
-                sSharedPreferences.edit().putBoolean("askedForRealtimeNotifications", true).apply();
-                dialog.dismiss();
-            });
-            builder.show();
-        }
     }
 
     @Override

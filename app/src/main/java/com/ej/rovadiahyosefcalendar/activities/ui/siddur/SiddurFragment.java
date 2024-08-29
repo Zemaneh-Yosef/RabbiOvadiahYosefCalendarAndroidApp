@@ -3,12 +3,17 @@ package com.ej.rovadiahyosefcalendar.activities.ui.siddur;
 import static android.content.Context.MODE_PRIVATE;
 import static android.text.Html.fromHtml;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mCurrentDateShown;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mJewishDateInfo;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mROZmanimCalendar;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.materialToolbar;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sElevation;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLatitude;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLongitude;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSettingsPreferences;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSharedPreferences;
 
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -32,10 +37,13 @@ import androidx.preference.PreferenceManager;
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.JerusalemDirectionMapsActivity;
 import com.ej.rovadiahyosefcalendar.activities.SiddurViewActivity;
+import com.ej.rovadiahyosefcalendar.classes.CalendarDrawable;
+import com.ej.rovadiahyosefcalendar.classes.HebrewDayMonthYearPickerDialog;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
 import com.ej.rovadiahyosefcalendar.classes.SiddurMaker;
 import com.ej.rovadiahyosefcalendar.databinding.FragmentSiddurBinding;
+import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.util.GeoLocation;
@@ -52,6 +60,7 @@ public class SiddurFragment extends Fragment {
     private Context mContext;
     private FragmentActivity mActivity;
     private ROZmanimCalendar mZmanimCalendar;
+    private Button mCalendarButton;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -65,8 +74,8 @@ public class SiddurFragment extends Fragment {
         View root = binding.getRoot();
 
         EdgeToEdge.enable(mActivity);
+        setupButtons();
         initMenu();
-
         initView();
         return root;
     }
@@ -371,6 +380,96 @@ public class SiddurFragment extends Fragment {
         } else {
             startActivity(intent);
         }
+    }
+
+    private void setupButtons() {
+        setupPreviousDayButton();
+        setupCalendarButton();
+        setupNextDayButton();
+    }
+
+    /**
+     * Sets up the previous day button
+     */
+    private void setupPreviousDayButton() {
+        Button previousDate = binding.prevDay;
+        previousDate.setOnClickListener(v -> {
+            mCurrentDateShown = (Calendar) mROZmanimCalendar.getCalendar().clone();//just get a calendar object with the same date as the current one
+            if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                mCurrentDateShown.add(Calendar.DATE, -7);//subtract seven days
+            } else {
+                mCurrentDateShown.add(Calendar.DATE, -1);//subtract one day
+            }
+            mROZmanimCalendar.setCalendar(mCurrentDateShown);
+            mJewishDateInfo.setCalendar(mCurrentDateShown);
+            initView();
+            mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+        });
+    }
+
+    /**
+     * Sets up the next day button
+     */
+    private void setupNextDayButton() {
+        Button nextDate = binding.nextDay;
+        nextDate.setOnClickListener(v -> {
+            mCurrentDateShown.add(Calendar.DATE, 1);//add one day
+            mROZmanimCalendar.setCalendar(mCurrentDateShown);
+            mJewishDateInfo.setCalendar(mCurrentDateShown);
+            initView();
+            mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+        });
+    }
+
+    /**
+     * Setup the calendar button to show a DatePickerDialog with an additional button to switch the calendar to the hebrew one.
+     */
+    private void setupCalendarButton() {
+        mCalendarButton = binding.calendar;
+
+        mCalendarButton.setOnClickListener(v -> {
+            MaterialDatePicker.Builder<Long> builder = MaterialDatePicker.Builder.datePicker();
+            MaterialDatePicker<Long> materialDatePicker = builder
+                    .setPositiveButtonText(R.string.ok)
+                    .setNegativeButtonText(R.string.switch_calendar)
+                    .setSelection(mCurrentDateShown.getTimeInMillis())// can be in local timezone
+                    .build();
+            materialDatePicker.addOnPositiveButtonClickListener(selection -> {
+                Calendar epoch = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+                epoch.setTimeInMillis(selection);
+                mCurrentDateShown.set(
+                        epoch.get(Calendar.YEAR),
+                        epoch.get(Calendar.MONTH),
+                        epoch.get(Calendar.DATE),
+                        epoch.get(Calendar.HOUR_OF_DAY),
+                        epoch.get(Calendar.MINUTE)
+                );
+                mROZmanimCalendar.setCalendar(mCurrentDateShown);
+                mJewishDateInfo.setCalendar(mCurrentDateShown);
+                initView();
+                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+            });
+            DatePickerDialog.OnDateSetListener onDateSetListener = (view, year, month, day) -> {
+                Calendar mUserChosenDate = Calendar.getInstance();
+                mUserChosenDate.set(year, month, day);
+                mROZmanimCalendar.setCalendar(mUserChosenDate);
+                mJewishDateInfo.setCalendar(mUserChosenDate);
+                mCurrentDateShown = (Calendar) mROZmanimCalendar.getCalendar().clone();
+                initView();
+                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+            };
+            materialDatePicker.addOnNegativeButtonClickListener(selection -> {
+                HebrewDayMonthYearPickerDialog hdmypd = new HebrewDayMonthYearPickerDialog(materialDatePicker, mActivity.getSupportFragmentManager(), mJewishDateInfo.getJewishCalendar());
+                hdmypd.updateDate(mJewishDateInfo.getJewishCalendar().getGregorianYear(),
+                        mJewishDateInfo.getJewishCalendar().getGregorianMonth(),
+                        mJewishDateInfo.getJewishCalendar().getGregorianDayOfMonth());
+                hdmypd.setListener(onDateSetListener);
+                hdmypd.show(mActivity.getSupportFragmentManager(), null);
+            });
+            materialDatePicker.show(mActivity.getSupportFragmentManager(), null);
+        });
+
+        mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
     }
 
     @Override

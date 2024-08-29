@@ -19,48 +19,40 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
 
         <TextView
-            android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="@string/limudim"
             android:textStyle="bold"
             app:drawableEndCompat="@drawable/baseline_menu_book_24" />
-        <TextView
-            android:layout_width="0dp"
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/limudRV"
+            android:layout_width="match_parent"
             android:layout_weight="1"
+            android:layout_height="0dp"
+            android:focusable="true"
+            android:descendantFocusability="afterDescendants"
+            app:layout_constrainedHeight="true" />
+
+        <TextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="@string/hillulot"
             android:textStyle="bold"
             app:drawableEndCompat="@drawable/baseline_local_fire_department_24" />
 
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="horizontal">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/limudRV"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:focusable="true"
-            android:descendantFocusability="afterDescendants"
-            app:layout_constrainedHeight="true" />
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/HillulotRV"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_weight="1"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:focusable="true"
             android:descendantFocusability="afterDescendants"
             app:layout_constrainedHeight="true" />

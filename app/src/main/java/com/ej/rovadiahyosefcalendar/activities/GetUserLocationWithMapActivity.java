@@ -227,8 +227,9 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                 }
                 if (!mSharedPreferences.getBoolean("inIsrael", false) && !mSharedPreferences.getBoolean("isSetup", false)) {
                     startActivity(new Intent(this, CalendarChooserActivity.class).setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
+                } else {
+                    mSharedPreferences.edit().putBoolean("isSetup", true).apply();
                 }
-                mSharedPreferences.edit().putBoolean("isSetup", true).apply();
                 finish();
             }
         });
