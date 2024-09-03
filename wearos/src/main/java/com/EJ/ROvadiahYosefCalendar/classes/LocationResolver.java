@@ -18,10 +18,7 @@ import com.kosherjava.zmanim.util.GeoLocation;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.TimeZone;
-
-import us.dustinj.timezonemap.TimeZoneMap;
 
 public class LocationResolver {
 
@@ -50,46 +47,46 @@ public class LocationResolver {
         if (mSharedPreferences.getBoolean("useAdvanced", false)) {
             sCurrentLocationName = mSharedPreferences.getString("advancedLN", "");
             try {
-                sLatitude = Double.parseDouble(mSharedPreferences.getString("advancedLat", ""));
-                sLongitude = Double.parseDouble(mSharedPreferences.getString("advancedLong", ""));
+                sLatitude = Double.parseDouble(mSharedPreferences.getString("advancedLat", "0.0"));
+                sLongitude = Double.parseDouble(mSharedPreferences.getString("advancedLong", "0.0"));
             } catch (NumberFormatException e) {
                 sLatitude = 0.0;
                 sLongitude = 0.0;
             }
-            sCurrentTimeZoneID = mSharedPreferences.getString("advancedTimezone", "");
+            sCurrentTimeZoneID = mSharedPreferences.getString("advancedTimezone", TimeZone.getDefault().getID());
         } else if (mSharedPreferences.getBoolean("useLocation1", false)) {
             sCurrentLocationName = mSharedPreferences.getString("location1", "");
             sLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location1Lat", 0));
             sLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location1Long", 0));
-            sCurrentTimeZoneID = mSharedPreferences.getString("location1Timezone", "");
+            sCurrentTimeZoneID = mSharedPreferences.getString("location1Timezone", TimeZone.getDefault().getID());
         } else if (mSharedPreferences.getBoolean("useLocation2", false)) {
             sCurrentLocationName = mSharedPreferences.getString("location2", "");
             sLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location2Lat", 0));
             sLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location2Long", 0));
-            sCurrentTimeZoneID = mSharedPreferences.getString("location2Timezone", "");
+            sCurrentTimeZoneID = mSharedPreferences.getString("location2Timezone", TimeZone.getDefault().getID());
         } else if (mSharedPreferences.getBoolean("useLocation3", false)) {
             sCurrentLocationName = mSharedPreferences.getString("location3", "");
             sLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location3Lat", 0));
             sLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location3Long", 0));
-            sCurrentTimeZoneID = mSharedPreferences.getString("location3Timezone", "");
+            sCurrentTimeZoneID = mSharedPreferences.getString("location3Timezone", TimeZone.getDefault().getID());
         } else if (mSharedPreferences.getBoolean("useLocation4", false)) {
             sCurrentLocationName = mSharedPreferences.getString("location4", "");
             sLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location4Lat", 0));
             sLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location4Long", 0));
-            sCurrentTimeZoneID = mSharedPreferences.getString("location4Timezone", "");
+            sCurrentTimeZoneID = mSharedPreferences.getString("location4Timezone", TimeZone.getDefault().getID());
         } else if (mSharedPreferences.getBoolean("useLocation5", false)) {
             sCurrentLocationName = mSharedPreferences.getString("location5", "");
             sLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location5Lat", 0));
             sLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location5Long", 0));
-            sCurrentTimeZoneID = mSharedPreferences.getString("location5Timezone", "");
+            sCurrentTimeZoneID = mSharedPreferences.getString("location5Timezone", TimeZone.getDefault().getID());
         } else if (mSharedPreferences.getBoolean("useZipcode", false)) {
             getLatitudeAndLongitudeFromSearchQuery();
         } else {
             //TODO when wear os apps have a bare minimum requirement of API 30 and above, look into replacing this with actually getting the watch's location
             sCurrentLocationName = mSharedPreferences.getString("currentLN", "");
-            sLatitude = Double.parseDouble(mSharedPreferences.getString("currentLat", "0"));
-            sLongitude = Double.parseDouble(mSharedPreferences.getString("currentLong", "0"));
-            sCurrentTimeZoneID = mSharedPreferences.getString("currentTimezone", "");
+            sLatitude = Double.parseDouble(mSharedPreferences.getString("currentLat", "0.0"));
+            sLongitude = Double.parseDouble(mSharedPreferences.getString("currentLong", "0.0"));
+            sCurrentTimeZoneID = mSharedPreferences.getString("currentTimezone", TimeZone.getDefault().getID());
         }
         setTimeZoneID();
         resolveCurrentLocationName();
@@ -130,7 +127,7 @@ public class LocationResolver {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if (addresses != null && addresses.size() > 0) {
+        if (addresses != null && !addresses.isEmpty()) {
 
             if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
                 Address address = null;
@@ -254,16 +251,9 @@ public class LocationResolver {
             return;
         }
         if (mSharedPreferences.getBoolean("useZipcode", false)) {
-            try {
-                TimeZoneMap timeZoneMap = TimeZoneMap.forRegion(
-                        Math.floor(sLatitude), Math.floor(sLongitude),
-                        Math.ceil(sLatitude), Math.ceil(sLongitude));//trying to avoid using the forEverywhere() method
-                sCurrentTimeZoneID = Objects.requireNonNull(timeZoneMap.getOverlappingTimeZone(sLatitude, sLongitude)).getZoneId();
-            } catch (IllegalArgumentException e) {
-                sCurrentTimeZoneID = TimeZone.getDefault().getID();
-            }
-//        } else {right now the timezone is set by shared preferences, this will need to be reset after API 30
-//            MainActivity.sCurrentTimeZoneID = TimeZone.getDefault().getID();
+            sCurrentTimeZoneID = mSharedPreferences.getString("currentTimezone", TimeZone.getDefault().getID());
+        } else {
+            sCurrentTimeZoneID = TimeZone.getDefault().getID();
         }
         if (sCurrentTimeZoneID.equals("Asia/Gaza") || sCurrentTimeZoneID.equals("Asia/Hebron")) {
             sCurrentTimeZoneID = "Asia/Jerusalem";
@@ -280,42 +270,39 @@ public class LocationResolver {
             locationName = mSharedPreferences.getString("advancedLN", "");
             lat = Double.parseDouble(mSharedPreferences.getString("advancedLat", ""));
             longitude = Double.parseDouble(mSharedPreferences.getString("advancedLong", ""));
-            timeZone = mSharedPreferences.getString("advancedTimezone", "");
+            timeZone = mSharedPreferences.getString("advancedTimezone", TimeZone.getDefault().getID());
         } else if (mSharedPreferences.getBoolean("useLocation1", false)) {
             locationName = mSharedPreferences.getString("location1", "");
             lat = Double.longBitsToDouble(mSharedPreferences.getLong("location1Lat", 0));
             longitude = Double.longBitsToDouble(mSharedPreferences.getLong("location1Long", 0));
-            timeZone = mSharedPreferences.getString("location1Timezone", "");
+            timeZone = mSharedPreferences.getString("location1Timezone", TimeZone.getDefault().getID());
         } else if (mSharedPreferences.getBoolean("useLocation2", false)) {
             locationName = mSharedPreferences.getString("location2", "");
             lat = Double.longBitsToDouble(mSharedPreferences.getLong("location2Lat", 0));
             longitude = Double.longBitsToDouble(mSharedPreferences.getLong("location2Long", 0));
-            timeZone = mSharedPreferences.getString("location2Timezone", "");
+            timeZone = mSharedPreferences.getString("location2Timezone", TimeZone.getDefault().getID());
         } else if (mSharedPreferences.getBoolean("useLocation3", false)) {
             locationName = mSharedPreferences.getString("location3", "");
             lat = Double.longBitsToDouble(mSharedPreferences.getLong("location3Lat", 0));
             longitude = Double.longBitsToDouble(mSharedPreferences.getLong("location3Long", 0));
-            timeZone = mSharedPreferences.getString("location3Timezone", "");
+            timeZone = mSharedPreferences.getString("location3Timezone", TimeZone.getDefault().getID());
         } else if (mSharedPreferences.getBoolean("useLocation4", false)) {
             locationName = mSharedPreferences.getString("location4", "");
             lat = Double.longBitsToDouble(mSharedPreferences.getLong("location4Lat", 0));
             longitude = Double.longBitsToDouble(mSharedPreferences.getLong("location4Long", 0));
-            timeZone = mSharedPreferences.getString("location4Timezone", "");
+            timeZone = mSharedPreferences.getString("location4Timezone", TimeZone.getDefault().getID());
         } else if (mSharedPreferences.getBoolean("useLocation5", false)) {
             locationName = mSharedPreferences.getString("location5", "");
             lat = Double.longBitsToDouble(mSharedPreferences.getLong("location5Lat", 0));
             longitude = Double.longBitsToDouble(mSharedPreferences.getLong("location5Long", 0));
-            timeZone = mSharedPreferences.getString("location5Timezone", "");
+            timeZone = mSharedPreferences.getString("location5Timezone", TimeZone.getDefault().getID());
         } else if (mSharedPreferences.getBoolean("useZipcode", false)) {
             locationName = mSharedPreferences.getString("oldLocationName", "");
             lat = Double.longBitsToDouble(mSharedPreferences.getLong("oldLat", 0));
             longitude = Double.longBitsToDouble(mSharedPreferences.getLong("oldLong", 0));
-            try {
-                TimeZoneMap timeZoneMap = TimeZoneMap.forRegion(
-                        Math.floor(lat), Math.floor(longitude),
-                        Math.ceil(lat), Math.ceil(longitude));//trying to avoid using the forEverywhere() method
-                timeZone = Objects.requireNonNull(timeZoneMap.getOverlappingTimeZone(lat, longitude)).getZoneId();
-            } catch (IllegalArgumentException e) {
+            if (mSharedPreferences.getBoolean("useZipcode", false)) {
+                timeZone = mSharedPreferences.getString("currentTimezone", TimeZone.getDefault().getID());
+            } else {
                 timeZone = TimeZone.getDefault().getID();
             }
         } else {
@@ -323,7 +310,7 @@ public class LocationResolver {
             locationName = mSharedPreferences.getString("currentLN", "");
             lat = Double.parseDouble(mSharedPreferences.getString("currentLat", "0"));
             longitude = Double.parseDouble(mSharedPreferences.getString("currentLong", "0"));
-            timeZone = mSharedPreferences.getString("currentTimezone", "");
+            timeZone = mSharedPreferences.getString("currentTimezone", TimeZone.getDefault().getID());
         }
         return new GeoLocation(locationName,lat,longitude, TimeZone.getTimeZone(timeZone
                 .replace("Asia/Gaza", "Asia/Jerusalem")

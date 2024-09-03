@@ -164,6 +164,26 @@ public class MainFragmentManager extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
+                if (materialToolbar != null) {
+                    if (position == 0) {// Limud
+                        materialToolbar.setTitle(getString(R.string.limudim_hillulot));
+                        if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                            materialToolbar.setSubtitle(getString(R.string.app_name));
+                        } else {
+                            materialToolbar.setSubtitle(getString(R.string.short_app_name));
+                        }
+                    } else if (position == 1) {// Zmanim
+                        if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                            materialToolbar.setTitle(getString(R.string.app_name));
+                            materialToolbar.setSubtitle("");
+                        } else {
+                            materialToolbar.setTitle(getString(R.string.app_name));
+                        }
+                    } else {// Siddur
+                        materialToolbar.setTitle(getString(R.string.show_siddur));
+                        materialToolbar.setSubtitle(getString(R.string.short_app_name));
+                    }
+                }
                 navView.getMenu().getItem(position).setChecked(true);
             }
         });

@@ -1,12 +1,9 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
-import static android.content.Context.MODE_PRIVATE;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mJewishDateInfo;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.view.LayoutInflater;
@@ -19,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.kosherjava.zmanim.hebrewcalendar.Daf;
+import com.kosherjava.zmanim.hebrewcalendar.YerushalmiYomiCalculator;
 import com.kosherjava.zmanim.hebrewcalendar.YomiCalculator;
 
 import org.jetbrains.annotations.NotNull;
@@ -29,15 +28,17 @@ import java.util.Locale;
 public class LimudAdapter extends RecyclerView.Adapter<LimudAdapter.ZmanViewHolder> {
 
     private List<LimudListEntry> limudim;
-    private final SharedPreferences mSharedPreferences;
     private final Context context;
     private MaterialAlertDialogBuilder dialogBuilder;
-    private final Locale locale = Locale.getDefault();
+    private static final String[] masechtotYerushalmiTransliterated = { "Berakhot", "Peah", "Demai", "Kilayim", "Sheviit",
+            "Terumot", "Maasrot", "Maaser Sheni", "Challah", "Orlah", "Bikkurim", "Shabbat", "Eruvin", "Pesachim",
+            "Beitzah", "Rosh Hashanah", "Yoma", "Sukkah", "Taanit", "Shekalim", "Megillah", "Chagigah", "Moed Katan",
+            "Yevamot", "Ketubot", "Sotah", "Nedarim", "Nazir", "Gittin", "Kiddushin", "Bava Kamma", "Bava Metzia",
+            "Bava Batra", "Shevuot", "Makkot", "Sanhedrin", "Avodah Zarah", "Horayot", "Niddah", "No Daf Today" };
 
     public LimudAdapter(Context context, List<LimudListEntry> limudim) {
         this.limudim = limudim;
         this.context = context;
-        mSharedPreferences = this.context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         dialogBuilder = new MaterialAlertDialogBuilder(context);
         dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
         dialogBuilder.create();
@@ -63,44 +64,56 @@ public class LimudAdapter extends RecyclerView.Adapter<LimudAdapter.ZmanViewHold
                 view.setBackgroundColor(0);
             }
         });
+
         holder.setIsRecyclable(false);
+
         if (limudim.get(position) != null) {
-            if (limudim.get(position).hasSource()) {// make parasha text bold
-                holder.mLeftTextView.setText(limudim.get(position).getLimudTitle());
-                holder.mLeftTextView.setTypeface(null, Typeface.BOLD);
-                holder.mRightTextView.setText(limudim.get(position).getSource());
+            if (limudim.get(position).hasSource()) {// make name text bold
+                if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                    holder.mRightTextView.setText(limudim.get(position).getLimudTitle());
+                    holder.mRightTextView.setTypeface(null, Typeface.BOLD);
+                } else {
+                    holder.mLeftTextView.setText(limudim.get(position).getLimudTitle());
+                    holder.mLeftTextView.setTypeface(null, Typeface.BOLD);
+                }
             } else {
                 holder.mMiddleTextView.setText(limudim.get(position).getLimudTitle());
             }
 
             holder.itemView.setOnClickListener(v -> {
-                    if (limudim.get(position).getLimudTitle().contains(context.getString(R.string.daf_yomi))) {
+                dialogBuilder = new MaterialAlertDialogBuilder(context);
+                if (limudim.get(position).getLimudTitle().contains(context.getString(R.string.daf_yomi))) {
                         String masechta = YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getMasechtaTransliterated();
                         int daf = YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getDaf();
                         String dafYomiLink = "https://www.sefaria.org/" + masechta + "." + daf + "a";
-                        dialogBuilder.setTitle("Open Sefaria link for " + limudim.get(position).getLimudTitle().replace(context.getString(R.string.daf_yomi) + " ", "") + "?");
-                        dialogBuilder.setMessage("This will open the Sefaria website or app in a new window with the daf yomi.");
-                        dialogBuilder.setPositiveButton(context.getString(R.string.ok), (dialog, which) -> {
+                        dialogBuilder.setTitle(context.getString(R.string.open_sefaria_link_for) + limudim.get(position).getLimudTitle().replace(context.getString(R.string.daf_yomi) + " ", "") + "?");
+                        dialogBuilder.setMessage(R.string.this_will_open_the_sefaria_website_or_app_in_a_new_window_with_the_page);
+                        dialogBuilder.setPositiveButton(context.getString(R.string.open), (dialog, which) -> {
                             Intent intent = new Intent(Intent.ACTION_VIEW);
                             intent.setData(Uri.parse(dafYomiLink));
                             context.startActivity(intent);
                         });
                         dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
                         dialogBuilder.show();
-                    }
-//                if (zmanim.get(position).getTitle().contains("Yerushalmi Yomi")) {//TODO: add sefaria link for yerushalmi yomi
-//                    // open sefaria link for yerushalmi yomi
-//                    String yerushalmiYomiLink = "https://www.sefaria.org/" + zmanim.get(position).getTitle().replace("Yerushalmi Yomi: ", "");
-//                    dialogBuilder.setTitle("Open Sefaria link for " + zmanim.get(position).getTitle().replace("Yerushalmi Yomi: ", "") + "?");
-//                    dialogBuilder.setMessage("This will open the Sefaria website or app in a new window with the yerushalmi yomi.");
-//                    dialogBuilder.setPositiveButton("Open", (dialog, which) -> {
-//                                Intent intent = new Intent(Intent.ACTION_VIEW);
-//                                intent.setData(android.net.Uri.parse(yerushalmiYomiLink));
-//                                context.startActivity(intent);
-//                            });
-//                    dialogBuilder.show();
-//                    dialogBuilder.setPositiveButton("Dismiss", (dialog, which) -> dialog.dismiss());
-//                }
+                    } else if (limudim.get(position).getLimudTitle().contains(context.getString(R.string.yerushalmi_yomi))) {
+                    Daf dafYomiYerushalmi = YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar());
+                    dafYomiYerushalmi.setYerushalmiMasechtaTransliterated(masechtotYerushalmiTransliterated);
+                    String yerushalmiYomiLink = "https://www.sefaria.org/" + "Jerusalem_Talmud_" + dafYomiYerushalmi.getYerushalmiMasechtaTransliterated();
+                    dialogBuilder.setTitle(context.getString(R.string.open_sefaria_link_for) + limudim.get(position).getLimudTitle().replace(context.getString(R.string.yerushalmi_yomi) + " ", "") + "?");
+                    dialogBuilder.setMessage(R.string.this_will_open_the_sefaria_website_or_app_in_a_new_window_with_the_page);
+                    dialogBuilder.setPositiveButton(context.getString(R.string.open), (dialog, which) -> {
+                                Intent intent = new Intent(Intent.ACTION_VIEW);
+                                intent.setData(android.net.Uri.parse(yerushalmiYomiLink));
+                                context.startActivity(intent);
+                            });
+                    dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
+                    dialogBuilder.show();
+                } else if (limudim.get(position).hasSource()) {
+                    dialogBuilder.setTitle(limudim.get(position).getLimudTitle());
+                    dialogBuilder.setMessage(context.getString(R.string.source) + limudim.get(position).getSource());
+                    dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
+                    dialogBuilder.show();
+                }
             });
 
             holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.disabled_gray, context.getTheme()));

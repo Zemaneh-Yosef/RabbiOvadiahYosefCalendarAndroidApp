@@ -13,6 +13,8 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ServiceInfo;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 
@@ -136,30 +138,45 @@ public class NextZmanCountdownNotification extends Service {
 
     private ROZmanimCalendar getROZmanimCalendar(Context context) {
         if (ActivityCompat.checkSelfPermission(context, ACCESS_BACKGROUND_LOCATION) == PERMISSION_GRANTED) {
-            mLocationResolver.getRealtimeNotificationData();
-            if (mLocationResolver.getLatitude() != 0 && mLocationResolver.getLongitude() != 0) {
-                return new ROZmanimCalendar(new GeoLocation(
-                        mLocationResolver.getLocationName(),
-                        mLocationResolver.getLatitude(),
-                        mLocationResolver.getLongitude(),
-                        getLastKnownElevation(context),
+            mLocationResolver.getRealtimeNotificationData(location -> {
+                mROZmanimCalendar = new ROZmanimCalendar(new GeoLocation(
+                        mLocationResolver.getLocationName(location.getLatitude(), location.getLongitude()),
+                        location.getLatitude(),
+                        location.getLongitude(),
+                        getLastKnownElevation(context, location.getLatitude(), location.getLongitude()),
                         mLocationResolver.getTimeZone()));
-            }
+                mROZmanimCalendar.setExternalFilesDir(getExternalFilesDir(null));
+                String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
+                if (candles.isEmpty()) {
+                    candles = "20";
+                }
+                mROZmanimCalendar.setCandleLightingOffset(Double.parseDouble(candles));
+                String shabbat = mSettingsPreferences.getString("EndOfShabbatOffset", mSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40");
+                if (shabbat.isEmpty()) {// for some reason this is happening
+                    shabbat = "40";
+                }
+                mROZmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(shabbat));
+                if (mSharedPreferences.getBoolean("inIsrael", false) && shabbat.equals("40")) {
+                    mROZmanimCalendar.setAteretTorahSunsetOffset(30);
+                }
+                mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false));
+                createNotificationChannel();
+            });
         }
         return new ROZmanimCalendar(new GeoLocation(
                 mSharedPreferences.getString("name", ""),
                 Double.longBitsToDouble(mSharedPreferences.getLong("lat", 0)),
                 Double.longBitsToDouble(mSharedPreferences.getLong("long", 0)),
-                getLastKnownElevation(context),
+                getLastKnownElevation(context, Double.longBitsToDouble(mSharedPreferences.getLong("lat", 0)), Double.longBitsToDouble(mSharedPreferences.getLong("long", 0))),
                 TimeZone.getTimeZone(mSharedPreferences.getString("timezoneID", ""))));
     }
 
-    private double getLastKnownElevation(Context context) {
+    private double getLastKnownElevation(Context context, double latitude, double longitude) {
         double elevation;
         if (!mSharedPreferences.getBoolean("useElevation", true)) {//if the user has disabled the elevation setting, set the elevation to 0
             elevation = 0;
         } else if (ActivityCompat.checkSelfPermission(context, ACCESS_BACKGROUND_LOCATION) == PERMISSION_GRANTED) {
-            elevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mLocationResolver.getLocationName(), "0"));//get the elevation using the location name
+            elevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mLocationResolver.getLocationName(latitude, longitude), "0"));//get the elevation using the location name
         } else {
             elevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mSharedPreferences.getString("name", ""), "0"));//lastKnownLocation
         }
@@ -241,7 +258,11 @@ public class NextZmanCountdownNotification extends Service {
 
         Notification notification = builder.build();
         notification.flags = Notification.FLAG_ONGOING_EVENT;
-        startForeground(NOTIFICATION_ID, notification);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
+        } else {
+            startForeground(NOTIFICATION_ID, notification);
+        }
     }
 
     private void dismissNotification() {

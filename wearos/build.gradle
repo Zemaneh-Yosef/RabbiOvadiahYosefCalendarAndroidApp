@@ -11,8 +11,8 @@ android {
         applicationId "com.EJ.ROvadiahYosefCalendar"
         minSdk 26
         targetSdk 33 // TODO Update this to 34 when the play store allows it
-        versionCode 190
-        versionName "20.6"
+        versionCode 191
+        versionName "20.7"
         multiDexEnabled true
         vectorDrawables {
             useSupportLibrary true
@@ -21,9 +21,9 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            shrinkResources false
+            shrinkResources true
         }
     }
     compileOptions {
@@ -48,19 +48,19 @@ android {
 
 dependencies {
     implementation 'androidx.core:core-ktx:1.13.1'
-    implementation 'androidx.fragment:fragment-ktx:1.8.0'
-    implementation platform('org.jetbrains.kotlin:kotlin-bom:1.8.0')
+    implementation 'androidx.fragment:fragment-ktx:1.8.2'
+    implementation platform('org.jetbrains.kotlin:kotlin-bom:1.8.22')
     implementation 'androidx.percentlayout:percentlayout:1.0.0'
     implementation "androidx.core:core-splashscreen:1.1.0-rc01"
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation platform('androidx.compose:compose-bom:2024.05.00')
+    implementation platform('androidx.compose:compose-bom:2024.08.00')
     implementation 'androidx.compose.ui:ui'
     implementation 'androidx.compose.ui:ui-tooling-preview'
     implementation "androidx.compose.material:material:1.6.8"
     implementation "androidx.wear.compose:compose-material:$wear_compose_version"
     implementation "androidx.wear.compose:compose-foundation:$wear_compose_version"
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.2'
-    implementation 'androidx.activity:activity-compose:1.9.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.4'
+    implementation 'androidx.activity:activity-compose:1.9.1'
     implementation 'com.google.android.gms:play-services-wearable:18.2.0'
     implementation "androidx.wear.tiles:tiles:$wear_tiles_version"
     implementation "androidx.wear.tiles:tiles-material:$wear_tiles_version"
@@ -68,22 +68,18 @@ dependencies {
     implementation "com.google.android.horologist:horologist-tiles:$horologist_version"
     implementation 'androidx.wear.watchface:watchface-complications-data-source-ktx:1.2.1'
     implementation "androidx.compose.foundation:foundation:1.6.8"
-    implementation('us.dustinj.timezonemap:timezonemap:4.5') {
-        // Exclude standard compression library
-        exclude group: 'com.github.luben', module: 'zstd-jni'
-    }
     implementation group: 'com.kosherjava', name: 'zmanim', version: '2.5.0'
     implementation 'com.google.code.gson:gson:2.11.0'
     implementation 'androidx.slice:slice-builders:1.0.0'
-    implementation 'com.google.guava:guava:33.0.0-jre'
+    implementation 'com.google.guava:guava:33.2.1-jre'
     // Use to implement support for wear tiles
-    implementation("androidx.wear.tiles:tiles:1.3.0")
+    implementation("androidx.wear.tiles:tiles:1.4.0")
     // Use to utilize standard components and layouts in your tiles
-    implementation("androidx.wear.protolayout:protolayout:1.1.0")
+    implementation("androidx.wear.protolayout:protolayout:1.2.0")
     // Use to utilize components and layouts with Material Design in your tiles
-    implementation("androidx.wear.protolayout:protolayout-material:1.1.0")
+    implementation("androidx.wear.protolayout:protolayout-material:1.2.0")
     // Use to include dynamic expressions in your tiles
-    implementation("androidx.wear.protolayout:protolayout-expression:1.1.0")
+    implementation("androidx.wear.protolayout:protolayout-expression:1.2.0")
 
     // Use to preview wear tiles in your own app
     debugImplementation("androidx.wear.tiles:tiles-renderer:1.3.0")

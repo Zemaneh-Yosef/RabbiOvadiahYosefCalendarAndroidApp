@@ -625,4 +625,18 @@
     <string name="tikkun_chatzot_is_not_said_today_or_tonight">תיקון חצות לא נאמר היום או הלילה</string>
     <string name="tikkun_chatzot_is_not_said_today_or_tonight_possible_reasons">תיקון חצות לא נאמר היום או הלילה. סיבות אפשריות לכך הן: זה יום שישי/ליל שישי, אין אומרים תחנון היום, ערב ראש חודש אב, ראש חודש, ראש השנה, יום כיפור, סוכות/שמיני עצרת, פסח או שבועות</string>
     <string name="birchat_meyin_shalosh">ברכת מעין שלוש</string>
+    <string name="are_you_in_a_walled_mukaf_choma_city">האם אתה בעיר מוקפת חומה?</string>
+    <string name="are_you_located_in_a_walled_mukaf_choma_city_from_the_time_of_yehoshua_bin_nun">האם אתה נמצא בעיר מוקפת חומה מימי יהושע בן נון?</string>
+    <string name="safek_doubt">ספק</string>
+    <string name="limudim_hillulot">לימודים/הילולות</string>
+    <string name="limudim">לימודים</string>
+    <string name="hillulot">הילולות</string>
+    <string name="source">מקור:</string>
+    <string name="open">פתיחה</string>
+    <string name="open_sefaria_link_for">"פתח קישור לספריה עבור "</string>
+    <string name="this_will_open_the_sefaria_website_or_app_in_a_new_window_with_the_page">זה יפתח את האתר או האפליקציה של ספריא בחלון חדש עם העמוד המבוקש.</string>
+    <string name="daily_tehilim">"תהילים יומי "</string>
+    <string name="weekly">(שבועי)</string>
+    <string name="monthly">(חודשי)</string>
+    <string name="daily_chafetz_chaim">"חפץ חיים יומי: "</string>
 </resources>

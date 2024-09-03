@@ -295,11 +295,7 @@ public class SiddurFragment extends Fragment {
             return;
         }
         materialToolbar.setTitle(getString(R.string.show_siddur));
-        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
-            materialToolbar.setSubtitle("");
-        } else {
-            materialToolbar.setSubtitle(getString(R.string.short_app_name));
-        }
+        materialToolbar.setSubtitle(getString(R.string.short_app_name));
         //materialToolbar.setNavigationIcon(AppCompatResources.getDrawable(mContext, R.drawable.baseline_arrow_back_24)); // if you want to show the back button
         //materialToolbar.setNavigationOnClickListener(v -> finish());
         materialToolbar.getMenu().clear();

@@ -21,8 +21,6 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.text.format.DateUtils
-import android.view.View
-import android.view.WindowInsets
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
@@ -32,7 +30,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
-import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -60,7 +57,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -79,7 +75,9 @@ import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.wear.compose.foundation.lazy.*
+import androidx.wear.compose.foundation.lazy.AutoCenteringParams
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.Scaffold
@@ -89,9 +87,9 @@ import androidx.wear.compose.material.curvedText
 import androidx.wear.tiles.TileService
 import com.EJ.ROvadiahYosefCalendar.R
 import com.EJ.ROvadiahYosefCalendar.classes.HebrewDatePickerDialog
-import com.EJ.ROvadiahYosefCalendar.classes.OnChangeListener
 import com.EJ.ROvadiahYosefCalendar.classes.JewishDateInfo
 import com.EJ.ROvadiahYosefCalendar.classes.LocationResolver
+import com.EJ.ROvadiahYosefCalendar.classes.OnChangeListener
 import com.EJ.ROvadiahYosefCalendar.classes.PreferenceListener
 import com.EJ.ROvadiahYosefCalendar.classes.ROZmanimCalendar
 import com.EJ.ROvadiahYosefCalendar.classes.ZmanListEntry
@@ -107,8 +105,6 @@ import com.kosherjava.zmanim.hebrewcalendar.YerushalmiYomiCalculator
 import com.kosherjava.zmanim.hebrewcalendar.YomiCalculator
 import com.kosherjava.zmanim.util.GeoLocation
 import com.kosherjava.zmanim.util.ZmanimFormatter
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.nio.charset.StandardCharsets
@@ -187,6 +183,11 @@ class MainActivity : ComponentActivity() {
         }, this)
         startService(Intent(this, listener.javaClass))
         updateAppContents()
+
+        // To test JSON object transfer, uncomment:
+
+        //savePreferencesToLocalDevice(JSONTest.getJSONPreferencesObject(sharedPref, sharedPref))
+        //sharedPref.edit().putBoolean("hasGottenDataFromApp", true).apply()
     }
 
     private fun savePreferencesToLocalDevice(jsonPreferences: JSONObject) {
@@ -418,7 +419,7 @@ class MainActivity : ComponentActivity() {
                 sLatitude,
                 sLongitude,
                 sElevation,
-                TimeZone.getTimeZone(sCurrentTimeZoneID)
+                TimeZone.getTimeZone(if (sCurrentTimeZoneID != "") sCurrentTimeZoneID else TimeZone.getDefault().id)
             ),
             sharedPref
         )
@@ -512,9 +513,9 @@ class MainActivity : ComponentActivity() {
         sb.append(mROZmanimCalendar.calendar.get(Calendar.YEAR))
 
         if (DateUtils.isToday(mROZmanimCalendar.calendar.time.time)) {
-            sb.append("   ▼   ") //add a down arrow to indicate that this is the current day
+            sb.append("\n   ▼   \n") //add a down arrow to indicate that this is the current day
         } else {
-            sb.append("      ")
+            sb.append("\n")
         }
 
         sb.append(

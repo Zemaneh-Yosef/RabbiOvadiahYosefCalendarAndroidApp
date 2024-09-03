@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.classes.CalendarDrawable;
+import com.ej.rovadiahyosefcalendar.classes.ChafetzChayimYomiCalculator;
 import com.ej.rovadiahyosefcalendar.classes.HebrewDayMonthYearPickerDialog;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.LimudAdapter;
@@ -49,6 +50,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -125,9 +127,11 @@ public class LimudFragment extends Fragment {
         limudRV = binding.limudRV;
         limudRV.setLayoutManager(new LinearLayoutManager(mContext));
         limudRV.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
+        limudRV.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));//add 2 to make it look bold
         hillulotRV = binding.HillulotRV;
         hillulotRV.setLayoutManager(new LinearLayoutManager(mContext));
         hillulotRV.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
+        hillulotRV.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));//add 2 to make it look bold
     }
 
     private void updateLists() {
@@ -137,11 +141,12 @@ public class LimudFragment extends Fragment {
 
     private List<LimudListEntry> getLimudList() {
         List<LimudListEntry> limudim = new ArrayList<>();
+
         if (!mCurrentDateShown.before(dafYomiStartDate)) {
             limudim.add(new LimudListEntry(getString(R.string.daf_yomi)  + " " + YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getMasechta()
-                    + " " +
-                    mHebrewDateFormatter.formatHebrewNumber(YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getDaf())));
+                    + " " + mHebrewDateFormatter.formatHebrewNumber(YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getDaf())));
         }
+
         if (!mCurrentDateShown.before(dafYomiYerushalmiStartDate)) {
             Daf dafYomiYerushalmi = YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar());
             if (dafYomiYerushalmi != null) {
@@ -152,6 +157,103 @@ public class LimudFragment extends Fragment {
                 limudim.add(new LimudListEntry(getString(R.string.no_daf_yomi_yerushalmi)));
             }
         }
+
+        limudim.add(new LimudListEntry(getString(R.string.daily_chafetz_chaim) + ChafetzChayimYomiCalculator.getChafetzChayimYomi(mJewishDateInfo.getJewishCalendar())));
+
+        ArrayList<String> dailyMonthlyTehilim;
+        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            dailyMonthlyTehilim = new ArrayList<>(Arrays.asList(
+                    "א - ט",       // 1 - 9
+                    "י - יז",      // 10 - 17
+                    "יח - כב",     // 18 - 22
+                    "כג - כח",     // 23 - 28
+                    "כט - לד",     // 29 - 34
+                    "לה - לח",     // 35 - 38
+                    "לט - מג",     // 39 - 43
+                    "מד - מח",     // 44 - 48
+                    "מט - נד",     // 49 - 54
+                    "נה - נט",     // 55 - 59
+                    "ס - סה",      // 60 - 65
+                    "סו - סח",     // 66 - 68
+                    "סט - עא",     // 69 - 71
+                    "עב - עו",     // 72 - 76
+                    "עז - עח",     // 77 - 78
+                    "עט - פב",     // 79 - 82
+                    "פג - פז",     // 83 - 87
+                    "פח - פט",     // 88 - 89
+                    "צ - צו",      // 90 - 96
+                    "צז - קג",     // 97 - 103
+                    "קד - קה",     // 104 - 105
+                    "קו - קז",     // 106 - 107
+                    "קח - קיב",    // 108 - 112
+                    "קיג - קיח",   // 113 - 118
+                    "קיט:א - קיט:צו", // 119:1 - 119:96
+                    "קיט:צז - קיט:קעו", // 119:97 - 119:176
+                    "קכ - קלד",     // 120 - 134
+                    "קל - קלט",     // 135 - 139
+                    "קמ - " + (mJewishDateInfo.getJewishCalendar().getDaysInJewishMonth() == 29 ? "קנ" : "קמה"), // 140 - 150 or 145
+                    "קמה - קנ"       // 145 - 150
+            ));
+        } else {
+            dailyMonthlyTehilim = new ArrayList<>(Arrays.asList(
+                    "1 - 9",
+                    "10 - 17",
+                    "18 - 22",
+                    "23 - 28",
+                    "29 - 34",
+                    "35 - 38",
+                    "39 - 43",
+                    "44 - 48",
+                    "49 - 54",
+                    "55 - 59",
+                    "60 - 65",
+                    "66 - 68",
+                    "69 - 71",
+                    "72 - 76",
+                    "77 - 78",
+                    "79 - 82",
+                    "83 - 87",
+                    "88 - 89",
+                    "90 - 96",
+                    "97 - 103",
+                    "104 - 105",
+                    "106 - 107",
+                    "108 - 112",
+                    "113 - 118",
+                    "119:1 - 119:96",
+                    "119:97 - 119:176",
+                    "120 - 134",
+                    "135 - 139",
+                    "140 - " + (mJewishDateInfo.getJewishCalendar().getDaysInJewishMonth() == 29 ? 150 : 145),
+                    "145 - 150"));
+        }
+
+        limudim.add(new LimudListEntry(getString(R.string.daily_tehilim) + getString(R.string.monthly) + ": " + dailyMonthlyTehilim.get(mJewishDateInfo.getJewishCalendar().getJewishDayOfMonth() - 1)));
+
+        ArrayList<String> dailyWeeklyTehilim;
+        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            dailyWeeklyTehilim = new ArrayList<>(Arrays.asList(
+                    "א - כט",      // 1 - 29
+                    "ל - נ",       // 30 - 50
+                    "נא - עב",     // 51 - 72
+                    "עג - פט",     // 73 - 89
+                    "צ - קו",      // 90 - 106
+                    "קז - קיט",    // 107 - 119
+                    "קכ - קנ"      // 120 - 150
+            ));
+        } else {
+            dailyWeeklyTehilim = new ArrayList<>(Arrays.asList(
+                    "1 - 29",
+                    "30 - 50",
+                    "51 - 72",
+                    "73 - 89",
+                    "90 - 106",
+                    "107 - 119",
+                    "120 - 150"
+            ));
+        }
+        limudim.add(new LimudListEntry(getString(R.string.daily_tehilim) + getString(R.string.weekly) + ": " + dailyWeeklyTehilim.get(mCurrentDateShown.get(Calendar.DAY_OF_WEEK) - 1)));
+
         return limudim;
     }
 
@@ -184,7 +286,7 @@ public class LimudFragment extends Fragment {
                     String name = (String) currentHillulot.getJSONObject(i).get("name");
                     String src = (String) currentHillulot.getJSONObject(i).get("src");
                     if (!src.isEmpty() && !src.equals("-")) {
-                        hillulot.add(new LimudListEntry(name,"(" + src + ")"));
+                        hillulot.add(new LimudListEntry(name, src));
                     } else {
                         hillulot.add(new LimudListEntry(name));
                     }
@@ -297,7 +399,6 @@ public class LimudFragment extends Fragment {
         super.onResume();
         setDate();
         initMenu();
-        setupRecyclerViews();
         setupButtons();
         updateLists();
     }

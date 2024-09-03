@@ -731,7 +731,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 sLatitude,
                 sLongitude,
                 sElevation,
-                TimeZone.getTimeZone(sCurrentTimeZoneID)));
+                TimeZone.getTimeZone(sCurrentTimeZoneID == null ? TimeZone.getDefault().getID() : sCurrentTimeZoneID)));
         mROZmanimCalendar.setExternalFilesDir(mActivity.getExternalFilesDir(null));
         String candles = sSettingsPreferences.getString("CandleLightingOffset", "20");
         if (candles.isEmpty()) {
@@ -846,11 +846,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     }
 
     private void updateDailyZmanim() {
-//        ZmanAdapter zmanAdapter = (ZmanAdapter) mMainRecyclerView.getAdapter();
-//        if (zmanAdapter != null) {
-//            zmanAdapter.setZmanim(getZmanimList());
-//            zmanAdapter.notifyDataSetChanged();
-//        }
         mMainRecyclerView.setAdapter(new ZmanAdapter(mContext, getZmanimList()));
     }
 
@@ -2298,6 +2293,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (location != null) {
             sLatitude = location.getLatitude();
             sLongitude = location.getLongitude();
+            mLocationResolver = new LocationResolver(mContext, mActivity);
             mLocationResolver.resolveCurrentLocationName();
             mLocationResolver.setTimeZoneID();
             if (mMainRecyclerView.isFocusable()) {

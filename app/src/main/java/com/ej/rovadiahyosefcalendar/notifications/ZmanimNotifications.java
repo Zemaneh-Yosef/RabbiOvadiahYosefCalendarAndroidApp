@@ -1,5 +1,6 @@
 package com.ej.rovadiahyosefcalendar.notifications;
 
+import static android.Manifest.permission.ACCESS_BACKGROUND_LOCATION;
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.Context.ALARM_SERVICE;
@@ -14,6 +15,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.Location;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -32,37 +34,43 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.function.Consumer;
 
-public class ZmanimNotifications extends BroadcastReceiver {
+public class ZmanimNotifications extends BroadcastReceiver implements Consumer<Location> {
 
     private SharedPreferences mSharedPreferences;
     private SharedPreferences mSettingsSharedPreferences;
     private LocationResolver mLocationResolver;
+    private Context context;
     @Override
     public void onReceive(Context context, Intent intent) {
+        this.context = context;
         mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         mSettingsSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         mLocationResolver = new LocationResolver(context, new Activity());
         if (mSharedPreferences.getBoolean("isSetup",false) && mSettingsSharedPreferences.getBoolean("zmanim_notifications", true)) {
             Runnable mAlarmUpdater = () -> {
-                JewishCalendar jewishCalendar = new JewishCalendar();
-                ROZmanimCalendar zmanimCalendar = getROZmanimCalendar(context);
-                zmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
-                String candles = mSettingsSharedPreferences.getString("CandleLightingOffset", "20");
-                if (candles.isEmpty()) {
-                    candles = "20";
+                ROZmanimCalendar zmanimCalendar = getROZmanimCalendar();
+                if (ActivityCompat.checkSelfPermission(context, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED
+                        && ActivityCompat.checkSelfPermission(context, ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED) {// if we can get the user's location, we will go to the accept method
+                    JewishCalendar jewishCalendar = new JewishCalendar();
+                    zmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
+                    String candles = mSettingsSharedPreferences.getString("CandleLightingOffset", "20");
+                    if (candles.isEmpty()) {
+                        candles = "20";
+                    }
+                    zmanimCalendar.setCandleLightingOffset(Double.parseDouble(candles));
+                    String shabbat = mSettingsSharedPreferences.getString("EndOfShabbatOffset", mSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40");
+                    if (shabbat.isEmpty()) {// for some reason this is happening
+                        shabbat = "40";
+                    }
+                    zmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(shabbat));
+                    if (mSharedPreferences.getBoolean("inIsrael", false) && shabbat.equals("40")) {
+                        zmanimCalendar.setAteretTorahSunsetOffset(30);
+                    }
+                    mSharedPreferences.edit().putString("locationNameFN", zmanimCalendar.getGeoLocation().getLocationName()).apply();
+                    setAlarms(zmanimCalendar, jewishCalendar);
                 }
-                zmanimCalendar.setCandleLightingOffset(Double.parseDouble(candles));
-                String shabbat = mSettingsSharedPreferences.getString("EndOfShabbatOffset", mSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40");
-                if (shabbat.isEmpty()) {// for some reason this is happening
-                    shabbat = "40";
-                }
-                zmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(shabbat));
-                if (mSharedPreferences.getBoolean("inIsrael", false) && shabbat.equals("40")) {
-                    zmanimCalendar.setAteretTorahSunsetOffset(30);
-                }
-                mSharedPreferences.edit().putString("locationNameFN", zmanimCalendar.getGeoLocation().getLocationName()).apply();
-                setAlarms(context, zmanimCalendar, jewishCalendar);
             };
             mAlarmUpdater.run();
         }
@@ -72,32 +80,24 @@ public class ZmanimNotifications extends BroadcastReceiver {
      * This method will instantiate a ROZmanimCalendar object if the user has allowed the app to use their location, otherwise, it will use the last known location.
      */
     @NonNull
-    private ROZmanimCalendar getROZmanimCalendar(Context context) {
-        if (ActivityCompat.checkSelfPermission(context, ACCESS_FINE_LOCATION) == PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(context, ACCESS_COARSE_LOCATION) == PERMISSION_GRANTED) {
-            mLocationResolver.getRealtimeNotificationData();
-            if (mLocationResolver.getLatitude() != 0 && mLocationResolver.getLongitude() != 0) {
-                return new ROZmanimCalendar(new GeoLocation(
-                        mLocationResolver.getLocationName(),
-                        mLocationResolver.getLatitude(),
-                        mLocationResolver.getLongitude(),
-                        getLastKnownElevation(context),
-                        mLocationResolver.getTimeZone()));
-            }
+    private ROZmanimCalendar getROZmanimCalendar() {
+        if (ActivityCompat.checkSelfPermission(context, ACCESS_BACKGROUND_LOCATION) == PERMISSION_GRANTED) {
+            mLocationResolver.getRealtimeNotificationData(this);// we will continue in the accept method
         }
         return new ROZmanimCalendar(new GeoLocation(
                 mSharedPreferences.getString("name", ""),
                 Double.longBitsToDouble(mSharedPreferences.getLong("lat", 0)),
                 Double.longBitsToDouble(mSharedPreferences.getLong("long", 0)),
-                getLastKnownElevation(context),
+                getLastKnownElevation(Double.longBitsToDouble(mSharedPreferences.getLong("lat", 0)), Double.longBitsToDouble(mSharedPreferences.getLong("long", 0))),
                 TimeZone.getTimeZone(mSharedPreferences.getString("timezoneID", ""))));
     }
 
-    private double getLastKnownElevation(Context context) {
+    private double getLastKnownElevation(double latitude, double longitude) {
         double elevation;
         if (!mSharedPreferences.getBoolean("useElevation", true)) {//if the user has disabled the elevation setting, set the elevation to 0
             elevation = 0;
         } else if (ActivityCompat.checkSelfPermission(context, ACCESS_FINE_LOCATION) == PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(context, ACCESS_COARSE_LOCATION) == PERMISSION_GRANTED) {
-            elevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mLocationResolver.getLocationName(), "0"));//get the elevation using the location name
+            elevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mLocationResolver.getLocationName(latitude, longitude), "0"));//get the elevation using the location name
         } else {
             elevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mSharedPreferences.getString("name", ""), "0"));//lastKnownLocation
         }
@@ -109,18 +109,23 @@ public class ZmanimNotifications extends BroadcastReceiver {
      * called everytime the app starts and everyday by the {@link DailyNotifications} class. If
      * there are zmanim already set to be notified, it removes them all and reschedules them.
      */
-    private void setAlarms(Context context, ROZmanimCalendar c, JewishCalendar jewishCalendar) {
-        c.getCalendar().add(Calendar.DATE, -1);
-        jewishCalendar.setDate(c.getCalendar());//set the calendars to the previous day
+    private void setAlarms(ROZmanimCalendar c, JewishCalendar jewishCalendar) {
+        Calendar calendar = c.getCalendar();
+
+        calendar.add(Calendar.DATE, -1);
+        c.setCalendar(calendar);
+        jewishCalendar.setDate(calendar);//set the calendars to the previous day
 
         ArrayList<ZmanInformationHolder> zmanimOver3Days = new ArrayList<>(getArrayOfZmanim(c, jewishCalendar));
 
-        c.getCalendar().add(Calendar.DATE, 1);
-        jewishCalendar.setDate(c.getCalendar());//set the calendars to the current day
+        calendar.add(Calendar.DATE, 1);
+        c.setCalendar(calendar);
+        jewishCalendar.setDate(calendar);//set the calendars to the current day
         zmanimOver3Days.addAll(getArrayOfZmanim(c, jewishCalendar));
 
-        c.getCalendar().add(Calendar.DATE, 1);
-        jewishCalendar.setDate(c.getCalendar());//set the calendars to the next day
+        calendar.add(Calendar.DATE, 1);
+        c.setCalendar(calendar);
+        jewishCalendar.setDate(calendar);//set the calendars to the next day
         zmanimOver3Days.addAll(getArrayOfZmanim(c, jewishCalendar));
 
         AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
@@ -495,5 +500,31 @@ public class ZmanimNotifications extends BroadcastReceiver {
                 return "Chag";
             }
         }
+    }
+
+    @Override
+    public void accept(Location location) {
+        ROZmanimCalendar zmanimCalendar = new ROZmanimCalendar(new GeoLocation(
+                mLocationResolver.getLocationName(location.getLatitude(), location.getLongitude()),
+                location.getLatitude(),
+                location.getLongitude(),
+                getLastKnownElevation(location.getLatitude(), location.getLongitude()),
+                mLocationResolver.getTimeZone()));
+        zmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
+        String candles = mSettingsSharedPreferences.getString("CandleLightingOffset", "20");
+        if (candles.isEmpty()) {
+            candles = "20";
+        }
+        zmanimCalendar.setCandleLightingOffset(Double.parseDouble(candles));
+        String shabbat = mSettingsSharedPreferences.getString("EndOfShabbatOffset", mSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40");
+        if (shabbat.isEmpty()) {// for some reason this is happening
+            shabbat = "40";
+        }
+        zmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(shabbat));
+        if (mSharedPreferences.getBoolean("inIsrael", false) && shabbat.equals("40")) {
+            zmanimCalendar.setAteretTorahSunsetOffset(30);
+        }
+        mSharedPreferences.edit().putString("locationNameFN", zmanimCalendar.getGeoLocation().getLocationName()).apply();
+        setAlarms(zmanimCalendar, new JewishCalendar());
     }
 }
