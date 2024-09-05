@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:clipChildren="false"
     android:orientation="vertical">
 
     <TextView
@@ -15,6 +16,10 @@
         android:enabled="true"
         android:textIsSelectable="true"
         android:focusable="true"
+        android:shadowColor="#00FFFFFF"
+        android:shadowDx="48"
+        android:shadowDy="0"
+        android:shadowRadius="1"
         android:longClickable="true"/>
 
     <ImageView

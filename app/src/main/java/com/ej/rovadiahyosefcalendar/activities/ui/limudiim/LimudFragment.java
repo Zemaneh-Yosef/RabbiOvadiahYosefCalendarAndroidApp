@@ -112,11 +112,11 @@ public class LimudFragment extends Fragment {
         if (materialToolbar == null) {
             return;
         }
-        materialToolbar.setTitle(getString(R.string.limudim_hillulot));
+        materialToolbar.setTitle(mContext.getString(R.string.limudim_hillulot));
         if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
-            materialToolbar.setSubtitle(getString(R.string.app_name));
+            materialToolbar.setSubtitle(mContext.getString(R.string.app_name));
         } else {
-            materialToolbar.setSubtitle(getString(R.string.short_app_name));
+            materialToolbar.setSubtitle(mContext.getString(R.string.short_app_name));
         }
         //materialToolbar.setNavigationIcon(AppCompatResources.getDrawable(mContext, R.drawable.baseline_arrow_back_24)); // if you want to show the back button
         //materialToolbar.setNavigationOnClickListener(v -> finish());
@@ -143,7 +143,7 @@ public class LimudFragment extends Fragment {
         List<LimudListEntry> limudim = new ArrayList<>();
 
         if (!mCurrentDateShown.before(dafYomiStartDate)) {
-            limudim.add(new LimudListEntry(getString(R.string.daf_yomi)  + " " + YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getMasechta()
+            limudim.add(new LimudListEntry(mContext.getString(R.string.daf_yomi)  + " " + YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getMasechta()
                     + " " + mHebrewDateFormatter.formatHebrewNumber(YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getDaf())));
         }
 
@@ -152,13 +152,19 @@ public class LimudFragment extends Fragment {
             if (dafYomiYerushalmi != null) {
                 String masechta = dafYomiYerushalmi.getYerushalmiMasechta();
                 String daf = mHebrewDateFormatter.formatHebrewNumber(dafYomiYerushalmi.getDaf());
-                limudim.add(new LimudListEntry(getString(R.string.yerushalmi_yomi) + " " + masechta + " " + daf));
+                limudim.add(new LimudListEntry(mContext.getString(R.string.yerushalmi_yomi) + " " + masechta + " " + daf));
             } else {
-                limudim.add(new LimudListEntry(getString(R.string.no_daf_yomi_yerushalmi)));
+                limudim.add(new LimudListEntry(mContext.getString(R.string.no_daf_yomi_yerushalmi)));
             }
         }
 
-        limudim.add(new LimudListEntry(getString(R.string.daily_chafetz_chaim) + ChafetzChayimYomiCalculator.getChafetzChayimYomi(mJewishDateInfo.getJewishCalendar())));
+//        limudim.add(new LimudListEntry(MishnaYomi.getMishnaForDate(new JewishCalendar(new GregorianCalendar(1947, 5, 31)))));
+//        limudim.add(new LimudListEntry(MishnaYomi.getMishnaForDate(new JewishCalendar(new GregorianCalendar(1947, 6, 1)))));
+//        limudim.add(new LimudListEntry(MishnaYomi.getMishnaForDate(new JewishCalendar(new GregorianCalendar(1947, 6, 2)))));
+        //limudim.add(new LimudListEntry(MishnaYomi.getMishnaForDate(new JewishCalendar())));
+
+
+        limudim.add(new LimudListEntry(mContext.getString(R.string.daily_chafetz_chaim) + ChafetzChayimYomiCalculator.getChafetzChayimYomi(mJewishDateInfo.getJewishCalendar())));
 
         ArrayList<String> dailyMonthlyTehilim;
         if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
@@ -228,7 +234,7 @@ public class LimudFragment extends Fragment {
                     "145 - 150"));
         }
 
-        limudim.add(new LimudListEntry(getString(R.string.daily_tehilim) + getString(R.string.monthly) + ": " + dailyMonthlyTehilim.get(mJewishDateInfo.getJewishCalendar().getJewishDayOfMonth() - 1)));
+        limudim.add(new LimudListEntry(mContext.getString(R.string.daily_tehilim) + mContext.getString(R.string.monthly) + ": " + dailyMonthlyTehilim.get(mJewishDateInfo.getJewishCalendar().getJewishDayOfMonth() - 1)));
 
         ArrayList<String> dailyWeeklyTehilim;
         if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
@@ -252,7 +258,7 @@ public class LimudFragment extends Fragment {
                     "120 - 150"
             ));
         }
-        limudim.add(new LimudListEntry(getString(R.string.daily_tehilim) + getString(R.string.weekly) + ": " + dailyWeeklyTehilim.get(mCurrentDateShown.get(Calendar.DAY_OF_WEEK) - 1)));
+        limudim.add(new LimudListEntry(mContext.getString(R.string.daily_tehilim) + mContext.getString(R.string.weekly) + ": " + dailyWeeklyTehilim.get(mCurrentDateShown.get(Calendar.DAY_OF_WEEK) - 1)));
 
         return limudim;
     }

@@ -74,38 +74,38 @@ public class LocationResolver extends Thread {
         if (mSharedPreferences.getBoolean("useAdvanced", false)) {
             sCurrentLocationName = mSharedPreferences.getString("advancedLN", "");
             try {
-                sLatitude = Double.parseDouble(mSharedPreferences.getString("advancedLat", ""));
-                sLongitude = Double.parseDouble(mSharedPreferences.getString("advancedLong", ""));
+                sLatitude = Double.parseDouble(mSharedPreferences.getString("advancedLat", "0.0"));
+                sLongitude = Double.parseDouble(mSharedPreferences.getString("advancedLong", "0.0"));
             } catch (NumberFormatException e) {
                 sLatitude = 0.0;
                 sLongitude = 0.0;
             }
-            sCurrentTimeZoneID = mSharedPreferences.getString("advancedTimezone", "");
+            sCurrentTimeZoneID = mSharedPreferences.getString("advancedTimezone", TimeZone.getDefault().getID());
         } else if (mSharedPreferences.getBoolean("useLocation1", false)) {
             sCurrentLocationName = mSharedPreferences.getString("location1", "");
             sLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location1Lat", 0));
             sLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location1Long", 0));
-            sCurrentTimeZoneID = mSharedPreferences.getString("location1Timezone", "");
+            sCurrentTimeZoneID = mSharedPreferences.getString("location1Timezone", TimeZone.getDefault().getID());
         } else if (mSharedPreferences.getBoolean("useLocation2", false)) {
             sCurrentLocationName = mSharedPreferences.getString("location2", "");
             sLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location2Lat", 0));
             sLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location2Long", 0));
-            sCurrentTimeZoneID = mSharedPreferences.getString("location2Timezone", "");
+            sCurrentTimeZoneID = mSharedPreferences.getString("location2Timezone", TimeZone.getDefault().getID());
         } else if (mSharedPreferences.getBoolean("useLocation3", false)) {
             sCurrentLocationName = mSharedPreferences.getString("location3", "");
             sLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location3Lat", 0));
             sLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location3Long", 0));
-            sCurrentTimeZoneID = mSharedPreferences.getString("location3Timezone", "");
+            sCurrentTimeZoneID = mSharedPreferences.getString("location3Timezone", TimeZone.getDefault().getID());
         } else if (mSharedPreferences.getBoolean("useLocation4", false)) {
             sCurrentLocationName = mSharedPreferences.getString("location4", "");
             sLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location4Lat", 0));
             sLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location4Long", 0));
-            sCurrentTimeZoneID = mSharedPreferences.getString("location4Timezone", "");
+            sCurrentTimeZoneID = mSharedPreferences.getString("location4Timezone", TimeZone.getDefault().getID());
         } else if (mSharedPreferences.getBoolean("useLocation5", false)) {
             sCurrentLocationName = mSharedPreferences.getString("location5", "");
             sLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location5Lat", 0));
             sLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location5Long", 0));
-            sCurrentTimeZoneID = mSharedPreferences.getString("location5Timezone", "");
+            sCurrentTimeZoneID = mSharedPreferences.getString("location5Timezone", TimeZone.getDefault().getID());
         } else if (mSharedPreferences.getBoolean("useZipcode", false)) {
             getLatitudeAndLongitudeFromSearchQuery();
         } else {

@@ -9,7 +9,7 @@
     android:orientation="vertical"
     android:background="?android:attr/colorBackground"
     android:animateLayoutChanges="true"
-    tools:context=".activities.MainActivity">
+    tools:context=".activities.MainFragmentManager">
 
     <TextClock
         android:id="@+id/clock"

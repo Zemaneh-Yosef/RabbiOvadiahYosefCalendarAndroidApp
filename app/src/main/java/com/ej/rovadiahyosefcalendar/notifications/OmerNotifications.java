@@ -219,7 +219,7 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
                 Double.longBitsToDouble(mSharedPreferences.getLong("lat", 0)),
                 Double.longBitsToDouble(mSharedPreferences.getLong("long", 0)),
                 getLastKnownElevation(context, Double.longBitsToDouble(mSharedPreferences.getLong("lat", 0)), Double.longBitsToDouble(mSharedPreferences.getLong("long", 0))),
-                TimeZone.getTimeZone(mSharedPreferences.getString("timezoneID", ""))));
+                TimeZone.getTimeZone(mSharedPreferences.getString("timezoneID", TimeZone.getDefault().getID()))));
     }
 
     private double getLastKnownElevation(Context context, double latitude, double longitude) {
@@ -253,11 +253,13 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
 
     @Override
     public void accept(Location location) {
-        init(context, new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false)), new ROZmanimCalendar(new GeoLocation(
-                mLocationResolver.getLocationName(location.getLatitude(), location.getLongitude()),
-                location.getLatitude(),
-                location.getLongitude(),
-                getLastKnownElevation(context, location.getLatitude(), location.getLongitude()),
-                mLocationResolver.getTimeZone())));
+        if (location != null) {
+            init(context, new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false)), new ROZmanimCalendar(new GeoLocation(
+                    mLocationResolver.getLocationName(location.getLatitude(), location.getLongitude()),
+                    location.getLatitude(),
+                    location.getLongitude(),
+                    getLastKnownElevation(context, location.getLatitude(), location.getLongitude()),
+                    mLocationResolver.getTimeZone())));
+        }
     }
 }

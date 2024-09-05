@@ -9,6 +9,8 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.Toast;
@@ -207,6 +209,10 @@ public class MainFragmentManager extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
+                if (viewPager.getCurrentItem() == 0 || viewPager.getCurrentItem() == 2) {
+                    viewPager.setCurrentItem(1);
+                    return;
+                }
                 if (!mBackHasBeenPressed) {
                     mBackHasBeenPressed = true;
                     Toast.makeText(MainFragmentManager.this, R.string.press_back_again_to_close_the_app, Toast.LENGTH_SHORT).show();
@@ -319,8 +325,21 @@ public class MainFragmentManager extends AppCompatActivity {
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         if (!hasFocus) {
-            if (sShabbatMode) {
-                // TODO bring back to focus
+            if (sShabbatMode) {// TODO test
+                // Use a Handler to post a runnable to bring the window back to focus
+                Handler handler = new Handler(Looper.getMainLooper());
+                handler.postDelayed(() -> {
+                    getWindow().getDecorView().requestFocus();// Request focus for the window
+                    // Optionally, bring the window to the front
+                    //getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                    //getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                    // Optionally, you can also use this code to bring the app to the front
+                    Intent intent = getPackageManager().getLaunchIntentForPackage(getPackageName());
+                    if (intent != null) {
+                        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        startActivity(intent);
+                    }
+                }, 100); // Delay to ensure the window is in a stable state
             }
         }
     }

@@ -139,28 +139,30 @@ public class NextZmanCountdownNotification extends Service {
     private ROZmanimCalendar getROZmanimCalendar(Context context) {
         if (ActivityCompat.checkSelfPermission(context, ACCESS_BACKGROUND_LOCATION) == PERMISSION_GRANTED) {
             mLocationResolver.getRealtimeNotificationData(location -> {
-                mROZmanimCalendar = new ROZmanimCalendar(new GeoLocation(
-                        mLocationResolver.getLocationName(location.getLatitude(), location.getLongitude()),
-                        location.getLatitude(),
-                        location.getLongitude(),
-                        getLastKnownElevation(context, location.getLatitude(), location.getLongitude()),
-                        mLocationResolver.getTimeZone()));
-                mROZmanimCalendar.setExternalFilesDir(getExternalFilesDir(null));
-                String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
-                if (candles.isEmpty()) {
-                    candles = "20";
+                if (location != null) {
+                    mROZmanimCalendar = new ROZmanimCalendar(new GeoLocation(
+                            mLocationResolver.getLocationName(location.getLatitude(), location.getLongitude()),
+                            location.getLatitude(),
+                            location.getLongitude(),
+                            getLastKnownElevation(context, location.getLatitude(), location.getLongitude()),
+                            mLocationResolver.getTimeZone()));
+                    mROZmanimCalendar.setExternalFilesDir(getExternalFilesDir(null));
+                    String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
+                    if (candles.isEmpty()) {
+                        candles = "20";
+                    }
+                    mROZmanimCalendar.setCandleLightingOffset(Double.parseDouble(candles));
+                    String shabbat = mSettingsPreferences.getString("EndOfShabbatOffset", mSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40");
+                    if (shabbat.isEmpty()) {// for some reason this is happening
+                        shabbat = "40";
+                    }
+                    mROZmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(shabbat));
+                    if (mSharedPreferences.getBoolean("inIsrael", false) && shabbat.equals("40")) {
+                        mROZmanimCalendar.setAteretTorahSunsetOffset(30);
+                    }
+                    mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false));
+                    createNotificationChannel();
                 }
-                mROZmanimCalendar.setCandleLightingOffset(Double.parseDouble(candles));
-                String shabbat = mSettingsPreferences.getString("EndOfShabbatOffset", mSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40");
-                if (shabbat.isEmpty()) {// for some reason this is happening
-                    shabbat = "40";
-                }
-                mROZmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(shabbat));
-                if (mSharedPreferences.getBoolean("inIsrael", false) && shabbat.equals("40")) {
-                    mROZmanimCalendar.setAteretTorahSunsetOffset(30);
-                }
-                mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false));
-                createNotificationChannel();
             });
         }
         return new ROZmanimCalendar(new GeoLocation(

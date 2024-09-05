@@ -800,8 +800,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 builder.setTitle(R.string.zmanim_notifications_will_not_work);
                 builder.setMessage(R.string.if_you_would_like_to_receive_zmanim_notifications);
                 builder.setCancelable(false);
-                builder.setPositiveButton(getString(R.string.yes), (dialog, which) -> sNotificationLauncher.launch(new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:"+ mContext.getPackageName()))));
-                builder.setNegativeButton(getString(R.string.no), (dialog, which) -> dialog.dismiss());
+                builder.setPositiveButton(mContext.getString(R.string.yes), (dialog, which) -> sNotificationLauncher.launch(new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:"+ mContext.getPackageName()))));
+                builder.setNegativeButton(mContext.getString(R.string.no), (dialog, which) -> dialog.dismiss());
                 builder.show();
             }
         }
@@ -856,7 +856,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
             materialToolbar.setSubtitle("");
         } else {
-            materialToolbar.setTitle(getString(R.string.app_name));
+            materialToolbar.setTitle(mContext.getString(R.string.app_name));
         }
         materialToolbar.getMenu().clear();
         materialToolbar.inflateMenu(R.menu.menu_main);
@@ -1019,18 +1019,18 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
         if (mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.ROSH_HASHANA &&
                 mJewishDateInfo.isShmitaYear()) {
-            zmanim.add(new ZmanListEntry(getString(R.string.this_year_is_a_shmita_year)));
+            zmanim.add(new ZmanListEntry(mContext.getString(R.string.this_year_is_a_shmita_year)));
         }
 
         if (mJewishDateInfo.is3Weeks()) {
             if (mJewishDateInfo.is9Days()) {
                 if (mJewishDateInfo.isShevuahShechalBo()) {
-                    zmanim.add(new ZmanListEntry(getString(R.string.shevuah_shechal_bo)));
+                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.shevuah_shechal_bo)));
                 } else {
-                    zmanim.add(new ZmanListEntry(getString(R.string.nine_days)));
+                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.nine_days)));
                 }
             } else {
-                zmanim.add(new ZmanListEntry(getString(R.string.three_weeks)));
+                zmanim.add(new ZmanListEntry(mContext.getString(R.string.three_weeks)));
             }
         }
 
@@ -1057,7 +1057,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
 
         if (mJewishDateInfo.getJewishCalendar().isBirkasHachamah()) {
-            zmanim.add(new ZmanListEntry(getString(R.string.birchat_hachamah_is_said_today)));
+            zmanim.add(new ZmanListEntry(mContext.getString(R.string.birchat_hachamah_is_said_today)));
         }
 
         String tekufaOpinions = sSettingsPreferences.getString("TekufaOpinions", "1");
@@ -1080,12 +1080,12 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 + mJewishDateInfo.getIsBarcheinuOrBarechAleinuSaid()));
 
         if (!sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
-            zmanim.add(new ZmanListEntry(getString(R.string.shaah_zmanit_gr_a) + " " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanisGra())));
-            zmanim.add(new ZmanListEntry(getString(R.string.mg_a) + " (" + getString(R.string.ohr_hachaim) + ") " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanis72MinutesZmanis())));
+            zmanim.add(new ZmanListEntry(mContext.getString(R.string.shaah_zmanit_gr_a) + " " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanisGra())));
+            zmanim.add(new ZmanListEntry(mContext.getString(R.string.mg_a) + " (" + mContext.getString(R.string.ohr_hachaim) + ") " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanis72MinutesZmanis())));
         } else {
             long shaahZmanitMGA = mROZmanimCalendar.getTemporalHour(mROZmanimCalendar.getAlotAmudeiHoraah(), mROZmanimCalendar.getTzais72ZmanisAmudeiHoraah());
-            zmanim.add(new ZmanListEntry(getString(R.string.shaah_zmanit_gr_a) + " " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanisGra())));
-            zmanim.add(new ZmanListEntry(getString(R.string.mg_a) + " (" + getString(R.string.amudei_horaah) + ") " + mZmanimFormatter.format(shaahZmanitMGA)));
+            zmanim.add(new ZmanListEntry(mContext.getString(R.string.shaah_zmanit_gr_a) + " " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanisGra())));
+            zmanim.add(new ZmanListEntry(mContext.getString(R.string.mg_a) + " (" + mContext.getString(R.string.amudei_horaah) + ") " + mZmanimFormatter.format(shaahZmanitMGA)));
         }
 
         if (sSettingsPreferences.getBoolean("ShowLeapYear", false)) {
@@ -1094,22 +1094,22 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
         if (sSettingsPreferences.getBoolean("ShowDST", false)) {
             if (mROZmanimCalendar.getGeoLocation().getTimeZone().inDaylightTime(mROZmanimCalendar.getSeaLevelSunrise())) {
-                zmanim.add(new ZmanListEntry(getString(R.string.daylight_savings_time_is_on)));
+                zmanim.add(new ZmanListEntry(mContext.getString(R.string.daylight_savings_time_is_on)));
             } else {
-                zmanim.add(new ZmanListEntry(getString(R.string.daylight_savings_time_is_off)));
+                zmanim.add(new ZmanListEntry(mContext.getString(R.string.daylight_savings_time_is_off)));
             }
         }
 
         if (sSettingsPreferences.getBoolean("ShowShmitaYear", false)) {
             if (mJewishDateInfo.isShmitaYear()) {
-                zmanim.add(new ZmanListEntry(getString(R.string.this_year_is_a_shmita_year)));
+                zmanim.add(new ZmanListEntry(mContext.getString(R.string.this_year_is_a_shmita_year)));
             } else {
-                zmanim.add(new ZmanListEntry(getString(R.string.this_year_is_not_a_shmita_year)));
+                zmanim.add(new ZmanListEntry(mContext.getString(R.string.this_year_is_not_a_shmita_year)));
             }
         }
 
         if (sSettingsPreferences.getBoolean("ShowElevation", false)) {
-            zmanim.add(new ZmanListEntry(getString(R.string.elevation) + " " + sElevation + " " + getString(R.string.meters)));
+            zmanim.add(new ZmanListEntry(mContext.getString(R.string.elevation) + " " + sElevation + " " + mContext.getString(R.string.meters)));
         }
 
         return zmanim;
@@ -1186,7 +1186,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
 
         String tachanun = mJewishDateInfo.getIsTachanunSaid();
-        if (!tachanun.equals(getString(R.string.there_is_tachanun_today))) {
+        if (!tachanun.equals(mContext.getString(R.string.there_is_tachanun_today))) {
             announcements.append(tachanun).append("\n");
         }
 
@@ -1196,7 +1196,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
 
         if (mJewishDateInfo.getJewishCalendar().isBirkasHachamah()) {
-            announcements.append(getString(R.string.birchat_hachamah_is_said_today)).append("\n");
+            announcements.append(mContext.getString(R.string.birchat_hachamah_is_said_today)).append("\n");
         }
 
         List<ZmanListEntry> tekufa = new ArrayList<>();
@@ -1219,7 +1219,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
         if (!mCurrentDateShown.before(dafYomiYerushalmiStartDate)) {
             if (YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()) == null) {
-                announcements.append(getString(R.string.no_daf_yomi_yerushalmi)).append("\n");
+                announcements.append(mContext.getString(R.string.no_daf_yomi_yerushalmi)).append("\n");
             }
         }
         return announcements.toString();
@@ -1376,7 +1376,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 }
             }
         }
-        String dafs = getString(R.string.daf_yomi) + " " + masechta + "       " + getString(R.string.just_yerushalmi_yomi) + " " + yerushalmiMasechta;
+        String dafs = mContext.getString(R.string.daf_yomi) + " " + masechta + "       " + mContext.getString(R.string.just_yerushalmi_yomi) + " " + yerushalmiMasechta;
         String monthYear = month + " " + year;
         mEnglishMonthYear.setText(monthYear);
         if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
@@ -1749,27 +1749,27 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 halfHourBefore = new Date(tekufa.getTime() - (DateUtils.MILLIS_PER_HOUR / 2));
                 halfHourAfter = new Date(tekufa.getTime() + (DateUtils.MILLIS_PER_HOUR / 2));
                 if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
-                    zmanim.add(new ZmanListEntry(getString(R.string.tekufa_length) + zmanimFormat.format(halfHourAfter) + " - " + zmanimFormat.format(halfHourBefore)));
+                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourAfter) + " - " + zmanimFormat.format(halfHourBefore)));
                 } else {
-                    zmanim.add(new ZmanListEntry(getString(R.string.tekufa_length) + zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfter)));
+                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfter)));
                 }
             }
             if (opinion.equals("2") || sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
                 halfHourBefore = new Date(aHTekufa.getTime() - (DateUtils.MILLIS_PER_HOUR / 2));
                 halfHourAfter = new Date(aHTekufa.getTime() + (DateUtils.MILLIS_PER_HOUR / 2));
                 if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
-                    zmanim.add(new ZmanListEntry(getString(R.string.tekufa_length) + zmanimFormat.format(halfHourAfter) + " - " + zmanimFormat.format(halfHourBefore)));
+                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourAfter) + " - " + zmanimFormat.format(halfHourBefore)));
                 } else {
-                    zmanim.add(new ZmanListEntry(getString(R.string.tekufa_length) + zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfter)));
+                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfter)));
                 }
             }
             if (opinion.equals("3")) {
                 halfHourBefore = new Date(aHTekufa.getTime() - (DateUtils.MILLIS_PER_HOUR / 2));
                 halfHourAfter = new Date(tekufa.getTime() + (DateUtils.MILLIS_PER_HOUR / 2));
                 if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
-                    zmanim.add(new ZmanListEntry(getString(R.string.tekufa_length) + zmanimFormat.format(halfHourAfter) + " - " + zmanimFormat.format(halfHourBefore)));
+                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourAfter) + " - " + zmanimFormat.format(halfHourBefore)));
                 } else {
-                    zmanim.add(new ZmanListEntry(getString(R.string.tekufa_length) + zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfter)));
+                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfter)));
                 }
             }
         }
@@ -1941,11 +1941,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         switch (mJewishDateInfo.getJewishCalendar().getYomTovIndex()) {
             case JewishCalendar.PESACH:
                 for (int i = 0; i < 4; i++) {
-                    sb.append(getString(R.string.PESACH));
+                    sb.append(mContext.getString(R.string.PESACH));
                     if (isShabbat) {
-                        sb.append(getString(R.string.slash_SHABBAT));
+                        sb.append(mContext.getString(R.string.slash_SHABBAT));
                     }
-                    sb.append(" ").append(getString(R.string.MODE)).append("                ");
+                    sb.append(" ").append(mContext.getString(R.string.MODE)).append("                ");
                 }
                 mShabbatModeBanner.setText(sb.toString());
                 mShabbatModeBanner.setBackgroundColor(mContext.getColor(R.color.lightYellow));
@@ -1955,11 +1955,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 break;
             case JewishCalendar.SHAVUOS:
                 for (int i = 0; i < 4; i++) {
-                    sb.append(getString(R.string.SHAVUOT));
+                    sb.append(mContext.getString(R.string.SHAVUOT));
                     if (isShabbat) {
-                        sb.append(getString(R.string.slash_SHABBAT));
+                        sb.append(mContext.getString(R.string.slash_SHABBAT));
                     }
-                    sb.append(" ").append(getString(R.string.MODE)).append("                ");
+                    sb.append(" ").append(mContext.getString(R.string.MODE)).append("                ");
                 }
                 mShabbatModeBanner.setText(sb.toString());
                 mShabbatModeBanner.setBackgroundColor(mContext.getColor(R.color.light_blue));
@@ -1969,11 +1969,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 break;
             case JewishCalendar.SUCCOS:
                 for (int i = 0; i < 4; i++) {
-                    sb.append(getString(R.string.SUCCOT));
+                    sb.append(mContext.getString(R.string.SUCCOT));
                     if (isShabbat) {
-                        sb.append(getString(R.string.slash_SHABBAT));
+                        sb.append(mContext.getString(R.string.slash_SHABBAT));
                     }
-                    sb.append(" ").append(getString(R.string.MODE)).append("                ");
+                    sb.append(" ").append(mContext.getString(R.string.MODE)).append("                ");
                 }
                 mShabbatModeBanner.setText(sb.toString());
                 mShabbatModeBanner.setBackgroundColor(mContext.getColor(R.color.light_green));
@@ -1983,11 +1983,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 break;
             case JewishCalendar.SHEMINI_ATZERES:
                 for (int i = 0; i < 4; i++) {
-                    sb.append(getString(R.string.SHEMINI_ATZERET));
+                    sb.append(mContext.getString(R.string.SHEMINI_ATZERET));
                     if (isShabbat) {
-                        sb.append(getString(R.string.slash_SHABBAT));
+                        sb.append(mContext.getString(R.string.slash_SHABBAT));
                     }
-                    sb.append(" ").append(getString(R.string.MODE)).append("                ");
+                    sb.append(" ").append(mContext.getString(R.string.MODE)).append("                ");
                 }
                 mShabbatModeBanner.setText(sb.toString());
                 mShabbatModeBanner.setBackgroundColor(mContext.getColor(R.color.light_green));
@@ -1997,11 +1997,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 break;
             case JewishCalendar.SIMCHAS_TORAH:
                 for (int i = 0; i < 4; i++) {
-                    sb.append(getString(R.string.SIMCHAT_TORAH));
+                    sb.append(mContext.getString(R.string.SIMCHAT_TORAH));
                     if (isShabbat) {
-                        sb.append(getString(R.string.slash_SHABBAT));
+                        sb.append(mContext.getString(R.string.slash_SHABBAT));
                     }
-                    sb.append(" ").append(getString(R.string.MODE)).append("                ");
+                    sb.append(" ").append(mContext.getString(R.string.MODE)).append("                ");
                 }
                 mShabbatModeBanner.setText(sb.toString());
                 mShabbatModeBanner.setBackgroundColor(mContext.getColor(R.color.green));
@@ -2011,11 +2011,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 break;
             case JewishCalendar.ROSH_HASHANA:
                 for (int i = 0; i < 4; i++) {
-                    sb.append(getString(R.string.ROSH_HASHANA));
+                    sb.append(mContext.getString(R.string.ROSH_HASHANA));
                     if (isShabbat) {
-                        sb.append(getString(R.string.slash_SHABBAT));
+                        sb.append(mContext.getString(R.string.slash_SHABBAT));
                     }
-                    sb.append(" ").append(getString(R.string.MODE)).append("                ");
+                    sb.append(" ").append(mContext.getString(R.string.MODE)).append("                ");
                 }
                 mShabbatModeBanner.setText(sb.toString());
                 mShabbatModeBanner.setBackgroundColor(mContext.getColor(R.color.dark_red));
@@ -2025,11 +2025,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 break;
             case JewishCalendar.YOM_KIPPUR:
                 for (int i = 0; i < 4; i++) {
-                    sb.append(getString(R.string.YOM_KIPPUR));
+                    sb.append(mContext.getString(R.string.YOM_KIPPUR));
                     if (isShabbat) {
-                        sb.append(getString(R.string.slash_SHABBAT));
+                        sb.append(mContext.getString(R.string.slash_SHABBAT));
                     }
-                    sb.append(" ").append(getString(R.string.MODE)).append("                ");
+                    sb.append(" ").append(mContext.getString(R.string.MODE)).append("                ");
                 }
                 mShabbatModeBanner.setText(sb.toString());
                 mShabbatModeBanner.setBackgroundColor(mContext.getColor(R.color.white));
@@ -2038,15 +2038,15 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawableDark(mCurrentDateShown));
                 break;
             default:
-                mShabbatModeBanner.setText(getString(R.string.SHABBAT_MODE) +
+                mShabbatModeBanner.setText(mContext.getString(R.string.SHABBAT_MODE) +
                         "                " +
-                        getString(R.string.SHABBAT_MODE) +
+                        mContext.getString(R.string.SHABBAT_MODE) +
                         "               " +
-                        getString(R.string.SHABBAT_MODE) +
+                        mContext.getString(R.string.SHABBAT_MODE) +
                         "               " +
-                        getString(R.string.SHABBAT_MODE) +
+                        mContext.getString(R.string.SHABBAT_MODE) +
                         "               " +
-                        getString(R.string.SHABBAT_MODE));
+                        mContext.getString(R.string.SHABBAT_MODE));
                 mShabbatModeBanner.setBackgroundColor(mContext.getColor(R.color.dark_blue));
                 mShabbatModeBanner.setTextColor(mContext.getColor(R.color.white));
                 mCalendarButton.setBackgroundColor(mContext.getColor(R.color.dark_blue));
@@ -2066,7 +2066,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     @SuppressWarnings({"BusyWait"})
     private void startScrollingThread() {
         Thread scrollingThread = new Thread(() -> {
-            while (mMainRecyclerView.canScrollVertically(1)) {
+            while (mMainRecyclerView != null && mMainRecyclerView.canScrollVertically(1)) {
                 if (!sShabbatMode) break;
                 if (mMainRecyclerView.canScrollVertically(1)) {
                     mMainRecyclerView.smoothScrollBy(0,5);
@@ -2082,7 +2082,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            while (mMainRecyclerView.canScrollVertically(-1)) {
+            while (mMainRecyclerView != null && mMainRecyclerView.canScrollVertically(-1)) {
                 if (!sShabbatMode) break;
                 if (mMainRecyclerView.canScrollVertically(-1)) {
                     mMainRecyclerView.smoothScrollBy(0,-5);
