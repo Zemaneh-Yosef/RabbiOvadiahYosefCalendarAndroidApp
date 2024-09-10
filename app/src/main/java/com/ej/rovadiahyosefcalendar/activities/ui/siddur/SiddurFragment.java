@@ -319,7 +319,7 @@ public class SiddurFragment extends Fragment {
                 .putExtra("JewishMonth", mJewishDateInfo.getJewishCalendar().getJewishMonth())
                 .putExtra("JewishYear", mJewishDateInfo.getJewishCalendar().getJewishYear())
                 .putExtra("isNightTikkunChatzot", false)
-                .putExtra("isAfterChatzot", new Date().after(mZmanimCalendar.getSolarMidnight()));
+                .putExtra("isAfterChatzot", new Date().after(mZmanimCalendar.getSolarMidnight()) && new Date().before(new Date(mZmanimCalendar.getSolarMidnight().getTime() + 7_200_000)));
 
         if (mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.PURIM ||
                 mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM &&
@@ -339,7 +339,11 @@ public class SiddurFragment extends Fragment {
                         sharedPreferences.putBoolean("isSafekMukafChoma", true).apply();
                         startActivity(intent);
                     })
-                    .setNegativeButton(mContext.getString(R.string.no), (dialog, which) -> startActivity(intent))
+                    .setNegativeButton(mContext.getString(R.string.no), (dialog, which) -> {
+                        sharedPreferences.putBoolean("isMukafChoma", false).apply();
+                        sharedPreferences.putBoolean("isSafekMukafChoma", false).apply();
+                        startActivity(intent);
+                    })
                     .show();
         } else {
             startActivity(intent);
@@ -375,7 +379,12 @@ public class SiddurFragment extends Fragment {
                         sharedPreferences.putBoolean("isSafekMukafChoma", true).apply();
                         startActivity(intent);
                     })
-                    .setNegativeButton(mContext.getString(R.string.no), (dialog, which) -> startActivity(intent))
+                    .setNegativeButton(mContext.getString(R.string.no), (dialog, which) -> {
+                        // Undo any previous settings
+                        sharedPreferences.putBoolean("isMukafChoma", false).apply();
+                        sharedPreferences.putBoolean("isSafekMukafChoma", false).apply();
+                        startActivity(intent);
+                    })
                     .show();
         } else {
             startActivity(intent);

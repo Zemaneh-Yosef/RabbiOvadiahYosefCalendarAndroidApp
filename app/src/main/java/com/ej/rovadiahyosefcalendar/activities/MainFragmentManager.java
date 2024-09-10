@@ -138,9 +138,7 @@ public class MainFragmentManager extends AppCompatActivity {
             sSetupLauncher.launch(new Intent(this, FullSetupActivity.class));
             initZmanimNotificationDefaults();
         } else {
-            if (sCurrentLocationName.isEmpty() && sLatitude == 0 && sLongitude == 0 && sCurrentTimeZoneID == null) {
-                mLocationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
-            }
+            mLocationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
         }
         updateWidget();
 

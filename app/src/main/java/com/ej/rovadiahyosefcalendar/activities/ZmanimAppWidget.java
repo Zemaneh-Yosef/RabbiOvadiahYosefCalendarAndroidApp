@@ -230,6 +230,11 @@ public class ZmanimAppWidget extends AppWidgetProvider {
             mROZmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(mSettingsPreferences.getString("EndOfShabbatOffset", "40")));
             mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false));
         }
+        if (mSettingsPreferences == null || mSharedPreferences == null) {
+            mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
+            mSettingsPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+            setZmanimLanguageBools();
+        }
         return ZmanimFactory.getNextUpcomingZman(new GregorianCalendar(), mROZmanimCalendar, mJewishDateInfo, mSettingsPreferences, mSharedPreferences, mIsZmanimInHebrew, mIsZmanimEnglishTranslated);
     }
 

@@ -92,12 +92,12 @@ public class LimudFragment extends Fragment {
 
     private void setDate() {
         StringBuilder sb = new StringBuilder();
-        sb.append(mROZmanimCalendar.getCalendar().get(Calendar.DATE));
+        sb.append(mCurrentDateShown.get(Calendar.DATE));
         sb.append(" ");
-        sb.append(mROZmanimCalendar.getCalendar().getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault()));
+        sb.append(mCurrentDateShown.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault()));
         sb.append(", ");
-        sb.append(mROZmanimCalendar.getCalendar().get(Calendar.YEAR));
-        if (DateUtils.isSameDay(mROZmanimCalendar.getCalendar().getTime(), new Date())) {
+        sb.append(mCurrentDateShown.get(Calendar.YEAR));
+        if (DateUtils.isSameDay(mCurrentDateShown.getTime(), new Date())) {
             sb.append("   ▼   ");//add a down arrow to indicate that this is the current day
         } else {
             sb.append("      ");

@@ -499,7 +499,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     public Date getTzaitShabbatAmudeiHoraah() {
         Date tzait = getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 7.14);
         if (tzait != null) {
-            if (getTzaitTaanit().after(tzait)) { // if shabbat ends before 20 minutes after sunset, use 20 minutes
+            if (getTzaitTaanit() != null && getTzaitTaanit().after(tzait)) { // if shabbat ends before 20 minutes after sunset, use 20 minutes
                 return getTzaitTaanit();
             }
             if (getSolarMidnight().before(tzait)) { // if chatzot is before when shabbat ends, just use chatzot

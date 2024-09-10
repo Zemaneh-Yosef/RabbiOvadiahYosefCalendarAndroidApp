@@ -476,7 +476,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             if (mCurrentDateShown != null
                     && mJewishDateInfo != null
                     && mROZmanimCalendar != null
-                    && mMainRecyclerView != null) {
+                    && mMainRecyclerView != null
+                    && !(ActivityCompat.checkSelfPermission(mContext, ACCESS_COARSE_LOCATION) == PERMISSION_GRANTED
+                    || ActivityCompat.checkSelfPermission(mContext, ACCESS_FINE_LOCATION) == PERMISSION_GRANTED)) {
                 mCurrentDateShown.setTime(new Date());
                 mJewishDateInfo.setCalendar(new GregorianCalendar());
                 resolveElevationAndVisibleSunrise();
@@ -580,6 +582,26 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         mMainRecyclerView.setVisibility(View.GONE);
         SwipeRefreshLayout swipeRefreshLayout = binding.swipeRefreshLayout;
         swipeRefreshLayout.setVisibility(View.GONE);
+
+        // 800dp is perfect for the weekly view. However, smaller screens have less space, so we need to shrink it
+        float screenHeight = getResources().getDisplayMetrics().heightPixels / getResources().getDisplayMetrics().density;
+        if (screenHeight < 750) {
+            binding.hebrewDay.setTextSize(12);
+            binding.hebrewDay2.setTextSize(12);
+            binding.hebrewDay3.setTextSize(12);
+            binding.hebrewDay4.setTextSize(12);
+            binding.hebrewDay5.setTextSize(12);
+            binding.hebrewDay6.setTextSize(12);
+            binding.hebrewDay7.setTextSize(12);
+
+            binding.hebrewDate.setTextSize(16);
+            binding.hebrewDate2.setTextSize(16);
+            binding.hebrewDate3.setTextSize(16);
+            binding.hebrewDate4.setTextSize(16);
+            binding.hebrewDate5.setTextSize(16);
+            binding.hebrewDate6.setTextSize(16);
+            binding.hebrewDate7.setTextSize(16);
+        }
     }
 
     private void hideWeeklyTextViews() {
@@ -778,7 +800,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     sSharedPreferences.edit().putBoolean("askedForRealtimeNotifications", true).apply();
                     dialog.dismiss();
                 });
-                builder.show();
+                if (!mActivity.isFinishing()) {
+                    builder.show();
+                }
             }
         }
     }
@@ -802,7 +826,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 builder.setCancelable(false);
                 builder.setPositiveButton(mContext.getString(R.string.yes), (dialog, which) -> sNotificationLauncher.launch(new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:"+ mContext.getPackageName()))));
                 builder.setNegativeButton(mContext.getString(R.string.no), (dialog, which) -> dialog.dismiss());
-                builder.show();
+                if (!mActivity.isFinishing()) {
+                    builder.show();
+                }
             }
         }
         setAllNotifications();
@@ -2175,6 +2201,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             }
             resetTheme();
             //this is to update the zmanim notifications if the user changed the settings to start showing them
+            saveGeoLocationInfo();
             PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(
                     mContext,
                     0,
@@ -2308,6 +2335,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     updateDailyZmanim();
                     mMainRecyclerView.scrollToPosition(mCurrentPosition);
                 }
+                mActivity.runOnUiThread(() -> mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown)));
             }
         }
     }
