@@ -2287,19 +2287,19 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 if (((AppCompatActivity) mActivity).getDelegate().getLocalNightMode() == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
                     break;
                 }
-                ((AppCompatActivity) mActivity).getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
                 break;
             case "Day":
                 if (((AppCompatActivity) mActivity).getDelegate().getLocalNightMode() == AppCompatDelegate.MODE_NIGHT_NO) {
                     break;
                 }
-                ((AppCompatActivity) mActivity).getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
                 break;
             case "Night":
                 if (((AppCompatActivity) mActivity).getDelegate().getLocalNightMode() == AppCompatDelegate.MODE_NIGHT_YES) {
                     break;
                 }
-                ((AppCompatActivity) mActivity).getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
                 break;
         }
     }

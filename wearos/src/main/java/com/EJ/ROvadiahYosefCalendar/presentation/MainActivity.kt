@@ -52,6 +52,7 @@ import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -107,6 +108,7 @@ import com.kosherjava.zmanim.util.GeoLocation
 import com.kosherjava.zmanim.util.ZmanimFormatter
 import kotlinx.coroutines.launch
 import org.json.JSONObject
+import java.nio.channels.FileLock
 import java.nio.charset.StandardCharsets
 import java.text.DateFormat
 import java.text.SimpleDateFormat
@@ -1740,19 +1742,21 @@ class MainActivity : ComponentActivity() {
         }
         val pullRefreshState = rememberPullRefreshState(refreshing, ::refresh)
         val scalingLazyListState = rememberScalingLazyListState(initialCenterItemIndex = nextUpcomingZmanIndex)
-        val isDragged = remember { mutableStateOf(false) }
+        val drag = remember { mutableFloatStateOf(1.0f) }
         val height = remember { mutableIntStateOf(1) }
         val focusRequester = remember { FocusRequester() }
         val coroutineScope = rememberCoroutineScope()
         val nestedScrollConnection = remember {
             object : NestedScrollConnection {
-                override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                    isDragged.value = true
-                    return super.onPreScroll(available, source)
-                }
-
                 override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
-                    isDragged.value = true
+                    if (drag.floatValue == 1.0f) {
+                        Thread {
+                            while (drag.floatValue < 2.0f) {
+                                drag.floatValue += 0.05f
+                                Thread.sleep(300)
+                            }
+                        }.start()
+                    }
                     return super.onPostScroll(consumed, available, source)
                 }
             }
@@ -1839,7 +1843,7 @@ class MainActivity : ComponentActivity() {
                                     DarkChip(
                                         text = zmanTitleAndTime,
                                         upcoming = sNextUpcomingZman == zmanimList[index].zman,
-                                        isDragged = isDragged.value
+                                        drag = drag.floatValue
                                     )
                                 } else {
                                     Column(
@@ -1854,13 +1858,13 @@ class MainActivity : ComponentActivity() {
                                             ) {
                                                 Box(modifier = Modifier.padding(vertical = 36.dp)) {
                                                     DarkChip(
-                                                        text = getString(R.string.settings_not_recieved), isDragged = false
+                                                        text = getString(R.string.settings_not_recieved), drag = 1f
                                                     )
                                                 }
                                             }
                                         }
 
-                                        DarkChip(text = zmanimList[index].title, upcoming = index == 1, isDragged = index == 1, onClick = {if (index == 1) showDatePickerDialog() }, isEnabled = index == 1)
+                                        DarkChip(text = zmanimList[index].title, upcoming = index == 1, drag = if (index == 1) 2f else 1f, onClick = {if (index == 1) showDatePickerDialog() }, isEnabled = index == 1)
 
                                         if (index == zmanimList.size - 1) {
                                             RedChipWithWhiteX("", onRemove = { finish() })
@@ -1877,14 +1881,14 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun DarkChip(text: String, upcoming: Boolean = false, isDragged: Boolean, onClick: () -> Unit = { }, isEnabled: Boolean = false) {
+    fun DarkChip(text: String, upcoming: Boolean = false, drag: Float, onClick: () -> Unit = { }, isEnabled: Boolean = false) {
         var modifier = Modifier
             .clickable(onClick = onClick, enabled = isEnabled)
             .background(if (upcoming) DarkGray else Color.Transparent, if (resources.configuration.isScreenRound) CircleShape else RoundedCornerShape(2))
             .fillMaxWidth()
 
-        modifier = if (upcoming && !isDragged) {
-            modifier.aspectRatio(1.toFloat())
+        modifier = if (upcoming && drag <= 2.0f) {
+            modifier.aspectRatio(drag)
         } else {
             modifier.padding(8.dp)
         }

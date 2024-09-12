@@ -57,6 +57,12 @@
 
         <SwitchPreferenceCompat
             android:defaultValue="false"
+            android:key="hideBottomBar"
+            android:summary="@string/choose_whether_or_not_the_navigation_bar_that_shows_limudim_zmanim_siddur_should_be_shown_this_may_help_users_with_smaller_screens"
+            android:title="@string/hide_the_bottom_navigation_bar" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
             android:key="showShabbatMevarchim"
             android:summary="@string/choose_whether_or_not_to_display_if_shabbat_mevarchim_happens_tomorrow_on_friday"
             android:title="@string/show_shabbat_mevarchim" />

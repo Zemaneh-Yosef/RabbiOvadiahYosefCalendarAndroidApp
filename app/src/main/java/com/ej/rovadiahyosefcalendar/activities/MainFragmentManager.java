@@ -13,6 +13,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -21,7 +22,10 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
 import androidx.core.splashscreen.SplashScreen;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.preference.PreferenceManager;
@@ -87,6 +91,8 @@ public class MainFragmentManager extends AppCompatActivity {
     public final static Calendar dafYomiStartDate = new GregorianCalendar(1923, Calendar.SEPTEMBER, 11);
     public final static Calendar dafYomiYerushalmiStartDate = new GregorianCalendar(1980, Calendar.FEBRUARY, 2);
     public static Date sLastTimeUserWasInApp;
+    private BottomNavigationView mNavView;
+    private ViewPager2 mViewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,24 +149,24 @@ public class MainFragmentManager extends AppCompatActivity {
         updateWidget();
 
         setSupportActionBar(new MaterialToolbar(this));
-        ViewPager2 viewPager = findViewById(R.id.viewPager);
+        mViewPager = findViewById(R.id.viewPager);
         ViewPagerAdapter adapter = new ViewPagerAdapter(this);
-        viewPager.setAdapter(adapter);
-        BottomNavigationView navView = findViewById(R.id.nav_view);
+        mViewPager.setAdapter(adapter);
+        mNavView = findViewById(R.id.nav_view);
         // Set initial page to ZmanimFragment (index 1)
-        viewPager.setCurrentItem(1, false);  // Set to page 1 without smooth scroll
+        mViewPager.setCurrentItem(1, false);  // Set to page 1 without smooth scroll
 
         // Set initial selection on BottomNavigationView to the corresponding menu item
-        navView.setSelectedItemId(R.id.navigation_zmanim);
+        mNavView.setSelectedItemId(R.id.navigation_zmanim);
 
         if (mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.TU_BESHVAT ||
                 (mJewishDateInfo.getJewishCalendar().getUpcomingParshah() == JewishCalendar.Parsha.BESHALACH &&
                 mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.TUESDAY)) {
-           navView.getOrCreateBadge(R.id.navigation_siddur).setNumber(1);
+           mNavView.getOrCreateBadge(R.id.navigation_siddur).setNumber(1);
         }
 
         // Synchronize BottomNavigationView with ViewPager2
-        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+        mViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
@@ -184,21 +190,21 @@ public class MainFragmentManager extends AppCompatActivity {
                         materialToolbar.setSubtitle(getString(R.string.short_app_name));
                     }
                 }
-                navView.getMenu().getItem(position).setChecked(true);
+                mNavView.getMenu().getItem(position).setChecked(true);
             }
         });
 
         // Set up the BottomNavigationView to change ViewPager2 page on item click
-        navView.setOnItemSelectedListener(item -> {
+        mNavView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.navigation_limud) {
-                viewPager.setCurrentItem(0, false);
+                mViewPager.setCurrentItem(0, false);
                 return true;
             } else if (itemId == R.id.navigation_zmanim) {
-                viewPager.setCurrentItem(1, false);
+                mViewPager.setCurrentItem(1, false);
                 return true;
             } else if (itemId == R.id.navigation_siddur) {
-                viewPager.setCurrentItem(2, false);
+                mViewPager.setCurrentItem(2, false);
                 return true;
             }
             return false;
@@ -207,8 +213,8 @@ public class MainFragmentManager extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (viewPager.getCurrentItem() == 0 || viewPager.getCurrentItem() == 2) {
-                    viewPager.setCurrentItem(1);
+                if (mViewPager.getCurrentItem() == 0 || mViewPager.getCurrentItem() == 2) {
+                    mViewPager.setCurrentItem(1);
                     return;
                 }
                 if (!mBackHasBeenPressed) {
@@ -309,6 +315,29 @@ public class MainFragmentManager extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         updateWidget();
+        if (mViewPager != null) {
+            if (sSettingsPreferences != null && sSettingsPreferences.getBoolean("hideBottomBar", false)) {
+                mNavView.setVisibility(View.GONE);
+                ViewCompat.setOnApplyWindowInsetsListener(mViewPager, (v, windowInsets) -> {
+                    Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+                    ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+                    mlp.leftMargin = insets.left;
+                    mlp.bottomMargin = insets.bottom;
+                    mlp.rightMargin = insets.right;
+                    v.setLayoutParams(mlp);
+                    // Return CONSUMED if you don't want want the window insets to keep passing
+                    // down to descendant views.
+                    return WindowInsetsCompat.CONSUMED;
+                });
+            } else {
+                mNavView.setVisibility(View.VISIBLE);
+                ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) mViewPager.getLayoutParams();
+                mlp.leftMargin = 0;
+                mlp.rightMargin = 0;
+                mlp.bottomMargin = 0;
+                mViewPager.setLayoutParams(mlp);
+            }
+        }
     }
 
     private void updateWidget() {

@@ -639,4 +639,6 @@
     <string name="weekly">(שבועי)</string>
     <string name="monthly">(חודשי)</string>
     <string name="daily_chafetz_chaim">"חפץ חיים יומי: "</string>
+    <string name="hide_the_bottom_navigation_bar">הסתר את סרגל הניווט התחתון</string>
+    <string name="choose_whether_or_not_the_navigation_bar_that_shows_limudim_zmanim_siddur_should_be_shown_this_may_help_users_with_smaller_screens">בחר אם להציג את סרגל הניווט שמציג לימודים/זמנים/סידור. זה עשוי לעזור למשתמשים עם מסכים קטנים יותר</string>
 </resources>
