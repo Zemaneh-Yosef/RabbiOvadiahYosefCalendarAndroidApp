@@ -292,6 +292,9 @@ public class SiddurFragment extends Fragment {
         super.onResume();
         initMenu();
         initView();
+        if (mCalendarButton != null) {
+            mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+        }
     }
 
     private void initMenu() {

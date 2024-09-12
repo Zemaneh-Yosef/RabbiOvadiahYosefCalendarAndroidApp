@@ -35,6 +35,7 @@ import com.ej.rovadiahyosefcalendar.classes.HebrewDayMonthYearPickerDialog;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.LimudAdapter;
 import com.ej.rovadiahyosefcalendar.classes.LimudListEntry;
+import com.ej.rovadiahyosefcalendar.classes.MishnaYomi;
 import com.ej.rovadiahyosefcalendar.databinding.FragmentLimudBinding;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.kosherjava.zmanim.hebrewcalendar.Daf;
@@ -158,11 +159,7 @@ public class LimudFragment extends Fragment {
             }
         }
 
-//        limudim.add(new LimudListEntry(MishnaYomi.getMishnaForDate(new JewishCalendar(new GregorianCalendar(1947, 5, 31)))));
-//        limudim.add(new LimudListEntry(MishnaYomi.getMishnaForDate(new JewishCalendar(new GregorianCalendar(1947, 6, 1)))));
-//        limudim.add(new LimudListEntry(MishnaYomi.getMishnaForDate(new JewishCalendar(new GregorianCalendar(1947, 6, 2)))));
-        //limudim.add(new LimudListEntry(MishnaYomi.getMishnaForDate(new JewishCalendar())));
-
+        limudim.add(new LimudListEntry(getString(R.string.mishna_yomi) + " " + MishnaYomi.getMishnaForDate(mJewishDateInfo.getJewishCalendar(), true)));
 
         limudim.add(new LimudListEntry(mContext.getString(R.string.daily_chafetz_chaim) + ChafetzChayimYomiCalculator.getChafetzChayimYomi(mJewishDateInfo.getJewishCalendar())));
 

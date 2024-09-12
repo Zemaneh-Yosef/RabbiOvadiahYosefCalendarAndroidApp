@@ -476,17 +476,17 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             if (mCurrentDateShown != null
                     && mJewishDateInfo != null
                     && mROZmanimCalendar != null
-                    && mMainRecyclerView != null
-                    && !(ActivityCompat.checkSelfPermission(mContext, ACCESS_COARSE_LOCATION) == PERMISSION_GRANTED
-                    || ActivityCompat.checkSelfPermission(mContext, ACCESS_FINE_LOCATION) == PERMISSION_GRANTED)) {
+                    && mMainRecyclerView != null) {
                 mCurrentDateShown.setTime(new Date());
                 mJewishDateInfo.setCalendar(new GregorianCalendar());
                 resolveElevationAndVisibleSunrise();
                 instantiateZmanimCalendar();
                 setNextUpcomingZman();
                 sSharedPreferences.edit().putString("Full"+mROZmanimCalendar.getGeoLocation().getLocationName(), "").apply();
-                mActivity.runOnUiThread(this::updateDailyZmanim);
-                mActivity.runOnUiThread(() -> mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown)));
+                mActivity.runOnUiThread(() -> {
+                    updateDailyZmanim();
+                    mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+                });
             }
             swipeRefreshLayout.setRefreshing(false);
             Objects.requireNonNull(Looper.myLooper()).quit();
@@ -2323,20 +2323,25 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             mLocationResolver = new LocationResolver(mContext, mActivity);
             mLocationResolver.resolveCurrentLocationName();
             mLocationResolver.setTimeZoneID();
-            if (mMainRecyclerView.isFocusable()) {
-                resolveElevationAndVisibleSunrise();
-                instantiateZmanimCalendar();
-                mROZmanimCalendar.setCalendar(mCurrentDateShown);
-                setNextUpcomingZman();
-                if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                    updateWeeklyTextViewTextColor();
-                    updateWeeklyZmanim();
-                } else {
-                    updateDailyZmanim();
-                    mMainRecyclerView.scrollToPosition(mCurrentPosition);
+            mActivity.runOnUiThread(() -> {
+                if (mMainRecyclerView.isFocusable()) {
+                    resolveElevationAndVisibleSunrise();
+                    if (mCurrentDateShown != null && mJewishDateInfo != null) {
+                        mCurrentDateShown.setTime(new Date());
+                        mJewishDateInfo.setCalendar(new GregorianCalendar());
+                        instantiateZmanimCalendar();
+                        setNextUpcomingZman();
+                        if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                            updateWeeklyTextViewTextColor();
+                            updateWeeklyZmanim();
+                        } else {
+                            updateDailyZmanim();
+                            mMainRecyclerView.scrollToPosition(mCurrentPosition);
+                        }
+                        mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+                    }
                 }
-                mActivity.runOnUiThread(() -> mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown)));
-            }
+            });
         }
     }
 }

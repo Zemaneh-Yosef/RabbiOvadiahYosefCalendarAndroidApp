@@ -395,4 +395,5 @@
    <string name="open">Open</string>
     <string name="hide_the_bottom_navigation_bar">Hide the Bottom Navigation Bar</string>
    <string name="choose_whether_or_not_the_navigation_bar_that_shows_limudim_zmanim_siddur_should_be_shown_this_may_help_users_with_smaller_screens">Choose whether or not the navigation bar that shows Limudim/Zmanim/Siddur should be shown. This may help users with smaller screens.</string>
+   <string name="mishna_yomi">Mishna Yomi:</string>
 </resources>

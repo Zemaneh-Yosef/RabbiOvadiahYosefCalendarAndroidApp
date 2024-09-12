@@ -1,5 +1,6 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
+import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
 import java.util.Calendar;
@@ -10,7 +11,7 @@ import java.util.Map;
 public class MishnaYomi {
 
     /** The start date of the Mishna Yomi Cycle. */
-    private static final Calendar CYCLE_START_DATE = new GregorianCalendar(1947, 5, 20);
+    private static final Calendar CYCLE_START_DATE = new GregorianCalendar(1947, Calendar.MAY, 20);
     /** The number of mishnas in a day. */
     private static final int MISHNAS_PER_DAY = 2;
     /** The number of milliseconds in a day. */
@@ -90,7 +91,8 @@ public class MishnaYomi {
     private static int sSecondPerek = 0;
     private static int sSecondMishna = 0;
 
-    public static String getMishnaForDate(JewishCalendar calendar) {
+    public static String getMishnaForDate(JewishCalendar calendar, boolean useHebrewText) {
+        resetVars();
         Calendar nextCycle = new GregorianCalendar();
         Calendar prevCycle = new GregorianCalendar();
         Calendar requested = calendar.getGregorianCalendar();
@@ -110,9 +112,7 @@ public class MishnaYomi {
         }
 
         // Get the number of days from cycle start until request.
-        long t1 = prevCycle.getTime().getTime()/1000;
-        long t2 = requested.getTime().getTime()/1000;
-        int numberOfMishnasRead = (int) (getDiffBetweenDays(prevCycle, requested)) * 2;
+        int numberOfMishnasRead = (int) (getDiffBetweenDays(prevCycle, requested)) * MISHNAS_PER_DAY;
 
         // Finally find the mishna.
         findFirstMishna(numberOfMishnasRead);
@@ -120,15 +120,38 @@ public class MishnaYomi {
         // Again for the second mishna which could be in the next masechta
         findSecondMishna(numberOfMishnasRead + 1);
 
-        if (sFirstMasechta.equals(sSecondMasechta)) {
-            if (sFirstPerek == sSecondPerek) {
-                return sFirstMasechta + " " + sFirstPerek + ":" + sFirstMishna + "-" + sSecondMishna;
-            } else {// Different Perakim
-                return sFirstMasechta + " " + sFirstPerek + ":" + sFirstMishna + "-" + sSecondPerek + ":" + sSecondMishna;
+        if (useHebrewText) {
+            HebrewDateFormatter hebrewDateFormatter = new HebrewDateFormatter();
+            hebrewDateFormatter.setUseGershGershayim(false);
+            if (sFirstMasechta.equals(sSecondMasechta)) {
+                if (sFirstPerek == sSecondPerek) {
+                    return replaceEnglishWithHebrew(sFirstMasechta) + " " + hebrewDateFormatter.formatHebrewNumber(sFirstPerek) + ":" + hebrewDateFormatter.formatHebrewNumber(sFirstMishna) + "-" + hebrewDateFormatter.formatHebrewNumber(sSecondMishna);
+                } else {// Different Perakim
+                    return replaceEnglishWithHebrew(sFirstMasechta) + " " + hebrewDateFormatter.formatHebrewNumber(sFirstPerek) + ":" + hebrewDateFormatter.formatHebrewNumber(sFirstMishna) + "-" + hebrewDateFormatter.formatHebrewNumber(sSecondPerek) + ":" + hebrewDateFormatter.formatHebrewNumber(sSecondMishna);
+                }
+            } else {// Different Masechtas
+                return replaceEnglishWithHebrew(sFirstMasechta) + " " + hebrewDateFormatter.formatHebrewNumber(sFirstPerek) + ":" + hebrewDateFormatter.formatHebrewNumber(sFirstMishna) + " - " + replaceEnglishWithHebrew(sSecondMasechta) + " " + hebrewDateFormatter.formatHebrewNumber(sSecondPerek) + ":" + hebrewDateFormatter.formatHebrewNumber(sSecondMishna);
             }
-        } else {// Different Masechtas
-            return sFirstMasechta + " " + sFirstPerek + ":" + sFirstMishna + " - " + sSecondMasechta + " " + sSecondPerek + ":" + sSecondMishna;
+        } else {
+            if (sFirstMasechta.equals(sSecondMasechta)) {
+                if (sFirstPerek == sSecondPerek) {
+                    return sFirstMasechta + " " + sFirstPerek + ":" + sFirstMishna + "-" + sSecondMishna;
+                } else {// Different Perakim
+                    return sFirstMasechta + " " + sFirstPerek + ":" + sFirstMishna + "-" + sSecondPerek + ":" + sSecondMishna;
+                }
+            } else {// Different Masechtas
+                return sFirstMasechta + " " + sFirstPerek + ":" + sFirstMishna + " - " + sSecondMasechta + " " + sSecondPerek + ":" + sSecondMishna;
+            }
         }
+    }
+
+    private static void resetVars() {
+        sFirstMasechta = "";
+        sFirstPerek = 0;
+        sFirstMishna = 0;
+        sSecondMasechta = "";
+        sSecondPerek = 0;
+        sSecondMishna = 0;
     }
 
     private static void findSecondMishna(int numberOfMishnasRead) {
@@ -192,7 +215,75 @@ public class MishnaYomi {
      * @return the number of days between the start and end dates
      */
     private static long getDiffBetweenDays(Calendar start, Calendar end) {
-        long test = (end.getTimeInMillis() - start.getTimeInMillis());
         return (end.getTimeInMillis() - start.getTimeInMillis()) / DAY_MILIS;
+    }
+
+    private static String replaceEnglishWithHebrew(String input) {
+        switch (input) {
+            case "Berachot": return "ברכות";
+            case "Peah": return "פאה";
+            case "Demai": return "דמאי";
+            case "Kilayim": return "כלאים";
+            case "Sheviit": return "שביעית";
+            case "Terumot": return "תרומות";
+            case "Maasrot": return "מעשרות";
+            case "Maaser Sheni": return "מעשר שני";
+            case "Challah": return "חלה";
+            case "Orlah": return "ערלה";
+            case "Bikurim": return "ביכורים";
+            case "Shabbat": return "שבת";
+            case "Eruvin": return "ערובין";
+            case "Pesachim": return "פסחים";
+            case "Shekalim": return "שקלים";
+            case "Yoma": return "יומא";
+            case "Sukkah": return "סוכה";
+            case "Beitzah": return "ביצה";
+            case "Rosh Hashanah": return "ראש השנה";
+            case "Taanit": return "תענית";
+            case "Megillah": return "מגילה";
+            case "Moed Katan": return "מועד קטן";
+            case "Chagigah": return "חגיגה";
+            case "Yevamot": return "יבמות";
+            case "Ketubot": return "כתובות";
+            case "Nedarim": return "נדרים";
+            case "Nazir": return "נזיר";
+            case "Sotah": return "סוטה";
+            case "Gittin": return "גיטין";
+            case "Kiddushin": return "קידושין";
+            case "Bava Kamma": return "בבא קמא";
+            case "Bava Metzia": return "בבא מציעא";
+            case "Bava Batra": return "בבא בתרא";
+            case "Sanhedrin": return "סנהדרין";
+            case "Makkot": return "מכות";
+            case "Shevuot": return "שבועות";
+            case "Eduyot": return "עדויות";
+            case "Avodah Zarah": return "עבודה זרה";
+            case "Avot": return "אבות";
+            case "Horiyot": return "הוריות";
+            case "Zevachim": return "זבחים";
+            case "Menachot": return "מנחות";
+            case "Chullin": return "חולין";
+            case "Bechorot": return "בכורות";
+            case "Arachin": return "ערכין";
+            case "Temurah": return "תמורה";
+            case "Keritot": return "כריתות";
+            case "Meilah": return "מעילה";
+            case "Tamid": return "תמיד";
+            case "Midot": return "מדות";
+            case "Kinnim": return "קינים";
+            case "Keilim": return "כלים";
+            case "Ohalot": return "אהלות";
+            case "Negaim": return "נגעים";
+            case "Parah": return "פרה";
+            case "Tahorot": return "טהרות";
+            case "Mikvaot": return "מקואות";
+            case "Niddah": return "נדה";
+            case "Machshirin": return "מכשירין";
+            case "Zavim": return "זבים";
+            case "Tevul Yom": return "טבול יום";
+            case "Yadayim": return "ידים";
+            case "Uktzin": return "עוקצין";
+            default: return input; // If no match is found, return the original string
+        }
     }
 }
