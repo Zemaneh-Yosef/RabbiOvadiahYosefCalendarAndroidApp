@@ -92,7 +92,7 @@ public class ZmanNotification extends BroadcastReceiver {
             //no need to reset the jewish calendar since we are only using it to check if tomorrow is shabbat/yom tov, but keep in mind that the date is set to tomorrow
 
             DateFormat zmanimFormat;
-            if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            if (LocaleChecker.isLocaleHebrew()) {
                 if (mSharedPreferences.getBoolean("ShowSeconds", false)) {
                     zmanimFormat = new SimpleDateFormat("H:mm:ss", Locale.getDefault());
                 } else {

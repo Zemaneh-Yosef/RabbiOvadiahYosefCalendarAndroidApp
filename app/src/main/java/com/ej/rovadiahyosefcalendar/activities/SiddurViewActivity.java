@@ -25,13 +25,13 @@ import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.classes.HighlightString;
 import com.ej.rovadiahyosefcalendar.classes.HorizontalAdapter;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
+import com.ej.rovadiahyosefcalendar.classes.LocaleChecker;
 import com.ej.rovadiahyosefcalendar.classes.SiddurAdapter;
 import com.ej.rovadiahyosefcalendar.classes.SiddurMaker;
 import com.google.android.material.appbar.MaterialToolbar;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.Locale;
 import java.util.Map;
 
 public class SiddurViewActivity extends AppCompatActivity {
@@ -51,7 +51,7 @@ public class SiddurViewActivity extends AppCompatActivity {
         if (siddurTitle != null) {
             materialToolbar.setTitle((!siddurTitle.isEmpty() ? siddurTitle : getString(R.string.show_siddur)));
         }
-        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+        if (LocaleChecker.isLocaleHebrew()) {
             materialToolbar.setSubtitle("");
         }
 

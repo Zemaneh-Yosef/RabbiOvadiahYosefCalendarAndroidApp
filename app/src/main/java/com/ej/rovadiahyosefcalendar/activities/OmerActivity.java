@@ -12,11 +12,11 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
+import com.ej.rovadiahyosefcalendar.classes.LocaleChecker;
 import com.google.android.material.appbar.MaterialToolbar;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 public class OmerActivity extends AppCompatActivity {
 
@@ -79,7 +79,7 @@ public class OmerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_omer);
 
         MaterialToolbar materialToolbar = findViewById(R.id.topAppBar);
-        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+        if (LocaleChecker.isLocaleHebrew()) {
             materialToolbar.setSubtitle("");
         }
         materialToolbar.setNavigationIcon(AppCompatResources.getDrawable(this, R.drawable.baseline_arrow_back_24));

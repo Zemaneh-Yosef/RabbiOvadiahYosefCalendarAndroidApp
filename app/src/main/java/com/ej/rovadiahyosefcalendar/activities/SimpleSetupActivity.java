@@ -33,6 +33,7 @@ import com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesCountries;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesOptionsList;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesScraper;
+import com.ej.rovadiahyosefcalendar.classes.LocaleChecker;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -40,7 +41,6 @@ import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Set;
 
 public class SimpleSetupActivity extends AppCompatActivity {
@@ -57,7 +57,7 @@ public class SimpleSetupActivity extends AppCompatActivity {
         setContentView(R.layout.activity_simple_setup);
 
         MaterialToolbar materialToolbar = findViewById(R.id.topAppBar);
-        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+        if (LocaleChecker.isLocaleHebrew()) {
             materialToolbar.setSubtitle("");
         }
         materialToolbar.setOnMenuItemClickListener(item -> {

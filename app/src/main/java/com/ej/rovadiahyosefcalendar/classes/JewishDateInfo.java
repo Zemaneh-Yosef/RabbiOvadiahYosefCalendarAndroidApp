@@ -57,7 +57,7 @@ public class JewishDateInfo {
         jewishCalendar.setUseModernHolidays(true);
         hebrewDateFormatter = new HebrewDateFormatter();
         hebrewDateFormatter.setUseGershGershayim(false);
-        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+        if (LocaleChecker.isLocaleHebrew()) {
             hebrewDateFormatter.setHebrewFormat(true);
             isLocaleHebrew = true;
         }
@@ -630,6 +630,7 @@ public class JewishDateInfo {
                 return "Birchat HaLevana starts tonight";
             }
         } else {// Special case for Tisha Beav, see Shulchan Aruch Orach Chaim 426:2
+            int test = jewishCalendar.getJewishDayOfMonth();
             if (jewishCalendar.getJewishDayOfMonth() < 9) {
                 return "";
             }
@@ -818,6 +819,7 @@ public class JewishDateInfo {
 
         jewishCalendar.setJewishDayOfMonth(9);
         if (jewishCalendar.getDayOfWeek() == 1 || jewishCalendar.getDayOfWeek() == 7) {
+            jewishCalendar.setDate(currentDate);//reset
             return false;//there is no shevua shechal bo if tisha beav falls out on a sunday or shabbat
         }
         jewishCalendar.setDate(currentDate);//reset

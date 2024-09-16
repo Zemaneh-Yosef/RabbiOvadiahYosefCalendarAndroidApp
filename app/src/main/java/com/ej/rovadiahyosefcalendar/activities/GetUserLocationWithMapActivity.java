@@ -44,6 +44,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment;
+import com.ej.rovadiahyosefcalendar.classes.LocaleChecker;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.databinding.ActivityGetUserLocationWithMapBinding;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -60,7 +61,6 @@ import com.google.maps.android.SphericalUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.TimeZone;
 
 public class GetUserLocationWithMapActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -92,7 +92,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
         binding = ActivityGetUserLocationWithMapBinding.inflate(getLayoutInflater());
         EdgeToEdge.enable(this);
         setContentView(binding.getRoot());
-        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+        if (LocaleChecker.isLocaleHebrew()) {
             binding.topAppBar.setSubtitle("");
         }
         binding.topAppBar.setNavigationIcon(AppCompatResources.getDrawable(this, R.drawable.baseline_arrow_back_24));

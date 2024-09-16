@@ -194,7 +194,7 @@ public class LocationResolver extends Thread {
         StringBuilder result = new StringBuilder();
         List<Address> addresses = null;
         try {
-            if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            if (LocaleChecker.isLocaleHebrew()) {
                 addresses = mGeocoder.getFromLocation(sLatitude, sLongitude, 5);
             } else {
                 addresses = mGeocoder.getFromLocation(sLatitude, sLongitude, 1);
@@ -203,7 +203,7 @@ public class LocationResolver extends Thread {
             e.printStackTrace();
         }
         if (addresses != null && !addresses.isEmpty()) {
-            if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            if (LocaleChecker.isLocaleHebrew()) {
                 Address address = null;
                 for (Address add : addresses) {
                     if (add.getLocale().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
@@ -304,7 +304,7 @@ public class LocationResolver extends Thread {
         StringBuilder result = new StringBuilder();
         List<Address> addresses = null;
         try {
-            if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            if (LocaleChecker.isLocaleHebrew()) {
                 addresses = mGeocoder.getFromLocation(sLatitude, sLongitude, 5);
             } else {
                 addresses = mGeocoder.getFromLocation(sLatitude, sLongitude, 1);
@@ -314,7 +314,7 @@ public class LocationResolver extends Thread {
         }
         if (addresses != null && !addresses.isEmpty()) {
 
-            if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            if (LocaleChecker.isLocaleHebrew()) {
                 Address address = null;
                 for (Address add : addresses) {
                     if (add.getLocale().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
@@ -700,7 +700,7 @@ public class LocationResolver extends Thread {
         StringBuilder result = new StringBuilder();
         List<Address> addresses = null;
         try {
-            if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            if (LocaleChecker.isLocaleHebrew()) {
                 addresses = mGeocoder.getFromLocation(mLatitude, mLongitude, 5);
             } else {
                 addresses = mGeocoder.getFromLocation(mLatitude, mLongitude, 1);
@@ -710,7 +710,7 @@ public class LocationResolver extends Thread {
         }
         if (addresses != null && !addresses.isEmpty()) {
 
-            if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            if (LocaleChecker.isLocaleHebrew()) {
                 Address address = null;
                 for (Address add:addresses) {
                     if (add.getLocale().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {

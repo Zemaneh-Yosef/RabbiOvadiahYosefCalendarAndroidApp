@@ -56,7 +56,7 @@ public class JewishDateInfo {
         jewishCalendar.setUseModernHolidays(true);
         hebrewDateFormatter = new HebrewDateFormatter();
         hebrewDateFormatter.setUseGershGershayim(false);
-        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+        if (LocaleChecker.isLocaleHebrew()) {
             hebrewDateFormatter.setHebrewFormat(true);
             isLocaleHebrew = true;
         }

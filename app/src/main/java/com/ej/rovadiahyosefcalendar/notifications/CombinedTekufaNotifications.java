@@ -22,6 +22,7 @@ import androidx.core.app.NotificationCompat;
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.MainFragmentManager;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
+import com.ej.rovadiahyosefcalendar.classes.LocaleChecker;
 
 import org.apache.commons.lang3.time.DateUtils;
 
@@ -69,7 +70,7 @@ public class CombinedTekufaNotifications extends BroadcastReceiver {
 
         Date earlierTekufaTime = findEarlierTekufaTime(jewishDateInfo);
         DateFormat zmanimFormat;
-        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+        if (LocaleChecker.isLocaleHebrew()) {
             zmanimFormat = new SimpleDateFormat("H:mm", Locale.getDefault());//no need for seconds as the tekufa never has seconds
         } else {
             zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//no need for seconds as the tekufa never has seconds
@@ -83,7 +84,7 @@ public class CombinedTekufaNotifications extends BroadcastReceiver {
 
             NotificationCompat.Builder mNotifyBuilder;
 
-            if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            if (LocaleChecker.isLocaleHebrew()) {
                 String contentText = "התקופות משתנות היום ב "
                         + zmanimFormat.format(earlierTekufaTime) + "/" + zmanimFormat.format(tekufaTime) + ". " +
                         "נא לא לשתות מים מ- " +

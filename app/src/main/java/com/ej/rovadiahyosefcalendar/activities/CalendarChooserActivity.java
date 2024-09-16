@@ -18,10 +18,9 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.preference.PreferenceManager;
 
 import com.ej.rovadiahyosefcalendar.R;
+import com.ej.rovadiahyosefcalendar.classes.LocaleChecker;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-
-import java.util.Locale;
 
 public class CalendarChooserActivity extends AppCompatActivity {
 
@@ -30,7 +29,7 @@ public class CalendarChooserActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         String calendarDifference;
-        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+        if (LocaleChecker.isLocaleHebrew()) {
             calendarDifference = "\n" +
                     "האפליקציה יכולה להציג שני לוחות שנה נפרדים. בשנת 1990, רבי עובדיה יוסף זצ\"ל התחיל פרויקט ליצירת לוח זמנים על פי ההלכות והמנהגים שלו. יחד עם רבי שלמה בניזרי ורבי אשר דרשן, יצר לוח זמנים בשם \"לוח המאור אור החיים\". רבי עובדיה עצמו השגיח על יצירת הלוח והשתמש בו עד לפטירתו. האפליקציה עברה על כל זמני לוח אור החיים ואישרה את דיוקם.\n" +
                     "\n" +
@@ -45,7 +44,7 @@ public class CalendarChooserActivity extends AppCompatActivity {
         setContentView(R.layout.activity_calendar_chooser);
 
         MaterialToolbar materialToolbar = findViewById(R.id.topAppBar);
-        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+        if (LocaleChecker.isLocaleHebrew()) {
             materialToolbar.setSubtitle("");
         }
         materialToolbar.setOnMenuItemClickListener(item -> {

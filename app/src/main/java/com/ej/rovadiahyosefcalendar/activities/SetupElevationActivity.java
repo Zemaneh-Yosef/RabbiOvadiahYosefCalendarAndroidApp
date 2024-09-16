@@ -27,12 +27,11 @@ import androidx.core.view.WindowInsetsCompat;
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesScraper;
+import com.ej.rovadiahyosefcalendar.classes.LocaleChecker;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
-
-import java.util.Locale;
 
 public class SetupElevationActivity extends AppCompatActivity {
 
@@ -45,7 +44,7 @@ public class SetupElevationActivity extends AppCompatActivity {
         setContentView(R.layout.activity_setup_elevation);
 
         MaterialToolbar materialToolbar = findViewById(R.id.topAppBar);
-        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+        if (LocaleChecker.isLocaleHebrew()) {
             materialToolbar.setSubtitle("");
         }
         materialToolbar.setOnMenuItemClickListener(item -> {

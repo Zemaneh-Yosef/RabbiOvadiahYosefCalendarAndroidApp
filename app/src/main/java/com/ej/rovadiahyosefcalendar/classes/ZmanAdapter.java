@@ -72,7 +72,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         this.context = context;
         mSharedPreferences = this.context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         isZmanimInHebrew = mSharedPreferences.getBoolean("isZmanimInHebrew", false);
-        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+        if (LocaleChecker.isLocaleHebrew()) {
             if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowSeconds", false)) {
                 zmanimFormat = new SimpleDateFormat("H:mm:ss", Locale.getDefault());
             } else {
@@ -90,7 +90,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         }
         zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
 
-        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+        if (LocaleChecker.isLocaleHebrew()) {
             visibleSunriseFormat = new SimpleDateFormat("H:mm:ss", Locale.getDefault());
         } else {
             visibleSunriseFormat = new SimpleDateFormat("h:mm:ss aa", Locale.getDefault());
@@ -98,7 +98,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         visibleSunriseFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
 
         roundUpRT = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("RoundUpRT", false);
-        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+        if (LocaleChecker.isLocaleHebrew()) {
             roundUpFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
             roundUpFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
         } else {

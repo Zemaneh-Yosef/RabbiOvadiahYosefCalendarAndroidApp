@@ -23,9 +23,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment;
+import com.ej.rovadiahyosefcalendar.classes.LocaleChecker;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 
-import java.util.Locale;
 import java.util.Objects;
 
 @Deprecated //This class is not currently used, however, I will keep the code here because it might be used in the future.
@@ -59,7 +59,7 @@ public class CurrentLocationActivity extends AppCompatActivity {
         TextClock clock = Objects.requireNonNull(getSupportActionBar()).getCustomView().findViewById(R.id.clock);
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             clock.setVisibility(View.VISIBLE);
-            if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            if (LocaleChecker.isLocaleHebrew()) {
                 clock.setFormat24Hour("H:mm:ss");
             }
         } else {

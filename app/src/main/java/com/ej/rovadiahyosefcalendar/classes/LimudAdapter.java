@@ -69,7 +69,7 @@ public class LimudAdapter extends RecyclerView.Adapter<LimudAdapter.ZmanViewHold
 
         if (limudim.get(position) != null) {
             if (limudim.get(position).hasSource()) {// make name text bold
-                if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                if (LocaleChecker.isLocaleHebrew()) {
                     holder.mRightTextView.setText(limudim.get(position).getLimudTitle());
                     holder.mRightTextView.setTypeface(null, Typeface.BOLD);
                 } else {

@@ -35,6 +35,7 @@ import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
 import com.kosherjava.zmanim.util.GeoLocation;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.Map;
@@ -235,7 +236,11 @@ public class ZmanimAppWidget extends AppWidgetProvider {
             mSettingsPreferences = PreferenceManager.getDefaultSharedPreferences(context);
             setZmanimLanguageBools();
         }
-        return ZmanimFactory.getNextUpcomingZman(new GregorianCalendar(), mROZmanimCalendar, mJewishDateInfo, mSettingsPreferences, mSharedPreferences, mIsZmanimInHebrew, mIsZmanimEnglishTranslated);
+        ZmanListEntry nextZman = ZmanimFactory.getNextUpcomingZman(new GregorianCalendar(), mROZmanimCalendar, mJewishDateInfo, mSettingsPreferences, mSharedPreferences, mIsZmanimInHebrew, mIsZmanimEnglishTranslated);
+        if (nextZman == null || nextZman.getZman() == null) {
+            nextZman = new ZmanListEntry("", new Date(System.currentTimeMillis() + 300_000), true);// try again in 5 minutes
+        }
+        return nextZman;
     }
 
     private static void setZmanimLanguageBools() {

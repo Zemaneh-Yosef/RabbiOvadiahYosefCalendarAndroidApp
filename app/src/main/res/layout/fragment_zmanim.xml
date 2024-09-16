@@ -823,24 +823,6 @@
         </LinearLayout>
 
         <TextView
-            android:id="@+id/weeklyDafs"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            tools:text="Daf Yomi: בבא קמא דף יג       Yerushalmi Yomi: תורה דף יג"
-            android:textSize="11sp"
-            android:autoSizeTextType="uniform"
-            android:autoSizeMaxTextSize="22sp"
-            android:autoSizeMinTextSize="8sp"
-            android:maxLines="1"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:visibility="gone"
-            android:background="@drawable/border"
-            android:textColor="?android:attr/textColorPrimary"
-            tools:visibility="visible"
-            tools:ignore="UnusedAttribute" />
-
-        <TextView
             android:id="@+id/weeklyParsha"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

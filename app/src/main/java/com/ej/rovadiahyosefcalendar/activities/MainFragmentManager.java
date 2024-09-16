@@ -37,6 +37,7 @@ import com.ej.rovadiahyosefcalendar.activities.ui.limudiim.LimudFragment;
 import com.ej.rovadiahyosefcalendar.activities.ui.siddur.SiddurFragment;
 import com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTables;
+import com.ej.rovadiahyosefcalendar.classes.ExceptionHandler;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
@@ -91,12 +92,13 @@ public class MainFragmentManager extends AppCompatActivity {
     public final static Calendar dafYomiStartDate = new GregorianCalendar(1923, Calendar.SEPTEMBER, 11);
     public final static Calendar dafYomiYerushalmiStartDate = new GregorianCalendar(1980, Calendar.FEBRUARY, 2);
     public static Date sLastTimeUserWasInApp;
-    private BottomNavigationView mNavView;
-    private ViewPager2 mViewPager;
+    public static BottomNavigationView mNavView;
+    public static ViewPager2 mViewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this));
         SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
         EdgeToEdge.enable(this);
 
@@ -315,7 +317,7 @@ public class MainFragmentManager extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         updateWidget();
-        if (mViewPager != null) {
+        if (mNavView != null && mViewPager != null) {
             if (sSettingsPreferences != null && sSettingsPreferences.getBoolean("hideBottomBar", false)) {
                 mNavView.setVisibility(View.GONE);
                 ViewCompat.setOnApplyWindowInsetsListener(mViewPager, (v, windowInsets) -> {
@@ -330,12 +332,14 @@ public class MainFragmentManager extends AppCompatActivity {
                     return WindowInsetsCompat.CONSUMED;
                 });
             } else {
-                mNavView.setVisibility(View.VISIBLE);
-                ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) mViewPager.getLayoutParams();
-                mlp.leftMargin = 0;
-                mlp.rightMargin = 0;
-                mlp.bottomMargin = 0;
-                mViewPager.setLayoutParams(mlp);
+                if (!sShabbatMode) {
+                    mNavView.setVisibility(View.VISIBLE);
+                    ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) mViewPager.getLayoutParams();
+                    mlp.leftMargin = 0;
+                    mlp.rightMargin = 0;
+                    mlp.bottomMargin = 0;
+                    mViewPager.setLayoutParams(mlp);
+                }
             }
         }
     }

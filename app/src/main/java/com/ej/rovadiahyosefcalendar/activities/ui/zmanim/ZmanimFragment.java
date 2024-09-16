@@ -5,12 +5,13 @@ import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.Context.ALARM_SERVICE;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.dafYomiStartDate;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.dafYomiYerushalmiStartDate;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mCurrentDateShown;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mHebrewDateFormatter;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mJewishDateInfo;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mNavView;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mROZmanimCalendar;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mViewPager;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.materialToolbar;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentLocationName;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentTimeZoneID;
@@ -88,6 +89,7 @@ import com.ej.rovadiahyosefcalendar.classes.ChaiTables;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesScraper;
 import com.ej.rovadiahyosefcalendar.classes.HebrewDayMonthYearPickerDialog;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
+import com.ej.rovadiahyosefcalendar.classes.LocaleChecker;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.PrefToWatchSender;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
@@ -101,16 +103,15 @@ import com.ej.rovadiahyosefcalendar.notifications.OmerNotifications;
 import com.ej.rovadiahyosefcalendar.notifications.ZmanimNotifications;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.kosherjava.zmanim.hebrewcalendar.Daf;
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.TefilaRules;
 import com.kosherjava.zmanim.hebrewcalendar.YerushalmiYomiCalculator;
-import com.kosherjava.zmanim.hebrewcalendar.YomiCalculator;
 import com.kosherjava.zmanim.util.GeoLocation;
 import com.kosherjava.zmanim.util.ZmanimFormatter;
 
 import org.apache.commons.lang3.time.DateUtils;
+import org.shredzone.commons.suncalc.MoonTimes;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -161,7 +162,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private final TextView[] mThursday = new TextView[6];
     private final TextView[] mFriday = new TextView[6];
     private final TextView[] mSaturday = new TextView[6];
-    private TextView mWeeklyDafs;
     private TextView mWeeklyParsha;
     private TextView mWeeklyHaftorah;
 
@@ -305,78 +305,16 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      * Sets up the previous day button
      */
     private void setupPreviousDayButton() {
-        mPreviousDate = binding.prevDay;
-        mPreviousDate.setOnClickListener(v -> {
-            if (!sShabbatMode) {
-                mCurrentDateShown = (Calendar) mROZmanimCalendar.getCalendar().clone();//just get a calendar object with the same date as the current one
-                if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                    mCurrentDateShown.add(Calendar.DATE, -7);//subtract seven days
-                } else {
-                    mCurrentDateShown.add(Calendar.DATE, -1);//subtract one day
-                }
-                mROZmanimCalendar.setCalendar(mCurrentDateShown);
-                mJewishDateInfo.setCalendar(mCurrentDateShown);
-                if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                    updateWeeklyZmanim();
-                } else {
-                    updateDailyZmanim();
-                }
-                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
-                seeIfTablesNeedToBeUpdated(true);
-            }
-        });
-    }
-
-    /**
-     * Sets up the next day button
-     */
-    private void setupNextDayButton() {
-        mNextDate = binding.nextDay;
-        mNextDate.setOnClickListener(v -> {
-            if (!sShabbatMode) {
-                mCurrentDateShown = (Calendar) mROZmanimCalendar.getCalendar().clone();
-                if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                    mCurrentDateShown.add(Calendar.DATE, 7);//add seven days
-                } else {
-                    mCurrentDateShown.add(Calendar.DATE, 1);//add one day
-                }
-                mROZmanimCalendar.setCalendar(mCurrentDateShown);
-                mJewishDateInfo.setCalendar(mCurrentDateShown);
-                if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                    updateWeeklyZmanim();
-                } else {
-                    updateDailyZmanim();
-                }
-                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
-                seeIfTablesNeedToBeUpdated(true);
-            }
-        });
-    }
-
-    /**
-     * Setup the calendar button to show a DatePickerDialog with an additional button to switch the calendar to the hebrew one.
-     */
-    private void setupCalendarButton() {
-        mCalendarButton = binding.calendar;
-
-        mCalendarButton.setOnClickListener(v -> {
-            if (!sShabbatMode) {
-                MaterialDatePicker.Builder<Long> builder = MaterialDatePicker.Builder.datePicker();
-                MaterialDatePicker<Long> materialDatePicker = builder
-                        .setPositiveButtonText(R.string.ok)
-                        .setNegativeButtonText(R.string.switch_calendar)
-                        .setSelection(mCurrentDateShown.getTimeInMillis())// can be in local timezone
-                        .build();
-                materialDatePicker.addOnPositiveButtonClickListener(selection -> {
-                    Calendar epoch = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-                    epoch.setTimeInMillis(selection);
-                    mCurrentDateShown.set(
-                            epoch.get(Calendar.YEAR),
-                            epoch.get(Calendar.MONTH),
-                            epoch.get(Calendar.DATE),
-                            epoch.get(Calendar.HOUR_OF_DAY),
-                            epoch.get(Calendar.MINUTE)
-                    );
+        if (binding != null) {
+            mPreviousDate = binding.prevDay;
+            mPreviousDate.setOnClickListener(v -> {
+                if (!sShabbatMode) {
+                    mCurrentDateShown = (Calendar) mROZmanimCalendar.getCalendar().clone();//just get a calendar object with the same date as the current one
+                    if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                        mCurrentDateShown.add(Calendar.DATE, -7);//subtract seven days
+                    } else {
+                        mCurrentDateShown.add(Calendar.DATE, -1);//subtract one day
+                    }
                     mROZmanimCalendar.setCalendar(mCurrentDateShown);
                     mJewishDateInfo.setCalendar(mCurrentDateShown);
                     if (sSharedPreferences.getBoolean("weeklyMode", false)) {
@@ -386,13 +324,27 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     }
                     mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
                     seeIfTablesNeedToBeUpdated(true);
-                });
-                DatePickerDialog.OnDateSetListener onDateSetListener = (view, year, month, day) -> {
-                    Calendar mUserChosenDate = Calendar.getInstance();
-                    mUserChosenDate.set(year, month, day);
-                    mROZmanimCalendar.setCalendar(mUserChosenDate);
-                    mJewishDateInfo.setCalendar(mUserChosenDate);
+                }
+            });
+        }
+    }
+
+    /**
+     * Sets up the next day button
+     */
+    private void setupNextDayButton() {
+        if (binding != null) {
+            mNextDate = binding.nextDay;
+            mNextDate.setOnClickListener(v -> {
+                if (!sShabbatMode) {
                     mCurrentDateShown = (Calendar) mROZmanimCalendar.getCalendar().clone();
+                    if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                        mCurrentDateShown.add(Calendar.DATE, 7);//add seven days
+                    } else {
+                        mCurrentDateShown.add(Calendar.DATE, 1);//add one day
+                    }
+                    mROZmanimCalendar.setCalendar(mCurrentDateShown);
+                    mJewishDateInfo.setCalendar(mCurrentDateShown);
                     if (sSharedPreferences.getBoolean("weeklyMode", false)) {
                         updateWeeklyZmanim();
                     } else {
@@ -400,20 +352,73 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     }
                     mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
                     seeIfTablesNeedToBeUpdated(true);
-                };
-                materialDatePicker.addOnNegativeButtonClickListener(selection -> {
-                    HebrewDayMonthYearPickerDialog hdmypd = new HebrewDayMonthYearPickerDialog(materialDatePicker, mActivity.getSupportFragmentManager(), mJewishDateInfo.getJewishCalendar());
-                    hdmypd.updateDate(mJewishDateInfo.getJewishCalendar().getGregorianYear(),
-                            mJewishDateInfo.getJewishCalendar().getGregorianMonth(),
-                            mJewishDateInfo.getJewishCalendar().getGregorianDayOfMonth());
-                    hdmypd.setListener(onDateSetListener);
-                    hdmypd.show(mActivity.getSupportFragmentManager(), null);
-                });
-                materialDatePicker.show(mActivity.getSupportFragmentManager(), null);
-            }
-        });
+                }
+            });
+        }
+    }
 
-        mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+    /**
+     * Setup the calendar button to show a DatePickerDialog with an additional button to switch the calendar to the hebrew one.
+     */
+    private void setupCalendarButton() {
+        if (binding != null) {
+            mCalendarButton = binding.calendar;
+            mCalendarButton.setOnClickListener(v -> {
+                if (!sShabbatMode) {
+                    MaterialDatePicker.Builder<Long> builder = MaterialDatePicker.Builder.datePicker();
+                    MaterialDatePicker<Long> materialDatePicker = builder
+                            .setPositiveButtonText(R.string.ok)
+                            .setNegativeButtonText(R.string.switch_calendar)
+                            .setSelection(mCurrentDateShown.getTimeInMillis())// can be in local timezone
+                            .build();
+                    materialDatePicker.addOnPositiveButtonClickListener(selection -> {
+                        Calendar epoch = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+                        epoch.setTimeInMillis(selection);
+                        mCurrentDateShown.set(
+                                epoch.get(Calendar.YEAR),
+                                epoch.get(Calendar.MONTH),
+                                epoch.get(Calendar.DATE),
+                                epoch.get(Calendar.HOUR_OF_DAY),
+                                epoch.get(Calendar.MINUTE)
+                        );
+                        mROZmanimCalendar.setCalendar(mCurrentDateShown);
+                        mJewishDateInfo.setCalendar(mCurrentDateShown);
+                        if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                            updateWeeklyZmanim();
+                        } else {
+                            updateDailyZmanim();
+                        }
+                        mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+                        seeIfTablesNeedToBeUpdated(true);
+                    });
+                    DatePickerDialog.OnDateSetListener onDateSetListener = (view, year, month, day) -> {
+                        Calendar mUserChosenDate = Calendar.getInstance();
+                        mUserChosenDate.set(year, month, day);
+                        mROZmanimCalendar.setCalendar(mUserChosenDate);
+                        mJewishDateInfo.setCalendar(mUserChosenDate);
+                        mCurrentDateShown = (Calendar) mROZmanimCalendar.getCalendar().clone();
+                        if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                            updateWeeklyZmanim();
+                        } else {
+                            updateDailyZmanim();
+                        }
+                        mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+                        seeIfTablesNeedToBeUpdated(true);
+                    };
+                    materialDatePicker.addOnNegativeButtonClickListener(selection -> {
+                        HebrewDayMonthYearPickerDialog hdmypd = new HebrewDayMonthYearPickerDialog(materialDatePicker, mActivity.getSupportFragmentManager(), mJewishDateInfo.getJewishCalendar());
+                        hdmypd.updateDate(mJewishDateInfo.getJewishCalendar().getGregorianYear(),
+                                mJewishDateInfo.getJewishCalendar().getGregorianMonth(),
+                                mJewishDateInfo.getJewishCalendar().getGregorianDayOfMonth());
+                        hdmypd.setListener(onDateSetListener);
+                        hdmypd.show(mActivity.getSupportFragmentManager(), null);
+                    });
+                    materialDatePicker.show(mActivity.getSupportFragmentManager(), null);
+                }
+            });
+
+            mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+        }
     }
 
     /**
@@ -576,7 +581,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         mLocationName.setVisibility(View.VISIBLE);
         mHebrewMonthYear.setVisibility(View.VISIBLE);
         mainWeekly.setVisibility(View.VISIBLE);
-        mWeeklyDafs.setVisibility(View.VISIBLE);
         mWeeklyParsha.setVisibility(View.VISIBLE);
         mWeeklyHaftorah.setVisibility(View.VISIBLE);
         mMainRecyclerView.setVisibility(View.GONE);
@@ -611,7 +615,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         mLocationName.setVisibility(View.GONE);
         mHebrewMonthYear.setVisibility(View.GONE);
         mainWeekly.setVisibility(View.GONE);
-        mWeeklyDafs.setVisibility(View.GONE);
         mWeeklyParsha.setVisibility(View.GONE);
         mWeeklyHaftorah.setVisibility(View.GONE);
         mMainRecyclerView.setVisibility(View.VISIBLE);
@@ -673,7 +676,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         mSaturday[4] = binding.englishDay7;
         mSaturday[5] = binding.englishDateNumber7;
 
-        mWeeklyDafs = binding.weeklyDafs;
         mWeeklyParsha = binding.weeklyParsha;
         mWeeklyHaftorah = binding.weeklyHaftorah;
         updateWeeklyTextViewTextColor();
@@ -728,7 +730,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             mSaturday[4].setTextColor(textColor);
             mSaturday[5].setTextColor(textColor);
 
-            mWeeklyDafs.setTextColor(textColor);
             mWeeklyParsha.setTextColor(textColor);
             mWeeklyHaftorah.setTextColor(textColor);
         }
@@ -879,7 +880,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (materialToolbar == null) {
             return;
         }
-        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+        if (LocaleChecker.isLocaleHebrew()) {
             materialToolbar.setSubtitle("");
         } else {
             materialToolbar.setTitle(mContext.getString(R.string.app_name));
@@ -904,11 +905,10 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     } else {
                         updateDailyZmanim();
                     }
-                    item.setChecked(true);
                 } else {
                     endShabbatMode();
-                    item.setChecked(false);
                 }
+                item.setChecked(sShabbatMode);
                 return true;
             } else if (id == R.id.weekly_mode) {
                 sSharedPreferences.edit().putBoolean("weeklyMode", !sSharedPreferences.getBoolean("weeklyMode", false)).apply();
@@ -962,6 +962,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         });
         Menu menu = materialToolbar.getMenu();
         MenuCompat.setGroupDividerEnabled(menu, true);
+        menu.findItem(R.id.shabbat_mode).setChecked(sShabbatMode);
         menu.findItem(R.id.weekly_mode).setChecked(sSharedPreferences.getBoolean("weeklyMode", false));
         menu.findItem(R.id.use_elevation).setChecked(sSharedPreferences.getBoolean("useElevation", true));
         menu.findItem(R.id.use_elevation).setVisible(!sSharedPreferences.getBoolean("LuachAmudeiHoraah", false));
@@ -1023,7 +1024,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);
         mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());//reset
 
-        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+        if (LocaleChecker.isLocaleHebrew()) {
             zmanim.add(new ZmanListEntry(mROZmanimCalendar.getCalendar()
                     .getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault())));
         } else {
@@ -1080,6 +1081,36 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         String birchatLevana = mJewishDateInfo.getBirchatLevana();
         if (!birchatLevana.isEmpty()) {
             zmanim.add(new ZmanListEntry(birchatLevana));
+                MoonTimes moonTimes = MoonTimes.compute()
+                        .on(mCurrentDateShown.getTime())
+                        .at(sLatitude, sLongitude)
+                        .timezone(sCurrentTimeZoneID)
+                        .execute();
+                if (moonTimes.isAlwaysUp()) {
+                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.the_moon_is_up_all_night)));
+                } else if (moonTimes.isAlwaysDown()) {
+                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.there_is_no_moon_tonight)));
+                } else {
+                    SimpleDateFormat moonFormat;
+                    if (LocaleChecker.isLocaleHebrew()) {
+                        moonFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
+                    } else {
+                        moonFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+                    }
+                    String moonRiseSet = "";
+                    if (moonTimes.getRise() != null) {
+                        moonRiseSet += mContext.getString(R.string.moonrise) + moonFormat.format(moonTimes.getRise());
+                    }
+                    if (moonTimes.getSet() != null) {
+                        if (!moonRiseSet.isEmpty()) {
+                            moonRiseSet += " - ";
+                        }
+                        moonRiseSet += mContext.getString(R.string.moonset) + moonFormat.format(moonTimes.getSet());
+                    }
+                    if (!moonRiseSet.isEmpty()) {
+                        zmanim.add(new ZmanListEntry(moonRiseSet));
+                    }
+            }
         }
 
         if (mJewishDateInfo.getJewishCalendar().isBirkasHachamah()) {
@@ -1260,7 +1291,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         mJewishDateInfo.setCalendar(mCurrentDateShown);
 
         HebrewDateFormatter hebrewDateFormatter = new HebrewDateFormatter();
-        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+        if (LocaleChecker.isLocaleHebrew()) {
             hebrewDateFormatter.setHebrewFormat(true);
         }
         List<TextView[]> weeklyInfo = Arrays.asList(mSunday, mMonday, mTuesday, mWednesday, mThursday, mFriday, mSaturday);
@@ -1272,36 +1303,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 .replace("Tishrei", "Tishri")
                 .replace("Teves", "Tevet");
         String hebrewYear = String.valueOf(mJewishDateInfo.getJewishCalendar().getJewishYear());
-        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+        if (LocaleChecker.isLocaleHebrew()) {
             hebrewYear = hebrewDateFormatter.formatHebrewNumber(mJewishDateInfo.getJewishCalendar().getJewishYear());
-        }
-
-        String masechta = "";
-        String daf = "";
-        Daf yerushalmi;
-        String yerushalmiMasechta = "";
-        String yerushalmiDaf = "";
-
-        if (!mCurrentDateShown.before(dafYomiStartDate)) {
-            masechta = YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getMasechta();
-            daf = mHebrewDateFormatter.formatHebrewNumber(YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getDaf());
-        }
-        if (!mCurrentDateShown.before(dafYomiYerushalmiStartDate)) {
-            yerushalmi = YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar());
-            if (yerushalmi != null) {
-                yerushalmiMasechta = yerushalmi.getYerushalmiMasechta();
-                yerushalmiDaf = mHebrewDateFormatter.formatHebrewNumber(yerushalmi.getDaf());
-            } else {//yerushalmi yomi daf is null on sunday
-                mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
-                mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
-
-                yerushalmi = YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar());
-                yerushalmiMasechta = yerushalmi.getYerushalmiMasechta();
-                yerushalmiDaf = mHebrewDateFormatter.formatHebrewNumber(yerushalmi.getDaf());
-
-                mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);//reset
-                mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
-            }
         }
 
         for (int i = 0; i < 7; i++) {
@@ -1363,7 +1366,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     .replace("Tishrei", "Tishri")
                     .replace("Teves", "Tevet");
         }
-        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+        if (LocaleChecker.isLocaleHebrew()) {
             if (!hebrewYear.equals(hebrewDateFormatter.formatHebrewNumber(mJewishDateInfo.getJewishCalendar().getJewishYear()))) {
                 hebrewYear += " / " + hebrewDateFormatter.formatHebrewNumber(mJewishDateInfo.getJewishCalendar().getJewishYear());
             }
@@ -1372,47 +1375,15 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 hebrewYear += " / " + mJewishDateInfo.getJewishCalendar().getJewishYear();
             }
         }
-        if (!masechta.equals(YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getMasechta())) {
-            masechta += " " + daf + " - " + YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getMasechta() + " " +
-                    mHebrewDateFormatter.formatHebrewNumber(YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getDaf());
-        } else {
-            masechta += " " + daf + " - " + mHebrewDateFormatter.formatHebrewNumber(YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getDaf());
-        }
-        yerushalmi = YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar());
-        if (yerushalmi != null && !yerushalmiMasechta.equals(yerushalmi.getYerushalmiMasechta())) {
-            yerushalmiMasechta += " " + yerushalmiDaf + " - " + yerushalmi.getYerushalmiMasechta() + " " +
-                    mHebrewDateFormatter.formatHebrewNumber(yerushalmi.getDaf());
-        } else {
-            if (yerushalmi != null) {
-                yerushalmiMasechta += " " + yerushalmiDaf + " - " + mHebrewDateFormatter.formatHebrewNumber(yerushalmi.getDaf());
-            } else {
-                mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);
-                mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
-
-                yerushalmi = YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar());
-
-                mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);//reset
-                mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
-
-                if (!yerushalmiMasechta.equals(yerushalmi.getYerushalmiMasechta())) {
-                    yerushalmiMasechta += " " + yerushalmiDaf + " - " + yerushalmi.getYerushalmiMasechta() + " " +
-                            mHebrewDateFormatter.formatHebrewNumber(yerushalmi.getDaf());
-                } else {
-                    yerushalmiMasechta += " " + yerushalmiDaf + " - " + mHebrewDateFormatter.formatHebrewNumber(yerushalmi.getDaf());
-                }
-            }
-        }
-        String dafs = mContext.getString(R.string.daf_yomi) + " " + masechta + "       " + mContext.getString(R.string.just_yerushalmi_yomi) + " " + yerushalmiMasechta;
         String monthYear = month + " " + year;
         mEnglishMonthYear.setText(monthYear);
-        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+        if (LocaleChecker.isLocaleHebrew()) {
             mEnglishMonthYear.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_END);
             mHebrewMonthYear.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
         }
         mLocationName.setText(sCurrentLocationName);
         String hebrewMonthYear = hebrewMonth + " " + hebrewYear;
         mHebrewMonthYear.setText(hebrewMonthYear);
-        mWeeklyDafs.setText(dafs);
         mWeeklyParsha.setText(mJewishDateInfo.getThisWeeksParsha());
         if (mJewishDateInfo.getThisWeeksHaftarah().isEmpty()) {
             mWeeklyHaftorah.setVisibility(View.GONE);
@@ -1428,7 +1399,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         List<ZmanListEntry> zmanim = new ArrayList<>();
         addZmanim(zmanim, true, sSettingsPreferences, sSharedPreferences, mROZmanimCalendar, mJewishDateInfo, mIsZmanimInHebrew, mIsZmanimEnglishTranslated);
         DateFormat zmanimFormat;
-        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+        if (LocaleChecker.isLocaleHebrew()) {
             if (sSettingsPreferences.getBoolean("ShowSeconds", false)) {
                 zmanimFormat = new SimpleDateFormat("H:mm:ss", Locale.getDefault());
             } else {
@@ -1501,7 +1472,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             for (ZmanListEntry zman : zmanim) {
                 if (zman.isRTZman() && sSettingsPreferences.getBoolean("RoundUpRT", false)) {
                     DateFormat rtFormat;
-                    if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                    if (LocaleChecker.isLocaleHebrew()) {
                         if (sSettingsPreferences.getBoolean("ShowSeconds", false)) {
                             rtFormat = new SimpleDateFormat("H:mm:ss", Locale.getDefault());
                         } else {
@@ -1569,7 +1540,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      */
     private void addTekufaTime(List<ZmanListEntry> zmanim, boolean shortStyle) {
         DateFormat zmanimFormat;
-        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+        if (LocaleChecker.isLocaleHebrew()) {
             zmanimFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
         } else {
             zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
@@ -1871,6 +1842,10 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             sShabbatMode = true;
             setShabbatBannerColors(true);
             mShabbatModeBanner.setVisibility(View.VISIBLE);
+            if (mNavView != null && mViewPager != null) {
+                mNavView.setVisibility(View.GONE);
+                mViewPager.setUserInputEnabled(false);
+            }
             mActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 mActivity.getWindow().setHideOverlayWindows(true);
@@ -1916,7 +1891,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             TextClock clock = binding.clock;
             if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
                 clock.setVisibility(View.VISIBLE);
-                if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                if (LocaleChecker.isLocaleHebrew()) {
                     clock.setFormat24Hour("hh:mm:ss");
                 }
             }
@@ -2141,6 +2116,10 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (sShabbatMode) {
             sShabbatMode = false;
             mShabbatModeBanner.setVisibility(View.GONE);
+            if (mNavView != null && mViewPager != null && sSettingsPreferences != null && !sSettingsPreferences.getBoolean("hideBottomBar", false)) {
+                mNavView.setVisibility(View.VISIBLE);
+                mViewPager.setUserInputEnabled(true);
+            }
             mHandler.removeCallbacksAndMessages(mZmanimUpdater);
             mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -2154,9 +2133,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mROZmanimCalendar.getCalendar()));
             mNextDate.setVisibility(View.VISIBLE);
             mPreviousDate.setVisibility(View.VISIBLE);
-            TextClock clock = binding.clock;
-            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-                clock.setVisibility(View.GONE);
+            if (binding != null) {
+                TextClock clock = binding.clock;
+                if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                    clock.setVisibility(View.GONE);
+                }
             }
         }
     }
@@ -2216,15 +2197,17 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             sSharedPreferences.edit().putBoolean("shouldRefresh", false).apply();
         }
 
-        TextClock clock = binding.clock;
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            clock.setVisibility(View.VISIBLE);
-            if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
-                clock.setFormat24Hour("H:mm:ss");
-            }
-        } else {
-            if (sShabbatMode) {
+        if (binding != null) {
+            TextClock clock = binding.clock;
+            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 clock.setVisibility(View.VISIBLE);
+                if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                    clock.setFormat24Hour("H:mm:ss");
+                }
+            } else {
+                if (sShabbatMode) {
+                    clock.setVisibility(View.VISIBLE);
+                }
             }
         }
 

@@ -642,4 +642,8 @@
     <string name="hide_the_bottom_navigation_bar">הסתר את סרגל הניווט התחתון</string>
     <string name="choose_whether_or_not_the_navigation_bar_that_shows_limudim_zmanim_siddur_should_be_shown_this_may_help_users_with_smaller_screens">בחר אם להציג את סרגל הניווט שמציג לימודים/זמנים/סידור. זה עשוי לעזור למשתמשים עם מסכים קטנים יותר</string>
     <string name="mishna_yomi">משנה יומי:</string>
+    <string name="the_moon_is_up_all_night">הירח זורח כל הלילה</string>
+    <string name="there_is_no_moon_tonight">אין ירח הלילה</string>
+    <string name="moonrise">"עליית הירח: "</string>
+    <string name="moonset">"שקיעת הירח: "</string>
 </resources>

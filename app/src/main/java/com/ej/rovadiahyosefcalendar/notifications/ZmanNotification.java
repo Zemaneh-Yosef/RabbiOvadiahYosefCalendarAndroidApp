@@ -22,6 +22,7 @@ import androidx.preference.PreferenceManager;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.MainFragmentManager;
+import com.ej.rovadiahyosefcalendar.classes.LocaleChecker;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
 import java.text.DateFormat;
@@ -100,7 +101,7 @@ public class ZmanNotification extends BroadcastReceiver {
             //no need to reset the jewish calendar since we are only using it to check if tomorrow is shabbat/yom tov, but keep in mind that the date is set to tomorrow
 
             DateFormat zmanimFormat;
-            if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+            if (LocaleChecker.isLocaleHebrew()) {
                 if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowSeconds", false)) {
                     zmanimFormat = new SimpleDateFormat("H:mm:ss", Locale.getDefault());
                 } else {

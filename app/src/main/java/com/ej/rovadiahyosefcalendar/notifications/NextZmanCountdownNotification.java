@@ -25,6 +25,7 @@ import androidx.preference.PreferenceManager;
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.MainFragmentManager;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
+import com.ej.rovadiahyosefcalendar.classes.LocaleChecker;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
 import com.ej.rovadiahyosefcalendar.classes.ZmanListEntry;
@@ -89,7 +90,7 @@ public class NextZmanCountdownNotification extends Service {
         };
         mSettingsPreferences.registerOnSharedPreferenceChangeListener(settingsPrefListener);
         setZmanimLanguageBools();
-        if (Locale.getDefault().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+        if (LocaleChecker.isLocaleHebrew()) {
             if (mSettingsPreferences.getBoolean("ShowSeconds", false)) {
                 zmanimFormat = new SimpleDateFormat("H:mm:ss", Locale.getDefault());
             } else {
