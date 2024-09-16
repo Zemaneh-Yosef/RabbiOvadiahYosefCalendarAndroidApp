@@ -314,8 +314,15 @@ public class MainFragmentManager extends AppCompatActivity {
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        ExceptionHandler.isAppFocused = false;
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
+        ExceptionHandler.isAppFocused = true;
         updateWidget();
         if (mNavView != null && mViewPager != null) {
             if (sSettingsPreferences != null && sSettingsPreferences.getBoolean("hideBottomBar", false)) {

@@ -13,9 +13,11 @@ import java.io.StringWriter;
 
 public class ExceptionHandler implements java.lang.Thread.UncaughtExceptionHandler {
     private final Activity myContext;
+    public static boolean isAppFocused;
 
     public ExceptionHandler(Activity context) {
         myContext = context;
+        isAppFocused = true;
     }
 
     public void uncaughtException(@NonNull Thread thread, Throwable exception) {
@@ -56,7 +58,9 @@ public class ExceptionHandler implements java.lang.Thread.UncaughtExceptionHandl
 
         Intent intent = new Intent(myContext, ShowErrorActivity.class);
         intent.putExtra("error", errorReport);
-        myContext.startActivity(intent);
+        if (isAppFocused) {
+            myContext.startActivity(intent);
+        }
 
         android.os.Process.killProcess(android.os.Process.myPid());
         System.exit(10);
