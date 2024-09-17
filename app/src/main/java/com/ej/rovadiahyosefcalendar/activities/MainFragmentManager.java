@@ -51,7 +51,6 @@ import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -68,13 +67,12 @@ public class MainFragmentManager extends AppCompatActivity {
     public static double sElevation = 0;
     public static String sCurrentTimeZoneID;//e.g. "America/New_York"
 
-    //custom classes/kosherjava classes:
-    private LocationResolver mLocationResolver;
+    // KosherJava classes
     public static ROZmanimCalendar mROZmanimCalendar;
     public static JewishDateInfo mJewishDateInfo;
     public static HebrewDateFormatter mHebrewDateFormatter = new HebrewDateFormatter();
 
-    //android classes:
+    // Android classes:
     public static SharedPreferences sSharedPreferences;
     public static SharedPreferences sSettingsPreferences;
     public static final String SHARED_PREF = "MyPrefsFile";
@@ -82,15 +80,9 @@ public class MainFragmentManager extends AppCompatActivity {
     public static MaterialToolbar materialToolbar;
 
     /**
-     * The current date shown in the main activity.
+     * The current date shown in all activities.
      */
     public static Calendar mCurrentDateShown = Calendar.getInstance();
-
-    /**
-     * These calendars are used to know when daf/yerushalmi yomi started
-     */
-    public final static Calendar dafYomiStartDate = new GregorianCalendar(1923, Calendar.SEPTEMBER, 11);
-    public final static Calendar dafYomiYerushalmiStartDate = new GregorianCalendar(1980, Calendar.FEBRUARY, 2);
     public static Date sLastTimeUserWasInApp;
     public static BottomNavigationView mNavView;
     public static ViewPager2 mViewPager;
@@ -136,7 +128,6 @@ public class MainFragmentManager extends AppCompatActivity {
                 }
             }
         }
-        mLocationResolver = new LocationResolver(this, this);
         mJewishDateInfo = new JewishDateInfo(sSharedPreferences.getBoolean("inIsrael", false));
         initSetupResult();
         if (ChaiTables.visibleSunriseFileDoesNotExist(getExternalFilesDir(null), sCurrentLocationName, mJewishDateInfo.getJewishCalendar())
@@ -146,7 +137,8 @@ public class MainFragmentManager extends AppCompatActivity {
             sSetupLauncher.launch(new Intent(this, FullSetupActivity.class));
             initZmanimNotificationDefaults();
         } else {
-            mLocationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
+            LocationResolver locationResolver = new LocationResolver(this, this);
+            locationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
         }
         updateWidget();
 

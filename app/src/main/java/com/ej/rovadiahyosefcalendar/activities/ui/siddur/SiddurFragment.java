@@ -113,6 +113,7 @@ public class SiddurFragment extends Fragment {
                 || mJewishDateInfo.getJewishCalendar().isCholHamoed())) {
             mussaf.setVisibility(View.GONE);
         } else {
+            mussaf.setVisibility(View.VISIBLE);
             mussaf.setOnClickListener(v -> startSiddurActivity(mContext.getString(R.string.mussaf)));
         }
 
@@ -258,6 +259,8 @@ public class SiddurFragment extends Fragment {
 
         if (mJewishDateInfo.getBirchatLevana().isEmpty()) {// hide the button if there's no status text returned
             birchatLevana.setVisibility(View.GONE);
+        } else {
+            birchatLevana.setVisibility(View.VISIBLE);
         }
 
         TextView disclaimer = binding.siddurDisclaimer;

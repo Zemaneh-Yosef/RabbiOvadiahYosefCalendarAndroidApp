@@ -23,7 +23,6 @@ import com.kosherjava.zmanim.hebrewcalendar.YomiCalculator;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Locale;
 
 public class LimudAdapter extends RecyclerView.Adapter<LimudAdapter.ZmanViewHolder> {
 
@@ -106,6 +105,18 @@ public class LimudAdapter extends RecyclerView.Adapter<LimudAdapter.ZmanViewHold
                                 intent.setData(android.net.Uri.parse(yerushalmiYomiLink));
                                 context.startActivity(intent);
                             });
+                    dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
+                    dialogBuilder.show();
+                } else if (limudim.get(position).getLimudTitle().contains(context.getString(R.string.mishna_yomi))) {
+                    String mishnaYomi = MishnaYomi.getMishnaForDate(mJewishDateInfo.getJewishCalendar(), false);
+                    String mishnaYomiLink = "https://www.sefaria.org/" + "Mishnah_" + mishnaYomi;
+                    dialogBuilder.setTitle(context.getString(R.string.open_sefaria_link_for) + limudim.get(position).getLimudTitle().replace(context.getString(R.string.mishna_yomi) + " ", "") + "?");
+                    dialogBuilder.setMessage(R.string.this_will_open_the_sefaria_website_or_app_in_a_new_window_with_the_page);
+                    dialogBuilder.setPositiveButton(context.getString(R.string.open), (dialog, which) -> {
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.setData(android.net.Uri.parse(mishnaYomiLink));
+                        context.startActivity(intent);
+                    });
                     dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
                     dialogBuilder.show();
                 } else if (limudim.get(position).hasSource()) {

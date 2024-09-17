@@ -5,7 +5,6 @@ import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.Context.ALARM_SERVICE;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.dafYomiYerushalmiStartDate;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mCurrentDateShown;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mHebrewDateFormatter;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mJewishDateInfo;
@@ -106,7 +105,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.TefilaRules;
-import com.kosherjava.zmanim.hebrewcalendar.YerushalmiYomiCalculator;
 import com.kosherjava.zmanim.util.GeoLocation;
 import com.kosherjava.zmanim.util.ZmanimFormatter;
 
@@ -1271,12 +1269,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (!tekufa.isEmpty()) {
             for (ZmanListEntry tekufaEntry : tekufa) {
                 announcements.append(tekufaEntry.getTitle()).append("\n");
-            }
-        }
-
-        if (!mCurrentDateShown.before(dafYomiYerushalmiStartDate)) {
-            if (YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar()) == null) {
-                announcements.append(mContext.getString(R.string.no_daf_yomi_yerushalmi)).append("\n");
             }
         }
         return announcements.toString();

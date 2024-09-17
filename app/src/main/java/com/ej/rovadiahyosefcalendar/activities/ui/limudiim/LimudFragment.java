@@ -2,8 +2,6 @@ package com.ej.rovadiahyosefcalendar.activities.ui.limudiim;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.dafYomiStartDate;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.dafYomiYerushalmiStartDate;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mCurrentDateShown;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mHebrewDateFormatter;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mJewishDateInfo;
@@ -54,6 +52,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -66,6 +65,11 @@ public class LimudFragment extends Fragment {
     RecyclerView limudRV;
     private RecyclerView hillulotRV;
     private Button mCalendarButton;
+    /**
+     * These calendars are used to know when daf/yerushalmi yomi started
+     */
+    public final static Calendar dafYomiStartDate = new GregorianCalendar(1923, Calendar.SEPTEMBER, 11);
+    public final static Calendar dafYomiYerushalmiStartDate = new GregorianCalendar(1980, Calendar.FEBRUARY, 2);
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -163,7 +167,10 @@ public class LimudFragment extends Fragment {
             }
         }
 
-        limudim.add(new LimudListEntry(getString(R.string.mishna_yomi) + " " + MishnaYomi.getMishnaForDate(mJewishDateInfo.getJewishCalendar(), true)));
+        String mishnaYomi = MishnaYomi.getMishnaForDate(mJewishDateInfo.getJewishCalendar(), true);
+        if (mishnaYomi != null) {
+            limudim.add(new LimudListEntry(getString(R.string.mishna_yomi) + " " + mishnaYomi));
+        }
 
         limudim.add(new LimudListEntry(mContext.getString(R.string.daily_chafetz_chaim) + ChafetzChayimYomiCalculator.getChafetzChayimYomi(mJewishDateInfo.getJewishCalendar())));
 

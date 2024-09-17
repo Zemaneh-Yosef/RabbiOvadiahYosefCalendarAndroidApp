@@ -7,7 +7,6 @@ import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 import java.util.TimeZone;
 
 public class JewishCalendarWithExtraMethods extends JewishCalendar {
@@ -114,9 +113,7 @@ public class JewishCalendarWithExtraMethods extends JewishCalendar {
     @Override
     public String toString() {
         HebrewDateFormatter hebrewDateFormatter = new HebrewDateFormatter();
-        if (LocaleChecker.isLocaleHebrew()) {
-            hebrewDateFormatter.setHebrewFormat(true);
-        }
+        hebrewDateFormatter.setHebrewFormat(LocaleChecker.isLocaleHebrew());
         return hebrewDateFormatter.format(this);
     }
 }
