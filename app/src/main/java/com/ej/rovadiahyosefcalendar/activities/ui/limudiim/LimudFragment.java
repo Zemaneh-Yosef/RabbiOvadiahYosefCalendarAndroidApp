@@ -1,7 +1,5 @@
 package com.ej.rovadiahyosefcalendar.activities.ui.limudiim;
 
-import static android.content.Context.MODE_PRIVATE;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mCurrentDateShown;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mHebrewDateFormatter;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mJewishDateInfo;
@@ -29,7 +27,6 @@ import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.classes.CalendarDrawable;
 import com.ej.rovadiahyosefcalendar.classes.ChafetzChayimYomiCalculator;
 import com.ej.rovadiahyosefcalendar.classes.HebrewDayMonthYearPickerDialog;
-import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.LimudAdapter;
 import com.ej.rovadiahyosefcalendar.classes.LimudListEntry;
 import com.ej.rovadiahyosefcalendar.classes.LocaleChecker;
@@ -83,9 +80,6 @@ public class LimudFragment extends Fragment {
         View root = binding.getRoot();
         if (mCurrentDateShown == null) {
             mCurrentDateShown = Calendar.getInstance();
-        }
-        if (mJewishDateInfo == null) {
-            mJewishDateInfo = new JewishDateInfo(mContext.getSharedPreferences(SHARED_PREF, MODE_PRIVATE).getBoolean("inIsrael", false));
         }
         setDate();
         initMenu();

@@ -43,7 +43,9 @@
                 android:background="@null"
                 app:title="@string/molad_calculator"
                 app:titleCentered="true"
+                app:titleTextColor="@color/white"
                 app:subtitle="@string/short_app_name"
+                app:subtitleTextColor="@color/white"
                 app:subtitleCentered="true" />
 
         </com.google.android.material.appbar.AppBarLayout>

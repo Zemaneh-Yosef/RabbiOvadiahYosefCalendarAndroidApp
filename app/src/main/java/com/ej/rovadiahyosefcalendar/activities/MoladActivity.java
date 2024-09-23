@@ -100,17 +100,20 @@ public class MoladActivity extends AppCompatActivity {
                 materialDatePicker.show(getSupportFragmentManager(), null);
         });
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.molad_disclaimer), (v, windowInsets) -> {
-            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
-            ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
-            mlp.leftMargin = insets.left;
-            mlp.bottomMargin = insets.bottom;
-            mlp.rightMargin = insets.right;
-            v.setLayoutParams(mlp);
-            // Return CONSUMED if you don't want want the window insets to keep passing
-            // down to descendant views.
-            return WindowInsetsCompat.CONSUMED;
-        });
+        TextView disclaimer = findViewById(R.id.molad_disclaimer);
+        if (disclaimer != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(disclaimer, (v, windowInsets) -> {
+                Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+                ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+                mlp.leftMargin = insets.left;
+                mlp.bottomMargin = insets.bottom;
+                mlp.rightMargin = insets.right;
+                v.setLayoutParams(mlp);
+                // Return CONSUMED if you don't want want the window insets to keep passing
+                // down to descendant views.
+                return WindowInsetsCompat.CONSUMED;
+            });
+        }
     }
 
     private void updateMoladDates() {

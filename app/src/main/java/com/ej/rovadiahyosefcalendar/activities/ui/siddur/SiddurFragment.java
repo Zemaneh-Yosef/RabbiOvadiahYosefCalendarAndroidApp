@@ -83,9 +83,6 @@ public class SiddurFragment extends Fragment {
     }
 
     private void initView() {
-        if (mJewishDateInfo == null) {
-            mJewishDateInfo = new JewishDateInfo(mContext.getSharedPreferences(SHARED_PREF, MODE_PRIVATE).getBoolean("inIsrael", false));
-        }
         TextView specialDay = binding.jewishSpecialDay;
         Calendar calendar = mJewishDateInfo.getJewishCalendar().getGregorianCalendar();
         String dateAndSpecialDay = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault())

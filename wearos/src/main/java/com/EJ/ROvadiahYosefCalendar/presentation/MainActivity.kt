@@ -117,6 +117,7 @@ import java.util.Date
 import java.util.GregorianCalendar
 import java.util.Locale
 import java.util.TimeZone
+import java.util.concurrent.CopyOnWriteArrayList
 
 class MainActivity : ComponentActivity() {
 
@@ -146,7 +147,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var sharedPref: SharedPreferences
     private var mCurrentDateShown = Calendar.getInstance()
     private lateinit var locationResolver: LocationResolver
-    private var zmanim: MutableList<ZmanListEntry> = ArrayList()
+    private var zmanim: CopyOnWriteArrayList<ZmanListEntry> = CopyOnWriteArrayList()
     private var mROZmanimCalendar = ROZmanimCalendar(GeoLocation(), null)
     private var mJewishDateInfo = JewishDateInfo(false)
     private var mLastTimeUserWasInApp: Date = Date()
@@ -340,6 +341,7 @@ class MainActivity : ComponentActivity() {
         TileService.getUpdater(applicationContext).requestUpdate(MainTileService::class.java)
         if (System.currentTimeMillis() - mLastTimeUserWasInApp.time > 120_000) {
             mCurrentDateShown.time = Date()
+            sharedPref = getSharedPreferences(SHARED_PREF, MODE_PRIVATE) //sharedPref could be null if the app was not used for a while
             syncCalendars()
             updateAppContents()
             mLastTimeUserWasInApp = Date()
@@ -496,7 +498,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun updateZmanimList() {
-        zmanim = ArrayList()
+        zmanim = CopyOnWriteArrayList()
 
         zmanim.add(ZmanListEntry(mROZmanimCalendar.geoLocation.locationName))
 
@@ -1753,7 +1755,7 @@ class MainActivity : ComponentActivity() {
                         Thread {
                             while (drag.floatValue < 2.0f) {
                                 drag.floatValue += 0.05f
-                                Thread.sleep(300)
+                                Thread.sleep(10)
                             }
                         }.start()
                     }

@@ -69,7 +69,7 @@ public class MainFragmentManager extends AppCompatActivity {
 
     // KosherJava classes
     public static ROZmanimCalendar mROZmanimCalendar;
-    public static JewishDateInfo mJewishDateInfo;
+    public final static JewishDateInfo mJewishDateInfo = new JewishDateInfo(false);
     public static HebrewDateFormatter mHebrewDateFormatter = new HebrewDateFormatter();
 
     // Android classes:
@@ -128,7 +128,7 @@ public class MainFragmentManager extends AppCompatActivity {
                 }
             }
         }
-        mJewishDateInfo = new JewishDateInfo(sSharedPreferences.getBoolean("inIsrael", false));
+        mJewishDateInfo.getJewishCalendar().setInIsrael(sSharedPreferences.getBoolean("inIsrael", false));
         initSetupResult();
         if (ChaiTables.visibleSunriseFileDoesNotExist(getExternalFilesDir(null), sCurrentLocationName, mJewishDateInfo.getJewishCalendar())
                 && sSharedPreferences.getBoolean("UseTable" + sCurrentLocationName, true)
@@ -241,6 +241,7 @@ public class MainFragmentManager extends AppCompatActivity {
         sSetupLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
+                    mJewishDateInfo.getJewishCalendar().setInIsrael(sSharedPreferences.getBoolean("inIsrael", false));
                     sElevation = Double.parseDouble(sSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));
 //                    if (result.getResultCode() == Activity.RESULT_OK) {
 //                        if (result.getData() != null) {

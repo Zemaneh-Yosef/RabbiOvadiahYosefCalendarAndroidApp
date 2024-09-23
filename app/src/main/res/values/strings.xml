@@ -400,4 +400,7 @@
    <string name="there_is_no_moon_tonight">There is no moon tonight</string>
    <string name="moonrise">"Moonrise: "</string>
    <string name="moonset">"Moonset: "</string>
+    <string name="battery_optimization_is_enabled">Battery Optimization Is Enabled!</string>
+   <string name="the_current_battery_settings_for_the_app_is_trying_to_save_battery_this_may_cause_notifications_to_be_sent_at_a_later_time_would_you_like_to_change_this_setting">The current battery settings for the app is trying to save battery. This may cause notifications to be sent at a later time. Would you like to change this setting?</string>
+   <string name="this_will_open_the_sefaria_website_or_app_in_a_new_window_with_the_weekly_parsha">This will open the Sefaria website or app in a new window with the weekly parsha.</string>
 </resources>

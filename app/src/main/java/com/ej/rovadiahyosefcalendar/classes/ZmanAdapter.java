@@ -36,8 +36,6 @@ import com.ej.rovadiahyosefcalendar.activities.SetupChooserActivity;
 import com.ej.rovadiahyosefcalendar.activities.SetupElevationActivity;
 import com.ej.rovadiahyosefcalendar.activities.SiddurViewActivity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
-import com.kosherjava.zmanim.hebrewcalendar.YomiCalculator;
 
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
@@ -197,11 +195,6 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                 holder.mMiddleTextView.setTypeface(null, Typeface.BOLD);
             }
 
-            if (zmanim.get(position).getTitle().equals(context.getString(R.string.show_siddur)) ||
-                    zmanim.get(position).getTitle().equals(context.getString(R.string.show_siddur) + "*")) {// make parasha text bold
-                holder.mMiddleTextView.setTypeface(null, Typeface.BOLD);
-            }
-
             holder.itemView.setOnClickListener(v -> {
                 if (!sShabbatMode && PreferenceManager.getDefaultSharedPreferences(context).getBoolean("showZmanDialogs", true)) {
                     if (isZmanimInHebrew) {
@@ -244,10 +237,22 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     // second entry (position 1) is always the date
 
                     if (position == 2 && !zmanim.get(position).getTitle().equals("No Weekly Parsha") && !zmanim.get(position).getTitle().equals("אין פרשת שבוע")) {// third entry will always be the weekly parsha
-                        String parsha = zmanim.get(position).getTitle().split(" ")[0];//get first word
+                        String parsha = "";
+                        if (zmanim.get(position).getTitle().equals("לך לך")
+                                || zmanim.get(position).getTitle().equals("חיי שרה")
+                                || zmanim.get(position).getTitle().equals("כי תשא")
+                                || zmanim.get(position).getTitle().equals("אחרי מות")
+                                || zmanim.get(position).getTitle().equals("שלח לך")
+                                || zmanim.get(position).getTitle().equals("כי תצא")
+                                || zmanim.get(position).getTitle().equals("כי תבוא")
+                                || zmanim.get(position).getTitle().equals("וזאת הברכה ")) {
+                            parsha = zmanim.get(position).getTitle();// ugly, but leave the first word and second word in these cases
+                        } else {
+                            parsha = zmanim.get(position).getTitle().split(" ")[0];//get first word
+                        }
                         String parshaLink = "https://www.sefaria.org/" + parsha;
-                        dialogBuilder.setTitle("Open Sefaria link for " + parsha + "?");
-                        dialogBuilder.setMessage("This will open the Sefaria website or app in a new window with the weekly parsha.");
+                        dialogBuilder.setTitle(context.getString(R.string.open_sefaria_link_for) + parsha + "?");
+                        dialogBuilder.setMessage(R.string.this_will_open_the_sefaria_website_or_app_in_a_new_window_with_the_weekly_parsha);
                         dialogBuilder.setPositiveButton(context.getString(R.string.ok), (dialog, which) -> {
                             Intent intent = new Intent(Intent.ACTION_VIEW);
                             intent.setData(Uri.parse(parshaLink));
@@ -283,38 +288,6 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     if (zmanim.get(position).getTitle().contains("Tachanun") || zmanim.get(position).getTitle().contains("תחנון") || zmanim.get(position).getTitle().contains("צדקתך")) {
                         showTachanunDialog();
                     }
-
-                    if (zmanim.get(position).getTitle().contains(context.getString(R.string.daf_yomi))) {
-                        ZmanListEntry zman = zmanim.get(position);
-                        JewishCalendar jewishCalendar = new JewishCalendar();
-                        jewishCalendar.setDate(zman.getZman());
-                        String masechta = YomiCalculator.getDafYomiBavli(jewishCalendar).getMasechtaTransliterated();
-                        int daf = YomiCalculator.getDafYomiBavli(jewishCalendar).getDaf();
-                        String dafYomiLink = "https://www.sefaria.org/" + masechta + "." + daf + "a";
-                        dialogBuilder.setTitle("Open Sefaria link for " + zmanim.get(position).getTitle().replace(context.getString(R.string.daf_yomi) + " ", "") + "?");
-                        dialogBuilder.setMessage("This will open the Sefaria website or app in a new window with the daf yomi.");
-                        dialogBuilder.setPositiveButton(context.getString(R.string.ok), (dialog, which) -> {
-                            Intent intent = new Intent(Intent.ACTION_VIEW);
-                            intent.setData(Uri.parse(dafYomiLink));
-                            context.startActivity(intent);
-                        });
-                        dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
-                        dialogBuilder.show();
-                        resetDialogBuilder();
-                    }
-//                if (zmanim.get(position).getTitle().contains("Yerushalmi Yomi")) {//TODO: add sefaria link for yerushalmi yomi
-//                    // open sefaria link for yerushalmi yomi
-//                    String yerushalmiYomiLink = "https://www.sefaria.org/" + zmanim.get(position).getTitle().replace("Yerushalmi Yomi: ", "");
-//                    dialogBuilder.setTitle("Open Sefaria link for " + zmanim.get(position).getTitle().replace("Yerushalmi Yomi: ", "") + "?");
-//                    dialogBuilder.setMessage("This will open the Sefaria website or app in a new window with the yerushalmi yomi.");
-//                    dialogBuilder.setPositiveButton("Open", (dialog, which) -> {
-//                                Intent intent = new Intent(Intent.ACTION_VIEW);
-//                                intent.setData(android.net.Uri.parse(yerushalmiYomiLink));
-//                                context.startActivity(intent);
-//                            });
-//                    dialogBuilder.show();
-//                    dialogBuilder.setPositiveButton("Dismiss", (dialog, which) -> dialog.dismiss());
-//                }
                 }
             });
 

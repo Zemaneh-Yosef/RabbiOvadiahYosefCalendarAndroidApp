@@ -45,6 +45,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.PowerManager;
 import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -87,7 +88,6 @@ import com.ej.rovadiahyosefcalendar.classes.CalendarDrawable;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTables;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesScraper;
 import com.ej.rovadiahyosefcalendar.classes.HebrewDayMonthYearPickerDialog;
-import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.LocaleChecker;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.PrefToWatchSender;
@@ -522,7 +522,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         .setPositiveButton(R.string.yes_i_am_in_israel, (dialog, which) -> {
                             sSharedPreferences.edit().putBoolean("inIsrael", true).apply();
                             sSettingsPreferences.edit().putBoolean("LuachAmudeiHoraah", false).apply();
-                            mJewishDateInfo = new JewishDateInfo(true);
+                            mJewishDateInfo.getJewishCalendar().setInIsrael(true);
                             initMenu();
                             Toast.makeText(mContext, R.string.settings_updated, Toast.LENGTH_SHORT).show();
                             if (sSharedPreferences.getBoolean("weeklyMode", false)) {
@@ -550,7 +550,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         .setMessage(R.string.if_you_are_not_in_israel_now_please_confirm_below_otherwise_ignore_this_message)
                         .setPositiveButton(R.string.yes_i_have_left_israel, (dialog, which) -> {
                             sSharedPreferences.edit().putBoolean("inIsrael", false).apply();
-                            mJewishDateInfo = new JewishDateInfo(false);
+                            mJewishDateInfo.getJewishCalendar().setInIsrael(false);
                             Toast.makeText(mContext, R.string.settings_updated, Toast.LENGTH_SHORT).show();
                             if (sSharedPreferences.getBoolean("weeklyMode", false)) {
                                 updateWeeklyZmanim();
@@ -827,6 +827,25 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 builder.setNegativeButton(mContext.getString(R.string.no), (dialog, which) -> dialog.dismiss());
                 if (!mActivity.isFinishing()) {
                     builder.show();
+                }
+            }
+
+            if (!sSharedPreferences.getBoolean("neverAskBatteryOptimization", false)) {
+                PowerManager powerManager = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
+                if (!powerManager.isIgnoringBatteryOptimizations(mContext.getPackageName())) {
+                    MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext);
+                    builder.setTitle(R.string.battery_optimization_is_enabled);
+                    builder.setMessage(R.string.the_current_battery_settings_for_the_app_is_trying_to_save_battery_this_may_cause_notifications_to_be_sent_at_a_later_time_would_you_like_to_change_this_setting);
+                    builder.setCancelable(false);
+                    builder.setPositiveButton(mContext.getString(R.string.yes), (dialog, which) -> mContext.startActivity(new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)));
+                    builder.setNegativeButton(mContext.getString(R.string.no), (dialog, which) -> dialog.dismiss());
+                    builder.setNeutralButton(mContext.getString(R.string.do_not_ask_me_again), (dialog, which) -> {
+                        sSharedPreferences.edit().putBoolean("neverAskBatteryOptimization", true).apply();
+                        dialog.dismiss();
+                    });
+                    if (!mActivity.isFinishing()) {
+                        builder.show();
+                    }
                 }
             }
         }
@@ -1190,7 +1209,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     }
 
     public void setNextUpcomingZman() {
-        sNextUpcomingZman = ZmanimFactory.getNextUpcomingZman(mCurrentDateShown, mROZmanimCalendar, mJewishDateInfo, sSettingsPreferences, sSharedPreferences, mIsZmanimInHebrew, mIsZmanimEnglishTranslated).getZman();
+        ZmanListEntry nextZman = ZmanimFactory.getNextUpcomingZman(mCurrentDateShown, mROZmanimCalendar, mJewishDateInfo, sSettingsPreferences, sSharedPreferences, mIsZmanimInHebrew, mIsZmanimEnglishTranslated);
+        if (nextZman == null || nextZman.getZman() == null) {
+            nextZman = new ZmanListEntry("", new Date(System.currentTimeMillis() + 30_000), true);// try again in 30 seconds
+        }
+        sNextUpcomingZman = nextZman.getZman();
     }
 
     private String getAnnouncements() {
@@ -2158,7 +2181,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             }
         }
         if (sSharedPreferences.getBoolean("shouldRefresh", false)) {
-            mJewishDateInfo = new JewishDateInfo(sSharedPreferences.getBoolean("inIsrael", false));
+            mJewishDateInfo.getJewishCalendar().setInIsrael(sSharedPreferences.getBoolean("inIsrael", false));
             mJewishDateInfo.setCalendar(mCurrentDateShown);
             setZmanimLanguageBools();
             resolveElevationAndVisibleSunrise();
@@ -2298,25 +2321,27 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             mLocationResolver = new LocationResolver(mContext, mActivity);
             mLocationResolver.resolveCurrentLocationName();
             mLocationResolver.setTimeZoneID();
-            mActivity.runOnUiThread(() -> {
-                if (mMainRecyclerView.isFocusable()) {
-                    resolveElevationAndVisibleSunrise();
-                    if (mCurrentDateShown != null && mJewishDateInfo != null) {
-                        mCurrentDateShown.setTime(new Date());
-                        mJewishDateInfo.setCalendar(new GregorianCalendar());
-                        instantiateZmanimCalendar();
-                        setNextUpcomingZman();
-                        if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                            updateWeeklyTextViewTextColor();
-                            updateWeeklyZmanim();
-                        } else {
-                            updateDailyZmanim();
-                            mMainRecyclerView.scrollToPosition(mCurrentPosition);
+            synchronized (mJewishDateInfo) {
+                mActivity.runOnUiThread(() -> {
+                    if (mMainRecyclerView.isFocusable()) {
+                        resolveElevationAndVisibleSunrise();
+                        if (mCurrentDateShown != null && mJewishDateInfo != null) {
+                            mCurrentDateShown.setTime(new Date());
+                            mJewishDateInfo.setCalendar(new GregorianCalendar());
+                            instantiateZmanimCalendar();
+                            setNextUpcomingZman();
+                            if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                                updateWeeklyTextViewTextColor();
+                                updateWeeklyZmanim();
+                            } else {
+                                updateDailyZmanim();
+                                mMainRecyclerView.scrollToPosition(mCurrentPosition);
+                            }
+                            mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
                         }
-                        mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
                     }
-                }
-            });
+                });
+            }
         }
     }
 }
