@@ -2326,7 +2326,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 mActivity.runOnUiThread(() -> {
                     if (mMainRecyclerView.isFocusable()) {
                         resolveElevationAndVisibleSunrise();
-                        if (mCurrentDateShown != null && mJewishDateInfo != null) {
+                        if (mCurrentDateShown != null) {
                             mCurrentDateShown.setTime(new Date());
                             mJewishDateInfo.setCalendar(new GregorianCalendar());
                             instantiateZmanimCalendar();

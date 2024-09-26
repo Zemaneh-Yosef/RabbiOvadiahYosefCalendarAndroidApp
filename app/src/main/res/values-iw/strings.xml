@@ -646,4 +646,7 @@
     <string name="there_is_no_moon_tonight">אין ירח הלילה</string>
     <string name="moonrise">"עליית הירח: "</string>
     <string name="moonset">"שקיעת הירח: "</string>
+    <string name="battery_optimization_is_enabled">האופטימיזציה לסוללה מופעלת!</string>
+    <string name="the_current_battery_settings_for_the_app_is_trying_to_save_battery_this_may_cause_notifications_to_be_sent_at_a_later_time_would_you_like_to_change_this_setting">הגדרות הסוללה הנוכחיות של האפליקציה מנסות לחסוך בסוללה. ייתכן שזה יגרום להודעות להישלח מאוחר יותר. האם תרצה לשנות את ההגדרה?</string>
+    <string name="this_will_open_the_sefaria_website_or_app_in_a_new_window_with_the_weekly_parsha">זה יפתח את אתר או אפליקציית ספריא בחלון חדש עם פרשת השבוע.</string>
 </resources>
