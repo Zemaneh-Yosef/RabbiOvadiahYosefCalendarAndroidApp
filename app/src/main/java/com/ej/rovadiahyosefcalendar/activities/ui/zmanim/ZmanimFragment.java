@@ -1102,6 +1102,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         .on(mCurrentDateShown.getTime())
                         .at(sLatitude, sLongitude)
                         .timezone(sCurrentTimeZoneID)
+                        .midnight()
                         .execute();
                 if (moonTimes.isAlwaysUp()) {
                     zmanim.add(new ZmanListEntry(mContext.getString(R.string.the_moon_is_up_all_night)));
