@@ -59,7 +59,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation group: 'com.kosherjava', name: 'zmanim', version: '2.5.0'
-    implementation group: 'org.shredzone.commons', name: 'commons-suncalc', version: '2.14'// Do NOT upgrade, v3 changes how the full cycle works
+    implementation group: 'org.shredzone.commons', name: 'commons-suncalc', version: '2.14'// Do NOT upgrade, v3 changes how the full cycle works. Once min SDK is 26, we will upgrade
     implementation('us.dustinj.timezonemap:timezonemap:4.5') {
         // Exclude standard compression library
         exclude group: 'com.github.luben', module: 'zstd-jni'

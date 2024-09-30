@@ -2196,7 +2196,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 updateDailyZmanim();
                 mMainRecyclerView.scrollToPosition(mCurrentPosition);
             }
-            resetTheme();
             //this is to update the zmanim notifications if the user changed the settings to start showing them
             saveGeoLocationInfo();
             PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(
@@ -2212,6 +2211,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             checkIfUserIsInIsraelOrNot();
             sSharedPreferences.edit().putBoolean("shouldRefresh", false).apply();
         }
+
+        resetTheme();
 
         if (binding != null) {
             TextClock clock = binding.clock;
