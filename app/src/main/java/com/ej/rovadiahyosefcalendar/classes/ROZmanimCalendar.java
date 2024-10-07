@@ -336,16 +336,6 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     }
 
     /**
-     * This method returns the time when the average fast ends based on the opinion of Chacham Ben Tzion Abba Shaul. This is calculated as 30 minutes
-     * after sunset. This zman is not shown in either the Ohr Hachaim or Amudei Horaah calendars, however, I added it because many communities use this
-     * time for the end of the fast outside of Israel.
-     * @return the time when the average fast ends based on the opinion of Chacham Ben Tzion Abba Shaul. 30 minutes after sunset.
-     */
-    public Date getTzaitTaanitLChumra() {
-        return getTimeOffset(getElevationAdjustedSunset(), (30 * MILLISECONDS_PER_MINUTE));
-    }
-
-    /**
      * This method overrides the {@link #getSolarMidnight()} method in the base class to return the time of solar midnight as calculated by the Ohr
      * HaChaim calendar. This is calculated as 6 * shaot zmaniyot after sunset. The only difference between this method and
      * the method in the base class is that this method uses elevation adjusted sunset always. It does not affect the time that much, but still, it is

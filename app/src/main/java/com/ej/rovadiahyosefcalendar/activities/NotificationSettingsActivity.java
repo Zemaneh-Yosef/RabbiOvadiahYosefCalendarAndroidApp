@@ -71,10 +71,6 @@ public class NotificationSettingsActivity extends AppCompatActivity {
                 if (fast != null) {
                     fast.setVisible(false);
                 }
-                Preference fastStringent = findPreference("FastEndStringent");
-                if (fastStringent != null) {
-                    fastStringent.setVisible(false);
-                }
             } else {
                 String plagOpinions = PreferenceManager.getDefaultSharedPreferences(requireContext()).getString("plagOpinion", "1");
                 if (plagOpinions.equals("1")) {

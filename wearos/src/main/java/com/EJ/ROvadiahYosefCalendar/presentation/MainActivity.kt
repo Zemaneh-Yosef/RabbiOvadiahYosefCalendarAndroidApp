@@ -89,6 +89,7 @@ import androidx.wear.tiles.TileService
 import com.EJ.ROvadiahYosefCalendar.R
 import com.EJ.ROvadiahYosefCalendar.classes.HebrewDatePickerDialog
 import com.EJ.ROvadiahYosefCalendar.classes.JewishDateInfo
+import com.EJ.ROvadiahYosefCalendar.classes.LocaleChecker
 import com.EJ.ROvadiahYosefCalendar.classes.LocationResolver
 import com.EJ.ROvadiahYosefCalendar.classes.OnChangeListener
 import com.EJ.ROvadiahYosefCalendar.classes.PreferenceListener
@@ -108,7 +109,6 @@ import com.kosherjava.zmanim.util.GeoLocation
 import com.kosherjava.zmanim.util.ZmanimFormatter
 import kotlinx.coroutines.launch
 import org.json.JSONObject
-import java.nio.channels.FileLock
 import java.nio.charset.StandardCharsets
 import java.text.DateFormat
 import java.text.SimpleDateFormat
@@ -627,15 +627,19 @@ class MainActivity : ComponentActivity() {
         }
 
         val tekufaOpinions: String? = sharedPref.getString("TekufaOpinions", "1")
-        if ((tekufaOpinions == "1" || tekufaOpinions == null) && !sharedPref.getBoolean("LuachAmudeiHoraah", false)) {
-            addTekufaTime()
-        }
-        if (tekufaOpinions == "2" || sharedPref.getBoolean("LuachAmudeiHoraah", false)) {
-            addAmudeiHoraahTekufaTime()
-        }
-        if (tekufaOpinions == "3") {
-            addAmudeiHoraahTekufaTime()
-            addTekufaTime()
+        when (tekufaOpinions) {
+            "1" -> if (sharedPref.getBoolean("LuachAmudeiHoraah", false)) {
+                addAmudeiHoraahTekufaTime()
+            } else {
+                addTekufaTime()
+            }
+
+            "2" -> addTekufaTime()
+            "3" -> addAmudeiHoraahTekufaTime()
+            else -> {
+                addAmudeiHoraahTekufaTime()
+                addTekufaTime()
+            }
         }
         addTekufaLength(zmanim, tekufaOpinions)
 
@@ -1565,69 +1569,100 @@ class MainActivity : ComponentActivity() {
         }
 
         if (tekufa != null && aHTekufa != null) {
-            var halfHourBefore: Date?
-            var halfHourAfter: Date?
-            if ((opinion == "1" || opinion == null) && !sharedPref.getBoolean("LuachAmudeiHoraah", false)) {
-                halfHourBefore = Date(tekufa.time - (millisPerHour / 2))
-                halfHourAfter = Date(tekufa.time + (millisPerHour / 2))
-                if (Locale.getDefault().getDisplayLanguage(Locale("en", "US")) == "Hebrew") {
-                    zmanim.add(
-                        ZmanListEntry(
-                            getString(R.string.tekufa_length) + zmanimFormat.format(
-                                halfHourAfter
-                            ) + " - " + zmanimFormat.format(halfHourBefore)
+            val halfHourBefore: Date?
+            val halfHourAfter: Date?
+            when (opinion) {
+                "1" -> {
+                    if (sharedPref.getBoolean("LuachAmudeiHoraah", false)) {
+                        halfHourBefore = Date(aHTekufa.time - (millisPerHour / 2))
+                        halfHourAfter = Date(aHTekufa.time + (millisPerHour / 2))
+                    } else {
+                        halfHourBefore = Date(tekufa.time - (millisPerHour / 2))
+                        halfHourAfter = Date(tekufa.time + (millisPerHour / 2))
+                    }
+                    if (LocaleChecker.isLocaleHebrew()) {
+                        zmanim.add(
+                            ZmanListEntry(
+                                getString(R.string.tekufa_length) + zmanimFormat.format(
+                                    halfHourAfter
+                                ) + " - " + zmanimFormat.format(halfHourBefore)
+                            )
                         )
-                    )
-                } else {
-                    zmanim.add(
-                        ZmanListEntry(
-                            getString(R.string.tekufa_length) + zmanimFormat.format(
-                                halfHourBefore
-                            ) + " - " + zmanimFormat.format(halfHourAfter)
+                    } else {
+                        zmanim.add(
+                            ZmanListEntry(
+                                getString(R.string.tekufa_length) + zmanimFormat.format(
+                                    halfHourBefore
+                                ) + " - " + zmanimFormat.format(halfHourAfter)
+                            )
                         )
-                    )
+                    }
                 }
-            }
-            if (opinion == "2" || sharedPref.getBoolean("LuachAmudeiHoraah", false)) {
-                halfHourBefore = Date(aHTekufa.time - (millisPerHour / 2))
-                halfHourAfter = Date(aHTekufa.time + (millisPerHour / 2))
-                if (Locale.getDefault().getDisplayLanguage(Locale("en", "US")) == "Hebrew") {
-                    zmanim.add(
-                        ZmanListEntry(
-                            getString(R.string.tekufa_length) + zmanimFormat.format(
-                                halfHourAfter
-                            ) + " - " + zmanimFormat.format(halfHourBefore)
+
+                "2" -> {
+                    halfHourBefore = Date(tekufa.time - (millisPerHour / 2))
+                    halfHourAfter = Date(tekufa.time + (millisPerHour / 2))
+                    if (LocaleChecker.isLocaleHebrew()) {
+                        zmanim.add(
+                            ZmanListEntry(
+                                getString(R.string.tekufa_length) + zmanimFormat.format(
+                                    halfHourAfter
+                                ) + " - " + zmanimFormat.format(halfHourBefore)
+                            )
                         )
-                    )
-                } else {
-                    zmanim.add(
-                        ZmanListEntry(
-                            getString(R.string.tekufa_length) + zmanimFormat.format(
-                                halfHourBefore
-                            ) + " - " + zmanimFormat.format(halfHourAfter)
+                    } else {
+                        zmanim.add(
+                            ZmanListEntry(
+                                getString(R.string.tekufa_length) + zmanimFormat.format(
+                                    halfHourBefore
+                                ) + " - " + zmanimFormat.format(halfHourAfter)
+                            )
                         )
-                    )
+                    }
                 }
-            }
-            if (opinion == "3") {
-                halfHourBefore = Date(aHTekufa.time - (millisPerHour / 2))
-                halfHourAfter = Date(tekufa.time + (millisPerHour / 2))
-                if (Locale.getDefault().getDisplayLanguage(Locale("en", "US")) == "Hebrew") {
-                    zmanim.add(
-                        ZmanListEntry(
-                            getString(R.string.tekufa_length) + zmanimFormat.format(
-                                halfHourAfter
-                            ) + " - " + zmanimFormat.format(halfHourBefore)
+
+                "3" -> {
+                    halfHourBefore = Date(aHTekufa.time - (millisPerHour / 2))
+                    halfHourAfter = Date(aHTekufa.time + (millisPerHour / 2))
+                    if (LocaleChecker.isLocaleHebrew()) {
+                        zmanim.add(
+                            ZmanListEntry(
+                                getString(R.string.tekufa_length) + zmanimFormat.format(
+                                    halfHourAfter
+                                ) + " - " + zmanimFormat.format(halfHourBefore)
+                            )
                         )
-                    )
-                } else {
-                    zmanim.add(
-                        ZmanListEntry(
-                            getString(R.string.tekufa_length) + zmanimFormat.format(
-                                halfHourBefore
-                            ) + " - " + zmanimFormat.format(halfHourAfter)
+                    } else {
+                        zmanim.add(
+                            ZmanListEntry(
+                                getString(R.string.tekufa_length) + zmanimFormat.format(
+                                    halfHourBefore
+                                ) + " - " + zmanimFormat.format(halfHourAfter)
+                            )
                         )
-                    )
+                    }
+                }
+
+                else -> {
+                    halfHourBefore = Date(aHTekufa.time - (millisPerHour / 2))
+                    halfHourAfter = Date(tekufa.time + (millisPerHour / 2))
+                    if (LocaleChecker.isLocaleHebrew()) {
+                        zmanim.add(
+                            ZmanListEntry(
+                                getString(R.string.tekufa_length) + zmanimFormat.format(
+                                    halfHourAfter
+                                ) + " - " + zmanimFormat.format(halfHourBefore)
+                            )
+                        )
+                    } else {
+                        zmanim.add(
+                            ZmanListEntry(
+                                getString(R.string.tekufa_length) + zmanimFormat.format(
+                                    halfHourBefore
+                                ) + " - " + zmanimFormat.format(halfHourAfter)
+                            )
+                        )
+                    }
                 }
             }
         }
@@ -1886,7 +1921,10 @@ class MainActivity : ComponentActivity() {
     fun DarkChip(text: String, upcoming: Boolean = false, drag: Float, onClick: () -> Unit = { }, isEnabled: Boolean = false) {
         var modifier = Modifier
             .clickable(onClick = onClick, enabled = isEnabled)
-            .background(if (upcoming) DarkGray else Color.Transparent, if (resources.configuration.isScreenRound) CircleShape else RoundedCornerShape(2))
+            .background(
+                if (upcoming) DarkGray else Color.Transparent,
+                if (resources.configuration.isScreenRound) CircleShape else RoundedCornerShape(2)
+            )
             .fillMaxWidth()
 
         modifier = if (upcoming && drag <= 2.0f) {

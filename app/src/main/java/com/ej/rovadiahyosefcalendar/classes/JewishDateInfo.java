@@ -863,6 +863,17 @@ public class JewishDateInfo {
     }
 
     /**
+     * This method returns which year of the shmita cycle is the current hebrew year in.
+     * 0 = Shmita, 1 = First Year, 2 = Second Year, 3 = Third Year, 4 = Fourth Year, 5 = Fifth Year, 6 = Sixth Year.
+     *
+     * @return an int indicating what year of the shmita cycle the current hebrew year is in.
+     * NOTE: Some Rishonim hold that the year of shmita is a year off.
+     */
+    public int getYearOfShmitaCycle() {
+        return jewishCalendar.getJewishYear() % 7;
+    }
+
+    /**
      * Returns true if for the current date (i.e. the night before) we say Tikkun Chatzot.
      * @return Returns true if for the current date (i.e. the night before) we say Tikkun Chatzot
      * @see #isOnlyTikkunLeiaSaid(boolean, boolean)

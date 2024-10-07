@@ -144,13 +144,20 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
         }
         Calendar cal = Calendar.getInstance();
         String tekufaOpinions = PreferenceManager.getDefaultSharedPreferences(context).getString("TekufaOpinions", "1");
-        if (tekufaOpinions.equals("1") && !PreferenceManager.getDefaultSharedPreferences(context).getBoolean("LuachAmudeiHoraah", false)) {
+        if (tekufaOpinions.equals("1")) {
+            if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("LuachAmudeiHoraah", false)) {
+                checkIfAmudeiHoraahTekufaIsToday(context, jewishDateInfo, cal);
+            } else {
+                checkIfTekufaIsToday(context, jewishDateInfo, cal);
+            }
+        }
+        if (tekufaOpinions.equals("2")) {
             checkIfTekufaIsToday(context, jewishDateInfo, cal);
         }
-        if (tekufaOpinions.equals("2") || PreferenceManager.getDefaultSharedPreferences(context).getBoolean("LuachAmudeiHoraah", false)) {
+        if (tekufaOpinions.equals("3")) {
             checkIfAmudeiHoraahTekufaIsToday(context, jewishDateInfo, cal);
         }
-        if (tekufaOpinions.equals("3")) {
+        if (tekufaOpinions.equals("4")) {
             checkIfBothTekufasAreOnToday(context, jewishDateInfo, cal);
         }
         updateAlarm(context, calendar, cal);

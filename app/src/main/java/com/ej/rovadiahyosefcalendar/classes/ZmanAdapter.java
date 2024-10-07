@@ -288,6 +288,9 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     if (zmanim.get(position).getTitle().contains("Tachanun") || zmanim.get(position).getTitle().contains("תחנון") || zmanim.get(position).getTitle().contains("צדקתך")) {
                         showTachanunDialog();
                     }
+                    if (zmanim.get(position).getTitle().contains("Shmita") || zmanim.get(position).getTitle().contains("שמיטה")) {
+                        showShmitaDialog();
+                    }
                 }
             });
 
@@ -773,6 +776,13 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     private void showTachanunDialog() {
         AlertDialog alertDialog = dialogBuilder.setTitle("Tachanun - תחנון")
                 .setMessage(R.string.tachanun_dialog)
+                .create();
+        alertDialog.show();
+    }
+
+    private void showShmitaDialog() {
+        AlertDialog alertDialog = dialogBuilder.setTitle("Shmita - שמיטה")
+                .setMessage(R.string.shmita_dialog)
                 .create();
         alertDialog.show();
     }

@@ -328,8 +328,8 @@
     <string name="manually_set_the_language_of_the_app">App Language</string>
     <string name="restart_app">Please restart the app</string>
     <string name="see_full_text">See Full Text</string>
-    <string name="show_shmita_year">Show Shmita Year?</string>
-    <string name="choose_whether_or_not_to_show_if_the_year_is_a_shmita_year_or_not">Choose whether or not to show if the year is a shmita year or not</string>
+    <string name="show_shmita_year">Show year of Shmita cycle?</string>
+    <string name="choose_whether_or_not_to_show_if_the_year_is_a_shmita_year_or_not">Show the year of the shmita cycle or if the current year is a shmita year</string>
     <string name="this_year_is_a_shmita_year">This year is a Shmita Year</string>
     <string name="this_year_is_not_a_shmita_year">This year is not a Shmita year</string>
     <string name="advanced">Advanced</string>
@@ -403,4 +403,11 @@
     <string name="battery_optimization_is_enabled">Battery Optimization Is Enabled!</string>
    <string name="the_current_battery_settings_for_the_app_is_trying_to_save_battery_this_may_cause_notifications_to_be_sent_at_a_later_time_would_you_like_to_change_this_setting">The current battery settings for the app is trying to save battery. This may cause notifications to be sent at a later time. Would you like to change this setting?</string>
    <string name="this_will_open_the_sefaria_website_or_app_in_a_new_window_with_the_weekly_parsha">This will open the Sefaria website or app in a new window with the weekly parsha.</string>
+   <string name="first_year_of_shmita">First year of Shmita</string>
+   <string name="second_year_of_shmita">Second year of Shmita</string>
+   <string name="third_year_of_shmita">Third year of Shmita</string>
+   <string name="fourth_year_of_shmita">Fourth year of Shmita</string>
+   <string name="fifth_year_of_shmita">Fifth year of Shmita</string>
+   <string name="sixth_year_of_shmita">Sixth year of Shmita</string>
+   <string name="shmita_dialog">During the six-year cycle prior to shmita, there is an obligation to separate and gift portions of your field\'s grains, fruits and vegetables grown in Israel to various causes (Bamidbar 18). We separate Terumah Gedolah, Maaser Rishon, and Terumat Maaser every year, however, Maaser Sheni is replaced with Maaser Ani on the 3rd and 6th years (Devarim 14:28).</string>
 </resources>

@@ -161,11 +161,6 @@ public class ZmanimFactory {
             ZmanListEntry fastEnds = new ZmanListEntry(zmanimNames.getTzaitString() + zmanimNames.getTaanitString() + zmanimNames.getEndsString(), mROZmanimCalendar.getTzaitTaanit(), true);
             fastEnds.setNoteworthyZman(true);
             zmanim.add(fastEnds);
-            if (!isForWeeklyZmanim) {//remove the second fast time, it just confuses people because we remove l'chumra
-                fastEnds = new ZmanListEntry(zmanimNames.getTzaitString() + zmanimNames.getTaanitString() + zmanimNames.getEndsString() + " " + zmanimNames.getLChumraString(), mROZmanimCalendar.getTzaitTaanitLChumra(), true);
-                fastEnds.setNoteworthyZman(true);
-                zmanim.add(fastEnds);
-            }
         } else if (mSettingsPreferences.getBoolean("alwaysShowTzeitLChumra", false)) {
             ZmanListEntry tzeitLChumra = new ZmanListEntry(zmanimNames.getTzaitHacochavimString() + " " + zmanimNames.getLChumraString(), mROZmanimCalendar.getTzaitTaanit(), true);
             zmanim.add(tzeitLChumra);

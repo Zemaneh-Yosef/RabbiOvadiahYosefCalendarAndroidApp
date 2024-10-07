@@ -131,12 +131,6 @@
             />
 
         <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
-            android:key="FastEndStringent"
-            android:title="@string/fast_ends_stringent"
-            android:defaultValue="15"
-            />
-
-        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
             android:key="ShabbatEnd"
             android:title="@string/shabbat_ends"
             android:defaultValue="15"

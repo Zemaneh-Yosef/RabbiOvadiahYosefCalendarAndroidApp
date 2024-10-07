@@ -573,8 +573,8 @@
     <string name="manually_set_the_language_of_the_app">שפת האפליקציה</string>
     <string name="restart_app">אנא אתחל את האפליקציה</string>
     <string name="see_full_text">ראה את הטקסט המלא</string>
-    <string name="show_shmita_year">הצג שנת שמיטה</string>
-    <string name="choose_whether_or_not_to_show_if_the_year_is_a_shmita_year_or_not">בחר האם להציג האם השנה היא שנת שמיטה</string>
+    <string name="show_shmita_year">להציג את השנה במחזור השמיטה</string>
+    <string name="choose_whether_or_not_to_show_if_the_year_is_a_shmita_year_or_not">להציג את השנה במחזור השמיטה או אם השנה הנוכחית היא שנת שמיטה</string>
     <string name="this_year_is_a_shmita_year">שנה זו היא שנת שמיטה</string>
     <string name="this_year_is_not_a_shmita_year">שנה זו אינה שנת שמיטה</string>
     <string name="advanced">מתקדם</string>
@@ -649,4 +649,11 @@
     <string name="battery_optimization_is_enabled">האופטימיזציה לסוללה מופעלת!</string>
     <string name="the_current_battery_settings_for_the_app_is_trying_to_save_battery_this_may_cause_notifications_to_be_sent_at_a_later_time_would_you_like_to_change_this_setting">הגדרות הסוללה הנוכחיות של האפליקציה מנסות לחסוך בסוללה. ייתכן שזה יגרום להודעות להישלח מאוחר יותר. האם תרצה לשנות את ההגדרה?</string>
     <string name="this_will_open_the_sefaria_website_or_app_in_a_new_window_with_the_weekly_parsha">זה יפתח את אתר או אפליקציית ספריא בחלון חדש עם פרשת השבוע.</string>
+    <string name="first_year_of_shmita">שנה א׳ של שמיטה</string>
+    <string name="second_year_of_shmita">שנה ב׳ של שמיטה</string>
+    <string name="third_year_of_shmita">שנה ג׳ של שמיטה</string>
+    <string name="fourth_year_of_shmita">שנה ד׳ של שמיטה</string>
+    <string name="fifth_year_of_shmita">שנה ה׳ של שמיטה</string>
+    <string name="sixth_year_of_shmita">שנה ו׳ של שמיטה</string>
+    <string name="shmita_dialog">במהלך מחזור שש השנים שלפני השמיטה, יש חובה להפריש ולתת חלקים מגידולי השדה שלכם - תבואה, פירות וירקות שגודלו בארץ ישראל - למטרות שונות (במדבר י\"ח). מפרישים תרומה גדולה, מעשר ראשון ותרומת מעשר בכל שנה, אך מעשר שני מוחלף במעשר עני בשנה השלישית והשישית (דברים י\"ד:כ\"ח).</string>
 </resources>

@@ -1136,15 +1136,24 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
 
         String tekufaOpinions = sSettingsPreferences.getString("TekufaOpinions", "1");
-        if (tekufaOpinions.equals("1") && !sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
-            addTekufaTime(zmanim, false);
-        }
-        if (tekufaOpinions.equals("2") || sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
-            addAmudeiHoraahTekufaTime(zmanim, false);
-        }
-        if (tekufaOpinions.equals("3")) {
-            addAmudeiHoraahTekufaTime(zmanim, false);
-            addTekufaTime(zmanim, false);
+        switch (tekufaOpinions) {
+            case "1":
+                if (sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
+                    addAmudeiHoraahTekufaTime(zmanim, false);
+                } else {
+                    addTekufaTime(zmanim, false);
+                }
+                break;
+            case "2":
+                addTekufaTime(zmanim, false);
+                break;
+            case "3":
+                addAmudeiHoraahTekufaTime(zmanim, false);
+                break;
+            default://I.E. 4
+                addAmudeiHoraahTekufaTime(zmanim, false);
+                addTekufaTime(zmanim, false);
+                break;
         }
         addTekufaLength(zmanim, tekufaOpinions);
 
@@ -1176,10 +1185,28 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
 
         if (sSettingsPreferences.getBoolean("ShowShmitaYear", false)) {
-            if (mJewishDateInfo.isShmitaYear()) {
-                zmanim.add(new ZmanListEntry(mContext.getString(R.string.this_year_is_a_shmita_year)));
-            } else {
-                zmanim.add(new ZmanListEntry(mContext.getString(R.string.this_year_is_not_a_shmita_year)));
+            switch (mJewishDateInfo.getYearOfShmitaCycle()) {
+                case 1:
+                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.first_year_of_shmita)));
+                    break;
+                case 2:
+                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.second_year_of_shmita)));
+                    break;
+                case 3:
+                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.third_year_of_shmita)));
+                    break;
+                case 4:
+                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.fourth_year_of_shmita)));
+                    break;
+                case 5:
+                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.fifth_year_of_shmita)));
+                    break;
+                case 6:
+                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.sixth_year_of_shmita)));
+                    break;
+                default:
+                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.this_year_is_a_shmita_year)));
+                    break;
             }
         }
 
@@ -1280,15 +1307,24 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
         List<ZmanListEntry> tekufa = new ArrayList<>();
         String tekufaOpinions = sSettingsPreferences.getString("TekufaOpinions", "1");
-        if (tekufaOpinions.equals("1") && !sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
-            addTekufaTime(tekufa, true);
-        }
-        if (tekufaOpinions.equals("2") || sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
-            addAmudeiHoraahTekufaTime(tekufa, true);
-        }
-        if (tekufaOpinions.equals("3")) {
-            addAmudeiHoraahTekufaTime(tekufa, true);
-            addTekufaTime(tekufa, true);
+        switch (tekufaOpinions) {
+            case "1":
+                if (sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
+                    addAmudeiHoraahTekufaTime(tekufa, true);
+                } else {
+                    addTekufaTime(tekufa, true);
+                }
+                break;
+            case "2":
+                addTekufaTime(tekufa, true);
+                break;
+            case "3":
+                addAmudeiHoraahTekufaTime(tekufa, true);
+                break;
+            default:// 4
+                addAmudeiHoraahTekufaTime(tekufa, true);
+                addTekufaTime(tekufa, true);
+                break;
         }
         if (!tekufa.isEmpty()) {
             for (ZmanListEntry tekufaEntry : tekufa) {
@@ -1437,7 +1473,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 if (zman.isNoteworthyZman()) {
                     if (zman.isRTZman() && sSettingsPreferences.getBoolean("RoundUpRT", false)) {
                         DateFormat rtFormat;
-                        if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                        if (LocaleChecker.isLocaleHebrew()) {
                             if (sSettingsPreferences.getBoolean("ShowSeconds", false)) {
                                 rtFormat = new SimpleDateFormat("H:mm:ss", Locale.getDefault());
                             } else {
@@ -1451,13 +1487,13 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                             }
                         }
                         rtFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
-                        if (!Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                        if (!LocaleChecker.isLocaleHebrew()) {
                             mZmanimForAnnouncements.add(rtFormat.format(zman.getZman()) + " :" + zman.getTitle().replaceAll("\\(.*\\)", "").trim());
                         } else {
                             mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + ": " + rtFormat.format(zman.getZman()));
                         }
                     } else {
-                        if (!Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                        if (!LocaleChecker.isLocaleHebrew()) {
                             mZmanimForAnnouncements.add(zmanimFormat.format(zman.getZman()) + " :" + zman.getTitle().replaceAll("\\(.*\\)", "").trim());
                         } else {
                             mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + ": " + zmanimFormat.format(zman.getZman()));
@@ -1502,20 +1538,20 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         }
                     }
                     rtFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
-                    if (!Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                    if (!LocaleChecker.isLocaleHebrew()) {
                         shortZmanim[zmanim.indexOf(zman)] = rtFormat.format(zman.getZman()) + " :" +  zman.getTitle();
                     } else {
                         shortZmanim[zmanim.indexOf(zman)] = zman.getTitle() + " : " +  rtFormat.format(zman.getZman());
                     }
                 } else {
-                    if (!Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                    if (!LocaleChecker.isLocaleHebrew()) {
                         shortZmanim[zmanim.indexOf(zman)] = zmanimFormat.format(zman.getZman()) + " :" + zman.getTitle().replace("סוף זמן ", "");
                     } else {
                         shortZmanim[zmanim.indexOf(zman)] = zman.getTitle().replace("סוף זמן ", "") + ": " + zmanimFormat.format(zman.getZman());
                     }
                 }
                 if (zman.getZman().equals(sNextUpcomingZman)) {
-                    if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                    if (LocaleChecker.isLocaleHebrew()) {
                         shortZmanim[zmanim.indexOf(zman)] = shortZmanim[zmanim.indexOf(zman)] + " ➤ ";
                     } else {
                         shortZmanim[zmanim.indexOf(zman)] = shortZmanim[zmanim.indexOf(zman)] + " ◄ ";
@@ -1537,7 +1573,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                             + ": " + zmanimFormat.format(zman.getZman());
                 }
                 if (zman.getZman().equals(sNextUpcomingZman)) {
-                    if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                    if (LocaleChecker.isLocaleHebrew()) {
                         shortZmanim[zmanim.indexOf(zman)] = shortZmanim[zmanim.indexOf(zman)] + " ➤ ";
                     } else {
                         shortZmanim[zmanim.indexOf(zman)] = shortZmanim[zmanim.indexOf(zman)] + " ◄ ";
@@ -1575,7 +1611,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
                     cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
 
-                if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                if (LocaleChecker.isLocaleHebrew()) {
                     if (shortStyle) {
                         zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
                                 zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
@@ -1607,7 +1643,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
                     cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
 
-                if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                if (LocaleChecker.isLocaleHebrew()) {
                     if (shortStyle) {
                         zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
                                 zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
@@ -1636,7 +1672,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      */
     private void addAmudeiHoraahTekufaTime(List<ZmanListEntry> zmanim, boolean shortStyle) {
         DateFormat zmanimFormat;
-        if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+        if (LocaleChecker.isLocaleHebrew()) {
             zmanimFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
         } else {
             zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
@@ -1656,7 +1692,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
                     cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
 
-                if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                if (LocaleChecker.isLocaleHebrew()) {
                     if (shortStyle) {
                         zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
                                 zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
@@ -1688,7 +1724,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
                     cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
 
-                if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                if (LocaleChecker.isLocaleHebrew()) {
                     if (shortStyle) {
                         zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
                                 zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
@@ -1711,7 +1747,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
     public void addTekufaLength(List<ZmanListEntry> zmanim, String opinion) {
         DateFormat zmanimFormat;
-        if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+        if (LocaleChecker.isLocaleHebrew()) {
             zmanimFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
         } else {
             zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
@@ -1758,32 +1794,48 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (tekufa != null && aHTekufa != null) {
             Date halfHourBefore;
             Date halfHourAfter;
-            if (opinion.equals("1") && !sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
-                halfHourBefore = new Date(tekufa.getTime() - (DateUtils.MILLIS_PER_HOUR / 2));
-                halfHourAfter = new Date(tekufa.getTime() + (DateUtils.MILLIS_PER_HOUR / 2));
-                if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
-                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourAfter) + " - " + zmanimFormat.format(halfHourBefore)));
-                } else {
-                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfter)));
-                }
-            }
-            if (opinion.equals("2") || sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
-                halfHourBefore = new Date(aHTekufa.getTime() - (DateUtils.MILLIS_PER_HOUR / 2));
-                halfHourAfter = new Date(aHTekufa.getTime() + (DateUtils.MILLIS_PER_HOUR / 2));
-                if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
-                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourAfter) + " - " + zmanimFormat.format(halfHourBefore)));
-                } else {
-                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfter)));
-                }
-            }
-            if (opinion.equals("3")) {
-                halfHourBefore = new Date(aHTekufa.getTime() - (DateUtils.MILLIS_PER_HOUR / 2));
-                halfHourAfter = new Date(tekufa.getTime() + (DateUtils.MILLIS_PER_HOUR / 2));
-                if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
-                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourAfter) + " - " + zmanimFormat.format(halfHourBefore)));
-                } else {
-                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfter)));
-                }
+            switch (opinion) {
+                case "1":
+                    if (sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
+                        halfHourBefore = new Date(aHTekufa.getTime() - (DateUtils.MILLIS_PER_HOUR / 2));
+                        halfHourAfter = new Date(aHTekufa.getTime() + (DateUtils.MILLIS_PER_HOUR / 2));
+                    } else {
+                        halfHourBefore = new Date(tekufa.getTime() - (DateUtils.MILLIS_PER_HOUR / 2));
+                        halfHourAfter = new Date(tekufa.getTime() + (DateUtils.MILLIS_PER_HOUR / 2));
+                    }
+                    if (LocaleChecker.isLocaleHebrew()) {
+                        zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourAfter) + " - " + zmanimFormat.format(halfHourBefore)));
+                    } else {
+                        zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfter)));
+                    }
+                    break;
+                case "2":
+                    halfHourBefore = new Date(tekufa.getTime() - (DateUtils.MILLIS_PER_HOUR / 2));
+                    halfHourAfter = new Date(tekufa.getTime() + (DateUtils.MILLIS_PER_HOUR / 2));
+                    if (LocaleChecker.isLocaleHebrew()) {
+                        zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourAfter) + " - " + zmanimFormat.format(halfHourBefore)));
+                    } else {
+                        zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfter)));
+                    }
+                    break;
+                case "3":
+                    halfHourBefore = new Date(aHTekufa.getTime() - (DateUtils.MILLIS_PER_HOUR / 2));
+                    halfHourAfter = new Date(aHTekufa.getTime() + (DateUtils.MILLIS_PER_HOUR / 2));
+                    if (LocaleChecker.isLocaleHebrew()) {
+                        zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourAfter) + " - " + zmanimFormat.format(halfHourBefore)));
+                    } else {
+                        zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfter)));
+                    }
+                    break;
+                default:// 4
+                    halfHourBefore = new Date(aHTekufa.getTime() - (DateUtils.MILLIS_PER_HOUR / 2));
+                    halfHourAfter = new Date(tekufa.getTime() + (DateUtils.MILLIS_PER_HOUR / 2));
+                    if (LocaleChecker.isLocaleHebrew()) {
+                        zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourAfter) + " - " + zmanimFormat.format(halfHourBefore)));
+                    } else {
+                        zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfter)));
+                    }
+                    break;
             }
         }
     }
@@ -2218,7 +2270,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             TextClock clock = binding.clock;
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 clock.setVisibility(View.VISIBLE);
-                if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                if (LocaleChecker.isLocaleHebrew()) {
                     clock.setFormat24Hour("H:mm:ss");
                 }
             } else {

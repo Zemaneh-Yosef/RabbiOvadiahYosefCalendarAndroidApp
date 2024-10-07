@@ -211,11 +211,6 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
         }
 
         if (jewishCalendar.isTaanis() && jewishCalendar.getYomTovIndex() != JewishCalendar.YOM_KIPPUR) {//only add if it's a taanit and not yom kippur
-            minutesBefore = mSettingsSharedPreferences.getInt("FastEndStringent", 15);
-            if (minutesBefore >= 0) {
-                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTzaitString() + zmanimNames.getTaanitString() + " " +
-                        zmanimNames.getLChumraString(), c.getTzaitTaanitLChumra(), minutesBefore));
-            }
             minutesBefore = mSettingsSharedPreferences.getInt("FastEnd", 15);
             if (minutesBefore >= 0) {
                 pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTzaitString() + zmanimNames.getTaanitString(), c.getTzaitTaanit(), minutesBefore));
