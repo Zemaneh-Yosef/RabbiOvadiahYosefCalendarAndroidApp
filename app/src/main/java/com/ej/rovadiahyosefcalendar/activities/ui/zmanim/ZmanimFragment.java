@@ -129,7 +129,6 @@ import java.util.regex.Pattern;
 public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
     public static boolean sShabbatMode;
-    public static boolean sUserIsOffline;
     private boolean mIsZmanimInHebrew;
     private boolean mIsZmanimEnglishTranslated;
     private static final int TWENTY_FOUR_HOURS_IN_MILLI = 86_400_000;
@@ -233,29 +232,20 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     editor.putBoolean("useAdvanced", false).apply();
                     editor.putBoolean("useZipcode", true).apply();
                     editor.putString("Zipcode", sharedText).apply();
-                    mLocationResolver = new LocationResolver(mContext, mActivity);
                     mLocationResolver.getLatitudeAndLongitudeFromSearchQuery();
-                    if (sSharedPreferences.getBoolean("useElevation", true)) {
-                        mLocationResolver.start();
-                        try {
-                            mLocationResolver.join();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
                     mLocationResolver.setTimeZoneID();
-                    resolveElevationAndVisibleSunrise();
-                    instantiateZmanimCalendar();
-                    setNextUpcomingZman();
-                    if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                        updateWeeklyZmanim();
-                    } else {
-                        updateDailyZmanim();
-                    }
-                    checkIfUserIsInIsraelOrNot();
-                    saveGeoLocationInfo();
-                    setNotifications();
-                    PrefToWatchSender.send(mContext);
+                    resolveElevationAndVisibleSunrise(() -> {
+                        instantiateZmanimCalendar();
+                        setNextUpcomingZman();
+                        if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                            updateWeeklyZmanim();
+                        } else {
+                            updateDailyZmanim();
+                        }
+                        checkIfUserIsInIsraelOrNot();
+                        setNotifications();
+                        PrefToWatchSender.send(mContext);
+                    });
                 }
             }
         }
@@ -279,17 +269,29 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             mLocationResolver.acquireLatitudeAndLongitude(this);
         }
         mLocationResolver.setTimeZoneID();
-        resolveElevationAndVisibleSunrise();
-        instantiateZmanimCalendar();
-        saveGeoLocationInfo();
-        setZmanimLanguageBools();
-        setNextUpcomingZman();
         setupRecyclerViewAndTextViews();
-        createBackgroundThreadForNextUpcomingZman();
-        setupButtons();
-        setNotifications();
-        askForRealTimeNotificationPermissions();
-        checkIfUserIsInIsraelOrNot();
+        hideWeeklyTextViews();
+        mMainRecyclerView.setVisibility(View.GONE);
+        binding.progressBar.setVisibility(View.VISIBLE);
+        // hide everything except the progress bar before trying to see if we need to get elevation data
+        resolveElevationAndVisibleSunrise(() -> {
+            instantiateZmanimCalendar();
+            setZmanimLanguageBools();
+            setNextUpcomingZman();
+            if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                showWeeklyTextViews();
+                updateWeeklyZmanim();
+            } else {
+                hideWeeklyTextViews();
+                updateDailyZmanim();
+            }
+            binding.progressBar.setVisibility(View.GONE);
+            createBackgroundThreadForNextUpcomingZman();
+            setupButtons();
+            setNotifications();
+            askForRealTimeNotificationPermissions();
+            checkIfUserIsInIsraelOrNot();
+        });
     }
 
 
@@ -466,7 +468,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     private void setupRecyclerViewAndTextViews() {
         SwipeRefreshLayout swipeRefreshLayout = binding.swipeRefreshLayout;
         swipeRefreshLayout.setOnRefreshListener(() -> new Thread(() -> {
@@ -476,17 +477,13 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             }
             mLocationResolver.acquireLatitudeAndLongitude(this);
             mLocationResolver.setTimeZoneID();
-            if (mCurrentDateShown != null
-                    && mJewishDateInfo != null
-                    && mROZmanimCalendar != null
-                    && mMainRecyclerView != null) {
+            if (mCurrentDateShown != null && mROZmanimCalendar != null && mMainRecyclerView != null) {
                 mCurrentDateShown.setTime(new Date());
                 mJewishDateInfo.setCalendar(new GregorianCalendar());
-                resolveElevationAndVisibleSunrise();
-                instantiateZmanimCalendar();
-                setNextUpcomingZman();
-                sSharedPreferences.edit().putString("Full"+mROZmanimCalendar.getGeoLocation().getLocationName(), "").apply();
-                mActivity.runOnUiThread(() -> {
+                resolveElevationAndVisibleSunrise(() -> {
+                    instantiateZmanimCalendar();
+                    setNextUpcomingZman();
+                    sSharedPreferences.edit().putString("Full"+mROZmanimCalendar.getGeoLocation().getLocationName(), "").apply();
                     updateDailyZmanim();
                     mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
                 });
@@ -499,13 +496,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         mMainRecyclerView.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
         if (mIsZmanimInHebrew) {
             mMainRecyclerView.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
-        }
-        if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-            showWeeklyTextViews();
-            updateWeeklyZmanim();
-        } else {
-            hideWeeklyTextViews();
-            updateDailyZmanim();
         }
     }
 
@@ -769,17 +759,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
     }
 
-    /**
-     * This method saves the information needed to restore a GeoLocation object in the notification classes.
-     */
-    private void saveGeoLocationInfo() {//needed for notifications
-        SharedPreferences.Editor editor = sSharedPreferences.edit();
-        editor.putString("name", sCurrentLocationName).apply();
-        editor.putLong("lat", Double.doubleToRawLongBits(sLatitude)).apply();//see here: https://stackoverflow.com/a/18098090/13593159
-        editor.putLong("long", Double.doubleToRawLongBits(sLongitude)).apply();
-        editor.putString("timezoneID", sCurrentTimeZoneID).apply();
-    }
-
     private void askForRealTimeNotificationPermissions() {
         if (ActivityCompat.checkSelfPermission(mContext, ACCESS_FINE_LOCATION) == PERMISSION_GRANTED
                 || ActivityCompat.checkSelfPermission(mContext, ACCESS_COARSE_LOCATION) == PERMISSION_GRANTED) {
@@ -908,11 +887,10 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             int id = item.getItemId();
 
             if (id == R.id.search_for_a_place) {
-                sSharedPreferences.edit().putBoolean("shouldRefresh", true).apply();
                 startActivity(new Intent(mContext, GetUserLocationWithMapActivity.class));
                 return true;
             } else if (id == R.id.shabbat_mode) {
-                if (!sShabbatMode && mJewishDateInfo != null && mROZmanimCalendar != null && mMainRecyclerView != null) {
+                if (!sShabbatMode && mROZmanimCalendar != null && mMainRecyclerView != null) {
                     mCurrentDateShown.setTime(new Date());
                     mJewishDateInfo.setCalendar(new GregorianCalendar());
                     mROZmanimCalendar.setCalendar(new GregorianCalendar());
@@ -944,14 +922,15 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             } else if (id == R.id.use_elevation) {
                 sSharedPreferences.edit().putBoolean("useElevation", !sSharedPreferences.getBoolean("useElevation", false)).apply();
                 item.setChecked(sSharedPreferences.getBoolean("useElevation", false));//save the state of the menu item
-                resolveElevationAndVisibleSunrise();
-                instantiateZmanimCalendar();
-                setNextUpcomingZman();
-                if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                    updateWeeklyZmanim();
-                } else {
-                    updateDailyZmanim();
-                }
+                resolveElevationAndVisibleSunrise(() -> {
+                    instantiateZmanimCalendar();
+                    setNextUpcomingZman();
+                    if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                        updateWeeklyZmanim();
+                    } else {
+                        updateDailyZmanim();
+                    }
+                });
                 return true;
             } else if (id == R.id.jerDirection) {
                 startActivity(new Intent(mContext, JerusalemDirectionMapsActivity.class));
@@ -963,11 +942,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 startActivity(new Intent(mContext, MoladActivity.class));
                 return true;
             } else if (id == R.id.fullSetup) {
-                sSharedPreferences.edit().putBoolean("shouldRefresh", true).apply();
                 sSetupLauncher.launch(new Intent(mContext, FullSetupActivity.class).putExtra("fromMenu",true));
                 return true;
             } else if (id == R.id.settings) {
-                sSharedPreferences.edit().putBoolean("shouldRefresh", true).apply();
                 startActivity(new Intent(mContext, SettingsActivity.class));
                 return true;
             } else if (id == R.id.website) {
@@ -1848,7 +1825,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      *
      * @see LocationResolver#getLocationAsName()
      */
-    private void resolveElevationAndVisibleSunrise() {
+    private void resolveElevationAndVisibleSunrise(Runnable codeToRunOnMainThread) {
+        boolean sUserIsOffline = false;
         if (sCurrentLocationName != null) {// Somehow it is null and crashing in some places
             if (sCurrentLocationName.contains("Lat:") && sCurrentLocationName.contains("Long:")
                     && sSettingsPreferences.getBoolean("SetElevationToLastKnownLocation", false)) {//only if the user has enabled the setting to set the elevation to the last known location
@@ -1862,22 +1840,19 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (!sUserIsOffline && sSharedPreferences.getBoolean("useElevation", true)
                 && !sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {//update if the user is online and the elevation setting is enabled
             if (!sSharedPreferences.contains("elevation" + sCurrentLocationName)) {//if the elevation for this location has never been set
-                mLocationResolver = new LocationResolver(mContext, mActivity);
-                mLocationResolver.start();
-                try {
-                    mLocationResolver.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                sElevation = Double.parseDouble(sSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));
+                Thread thread = new Thread(() -> mLocationResolver.getElevationFromWebService(mHandler,
+                        () -> sElevation = Double.parseDouble(sSharedPreferences.getString("elevation" + sCurrentLocationName, "0")),
+                        codeToRunOnMainThread));
+                thread.start();
                 seeIfTablesNeedToBeUpdated(false);
             } else {
-                sElevation = Double.parseDouble(sSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));
+                if (!sSharedPreferences.getBoolean("useElevation", true)) {//if the user has disabled the elevation setting, set the elevation to 0
+                    sElevation = 0;
+                } else {
+                    sElevation = Double.parseDouble(sSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));
+                }
+                mActivity.runOnUiThread(codeToRunOnMainThread);
             }
-        }
-
-        if (!sSharedPreferences.getBoolean("useElevation", true)) {//if the user has disabled the elevation setting, set the elevation to 0
-            sElevation = 0;
         }
     }
 
@@ -1956,11 +1931,13 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         break;
                 }
             }
-            TextClock clock = binding.clock;
-            if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                clock.setVisibility(View.VISIBLE);
-                if (LocaleChecker.isLocaleHebrew()) {
-                    clock.setFormat24Hour("hh:mm:ss");
+            if (binding != null) {
+                TextClock clock = binding.clock;
+                if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                    clock.setVisibility(View.VISIBLE);
+                    if (LocaleChecker.isLocaleHebrew()) {
+                        clock.setFormat24Hour("hh:mm:ss");
+                    }
                 }
             }
             mNextDate.setVisibility(View.GONE);
@@ -2223,49 +2200,27 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     public void onResume() {
         initMenu();
         mActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        if (mROZmanimCalendar == null) {
-            super.onResume();
-            return;
-        } else {// update right away in case user changed the date
-            if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                updateWeeklyZmanim();
-            } else {
-                updateDailyZmanim();
-            }
-        }
-        if (sSharedPreferences.getBoolean("shouldRefresh", false)) {
-            mJewishDateInfo.getJewishCalendar().setInIsrael(sSharedPreferences.getBoolean("inIsrael", false));
-            mJewishDateInfo.setCalendar(mCurrentDateShown);
-            setZmanimLanguageBools();
-            resolveElevationAndVisibleSunrise();
-            instantiateZmanimCalendar();
-            mROZmanimCalendar.setCalendar(mCurrentDateShown);
-            setNextUpcomingZman();
-            if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                updateWeeklyTextViewTextColor();
-                updateWeeklyZmanim();
-            } else {
-                updateDailyZmanim();
-                mMainRecyclerView.scrollToPosition(mCurrentPosition);
-            }
-            //this is to update the zmanim notifications if the user changed the settings to start showing them
-            saveGeoLocationInfo();
-            PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(
-                    mContext,
-                    0,
-                    new Intent(mContext, ZmanimNotifications.class),
-                    PendingIntent.FLAG_IMMUTABLE);
-            try {
-                zmanimPendingIntent.send();
-            } catch (PendingIntent.CanceledException e) {
-                e.printStackTrace();
-            }
-            checkIfUserIsInIsraelOrNot();
-            sSharedPreferences.edit().putBoolean("shouldRefresh", false).apply();
-        }
-
         resetTheme();
-
+        if (mLayout != null && mCalendarButton != null && sSharedPreferences != null) {
+            if (sSharedPreferences.getBoolean("useImage", false)) {
+                Bitmap bitmap = BitmapFactory.decodeFile(sSharedPreferences.getString("imageLocation", ""));
+                Drawable drawable = new BitmapDrawable(getResources(), bitmap);
+                mLayout.setBackground(drawable);
+            } else if (sSharedPreferences.getBoolean("customBackgroundColor", false) &&
+                    !sSharedPreferences.getBoolean("useDefaultBackgroundColor", false)) {
+                mLayout.setBackgroundColor(sSharedPreferences.getInt("bColor", 0x32312C));
+            } else {
+                mLayout.setBackgroundColor(0);
+            }
+            if (!sShabbatMode) {
+                if (sSharedPreferences.getBoolean("useDefaultCalButtonColor", true)) {
+                    mCalendarButton.setBackgroundColor(mContext.getColor(R.color.dark_blue));
+                } else {
+                    mCalendarButton.setBackgroundColor(sSharedPreferences.getInt("CalButtonColor", 0x18267C));
+                }
+            }
+            mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+        }
         if (binding != null) {
             TextClock clock = binding.clock;
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -2279,25 +2234,36 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 }
             }
         }
-
-        if (sSharedPreferences.getBoolean("useImage", false)) {
-            Bitmap bitmap = BitmapFactory.decodeFile(sSharedPreferences.getString("imageLocation", ""));
-            Drawable drawable = new BitmapDrawable(getResources(), bitmap);
-            mLayout.setBackground(drawable);
-        } else if (sSharedPreferences.getBoolean("customBackgroundColor", false) &&
-                !sSharedPreferences.getBoolean("useDefaultBackgroundColor", false)) {
-            mLayout.setBackgroundColor(sSharedPreferences.getInt("bColor", 0x32312C));
-        } else {
-            mLayout.setBackgroundColor(0);
+        if (mROZmanimCalendar == null) {
+            super.onResume();
+            return;
         }
-        if (!sShabbatMode) {
-            if (sSharedPreferences.getBoolean("useDefaultCalButtonColor", true)) {
-                mCalendarButton.setBackgroundColor(mContext.getColor(R.color.dark_blue));
+        mJewishDateInfo.getJewishCalendar().setInIsrael(sSharedPreferences.getBoolean("inIsrael", false));// check if the user changed the inIsrael setting
+        setZmanimLanguageBools();// check if the user changed the zmanim language
+        resolveElevationAndVisibleSunrise(() -> {// recreate the zmanim calendar object because it might have changed. Lat, Long, Elevation, or settings might have changed
+            instantiateZmanimCalendar();
+            mROZmanimCalendar.setCalendar(mCurrentDateShown);// make sure date doesn't change
+            setNextUpcomingZman();
+            if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                updateWeeklyTextViewTextColor();
+                updateWeeklyZmanim();
             } else {
-                mCalendarButton.setBackgroundColor(sSharedPreferences.getInt("CalButtonColor", 0x18267C));
+                updateDailyZmanim();
+                mMainRecyclerView.scrollToPosition(mCurrentPosition);
             }
-        }
-        mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+            // update the zmanim notifications if the user changed the settings to start showing them
+            PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(
+                    mContext,
+                    0,
+                    new Intent(mContext, ZmanimNotifications.class),
+                    PendingIntent.FLAG_IMMUTABLE);
+            try {
+                zmanimPendingIntent.send();
+            } catch (PendingIntent.CanceledException e) {
+                e.printStackTrace();
+            }
+            checkIfUserIsInIsraelOrNot();
+        });
 
         if (sLastTimeUserWasInApp == null) {
             sLastTimeUserWasInApp = new Date();
@@ -2372,27 +2338,32 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (location != null) {
             sLatitude = location.getLatitude();
             sLongitude = location.getLongitude();
-            mLocationResolver = new LocationResolver(mContext, mActivity);
+            if (mLocationResolver == null) {
+                mLocationResolver = new LocationResolver(mContext, mActivity);
+            }
             mLocationResolver.resolveCurrentLocationName();
             mLocationResolver.setTimeZoneID();
             synchronized (mJewishDateInfo) {
                 mActivity.runOnUiThread(() -> {
-                    if (mMainRecyclerView.isFocusable()) {
-                        resolveElevationAndVisibleSunrise();
-                        if (mCurrentDateShown != null) {
-                            mCurrentDateShown.setTime(new Date());
-                            mJewishDateInfo.setCalendar(new GregorianCalendar());
-                            instantiateZmanimCalendar();
-                            setNextUpcomingZman();
-                            if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                                updateWeeklyTextViewTextColor();
-                                updateWeeklyZmanim();
-                            } else {
-                                updateDailyZmanim();
-                                mMainRecyclerView.scrollToPosition(mCurrentPosition);
+                    if (mMainRecyclerView != null && mMainRecyclerView.isFocusable()) {
+                        resolveElevationAndVisibleSunrise(() -> {
+                            if (mCurrentDateShown != null) {
+                                mCurrentDateShown.setTime(new Date());
+                                mJewishDateInfo.setCalendar(new GregorianCalendar());
+                                instantiateZmanimCalendar();
+                                setNextUpcomingZman();
+                                if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                                    updateWeeklyTextViewTextColor();
+                                    updateWeeklyZmanim();
+                                } else {
+                                    updateDailyZmanim();
+                                    mMainRecyclerView.scrollToPosition(mCurrentPosition);
+                                }
+                                if (mCalendarButton != null) {
+                                    mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+                                }
                             }
-                            mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
-                        }
+                        });
                     }
                 });
             }

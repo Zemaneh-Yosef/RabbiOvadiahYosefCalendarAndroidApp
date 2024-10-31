@@ -141,49 +141,35 @@ public class NextZmanCountdownNotification extends Service {
         if (ActivityCompat.checkSelfPermission(context, ACCESS_BACKGROUND_LOCATION) == PERMISSION_GRANTED) {
             mLocationResolver.getRealtimeNotificationData(location -> {
                 if (location != null) {
-                    mROZmanimCalendar = new ROZmanimCalendar(new GeoLocation(
-                            mLocationResolver.getLocationName(location.getLatitude(), location.getLongitude()),
-                            location.getLatitude(),
-                            location.getLongitude(),
-                            getLastKnownElevation(context, location.getLatitude(), location.getLongitude()),
-                            mLocationResolver.getTimeZone()));
-                    mROZmanimCalendar.setExternalFilesDir(getExternalFilesDir(null));
-                    String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
-                    if (candles.isEmpty()) {
-                        candles = "20";
-                    }
-                    mROZmanimCalendar.setCandleLightingOffset(Double.parseDouble(candles));
-                    String shabbat = mSettingsPreferences.getString("EndOfShabbatOffset", mSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40");
-                    if (shabbat.isEmpty()) {// for some reason this is happening
-                        shabbat = "40";
-                    }
-                    mROZmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(shabbat));
-                    if (mSharedPreferences.getBoolean("inIsrael", false) && shabbat.equals("40")) {
-                        mROZmanimCalendar.setAteretTorahSunsetOffset(30);
-                    }
-                    mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false));
-                    createNotificationChannel();
+                    String locationName = mLocationResolver.getLocationAsName(location.getLatitude(), location.getLongitude());
+                    mLocationResolver.resolveElevation(() -> {
+                        mROZmanimCalendar = new ROZmanimCalendar(new GeoLocation(
+                                locationName,
+                                location.getLatitude(),
+                                location.getLongitude(),
+                                mLocationResolver.getElevation(),
+                                mLocationResolver.getTimeZone()));
+                        mROZmanimCalendar.setExternalFilesDir(getExternalFilesDir(null));
+                        String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
+                        if (candles.isEmpty()) {
+                            candles = "20";
+                        }
+                        mROZmanimCalendar.setCandleLightingOffset(Double.parseDouble(candles));
+                        String shabbat = mSettingsPreferences.getString("EndOfShabbatOffset", mSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40");
+                        if (shabbat.isEmpty()) {// for some reason this is happening
+                            shabbat = "40";
+                        }
+                        mROZmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(shabbat));
+                        if (mSharedPreferences.getBoolean("inIsrael", false) && shabbat.equals("40")) {
+                            mROZmanimCalendar.setAteretTorahSunsetOffset(30);
+                        }
+                        mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false));
+                        createNotificationChannel();
+                    });
                 }
             });
         }
-        return new ROZmanimCalendar(new GeoLocation(
-                mSharedPreferences.getString("name", ""),
-                Double.longBitsToDouble(mSharedPreferences.getLong("lat", 0)),
-                Double.longBitsToDouble(mSharedPreferences.getLong("long", 0)),
-                getLastKnownElevation(context, Double.longBitsToDouble(mSharedPreferences.getLong("lat", 0)), Double.longBitsToDouble(mSharedPreferences.getLong("long", 0))),
-                TimeZone.getTimeZone(mSharedPreferences.getString("timezoneID", ""))));
-    }
-
-    private double getLastKnownElevation(Context context, double latitude, double longitude) {
-        double elevation;
-        if (!mSharedPreferences.getBoolean("useElevation", true)) {//if the user has disabled the elevation setting, set the elevation to 0
-            elevation = 0;
-        } else if (ActivityCompat.checkSelfPermission(context, ACCESS_BACKGROUND_LOCATION) == PERMISSION_GRANTED) {
-            elevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mLocationResolver.getLocationName(latitude, longitude), "0"));//get the elevation using the location name
-        } else {
-            elevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mSharedPreferences.getString("name", ""), "0"));//lastKnownLocation
-        }
-        return elevation;
+        return new ROZmanimCalendar(mLocationResolver.getRealtimeNotificationData(null));
     }
 
     @Override
@@ -204,7 +190,12 @@ public class NextZmanCountdownNotification extends Service {
                 @Override
                 public void run() {
                     if (shouldShowNotification) {
+                        long currentTime = new Date().getTime();
+                        if (nextZman != null) {
+                            remainingTime = nextZman.getZman().getTime() - currentTime;
+                        }
                         if (remainingTime <= 0) {
+                            // If countdown is finished, get the next zman
                             nextZman = ZmanimFactory.getNextUpcomingZman(
                                     new GregorianCalendar(),
                                     mROZmanimCalendar,
@@ -212,16 +203,15 @@ public class NextZmanCountdownNotification extends Service {
                                     mSettingsPreferences,
                                     mSharedPreferences,
                                     mIsZmanimInHebrew,
-                                    mIsZmanimEnglishTranslated);
-                            timeTillNextZman = nextZman.getZman().getTime() - new Date().getTime();
-                            updateNotification(nextZman);
+                                    mIsZmanimEnglishTranslated
+                            );
+                            timeTillNextZman = nextZman.getZman().getTime() - currentTime;
                             remainingTime = timeTillNextZman;
-                            handler.postDelayed(this, 0);
-                        } else {
-                            updateNotification(nextZman);
-                            remainingTime -= COUNTDOWN_INTERVAL;
-                            handler.postDelayed(this, COUNTDOWN_INTERVAL);
                         }
+                        updateNotification(nextZman);
+
+                        // Schedule the next update
+                        handler.postDelayed(this, COUNTDOWN_INTERVAL);
                     } else {
                         dismissNotification();
                     }
@@ -231,6 +221,7 @@ public class NextZmanCountdownNotification extends Service {
             handler.post(countdownRunnable);
         }
     }
+
 
     private void updateNotification(ZmanListEntry zman) {
         long seconds = (remainingTime / 1000) % 60;

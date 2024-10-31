@@ -266,10 +266,10 @@ public class WeeklyHaftarahReading {
 
         // The weekly Haftorah is replaced if it's Rosh Chodesh or Erev Rosh Chodesh
         if (jewishCalendar.isErevRoshChodesh()) {
-            result = "\"מחר חודש\" שמואל א כ";// Overwrite the string
+            result = "מפטירין \"מחר חודש\" שמואל א כ";// Overwrite the string
             return result;
         } else if (jewishCalendar.isRoshChodesh()) {
-            result = "\"כה אמר\" ישעיה ס\"ו";// Overwrite the string
+            result = "מפטירין \"כה אמר\" ישעיה ס\"ו (הפטרת ר\"ח)";// Overwrite the string
             return result;
         }
 

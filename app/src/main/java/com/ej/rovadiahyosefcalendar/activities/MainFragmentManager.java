@@ -139,6 +139,7 @@ public class MainFragmentManager extends AppCompatActivity {
         } else {
             LocationResolver locationResolver = new LocationResolver(this, this);
             locationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
+            locationResolver.setTimeZoneID();
         }
         updateWidget();
 
@@ -300,7 +301,6 @@ public class MainFragmentManager extends AppCompatActivity {
         sSettingsPreferences.edit().putInt("Shkia", 15).apply();
         sSettingsPreferences.edit().putInt("TzeitHacochavim", 15).apply();
         sSettingsPreferences.edit().putInt("FastEnd", 15).apply();
-        sSettingsPreferences.edit().putInt("FastEndStringent", 15).apply();
         sSettingsPreferences.edit().putInt("ShabbatEnd", -1).apply();
         sSettingsPreferences.edit().putInt("RT", 0).apply();
         sSettingsPreferences.edit().putInt("NightChatzot", -1).apply();

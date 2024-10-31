@@ -268,7 +268,6 @@ class MainActivity : ComponentActivity() {
             .putInt("NightChatzot", jsonPreferences.getInt("NightChatzot"))
             .putInt("RT", jsonPreferences.getInt("RT"))
             .putInt("ShabbatEnd", jsonPreferences.getInt("ShabbatEnd"))
-            .putInt("FastEndStringent", jsonPreferences.getInt("FastEndStringent"))
             .putInt("FastEnd", jsonPreferences.getInt("FastEnd"))
             .putInt("TzeitHacochavimLChumra", jsonPreferences.getInt("TzeitHacochavimLChumra"))
             .putInt("TzeitHacochavim", jsonPreferences.getInt("TzeitHacochavim"))
@@ -425,7 +424,7 @@ class MainActivity : ComponentActivity() {
                 sElevation,
                 TimeZone.getTimeZone(if (sCurrentTimeZoneID != "") sCurrentTimeZoneID else TimeZone.getDefault().id)
             ),
-            sharedPref
+            if (sharedPref == null) getSharedPreferences(SHARED_PREF, MODE_PRIVATE) else sharedPref
         )
         mROZmanimCalendar.candleLightingOffset =
             (sharedPref.getString("CandleLightingOffset", "20")?.toDouble() ?: 0) as Double
@@ -1000,13 +999,6 @@ class MainActivity : ComponentActivity() {
             var fastEnds = ZmanListEntry(
                 zmanimNames.tzaitString + zmanimNames.taanitString + zmanimNames.endsString,
                 mROZmanimCalendar.tzaitTaanit,
-                true
-            )
-            fastEnds.isNoteworthyZman = true
-            zmanim.add(fastEnds)
-            fastEnds = ZmanListEntry(
-                zmanimNames.tzaitString + zmanimNames.taanitString + zmanimNames.endsString + " " + zmanimNames.lChumraString,
-                mROZmanimCalendar.tzaitTaanitLChumra,
                 true
             )
             fastEnds.isNoteworthyZman = true

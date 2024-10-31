@@ -6,7 +6,6 @@ import static android.content.Context.MODE_PRIVATE;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
 
-import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -41,7 +40,6 @@ import org.apache.commons.lang3.time.DateUtils;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 import java.util.function.Consumer;
 
 public class DailyNotifications extends BroadcastReceiver implements Consumer<Location> {
@@ -56,10 +54,8 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
         this.context = context;
         mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         JewishDateInfo jewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael",false));
-        mLocationResolver = new LocationResolver(context, new Activity());
-
+        mLocationResolver = new LocationResolver(context, null);
         if (mSharedPreferences.getBoolean("isSetup",false)) {
-
             ROZmanimCalendar calendar = getROZmanimCalendar(context);
             if (ActivityCompat.checkSelfPermission(context, ACCESS_BACKGROUND_LOCATION) != PERMISSION_GRANTED) {
                 init(context, jewishDateInfo, calendar);
@@ -78,8 +74,7 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
                 NotificationChannel channel = new NotificationChannel("Jewish Special Day",
                         "Daily Special Day Notifications",
                         NotificationManager.IMPORTANCE_HIGH);
-                channel.setDescription("This notification will check daily if there is a " +
-                        "special jewish day and display it at sunrise.");
+                channel.setDescription("This notification will check daily if there is a special jewish day and display it at sunrise.");
                 channel.enableLights(true);
                 channel.enableVibration(true);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -106,7 +101,7 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
                             .setContentTitle("יום מיוחד ביהדות")
                             .setContentText("היום הוא " + specialDay)
                             .setStyle(new NotificationCompat.BigTextStyle()
-                                    .setBigContentTitle("יום מיוחד ביהדות.")
+                                    .setBigContentTitle("יום מיוחד ביהדות")
                                     .setSummaryText(calendar.getGeoLocation().getLocationName())
                                     .bigText("היום הוא " + specialDay))
                             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -161,7 +156,7 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
             checkIfBothTekufasAreOnToday(context, jewishDateInfo, cal);
         }
         updateAlarm(context, calendar, cal);
-        startUpDailyZmanim(context, mSharedPreferences);//we need to start the zmanim service every day because there might be a person who will just want to see candle lighting time every week or once a year for pesach zmanim.
+        startUpDailyZmanim(context);//we need to start the zmanim service every day because there might be a person who will just want to see candle lighting time every week or once a year for pesach zmanim.
     }
 
     @NonNull
@@ -169,27 +164,10 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
         if (ActivityCompat.checkSelfPermission(context, ACCESS_BACKGROUND_LOCATION) == PERMISSION_GRANTED) {
             mLocationResolver.getRealtimeNotificationData(this);// we will continue in the accept method
         }
-        return new ROZmanimCalendar(new GeoLocation(
-                mSharedPreferences.getString("name", ""),
-                Double.longBitsToDouble(mSharedPreferences.getLong("lat", 0)),
-                Double.longBitsToDouble(mSharedPreferences.getLong("long", 0)),
-                getLastKnownElevation(context, Double.longBitsToDouble(mSharedPreferences.getLong("lat", 0)), Double.longBitsToDouble(mSharedPreferences.getLong("long", 0))),
-                TimeZone.getTimeZone(mSharedPreferences.getString("timezoneID", TimeZone.getDefault().getID()))));
+        return new ROZmanimCalendar(mLocationResolver.getRealtimeNotificationData(null));
     }
 
-    private double getLastKnownElevation(Context context, double latitude, double longitude) {
-        double elevation;
-        if (!mSharedPreferences.getBoolean("useElevation", true)) {//if the user has disabled the elevation setting, set the elevation to 0
-            elevation = 0;
-        } else if (ActivityCompat.checkSelfPermission(context, ACCESS_BACKGROUND_LOCATION) == PERMISSION_GRANTED) {
-            elevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mLocationResolver.getLocationName(latitude, longitude), "0"));//get the elevation using the location name
-        } else {
-            elevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mSharedPreferences.getString("name", ""), "0"));//lastKnownLocation
-        }
-        return elevation;
-    }
-
-    private void startUpDailyZmanim(Context context, SharedPreferences sp) {
+    private void startUpDailyZmanim(Context context) {
         Intent zmanIntent = new Intent(context.getApplicationContext(), ZmanimNotifications.class);
         PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),0,zmanIntent,PendingIntent.FLAG_IMMUTABLE);
         try {
@@ -295,12 +273,14 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
     @Override
     public void accept(Location location) {
         if (location != null) {
-            init(context, new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false)), new ROZmanimCalendar(new GeoLocation(
-                    mLocationResolver.getLocationName(location.getLatitude(), location.getLongitude()),
-                    location.getLatitude(),
-                    location.getLongitude(),
-                    getLastKnownElevation(context, location.getLatitude(), location.getLongitude()),
-                    mLocationResolver.getTimeZone())));
+            String locationName = mLocationResolver.getLocationAsName(location.getLatitude(), location.getLongitude());
+            mLocationResolver.resolveElevation(() ->
+                    init(context, new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false)), new ROZmanimCalendar(new GeoLocation(
+                            locationName,
+                            location.getLatitude(),
+                            location.getLongitude(),
+                            mLocationResolver.getElevation(),
+                            mLocationResolver.getTimeZone()))));
         }
     }
 }

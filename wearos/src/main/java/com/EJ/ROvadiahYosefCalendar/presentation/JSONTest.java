@@ -92,7 +92,6 @@ public class JSONTest {
                 .put("NightChatzot", sSettingsPreferences.getInt("NightChatzot", -1))
                 .put("RT", sSettingsPreferences.getInt("RT", -1))
                 .put("ShabbatEnd", sSettingsPreferences.getInt("ShabbatEnd", -1))
-                .put("FastEndStringent", sSettingsPreferences.getInt("FastEndStringent", -1))
                 .put("FastEnd", sSettingsPreferences.getInt("FastEnd", -1))
                 .put("TzeitHacochavimLChumra", sSettingsPreferences.getInt("TzeitHacochavimLChumra", -1))
                 .put("TzeitHacochavim", sSettingsPreferences.getInt("TzeitHacochavim", -1))

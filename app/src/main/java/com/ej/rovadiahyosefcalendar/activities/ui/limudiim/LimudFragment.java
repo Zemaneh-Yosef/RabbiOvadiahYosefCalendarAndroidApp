@@ -82,7 +82,6 @@ public class LimudFragment extends Fragment {
             mCurrentDateShown = Calendar.getInstance();
         }
         setDate();
-        initMenu();
         setupRecyclerViews();
         setupButtons();
         updateLists();

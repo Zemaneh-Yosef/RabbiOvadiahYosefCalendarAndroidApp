@@ -41,6 +41,12 @@
         android:visibility="gone"
         tools:ignore="HardcodedText" />
 
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh_layout"
         android:layout_width="match_parent"
@@ -65,6 +71,8 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:layoutDirection="ltr"
+        android:visibility="invisible"
+        tools:visibility="visible"
         android:orientation="vertical">
 
         <TextView

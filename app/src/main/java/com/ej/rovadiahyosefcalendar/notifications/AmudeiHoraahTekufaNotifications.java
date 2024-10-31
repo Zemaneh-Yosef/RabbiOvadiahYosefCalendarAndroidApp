@@ -48,8 +48,7 @@ public class AmudeiHoraahTekufaNotifications extends BroadcastReceiver {
             NotificationChannel channel = new NotificationChannel("Amudei Horaah Tekufa Notifications",
                     "Amudei Horaah Tekufa Notifications",
                     NotificationManager.IMPORTANCE_HIGH);
-            channel.setDescription("This notification will check daily if the seasons change and will show a notification to the user at an hour" +
-                    " and a half before.");
+            channel.setDescription("This notification will check daily if the seasons change and will show a notification to the user at an hour and a half before.");
             channel.enableLights(true);
             channel.enableVibration(true);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {

@@ -274,21 +274,11 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
      * Ovadiah Yosef. This is calculated as 20 regular minutes after elevated sunset.
      * Rabbi Ovadiah Yosef writes that the average fast ends around 20 minutes after sunset. Rabbi Shlomo Benizri is of the opinion that this time is
      * calculated as 20 regular minutes after sunset. This is what the Ohr HaChaim refers to when it just writes that the fast ends at Tzait Hacochavim.
-     * It could mean 13.5 zmaniyot minutes after sunset, or 20 regular minutes after sunset.
-     * @return the time when the average fast ends based on the opinion of Rabbi Shlomo Benizri who holds that it is 20 regular minutes after sunset L'Chumra.
+     * He told me that it could mean 13.5 zmaniyot minutes after sunset, or 20 regular minutes after sunset.
+     * @return the time when the fast ends based on the opinion of Rabbi Shlomo Benizri who holds that it is 20 regular minutes after sunset L'Chumra.
      */
     public Date getTzaitTaanit() {
         return getTimeOffset(getElevationAdjustedSunset(), (20 * MILLISECONDS_PER_MINUTE));
-    }
-
-    /**
-     * This method returns the time when the average fast ends based on the opinion of Chacham Ben Tzion Abba Shaul. This is calculated as 30 minutes
-     * after sunset. This zman is not shown in either the Ohr Hachaim or Amudei Horaah calendars, however, I added it because many communities use this
-     * time for the end of the fast outside of Israel.
-     * @return the time when the average fast ends based on the opinion of Chacham Ben Tzion Abba Shaul. 30 minutes after sunset.
-     */
-    public Date getTzaitTaanitLChumra() {
-        return getTimeOffset(getElevationAdjustedSunset(), (30 * MILLISECONDS_PER_MINUTE));
     }
 
     /**

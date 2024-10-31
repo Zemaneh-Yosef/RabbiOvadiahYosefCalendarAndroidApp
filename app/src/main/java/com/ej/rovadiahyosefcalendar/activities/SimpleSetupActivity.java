@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -42,6 +43,7 @@ import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class SimpleSetupActivity extends AppCompatActivity {
 
@@ -174,41 +176,36 @@ public class SimpleSetupActivity extends AppCompatActivity {
         downloadButton.setOnClickListener(v -> {
             ProgressBar progressBar = findViewById(R.id.progress_bar);
             progressBar.setVisibility(View.VISIBLE);
-            int userID = getSharedPreferences(SHARED_PREF, MODE_PRIVATE).getInt("USER_ID", 10000);
+            AtomicInteger userID = new AtomicInteger(getSharedPreferences(SHARED_PREF, MODE_PRIVATE).getInt("USER_ID", 10000));
             ChaiTablesScraper scraper = new ChaiTablesScraper();
-            String link = ChaiTablesOptionsList.getChaiTablesLink(sLatitude, sLongitude, -5, 8, 0, jewishDate.getJewishYear(), userID);
+            String link = ChaiTablesOptionsList.getChaiTablesLink(sLatitude, sLongitude, -5, 8, 0, jewishDate.getJewishYear(), userID.get());
             scraper.setUrl(link);
             scraper.setExternalFilesDir(getExternalFilesDir(null));
             scraper.setJewishDate(jewishDate);
             downloadButton.setEnabled(false);
-            locationResolver.start();
-            scraper.start();
-            try {
-                scraper.join();
-                locationResolver.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            if (scraper.isSearchRadiusTooSmall()) {
-                Toast.makeText(getApplicationContext(), R.string.something_went_wrong_did_you_choose_the_right_area, Toast.LENGTH_SHORT).show();
-                startActivity(getIntent());
-            } else if (scraper.isWebsiteError()) {
-                Toast.makeText(getApplicationContext(), R.string.something_went_wrong_connecting_to_the_website_please_try_again_later, Toast.LENGTH_SHORT).show();
-                startActivity(getIntent());
-            } else {
-                Toast.makeText(getApplicationContext(), "Success!", Toast.LENGTH_SHORT).show();
-                userID++;
-                mSharedPreferences.edit().putInt("USER_ID", userID).apply();
-                mSharedPreferences.edit().putString("chaitablesLink" + sCurrentLocationName, link).apply();//save the link for this location to automatically download again next time
-            }
-            mSharedPreferences.edit().putBoolean("UseTable" + sCurrentLocationName, true).apply();
-            mSharedPreferences.edit().putBoolean("showMishorSunrise" + sCurrentLocationName, false).apply();
-            mSharedPreferences.edit().putBoolean("isSetup", true).apply();
-            mSharedPreferences.edit().putBoolean("useElevation", true).apply();
-            Intent returnIntent = new Intent();
-            returnIntent.putExtra("elevation", mSharedPreferences.getString("elevation" + sCurrentLocationName, ""));
-            setResult(Activity.RESULT_OK, returnIntent);
-            finish();
+            Thread thread = new Thread(() -> locationResolver.getElevationFromWebService(new Handler(getMainLooper()), scraper, () -> {
+                if (scraper.isSearchRadiusTooSmall()) {
+                    Toast.makeText(getApplicationContext(), R.string.something_went_wrong_did_you_choose_the_right_area, Toast.LENGTH_SHORT).show();
+                    recreate();
+                } else if (scraper.isWebsiteError()) {
+                    Toast.makeText(getApplicationContext(), R.string.something_went_wrong_connecting_to_the_website_please_try_again_later, Toast.LENGTH_SHORT).show();
+                    recreate();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Success!", Toast.LENGTH_SHORT).show();
+                    userID.getAndIncrement();
+                    mSharedPreferences.edit().putInt("USER_ID", userID.get()).apply();
+                    mSharedPreferences.edit().putString("chaitablesLink" + sCurrentLocationName, link).apply();//save the link for this location to automatically download again next time
+                }
+                mSharedPreferences.edit().putBoolean("UseTable" + sCurrentLocationName, true).apply();
+                mSharedPreferences.edit().putBoolean("showMishorSunrise" + sCurrentLocationName, false).apply();
+                mSharedPreferences.edit().putBoolean("isSetup", true).apply();
+                mSharedPreferences.edit().putBoolean("useElevation", true).apply();
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("elevation", mSharedPreferences.getString("elevation" + sCurrentLocationName, ""));
+                setResult(Activity.RESULT_OK, returnIntent);
+                finish();
+            }));
+            thread.start();
         });
 
         TextView areaNotListedButton = findViewById(R.id.notListedArea);
@@ -221,16 +218,14 @@ public class SimpleSetupActivity extends AppCompatActivity {
             mSharedPreferences.edit().putBoolean("showMishorSunrise" + sCurrentLocationName, true).apply();
             mSharedPreferences.edit().putBoolean("isSetup", true).apply();
             mSharedPreferences.edit().putBoolean("useElevation", true).apply();
-            locationResolver.start();
-            try {
-                locationResolver.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            Intent returnIntent = new Intent();
-            returnIntent.putExtra("elevation", mSharedPreferences.getString("elevation" + sCurrentLocationName, ""));
-            setResult(Activity.RESULT_OK, returnIntent);
-            finish();
+            Thread thread = new Thread(() ->
+                    locationResolver.getElevationFromWebService(new Handler(getMainLooper()), null, () -> {
+                        Intent returnIntent = new Intent();
+                        returnIntent.putExtra("elevation", mSharedPreferences.getString("elevation" + sCurrentLocationName, ""));
+                        setResult(Activity.RESULT_OK, returnIntent);
+                        finish();
+                    }));
+            thread.start();
         });
 
         ViewCompat.setOnApplyWindowInsetsListener(areaNotListedButton, (v, windowInsets) -> {

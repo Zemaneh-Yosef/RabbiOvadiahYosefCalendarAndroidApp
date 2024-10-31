@@ -504,13 +504,6 @@ class MainTileService : TileService() {
             )
             fastEnds.isNoteworthyZman = true
             zmanim.add(fastEnds)
-            fastEnds = ZmanListEntry(
-                zmanimNames.tzaitString + zmanimNames.taanitString + zmanimNames.endsString + " " + zmanimNames.lChumraString,
-                mROZmanimCalendar.tzaitTaanitLChumra,
-                true
-            )
-            fastEnds.isNoteworthyZman = true
-            zmanim.add(fastEnds)
         } else if (sharedPref.getBoolean("alwaysShowTzeitLChumra", false)) {
             val tzeitLChumra = ZmanListEntry(
                 zmanimNames.tzaitHacochavimString + " " + zmanimNames.lChumraString,

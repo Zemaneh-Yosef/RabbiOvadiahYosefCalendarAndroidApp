@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +26,6 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
-import com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesScraper;
 import com.ej.rovadiahyosefcalendar.classes.LocaleChecker;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
@@ -59,10 +59,6 @@ public class SetupElevationActivity extends AppCompatActivity {
             }
             return false;
         });
-
-        LocationResolver locationResolver = new LocationResolver(this, this);
-        locationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
-        locationResolver.setTimeZoneID();
 
         SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -124,20 +120,20 @@ public class SetupElevationActivity extends AppCompatActivity {
             geoNamesButton.setEnabled(false);
             editor.putBoolean("useElevation", true).apply();
             editor.putBoolean("isSetup", true).apply();
-            locationResolver.start();
-            try {
-                locationResolver.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            Intent returnIntent = new Intent();
-            returnIntent.putExtra("elevation" + sCurrentLocationName, sharedPreferences.getString("elevation" + sCurrentLocationName, "0"));
-            setResult(Activity.RESULT_OK, returnIntent);
-            if (getIntent().getBooleanExtra("downloadTable",false)) {
-                downloadTablesAndFinish(sharedPreferences);
-            } else {
-                finish();
-            }
+            Thread thread = new Thread(() -> {
+                LocationResolver locationResolver = new LocationResolver(this, this);
+                locationResolver.getElevationFromWebService(new Handler(getMainLooper()), null, () -> {
+                    Intent returnIntent = new Intent();
+                    returnIntent.putExtra("elevation" + sCurrentLocationName, sharedPreferences.getString("elevation" + sCurrentLocationName, "0"));
+                    setResult(Activity.RESULT_OK, returnIntent);
+                    if (getIntent().getBooleanExtra("downloadTable", false)) {
+                        downloadTablesAndFinish(sharedPreferences);
+                    } else {
+                        finish();
+                    }
+                });
+            });
+            thread.start();
         });
 
         ViewCompat.setOnApplyWindowInsetsListener(geoNamesButton, (v, windowInsets) -> {

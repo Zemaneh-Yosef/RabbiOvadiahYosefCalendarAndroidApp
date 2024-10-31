@@ -216,7 +216,8 @@ public class ChaiTablesScraper extends Thread {
      *
      * @param s a string containing the chai tables webpage
      * @return a double containing the highest elevation of the city in meters
-     * @deprecated This is no longer used because the elevation on the chai tables website is NOT the highest point of elevation in the city.
+     * @deprecated This is no longer used because the elevation on the chai tables website is NOT the highest point of elevation in the city like
+     * I originally assumed. Rather it was an arbitrary number chosen at random.
      */
     private double findElevation(String s) {
         if (!isSearchRadiusTooSmall) {
@@ -245,8 +246,7 @@ public class ChaiTablesScraper extends Thread {
             outputStream = new FileOutputStream(file, false);
 
             Document doc = Jsoup.connect(mUrl)
-                    .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6)" +
-                            " Gecko/20070725 Firefox/2.0.0.6")
+                    .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
                     .referrer("http://www.google.com").get();
 
             if (doc.text().contains("You can increase the search radius and try again")) {

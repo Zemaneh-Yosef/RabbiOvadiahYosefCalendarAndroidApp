@@ -15,17 +15,18 @@ import android.content.SharedPreferences;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
-import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
+import androidx.preference.PreferenceManager;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.MainFragmentManager;
+import com.kosherjava.zmanim.util.GeoLocation;
 
 import org.geonames.WebService;
 
@@ -37,11 +38,14 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.function.Consumer;
 
 import us.dustinj.timezonemap.TimeZoneMap;
 
-public class LocationResolver extends Thread {
+public class LocationResolver {
 
     private final Context mContext;
     private final Activity mActivity;
@@ -50,7 +54,8 @@ public class LocationResolver extends Thread {
     private String mLocationName;
     private double mLatitude;
     private double mLongitude;
-    private TimeZone mTimeZone;
+    private double mElevation;
+    private TimeZone mTimeZone = TimeZone.getDefault();
 
     public LocationResolver(Context context, Activity activity) {
         mContext = context;
@@ -60,7 +65,7 @@ public class LocationResolver extends Thread {
     }
 
     /**
-     * This method gets the devices last known latitude and longitude. It will ask for permission
+     * This method gets the device's latitude and longitude. It will ask for permission
      * if we do not have it, and it will alert the user if location services is disabled.
      * <p>
      * As of Android 11 (API 30) there is a more accurate way of getting the current location of the
@@ -80,96 +85,56 @@ public class LocationResolver extends Thread {
                 sLatitude = 0.0;
                 sLongitude = 0.0;
             }
-            sCurrentTimeZoneID = mSharedPreferences.getString("advancedTimezone", TimeZone.getDefault().getID());
         } else if (mSharedPreferences.getBoolean("useLocation1", false)) {
             sCurrentLocationName = mSharedPreferences.getString("location1", "");
             sLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location1Lat", 0));
             sLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location1Long", 0));
-            sCurrentTimeZoneID = mSharedPreferences.getString("location1Timezone", TimeZone.getDefault().getID());
         } else if (mSharedPreferences.getBoolean("useLocation2", false)) {
             sCurrentLocationName = mSharedPreferences.getString("location2", "");
             sLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location2Lat", 0));
             sLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location2Long", 0));
-            sCurrentTimeZoneID = mSharedPreferences.getString("location2Timezone", TimeZone.getDefault().getID());
         } else if (mSharedPreferences.getBoolean("useLocation3", false)) {
             sCurrentLocationName = mSharedPreferences.getString("location3", "");
             sLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location3Lat", 0));
             sLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location3Long", 0));
-            sCurrentTimeZoneID = mSharedPreferences.getString("location3Timezone", TimeZone.getDefault().getID());
         } else if (mSharedPreferences.getBoolean("useLocation4", false)) {
             sCurrentLocationName = mSharedPreferences.getString("location4", "");
             sLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location4Lat", 0));
             sLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location4Long", 0));
-            sCurrentTimeZoneID = mSharedPreferences.getString("location4Timezone", TimeZone.getDefault().getID());
         } else if (mSharedPreferences.getBoolean("useLocation5", false)) {
             sCurrentLocationName = mSharedPreferences.getString("location5", "");
             sLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location5Lat", 0));
             sLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location5Long", 0));
-            sCurrentTimeZoneID = mSharedPreferences.getString("location5Timezone", TimeZone.getDefault().getID());
         } else if (mSharedPreferences.getBoolean("useZipcode", false)) {
             getLatitudeAndLongitudeFromSearchQuery();
         } else {
             if (ActivityCompat.checkSelfPermission(mContext, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mContext, ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(mActivity, new String[]{ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION}, 1);
+                if (mActivity != null) {
+                    ActivityCompat.requestPermissions(mActivity, new String[]{ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION}, 1);
+                }
             } else {
-                try {
-                    LocationManager locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-                    if (locationManager != null) {
-                        if (!locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) || !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                            Toast.makeText(mContext, mContext.getString(R.string.please_enable_gps), Toast.LENGTH_SHORT).show();
-                        }
-                        LocationListener locationListener = new LocationListener() {
-                            @Override
-                            public void onLocationChanged(@NonNull Location location) {}
-                            @Override
-                            public void onProviderEnabled(@NonNull String provider) {}
-                            @Override
-                            public void onProviderDisabled(@NonNull String provider) {}
-                            @Override
-                            public void onStatusChanged(String provider, int status, Bundle extras) {}
-                        };
+                LocationManager locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+                if (locationManager != null) {
+                    if (!locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) || !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                        Toast.makeText(mContext, mContext.getString(R.string.please_enable_gps), Toast.LENGTH_SHORT).show();
+                    }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                         if (locationManager.getAllProviders().contains(LocationManager.NETWORK_PROVIDER)) {
-                            locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, locationListener, null);
+                            locationManager.getCurrentLocation(LocationManager.NETWORK_PROVIDER, null, Runnable::run, consumer);
                         }
                         if (locationManager.getAllProviders().contains(LocationManager.GPS_PROVIDER)) {
-                            locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
+                            locationManager.getCurrentLocation(LocationManager.GPS_PROVIDER, null, Runnable::run, consumer);
                         }
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {//newer implementation
-                            if (locationManager.getAllProviders().contains(LocationManager.NETWORK_PROVIDER)) {
-                                locationManager.getCurrentLocation(LocationManager.NETWORK_PROVIDER, null, Runnable::run, consumer);
-                            }
-                            if (locationManager.getAllProviders().contains(LocationManager.GPS_PROVIDER)) {
-                                locationManager.getCurrentLocation(LocationManager.GPS_PROVIDER, null, Runnable::run, consumer);
-                            }
-                            if (sLatitude == 0 && sLongitude == 0) {//use the older implementation until the consumer updates the data
-                                Location location = null;
-                                if (locationManager.getAllProviders().contains(LocationManager.GPS_PROVIDER)) {
-                                    location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);//location might be old
-                                }
-                                if (location == null && locationManager.getAllProviders().contains(LocationManager.NETWORK_PROVIDER)) {
-                                    location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                                }
-                                if (location != null) {
-                                    sLatitude = location.getLatitude();
-                                    sLongitude = location.getLongitude();
-                                }
-                            }
-                        } else {//older implementation
-                            Location location = null;
-                            if (locationManager.getAllProviders().contains(LocationManager.GPS_PROVIDER)) {
-                                location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);//location might be old
-                            }
-                            if (location == null && locationManager.getAllProviders().contains(LocationManager.NETWORK_PROVIDER)) {
-                                location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                            }
-                            if (location != null) {
-                                sLatitude = location.getLatitude();
-                                sLongitude = location.getLongitude();
-                            }
+                    } else {
+                        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);//location might be old
+                        if (location == null) {
+                            location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                        }
+                        if (location != null) {
+                            sLatitude = location.getLatitude();
+                            sLongitude = location.getLongitude();
                         }
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
             }
         }
@@ -177,7 +142,7 @@ public class LocationResolver extends Thread {
     }
 
     /**
-     * Resolves the current location name to be a latitude and longitude if mCurrentLocationName is empty
+     * Resolves the current location name to be a latitude and longitude if the current location name is empty
      * @see MainFragmentManager#sCurrentLocationName
      */
     public void resolveCurrentLocationName() {
@@ -188,6 +153,7 @@ public class LocationResolver extends Thread {
 
             sCurrentLocationName = "Lat: " + lat + " Long: " + longitude;
         }
+        mSharedPreferences.edit().putString("name", sCurrentLocationName).apply();
     }
 
     public String getFullLocationName() {
@@ -262,7 +228,7 @@ public class LocationResolver extends Thread {
                 String state = addresses.get(0).getAdminArea();
                 if (state != null && (city == null || !state.contains(city)) && (!state.equals(county))) {
                     // State city check made for Jerusalem, that has a county of "Jerusalem"
-                    // County equals check to account Rio De Jenairo
+                    // County equals check to account Rio De Janeiro
                     result.append(state);
                 }
 
@@ -374,8 +340,7 @@ public class LocationResolver extends Thread {
 
     /**
      * This method uses the Geocoder class to get a latitude and longitude coordinate from the user
-     * specified zip code/area. If it can not find an address it will make a toast saying that an error
-     * occurred.
+     * specified zip code/area.
      *
      * @see Geocoder
      */
@@ -396,17 +361,19 @@ public class LocationResolver extends Thread {
             sLatitude = first.getLatitude();
             sLongitude = first.getLongitude();
             sCurrentLocationName = getLocationAsName();
-            mSharedPreferences.edit().putString("oldZipcode", zipcode).apply();
-            mSharedPreferences.edit().putString("oldLocationName", sCurrentLocationName).apply();
-            mSharedPreferences.edit().putLong("oldLat", Double.doubleToRawLongBits(sLatitude)).apply();
-            mSharedPreferences.edit().putLong("oldLong", Double.doubleToRawLongBits(sLongitude)).apply();
+            mSharedPreferences.edit()
+                    .putString("oldZipcode", zipcode)
+                    .putString("oldLocationName", sCurrentLocationName)
+                    .putLong("oldLat", Double.doubleToRawLongBits(sLatitude))
+                    .putLong("oldLong", Double.doubleToRawLongBits(sLongitude))
+                    .apply();
         } else {
             getOldSearchLocation();
         }
     }
 
     /**
-     * This method retrieves the old location data from the devices storage if it has already been
+     * This method retrieves the old location data from the device's storage if it has already been
      * setup beforehand.
      *
      * @see #getLatitudeAndLongitudeFromSearchQuery()
@@ -423,64 +390,61 @@ public class LocationResolver extends Thread {
     }
 
     /**
-     * This method uses the TimeZoneMap to get the current timezone ID based on the latitude and longitude of the device.
-     * If the latitude and longitude are not known, it will use the default timezone ID.
+     * This method will try to find the timezone of the location set. It uses the TimeZoneMap to get the current timezone ID when using a zipcode
      */
     public void setTimeZoneID() {
-        if (mSharedPreferences.getBoolean("useAdvanced", false) ||
-                mSharedPreferences.getBoolean("useLocation1", false) ||
-                mSharedPreferences.getBoolean("useLocation2", false) ||
-                mSharedPreferences.getBoolean("useLocation3", false) ||
-                mSharedPreferences.getBoolean("useLocation4", false) ||
-                mSharedPreferences.getBoolean("useLocation5", false)) {
-            return;
-        }
-        if (mSharedPreferences.getBoolean("useZipcode", false)) {
-            try {
-                TimeZoneMap timeZoneMap = TimeZoneMap.forRegion(
-                        Math.floor(sLatitude), Math.floor(sLongitude),
-                        Math.ceil(sLatitude), Math.ceil(sLongitude));//trying to avoid using the forEverywhere() method
-                String zoneID = Objects.requireNonNull(timeZoneMap.getOverlappingTimeZone(sLatitude, sLongitude)).getZoneId();
-                sCurrentTimeZoneID = zoneID;
-                mTimeZone = TimeZone.getTimeZone(zoneID);
-                saveLocationInformation();
-            } catch (IllegalArgumentException e) {
-                sCurrentTimeZoneID = TimeZone.getDefault().getID();
+        if (mSharedPreferences.getBoolean("useAdvanced", false)) {
+            mTimeZone = TimeZone.getTimeZone(mSharedPreferences.getString("advancedTimezone", TimeZone.getDefault().getID()));
+        } else if (mSharedPreferences.getBoolean("useLocation1", false)) {
+            mTimeZone = TimeZone.getTimeZone(mSharedPreferences.getString("location1Timezone", TimeZone.getDefault().getID()));
+        } else if (mSharedPreferences.getBoolean("useLocation2", false)) {
+            mTimeZone = TimeZone.getTimeZone(mSharedPreferences.getString("location2Timezone", TimeZone.getDefault().getID()));
+        } else if (mSharedPreferences.getBoolean("useLocation3", false)) {
+            mTimeZone = TimeZone.getTimeZone(mSharedPreferences.getString("location3Timezone", TimeZone.getDefault().getID()));
+        } else if (mSharedPreferences.getBoolean("useLocation4", false)) {
+            mTimeZone = TimeZone.getTimeZone(mSharedPreferences.getString("location4Timezone", TimeZone.getDefault().getID()));
+        } else if (mSharedPreferences.getBoolean("useLocation5", false)) {
+            mTimeZone = TimeZone.getTimeZone(mSharedPreferences.getString("location5Timezone", TimeZone.getDefault().getID()));
+        } else {
+            if (mSharedPreferences.getBoolean("useZipcode", false)) {
+                try {
+                    TimeZoneMap timeZoneMap = TimeZoneMap.forRegion(
+                            Math.floor(sLatitude), Math.floor(sLongitude),
+                            Math.ceil(sLatitude), Math.ceil(sLongitude));//trying to avoid using the forEverywhere() method
+                    String zoneID = Objects.requireNonNull(timeZoneMap.getOverlappingTimeZone(sLatitude, sLongitude)).getZoneId();
+                    mTimeZone = TimeZone.getTimeZone(zoneID);
+                    sCurrentTimeZoneID = mTimeZone.getID();// need to set this for the saveLocationInformation method
+                    saveLocationInformation();// only want to use this when people search their location
+                } catch (IllegalArgumentException e) {
+                    mTimeZone = TimeZone.getDefault();
+                }
+            } else {
                 mTimeZone = TimeZone.getDefault();
             }
-        } else {
-            sCurrentTimeZoneID = TimeZone.getDefault().getID();
-            mTimeZone = TimeZone.getDefault();
-        }
-        if (sCurrentTimeZoneID.equals("Asia/Gaza") || sCurrentTimeZoneID.equals("Asia/Hebron")) {
-            sCurrentTimeZoneID = "Asia/Jerusalem";
         }
         if (mTimeZone.getID().equals("Asia/Gaza") || mTimeZone.getID().equals("Asia/Hebron")) {
             mTimeZone = TimeZone.getTimeZone("Asia/Jerusalem");
         }
+        sCurrentTimeZoneID = mTimeZone.getID();
     }
 
-    public void aquireTimeZoneID() {
-        if (!mSharedPreferences.getBoolean("useAdvanced", false)) {
-            return;
-        }
+    /**
+     * Convenience method to get the timezone of a place when the user selects a place on the map. AKA advancedLocation
+     */
+    public void acquireTimeZoneID() {
         try {
             TimeZoneMap timeZoneMap = TimeZoneMap.forRegion(
                     Math.floor(sLatitude), Math.floor(sLongitude),
                     Math.ceil(sLatitude), Math.ceil(sLongitude));//trying to avoid using the forEverywhere() method
             String zoneID = Objects.requireNonNull(timeZoneMap.getOverlappingTimeZone(sLatitude, sLongitude)).getZoneId();
-            sCurrentTimeZoneID = zoneID;
             mTimeZone = TimeZone.getTimeZone(zoneID);
         } catch (IllegalArgumentException e) {
-            sCurrentTimeZoneID = TimeZone.getDefault().getID();
             mTimeZone = TimeZone.getDefault();
-        }
-        if (sCurrentTimeZoneID.equals("Asia/Gaza") || sCurrentTimeZoneID.equals("Asia/Hebron")) {
-            sCurrentTimeZoneID = "Asia/Jerusalem";
         }
         if (mTimeZone.getID().equals("Asia/Gaza") || mTimeZone.getID().equals("Asia/Hebron")) {
             mTimeZone = TimeZone.getTimeZone("Asia/Jerusalem");
         }
+        sCurrentTimeZoneID = mTimeZone.getID();
         mSharedPreferences.edit().putString("advancedTimezone", sCurrentTimeZoneID).apply();
     }
 
@@ -521,11 +485,21 @@ public class LocationResolver extends Thread {
         }
     }
 
-    public void getElevationFromWebService() throws IOException {
+    /**
+     * This method tries to "resolve" the average elevation of the latitude and longitude set. It will try to make a network call to geonames.org
+     * three separate times to request all known elevation data available and it will then average the three results. This method must be called on
+     * another thread that is NOT the MAIN UI thread, otherwise, a {@link android.os.NetworkOnMainThreadException} will occur. Any other code that
+     * needs to run in the background as well can be passed in as a {@link Runnable} in the second parameter. Any UI code that needs
+     * to run after this method runs can be passed in as a {@link Runnable} object in the third parameter. Note: The code that is executed by the
+     * handler class will run on the MAIN UI thread.
+     * @param handler a Handler object with the main ui thread as the main looper.
+     * @param codeToRunInBackground a Runnable piece of code that needs to be ran after the web call, or null if not needed.
+     * @param codeToRunOnMainThread a Runnable piece of code that also needs to be ran after the web call. I believe it can also be null if not desired.
+     */
+    public void getElevationFromWebService(Handler handler, Runnable codeToRunInBackground, Runnable codeToRunOnMainThread) {
         WebService.setUserName("Elyahu41");
         ArrayList<Integer> elevations = new ArrayList<>();
         int sum = 0;
-        int size;
         try {
             int e1 = WebService.srtm3(sLatitude, sLongitude);
             if (e1 > 0) {
@@ -543,11 +517,7 @@ public class LocationResolver extends Thread {
             for (int e : elevations) {
                 sum += e;
             }
-            size = elevations.size();
-            if (size == 0) {
-                size = 1;//edge case if no elevation data is available
-            }
-        } catch (NumberFormatException ex) {//an error occurred getting the elevation, probably because too many requests were made
+        } catch (NumberFormatException | IOException ex) {//an error occurred getting the elevation data, try again!
             try {
                 WebService.setUserName("graviton57");//another user api key that I found online, only used as a backup
                 int e1 = WebService.srtm3(sLatitude, sLongitude);
@@ -566,65 +536,81 @@ public class LocationResolver extends Thread {
                 for (int e : elevations) {
                     sum += e;
                 }
-                size = elevations.size();
-                if (size == 0) {
-                    size = 1;//edge case if no elevation data is available
-                }
-            } catch (NumberFormatException ex1) {
+            } catch (NumberFormatException | IOException ex1) {
                 ex.printStackTrace();
                 ex1.printStackTrace();
-                return;
             }
         }
+        int size = elevations.size();
+        if (size == 0) {
+            size = 1;//edge case if no elevation data is available
+        }
         mSharedPreferences.edit().putString("elevation" + sCurrentLocationName, String.valueOf(sum / size)).apply();
-    }
 
-    @Override
-    public void run() {
-        try {
-            getElevationFromWebService();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (codeToRunInBackground != null) {
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            Future<?> future = executor.submit(codeToRunInBackground);  // Submit codeToRunInBackground and get a Future
+            // Wait for codeToRunInBackground to complete
+            executor.execute(() -> {
+                try {
+                    future.get();  // This will block until codeToRunInBackground finishes
+
+                    // Now post codeToRunOnMainThread to the main thread
+                    handler.post(codeToRunOnMainThread);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        } else {
+            // If codeToRunInBackground is null, just run codeToRunOnMainThread on the main thread
+            handler.post(codeToRunOnMainThread);
         }
     }
 
-    public void getRealtimeNotificationData(Consumer<Location> consumer) {
+    public GeoLocation getRealtimeNotificationData(Consumer<Location> consumer) {
         if (mSharedPreferences.getBoolean("useAdvanced", false)) {
             mLocationName = mSharedPreferences.getString("advancedLN", "");
             mLatitude = Double.parseDouble(mSharedPreferences.getString("advancedLat", ""));
             mLongitude = Double.parseDouble(mSharedPreferences.getString("advancedLong", ""));
-            mTimeZone = TimeZone.getTimeZone(mSharedPreferences.getString("advancedTimezone", ""));
-            return;
+            setElevationFromSP();
+            setTimeZoneID();
+            return new GeoLocation(mLocationName, mLatitude, mLongitude, mElevation, mTimeZone);
         } else if (mSharedPreferences.getBoolean("useLocation1", false)) {
             mLocationName = mSharedPreferences.getString("location1", "");
             mLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location1Lat", 0));
             mLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location1Long", 0));
-            mTimeZone = TimeZone.getTimeZone(mSharedPreferences.getString("location1Timezone", ""));
-            return;
+            setElevationFromSP();
+            setTimeZoneID();
+            return new GeoLocation(mLocationName, mLatitude, mLongitude, mElevation, mTimeZone);
         } else if (mSharedPreferences.getBoolean("useLocation2", false)) {
             mLocationName = mSharedPreferences.getString("location2", "");
             mLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location2Lat", 0));
             mLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location2Long", 0));
-            mTimeZone = TimeZone.getTimeZone(mSharedPreferences.getString("location2Timezone", ""));
-            return;
+            setElevationFromSP();
+            setTimeZoneID();
+            return new GeoLocation(mLocationName, mLatitude, mLongitude, mElevation, mTimeZone);
         } else if (mSharedPreferences.getBoolean("useLocation3", false)) {
             mLocationName = mSharedPreferences.getString("location3", "");
             mLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location3Lat", 0));
             mLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location3Long", 0));
-            mTimeZone = TimeZone.getTimeZone(mSharedPreferences.getString("location3Timezone", ""));
-            return;
+            setElevationFromSP();
+            setTimeZoneID();
+            return new GeoLocation(mLocationName, mLatitude, mLongitude, mElevation, mTimeZone);
         } else if (mSharedPreferences.getBoolean("useLocation4", false)) {
             mLocationName = mSharedPreferences.getString("location4", "");
             mLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location4Lat", 0));
             mLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location4Long", 0));
-            mTimeZone = TimeZone.getTimeZone(mSharedPreferences.getString("location4Timezone", ""));
-            return;
+            setElevationFromSP();
+            setTimeZoneID();
+            return new GeoLocation(mLocationName, mLatitude, mLongitude, mElevation, mTimeZone);
         } else if (mSharedPreferences.getBoolean("useLocation5", false)) {
             mLocationName = mSharedPreferences.getString("location5", "");
             mLatitude = Double.longBitsToDouble(mSharedPreferences.getLong("location5Lat", 0));
             mLongitude = Double.longBitsToDouble(mSharedPreferences.getLong("location5Long", 0));
-            mTimeZone = TimeZone.getTimeZone(mSharedPreferences.getString("location5Timezone", ""));
-            return;
+            setElevationFromSP();
+            setTimeZoneID();
+            return new GeoLocation(mLocationName, mLatitude, mLongitude, mElevation, mTimeZone);
         }
         if (ActivityCompat.checkSelfPermission(mContext, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED
         && ActivityCompat.checkSelfPermission(mContext, ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED) {
@@ -636,74 +622,66 @@ public class LocationResolver extends Thread {
                 mLatitude = oldLat;
                 mLongitude = oldLong;
             }
+            setElevationFromSP();
             setTimeZoneID();
+            return new GeoLocation(mLocationName, mLatitude, mLongitude, mElevation, mTimeZone);
         } else {
-            try {
-                LocationManager locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-                if (locationManager != null) {
-                    LocationListener locationListener = new LocationListener() {
-                        @Override
-                        public void onLocationChanged(@NonNull Location location) {}
-
-                        @Override
-                        public void onProviderEnabled(@NonNull String provider) {}
-
-                        @Override
-                        public void onProviderDisabled(@NonNull String provider) {}
-
-                        @Override
-                        public void onStatusChanged(String provider, int status, Bundle extras) {}
-                    };
-                    locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, locationListener, null);
-                    locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {//newer implementation
-                        locationManager.getCurrentLocation(LocationManager.NETWORK_PROVIDER, null, Runnable::run, consumer);
-                        locationManager.getCurrentLocation(LocationManager.GPS_PROVIDER, null, Runnable::run, consumer);
-                    } else if (mLatitude == 0 && mLongitude == 0) {//use the older implementation, until the consumer updates
-                        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);//location might be old
-                        if (location == null) {
-                            location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                        }
-                        if (location != null) {
-                            mLatitude = location.getLatitude();
-                            mLongitude = location.getLongitude();
-                        }
+            LocationManager locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+            if (locationManager != null && consumer != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    locationManager.getCurrentLocation(LocationManager.NETWORK_PROVIDER, null, Runnable::run, consumer);
+                    locationManager.getCurrentLocation(LocationManager.GPS_PROVIDER, null, Runnable::run, consumer);
+                } else {
+                    Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);//location might be old
+                    if (location == null) {
+                        location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                    }
+                    if (location != null) {
+                        mLatitude = location.getLatitude();
+                        mLongitude = location.getLongitude();
                     }
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
+            }
+        }
+        return new GeoLocation();// the consumer should update with the actual location
+    }
+
+    public void resolveElevation(Runnable codeToRunAfter) {
+        boolean sUserIsOffline = false;
+        if (mLocationName.contains("Lat:") && mLocationName.contains("Long:")
+                && PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean("SetElevationToLastKnownLocation", false)) {//only if the user has enabled the setting to set the elevation to the last known location
+            sUserIsOffline = true;
+            mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mSharedPreferences.getString("name", ""), "0"));//lastKnownLocation
+        } else {//user is online, get the elevation from the shared preferences for the current location
+            mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mLocationName, "0"));//get the last value of the current location or 0 if it doesn't exist
+        }
+
+        if (!sUserIsOffline && mSharedPreferences.getBoolean("useElevation", true)
+                && !PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean("LuachAmudeiHoraah", false)) {//update if the user is online and the elevation setting is enabled
+            if (!mSharedPreferences.contains("elevation" + mLocationName)) {//if the elevation for this location has never been set
+                Thread thread = new Thread(() -> getElevationFromWebService(new Handler(Looper.getMainLooper()),
+                        () -> mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mLocationName, "0")),
+                        codeToRunAfter));
+                thread.start();
+            } else {
+                if (!mSharedPreferences.getBoolean("useElevation", true)) {//if the user has disabled the elevation setting, set the elevation to 0
+                    mElevation = 0;
+                } else {
+                    mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mLocationName, "0"));
+                }
+                codeToRunAfter.run();
             }
         }
     }
 
-    public String getLocationName(double latitude, double longitude) {
-        if (mSharedPreferences.getBoolean("useAdvanced", false)) {
-            return mLocationName;
-        } else if (mSharedPreferences.getBoolean("useLocation1", false)) {
-            return mLocationName;
-        } else if (mSharedPreferences.getBoolean("useLocation2", false)) {
-            return mLocationName;
-        } else if (mSharedPreferences.getBoolean("useLocation3", false)) {
-            return mLocationName;
-        } else if (mSharedPreferences.getBoolean("useLocation4", false)) {
-            return mLocationName;
-        } else if (mSharedPreferences.getBoolean("useLocation5", false)) {
-            return mLocationName;
-        } else if (ActivityCompat.checkSelfPermission(mContext, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(mContext, ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED) {
-            return mLocationName;
-        }
-
-        mLatitude = latitude;
-        mLongitude = longitude;
-
+    public String getLocationAsName(double latitude, double longitude) {
         StringBuilder result = new StringBuilder();
         List<Address> addresses = null;
         try {
             if (LocaleChecker.isLocaleHebrew()) {
-                addresses = mGeocoder.getFromLocation(mLatitude, mLongitude, 5);
+                addresses = mGeocoder.getFromLocation(latitude, longitude, 5);
             } else {
-                addresses = mGeocoder.getFromLocation(mLatitude, mLongitude, 1);
+                addresses = mGeocoder.getFromLocation(latitude, longitude, 1);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -765,15 +743,25 @@ public class LocationResolver extends Thread {
                 }
             }
         }
-        return result.toString().trim();
+        mLocationName = result.toString().trim();
+        if (mLocationName.isEmpty()) {
+            mLocationName = "Lat: " + String.format(Locale.getDefault(), "%.3f", latitude)
+                    + " Long: " + String.format(Locale.getDefault(), "%.3f", longitude);
+        }
+        mSharedPreferences.edit().putString("name", mLocationName).apply();
+        return mLocationName;
     }
 
-    public double getLatitude() {
-        return mLatitude;
+    private void setElevationFromSP() {
+        if (!mSharedPreferences.getBoolean("useElevation", true)) {//if the user has disabled the elevation setting, set the elevation to 0
+            mElevation = 0;
+        } else {
+            mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mLocationName, "0"));//lastKnownLocation
+        }
     }
 
-    public double getLongitude() {
-        return mLongitude;
+    public double getElevation() {
+        return mElevation;
     }
 
     public TimeZone getTimeZone() {

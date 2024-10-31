@@ -77,7 +77,6 @@ public class SiddurFragment extends Fragment {
 
         EdgeToEdge.enable(mActivity);
         setupButtons();
-        initMenu();
         initView();
         return root;
     }

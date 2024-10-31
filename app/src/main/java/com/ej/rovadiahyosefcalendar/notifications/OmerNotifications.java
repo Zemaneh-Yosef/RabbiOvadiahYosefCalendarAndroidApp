@@ -7,7 +7,6 @@ import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
 import static com.ej.rovadiahyosefcalendar.activities.OmerActivity.omerList;
 
-import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -41,7 +40,6 @@ import com.kosherjava.zmanim.util.GeoLocation;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.TimeZone;
 import java.util.function.Consumer;
 
 public class OmerNotifications extends BroadcastReceiver implements Consumer<Location> {
@@ -56,7 +54,7 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
         this.context = context;
         mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         JewishDateInfo jewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false));
-        mLocationResolver = new LocationResolver(context, new Activity());
+        mLocationResolver = new LocationResolver(context, null);
 
         if (mSharedPreferences.getBoolean("isSetup", false)) {
             ROZmanimCalendar c = getROZmanimCalendar(context);
@@ -82,8 +80,7 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
                 NotificationChannel channel = new NotificationChannel("Omer",
                         "Omer Notifications",
                         NotificationManager.IMPORTANCE_HIGH);
-                channel.setDescription("This notification will check daily if it is the omer and " +
-                        "it will display which day it is at sunset.");
+                channel.setDescription("This notification will check daily if it is the omer and it will display which day it is at sunset.");
                 channel.enableLights(true);
                 channel.enableVibration(true);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -215,24 +212,7 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
         if (ActivityCompat.checkSelfPermission(context, ACCESS_BACKGROUND_LOCATION) == PERMISSION_GRANTED) {
             mLocationResolver.getRealtimeNotificationData(this);// we will continue in the accept method
         }
-        return new ROZmanimCalendar(new GeoLocation(
-                mSharedPreferences.getString("name", ""),
-                Double.longBitsToDouble(mSharedPreferences.getLong("lat", 0)),
-                Double.longBitsToDouble(mSharedPreferences.getLong("long", 0)),
-                getLastKnownElevation(context, Double.longBitsToDouble(mSharedPreferences.getLong("lat", 0)), Double.longBitsToDouble(mSharedPreferences.getLong("long", 0))),
-                TimeZone.getTimeZone(mSharedPreferences.getString("timezoneID", TimeZone.getDefault().getID()))));
-    }
-
-    private double getLastKnownElevation(Context context, double latitude, double longitude) {
-        double elevation;
-        if (!mSharedPreferences.getBoolean("useElevation", true)) {//if the user has disabled the elevation setting, set the elevation to 0
-            elevation = 0;
-        } else if (ActivityCompat.checkSelfPermission(context, ACCESS_BACKGROUND_LOCATION) == PERMISSION_GRANTED) {
-            elevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mLocationResolver.getLocationName(latitude, longitude), "0"));//get the elevation using the location name
-        } else {
-            elevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mSharedPreferences.getString("name", ""), "0"));//lastKnownLocation
-        }
-        return elevation;
+        return new ROZmanimCalendar(mLocationResolver.getRealtimeNotificationData(null));
     }
 
     private void updateAlarm(Context context, ROZmanimCalendar c) {
@@ -255,12 +235,14 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
     @Override
     public void accept(Location location) {
         if (location != null) {
-            init(context, new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false)), new ROZmanimCalendar(new GeoLocation(
-                    mLocationResolver.getLocationName(location.getLatitude(), location.getLongitude()),
-                    location.getLatitude(),
-                    location.getLongitude(),
-                    getLastKnownElevation(context, location.getLatitude(), location.getLongitude()),
-                    mLocationResolver.getTimeZone())));
+            String locationName = mLocationResolver.getLocationAsName(location.getLatitude(), location.getLongitude());
+            mLocationResolver.resolveElevation(() ->
+                    init(context, new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false)), new ROZmanimCalendar(new GeoLocation(
+                            locationName,
+                            location.getLatitude(),
+                            location.getLongitude(),
+                            mLocationResolver.getElevation(),
+                            mLocationResolver.getTimeZone()))));
         }
     }
 }

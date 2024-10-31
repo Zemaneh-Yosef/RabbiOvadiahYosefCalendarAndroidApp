@@ -140,7 +140,6 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
         if ((ActivityCompat.checkSelfPermission(getApplicationContext(), ACCESS_FINE_LOCATION) != PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(getApplicationContext(), ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED)
                 && !mSharedPreferences.getBoolean("useZipcode", false)) {
-            mSharedPreferences.edit().putBoolean("shouldRefresh", true).apply();
             startActivity(new Intent(this, GetUserLocationWithMapActivity.class).setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
             finish();
             return;

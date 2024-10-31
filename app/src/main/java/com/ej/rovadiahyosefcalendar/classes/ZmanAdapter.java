@@ -138,22 +138,16 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
                     String zmanTime;
 
-                    if (zmanim.get(position).isRTZman() && roundUpRT) {
-                        if (zmanim.get(position).getZman() == null) {
-                            zmanTime = "XX:XX";
-                        } else {
-                            zmanTime = roundUpFormat.format(zmanim.get(position).getZman());
-                        }
-                    } else if (zmanim.get(position).isVisibleSunriseZman()) {
-                        zmanTime = visibleSunriseFormat.format(zmanim.get(position).getZman());
+                    if (zmanim.get(position).getZman() == null) {
+                        zmanTime = "XX:XX";
                     } else {
-                        if (zmanim.get(position).getZman() == null) {
-                            zmanTime = "XX:XX";
+                        if (zmanim.get(position).isRTZman() && roundUpRT) {
+                            zmanTime = roundUpFormat.format(zmanim.get(position).getZman());
+                        } else if (zmanim.get(position).isVisibleSunriseZman()) {
+                            zmanTime = visibleSunriseFormat.format(zmanim.get(position).getZman());
                         } else {
                             zmanTime = zmanimFormat.format(zmanim.get(position).getZman());
                         }
-                    }
-                    if (zmanim.get(position).getZman() != null) {
                         if (zmanim.get(position).getZman().equals(sNextUpcomingZman)) {
                             zmanTime += "◄";
                         }
@@ -163,24 +157,18 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     holder.mLeftTextView.setTypeface(Typeface.DEFAULT_BOLD);
                     holder.mLeftTextView.setText(zmanim.get(position).getTitle());//zman name
 
-                    String zmanTime = "➤";
-                    if (zmanim.get(position).getZman() != null) {
-                        if (!zmanim.get(position).getZman().equals(sNextUpcomingZman)) {
-                            zmanTime = "";//remove arrow
-                        }
+                    String zmanTime = "";
+                    if (zmanim.get(position).getZman() != null && zmanim.get(position).getZman().equals(sNextUpcomingZman)) {
+                        zmanTime = "➤";//add arrow
                     }
 
-                    if (zmanim.get(position).isRTZman() && roundUpRT) {
-                        if (zmanim.get(position).getZman() == null) {
-                            zmanTime = "XX:XX";
-                        } else {
-                            zmanTime += roundUpFormat.format(zmanim.get(position).getZman());
-                        }
-                    } else if (zmanim.get(position).isVisibleSunriseZman()) {
-                        zmanTime = visibleSunriseFormat.format(zmanim.get(position).getZman());
+                    if (zmanim.get(position).getZman() == null) {
+                        zmanTime = "XX:XX";
                     } else {
-                        if (zmanim.get(position).getZman() == null) {
-                            zmanTime = "XX:XX";
+                        if (zmanim.get(position).isRTZman() && roundUpRT) {
+                            zmanTime += roundUpFormat.format(zmanim.get(position).getZman());
+                        } else if (zmanim.get(position).isVisibleSunriseZman()) {
+                            zmanTime += visibleSunriseFormat.format(zmanim.get(position).getZman());
                         } else {
                             zmanTime += zmanimFormat.format(zmanim.get(position).getZman());
                         }
@@ -223,7 +211,6 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                             context.startActivity(Intent.createChooser(sendIntent, context.getString(R.string.share)));
                         }));
                         dialogBuilder.setNeutralButton(R.string.change_location, (dialog, which) -> {
-                            mSharedPreferences.edit().putBoolean("shouldRefresh", true).apply();
                             context.startActivity(new Intent(context, GetUserLocationWithMapActivity.class));
                         });
                         if (!PreferenceManager.getDefaultSharedPreferences(context).getBoolean("LuachAmudeiHoraah", false)) {
@@ -237,7 +224,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     // second entry (position 1) is always the date
 
                     if (position == 2 && !zmanim.get(position).getTitle().equals("No Weekly Parsha") && !zmanim.get(position).getTitle().equals("אין פרשת שבוע")) {// third entry will always be the weekly parsha
-                        String parsha = "";
+                        String parsha;
                         if (zmanim.get(position).getTitle().equals("לך לך")
                                 || zmanim.get(position).getTitle().equals("חיי שרה")
                                 || zmanim.get(position).getTitle().equals("כי תשא")

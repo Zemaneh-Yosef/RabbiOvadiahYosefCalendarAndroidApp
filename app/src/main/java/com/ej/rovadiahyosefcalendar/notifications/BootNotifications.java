@@ -1,7 +1,9 @@
 package com.ej.rovadiahyosefcalendar.notifications;
 
+import static android.Manifest.permission.ACCESS_BACKGROUND_LOCATION;
 import static android.content.Context.ALARM_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
 
 import android.app.AlarmManager;
@@ -13,49 +15,41 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
+import androidx.core.app.ActivityCompat;
+
 import com.ej.rovadiahyosefcalendar.activities.ZmanimAppWidget;
-import com.kosherjava.zmanim.ComplexZmanimCalendar;
+import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
+import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
 import com.kosherjava.zmanim.util.GeoLocation;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
-import java.util.TimeZone;
 
 public class BootNotifications extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (Objects.requireNonNull(intent.getAction()).equals(Intent.ACTION_BOOT_COMPLETED)) {
-            SharedPreferences sp = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
-            if (sp.getBoolean("isSetup",false)) {
-                ComplexZmanimCalendar c = new ComplexZmanimCalendar(new GeoLocation(
-                        sp.getString("name", ""),
-                        Double.longBitsToDouble(sp.getLong("lat", 0)),
-                        Double.longBitsToDouble(sp.getLong("long", 0)),
-                        TimeZone.getTimeZone(sp.getString("timezoneID", ""))));
-
-                Calendar calendar = Calendar.getInstance();
-                AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
-
-                calendar.setTimeInMillis(c.getSunrise().getTime());
-                if (calendar.getTime().compareTo(new Date()) < 0) {
-                    calendar.add(Calendar.DATE, 1);
+        if (Objects.equals(intent.getAction(), Intent.ACTION_BOOT_COMPLETED)) {
+            SharedPreferences mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
+            LocationResolver mLocationResolver = new LocationResolver(context, null);
+            if (mSharedPreferences.getBoolean("isSetup",false)) {
+                if (ActivityCompat.checkSelfPermission(context, ACCESS_BACKGROUND_LOCATION) == PERMISSION_GRANTED) {
+                    mLocationResolver.getRealtimeNotificationData(location -> {
+                        if (location != null) {
+                                setDailyNotifications(context, new ROZmanimCalendar(new GeoLocation(
+                                        "",// not needed
+                                        location.getLatitude(),
+                                        location.getLongitude(),
+                                        0,// it barely makes a difference on when the notification sends, not worth the network call IMO
+                                        mLocationResolver.getTimeZone())));
+                            }
+                        });
+                    } else  {
+                    setDailyNotifications(context, new ROZmanimCalendar(mLocationResolver.getRealtimeNotificationData(null)));
                 }
-                PendingIntent dailyPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
-                        0, new Intent(context, DailyNotifications.class), PendingIntent.FLAG_IMMUTABLE);
-                am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), dailyPendingIntent);
 
-                calendar.setTimeInMillis(c.getSunset().getTime());
-                if (calendar.getTime().compareTo(new Date()) < 0) {
-                    calendar.add(Calendar.DATE, 1);
-                }
-                PendingIntent omerPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
-                        0, new Intent(context, OmerNotifications.class), PendingIntent.FLAG_IMMUTABLE);
-                am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), omerPendingIntent);
-
-                PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
-                        0, new Intent(context, ZmanimNotifications.class), PendingIntent.FLAG_IMMUTABLE);
+                PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(context, 0, new Intent(context, ZmanimNotifications.class), PendingIntent.FLAG_IMMUTABLE);
                 try {
                     zmanimPendingIntent.send();
                 } catch (PendingIntent.CanceledException e) {
@@ -69,5 +63,26 @@ public class BootNotifications extends BroadcastReceiver {
                 context.sendBroadcast(widgetIntent);
             }
         }
+    }
+
+    private void setDailyNotifications(Context context, ROZmanimCalendar zmanimCalendar) {
+        Calendar calendar = Calendar.getInstance();
+        AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
+
+        calendar.setTimeInMillis(zmanimCalendar.getSunrise().getTime());
+        if (calendar.getTime().compareTo(new Date()) < 0) {
+            calendar.add(Calendar.DATE, 1);
+        }
+        PendingIntent dailyPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
+                0, new Intent(context, DailyNotifications.class), PendingIntent.FLAG_IMMUTABLE);
+        am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), dailyPendingIntent);
+
+        calendar.setTimeInMillis(zmanimCalendar.getSunset().getTime());
+        if (calendar.getTime().compareTo(new Date()) < 0) {
+            calendar.add(Calendar.DATE, 1);
+        }
+        PendingIntent omerPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
+                0, new Intent(context, OmerNotifications.class), PendingIntent.FLAG_IMMUTABLE);
+        am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), omerPendingIntent);
     }
 }
