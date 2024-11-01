@@ -3898,6 +3898,22 @@ public class SiddurMaker {
     public ArrayList<HighlightString> getBirchatHamazonPrayers() {
         siddur = new ArrayList<>();
 
+        String birshut = "ואומר המזמן (The leader says) \n\nבִּרְשׁוּת מַלְכָּא עִלָּאָה קַדִּישָׁא";
+        bool birsHigh = false;
+        if (jewishDateInfo.getJewishCalendar().getDayOfWeek() == 7) {
+            birsHigh = true;
+            birshut += "וּבִרְשׁוּת שַׁבָּת מַלְכְּתָא";
+        }
+        if (jewishDateInfo.getJewishCalendar().isYomTovAssurBemelacha()) {
+            birsHigh = true;
+            birshut += "וּבִרְשׁוּת יוֹמָא טָבָא אוּשְׁפִּיזָא קַדִּישָׁא";
+        }
+        if (jewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.SUCCOS) {
+            birsHigh = true;
+            birshut += "וּבִרְשׁוּת שִׁבְעָה אוּשְׁפִּיזִין עִלָּאִין קַדִּישִׁין";
+        }
+        birshut += "וּבִרְשׁוּת מוֹרַי וְרַבּוֹתַי וּבִרְשֽׁוּתְכֶֽם. נְבָרֵךְ\n(בעשרה ויותר/ten or more people: אֱלֹהֵֽינוּ)\n(בסעודת חתן/by a groom: שֶׁהַשִּׂמְחָה בִּמְעוֹנוֹ)\nשֶׁאָכַֽלְנוּ מִשֶּׁלּוֹ:";
+
         addToSiddur("יטול מים אחרונים, ויאמר (Wash your hands for mayim acharonim and say)");
         addToSiddur(menorah);
         addToSiddur("אֲבָרְכָ֣ה אֶת־יְהֹוָ֣ה בְּכׇל־עֵ֑ת תָּ֝מִ֗יד תְּֽהִלָּת֥וֹ בְּפִֽי׃ ס֥וֹף דָּבָ֖ר הַכֹּ֣ל נִשְׁמָ֑ע אֶת־הָאֱלֹהִ֤ים יְרָא֙ וְאֶת־מִצְוֺתָ֣יו שְׁמ֔וֹר כִּי־זֶ֖ה כׇּל־הָאָדָֽם: תְּהִלַּ֥ת יְהֹוָ֗ה יְֽדַבֶּ֫ר פִּ֥י וִיבָרֵ֣ךְ כׇּל־בָּ֭שָׂר שֵׁ֥ם קׇדְשׁ֗וֹ לְעוֹלָ֥ם וָעֶֽד: וַאֲנַ֤חְנוּ ׀ נְבָ֘רֵ֤ךְ יָ֗הּ מֵעַתָּ֥ה וְעַד־עוֹלָ֗ם הַֽלְלוּיָֽהּ: וַיְדַבֵּ֣ר אֵלַ֔י זֶ֚ה הַשֻּׁלְחָ֔ן אֲשֶׁ֖ר לִפְנֵ֥י יְהֹוָֽה:  \n\n" +
@@ -3905,10 +3921,14 @@ public class SiddurMaker {
                 "יאמר המזמן (The leader says) \n\n" +
                 "הַב לָן וְנִבְרִיךְ לְמַלְכָּא עִלָּאָה קַדִּישָׁא: \n\n" +
                 "והמסובים עונים (The others say) \n\n" +
-                "שָׁמַֽיִם: \n\n" +
-                "ואומר המזמן (The leader says) \n\n" +
-                "בִּרְשׁוּת מַלְכָּא עִלָּאָה קַדִּישָׁא\n(בשבת/Shabbat: וּבִרְשׁוּת שַׁבָּת מַלְכְּתָא.)\n(ביו\"ט/Yom Tov: וּבִרְשׁוּת יוֹמָא טָבָא אוּשְׁפִּיזָא קַדִּישָׁא.)\n(בסוכות/Succot: וּבִרְשׁוּת שִׁבְעָה אוּשְׁפִּיזִין עִלָּאִין קַדִּישִׁין)\nוּבִרְשׁוּת מוֹרַי וְרַבּוֹתַי וּבִרְשֽׁוּתְכֶֽם. נְבָרֵךְ\n(בעשרה ויותר/ten or more people: אֱלֹהֵֽינוּ)\n(בסעודת חתן/by a groom: שֶׁהַשִּׂמְחָה בִּמְעוֹנוֹ)\nשֶׁאָכַֽלְנוּ מִשֶּׁלּוֹ: \n\n" +
-                "והמסובים עונים (The others say) \n\n" +
+                "שָׁמַֽיִם:");
+        if (birsHigh) {
+            addToSiddurHighlighted(birshut);
+        } else {
+            addToSiddur(birshut);
+        }
+
+        addToSiddur("והמסובים עונים (The others say) \n\n" +
                 "בָּרוּךְ\n(בעשרה ויותר/ten or more people: אֱלֹהֵֽינוּ)\n(בסעודת חתן/by a groom: שֶׁהַשִּׂמְחָה בִּמְעוֹנוֹ)\nשֶׁאָכַֽלְנוּ מִשֶּׁלּוֹ וּבְטוּבוֹ חָיִֽינוּ: \n\n" +
                 "והמזמן עונה (The leader answers back) \n\n" +
                 "בָּרוּךְ\n(בעשרה ויותר/ten or more people: אֱלֹהֵֽינוּ)\n(בסעודת חתן/by a groom: שֶׁהַשִּׂמְחָה בִּמְעוֹנוֹ)\nשֶׁאָכַֽלְנוּ מִשֶּׁלּוֹ וּבְטוּבוֹ חָיִֽינוּ: \n\n" +
