@@ -1845,14 +1845,13 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         codeToRunOnMainThread));
                 thread.start();
                 seeIfTablesNeedToBeUpdated(false);
-            } else {
-                if (!sSharedPreferences.getBoolean("useElevation", true)) {//if the user has disabled the elevation setting, set the elevation to 0
-                    sElevation = 0;
-                } else {
-                    sElevation = Double.parseDouble(sSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));
-                }
+            } else {// use elevation that was set before
+                sElevation = Double.parseDouble(sSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));
                 mActivity.runOnUiThread(codeToRunOnMainThread);
             }
+        } else {// user does not want elevation or is in Amudei Horaah mode
+            sElevation = 0;
+            mActivity.runOnUiThread(codeToRunOnMainThread);
         }
     }
 

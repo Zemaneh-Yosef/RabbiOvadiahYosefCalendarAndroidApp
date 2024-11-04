@@ -48,6 +48,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
+import com.kosherjava.zmanim.util.GeoLocation;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -68,7 +69,7 @@ public class MainFragmentManager extends AppCompatActivity {
     public static String sCurrentTimeZoneID;//e.g. "America/New_York"
 
     // KosherJava classes
-    public static ROZmanimCalendar mROZmanimCalendar;
+    public static ROZmanimCalendar mROZmanimCalendar = new ROZmanimCalendar(new GeoLocation());// avoid NPE
     public final static JewishDateInfo mJewishDateInfo = new JewishDateInfo(false);
     public static HebrewDateFormatter mHebrewDateFormatter = new HebrewDateFormatter();
 
