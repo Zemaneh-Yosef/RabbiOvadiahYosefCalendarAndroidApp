@@ -1,6 +1,7 @@
 package com.ej.rovadiahyosefcalendar.notifications;
 
-import static android.Manifest.permission.ACCESS_BACKGROUND_LOCATION;
+import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
 
@@ -20,6 +21,7 @@ import android.os.IBinder;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.ServiceCompat;
 import androidx.preference.PreferenceManager;
 
 import com.ej.rovadiahyosefcalendar.R;
@@ -138,7 +140,8 @@ public class NextZmanCountdownNotification extends Service {
     }
 
     private ROZmanimCalendar getROZmanimCalendar(Context context) {
-        if (ActivityCompat.checkSelfPermission(context, ACCESS_BACKGROUND_LOCATION) == PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(context, ACCESS_FINE_LOCATION) == PERMISSION_GRANTED ||
+                ActivityCompat.checkSelfPermission(context, ACCESS_COARSE_LOCATION) == PERMISSION_GRANTED) {
             mLocationResolver.getRealtimeNotificationData(location -> {
                 if (location != null) {
                     String locationName = mLocationResolver.getLocationAsName(location.getLatitude(), location.getLongitude());
@@ -164,7 +167,9 @@ public class NextZmanCountdownNotification extends Service {
                             mROZmanimCalendar.setAteretTorahSunsetOffset(30);
                         }
                         mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false));
-                        createNotificationChannel();
+                        nextZman = null;
+                        remainingTime = 0;
+                        // startCountdown will already be called, just make it re-get the correct time
                     });
                 }
             });
@@ -253,7 +258,7 @@ public class NextZmanCountdownNotification extends Service {
         Notification notification = builder.build();
         notification.flags = Notification.FLAG_ONGOING_EVENT;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
+            ServiceCompat.startForeground(this, NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
         } else {
             startForeground(NOTIFICATION_ID, notification);
         }

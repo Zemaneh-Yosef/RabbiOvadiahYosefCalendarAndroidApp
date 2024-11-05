@@ -3,6 +3,7 @@ package com.ej.rovadiahyosefcalendar.activities.ui.zmanim;
 import static android.Manifest.permission.ACCESS_BACKGROUND_LOCATION;
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+import static android.Manifest.permission.FOREGROUND_SERVICE_LOCATION;
 import static android.content.Context.ALARM_SERVICE;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mCurrentDateShown;
@@ -959,7 +960,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         menu.findItem(R.id.shabbat_mode).setChecked(sShabbatMode);
         menu.findItem(R.id.weekly_mode).setChecked(sSharedPreferences.getBoolean("weeklyMode", false));
         menu.findItem(R.id.use_elevation).setChecked(sSharedPreferences.getBoolean("useElevation", true));
-        menu.findItem(R.id.use_elevation).setVisible(!sSharedPreferences.getBoolean("LuachAmudeiHoraah", false));
+        menu.findItem(R.id.use_elevation).setVisible(!sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false));
     }
 
     /**
@@ -2282,10 +2283,17 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         sLastTimeUserWasInApp = new Date();
 
         if (sSettingsPreferences.getBoolean("showNextZmanNotification", false)) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                mActivity.startForegroundService(new Intent(mContext, NextZmanCountdownNotification.class));
+            if (ContextCompat.checkSelfPermission(mContext, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(mContext, ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(mContext, FOREGROUND_SERVICE_LOCATION) != PERMISSION_GRANTED) {
+                Toast.makeText(mContext, R.string.title_location_permission, Toast.LENGTH_SHORT).show();
             } else {
-                mActivity.startService(new Intent(mContext, NextZmanCountdownNotification.class));
+                mActivity.stopService(new Intent(mContext, NextZmanCountdownNotification.class));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    mActivity.startForegroundService(new Intent(mContext, NextZmanCountdownNotification.class));
+                } else {
+                    mActivity.startService(new Intent(mContext, NextZmanCountdownNotification.class));
+                }
             }
         }
 
@@ -2337,6 +2345,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (location != null) {
             sLatitude = location.getLatitude();
             sLongitude = location.getLongitude();
+            if (sSharedPreferences != null) {
+                sSharedPreferences.edit().putLong("Lat", Double.doubleToRawLongBits(sLatitude)).putLong("Long", Double.doubleToRawLongBits(sLongitude)).apply();
+            }
             if (mLocationResolver == null) {
                 mLocationResolver = new LocationResolver(mContext, mActivity);
             }
