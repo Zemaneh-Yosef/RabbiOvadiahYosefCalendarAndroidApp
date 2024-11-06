@@ -23,7 +23,6 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 
-import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
@@ -59,7 +58,7 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
         if (mSharedPreferences.getBoolean("isSetup", false)) {
             ROZmanimCalendar c = getROZmanimCalendar(context);
 
-            if (ActivityCompat.checkSelfPermission(context, ACCESS_BACKGROUND_LOCATION) != PERMISSION_GRANTED) {
+            if (c != null) {
                 init(context, jewishDateInfo, c);
             }
         }
@@ -207,10 +206,10 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
         MID++;
     }
 
-    @NonNull
     private ROZmanimCalendar getROZmanimCalendar(Context context) {
         if (ActivityCompat.checkSelfPermission(context, ACCESS_BACKGROUND_LOCATION) == PERMISSION_GRANTED) {
             mLocationResolver.getRealtimeNotificationData(this);// we will continue in the accept method
+            return null;
         }
         return new ROZmanimCalendar(mLocationResolver.getRealtimeNotificationData(null));
     }

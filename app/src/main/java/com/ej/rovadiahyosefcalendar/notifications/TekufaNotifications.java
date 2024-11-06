@@ -136,17 +136,12 @@ public class TekufaNotifications extends BroadcastReceiver {
     }
 
     private int getSeasonalIcon(String tekufaName) {
-        switch (tekufaName) {
-            case "Tishri":
-                return R.drawable.autumn;
-            case "Tevet":
-                return R.drawable.winter;
-            case "Nissan":
-                return R.drawable.spring;
-            case "Tammuz":
-                return R.drawable.summer;
-        }
-        return R.drawable.autumn;//we should never get here but to keep the compiler happy
+        return switch (tekufaName) {
+            case "Tevet" -> R.drawable.winter;
+            case "Nissan" -> R.drawable.spring;
+            case "Tammuz" -> R.drawable.summer;
+            default -> R.drawable.autumn;
+        };
     }
 
     private Date findTekufaTime(JewishDateInfo jewishDateInfo) {

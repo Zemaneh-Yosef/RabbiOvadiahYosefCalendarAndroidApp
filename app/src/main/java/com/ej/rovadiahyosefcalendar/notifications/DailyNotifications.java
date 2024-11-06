@@ -22,7 +22,6 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 
-import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
@@ -57,7 +56,7 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
         mLocationResolver = new LocationResolver(context, null);
         if (mSharedPreferences.getBoolean("isSetup",false)) {
             ROZmanimCalendar calendar = getROZmanimCalendar(context);
-            if (ActivityCompat.checkSelfPermission(context, ACCESS_BACKGROUND_LOCATION) != PERMISSION_GRANTED) {
+            if (calendar != null) {
                 init(context, jewishDateInfo, calendar);
             }
         }
@@ -159,10 +158,10 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
         startUpDailyZmanim(context);//we need to start the zmanim service every day because there might be a person who will just want to see candle lighting time every week or once a year for pesach zmanim.
     }
 
-    @NonNull
     private ROZmanimCalendar getROZmanimCalendar(Context context) {
         if (ActivityCompat.checkSelfPermission(context, ACCESS_BACKGROUND_LOCATION) == PERMISSION_GRANTED) {
             mLocationResolver.getRealtimeNotificationData(this);// we will continue in the accept method
+            return null;
         }
         return new ROZmanimCalendar(mLocationResolver.getRealtimeNotificationData(null));
     }

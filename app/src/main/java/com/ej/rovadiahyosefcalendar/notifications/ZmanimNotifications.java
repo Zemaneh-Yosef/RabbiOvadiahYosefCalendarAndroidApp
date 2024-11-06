@@ -1,8 +1,6 @@
 package com.ej.rovadiahyosefcalendar.notifications;
 
 import static android.Manifest.permission.ACCESS_BACKGROUND_LOCATION;
-import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
-import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.Context.ALARM_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
@@ -17,7 +15,6 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Build;
 
-import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.preference.PreferenceManager;
 
@@ -49,8 +46,7 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
         if (mSharedPreferences.getBoolean("isSetup",false) && mSettingsSharedPreferences.getBoolean("zmanim_notifications", true)) {
             Thread thread = new Thread(() -> {
                 ROZmanimCalendar zmanimCalendar = getROZmanimCalendar();
-                if (ActivityCompat.checkSelfPermission(context, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED
-                        && ActivityCompat.checkSelfPermission(context, ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED) {// if we can get the user's location, we will go to the accept method
+                if (zmanimCalendar != null) {// if null, we can get the user's location, we will go to the accept method
                     JewishCalendar jewishCalendar = new JewishCalendar();
                     zmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
                     String candles = mSettingsSharedPreferences.getString("CandleLightingOffset", "20");
@@ -77,10 +73,10 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
     /**
      * This method will instantiate a ROZmanimCalendar object if the user has allowed the app to use their location, otherwise, it will use the last known location.
      */
-    @NonNull
     private ROZmanimCalendar getROZmanimCalendar() {
         if (ActivityCompat.checkSelfPermission(context, ACCESS_BACKGROUND_LOCATION) == PERMISSION_GRANTED) {
             mLocationResolver.getRealtimeNotificationData(this);// we will continue in the accept method
+            return null;
         }
         return new ROZmanimCalendar(mLocationResolver.getRealtimeNotificationData(null));
     }
