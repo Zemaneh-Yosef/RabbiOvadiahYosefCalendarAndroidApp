@@ -1,8 +1,6 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
-import static android.Manifest.permission.ACCESS_BACKGROUND_LOCATION;
 import static android.content.Context.MODE_PRIVATE;
-import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
 
 import android.app.AlarmManager;
@@ -21,7 +19,6 @@ import android.util.SizeF;
 import android.view.View;
 import android.widget.RemoteViews;
 
-import androidx.core.app.ActivityCompat;
 import androidx.preference.PreferenceManager;
 
 import com.ej.rovadiahyosefcalendar.R;
@@ -58,7 +55,7 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         mSettingsPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         setZmanimLanguageBools();
         mROZmanimCalendar = getROZmanimCalendar(context, appWidgetManager, appWidgetId);
-        if (ActivityCompat.checkSelfPermission(context, ACCESS_BACKGROUND_LOCATION) != PERMISSION_GRANTED) {
+        if (!mROZmanimCalendar.getGeoLocation().equals(new GeoLocation())) {// if using location, default GeoLocation will be returned. Avoid that
             mROZmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
             String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
             if (candles.isEmpty()) {
@@ -129,79 +126,76 @@ public class ZmanimAppWidget extends AppWidgetProvider {
     }
 
     private static ROZmanimCalendar getROZmanimCalendar(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
-        if (ActivityCompat.checkSelfPermission(context, ACCESS_BACKGROUND_LOCATION) == PERMISSION_GRANTED) {
-            mLocationResolver.getRealtimeNotificationData(location -> {
-                if (location != null) {
-                    String locationName = mLocationResolver.getLocationAsName(location.getLatitude(), location.getLongitude());
-                    mLocationResolver.resolveElevation(() -> {
-                        mROZmanimCalendar = new ROZmanimCalendar(new GeoLocation(
-                                locationName,
-                                location.getLatitude(),
-                                location.getLongitude(),
-                                mLocationResolver.getElevation(),
-                                mLocationResolver.getTimeZone()));
+        return new ROZmanimCalendar(mLocationResolver.getRealtimeNotificationData(location -> {
+            if (location != null) {
+                String locationName = mLocationResolver.getLocationAsName(location.getLatitude(), location.getLongitude());
+                mLocationResolver.resolveElevation(() -> {
+                    mROZmanimCalendar = new ROZmanimCalendar(new GeoLocation(
+                            locationName,
+                            location.getLatitude(),
+                            location.getLongitude(),
+                            mLocationResolver.getElevation(),
+                            mLocationResolver.getTimeZone()));
 
-                        mROZmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
-                        String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
-                        if (candles.isEmpty()) {
-                            candles = "20";
-                        }
-                        mROZmanimCalendar.setCandleLightingOffset(Double.parseDouble(candles));
-                        String shabbat = mSettingsPreferences.getString("EndOfShabbatOffset", mSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40");
-                        if (shabbat.isEmpty()) {// for some reason this is happening
-                            shabbat = "40";
-                        }
-                        mROZmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(shabbat));
-                        if (mSharedPreferences.getBoolean("inIsrael", false) && shabbat.equals("40")) {
-                            mROZmanimCalendar.setAteretTorahSunsetOffset(30);
-                        }
-                        mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false));
-                        SimpleDateFormat sZmanimFormat;
-                        if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
-                            sZmanimFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
+                    mROZmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
+                    String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
+                    if (candles.isEmpty()) {
+                        candles = "20";
+                    }
+                    mROZmanimCalendar.setCandleLightingOffset(Double.parseDouble(candles));
+                    String shabbat = mSettingsPreferences.getString("EndOfShabbatOffset", mSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40");
+                    if (shabbat.isEmpty()) {// for some reason this is happening
+                        shabbat = "40";
+                    }
+                    mROZmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(shabbat));
+                    if (mSharedPreferences.getBoolean("inIsrael", false) && shabbat.equals("40")) {
+                        mROZmanimCalendar.setAteretTorahSunsetOffset(30);
+                    }
+                    mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false));
+                    SimpleDateFormat sZmanimFormat;
+                    if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                        sZmanimFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
+                    } else {
+                        sZmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+                    }
+                    sZmanimFormat.setTimeZone(mROZmanimCalendar.getCalendar().getTimeZone());
+
+                    String jewishDate = mJewishDateInfo.getJewishDate();
+                    String parsha = mJewishDateInfo.getThisWeeksParsha();
+                    ZmanListEntry nextUpcomingZman = getNextUpcomingZman(context, appWidgetManager, appWidgetId);
+                    String zman = nextUpcomingZman.getTitle();
+                    String time = sZmanimFormat.format(nextUpcomingZman.getZman());
+                    String tachanun = mJewishDateInfo.getIsTachanunSaid()
+                            .replace("No Tachanun today", "No Tachanun")
+                            .replace("Tachanun only in the morning", "Tachanun morning only")
+                            .replace("There is Tachanun today", "Tachanun");
+                    HebrewDateFormatter hebrewDateFormatter = new HebrewDateFormatter();
+                    hebrewDateFormatter.setUseGershGershayim(false);
+                    String dafYomi = mJewishDateInfo.getJewishCalendar().getDafYomiBavli().getMasechta()
+                            + " " + hebrewDateFormatter.formatHebrewNumber(mJewishDateInfo.getJewishCalendar().getDafYomiBavli().getDaf());
+                    String omerCount = mJewishDateInfo.addDayOfOmer("");
+
+                    Map<SizeF, RemoteViews> viewMapping = getViewMapping(context, true, jewishDate, parsha, zman, time, tachanun, dafYomi, omerCount);
+                    RemoteViews views;
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                        views = new RemoteViews(viewMapping);
+                    } else { // old implementation
+                        if (mSharedPreferences.getInt("widgetMaxHeight" + appWidgetId, 0) > mSharedPreferences.getInt("widgetMaxWidth" + appWidgetId, 0)) {
+                            views = new RemoteViews(context.getPackageName(), R.layout.zmanim_app_widget_vertical);
                         } else {
-                            sZmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+                            views = new RemoteViews(context.getPackageName(), R.layout.zmanim_app_widget);
                         }
-                        sZmanimFormat.setTimeZone(mROZmanimCalendar.getCalendar().getTimeZone());
-
-                        String jewishDate = mJewishDateInfo.getJewishDate();
-                        String parsha = mJewishDateInfo.getThisWeeksParsha();
-                        ZmanListEntry nextUpcomingZman = getNextUpcomingZman(context, appWidgetManager, appWidgetId);
-                        String zman = nextUpcomingZman.getTitle();
-                        String time = sZmanimFormat.format(nextUpcomingZman.getZman());
-                        String tachanun = mJewishDateInfo.getIsTachanunSaid()
-                                .replace("No Tachanun today", "No Tachanun")
-                                .replace("Tachanun only in the morning", "Tachanun morning only")
-                                .replace("There is Tachanun today", "Tachanun");
-                        HebrewDateFormatter hebrewDateFormatter = new HebrewDateFormatter();
-                        hebrewDateFormatter.setUseGershGershayim(false);
-                        String dafYomi = mJewishDateInfo.getJewishCalendar().getDafYomiBavli().getMasechta()
-                                + " " + hebrewDateFormatter.formatHebrewNumber(mJewishDateInfo.getJewishCalendar().getDafYomiBavli().getDaf());
-                        String omerCount = mJewishDateInfo.addDayOfOmer("");
-
-                        Map<SizeF, RemoteViews> viewMapping = getViewMapping(context, true, jewishDate, parsha, zman, time, tachanun, dafYomi, omerCount);
-                        RemoteViews views;
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-                            views = new RemoteViews(viewMapping);
-                        } else { // old implementation
-                            if (mSharedPreferences.getInt("widgetMaxHeight" + appWidgetId, 0) > mSharedPreferences.getInt("widgetMaxWidth" + appWidgetId, 0)) {
-                                views = new RemoteViews(context.getPackageName(), R.layout.zmanim_app_widget_vertical);
-                            } else {
-                                views = new RemoteViews(context.getPackageName(), R.layout.zmanim_app_widget);
-                            }
-                            setTexts(context, views, jewishDate, parsha, zman, time, tachanun, dafYomi);
-                            if (!mSharedPreferences.getBoolean("widgetInitialized", false)) {
-                                views.setViewVisibility(R.id.widget_next_zman, View.GONE);// initially hide the other views
-                                views.setViewVisibility(R.id.widget_tachanun_daf, View.GONE);
-                            }
+                        setTexts(context, views, jewishDate, parsha, zman, time, tachanun, dafYomi);
+                        if (!mSharedPreferences.getBoolean("widgetInitialized", false)) {
+                            views.setViewVisibility(R.id.widget_next_zman, View.GONE);// initially hide the other views
+                            views.setViewVisibility(R.id.widget_tachanun_daf, View.GONE);
                         }
-                        // Instruct the widget manager to update the widget
-                        appWidgetManager.updateAppWidget(appWidgetId, views);
-                    });
-                }
-            });
-        }
-        return new ROZmanimCalendar(mLocationResolver.getRealtimeNotificationData(null));
+                    }
+                    // Instruct the widget manager to update the widget
+                    appWidgetManager.updateAppWidget(appWidgetId, views);
+                });
+            }
+        }));
     }
 
     public static ZmanListEntry getNextUpcomingZman(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {

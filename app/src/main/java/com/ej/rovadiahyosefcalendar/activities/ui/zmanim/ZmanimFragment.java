@@ -295,7 +295,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         });
     }
 
-
     private void setupButtons() {
         setupPreviousDayButton();
         setupCalendarButton();
@@ -1009,15 +1008,15 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             zmanim.add(new ZmanListEntry(haftorah));
         }
 
-        mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
-        mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
-        if (sSettingsPreferences.getBoolean("showShabbatMevarchim", true)) {
+        if (sSettingsPreferences.getBoolean("showShabbatMevarchim", false)) {
+            mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
+            mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
             if (mJewishDateInfo.getJewishCalendar().isShabbosMevorchim()) {
                 zmanim.add(new ZmanListEntry("שבת מברכים"));
             }
+            mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);
+            mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());//reset
         }
-        mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);
-        mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());//reset
 
         if (LocaleChecker.isLocaleHebrew()) {
             zmanim.add(new ZmanListEntry(mROZmanimCalendar.getCalendar()
@@ -1230,15 +1229,15 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             announcements.append(day.replace("/ ","\n")).append("\n");
         }
 
-        mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
-        mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
         if (sSettingsPreferences.getBoolean("showShabbatMevarchim", true)) {
+            mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
+            mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
             if (mJewishDateInfo.getJewishCalendar().isShabbosMevorchim()) {
                 announcements.append("שבת מברכים").append("\n");
             }
+            mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);
+            mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());//reset
         }
-        mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);
-        mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());//reset
 
         String isOKToListenToMusic = mJewishDateInfo.isOKToListenToMusic();
         if (!isOKToListenToMusic.isEmpty()) {

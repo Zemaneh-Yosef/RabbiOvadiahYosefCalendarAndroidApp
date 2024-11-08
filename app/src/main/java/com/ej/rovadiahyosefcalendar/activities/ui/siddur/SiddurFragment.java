@@ -284,6 +284,12 @@ public class SiddurFragment extends Fragment {
             }
             disclaimer.setText(fromHtml(text, Html.FROM_HTML_MODE_COMPACT));
         }
+
+        if (mJewishDateInfo.getJewishCalendar().getYomTovIndex() != JewishCalendar.TU_BESHVAT &&
+                !(mJewishDateInfo.getJewishCalendar().getUpcomingParshah() == JewishCalendar.Parsha.BESHALACH &&
+                mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.TUESDAY)) {
+            disclaimer.setText("");
+        }
     }
 
     @Override
