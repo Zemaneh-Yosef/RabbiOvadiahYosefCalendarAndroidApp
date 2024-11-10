@@ -572,8 +572,8 @@ public class LocationResolver {
     public GeoLocation getRealtimeNotificationData(Consumer<Location> consumer) {
         if (mSharedPreferences.getBoolean("useAdvanced", false)) {
             mLocationName = mSharedPreferences.getString("advancedLN", "");
-            mLatitude = Double.parseDouble(mSharedPreferences.getString("advancedLat", ""));
-            mLongitude = Double.parseDouble(mSharedPreferences.getString("advancedLong", ""));
+            mLatitude = Double.parseDouble(mSharedPreferences.getString("advancedLat", "0"));
+            mLongitude = Double.parseDouble(mSharedPreferences.getString("advancedLong", "0"));
             setElevationFromSP();
             setTimeZoneID();
             return new GeoLocation(mLocationName, mLatitude, mLongitude, mElevation, mTimeZone);
@@ -633,7 +633,7 @@ public class LocationResolver {
                         mSharedPreferences.getString("name", ""),
                         Double.longBitsToDouble(mSharedPreferences.getLong("Lat", 0)),
                         Double.longBitsToDouble(mSharedPreferences.getLong("Long", 0)),
-                        Double.parseDouble(mSharedPreferences.getString(mSharedPreferences.getString("name", ""), "0")),
+                        Double.parseDouble("elevation" + mSharedPreferences.getString(mSharedPreferences.getString("name", ""), "0")),
                         TimeZone.getDefault()
                 );
             } else {

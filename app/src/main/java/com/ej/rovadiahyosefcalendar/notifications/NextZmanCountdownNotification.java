@@ -39,7 +39,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
-import java.util.TimeZone;
 
 public class NextZmanCountdownNotification extends Service {
 
@@ -105,7 +104,7 @@ public class NextZmanCountdownNotification extends Service {
                 zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
             }
         }
-        zmanimFormat.setTimeZone(TimeZone.getTimeZone(mSharedPreferences.getString("timezoneID", ""))); //set the formatters time zone
+        zmanimFormat.setTimeZone(mLocationResolver.getTimeZone()); //set the formatters time zone
         mLocationResolver = new LocationResolver(this, new Activity());
         mROZmanimCalendar = getROZmanimCalendar(this);
         mROZmanimCalendar.setExternalFilesDir(getExternalFilesDir(null));

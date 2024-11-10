@@ -23,6 +23,7 @@ import androidx.preference.PreferenceManager;
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.MainFragmentManager;
 import com.ej.rovadiahyosefcalendar.classes.LocaleChecker;
+import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
 import java.text.DateFormat;
@@ -30,7 +31,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.TimeZone;
 
 public class ZmanNotification extends BroadcastReceiver {
 
@@ -114,7 +114,7 @@ public class ZmanNotification extends BroadcastReceiver {
                     zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
                 }
             }
-            zmanimFormat.setTimeZone(TimeZone.getTimeZone(mSharedPreferences.getString("timezoneID", ""))); //set the formatters time zone
+            zmanimFormat.setTimeZone(new LocationResolver(context, null).getTimeZone()); //set the formatters time zone
 
             String text;
             if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
