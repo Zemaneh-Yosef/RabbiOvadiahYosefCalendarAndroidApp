@@ -424,7 +424,7 @@ class MainActivity : ComponentActivity() {
                 sElevation,
                 TimeZone.getTimeZone(if (sCurrentTimeZoneID != "") sCurrentTimeZoneID else TimeZone.getDefault().id)
             ),
-            if (sharedPref == null) getSharedPreferences(SHARED_PREF, MODE_PRIVATE) else sharedPref
+            sharedPref
         )
         mROZmanimCalendar.candleLightingOffset =
             (sharedPref.getString("CandleLightingOffset", "20")?.toDouble() ?: 0) as Double
@@ -996,7 +996,7 @@ class MainActivity : ComponentActivity() {
             }
         }
         if (mJewishDateInfo.jewishCalendar.isTaanis && mJewishDateInfo.jewishCalendar.yomTovIndex != JewishCalendar.YOM_KIPPUR) {
-            var fastEnds = ZmanListEntry(
+            val fastEnds = ZmanListEntry(
                 zmanimNames.tzaitString + zmanimNames.taanitString + zmanimNames.endsString,
                 mROZmanimCalendar.tzaitTaanit,
                 true

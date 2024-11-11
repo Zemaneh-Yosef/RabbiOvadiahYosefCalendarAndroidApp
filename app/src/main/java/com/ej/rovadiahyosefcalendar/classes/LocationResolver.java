@@ -633,7 +633,7 @@ public class LocationResolver {
                         mSharedPreferences.getString("name", ""),
                         Double.longBitsToDouble(mSharedPreferences.getLong("Lat", 0)),
                         Double.longBitsToDouble(mSharedPreferences.getLong("Long", 0)),
-                        Double.parseDouble("elevation" + mSharedPreferences.getString(mSharedPreferences.getString("name", ""), "0")),
+                        Double.parseDouble(mSharedPreferences.getString("elevation" + mSharedPreferences.getString("name", ""), "0")),
                         TimeZone.getDefault()
                 );
             } else {

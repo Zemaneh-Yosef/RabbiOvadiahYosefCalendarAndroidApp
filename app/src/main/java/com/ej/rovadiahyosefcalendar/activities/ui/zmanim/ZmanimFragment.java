@@ -1078,7 +1078,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 MoonTimes moonTimes = MoonTimes.compute()
                         .on(mCurrentDateShown.getTime())
                         .at(sLatitude, sLongitude)
-                        .timezone(sCurrentTimeZoneID)
+                        .timezone(sCurrentTimeZoneID == null ? TimeZone.getDefault().getID() : sCurrentTimeZoneID)
                         .midnight()
                         .execute();
                 if (moonTimes.isAlwaysUp()) {
@@ -2233,7 +2233,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 }
             }
         }
-        if (mROZmanimCalendar == null) {
+        if (mMainRecyclerView == null) {
             super.onResume();
             return;
         }

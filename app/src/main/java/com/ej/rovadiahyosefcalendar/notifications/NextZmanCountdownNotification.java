@@ -104,8 +104,8 @@ public class NextZmanCountdownNotification extends Service {
                 zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
             }
         }
-        zmanimFormat.setTimeZone(mLocationResolver.getTimeZone()); //set the formatters time zone
         mLocationResolver = new LocationResolver(this, new Activity());
+        zmanimFormat.setTimeZone(mLocationResolver.getTimeZone()); //set the formatters time zone
         mROZmanimCalendar = getROZmanimCalendar(this);
         mROZmanimCalendar.setExternalFilesDir(getExternalFilesDir(null));
         String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");

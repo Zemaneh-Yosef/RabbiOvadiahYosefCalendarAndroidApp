@@ -34,6 +34,9 @@ public class ChaiTables {
      * @return The time of the visible sunrise for the current day as a string.
      */
     public String getVisibleSunrise() {
+        if (sharedPreferences == null) {
+            return "";
+        }
         String visibleSunriseTable = sharedPreferences.getString("chaiTable" + currentLocation, "");
         if (visibleSunriseTable.isEmpty()) {
             return visibleSunriseTable; // string is empty; return an empty string
