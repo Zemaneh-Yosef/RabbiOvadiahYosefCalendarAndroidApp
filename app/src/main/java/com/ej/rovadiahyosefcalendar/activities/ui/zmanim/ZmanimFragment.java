@@ -2281,13 +2281,13 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
         sLastTimeUserWasInApp = new Date();
 
+        mActivity.stopService(new Intent(mContext, NextZmanCountdownNotification.class));
         if (sSettingsPreferences.getBoolean("showNextZmanNotification", false)) {
             if (ContextCompat.checkSelfPermission(mContext, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED ||
                     ContextCompat.checkSelfPermission(mContext, ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED ||
                     ContextCompat.checkSelfPermission(mContext, FOREGROUND_SERVICE_LOCATION) != PERMISSION_GRANTED) {
                 Toast.makeText(mContext, R.string.title_location_permission, Toast.LENGTH_SHORT).show();
             } else {
-                mActivity.stopService(new Intent(mContext, NextZmanCountdownNotification.class));
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     mActivity.startForegroundService(new Intent(mContext, NextZmanCountdownNotification.class));
                 } else {

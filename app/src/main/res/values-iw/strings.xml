@@ -586,7 +586,7 @@
     <string name="zmanim_notifications_will_not_work">התראות לזמנים לא יעבדו!</string>
     <string name="if_you_would_like_to_receive_zmanim_notifications">האפליקציה כרגע אינה מסוגלת לשלוח לך התראות לזמנים. האם ברצונך לשנות הגדרה זו? (אם ברצונך להפסיק שהדיאלוג הזה יופיע, יש להשבית את ההתראות לזמנים בהגדרות)</string>
     <string name="display_next_upcoming_zman_sticky_notification">הצגת התראה דביקה לזמן הקרוב ביותר</string>
-    <string name="when_you_open_the_app_show_a_notification_that_will_tell_you_when_the_next_zman_is">כאשר אתה פותח את האפליקציה, הצג התראה שתציין מתי הזמן הקרוב ביותר</string>
+    <string name="when_you_open_the_app_show_a_notification_that_will_tell_you_when_the_next_zman_is">כאשר אתה פותח את האפליקציה, הצג התראה שתציין מתי הזמן הקרוב ביותר. דרוש אישור מיקום</string>
     <string name="do_you_want_to_delete_this_location">האם ברצונך למחוק מיקום זה?</string>
     <string name="birchat_hachama_dialog">ברכת החמה נאמרת היום! זהו אירוע המתרחש פעם אחת בכל 28 שנה, ואדם צריך להיות זהיר כדי לברך על השמש בשעות הראשונות של הבוקר ביום זה. לפי רוב הפוסקים, אפשר לברך על השמש כל יום, אך רב עובדיה יוסף זצ\"ל כותב בחזון עובדיה ברכות כי אדם צריך לנסות לברך על השמש עד לפחות 3 שעות זמניות לאחר תחילת היום. אם הזמן הזה עובר, הוא צריך לברך על השמש בלי שם השם. לכן, מנהג עם ישראל הוא להתעורר בבוקר מוקדם ולהתפלל בנץ ביום זה, ולאחר העמידה (קדיש תתקבל), הם יוצאים החוצה כדי לברך על השמש.</string>
     <string name="location_hint">ex: ישראל</string>
@@ -656,4 +656,6 @@
     <string name="fifth_year_of_shmita">שנה ה׳ של שמיטה</string>
     <string name="sixth_year_of_shmita">שנה ו׳ של שמיטה</string>
     <string name="shmita_dialog">במהלך מחזור שש השנים שלפני השמיטה, יש חובה להפריש ולתת חלקים מגידולי השדה שלכם - תבואה, פירות וירקות שגודלו בארץ ישראל - למטרות שונות (במדבר י\"ח). מפרישים תרומה גדולה, מעשר ראשון ותרומת מעשר בכל שנה, אך מעשר שני מוחלף במעשר עני בשנה השלישית והשישית (דברים י\"ד:כ\"ח).</string>
+    <string name="siddur_font">גופן הסידור</string>
+    <string name="choose_a_font_for_the_siddur">בחר גופן לסידור</string>
 </resources>

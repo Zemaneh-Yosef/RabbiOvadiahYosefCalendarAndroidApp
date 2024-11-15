@@ -157,7 +157,7 @@ public class SiddurViewActivity extends AppCompatActivity {
             boolean isJustified = sharedPreferences.getBoolean("isJustified", false);
             isJustified = !isJustified;
             sharedPreferences.edit().putBoolean("isJustified", isJustified).apply();
-            textAlignment.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, sharedPreferences.getBoolean("isJustified", false) ? R.drawable.baseline_format_align_justify_24 : R.drawable.baseline_format_align_right_24);
+            textAlignment.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, isJustified ? R.drawable.baseline_format_align_justify_24 : R.drawable.baseline_format_align_right_24);
             SiddurAdapter sa = (SiddurAdapter) siddur.getAdapter();
             sa.setIsJustified(isJustified);
             siddur.invalidateViews();

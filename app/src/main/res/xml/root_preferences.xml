@@ -142,6 +142,15 @@
             android:summary="@string/choose_whether_or_not_to_use_a_dark_calendar_icon_for_the_calendar_button"
             android:title="@string/use_dark_calendar_icon" />
 
+        <ListPreference
+            android:defaultValue="Guttman Keren"
+            app:entries="@array/font_entries"
+            app:entryValues="@array/font_values"
+            app:key="font"
+            app:selectable="true"
+            app:summary="@string/choose_a_font_for_the_siddur"
+            app:title="@string/siddur_font" />
+
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/app_info">

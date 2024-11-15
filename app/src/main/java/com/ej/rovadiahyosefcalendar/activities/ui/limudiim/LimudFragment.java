@@ -295,7 +295,7 @@ public class LimudFragment extends Fragment {
                     if (!src.isEmpty() && !src.equals("-")) {
                         hillulot.add(new LimudListEntry(name, src));
                     } else {
-                        hillulot.add(new LimudListEntry(name));
+                        hillulot.add(new LimudListEntry(name, ""));
                     }
                 }
             } catch (JSONException e) {

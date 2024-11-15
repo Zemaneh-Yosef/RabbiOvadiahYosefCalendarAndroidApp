@@ -84,4 +84,16 @@
         <item>Show Rabbeinu Tam</item>
     </string-array>
 
+    <string-array name="font_entries">
+        <item>Guttman Keren (Default)</item>
+        <item>Taamey Frank</item>
+        <item>None</item>
+    </string-array>
+
+    <string-array name="font_values">
+        <item>Guttman Keren</item>
+        <item>Taamey Frank</item>
+        <item>None</item>
+    </string-array>
+
 </resources>

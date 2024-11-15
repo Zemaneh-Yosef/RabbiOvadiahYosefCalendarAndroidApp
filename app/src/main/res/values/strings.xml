@@ -341,7 +341,7 @@
     <string name="zmanim_notifications_will_not_work">Zmanim notifications will not work!</string>
     <string name="if_you_would_like_to_receive_zmanim_notifications">The app cannot currently send you zmanim notifications. Would you would like to change this setting? (If you want to stop this dialog from popping up, disable zmanim notifications in the settings)</string>
     <string name="display_next_upcoming_zman_sticky_notification">Display Next Upcoming Zman Sticky Notification</string>
-    <string name="when_you_open_the_app_show_a_notification_that_will_tell_you_when_the_next_zman_is">When you open the app, show a notification that will tell you when the next zman is</string>
+    <string name="when_you_open_the_app_show_a_notification_that_will_tell_you_when_the_next_zman_is">When you open the app, show a notification that will tell you when the next zman is. NEEDS LOCATION PERMISSION</string>
     <string name="do_you_want_to_delete_this_location">Do you want to delete this location?</string>
     <string name="birchat_hachama_dialog">Birchat HaChamah is said today! This occurs once every 28 years, and a person should be careful to say the beracha on the sun early in the morning on this day.\n\nAccording to many poskim, you can say the beracha on the sun all day, however, Rabbi Ovadiah Yosef ZT\"L writes in Chazon Ovadiah Berachot that a person should try to say the beracha before 3 zmaniyot hours into the day. If this time passes, he should say the beracha without hashem\'s name.\n\nIt should be noted that it is the minhag of Am Yisrael to wake up early and pray at Netz on this day and after the Amidah (Kadish Titkabal), they go outside to say the beracha.</string>
     <string name="location_hint">ex: New York, USA</string>
@@ -410,4 +410,6 @@
    <string name="fifth_year_of_shmita">Fifth year of Shmita</string>
    <string name="sixth_year_of_shmita">Sixth year of Shmita</string>
    <string name="shmita_dialog">During the six-year cycle prior to shmita, there is an obligation to separate and gift portions of your field\'s grains, fruits and vegetables grown in Israel to various causes (Bamidbar 18). We separate Terumah Gedolah, Maaser Rishon, and Terumat Maaser every year, however, Maaser Sheni is replaced with Maaser Ani on the 3rd and 6th years (Devarim 14:28).</string>
+    <string name="siddur_font">Siddur Font</string>
+   <string name="choose_a_font_for_the_siddur">Choose a font for the siddur</string>
 </resources>
