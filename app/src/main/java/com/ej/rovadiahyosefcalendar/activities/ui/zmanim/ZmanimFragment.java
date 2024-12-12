@@ -3,7 +3,6 @@ package com.ej.rovadiahyosefcalendar.activities.ui.zmanim;
 import static android.Manifest.permission.ACCESS_BACKGROUND_LOCATION;
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
-import static android.Manifest.permission.FOREGROUND_SERVICE_LOCATION;
 import static android.content.Context.ALARM_SERVICE;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mCurrentDateShown;
@@ -48,6 +47,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.Surface;
@@ -98,7 +98,6 @@ import com.ej.rovadiahyosefcalendar.classes.ZmanListEntry;
 import com.ej.rovadiahyosefcalendar.classes.ZmanimFactory;
 import com.ej.rovadiahyosefcalendar.databinding.FragmentZmanimBinding;
 import com.ej.rovadiahyosefcalendar.notifications.DailyNotifications;
-import com.ej.rovadiahyosefcalendar.notifications.NextZmanCountdownNotification;
 import com.ej.rovadiahyosefcalendar.notifications.OmerNotifications;
 import com.ej.rovadiahyosefcalendar.notifications.ZmanimNotifications;
 import com.google.android.material.datepicker.MaterialDatePicker;
@@ -262,11 +261,10 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     }
 
     /**
-     * This method initializes the main view. This method should only be called when we are able to initialize the @{link mROZmanimCalendar} object
-     * with the correct latitude, longitude, elevation, and timezone.
+     * This method initializes the main view.
      */
     private void initMainView() {
-        if (sLatitude == 0 && sLongitude == 0) {//initMainView() is called after the location is acquired, however, this is a failsafe
+        if (sLatitude == 0 && sLongitude == 0) {
             mLocationResolver.acquireLatitudeAndLongitude(this);
         }
         mLocationResolver.setTimeZoneID();
@@ -275,24 +273,26 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         mMainRecyclerView.setVisibility(View.GONE);
         binding.progressBar.setVisibility(View.VISIBLE);
         // hide everything except the progress bar before trying to see if we need to get elevation data
-        resolveElevationAndVisibleSunrise(() -> {
-            instantiateZmanimCalendar();
-            setZmanimLanguageBools();
-            setNextUpcomingZman();
-            if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                showWeeklyTextViews();
-                updateWeeklyZmanim();
-            } else {
-                hideWeeklyTextViews();
-                updateDailyZmanim();
-            }
-            binding.progressBar.setVisibility(View.GONE);
-            createBackgroundThreadForNextUpcomingZman();
-            setupButtons();
-            setNotifications();
-            askForRealTimeNotificationPermissions();
-            checkIfUserIsInIsraelOrNot();
-        });
+        if (sLatitude != 0 && sLongitude != 0) {// the values are updated, the accept method will not be called
+            resolveElevationAndVisibleSunrise(() -> {
+                instantiateZmanimCalendar();
+                setZmanimLanguageBools();
+                setNextUpcomingZman();
+                if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                    showWeeklyTextViews();
+                    updateWeeklyZmanim();
+                } else {
+                    hideWeeklyTextViews();
+                    updateDailyZmanim();
+                }
+                binding.progressBar.setVisibility(View.GONE);
+                createBackgroundThreadForNextUpcomingZman();
+            });
+        }
+        setupButtons();
+        setNotifications();
+        askForRealTimeNotificationPermissions();
+        checkIfUserIsInIsraelOrNot();
     }
 
     private void setupButtons() {
@@ -423,6 +423,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
     /**
      * This method will automatically update the tables if the user has setup the app before for the current location.
+     *
      * @param fromButton if the method is called from the buttons, it will not ask more than once if the user wants to update the tables.
      */
     private void seeIfTablesNeedToBeUpdated(boolean fromButton) {
@@ -483,7 +484,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 resolveElevationAndVisibleSunrise(() -> {
                     instantiateZmanimCalendar();
                     setNextUpcomingZman();
-                    sSharedPreferences.edit().putString("Full"+mROZmanimCalendar.getGeoLocation().getLocationName(), "").apply();
+                    sSharedPreferences.edit().putString("Full" + mROZmanimCalendar.getGeoLocation().getLocationName(), "").apply();
                     updateDailyZmanim();
                     mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
                 });
@@ -500,7 +501,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     }
 
     private void checkIfUserIsInIsraelOrNot() {
-        if (sSharedPreferences.getBoolean("neverAskInIsraelOrNot", false)) {return;}
+        if (sSharedPreferences.getBoolean("neverAskInIsraelOrNot", false)) {
+            return;
+        }
 
         if (sCurrentTimeZoneID.equals("Asia/Jerusalem")) {//user is in or near israel now
             sSharedPreferences.edit().putBoolean("askedNotInIsrael", false).apply();//reset that we asked outside israel for next time
@@ -802,7 +805,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 builder.setTitle(R.string.zmanim_notifications_will_not_work);
                 builder.setMessage(R.string.if_you_would_like_to_receive_zmanim_notifications);
                 builder.setCancelable(false);
-                builder.setPositiveButton(mContext.getString(R.string.yes), (dialog, which) -> sNotificationLauncher.launch(new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:"+ mContext.getPackageName()))));
+                builder.setPositiveButton(mContext.getString(R.string.yes), (dialog, which) -> sNotificationLauncher.launch(new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:" + mContext.getPackageName()))));
                 builder.setNegativeButton(mContext.getString(R.string.no), (dialog, which) -> dialog.dismiss());
                 if (!mActivity.isFinishing()) {
                     builder.show();
@@ -833,9 +836,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
     private void setAllNotifications() {
         Calendar calendar = (Calendar) mROZmanimCalendar.getCalendar().clone();
-        if (mROZmanimCalendar.getSunrise() != null) {
-            calendar.setTimeInMillis(mROZmanimCalendar.getSunrise().getTime());
+        Date sunrise = mROZmanimCalendar.getSunrise();
+        if (sunrise == null) {
+            sunrise = new Date();
         }
+        calendar.setTimeInMillis(sunrise.getTime());
         if (calendar.getTime().compareTo(new Date()) < 0) {
             calendar.add(Calendar.DATE, 1);
         }
@@ -845,13 +850,16 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         am.cancel(dailyPendingIntent);//cancel any previous alarms
         am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), dailyPendingIntent);
 
-        if (mROZmanimCalendar.getTzeit() != null) {
-            if (sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
-                calendar.setTimeInMillis(mROZmanimCalendar.getTzeitAmudeiHoraah().getTime());
-            } else {
-                calendar.setTimeInMillis(mROZmanimCalendar.getTzeit().getTime());
-            }
+        Date tzeit;
+        if (sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
+            tzeit = mROZmanimCalendar.getTzeitAmudeiHoraah();
+        } else {
+            tzeit = mROZmanimCalendar.getTzeit();
         }
+        if (tzeit == null) {
+            tzeit = new Date();
+        }
+        calendar.setTimeInMillis(tzeit.getTime());
         if (calendar.getTime().compareTo(new Date()) < 0) {
             calendar.add(Calendar.DATE, 1);
         }
@@ -860,7 +868,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), omerPendingIntent);
 
         Intent zmanIntent = new Intent(mContext, ZmanimNotifications.class);
-        PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(mContext,0, zmanIntent, PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(mContext, 0, zmanIntent, PendingIntent.FLAG_IMMUTABLE);
         try {
             zmanimPendingIntent.send();
         } catch (PendingIntent.CanceledException e) {
@@ -942,7 +950,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 startActivity(new Intent(mContext, MoladActivity.class));
                 return true;
             } else if (id == R.id.fullSetup) {
-                sSetupLauncher.launch(new Intent(mContext, FullSetupActivity.class).putExtra("fromMenu",true));
+                sSetupLauncher.launch(new Intent(mContext, FullSetupActivity.class).putExtra("fromMenu", true));
                 return true;
             } else if (id == R.id.settings) {
                 startActivity(new Intent(mContext, SettingsActivity.class));
@@ -965,16 +973,17 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     /**
      * This is the main method for updating the Zmanim in the list view. It is called everytime the user changes the date or updates
      * any setting that affects the zmanim. This method returns a list of ZmanListEntry objects that will be used to populate the list view.
+     *
      * @return List of ZmanListEntry objects that will be used to populate the list view.
      * @see ZmanListEntry
-     * */
+     */
     private List<ZmanListEntry> getZmanimList() {
         List<ZmanListEntry> zmanim = new ArrayList<>();
 
-        String locationName = sSharedPreferences.getString("Full"+mROZmanimCalendar.getGeoLocation().getLocationName(), "");
+        String locationName = sSharedPreferences.getString("Full" + mROZmanimCalendar.getGeoLocation().getLocationName(), "");
         if (locationName.isEmpty()) {
             locationName = mLocationResolver.getFullLocationName();
-            sSharedPreferences.edit().putString("Full"+mROZmanimCalendar.getGeoLocation().getLocationName(), locationName).apply();
+            sSharedPreferences.edit().putString("Full" + mROZmanimCalendar.getGeoLocation().getLocationName(), locationName).apply();
         }
         if (locationName != null && locationName.isEmpty()) {//if it's still empty, use backup. NPE was thrown here for some reason
             locationName = mROZmanimCalendar.getGeoLocation().getLocationName();
@@ -1026,7 +1035,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     .getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault())
                     + " / " +
                     mROZmanimCalendar.getCalendar()
-                            .getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, new Locale("he","IL"))));
+                            .getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, new Locale("he", "IL"))));
         }
 
         String day = mJewishDateInfo.getSpecialDay(false);
@@ -1075,36 +1084,36 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         String birchatLevana = mJewishDateInfo.getBirchatLevana();
         if (!birchatLevana.isEmpty()) {
             zmanim.add(new ZmanListEntry(birchatLevana));
-                MoonTimes moonTimes = MoonTimes.compute()
-                        .on(mCurrentDateShown.getTime())
-                        .at(sLatitude, sLongitude)
-                        .timezone(sCurrentTimeZoneID == null ? TimeZone.getDefault().getID() : sCurrentTimeZoneID)
-                        .midnight()
-                        .execute();
-                if (moonTimes.isAlwaysUp()) {
-                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.the_moon_is_up_all_night)));
-                } else if (moonTimes.isAlwaysDown()) {
-                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.there_is_no_moon_tonight)));
+            MoonTimes moonTimes = MoonTimes.compute()
+                    .on(mCurrentDateShown.getTime())
+                    .at(sLatitude, sLongitude)
+                    .timezone(sCurrentTimeZoneID == null ? TimeZone.getDefault().getID() : sCurrentTimeZoneID)
+                    .midnight()
+                    .execute();
+            if (moonTimes.isAlwaysUp()) {
+                zmanim.add(new ZmanListEntry(mContext.getString(R.string.the_moon_is_up_all_night)));
+            } else if (moonTimes.isAlwaysDown()) {
+                zmanim.add(new ZmanListEntry(mContext.getString(R.string.there_is_no_moon_tonight)));
+            } else {
+                SimpleDateFormat moonFormat;
+                if (LocaleChecker.isLocaleHebrew()) {
+                    moonFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
                 } else {
-                    SimpleDateFormat moonFormat;
-                    if (LocaleChecker.isLocaleHebrew()) {
-                        moonFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
-                    } else {
-                        moonFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
-                    }
-                    String moonRiseSet = "";
-                    if (moonTimes.getRise() != null) {
-                        moonRiseSet += mContext.getString(R.string.moonrise) + moonFormat.format(moonTimes.getRise());
-                    }
-                    if (moonTimes.getSet() != null) {
-                        if (!moonRiseSet.isEmpty()) {
-                            moonRiseSet += " - ";
-                        }
-                        moonRiseSet += mContext.getString(R.string.moonset) + moonFormat.format(moonTimes.getSet());
-                    }
+                    moonFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+                }
+                String moonRiseSet = "";
+                if (moonTimes.getRise() != null) {
+                    moonRiseSet += mContext.getString(R.string.moonrise) + moonFormat.format(moonTimes.getRise());
+                }
+                if (moonTimes.getSet() != null) {
                     if (!moonRiseSet.isEmpty()) {
-                        zmanim.add(new ZmanListEntry(moonRiseSet));
+                        moonRiseSet += " - ";
                     }
+                    moonRiseSet += mContext.getString(R.string.moonset) + moonFormat.format(moonTimes.getSet());
+                }
+                if (!moonRiseSet.isEmpty()) {
+                    zmanim.add(new ZmanListEntry(moonRiseSet));
+                }
             }
         }
 
@@ -1209,7 +1218,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             createBackgroundThreadForNextUpcomingZman();//start a new thread to update the next upcoming zman
         };
         if (sNextUpcomingZman != null) {
-            mHandler.postDelayed(nextZmanUpdater,sNextUpcomingZman.getTime() - new Date().getTime() + 1_000);//add 1 second to make sure we don't get the same zman again
+            mHandler.postDelayed(nextZmanUpdater, sNextUpcomingZman.getTime() - new Date().getTime() + 1_000);//add 1 second to make sure we don't get the same zman again
         }
     }
 
@@ -1226,7 +1235,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
         String day = mJewishDateInfo.getSpecialDay(true);
         if (!day.isEmpty()) {
-            announcements.append(day.replace("/ ","\n")).append("\n");
+            announcements.append(day.replace("/ ", "\n")).append("\n");
         }
 
         if (sSettingsPreferences.getBoolean("showShabbatMevarchim", true)) {
@@ -1516,9 +1525,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     }
                     rtFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
                     if (!LocaleChecker.isLocaleHebrew()) {
-                        shortZmanim[zmanim.indexOf(zman)] = rtFormat.format(zman.getZman()) + " :" +  zman.getTitle();
+                        shortZmanim[zmanim.indexOf(zman)] = rtFormat.format(zman.getZman()) + " :" + zman.getTitle();
                     } else {
-                        shortZmanim[zmanim.indexOf(zman)] = zman.getTitle() + " : " +  rtFormat.format(zman.getZman());
+                        shortZmanim[zmanim.indexOf(zman)] = zman.getTitle() + " : " + rtFormat.format(zman.getZman());
                     }
                 } else {
                     if (!LocaleChecker.isLocaleHebrew()) {
@@ -1543,7 +1552,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     shortZmanim[zmanim.indexOf(zman)] = zman.getTitle() + ": " + rtFormat.format(zman.getZman());
                 } else {
                     shortZmanim[zmanim.indexOf(zman)] = zman.getTitle()
-                            .replace("Earliest ","")
+                            .replace("Earliest ", "")
                             .replace("Sof Zman ", "")
                             .replace("Hacochavim", "")
                             .replace("Latest ", "")
@@ -1564,7 +1573,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     /**
      * This method will check if the tekufa happens within the next 48 hours and it will add the tekufa to the list passed in if it happens
      * on the current date.
-     * @param zmanim the list of zmanim to add to
+     *
+     * @param zmanim     the list of zmanim to add to
      * @param shortStyle if the tekufa should be added as "Tekufa Nissan : 4:30" or "Tekufa Nissan is today at 4:30"
      */
     private void addTekufaTime(List<ZmanListEntry> zmanim, boolean shortStyle) {
@@ -1575,9 +1585,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
         }
         zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
-        mROZmanimCalendar.getCalendar().add(Calendar.DATE,1);//check next day for tekufa, because the tekufa time can go back a day
+        mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);//check next day for tekufa, because the tekufa time can go back a day
         mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
-        mROZmanimCalendar.getCalendar().add(Calendar.DATE,-1);//reset the calendar to check for the current date
+        mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);//reset the calendar to check for the current date
         if (mJewishDateInfo.getJewishCalendar().getTekufa() != null) {
 
             final Calendar cal1 = (Calendar) mROZmanimCalendar.getCalendar().clone();
@@ -1644,7 +1654,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     /**
      * This method will check if the tekufa happens within the next 48 hours and it will add the tekufa to the list passed in if it happens
      * on the current date.
-     * @param zmanim the list of zmanim to add to
+     *
+     * @param zmanim     the list of zmanim to add to
      * @param shortStyle if the tekufa should be added as "Tekufa Nissan : 4:30" or "Tekufa Nissan is today at 4:30"
      */
     private void addAmudeiHoraahTekufaTime(List<ZmanListEntry> zmanim, boolean shortStyle) {
@@ -1657,7 +1668,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
         mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);//check next day for tekufa, because the tekufa time can go back a day
         mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
-        mROZmanimCalendar.getCalendar().add(Calendar.DATE,-1);//reset the calendar to check for the current date
+        mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);//reset the calendar to check for the current date
 
         if (mJewishDateInfo.getJewishCalendar().getTekufa() != null) {
 
@@ -1827,12 +1838,16 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      */
     private void resolveElevationAndVisibleSunrise(Runnable codeToRunOnMainThread) {
         boolean sUserIsOffline = false;
-        if (sCurrentLocationName != null) {// Somehow it is null and crashing in some places
+        if (sCurrentLocationName != null && !sCurrentLocationName.isEmpty()) {// Somehow it is null and crashing in some places
+            Log.d("ELEVATION-LOCATION-NAME", "is not null and is not empty");
+            Log.d("ELEVATION-LOCATION-NAME", sCurrentLocationName);
             if (sCurrentLocationName.contains("Lat:") && sCurrentLocationName.contains("Long:")
                     && sSettingsPreferences.getBoolean("SetElevationToLastKnownLocation", false)) {//only if the user has enabled the setting to set the elevation to the last known location
                 sUserIsOffline = true;
+                Log.d("ELEVATION-LOCATION", "sUserIsOffline = true");
                 sElevation = Double.parseDouble(sSharedPreferences.getString("elevation" + sSharedPreferences.getString("name", ""), "0"));//lastKnownLocation
             } else {//user is online, get the elevation from the shared preferences for the current location
+                Log.d("ELEVATION-LOCATION", "sUserIsOffline = false");
                 sElevation = Double.parseDouble(sSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));//get the last value of the current location or 0 if it doesn't exist
             }
         }
@@ -1840,12 +1855,14 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (!sUserIsOffline && sSharedPreferences.getBoolean("useElevation", true)
                 && !sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {//update if the user is online and the elevation setting is enabled
             if (!sSharedPreferences.contains("elevation" + sCurrentLocationName)) {//if the elevation for this location has never been set
+                Log.d("ELEVATION-VALUE", "Getting elevation value from Geonames for: " + sCurrentLocationName);
                 Thread thread = new Thread(() -> mLocationResolver.getElevationFromWebService(mHandler,
                         () -> sElevation = Double.parseDouble(sSharedPreferences.getString("elevation" + sCurrentLocationName, "0")),
                         codeToRunOnMainThread));
                 thread.start();
                 seeIfTablesNeedToBeUpdated(false);
             } else {// use elevation that was set before
+                Log.d("ELEVATION-VALUE", "Getting elevation value for: " + sCurrentLocationName);
                 sElevation = Double.parseDouble(sSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));
                 mActivity.runOnUiThread(codeToRunOnMainThread);
             }
@@ -1853,6 +1870,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             sElevation = 0;
             mActivity.runOnUiThread(codeToRunOnMainThread);
         }
+        Log.d("ELEVATION-LOCATION-NAME", sCurrentLocationName);
+        Log.d("ELEVATION-VALUE", String.valueOf(sElevation));
     }
 
     /**
@@ -1875,6 +1894,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      * This method is called when the user clicks on shabbat mode. The main point of this method is to automatically scroll through the list of zmanim
      * and update the date when the time reaches the next date at 12:00:02am. It will also update the shabbat banner to reflect the next day's date.
      * (The reason why I chose 12:00:02am is to avoid a hiccup if the device is too fast to update the time, although it is probably not a big deal.)
+     *
      * @see #startScrollingThread() to start the thread that will scroll through the list of zmanim
      * @see #setShabbatBannerColors(boolean) to set the text of the shabbat banners
      */
@@ -1892,7 +1912,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 mActivity.getWindow().setHideOverlayWindows(true);
             }
-            WindowManager windowManager =  (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
+            WindowManager windowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
             Configuration configuration = getResources().getConfiguration();
             int rotation = windowManager.getDefaultDisplay().getRotation();
             // Search for the natural position of the device
@@ -1958,24 +1978,25 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 mHandler.removeCallbacks(mZmanimUpdater);
                 mHandler.postDelayed(mZmanimUpdater, TWENTY_FOUR_HOURS_IN_MILLI);//run the update in 24 hours
             };
-            calendar.set(Calendar.HOUR_OF_DAY,0);
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
             calendar.set(Calendar.MINUTE, 0);
             calendar.set(Calendar.SECOND, 2);
-            calendar.add(Calendar.DATE,1);
-            mHandler.postDelayed(mZmanimUpdater,calendar.getTimeInMillis() - calendar2.getTimeInMillis());//time remaining until 12:00:02am the next day
+            calendar.add(Calendar.DATE, 1);
+            mHandler.postDelayed(mZmanimUpdater, calendar.getTimeInMillis() - calendar2.getTimeInMillis());//time remaining until 12:00:02am the next day
             startScrollingThread();
         }
     }
 
     /**
      * Sets the text of the shabbat banners based on the NEXT day's date, since most people will start shabbat mode before shabbat/chag starts.
+     *
      * @param isFirstTime if true, the text will be set based on the next day's date, otherwise it will be set based on the current date.
      *                    Since it will be called at 12:00:02am the next day, we do not need to worry about the next day's date.
      */
     @SuppressLint("SetTextI18n")
     private void setShabbatBannerColors(boolean isFirstTime) {
         if (isFirstTime) {
-            mCurrentDateShown.add(Calendar.DATE,1);
+            mCurrentDateShown.add(Calendar.DATE, 1);
             mJewishDateInfo.setCalendar(mCurrentDateShown);
         }
 
@@ -2099,7 +2120,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
 
         if (isFirstTime) {
-            mCurrentDateShown.add(Calendar.DATE,-1);
+            mCurrentDateShown.add(Calendar.DATE, -1);
             mJewishDateInfo.setCalendar(mCurrentDateShown);
         }
     }
@@ -2114,7 +2135,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             while (mMainRecyclerView != null && mMainRecyclerView.canScrollVertically(1)) {
                 if (!sShabbatMode) break;
                 if (mMainRecyclerView.canScrollVertically(1)) {
-                    mMainRecyclerView.smoothScrollBy(0,5);
+                    mMainRecyclerView.smoothScrollBy(0, 5);
                 }
                 try {//must have these busy waits for scrolling to work properly. I assume it breaks because it is currently animating something. Will have to fix this in the future, but it works for now.
                     Thread.sleep(100);
@@ -2130,7 +2151,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             while (mMainRecyclerView != null && mMainRecyclerView.canScrollVertically(-1)) {
                 if (!sShabbatMode) break;
                 if (mMainRecyclerView.canScrollVertically(-1)) {
-                    mMainRecyclerView.smoothScrollBy(0,-5);
+                    mMainRecyclerView.smoothScrollBy(0, -5);
                 }
                 try {
                     Thread.sleep(100);
@@ -2153,6 +2174,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     /**
      * This method is called when the user wants to end shabbat mode. It will hide the banner and remove the automatic zmanim updater queued task
      * from the handler. I will also reset the color of the calendar button to the default color.
+     *
      * @see #startScrollingThread()
      * @see #startShabbatMode()
      */
@@ -2239,30 +2261,32 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
         mJewishDateInfo.getJewishCalendar().setInIsrael(sSharedPreferences.getBoolean("inIsrael", false));// check if the user changed the inIsrael setting
         setZmanimLanguageBools();// check if the user changed the zmanim language
-        resolveElevationAndVisibleSunrise(() -> {// recreate the zmanim calendar object because it might have changed. Lat, Long, Elevation, or settings might have changed
-            instantiateZmanimCalendar();
-            mROZmanimCalendar.setCalendar(mCurrentDateShown);// make sure date doesn't change
-            setNextUpcomingZman();
-            if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                updateWeeklyTextViewTextColor();
-                updateWeeklyZmanim();
-            } else {
-                updateDailyZmanim();
-                mMainRecyclerView.scrollToPosition(mCurrentPosition);
-            }
-            // update the zmanim notifications if the user changed the settings to start showing them
-            PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(
-                    mContext,
-                    0,
-                    new Intent(mContext, ZmanimNotifications.class),
-                    PendingIntent.FLAG_IMMUTABLE);
-            try {
-                zmanimPendingIntent.send();
-            } catch (PendingIntent.CanceledException e) {
-                e.printStackTrace();
-            }
-            checkIfUserIsInIsraelOrNot();
-        });
+        if (sLastTimeUserWasInApp != null) {
+            resolveElevationAndVisibleSunrise(() -> {// recreate the zmanim calendar object because it might have changed. Lat, Long, Elevation, or settings might have changed
+                instantiateZmanimCalendar();
+                mROZmanimCalendar.setCalendar(mCurrentDateShown);// make sure date doesn't change
+                setNextUpcomingZman();
+                if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                    updateWeeklyTextViewTextColor();
+                    updateWeeklyZmanim();
+                } else {
+                    updateDailyZmanim();
+                    mMainRecyclerView.scrollToPosition(mCurrentPosition);
+                }
+                // update the zmanim notifications if the user changed the settings to start showing them
+                PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(
+                        mContext,
+                        0,
+                        new Intent(mContext, ZmanimNotifications.class),
+                        PendingIntent.FLAG_IMMUTABLE);
+                try {
+                    zmanimPendingIntent.send();
+                } catch (PendingIntent.CanceledException e) {
+                    e.printStackTrace();
+                }
+                checkIfUserIsInIsraelOrNot();
+            });
+        }
 
         if (sLastTimeUserWasInApp == null) {
             sLastTimeUserWasInApp = new Date();
@@ -2280,21 +2304,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             }
         }
         sLastTimeUserWasInApp = new Date();
-
-        mActivity.stopService(new Intent(mContext, NextZmanCountdownNotification.class));
-        if (sSettingsPreferences.getBoolean("showNextZmanNotification", false)) {
-            if (ContextCompat.checkSelfPermission(mContext, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED ||
-                    ContextCompat.checkSelfPermission(mContext, ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED ||
-                    ContextCompat.checkSelfPermission(mContext, FOREGROUND_SERVICE_LOCATION) != PERMISSION_GRANTED) {
-                Toast.makeText(mContext, R.string.title_location_permission, Toast.LENGTH_SHORT).show();
-            } else {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    mActivity.startForegroundService(new Intent(mContext, NextZmanCountdownNotification.class));
-                } else {
-                    mActivity.startService(new Intent(mContext, NextZmanCountdownNotification.class));
-                }
-            }
-        }
 
         PrefToWatchSender.send(mContext);
 
@@ -2337,6 +2346,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
     /**
      * This method accepts a new location object after a request is made from the {@link LocationResolver} class.
+     *
      * @param location the input argument
      */
     @Override
@@ -2355,12 +2365,14 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             synchronized (mJewishDateInfo) {
                 mActivity.runOnUiThread(() -> {
                     if (mMainRecyclerView != null && mMainRecyclerView.isFocusable()) {
+                        mMainRecyclerView.setVisibility(View.VISIBLE);
                         resolveElevationAndVisibleSunrise(() -> {
                             if (mCurrentDateShown != null) {
                                 mCurrentDateShown.setTime(new Date());
                                 mJewishDateInfo.setCalendar(new GregorianCalendar());
                                 instantiateZmanimCalendar();
                                 setNextUpcomingZman();
+                                createBackgroundThreadForNextUpcomingZman();
                                 if (sSharedPreferences.getBoolean("weeklyMode", false)) {
                                     updateWeeklyTextViewTextColor();
                                     updateWeeklyZmanim();
@@ -2368,9 +2380,13 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                                     updateDailyZmanim();
                                     mMainRecyclerView.scrollToPosition(mCurrentPosition);
                                 }
+                                if (binding != null) {
+                                    binding.progressBar.setVisibility(View.GONE);
+                                }
                                 if (mCalendarButton != null) {
                                     mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
                                 }
+                                setAllNotifications();
                             }
                         });
                     }

@@ -1,5 +1,9 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
+import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+import static android.Manifest.permission.FOREGROUND_SERVICE_LOCATION;
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment.sShabbatMode;
 
 import android.appwidget.AppWidgetManager;
@@ -8,6 +12,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -22,6 +27,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.splashscreen.SplashScreen;
 import androidx.core.view.ViewCompat;
@@ -39,9 +45,9 @@ import com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTables;
 import com.ej.rovadiahyosefcalendar.classes.ExceptionHandler;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
-import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
 import com.ej.rovadiahyosefcalendar.databinding.ActivityMainFragmentManagerBinding;
+import com.ej.rovadiahyosefcalendar.notifications.NextZmanCountdownNotification;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -137,10 +143,6 @@ public class MainFragmentManager extends AppCompatActivity {
                 && savedInstanceState == null) {//it should only not exist the first time running the app and only if the user has not set up the app
             sSetupLauncher.launch(new Intent(this, FullSetupActivity.class));
             initZmanimNotificationDefaults();
-        } else {
-            LocationResolver locationResolver = new LocationResolver(this, this);
-            locationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
-            locationResolver.setTimeZoneID();
         }
         updateWidget();
 
@@ -245,39 +247,6 @@ public class MainFragmentManager extends AppCompatActivity {
                 result -> {
                     mJewishDateInfo.getJewishCalendar().setInIsrael(sSharedPreferences.getBoolean("inIsrael", false));
                     sElevation = Double.parseDouble(sSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));
-//                    if (result.getResultCode() == Activity.RESULT_OK) {
-//                        if (result.getData() != null) {
-//
-//                        }
-//                    }
-//                    if (!mInitialized) {
-//                        initMainView();
-//                    }
-//                    instantiateZmanimCalendar();
-//                    setZmanimLanguageBools();
-//                    if (mSharedPreferences.getBoolean("weeklyMode", false)) {
-//                        updateWeeklyZmanim();
-//                    } else {
-//                        updateDailyZmanim();
-//                    }
-
-//                    if (!mInitialized) {
-//                        initMainView();
-//                    } else {
-//                        mLocationResolver.setTimeZoneID();
-//                        resolveElevationAndVisibleSunrise();
-//                        instantiateZmanimCalendar();
-//                        setNextUpcomingZman();
-//                        if (mSharedPreferences.getBoolean("weeklyMode", false)) {
-//                            updateWeeklyZmanim();
-//                        } else {
-//                            updateDailyZmanim();
-//                        }
-//                        checkIfUserIsInIsraelOrNot();
-//                        saveGeoLocationInfo();
-//                        setNotifications();
-//                        sendPreferencesToWatch();
-//                    }
                 }
         );
     }
@@ -308,6 +277,26 @@ public class MainFragmentManager extends AppCompatActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        ExceptionHandler.isAppFocused = true;
+        stopService(new Intent(this, NextZmanCountdownNotification.class));
+        if (sSettingsPreferences.getBoolean("showNextZmanNotification", false)) {
+            if (ContextCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(this, ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(this, FOREGROUND_SERVICE_LOCATION) != PERMISSION_GRANTED) {
+                Toast.makeText(this, R.string.no_location_permission_for_next_zman_notification, Toast.LENGTH_SHORT).show();
+            } else {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startForegroundService(new Intent(this, NextZmanCountdownNotification.class));
+                } else {
+                    startService(new Intent(this, NextZmanCountdownNotification.class));
+                }
+            }
+        }
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
         ExceptionHandler.isAppFocused = false;
@@ -316,7 +305,6 @@ public class MainFragmentManager extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        ExceptionHandler.isAppFocused = true;
         updateWidget();
         if (mNavView != null && mViewPager != null) {
             if (sSettingsPreferences != null && sSettingsPreferences.getBoolean("hideBottomBar", false)) {
@@ -386,14 +374,11 @@ public class MainFragmentManager extends AppCompatActivity {
         @NonNull
         @Override
         public Fragment createFragment(int position) {
-            switch (position) {
-                case 1:
-                    return new ZmanimFragment();
-                case 2:
-                    return new SiddurFragment();
-                default:
-                    return new LimudFragment();
-            }
+            return switch (position) {
+                case 1 -> new ZmanimFragment();
+                case 2 -> new SiddurFragment();
+                default -> new LimudFragment();
+            };
         }
 
         @Override

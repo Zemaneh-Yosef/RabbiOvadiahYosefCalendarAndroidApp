@@ -5,6 +5,7 @@ import static android.content.Context.ALARM_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mROZmanimCalendar;
 
 import android.app.AlarmManager;
 import android.app.Notification;
@@ -259,7 +260,11 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
 
     private void updateAlarm(Context context, AstronomicalCalendar c, Calendar cal) {
         AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
-        cal.setTimeInMillis(c.getSunrise().getTime());
+        Date sunrise = c.getSunrise();
+        if (sunrise == null) {
+            sunrise = new Date();
+        }
+        cal.setTimeInMillis(sunrise.getTime());
         if (cal.getTime().compareTo(new Date()) < 0) {
             cal.add(Calendar.DATE, 1);
         }

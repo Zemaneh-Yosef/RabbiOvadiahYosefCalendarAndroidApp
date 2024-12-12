@@ -68,38 +68,19 @@ public class SiddurViewActivity extends AppCompatActivity {
         SiddurMaker siddurMaker = new SiddurMaker(mJewishDateInfo);
         ArrayList<HighlightString> prayers = new ArrayList<>();
         if (siddurTitle != null) {
-            switch (siddurTitle) {
-                case "סליחות":
-                    prayers = siddurMaker.getSelichotPrayers(false, getIntent().getBooleanExtra("isAfterChatzot", false));
-                    break;
-                case "שחרית":
-                    prayers = siddurMaker.getShacharitPrayers();
-                    break;
-                case "מוסף":
-                    prayers = siddurMaker.getMusafPrayers();
-                    break;
-                case "מנחה":
-                    prayers = siddurMaker.getMinchaPrayers();
-                    break;
-                case "ערבית":
-                    prayers = siddurMaker.getArvitPrayers();
-                    break;
-                case "ברכת המזון":
-                    prayers = siddurMaker.getBirchatHamazonPrayers();
-                    break;
-                case "ברכת הלבנה":
-                    prayers = siddurMaker.getBirchatHalevanaPrayers();
-                    break;
-                case "תיקון חצות":
-                    prayers = siddurMaker.getTikkunChatzotPrayers(getIntent().getBooleanExtra("isNightTikkunChatzot", true));
-                    break;
-                case "ק״ש שעל המיטה":
-                    prayers = siddurMaker.getKriatShemaShealHamitaPrayers(getIntent().getBooleanExtra("isBeforeChatzot", false));
-                    break;
-                case "ברכת מעין שלוש":
-                    prayers = siddurMaker.getBirchatMeeyinShaloshPrayers();
-                    break;
-            }
+            prayers = switch (siddurTitle) {
+                case "סליחות" -> siddurMaker.getSelichotPrayers(false, getIntent().getBooleanExtra("isAfterChatzot", false));
+                case "שחרית" -> siddurMaker.getShacharitPrayers();
+                case "מוסף" -> siddurMaker.getMusafPrayers();
+                case "מנחה" -> siddurMaker.getMinchaPrayers();
+                case "ערבית" -> siddurMaker.getArvitPrayers();
+                case "ברכת המזון" -> siddurMaker.getBirchatHamazonPrayers();
+                case "ברכת הלבנה" -> siddurMaker.getBirchatHalevanaPrayers();
+                case "תיקון חצות" -> siddurMaker.getTikkunChatzotPrayers(getIntent().getBooleanExtra("isNightTikkunChatzot", true));
+                case "ק״ש שעל המיטה" -> siddurMaker.getKriatShemaShealHamitaPrayers(getIntent().getBooleanExtra("isBeforeChatzot", false));
+                case "ברכת מעין שלוש" -> siddurMaker.getBirchatMeeyinShaloshPrayers();
+                default -> prayers;
+            };
         }
         ListView siddur = findViewById(R.id.siddur);
         siddur.setAdapter(new SiddurAdapter(this,

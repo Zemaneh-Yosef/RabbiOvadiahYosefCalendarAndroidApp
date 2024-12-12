@@ -119,6 +119,7 @@ public class LocationResolver {
                     if (!locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) || !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                         Toast.makeText(mContext, mContext.getString(R.string.please_enable_gps), Toast.LENGTH_SHORT).show();
                     }
+                    // As of now, we make two requests and the GPS, which is usually more accurate, takes longer to respond. For now, this results in the UI being updated twice with the more accurate GPS location. Maybe only update the UI if the GPS is more accurate?
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                         if (locationManager.getAllProviders().contains(LocationManager.NETWORK_PROVIDER)) {
                             locationManager.getCurrentLocation(LocationManager.NETWORK_PROVIDER, null, Runnable::run, consumer);
@@ -127,13 +128,17 @@ public class LocationResolver {
                             locationManager.getCurrentLocation(LocationManager.GPS_PROVIDER, null, Runnable::run, consumer);
                         }
                     } else {
-                        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);//location might be old
-                        if (location == null) {
-                            location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                        }
-                        if (location != null) {
-                            sLatitude = location.getLatitude();
-                            sLongitude = location.getLongitude();
+                        if (locationManager.getAllProviders().contains(LocationManager.GPS_PROVIDER)) {
+                            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);//location might be old
+                            if (location == null) {
+                                if (locationManager.getAllProviders().contains(LocationManager.NETWORK_PROVIDER)) {
+                                    location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                                }
+                            }
+                            if (location != null) {
+                                sLatitude = location.getLatitude();
+                                sLongitude = location.getLongitude();
+                            }
                         }
                     }
                 }
@@ -639,20 +644,29 @@ public class LocationResolver {
             } else {
                 LocationManager locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
                 if (locationManager != null && consumer != null) {
+                    List<String> providers = locationManager.getAllProviders();
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                        locationManager.getCurrentLocation(LocationManager.NETWORK_PROVIDER, null, Runnable::run, consumer);
-                        locationManager.getCurrentLocation(LocationManager.GPS_PROVIDER, null, Runnable::run, consumer);
-                    } else {
-                        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);//location might be old
-                        if (location == null) {
-                            location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                        if (providers.contains(LocationManager.NETWORK_PROVIDER)) {
+                            locationManager.getCurrentLocation(LocationManager.NETWORK_PROVIDER, null, Runnable::run, consumer);
                         }
-                        if (location != null) {
-                            mLatitude = location.getLatitude();
-                            mLongitude = location.getLongitude();
-                            setElevationFromSP();
-                            setTimeZoneID();
-                            return new GeoLocation(getLocationAsName(mLatitude, mLongitude), mLatitude, mLongitude, mElevation, mTimeZone);
+                        if (providers.contains(LocationManager.GPS_PROVIDER)) {
+                            locationManager.getCurrentLocation(LocationManager.GPS_PROVIDER, null, Runnable::run, consumer);
+                        }
+                    } else {
+                        if (providers.contains(LocationManager.GPS_PROVIDER)) {
+                            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);//location might be old
+                            if (location == null) {
+                                if (providers.contains(LocationManager.NETWORK_PROVIDER)) {
+                                    location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                                }
+                            }
+                            if (location != null) {
+                                mLatitude = location.getLatitude();
+                                mLongitude = location.getLongitude();
+                                setElevationFromSP();
+                                setTimeZoneID();
+                                return new GeoLocation(getLocationAsName(mLatitude, mLongitude), mLatitude, mLongitude, mElevation, mTimeZone);
+                            }
                         }
                     }
                 }

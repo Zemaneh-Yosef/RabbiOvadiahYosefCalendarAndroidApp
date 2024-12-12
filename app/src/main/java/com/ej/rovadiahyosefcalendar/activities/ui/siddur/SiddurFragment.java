@@ -181,20 +181,48 @@ public class SiddurFragment extends Fragment {
             } else {
                 mJewishDateInfo.setCalendar(calendarPlusOne);
                 if (mJewishDateInfo.isNightTikkunChatzotSaid()) {
+                    mJewishDateInfo.setCalendar(calendar);
                     startNextDaySiddurActivity(mContext.getString(R.string.tikkun_chatzot), true);
                 } else {
+                    mJewishDateInfo.setCalendar(calendar);
                     new MaterialAlertDialogBuilder(mContext)
                             .setTitle(R.string.tikkun_chatzot_is_not_said_tonight)
                             .setMessage(R.string.tikkun_chatzot_is_not_said_tonight_possible_reasons)
                             .setPositiveButton(mContext.getString(R.string.ok), (dialog, which) -> dialog.dismiss())
                             .show();
                 }
-                mJewishDateInfo.setCalendar(calendar);
             }
         };
 
         tikkunChatzot.setOnClickListener(tikkunChatzotOnClickListener);
         tikkunChatzot3Weeks.setOnClickListener(tikkunChatzotOnClickListener);
+
+        if (mJewishDateInfo.is3Weeks()) {
+            boolean isTachanunSaid = mJewishDateInfo.getIsTachanunSaid().equals("Tachanun only in the morning")
+                    || mJewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון רק בבוקר")
+                    || mJewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון")
+                    || mJewishDateInfo.getIsTachanunSaid().equals("There is Tachanun today");
+            if (!mJewishDateInfo.isDayTikkunChatzotSaid() || !isTachanunSaid) {
+                mJewishDateInfo.setCalendar(calendarPlusOne);
+                if (mJewishDateInfo.isNightTikkunChatzotSaid()) {
+                    tikkunChatzot3Weeks.setBackground(AppCompatResources.getDrawable(mContext, R.drawable.colorful_gradient_square));
+                } else {
+                    tikkunChatzot3Weeks.setBackground(null);
+                    tikkunChatzot3Weeks.setBackgroundColor(Color.GRAY);
+                }
+                mJewishDateInfo.setCalendar(calendar);
+            }
+        } else {
+            mJewishDateInfo.setCalendar(calendarPlusOne);
+            if (mJewishDateInfo.isNightTikkunChatzotSaid()) {
+                mJewishDateInfo.setCalendar(calendar);
+                tikkunChatzot.setBackground(AppCompatResources.getDrawable(mContext, R.drawable.colorful_gradient_square));
+            } else {
+                mJewishDateInfo.setCalendar(calendar);
+                tikkunChatzot.setBackground(null);
+                tikkunChatzot.setBackgroundColor(Color.GRAY);
+            }
+        }
 
         mZmanimCalendar = new ROZmanimCalendar(new GeoLocation("", sLatitude, sLongitude, sElevation, TimeZone.getTimeZone((sCurrentTimeZoneID != null && !sCurrentTimeZoneID.isEmpty()) ? sCurrentTimeZoneID : TimeZone.getDefault().getID())));
         mZmanimCalendar.setCalendar(calendar);

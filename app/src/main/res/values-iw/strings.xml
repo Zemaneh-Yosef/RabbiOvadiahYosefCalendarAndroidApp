@@ -658,4 +658,6 @@
     <string name="shmita_dialog">במהלך מחזור שש השנים שלפני השמיטה, יש חובה להפריש ולתת חלקים מגידולי השדה שלכם - תבואה, פירות וירקות שגודלו בארץ ישראל - למטרות שונות (במדבר י\"ח). מפרישים תרומה גדולה, מעשר ראשון ותרומת מעשר בכל שנה, אך מעשר שני מוחלף במעשר עני בשנה השלישית והשישית (דברים י\"ד:כ\"ח).</string>
     <string name="siddur_font">גופן הסידור</string>
     <string name="choose_a_font_for_the_siddur">בחר גופן לסידור</string>
+    <string name="no_location_permission_for_next_zman_notification">אין הרשאת מיקום להודעת הזמן הבא</string>
+    <string name="find_your_location">מצא את המיקום שלך</string>
 </resources>

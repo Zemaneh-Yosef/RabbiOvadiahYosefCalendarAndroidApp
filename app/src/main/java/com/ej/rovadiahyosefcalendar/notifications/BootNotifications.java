@@ -69,7 +69,11 @@ public class BootNotifications extends BroadcastReceiver {
         Calendar calendar = Calendar.getInstance();
         AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
 
-        calendar.setTimeInMillis(zmanimCalendar.getSunrise().getTime());
+        Date sunrise = zmanimCalendar.getSunrise();
+        if (sunrise == null) {
+            sunrise = new Date();
+        }
+        calendar.setTimeInMillis(sunrise.getTime());
         if (calendar.getTime().compareTo(new Date()) < 0) {
             calendar.add(Calendar.DATE, 1);
         }
@@ -77,7 +81,11 @@ public class BootNotifications extends BroadcastReceiver {
                 0, new Intent(context, DailyNotifications.class), PendingIntent.FLAG_IMMUTABLE);
         am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), dailyPendingIntent);
 
-        calendar.setTimeInMillis(zmanimCalendar.getSunset().getTime());
+        Date sunset = zmanimCalendar.getSunset();
+        if (sunset == null) {
+            sunset = new Date();
+        }
+        calendar.setTimeInMillis(sunset.getTime());
         if (calendar.getTime().compareTo(new Date()) < 0) {
             calendar.add(Calendar.DATE, 1);
         }

@@ -6,6 +6,7 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 
+import com.ej.rovadiahyosefcalendar.BuildConfig;
 import com.ej.rovadiahyosefcalendar.activities.ShowErrorActivity;
 
 import java.io.PrintWriter;
@@ -27,34 +28,39 @@ public class ExceptionHandler implements java.lang.Thread.UncaughtExceptionHandl
         String LINE_SEPARATOR = "\n";
         String errorReport =
                 "IF YOU ARE A USER OF THIS APP, SEND A SCREENSHOT OF THIS ERROR TO ElyahuJacobi@gmail.com\n\n" +
-                "************ CAUSE OF ERROR ************\n\n" +
-                stackTrace +
-                "\n************ DEVICE INFORMATION ***********\n" +
-                "Brand: " +
-                Build.BRAND +
-                LINE_SEPARATOR +
-                "Device: " +
-                Build.DEVICE +
-                LINE_SEPARATOR +
-                "Model: " +
-                Build.MODEL +
-                LINE_SEPARATOR +
-                "Id: " +
-                Build.ID +
-                LINE_SEPARATOR +
-                "Product: " +
-                Build.PRODUCT +
-                LINE_SEPARATOR +
-                "\n************ FIRMWARE ************\n" +
-                "SDK: " +
-                Build.VERSION.SDK_INT +
-                LINE_SEPARATOR +
-                "Release: " +
-                Build.VERSION.RELEASE +
-                LINE_SEPARATOR +
-                "Incremental: " +
-                Build.VERSION.INCREMENTAL +
-                LINE_SEPARATOR;
+                        "************ APP VERSION ************\n\n" +
+                        BuildConfig.VERSION_NAME +
+                        LINE_SEPARATOR +
+                        BuildConfig.VERSION_CODE +
+                        LINE_SEPARATOR +
+                        "************ CAUSE OF ERROR ************\n\n" +
+                        stackTrace +
+                        "\n************ DEVICE INFORMATION ***********\n" +
+                        "Brand: " +
+                        Build.BRAND +
+                        LINE_SEPARATOR +
+                        "Device: " +
+                        Build.DEVICE +
+                        LINE_SEPARATOR +
+                        "Model: " +
+                        Build.MODEL +
+                        LINE_SEPARATOR +
+                        "Id: " +
+                        Build.ID +
+                        LINE_SEPARATOR +
+                        "Product: " +
+                        Build.PRODUCT +
+                        LINE_SEPARATOR +
+                        "\n************ FIRMWARE ************\n" +
+                        "SDK: " +
+                        Build.VERSION.SDK_INT +
+                        LINE_SEPARATOR +
+                        "Release: " +
+                        Build.VERSION.RELEASE +
+                        LINE_SEPARATOR +
+                        "Incremental: " +
+                        Build.VERSION.INCREMENTAL +
+                        LINE_SEPARATOR;
 
         Intent intent = new Intent(myContext, ShowErrorActivity.class);
         intent.putExtra("error", errorReport);

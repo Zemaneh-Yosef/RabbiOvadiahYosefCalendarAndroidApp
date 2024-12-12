@@ -412,4 +412,6 @@
    <string name="shmita_dialog">During the six-year cycle prior to shmita, there is an obligation to separate and gift portions of your field\'s grains, fruits and vegetables grown in Israel to various causes (Bamidbar 18). We separate Terumah Gedolah, Maaser Rishon, and Terumat Maaser every year, however, Maaser Sheni is replaced with Maaser Ani on the 3rd and 6th years (Devarim 14:28).</string>
     <string name="siddur_font">Siddur Font</string>
    <string name="choose_a_font_for_the_siddur">Choose a font for the siddur</string>
+    <string name="no_location_permission_for_next_zman_notification">No Location Permission for Next Zman Notification</string>
+    <string name="find_your_location">Find your location</string>
 </resources>

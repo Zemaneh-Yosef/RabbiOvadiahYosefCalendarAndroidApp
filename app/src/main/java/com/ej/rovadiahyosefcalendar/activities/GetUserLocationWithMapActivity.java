@@ -112,6 +112,15 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
 
         mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
 
+        if (!mSharedPreferences.getBoolean("isSetup", false)) {
+            MaterialAlertDialogBuilder alertDialog = new MaterialAlertDialogBuilder(this);
+            alertDialog.setTitle(R.string.find_your_location)
+                    .setMessage(R.string.text_location_permission)
+                    .setPositiveButton(getString(R.string.ok), (dialogInterface, i) -> dialogInterface.dismiss())
+                    .setCancelable(false)
+                    .show();
+        }
+
         // Backup old location details if the user goes back without finishing
         bLocationName = sCurrentLocationName;
         bLat = sLatitude;

@@ -11,8 +11,8 @@ android {
         minSdk 25
         compileSdk 35
         targetSdk 35
-        versionCode 212
-        versionName "22.8"
+        versionCode 214
+        versionName "23.0"
         multiDexEnabled true
 
         ndk { debugSymbolLevel 'FULL' }
@@ -54,8 +54,8 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
     implementation 'androidx.viewpager2:viewpager2:1.1.0'
     implementation 'androidx.vectordrawable:vectordrawable:1.2.0'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.8.3'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.8.3'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.8.4'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.8.4'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation group: 'com.kosherjava', name: 'zmanim', version: '2.5.0'
@@ -72,11 +72,11 @@ dependencies {
     implementation 'com.github.martin-stone:hsv-alpha-color-picker-android:3.0.1'
     implementation files('libs/geonames-ws-client-1.1.9.jar')
     implementation 'com.atlassian.commonmark:commonmark:0.17.0'
-    implementation 'com.google.android.gms:play-services-wearable:18.2.0'
+    implementation 'com.google.android.gms:play-services-wearable:19.0.0'
     implementation 'com.google.code.gson:gson:2.11.0'
     implementation 'com.google.android.gms:play-services-maps:19.0.0'
     implementation 'com.google.maps.android:android-maps-utils:3.8.2'
-    implementation 'com.google.android.material:material:1.13.0-alpha07'
+    implementation 'com.google.android.material:material:1.13.0-alpha08'
     implementation 'androidx.activity:activity-ktx:1.9.3'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'

@@ -445,7 +445,7 @@ public class JewishDateInfo {
                 || (jewishCalendar.getJewishMonth() == JewishDate.TISHREI && jewishCalendar.getJewishDayOfMonth() >= 11)) {
             if (yomTovIndex == JewishCalendar.ROSH_HASHANA && jewishCalendar.getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {//Edge case for rosh hashana that falls on shabbat (Shulchan Aruch, Chapter 598 and Chazon Ovadia page 185)
                 return "צדקתך";
-            }//TODO check source on this
+            }
             if (isLocaleHebrew) {
                 return "לא אומרים תחנון";
             }
@@ -587,14 +587,10 @@ public class JewishDateInfo {
      */
     private String getOrdinal(int number) {
         String[] suffixes = new String[]{"th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th"};
-        switch (number % 100) {
-            case 11:
-            case 12:
-            case 13:
-                return number + "th";
-            default:
-                return number + suffixes[number % 10];
-        }
+        return switch (number % 100) {
+            case 11, 12, 13 -> number + "th";
+            default -> number + suffixes[number % 10];
+        };
     }
 
     /**
@@ -630,7 +626,6 @@ public class JewishDateInfo {
                 return "Birchat HaLevana starts tonight";
             }
         } else {// Special case for Tisha Beav, see Shulchan Aruch Orach Chaim 426:2
-            int test = jewishCalendar.getJewishDayOfMonth();
             if (jewishCalendar.getJewishDayOfMonth() < 9) {
                 return "";
             }
@@ -772,6 +767,7 @@ public class JewishDateInfo {
                 || yomTovIndex == JewishCalendar.SHAVUOS
                 || yomTovIndex == JewishCalendar.SUCCOS
                 || yomTovIndex == JewishCalendar.SHEMINI_ATZERES
+                || jewishCalendar.isSimchasTorah()// 2nd day of shemini atzeret, only outside of Israel
                 || jewishCalendar.isCholHamoedSuccos()
                 || jewishCalendar.isChanukah()) {
             return "הלל שלם";
@@ -879,12 +875,13 @@ public class JewishDateInfo {
      * @see #isOnlyTikkunLeiaSaid(boolean, boolean)
      */
     public boolean isNightTikkunChatzotSaid() {
-        // These are all days that Tikkun Chatzot is not said at all, so we NOT it to know if Tikkun Chatzot IS said
+        // These are all days that Tikkun Chatzot is not said at all, we NOT it to know if Tikkun Chatzot IS said
         return !(jewishCalendar.getDayOfWeek() == 7 ||
                 jewishCalendar.isRoshHashana() ||
                 jewishCalendar.isYomKippur() ||
                 jewishCalendar.getYomTovIndex() == JewishCalendar.SUCCOS ||
-                jewishCalendar.getYomTovIndex() == JewishCalendar.SHEMINI_ATZERES ||
+                jewishCalendar.isShminiAtzeres() ||
+                jewishCalendar.isSimchasTorah() ||
                 jewishCalendar.isPesach() || jewishCalendar.isShavuos());
     }
 

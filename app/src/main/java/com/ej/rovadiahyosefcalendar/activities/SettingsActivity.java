@@ -291,8 +291,7 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         public void onDisplayPreferenceDialog(@NonNull Preference preference) {
-            if (preference instanceof ColorPreference) {
-                ColorPreference colorPreference = ((ColorPreference) preference);
+            if (preference instanceof ColorPreference colorPreference) {
                 colorPreference.showDialog(this, 0);
                 SharedPreferences.Editor editor = requireContext().getSharedPreferences(SHARED_PREF, MODE_PRIVATE).edit();
                 colorPreference.setOnPreferenceChangeListener((preference1, newValue) -> {
