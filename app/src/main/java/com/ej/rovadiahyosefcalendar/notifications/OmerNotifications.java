@@ -128,7 +128,10 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
         }// end of omer code
         jewishDateInfo.getJewishCalendar().getGregorianCalendar().add(Calendar.DATE, 1);
         if (new TefilaRules().isVeseinTalUmatarStartDate(jewishDateInfo.getJewishCalendar())) {// we need to know if user is in Israel or not
-            notifyBarechAleinu(context);
+            if (mSharedPreferences.getInt("lastKnownBarechAleinu", 0) != jewishDateInfo.getJewishCalendar().getJewishYear()) {//We only want 1 notification a year.
+                notifyBarechAleinu(context);
+                mSharedPreferences.edit().putInt("lastKnownBarechAleinu", jewishDateInfo.getJewishCalendar().getJewishYear()).apply();
+            }
         }
         updateAlarm(context, c);
     }

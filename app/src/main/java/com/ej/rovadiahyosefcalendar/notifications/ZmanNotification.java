@@ -87,7 +87,7 @@ public class ZmanNotification extends BroadcastReceiver {
             jewishCalendar.setDate(calendar);
             if ((jewishCalendar.isAssurBemelacha() && !mSettingsSharedPreferences.getBoolean("zmanim_notifications_on_shabbat", true))) {
                 //if tomorrow is shabbat/yom tov, then return if the zman is Tzait, Rabbeinu Tam, or Chatzot Layla (since they are obviously after shabbat/yom tov has started)
-                if (zmanName.equals("חצות לילה") ||
+                if (zmanName.equals("חצות הלילה") ||
                         zmanName.equals("Midnight") ||
                         zmanName.equals("Chatzot Layla") ||
                         zmanName.equals("צאת הכוכבים") ||

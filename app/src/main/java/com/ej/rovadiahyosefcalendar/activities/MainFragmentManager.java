@@ -6,6 +6,7 @@ import static android.Manifest.permission.FOREGROUND_SERVICE_LOCATION;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment.sShabbatMode;
 
+import android.app.ForegroundServiceStartNotAllowedException;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -287,10 +288,18 @@ public class MainFragmentManager extends AppCompatActivity {
                     ContextCompat.checkSelfPermission(this, FOREGROUND_SERVICE_LOCATION) != PERMISSION_GRANTED) {
                 Toast.makeText(this, R.string.no_location_permission_for_next_zman_notification, Toast.LENGTH_SHORT).show();
             } else {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    startForegroundService(new Intent(this, NextZmanCountdownNotification.class));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    try {
+                        startForegroundService(new Intent(this, NextZmanCountdownNotification.class));
+                    } catch (ForegroundServiceStartNotAllowedException exception) {
+                        exception.printStackTrace();
+                    }
                 } else {
-                    startService(new Intent(this, NextZmanCountdownNotification.class));
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        startForegroundService(new Intent(this, NextZmanCountdownNotification.class));
+                    } else {
+                        startService(new Intent(this, NextZmanCountdownNotification.class));
+                    }
                 }
             }
         }

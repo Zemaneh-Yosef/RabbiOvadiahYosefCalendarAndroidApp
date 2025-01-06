@@ -79,7 +79,7 @@ public class SiddurAdapter extends ArrayAdapter<String> implements SensorEventLi
         ViewHolder viewHolder;
 
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.text_view, parent, false);
+            convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.text_view, parent, false);
             viewHolder = new ViewHolder();
             viewHolder.textView = convertView.findViewById(R.id.textView);
             viewHolder.imageView = convertView.findViewById(R.id.imageView);

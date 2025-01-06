@@ -411,7 +411,9 @@ class MainActivity : ComponentActivity() {
                     sNotificationLauncher?.launch(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:$packageName")))
                 }
                 builder.setNegativeButton(getString(R.string.no)) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
-                builder.show()
+                if (!isFinishing && !isDestroyed) {
+                    builder.show()
+                }
             }
         }
         setAllNotifications()

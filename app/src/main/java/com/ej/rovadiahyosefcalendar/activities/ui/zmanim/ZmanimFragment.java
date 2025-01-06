@@ -446,17 +446,14 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                             }
                             ChaiTablesScraper scraper = new ChaiTablesScraper();
                             scraper.setDownloadSettings(chaitablesURL, mActivity.getExternalFilesDir(null), mJewishDateInfo.getJewishCalendar());
+                            scraper.setCallback(() -> {
+                                if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                                    updateWeeklyZmanim();
+                                } else {
+                                    updateDailyZmanim();
+                                }
+                            });
                             scraper.start();
-                            try {
-                                scraper.join();
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                            if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                                updateWeeklyZmanim();
-                            } else {
-                                updateDailyZmanim();
-                            }
                         }
                     });
                     builder.setNegativeButton(R.string.no, (dialog, which) -> dialog.dismiss());

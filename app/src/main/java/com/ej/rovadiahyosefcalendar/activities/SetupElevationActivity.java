@@ -33,6 +33,8 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class SetupElevationActivity extends AppCompatActivity {
 
     private String mElevation = "0";
@@ -165,30 +167,27 @@ public class SetupElevationActivity extends AppCompatActivity {
         ProgressBar progressBar = findViewById(R.id.progressBarElevation);
         progressBar.setVisibility(View.VISIBLE);
         if (sharedPreferences.getBoolean("UseTable" + sCurrentLocationName, true)) {
-            int userID = sharedPreferences.getInt("USER_ID", 10000);
+            AtomicInteger userID = new AtomicInteger(sharedPreferences.getInt("USER_ID", 10000));
             ChaiTablesScraper scraper = new ChaiTablesScraper();
             String link = getSharedPreferences(SHARED_PREF, MODE_PRIVATE).getString("chaitablesLink" + sCurrentLocationName, "");
             scraper.setUrl(link);
             scraper.setExternalFilesDir(getExternalFilesDir(null));
             scraper.setJewishDate(new JewishDate());
+            scraper.setCallback(() -> {
+                if (scraper.isSearchRadiusTooSmall()) {
+                    Toast.makeText(getApplicationContext(), R.string.something_went_wrong_is_the_link_correct, Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(this, AdvancedSetupActivity.class));
+                } else if (scraper.isWebsiteError()) {
+                    Toast.makeText(getApplicationContext(), R.string.something_went_wrong_connecting_to_the_website, Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(this, AdvancedSetupActivity.class));
+                } else {
+                    Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_SHORT).show();
+                    userID.getAndIncrement();
+                    sharedPreferences.edit().putInt("USER_ID", userID.get()).apply();
+                }
+                finish();
+            });
             scraper.start();
-            try {
-                scraper.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            if (scraper.isSearchRadiusTooSmall()) {
-                Toast.makeText(getApplicationContext(), R.string.something_went_wrong_is_the_link_correct, Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(this, AdvancedSetupActivity.class));
-            } else if (scraper.isWebsiteError()) {
-                Toast.makeText(getApplicationContext(), R.string.something_went_wrong_connecting_to_the_website, Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(this, AdvancedSetupActivity.class));
-            } else {
-                Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_SHORT).show();
-                userID++;
-                sharedPreferences.edit().putInt("USER_ID", userID).apply();
-            }
         }
-        finish();
     }
 }

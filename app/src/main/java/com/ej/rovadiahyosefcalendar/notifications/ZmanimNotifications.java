@@ -121,7 +121,8 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
         int set = 0;//only set 5 zmanim an hour
         for (int i = 0; i < zmanimOver3Days.size(); i++) {
             if (set < max) {
-                if ((zmanimOver3Days.get(i).getZmanDate().getTime() - (60_000L * zmanimOver3Days.get(i).getNotificationDelay()) > new Date().getTime())) {
+                if (zmanimOver3Days.get(i).getZmanDate() != null &&
+                        (zmanimOver3Days.get(i).getZmanDate().getTime() - (60_000L * zmanimOver3Days.get(i).getNotificationDelay()) > new Date().getTime())) {
                     PendingIntent zmanPendingIntent = PendingIntent.getBroadcast(
                             context.getApplicationContext(),
                             set,

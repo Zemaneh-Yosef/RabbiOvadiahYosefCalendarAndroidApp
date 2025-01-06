@@ -347,7 +347,7 @@
     <string name="enter_longitude">Enter longitude:</string>
     <string name="choose_timezone">Choose a timezone</string>
     <string name="dismiss_notifications">Dismiss notifications automatically?</string>
-   <string name="settings_not_recieved">Settings not received from the Main App. Please open up the app on your phone.</string>
+   <string name="settings_not_recieved">Settings not received from the Main App. Please make sure your watch is connected to your phone, and open up the app on your phone.</string>
    <string name="next_zman">Next Zman:</string>
    <string name="zmanim_notifications_will_not_work">Zmanim notifications will not work!</string>
    <string name="if_you_would_like_to_receive_zmanim_notifications">The app cannot currently send you zmanim notifications. Would you would like to change this setting? (If you want to stop this dialog from popping up, disable zmanim notifications in the settings)</string>

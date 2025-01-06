@@ -55,6 +55,12 @@ public class ChaiTablesScraper extends Thread {
     private boolean isSearchRadiusTooSmall;
     private boolean mWebsiteError;
 
+    private ScraperCallback callback;
+
+    public void setCallback(ScraperCallback callback) {
+        this.callback = callback;
+    }
+
     /**
      * The setter method for the URL to scrape.
      *
@@ -315,6 +321,10 @@ public class ChaiTablesScraper extends Thread {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+
+        if (callback != null) {
+            callback.onScraperFinished();
         }
 
 //        if (mUrl != null && !mOnlyDownloadTable) {
