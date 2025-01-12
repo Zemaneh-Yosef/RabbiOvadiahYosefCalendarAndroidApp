@@ -73,11 +73,35 @@ public class JewishDateInfo {
     }
 
     /**
+     * This method is used to get the current jewishDateInfo object plus one day ahead.
+     * @return the current jewish calendar object plus one day ahead
+     */
+    public JewishDateInfo tomorrow() {
+        Calendar clonedDate = (Calendar) currentDate.clone(); // Clone the current date to avoid modifying it directly
+        clonedDate.add(Calendar.DATE, 1); // Move to tomorrow
+
+        JewishDateInfo tomorrow = new JewishDateInfo(this.jewishCalendar.getInIsrael());
+        tomorrow.setCalendar(clonedDate);
+        return tomorrow;
+    }
+
+
+    /**
      * This method is used to set the current date.
      * @param calendar the calendar to change the current date
      */
     public void setCalendar(Calendar calendar) {
         currentDate = calendar;
+        jewishCalendar.setDate(currentDate);
+    }
+
+    public void forward() {
+        currentDate.add(Calendar.DATE, 1);
+        jewishCalendar.setDate(currentDate);
+    }
+
+    public void back() {
+        currentDate.add(Calendar.DATE, -1);
         jewishCalendar.setDate(currentDate);
     }
 
@@ -282,6 +306,9 @@ public class JewishDateInfo {
      */
     private String getYomTov() {
         if (isLocaleHebrew) {
+            if (isPurimMeshulash()) {
+                return "פורים משולש";
+            }
             return hebrewDateFormatter.formatYomTov(jewishCalendar)
                     .replace("פורים שושן", "שושן פורים")
                     .replace("פורים שושן קטן", "שושן פורים קטן");
@@ -367,6 +394,9 @@ public class JewishDateInfo {
             case JewishCalendar.ISRU_CHAG:
                 return "Isru Chag";
             default:
+                if (isPurimMeshulash()) {
+                    return "Purim Meshulash";
+                }
                 return "";
         }
     }
@@ -503,7 +533,7 @@ public class JewishDateInfo {
      * If {@link #isLocaleHebrew} is true, it will be: ט"ו, אייר תשפ"ב
      */
     public String getJewishDate() {
-        return jewishCalendar.toString().replace("Teves", "Tevet");
+        return jewishCalendar.toString().replace("Teves", "Tevet").replace("Tishrei", "Tishri");
     }
 
     /**
@@ -931,4 +961,17 @@ public class JewishDateInfo {
         }
         return false;
     }
+
+    /**
+     * Checks if yesterday was a Saturday and Shushan Purim in order to determine if today is Purim Meshulash
+     * @return if today is Purim Meshulash
+     */
+    public boolean isPurimMeshulash() {
+        Calendar clonedDate = (Calendar) currentDate.clone();// Clone the current date to avoid modifying it directly
+        JewishCalendar yesterday = new JewishCalendar();
+        yesterday.setDate(clonedDate);
+        yesterday.back(); // Move to yesterday
+        return yesterday.getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM && yesterday.getDayOfWeek() == 7;
+    }
+
 }

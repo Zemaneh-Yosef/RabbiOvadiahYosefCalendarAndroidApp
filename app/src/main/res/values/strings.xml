@@ -414,4 +414,7 @@
    <string name="choose_a_font_for_the_siddur">Choose a font for the siddur</string>
     <string name="no_location_permission_for_next_zman_notification">No Location Permission for Next Zman Notification</string>
     <string name="find_your_location">Find your location</string>
+    <string name="havdala">הבדלה</string>
+   <string name="hadlakat_neirot_chanuka">הדלקת נרות חנוכה</string>
+    <string name="no_tachanun_in_yerushalayim">No Tachanun in Yerushalayim or a Safek Mukaf Choma</string>
 </resources>

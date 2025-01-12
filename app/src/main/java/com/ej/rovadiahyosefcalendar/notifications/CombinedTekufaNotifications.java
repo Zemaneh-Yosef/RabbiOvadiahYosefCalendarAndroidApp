@@ -23,6 +23,7 @@ import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.MainFragmentManager;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.LocaleChecker;
+import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 
 import org.apache.commons.lang3.time.DateUtils;
 
@@ -31,7 +32,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.TimeZone;
 
 public class CombinedTekufaNotifications extends BroadcastReceiver {
 
@@ -74,7 +74,7 @@ public class CombinedTekufaNotifications extends BroadcastReceiver {
         } else {
             zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//no need for seconds as the tekufa never has seconds
         }
-        zmanimFormat.setTimeZone(TimeZone.getDefault());
+        zmanimFormat.setTimeZone(new LocationResolver(context, null).getTimeZone());
 
         if (earlierTekufaTime != null) {//it should never be null, but just in case
             Date halfHourBefore = new Date(earlierTekufaTime.getTime() - DateUtils.MILLIS_PER_HOUR/2);
@@ -149,20 +149,16 @@ public class CombinedTekufaNotifications extends BroadcastReceiver {
     }
 
     private Date findEarlierTekufaTime(JewishDateInfo jewishDateInfo) {
+        // this code should be called on the day that the tekufa falls out, however, since the tekufa could be on a different gregorian date, go back 2 days and keep going forward until you find the tekufa.
         Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DATE, 1);
+        cal.add(Calendar.DATE, -2);
         jewishDateInfo.setCalendar(cal);
-        if (jewishDateInfo.getJewishCalendar().getTekufa() != null &&
-                DateUtils.isSameDay(new Date(), jewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())) {//if next day hebrew has tekufa today
-            return jewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate();
-        }
-
-        cal.add(Calendar.DATE, -1);
-        jewishDateInfo.setCalendar(cal);//reset
-        if (jewishDateInfo.getJewishCalendar().getTekufa() != null &&
-                DateUtils.isSameDay(new Date(), jewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())) {//if today hebrew has tekufa today
-            return jewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate();
-        }
-        return null;//it should not return null because this notification will be called when the tekufa is today or tomorrow
+        Date result = jewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate();
+        while (result == null) {
+            cal.add(Calendar.DATE, 1);
+            jewishDateInfo.setCalendar(cal);
+            result = jewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate();
+        }// Do not reset the date
+        return result;
     }
 }

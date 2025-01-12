@@ -84,6 +84,7 @@ public class SiddurAdapter extends ArrayAdapter<String> implements SensorEventLi
             viewHolder.textView = convertView.findViewById(R.id.textView);
             viewHolder.imageView = convertView.findViewById(R.id.imageView);
             viewHolder.line = convertView.findViewById(R.id.line);
+            viewHolder.line.setBackgroundColor(viewHolder.textView.getCurrentTextColor());
             convertView.setTag(viewHolder);
             viewHolder.defaultTextColor = viewHolder.textView.getCurrentTextColor();
         } else {

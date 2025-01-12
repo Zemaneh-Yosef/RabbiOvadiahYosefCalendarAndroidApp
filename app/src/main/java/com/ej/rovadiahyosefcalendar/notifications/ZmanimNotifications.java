@@ -1,9 +1,7 @@
 package com.ej.rovadiahyosefcalendar.notifications;
 
-import static android.Manifest.permission.ACCESS_BACKGROUND_LOCATION;
 import static android.content.Context.ALARM_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
-import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
 
 import android.app.AlarmManager;
@@ -15,7 +13,6 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Build;
 
-import androidx.core.app.ActivityCompat;
 import androidx.preference.PreferenceManager;
 
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
@@ -46,7 +43,7 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
         if (mSharedPreferences.getBoolean("isSetup",false) && mSettingsSharedPreferences.getBoolean("zmanim_notifications", true)) {
             Thread thread = new Thread(() -> {
                 ROZmanimCalendar zmanimCalendar = getROZmanimCalendar();
-                if (zmanimCalendar != null) {// if null, we can get the user's location, we will go to the accept method
+                if (!zmanimCalendar.getGeoLocation().equals(new GeoLocation())) {// if equal, we can get the user's location in the accept method
                     JewishCalendar jewishCalendar = new JewishCalendar();
                     zmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
                     String candles = mSettingsSharedPreferences.getString("CandleLightingOffset", "20");
@@ -70,15 +67,8 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
         }
     }
 
-    /**
-     * This method will instantiate a ROZmanimCalendar object if the user has allowed the app to use their location, otherwise, it will use the last known location.
-     */
     private ROZmanimCalendar getROZmanimCalendar() {
-        if (ActivityCompat.checkSelfPermission(context, ACCESS_BACKGROUND_LOCATION) == PERMISSION_GRANTED) {
-            mLocationResolver.getRealtimeNotificationData(this);// we will continue in the accept method
-            return null;
-        }
-        return new ROZmanimCalendar(mLocationResolver.getRealtimeNotificationData(null));
+        return new ROZmanimCalendar(mLocationResolver.getRealtimeNotificationData(this));// we will continue in the accept method
     }
 
     /**
@@ -137,6 +127,8 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
 //                            AlarmManager.AlarmClockInfo alarmClockInfo = new AlarmManager.AlarmClockInfo(System.currentTimeMillis() + 60000, zmanPendingIntent);
 //                            am.setAlarmClock(alarmClockInfo, zmanPendingIntent);
                             am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, zmanimOver3Days.get(i).getZmanDate().getTime() - (60_000L * zmanimOver3Days.get(i).getNotificationDelay()), zmanPendingIntent);
+                        } else {
+                            am.set(AlarmManager.RTC_WAKEUP, zmanimOver3Days.get(i).getZmanDate().getTime() - (60_000L * zmanimOver3Days.get(i).getNotificationDelay()), zmanPendingIntent);
                         }
                     } else {// on lower android version, app will not crash by setting exact alarms
                         am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, zmanimOver3Days.get(i).getZmanDate().getTime() - (60_000L * zmanimOver3Days.get(i).getNotificationDelay()), zmanPendingIntent);
@@ -151,14 +143,7 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
                 new Intent(context, ZmanimNotifications.class),
                 PendingIntent.FLAG_IMMUTABLE);
 
-        am.cancel(schedulePendingIntent);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (am.canScheduleExactAlarms()) {
-                am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, new Date().getTime() + 1_800_000, schedulePendingIntent);//every half hour
-            }
-        } else {// on lower android version, app will not crash by setting exact alarms
-            am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, new Date().getTime() + 1_800_000, schedulePendingIntent);//every half hour
-        }
+        NotificationUtils.setExactAndAllowWhileIdle(am, new Date().getTime() + 1_800_000, schedulePendingIntent);//every half hour
     }
 
     private ArrayList<ZmanInformationHolder> getArrayOfZmanim(ROZmanimCalendar c, JewishCalendar jewishCalendar) {

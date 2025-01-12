@@ -145,20 +145,16 @@ public class TekufaNotifications extends BroadcastReceiver {
     }
 
     private Date findTekufaTime(JewishDateInfo jewishDateInfo) {
+        // this code should be called on the day that the tekufa falls out, however, since the tekufa could be on a different gregorian date, go back 2 days and keep going forward until you find the tekufa.
         Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DATE, 1);
+        cal.add(Calendar.DATE, -2);
         jewishDateInfo.setCalendar(cal);
-        if (jewishDateInfo.getJewishCalendar().getTekufa() != null &&
-                DateUtils.isSameDay(new Date(), jewishDateInfo.getJewishCalendar().getTekufaAsDate())) {//if next day hebrew has tekufa today
-            return jewishDateInfo.getJewishCalendar().getTekufaAsDate();
-        }
-
-        cal.add(Calendar.DATE, -1);
-        jewishDateInfo.setCalendar(cal);//reset
-        if (jewishDateInfo.getJewishCalendar().getTekufa() != null &&
-                DateUtils.isSameDay(new Date(), jewishDateInfo.getJewishCalendar().getTekufaAsDate())) {//if today hebrew has tekufa today
-            return jewishDateInfo.getJewishCalendar().getTekufaAsDate();
-        }
-        return null;//it should not return null because this notification will be called when the tekufa is today or tomorrow
+        Date result = jewishDateInfo.getJewishCalendar().getTekufaAsDate();
+        while (result == null) {
+            cal.add(Calendar.DATE, 1);
+            jewishDateInfo.setCalendar(cal);
+            result = jewishDateInfo.getJewishCalendar().getTekufaAsDate();
+        }// Do not reset the date
+        return result;
     }
 }

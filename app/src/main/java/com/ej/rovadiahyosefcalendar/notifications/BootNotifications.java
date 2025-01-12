@@ -79,7 +79,7 @@ public class BootNotifications extends BroadcastReceiver {
         }
         PendingIntent dailyPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
                 0, new Intent(context, DailyNotifications.class), PendingIntent.FLAG_IMMUTABLE);
-        am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), dailyPendingIntent);
+        NotificationUtils.setExactAndAllowWhileIdle(am, calendar.getTimeInMillis(), dailyPendingIntent);
 
         Date sunset = zmanimCalendar.getSunset();
         if (sunset == null) {
@@ -91,6 +91,6 @@ public class BootNotifications extends BroadcastReceiver {
         }
         PendingIntent omerPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
                 0, new Intent(context, OmerNotifications.class), PendingIntent.FLAG_IMMUTABLE);
-        am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), omerPendingIntent);
+        NotificationUtils.setExactAndAllowWhileIdle(am, calendar.getTimeInMillis(), omerPendingIntent);
     }
 }

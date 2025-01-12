@@ -40,7 +40,6 @@ import com.ej.rovadiahyosefcalendar.activities.JerusalemDirectionMapsActivity;
 import com.ej.rovadiahyosefcalendar.activities.SiddurViewActivity;
 import com.ej.rovadiahyosefcalendar.classes.CalendarDrawable;
 import com.ej.rovadiahyosefcalendar.classes.HebrewDayMonthYearPickerDialog;
-import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.LocaleChecker;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
 import com.ej.rovadiahyosefcalendar.classes.SiddurMaker;
@@ -83,10 +82,9 @@ public class SiddurFragment extends Fragment {
 
     private void initView() {
         TextView specialDay = binding.jewishSpecialDay;
-        Calendar calendar = mJewishDateInfo.getJewishCalendar().getGregorianCalendar();
-        String dateAndSpecialDay = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault())
+        String dateAndSpecialDay = mJewishDateInfo.getJewishCalendar().getGregorianCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault())
                 + "\n" +
-                mJewishDateInfo.getJewishCalendar().toString();
+                mJewishDateInfo.getJewishDate();
         String specialDayString = mJewishDateInfo.getSpecialDay(false);
         if (!specialDayString.isEmpty()) {
             dateAndSpecialDay += "\n" + specialDayString;
@@ -105,12 +103,12 @@ public class SiddurFragment extends Fragment {
         shacharit.setOnClickListener(v -> startSiddurActivity(mContext.getString(R.string.shacharit)));
 
         Button mussaf = binding.mussaf;
-        if (!(mJewishDateInfo.getJewishCalendar().isRoshChodesh()
-                || mJewishDateInfo.getJewishCalendar().isCholHamoed())) {
-            mussaf.setVisibility(View.GONE);
-        } else {
+        if (mJewishDateInfo.getJewishCalendar().isRoshChodesh()
+                || mJewishDateInfo.getJewishCalendar().isCholHamoed()) {
             mussaf.setVisibility(View.VISIBLE);
             mussaf.setOnClickListener(v -> startSiddurActivity(mContext.getString(R.string.mussaf)));
+        } else {
+            mussaf.setVisibility(View.GONE);
         }
 
         Button mincha = binding.mincha;
@@ -122,21 +120,35 @@ public class SiddurFragment extends Fragment {
         //}
 
         TextView nightDayOfWeek = binding.nightDayOfWeek;
-        Calendar calendarPlusOne = (Calendar) mJewishDateInfo.getJewishCalendar().getGregorianCalendar().clone();
-        calendarPlusOne.add(Calendar.DATE, 1);
-        mJewishDateInfo.setCalendar(calendarPlusOne);
-        String nextDateAndSpecialDay = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault())
+        String nextDateAndSpecialDay = mJewishDateInfo.tomorrow().getJewishCalendar().getGregorianCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault())
                 + "\n" + mContext.getString(R.string.after_sunset) + "\n" +
-                mJewishDateInfo.getJewishCalendar().toString();
-        String nextSpecialDayString = mJewishDateInfo.getSpecialDay(false);
+                mJewishDateInfo.tomorrow().getJewishDate();
+        String nextSpecialDayString = mJewishDateInfo.tomorrow().getSpecialDay(false);
         if (!nextSpecialDayString.isEmpty()) {
             nextDateAndSpecialDay += "\n" + nextSpecialDayString;
         }
         nightDayOfWeek.setText(nextDateAndSpecialDay);
-        mJewishDateInfo.setCalendar(calendar);//reset
 
         Button arvit = binding.arvit;
         arvit.setOnClickListener(v -> startSiddurActivity(mContext.getString(R.string.arvit)));
+
+        Button hadlakatNeirotChanuka = binding.hadlakatNeirotChanuka;
+        hadlakatNeirotChanuka.setOnClickListener(v -> startSiddurActivity(mContext.getString(R.string.hadlakat_neirot_chanuka)));
+
+        if (mJewishDateInfo.tomorrow().getJewishCalendar().isChanukah() || mJewishDateInfo.getJewishCalendar().isChanukah() && mJewishDateInfo.getJewishCalendar().getDayOfChanukah() != 8) {
+            hadlakatNeirotChanuka.setVisibility(View.VISIBLE);
+        } else {
+            hadlakatNeirotChanuka.setVisibility(View.GONE);
+        }
+
+        Button havdalah = binding.havdalah;
+        havdalah.setOnClickListener(v -> startSiddurActivity(mContext.getString(R.string.havdala)));
+
+        if (!mJewishDateInfo.getJewishCalendar().hasCandleLighting() && mJewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
+            havdalah.setVisibility(View.VISIBLE);
+        } else {
+            havdalah.setVisibility(View.GONE);
+        }
 
         Button kriatShemaAlHamita = binding.kriatShemaAlHamita;
         kriatShemaAlHamita.setOnClickListener(v -> startNextDaySiddurActivity(mContext.getString(R.string.kriatShema), false));
@@ -157,7 +169,7 @@ public class SiddurFragment extends Fragment {
                 boolean isTachanunSaid = mJewishDateInfo.getIsTachanunSaid().equals("Tachanun only in the morning")
                         || mJewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון רק בבוקר")
                         || mJewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון")
-                        || mJewishDateInfo.getIsTachanunSaid().equals("There is Tachanun today");
+                        || mJewishDateInfo.getIsTachanunSaid().equals("There is Tachanun today");// no need to check for Yom Yerushalayim or Yom Ha'atzmaut because they're in another month
                 if (mJewishDateInfo.isDayTikkunChatzotSaid() && isTachanunSaid) {
                     new MaterialAlertDialogBuilder(mContext)
                             .setTitle(R.string.do_you_want_to_say_tikkun_chatzot_for_the_day)
@@ -166,8 +178,7 @@ public class SiddurFragment extends Fragment {
                             .setNegativeButton(mContext.getString(R.string.no), (dialog, which) -> startNextDaySiddurActivity(mContext.getString(R.string.tikkun_chatzot), true))
                             .show();
                 } else {
-                    mJewishDateInfo.setCalendar(calendarPlusOne);
-                    if (mJewishDateInfo.isNightTikkunChatzotSaid()) {
+                    if (mJewishDateInfo.tomorrow().isNightTikkunChatzotSaid()) {
                         startNextDaySiddurActivity(mContext.getString(R.string.tikkun_chatzot), true);
                     } else {
                         new MaterialAlertDialogBuilder(mContext)
@@ -176,15 +187,11 @@ public class SiddurFragment extends Fragment {
                                 .setPositiveButton(mContext.getString(R.string.ok), (dialog, which) -> dialog.dismiss())
                                 .show();
                     }
-                    mJewishDateInfo.setCalendar(calendar);
                 }
             } else {
-                mJewishDateInfo.setCalendar(calendarPlusOne);
-                if (mJewishDateInfo.isNightTikkunChatzotSaid()) {
-                    mJewishDateInfo.setCalendar(calendar);
+                if (mJewishDateInfo.tomorrow().isNightTikkunChatzotSaid()) {
                     startNextDaySiddurActivity(mContext.getString(R.string.tikkun_chatzot), true);
                 } else {
-                    mJewishDateInfo.setCalendar(calendar);
                     new MaterialAlertDialogBuilder(mContext)
                             .setTitle(R.string.tikkun_chatzot_is_not_said_tonight)
                             .setMessage(R.string.tikkun_chatzot_is_not_said_tonight_possible_reasons)
@@ -203,29 +210,24 @@ public class SiddurFragment extends Fragment {
                     || mJewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון")
                     || mJewishDateInfo.getIsTachanunSaid().equals("There is Tachanun today");
             if (!mJewishDateInfo.isDayTikkunChatzotSaid() || !isTachanunSaid) {
-                mJewishDateInfo.setCalendar(calendarPlusOne);
-                if (mJewishDateInfo.isNightTikkunChatzotSaid()) {
+                if (mJewishDateInfo.tomorrow().isNightTikkunChatzotSaid()) {
                     tikkunChatzot3Weeks.setBackground(AppCompatResources.getDrawable(mContext, R.drawable.colorful_gradient_square));
                 } else {
                     tikkunChatzot3Weeks.setBackground(null);
                     tikkunChatzot3Weeks.setBackgroundColor(Color.GRAY);
                 }
-                mJewishDateInfo.setCalendar(calendar);
             }
         } else {
-            mJewishDateInfo.setCalendar(calendarPlusOne);
-            if (mJewishDateInfo.isNightTikkunChatzotSaid()) {
-                mJewishDateInfo.setCalendar(calendar);
+            if (mJewishDateInfo.tomorrow().isNightTikkunChatzotSaid()) {
                 tikkunChatzot.setBackground(AppCompatResources.getDrawable(mContext, R.drawable.colorful_gradient_square));
             } else {
-                mJewishDateInfo.setCalendar(calendar);
                 tikkunChatzot.setBackground(null);
                 tikkunChatzot.setBackgroundColor(Color.GRAY);
             }
         }
 
         mZmanimCalendar = new ROZmanimCalendar(new GeoLocation("", sLatitude, sLongitude, sElevation, TimeZone.getTimeZone((sCurrentTimeZoneID != null && !sCurrentTimeZoneID.isEmpty()) ? sCurrentTimeZoneID : TimeZone.getDefault().getID())));
-        mZmanimCalendar.setCalendar(calendar);
+        mZmanimCalendar.setCalendar(mJewishDateInfo.getJewishCalendar().getGregorianCalendar());
         Date tzeit;
         if (PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean("LuachAmudeiHoraah", false)) {
             tzeit = mZmanimCalendar.getTzeitAmudeiHoraah();
@@ -242,12 +244,7 @@ public class SiddurFragment extends Fragment {
 
         Button bh = binding.birchatHamazon;
         bh.setOnClickListener(v -> {
-            JewishDateInfo tomorrow = new JewishDateInfo(mJewishDateInfo.getJewishCalendar().getInIsrael());
-            Calendar nextDayCalendar = (Calendar) mJewishDateInfo.getJewishCalendar().getGregorianCalendar().clone();
-            nextDayCalendar.add(Calendar.DATE, 1);
-            tomorrow.setCalendar(nextDayCalendar);
-
-            if (new SiddurMaker(mJewishDateInfo).getBirchatHamazonPrayers().equals(new SiddurMaker(tomorrow).getBirchatHamazonPrayers())) {
+            if (new SiddurMaker(mJewishDateInfo).getBirchatHamazonPrayers().equals(new SiddurMaker(mJewishDateInfo.tomorrow()).getBirchatHamazonPrayers())) {
                 startSiddurActivity(mContext.getString(R.string.birchat_hamazon));//doesn't matter which day
             } else {
                 new MaterialAlertDialogBuilder(mContext)
@@ -261,12 +258,7 @@ public class SiddurFragment extends Fragment {
 
         Button bms = binding.birchatMeyinShalosh;
         bms.setOnClickListener(v -> {
-            JewishDateInfo tomorrow = new JewishDateInfo(mJewishDateInfo.getJewishCalendar().getInIsrael());
-            Calendar nextDayCalendar = (Calendar) mJewishDateInfo.getJewishCalendar().getGregorianCalendar().clone();
-            nextDayCalendar.add(Calendar.DATE, 1);
-            tomorrow.setCalendar(nextDayCalendar);
-
-            if (new SiddurMaker(mJewishDateInfo).getBirchatMeeyinShaloshPrayers().equals(new SiddurMaker(tomorrow).getBirchatMeeyinShaloshPrayers())) {
+            if (new SiddurMaker(mJewishDateInfo).getBirchatMeeyinShaloshPrayers().equals(new SiddurMaker(mJewishDateInfo.tomorrow()).getBirchatMeeyinShaloshPrayers())) {
                 startSiddurActivity(mContext.getString(R.string.birchat_meyin_shalosh));//doesn't matter which day
             } else {
                 new MaterialAlertDialogBuilder(mContext)

@@ -1,9 +1,7 @@
 package com.ej.rovadiahyosefcalendar.notifications;
 
-import static android.Manifest.permission.ACCESS_BACKGROUND_LOCATION;
 import static android.content.Context.ALARM_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
-import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
 import static com.ej.rovadiahyosefcalendar.activities.OmerActivity.omerList;
 
@@ -23,7 +21,6 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 
-import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
 
@@ -56,8 +53,8 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
         JewishDateInfo jewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false));
         mLocationResolver = new LocationResolver(context, null);
         if (mSharedPreferences.getBoolean("isSetup", false)) {
-            ROZmanimCalendar c = getROZmanimCalendar(context);
-            if (c != null) {
+            ROZmanimCalendar c = getROZmanimCalendar();
+            if (!c.getGeoLocation().equals(new GeoLocation())) {
                 init(context, jewishDateInfo, c);
             }
         }
@@ -204,12 +201,8 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
         MID++;
     }
 
-    private ROZmanimCalendar getROZmanimCalendar(Context context) {
-        if (ActivityCompat.checkSelfPermission(context, ACCESS_BACKGROUND_LOCATION) == PERMISSION_GRANTED) {
-            mLocationResolver.getRealtimeNotificationData(this);// we will continue in the accept method
-            return null;
-        }
-        return new ROZmanimCalendar(mLocationResolver.getRealtimeNotificationData(null));
+    private ROZmanimCalendar getROZmanimCalendar() {
+        return new ROZmanimCalendar(mLocationResolver.getRealtimeNotificationData(this));// we will continue in the accept method
     }
 
     private void updateAlarm(Context context, ROZmanimCalendar c) {
@@ -230,8 +223,7 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
         }
         PendingIntent omerPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
                 0, new Intent(context.getApplicationContext(), OmerNotifications.class), PendingIntent.FLAG_IMMUTABLE);
-        am.cancel(omerPendingIntent);
-        am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), omerPendingIntent);
+        NotificationUtils.setExactAndAllowWhileIdle(am, calendar.getTimeInMillis(), omerPendingIntent);
     }
 
     @Override

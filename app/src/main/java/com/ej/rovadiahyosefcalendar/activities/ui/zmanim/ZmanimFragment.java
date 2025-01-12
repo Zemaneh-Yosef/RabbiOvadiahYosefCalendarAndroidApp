@@ -98,6 +98,7 @@ import com.ej.rovadiahyosefcalendar.classes.ZmanListEntry;
 import com.ej.rovadiahyosefcalendar.classes.ZmanimFactory;
 import com.ej.rovadiahyosefcalendar.databinding.FragmentZmanimBinding;
 import com.ej.rovadiahyosefcalendar.notifications.DailyNotifications;
+import com.ej.rovadiahyosefcalendar.notifications.NotificationUtils;
 import com.ej.rovadiahyosefcalendar.notifications.OmerNotifications;
 import com.ej.rovadiahyosefcalendar.notifications.ZmanimNotifications;
 import com.google.android.material.datepicker.MaterialDatePicker;
@@ -844,8 +845,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         PendingIntent dailyPendingIntent = PendingIntent.getBroadcast(mContext, 0,
                 new Intent(mContext, DailyNotifications.class), PendingIntent.FLAG_IMMUTABLE);
         AlarmManager am = (AlarmManager) mContext.getSystemService(ALARM_SERVICE);
-        am.cancel(dailyPendingIntent);//cancel any previous alarms
-        am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), dailyPendingIntent);
+        NotificationUtils.setExactAndAllowWhileIdle(am, calendar.getTimeInMillis(), dailyPendingIntent);
 
         Date tzeit;
         if (sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
@@ -861,8 +861,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             calendar.add(Calendar.DATE, 1);
         }
         PendingIntent omerPendingIntent = PendingIntent.getBroadcast(mContext, 0, new Intent(mContext, OmerNotifications.class), PendingIntent.FLAG_IMMUTABLE);
-        am.cancel(omerPendingIntent);//cancel any previous alarms
-        am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), omerPendingIntent);
+        NotificationUtils.setExactAndAllowWhileIdle(am, calendar.getTimeInMillis(), omerPendingIntent);
 
         Intent zmanIntent = new Intent(mContext, ZmanimNotifications.class);
         PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(mContext, 0, zmanIntent, PendingIntent.FLAG_IMMUTABLE);
@@ -1001,9 +1000,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             sb.append("      ");
         }
 
-        sb.append(mJewishDateInfo.getJewishCalendar().toString()
-                .replace("Teves", "Tevet")
-                .replace("Tishrei", "Tishri"));
+        sb.append(mJewishDateInfo.getJewishDate());
 
         zmanim.add(new ZmanListEntry(sb.toString()));
 
@@ -1015,13 +1012,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
 
         if (sSettingsPreferences.getBoolean("showShabbatMevarchim", false)) {
-            mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
-            mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
-            if (mJewishDateInfo.getJewishCalendar().isShabbosMevorchim()) {
+            if (mJewishDateInfo.tomorrow().getJewishCalendar().isShabbosMevorchim()) {
                 zmanim.add(new ZmanListEntry("שבת מברכים"));
             }
-            mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);
-            mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());//reset
         }
 
         if (LocaleChecker.isLocaleHebrew()) {
@@ -1044,8 +1037,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             zmanim.add(new ZmanListEntry(dayOfOmer));
         }
 
-        if (mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.ROSH_HASHANA &&
-                mJewishDateInfo.isShmitaYear()) {
+        if (mJewishDateInfo.getJewishCalendar().isRoshHashana() && mJewishDateInfo.isShmitaYear()) {
             zmanim.add(new ZmanListEntry(mContext.getString(R.string.this_year_is_a_shmita_year)));
         }
 
@@ -1077,6 +1069,10 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
 
         zmanim.add(new ZmanListEntry(mJewishDateInfo.getIsTachanunSaid()));
+
+        if (mJewishDateInfo.isPurimMeshulash()) {
+            zmanim.add(new ZmanListEntry(mContext.getString(R.string.no_tachanun_in_yerushalayim)));
+        }
 
         String birchatLevana = mJewishDateInfo.getBirchatLevana();
         if (!birchatLevana.isEmpty()) {
@@ -1235,14 +1231,14 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             announcements.append(day.replace("/ ", "\n")).append("\n");
         }
 
+        if (mJewishDateInfo.isPurimMeshulash()) {
+            announcements.append(mContext.getString(R.string.no_tachanun_in_yerushalayim));
+        }
+
         if (sSettingsPreferences.getBoolean("showShabbatMevarchim", true)) {
-            mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
-            mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
-            if (mJewishDateInfo.getJewishCalendar().isShabbosMevorchim()) {
+            if (mJewishDateInfo.tomorrow().getJewishCalendar().isShabbosMevorchim()) {
                 announcements.append("שבת מברכים").append("\n");
             }
-            mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);
-            mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());//reset
         }
 
         String isOKToListenToMusic = mJewishDateInfo.isOKToListenToMusic();

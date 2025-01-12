@@ -1,11 +1,8 @@
 package com.ej.rovadiahyosefcalendar.notifications;
 
-import static android.Manifest.permission.ACCESS_BACKGROUND_LOCATION;
 import static android.content.Context.ALARM_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
-import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mROZmanimCalendar;
 
 import android.app.AlarmManager;
 import android.app.Notification;
@@ -23,7 +20,6 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 
-import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
 
@@ -35,8 +31,6 @@ import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
 import com.kosherjava.zmanim.AstronomicalCalendar;
 import com.kosherjava.zmanim.util.GeoLocation;
-
-import org.apache.commons.lang3.time.DateUtils;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -56,8 +50,8 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
         JewishDateInfo jewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael",false));
         mLocationResolver = new LocationResolver(context, null);
         if (mSharedPreferences.getBoolean("isSetup",false)) {
-            ROZmanimCalendar calendar = getROZmanimCalendar(context);
-            if (calendar != null) {
+            ROZmanimCalendar calendar = getROZmanimCalendar();
+            if (!calendar.getGeoLocation().equals(new GeoLocation())) {
                 init(context, jewishDateInfo, calendar);
             }
         }
@@ -138,38 +132,58 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
             }
         }
         Calendar cal = Calendar.getInstance();
+        AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
+        Class<?> notifClass = TekufaNotifications.class;
+        Date tekufaDate = jewishDateInfo.getJewishCalendar().getTekufaAsDate();
         String tekufaOpinions = PreferenceManager.getDefaultSharedPreferences(context).getString("TekufaOpinions", "1");
         if (tekufaOpinions.equals("1")) {
             if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("LuachAmudeiHoraah", false)) {
-                checkIfAmudeiHoraahTekufaIsToday(context, jewishDateInfo, cal);
-            } else {
-                checkIfTekufaIsToday(context, jewishDateInfo, cal);
-            }
+                notifClass = AmudeiHoraahTekufaNotifications.class;
+            }// otherwise leave alone
         }
-        if (tekufaOpinions.equals("2")) {
-            checkIfTekufaIsToday(context, jewishDateInfo, cal);
-        }
+        // 2, just leave it alone
         if (tekufaOpinions.equals("3")) {
-            checkIfAmudeiHoraahTekufaIsToday(context, jewishDateInfo, cal);
+            notifClass = AmudeiHoraahTekufaNotifications.class;
         }
         if (tekufaOpinions.equals("4")) {
-            checkIfBothTekufasAreOnToday(context, jewishDateInfo, cal);
+            notifClass = CombinedTekufaNotifications.class;
         }
-        updateAlarm(context, calendar, cal);
+        if (notifClass.equals(AmudeiHoraahTekufaNotifications.class) || notifClass.equals(CombinedTekufaNotifications.class)) {
+            while (tekufaDate == null) {
+                jewishDateInfo.getJewishCalendar().forward(Calendar.DATE, 1);
+                tekufaDate = jewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate();
+            }
+        } else {
+            while (tekufaDate == null) {
+                jewishDateInfo.getJewishCalendar().forward(Calendar.DATE, 1);
+                tekufaDate = jewishDateInfo.getJewishCalendar().getTekufaAsDate();
+            }
+        }
+        cal.setTime(tekufaDate);
+        cal.add(Calendar.HOUR_OF_DAY, -1);// set reminder to go off one hour before the tekufa occurs. I.E. half an hour before the prohibition
+        if (cal.compareTo(Calendar.getInstance()) > 0) {// only do this code if the tekufa hasn't passed
+            PendingIntent tekufaPendingIntent = PendingIntent.getBroadcast(
+                    context.getApplicationContext(),
+                    0,
+                    new Intent(context.getApplicationContext(), notifClass),
+                    PendingIntent.FLAG_IMMUTABLE);
+            NotificationUtils.setExactAndAllowWhileIdle(am, cal.getTimeInMillis(), tekufaPendingIntent);
+        }
+
+        updateAlarm(context, am, calendar);// for next day
         startUpDailyZmanim(context);//we need to start the zmanim service every day because there might be a person who will just want to see candle lighting time every week or once a year for pesach zmanim.
     }
 
-    private ROZmanimCalendar getROZmanimCalendar(Context context) {
-        if (ActivityCompat.checkSelfPermission(context, ACCESS_BACKGROUND_LOCATION) == PERMISSION_GRANTED) {
-            mLocationResolver.getRealtimeNotificationData(this);// we will continue in the accept method
-            return null;
-        }
-        return new ROZmanimCalendar(mLocationResolver.getRealtimeNotificationData(null));
+    private ROZmanimCalendar getROZmanimCalendar() {
+        return new ROZmanimCalendar(mLocationResolver.getRealtimeNotificationData(this));// we will continue in the accept method
     }
 
     private void startUpDailyZmanim(Context context) {
-        Intent zmanIntent = new Intent(context.getApplicationContext(), ZmanimNotifications.class);
-        PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),0,zmanIntent,PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(
+                context.getApplicationContext(),
+                0,
+                new Intent(context.getApplicationContext(), ZmanimNotifications.class),
+                PendingIntent.FLAG_IMMUTABLE);
         try {
             zmanimPendingIntent.send();
         } catch (PendingIntent.CanceledException e) {
@@ -177,89 +191,8 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
         }
     }
 
-    private void checkIfTekufaIsToday(Context context, JewishDateInfo jewishDateInfo, Calendar cal) {
-        cal.add(Calendar.DATE, 1);//start checking from tomorrow
-        jewishDateInfo.setCalendar(cal);
-        if (jewishDateInfo.getJewishCalendar().getTekufa() != null &&
-                DateUtils.isSameDay(new Date(), jewishDateInfo.getJewishCalendar().getTekufaAsDate())) {//if next day hebrew has tekufa today
-            setupTekufaNotification(context, cal, jewishDateInfo);
-        }
-
-        cal.add(Calendar.DATE, -1);
-        jewishDateInfo.setCalendar(cal);//reset
-        if (jewishDateInfo.getJewishCalendar().getTekufa() != null &&
-                DateUtils.isSameDay(new Date(), jewishDateInfo.getJewishCalendar().getTekufaAsDate())) {//if today hebrew has tekufa today
-            setupTekufaNotification(context, cal, jewishDateInfo);
-        }
-    }
-
-    private void setupTekufaNotification(Context context, Calendar cal, JewishDateInfo jewishDateInfo) {
-        Calendar tekufaCal = (Calendar) cal.clone();//clone to avoid changing the original calendar
-        AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
-        Date tekufaDate = DateUtils.addHours(jewishDateInfo.getJewishCalendar().getTekufaAsDate(), -1);
-        tekufaCal.setTimeInMillis(tekufaDate.getTime());
-        PendingIntent tekufaPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
-                0, new Intent(context.getApplicationContext(), TekufaNotifications.class), PendingIntent.FLAG_IMMUTABLE);
-        am.cancel(tekufaPendingIntent);
-        am.set(AlarmManager.RTC_WAKEUP, tekufaCal.getTimeInMillis(), tekufaPendingIntent);
-    }
-
-    private void checkIfAmudeiHoraahTekufaIsToday(Context context, JewishDateInfo jewishDateInfo, Calendar cal) {
-        cal.add(Calendar.DATE, 1);//start checking from tomorrow
-        jewishDateInfo.setCalendar(cal);
-        if (jewishDateInfo.getJewishCalendar().getTekufa() != null &&
-                DateUtils.isSameDay(new Date(), jewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())) {//if next hebrew day has tekufa today
-            setupAmudeiHoraahTekufaNotification(context, cal, jewishDateInfo);
-        }
-
-        cal.add(Calendar.DATE, -1);
-        jewishDateInfo.setCalendar(cal);//reset
-        if (jewishDateInfo.getJewishCalendar().getTekufa() != null &&
-                DateUtils.isSameDay(new Date(), jewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())) {//if today hebrew has tekufa today
-            setupAmudeiHoraahTekufaNotification(context, cal, jewishDateInfo);
-        }
-    }
-
-    private void setupAmudeiHoraahTekufaNotification(Context context, Calendar cal, JewishDateInfo jewishDateInfo) {
-        Calendar tekufaCal = (Calendar) cal.clone();//clone to avoid changing the original calendar
-        AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
-        Date tekufaDate = DateUtils.addHours(jewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate(), -1);
-        tekufaCal.setTimeInMillis(tekufaDate.getTime());
-        PendingIntent tekufaPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
-                0, new Intent(context.getApplicationContext(), AmudeiHoraahTekufaNotifications.class), PendingIntent.FLAG_IMMUTABLE);
-        am.cancel(tekufaPendingIntent);
-        am.set(AlarmManager.RTC_WAKEUP, tekufaCal.getTimeInMillis(), tekufaPendingIntent);
-    }
-
-    private void checkIfBothTekufasAreOnToday(Context context, JewishDateInfo jewishDateInfo, Calendar cal) {
-        cal.add(Calendar.DATE, 1);//start checking from tomorrow
-        jewishDateInfo.setCalendar(cal);
-        if (jewishDateInfo.getJewishCalendar().getTekufa() != null &&
-                DateUtils.isSameDay(new Date(), jewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())) {//if next hebrew day has tekufa today
-            setupCombinedTekufaNotification(context, cal, jewishDateInfo);
-        }
-
-        cal.add(Calendar.DATE, -1);
-        jewishDateInfo.setCalendar(cal);//reset
-        if (jewishDateInfo.getJewishCalendar().getTekufa() != null &&
-                DateUtils.isSameDay(new Date(), jewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())) {//if today hebrew has tekufa today
-            setupCombinedTekufaNotification(context, cal, jewishDateInfo);
-        }
-    }
-
-    private void setupCombinedTekufaNotification(Context context, Calendar cal, JewishDateInfo jewishDateInfo) {
-        Calendar tekufaCal = (Calendar) cal.clone();//clone to avoid changing the original calendar
-        AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
-        Date tekufaDate = DateUtils.addHours(jewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate(), -1);
-        tekufaCal.setTimeInMillis(tekufaDate.getTime());
-        PendingIntent tekufaPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
-                0, new Intent(context.getApplicationContext(), CombinedTekufaNotifications.class), PendingIntent.FLAG_IMMUTABLE);
-        am.cancel(tekufaPendingIntent);
-        am.set(AlarmManager.RTC_WAKEUP, tekufaCal.getTimeInMillis(), tekufaPendingIntent);
-    }
-
-    private void updateAlarm(Context context, AstronomicalCalendar c, Calendar cal) {
-        AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
+    private void updateAlarm(Context context, AlarmManager am, AstronomicalCalendar c) {
+        Calendar cal = Calendar.getInstance();
         Date sunrise = c.getSunrise();
         if (sunrise == null) {
             sunrise = new Date();
@@ -270,8 +203,7 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
         }
         PendingIntent dailyPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
                 0, new Intent(context.getApplicationContext(), DailyNotifications.class), PendingIntent.FLAG_IMMUTABLE);
-        am.cancel(dailyPendingIntent);
-        am.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), dailyPendingIntent);
+        NotificationUtils.setExactAndAllowWhileIdle(am, cal.getTimeInMillis(), dailyPendingIntent);
     }
 
     @Override
