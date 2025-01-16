@@ -6,7 +6,7 @@
     android:clipChildren="false"
     android:orientation="vertical">
 
-    <TextView
+    <com.ej.rovadiahyosefcalendar.classes.JustifyTextView
         android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

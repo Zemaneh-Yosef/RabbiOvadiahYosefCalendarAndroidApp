@@ -3,7 +3,7 @@ package com.ej.rovadiahyosefcalendar.activities;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
 
 import android.content.SharedPreferences;
-import android.os.Build;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,18 +14,15 @@ import android.widget.SeekBar;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.ej.rovadiahyosefcalendar.R;
+import com.ej.rovadiahyosefcalendar.classes.CategoryOnClick;
 import com.ej.rovadiahyosefcalendar.classes.HighlightString;
-import com.ej.rovadiahyosefcalendar.classes.HorizontalAdapter;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
-import com.ej.rovadiahyosefcalendar.classes.LocaleChecker;
 import com.ej.rovadiahyosefcalendar.classes.SiddurAdapter;
 import com.ej.rovadiahyosefcalendar.classes.SiddurMaker;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -33,6 +30,7 @@ import com.google.android.material.appbar.MaterialToolbar;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class SiddurViewActivity extends AppCompatActivity {
 
@@ -50,9 +48,6 @@ public class SiddurViewActivity extends AppCompatActivity {
         materialToolbar.setNavigationOnClickListener(v -> finish());
         if (siddurTitle != null) {
             materialToolbar.setTitle((!siddurTitle.isEmpty() ? siddurTitle : getString(R.string.show_siddur)));
-        }
-        if (LocaleChecker.isLocaleHebrew()) {
-            materialToolbar.setSubtitle("");
         }
 
         JewishDateInfo mJewishDateInfo = new JewishDateInfo(sharedPreferences.getBoolean("inIsrael", false));
@@ -102,17 +97,17 @@ public class SiddurViewActivity extends AppCompatActivity {
                 index++;
             }
         }
-        RecyclerView tefilotCategories = findViewById(R.id.tefilot_categories);
-        tefilotCategories.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        tefilotCategories.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.HORIZONTAL));
+        if (!categories.isEmpty()) {
+            materialToolbar.setTitle(materialToolbar.getTitle() + "▼");
+        }
         ArrayList<HighlightString> finalPrayers = prayers;
-        HorizontalAdapter.OnItemClickListener listener = category -> {
+        CategoryOnClick.OnItemClickListener listener = category -> {
             int position = finalPrayers.indexOf(category);
             if (position != -1) {
                 siddur.setSelection(position);
             }
         };
-        tefilotCategories.setAdapter(new HorizontalAdapter(new ArrayList<>(categories.values()), listener));
+        materialToolbar.setOnClickListener(v -> showPopupMenu(v, new ArrayList<>(categories.values()), listener));
 
         SeekBar seekBar = findViewById(R.id.siddur_seekBar);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -132,9 +127,6 @@ public class SiddurViewActivity extends AppCompatActivity {
         });
 
         Button textAlignment = findViewById(R.id.textAlignment);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {// Justified text is not supported before Q
-            textAlignment.setVisibility(View.GONE);
-        }
         textAlignment.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, sharedPreferences.getBoolean("isJustified", false) ? R.drawable.baseline_format_align_justify_24 : R.drawable.baseline_format_align_right_24);
         textAlignment.setOnClickListener(v -> {
             boolean isJustified = sharedPreferences.getBoolean("isJustified", false);
@@ -157,5 +149,39 @@ public class SiddurViewActivity extends AppCompatActivity {
             // down to descendant views.
             return WindowInsetsCompat.CONSUMED;
         });
+    }
+
+    private void showPopupMenu(View view, ArrayList<HighlightString> categories, CategoryOnClick.OnItemClickListener listener) {
+        final ViewGroup root = getWindow().getDecorView().findViewById(android.R.id.content);
+        final View empty = new View(this);
+        empty.setLayoutParams(new ViewGroup.LayoutParams(1, 1));
+        empty.setBackgroundColor(Color.TRANSPARENT);
+
+        root.addView(empty);
+
+        empty.setX(view.getX() + (view.getWidth() / 3f));
+        empty.setY(0);
+
+        PopupMenu popupMenu = new PopupMenu(this, empty);
+
+        // Add items to the PopupMenu
+        for (HighlightString item : categories) {
+            popupMenu.getMenu().add(item.toString());
+        }
+
+        // Set a listener for item selection
+        popupMenu.setOnMenuItemClickListener(menuItem -> {
+            if (menuItem.getTitle() != null) {
+                String selectedItem = menuItem.getTitle().toString();
+                Optional<HighlightString> result = categories.stream()
+                        .filter(obj -> obj.toString().equals(selectedItem))
+                        .findFirst();
+                result.ifPresent(listener::onItemClick);
+            }
+            return true;
+        });
+
+        // Show the PopupMenu
+        popupMenu.show();
     }
 }
