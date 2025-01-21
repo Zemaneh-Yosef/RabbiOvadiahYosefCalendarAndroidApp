@@ -51,7 +51,7 @@ public class ZmanNotification extends BroadcastReceiver {
     private void notifyUser(Context context, JewishCalendar jewishCalendar, String zman) {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel("Zmanim", "Daily Zmanim Notifications", NotificationManager.IMPORTANCE_HIGH);
+            NotificationChannel channel = new NotificationChannel("Zemanim", "Daily Zemanim Notifications", NotificationManager.IMPORTANCE_HIGH);
             channel.setDescription("This notification will display when zmanim are about to begin.");
             channel.enableLights(true);
             channel.enableVibration(true);
@@ -89,31 +89,22 @@ public class ZmanNotification extends BroadcastReceiver {
                 //if tomorrow is shabbat/yom tov, then return if the zman is Tzait, Rabbeinu Tam, or Chatzot Layla (since they are obviously after shabbat/yom tov has started)
                 if (zmanName.equals("חצות הלילה") ||
                         zmanName.equals("Midnight") ||
-                        zmanName.equals("Chatzot Layla") ||
+                        zmanName.equals("Ḥatzot Layla") ||
                         zmanName.equals("צאת הכוכבים") ||
                         zmanName.equals("Nightfall") ||
-                        zmanName.equals("Tzait Hacochavim") ||
-                        zmanName.equals("Rabbeinu Tam") ||
+                        zmanName.equals("Tzet Hakokhavim") ||
+                        zmanName.equals("Rabbenu Tam") ||
                         zmanName.equals("רבינו תם")) {
                     return;
                 }
             }
             //no need to reset the jewish calendar since we are only using it to check if tomorrow is shabbat/yom tov, but keep in mind that the date is set to tomorrow
 
-            DateFormat zmanimFormat;
-            if (LocaleChecker.isLocaleHebrew()) {
-                if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowSeconds", false)) {
-                    zmanimFormat = new SimpleDateFormat("H:mm:ss", Locale.getDefault());
-                } else {
-                    zmanimFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
-                }
-            } else {
-                if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowSeconds", false)) {
-                    zmanimFormat = new SimpleDateFormat("h:mm:ss aa", Locale.getDefault());
-                } else {
-                    zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
-                }
-            }
+            String dateFormatPattern = (LocaleChecker.isLocaleHebrew() ? "H" : "h")
+                + ":mm"
+                + (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowSeconds", false) ? ":ss" : "")
+                + (LocaleChecker.isLocaleHebrew() ? "" : " aa");
+            DateFormat zmanimFormat = new SimpleDateFormat(dateFormatPattern, Locale.getDefault());
             zmanimFormat.setTimeZone(new LocationResolver(context, null).getTimeZone()); //set the formatters time zone
 
             String text;
