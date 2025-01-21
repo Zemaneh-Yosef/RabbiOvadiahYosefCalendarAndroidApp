@@ -76,14 +76,13 @@ public class NotificationSettingsActivity extends AppCompatActivity {
                 if (plagOpinions.equals("1")) {
                     Preference plagHaMinchaYY = findPreference("PlagHaMinchaYY");
                     if (plagHaMinchaYY != null) {
-                        plagHaMinchaYY.setTitle("Plag HaMincha");//only show plag haMincha for Yalkut Yosef
+                        plagHaMinchaYY.setTitle("Plag HaMinḥa");//only show plag haMincha for Yalkut Yosef
                     }
                     Preference plagHaMinchaHB = findPreference("PlagHaMinchaHB");
                     if (plagHaMinchaHB != null) {
                         plagHaMinchaHB.setVisible(false);
                     }
-                }
-                if (plagOpinions.equals("2")) {
+                } else if (plagOpinions.equals("2")) {
                     Preference plagHaMinchaYY = findPreference("PlagHaMinchaYY");
                     if (plagHaMinchaYY != null) {
                         plagHaMinchaYY.setVisible(false);
@@ -92,8 +91,7 @@ public class NotificationSettingsActivity extends AppCompatActivity {
                     if (plagHaMinchaHB != null) {
                         plagHaMinchaHB.setVisible(true);//only show plag haMincha for Halacha Berura
                     }
-                }
-                if (plagOpinions.equals("3")) {
+                } else if (plagOpinions.equals("3")) {
                     Preference plagHaMinchaYY = findPreference("PlagHaMinchaYY");
                     if (plagHaMinchaYY != null) {
                         plagHaMinchaYY.setVisible(true);

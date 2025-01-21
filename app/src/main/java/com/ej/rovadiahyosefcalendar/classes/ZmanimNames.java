@@ -16,7 +16,7 @@ public class ZmanimNames {
         } else if (mIsZmanimEnglishTranslated) {
             return "Midnight";
         } else {
-            return "Chatzot Layla";
+            return "Ḥatzot Layla";
         }
     }
 
@@ -26,7 +26,7 @@ public class ZmanimNames {
         } else if (mIsZmanimEnglishTranslated) {
             return "(Stringent)";
         } else {
-            return "L'Chumra";
+            return "L'Ḥumra";
         }
     }
 
@@ -36,7 +36,7 @@ public class ZmanimNames {
         } else if (mIsZmanimEnglishTranslated) {
             return "Fast";
         } else {
-            return "Taanit";
+            return "Ta'anit";
         }
     }
 
@@ -46,7 +46,7 @@ public class ZmanimNames {
         } else if (mIsZmanimEnglishTranslated) {
             return "Nightfall";
         } else {
-            return "Tzait Hacochavim";
+            return "Tzet Hakokhavim";
         }
     }
 
@@ -56,7 +56,7 @@ public class ZmanimNames {
         } else if (mIsZmanimEnglishTranslated) {
             return "Sunset";
         } else {
-            return "Shkia";
+            return "Sheqi'a";
         }
     }
 
@@ -64,7 +64,7 @@ public class ZmanimNames {
         if (mIsZmanimInHebrew) {
             return "רבינו תם";
         } else {
-            return "Rabbeinu Tam";
+            return "Rabbenu Tam";
         }
     }
 
@@ -96,7 +96,7 @@ public class ZmanimNames {
         if (mIsZmanimInHebrew) {
             return "צאת ";
         } else if (!mIsZmanimEnglishTranslated) {
-            return "Tzait ";
+            return "Tzet ";
         } else {
             return "";//if we are translating to English, we don't want to show the word Tzait first, just {Zman} Ends
         }
@@ -122,7 +122,7 @@ public class ZmanimNames {
         if (mIsZmanimInHebrew) {
             return "הלכה ברורה";
         } else {
-            return "Halacha Berurah";
+            return "Halacha Berura";
         }
     }
 
@@ -146,7 +146,7 @@ public class ZmanimNames {
         if (mIsZmanimInHebrew) {
             return "פלג המנחה";
         } else {
-            return "Plag HaMincha";
+            return "Plag HaMinḥa";
         }
     }
 
@@ -154,7 +154,7 @@ public class ZmanimNames {
         if (mIsZmanimInHebrew) {
             return "מנחה קטנה";
         } else {
-            return "Mincha Ketana";
+            return "Minḥa Ketana";
         }
     }
 
@@ -162,9 +162,9 @@ public class ZmanimNames {
         if (mIsZmanimInHebrew) {
             return "מנחה גדולה";
         } else if (mIsZmanimEnglishTranslated) {
-            return "Earliest Mincha";
+            return "Earliest Minḥa";
         } else {
-            return "Mincha Gedola";
+            return "Minḥa Gedola";
         }
     }
 
@@ -174,7 +174,7 @@ public class ZmanimNames {
         } else if (mIsZmanimEnglishTranslated) {
             return "Mid-day";
         } else {
-            return "Chatzot";
+            return "Ḥatzot";
         }
     }
 
@@ -184,7 +184,7 @@ public class ZmanimNames {
         } else if (mIsZmanimEnglishTranslated) {
             return "Latest time to burn Chametz";
         } else {
-            return "Sof Zman Biur Chametz";
+            return "Sof Zeman Biur Ḥametz";
         }
     }
 
@@ -192,9 +192,9 @@ public class ZmanimNames {
         if (mIsZmanimInHebrew) {
             return "סוף זמן ברכות שמע";
         } else if (mIsZmanimEnglishTranslated) {
-            return "Latest Brachot Shma";
+            return "Latest Berakhot Shema";
         } else {
-            return "Sof Zman Brachot Shma";
+            return "Sof Zman Berakhot Shema";
         }
     }
 
@@ -202,9 +202,9 @@ public class ZmanimNames {
         if (mIsZmanimInHebrew) {
             return "סוף זמן אכילת חמץ";
         } else if (mIsZmanimEnglishTranslated) {
-            return "Latest time to eat Chametz";
+            return "Latest time to eat Ḥametz";
         } else {
-            return "Sof Zman Achilat Chametz";
+            return "Sof Zeman Akhilat Ḥametz";
         }
     }
 
@@ -212,9 +212,9 @@ public class ZmanimNames {
         if (mIsZmanimInHebrew) {
             return "סוף זמן ברכת החמה";
         } else if (mIsZmanimEnglishTranslated) {
-            return "Latest Birchat HaChamah";
+            return "Latest Birkat HaChamah";
         } else {
-            return "Sof Zman Birchat HaChamah";
+            return "Sof Zeman Birkat HaChamah";
         }
     }
 
@@ -222,9 +222,9 @@ public class ZmanimNames {
         if (mIsZmanimInHebrew) {
             return "סוף זמן שמע גר\"א";
         } else if (mIsZmanimEnglishTranslated) {
-            return "Latest Shma GR\"A";
+            return "Latest Shema GR\"A";
         } else {
-            return "Sof Zman Shma GR\"A";
+            return "Sof Zman Shema GR\"A";
         }
     }
 
@@ -232,9 +232,9 @@ public class ZmanimNames {
         if (mIsZmanimInHebrew) {
             return "סוף זמן שמע מג\"א";
         } else if (mIsZmanimEnglishTranslated) {
-            return "Latest Shma MG\"A";
+            return "Latest Shema MG\"A";
         } else {
-            return "Sof Zman Shma MG\"A";
+            return "Sof Zman Shema MG\"A";
         }
     }
 
