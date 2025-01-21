@@ -192,9 +192,9 @@ public class ZmanimNames {
         if (mIsZmanimInHebrew) {
             return "סוף זמן ברכות שמע";
         } else if (mIsZmanimEnglishTranslated) {
-            return "Latest Brachot Shma";
+            return "Latest Brachot Shema";
         } else {
-            return "Sof Zman Brachot Shma";
+            return "Sof Zman Brachot Shema";
         }
     }
 
@@ -212,9 +212,9 @@ public class ZmanimNames {
         if (mIsZmanimInHebrew) {
             return "סוף זמן שמע גר\"א";
         } else if (mIsZmanimEnglishTranslated) {
-            return "Latest Shma GR\"A";
+            return "Latest Shema GR\"A";
         } else {
-            return "Sof Zman Shma GR\"A";
+            return "Sof Zman Shema GR\"A";
         }
     }
 
@@ -222,9 +222,9 @@ public class ZmanimNames {
         if (mIsZmanimInHebrew) {
             return "סוף זמן שמע מג\"א";
         } else if (mIsZmanimEnglishTranslated) {
-            return "Latest Shma MG\"A";
+            return "Latest Shema MG\"A";
         } else {
-            return "Sof Zman Shma MG\"A";
+            return "Sof Zman Shema MG\"A";
         }
     }
 

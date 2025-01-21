@@ -587,28 +587,28 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void showShmaMGADialog() {
-        AlertDialog alertDialog = dialogBuilder.setTitle("Latest time for Shema (MG\"A) - שמע מג\"א - Shma MG\"A")
+        AlertDialog alertDialog = dialogBuilder.setTitle("Latest time for Shema (MG\"A) - שמע מג\"א - Shema MG\"A")
                 .setMessage(R.string.shmaMGAdialog)
                 .create();
         alertDialog.show();
     }
 
     private void showShmaGRADialog() {
-        AlertDialog alertDialog = dialogBuilder.setTitle("Latest time for Shema (GR\"A) - שמע גר\"א - Shma GR\"A")
+        AlertDialog alertDialog = dialogBuilder.setTitle("Latest time for Shema (GR\"A) - שמע גר\"א - Shema GR\"A")
                 .setMessage(R.string.shmaGRAdialog)
                 .create();
         alertDialog.show();
     }
 
     private void showBirchatHachamahDialog() {
-        AlertDialog alertDialog = dialogBuilder.setTitle("Latest Birchat HaChamah - סוף זמן ברכת החמה - Sof Zman Birchat HaChamah")
+        AlertDialog alertDialog = dialogBuilder.setTitle("Latest Birkat HaChamah - סוף זמן ברכת החמה - Sof Zeman Birkat HaChamah")
                 .setMessage(R.string.birchat_hachama_dialog)
                 .create();
         alertDialog.show();
     }
 
     private void showBrachotShmaDialog() {
-        AlertDialog alertDialog = dialogBuilder.setTitle("Berachot Shema - ברכות שמע - Berachot Shma")
+        AlertDialog alertDialog = dialogBuilder.setTitle("Berachot Shema - ברכות שמע")
                 .setMessage(R.string.brachotSHMAdialog)
                 .create();
         alertDialog.show();

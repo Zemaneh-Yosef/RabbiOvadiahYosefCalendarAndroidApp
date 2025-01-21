@@ -81,28 +81,28 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
         String englishText = "Alot Hashachar" + "\n" +
                 "Earliest Talit/Tefilin" + "\n" +
                 "HaNetz" + "\n" +
-                "Sof Zman Shma Mg'a" + "\n" +
-                "Sof Zman Shma Gr'a" + "\n" +
-                "Sof Zman Brachot Shma" + "\n" +
-                "Chatzot" + "\n" +
-                "Mincha Gedola" + "\n" +
-                "Mincha Ketana" + "\n" +
-                "Plag HaMincha" + "\n" +
-                "Shkia" + "\n" +
-                "Tzeit Hacochavim" + "\n" +
+                "Sof Zeman Shema MG'A" + "\n" +
+                "Sof Zeman Shema GR'A" + "\n" +
+                "Sof Zeman Berakhot Shema" + "\n" +
+                "Ḥatzot" + "\n" +
+                "Minḥa Gedola" + "\n" +
+                "Minḥa Ketana" + "\n" +
+                "Plag HaMinḥa" + "\n" +
+                "Sheqi'a" + "\n" +
+                "Tzet Hakokhavim" + "\n" +
                 "etc...";
         english.setText(englishText);
 
         String englishTranslatedText = "Dawn" + "\n" +
                 "Earliest Talit/Tefilin" + "\n" +
                 "Sunrise" + "\n" +
-                "Latest Shma Mg'a" + "\n" +
-                "Latest Shma Gr'a" + "\n" +
-                "Latest Brachot Shma" + "\n" +
+                "Latest Shema MG'A" + "\n" +
+                "Latest Shema GR'A" + "\n" +
+                "Latest Berakhot Shema" + "\n" +
                 "Mid-Day" + "\n" +
-                "Earliest Mincha" + "\n" +
-                "Mincha Ketana" + "\n" +
-                "Plag HaMincha" + "\n" +
+                "Earliest Minḥa" + "\n" +
+                "Minḥa Ketana" + "\n" +
+                "Plag HaMinḥa" + "\n" +
                 "Sunset" + "\n" +
                 "Nightfall" + "\n" +
                 "etc...";
