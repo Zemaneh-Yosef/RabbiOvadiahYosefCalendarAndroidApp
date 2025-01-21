@@ -76,67 +76,51 @@ public class CombinedTekufaNotifications extends BroadcastReceiver {
         }
         zmanimFormat.setTimeZone(new LocationResolver(context, null).getTimeZone());
 
-        if (earlierTekufaTime != null) {//it should never be null, but just in case
-            Date halfHourBefore = new Date(earlierTekufaTime.getTime() - DateUtils.MILLIS_PER_HOUR/2);
-            Date tekufaTime = new Date(earlierTekufaTime.getTime() + (DateUtils.MILLIS_PER_MINUTE * 21));
-            Date halfHourAfterPlus21Minutes = new Date(earlierTekufaTime.getTime() + DateUtils.MILLIS_PER_HOUR/2 + (DateUtils.MILLIS_PER_MINUTE * 21));
+        if (earlierTekufaTime == null)//it should never be null, but just in case
+            return;
 
-            NotificationCompat.Builder mNotifyBuilder;
+        Date halfHourBefore = new Date(earlierTekufaTime.getTime() - DateUtils.MILLIS_PER_HOUR/2);
+        Date tekufaTime = new Date(earlierTekufaTime.getTime() + (DateUtils.MILLIS_PER_MINUTE * 21));
+        Date halfHourAfterPlus21Minutes = new Date(earlierTekufaTime.getTime() + DateUtils.MILLIS_PER_HOUR/2 + (DateUtils.MILLIS_PER_MINUTE * 21));
 
-            if (LocaleChecker.isLocaleHebrew()) {
-                String contentText = "התקופות משתנות היום ב "
-                        + zmanimFormat.format(earlierTekufaTime) + "/" + zmanimFormat.format(tekufaTime) + ". " +
-                        "נא לא לשתות מים מ- " +
-                        zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfterPlus21Minutes);
+        NotificationCompat.Builder mNotifyBuilder;
 
-                mNotifyBuilder = new NotificationCompat.Builder(context,
-                        "Tekufa Notifications")
-                        .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
-                        .setSmallIcon(getSeasonalIcon(jewishDateInfo.getJewishCalendar().getTekufaName()))
-                        .setContentTitle("התקופות משתנות")
-                        .setContentText(contentText)
-                        .setStyle(new NotificationCompat.BigTextStyle()
-                                .setBigContentTitle("התקופות משתנות")
-                                .setSummaryText(sp.getString("name", ""))
-                                .bigText(contentText))
-                        .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                        .setCategory(NotificationCompat.CATEGORY_REMINDER)
-                        .setPriority(NotificationCompat.PRIORITY_HIGH)
-                        .setSound(alarmSound)
-                        .setColor(context.getColor(R.color.dark_gold))
-                        .setAutoCancel(true)
-                        .setWhen(earlierTekufaTime.getTime())
-                        .setContentIntent(pendingIntent);
-                notificationManager.notify(MID, mNotifyBuilder.build());
-            } else {
-                String contentText = "The tekufas (seasons) change today at "
-                        + zmanimFormat.format(earlierTekufaTime) + "/" + zmanimFormat.format(tekufaTime) +
-                        ". Preferably, do not drink water from " +
-                        zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfterPlus21Minutes);
-
-                mNotifyBuilder = new NotificationCompat.Builder(context,
-                        "Tekufa Notifications")
-                        .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
-                        .setSmallIcon(getSeasonalIcon(jewishDateInfo.getJewishCalendar().getTekufaName()))
-                        .setContentTitle("Tekufa/Season Change")
-                        .setContentText(contentText)
-                        .setStyle(new NotificationCompat.BigTextStyle()
-                                .setBigContentTitle("Tekufa/Season Change")
-                                .setSummaryText(sp.getString("name", ""))
-                                .bigText(contentText))
-                        .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                        .setCategory(NotificationCompat.CATEGORY_REMINDER)
-                        .setPriority(NotificationCompat.PRIORITY_HIGH)
-                        .setSound(alarmSound)
-                        .setColor(context.getColor(R.color.dark_gold))
-                        .setAutoCancel(true)
-                        .setWhen(earlierTekufaTime.getTime())
-                        .setContentIntent(pendingIntent);
-                notificationManager.notify(MID, mNotifyBuilder.build());
-            }
-
-            MID++;
+        String contentText;
+        String title;
+        if (LocaleChecker.isLocaleHebrew()) {
+            contentText = "התקופות משתנות היום ב "
+                + zmanimFormat.format(earlierTekufaTime) + "/" + zmanimFormat.format(tekufaTime) + ". " +
+                "נא לא לשתות מים מ- " +
+                zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfterPlus21Minutes);
+            title = "התקופות משתנות";
+        } else {
+            contentText = "The tekufas (seasons) change today at "
+                + zmanimFormat.format(earlierTekufaTime) + "/" + zmanimFormat.format(tekufaTime) +
+                ". Preferably, do not drink water from " +
+                zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfterPlus21Minutes);
+            title = "Tekufa/Season Change";
         }
+
+        mNotifyBuilder = new NotificationCompat.Builder(context, "Tekufa Notifications")
+            .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
+            .setSmallIcon(getSeasonalIcon(jewishDateInfo.getJewishCalendar().getTekufaName()))
+            .setContentTitle(title)
+            .setContentText(contentText)
+            .setStyle(new NotificationCompat.BigTextStyle()
+                    .setBigContentTitle(title)
+                    .setSummaryText(sp.getString("name", ""))
+                    .bigText(contentText))
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setSound(alarmSound)
+            .setColor(context.getColor(R.color.dark_gold))
+            .setAutoCancel(true)
+            .setWhen(earlierTekufaTime.getTime())
+            .setContentIntent(pendingIntent);
+        notificationManager.notify(MID, mNotifyBuilder.build());
+
+        MID++;
     }
 
     private int getSeasonalIcon(String tekufaName) {
