@@ -118,46 +118,34 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             return;
 
         if (zmanim.get(position).isZman()) {
+            String zmanTime;
+
+            if (zmanim.get(position).getZman() == null) {
+                zmanTime = "XX:XX";
+            } else {
+                if (zmanim.get(position).isRTZman() && roundUpRT) {
+                    zmanTime = roundUpFormat.format(zmanim.get(position).getZman());
+                } else if (zmanim.get(position).isVisibleSunriseZman()) {
+                    zmanTime = visibleSunriseFormat.format(zmanim.get(position).getZman());
+                } else {
+                    zmanTime = zmanimFormat.format(zmanim.get(position).getZman());
+                }
+            }
+
             if (isZmanimInHebrew) {
                 holder.mRightTextView.setTypeface(Typeface.DEFAULT_BOLD);
                 holder.mRightTextView.setText(zmanim.get(position).getTitle());//zman name
 
-                String zmanTime;
-
-                if (zmanim.get(position).getZman() == null) {
-                    zmanTime = "XX:XX";
-                } else {
-                    if (zmanim.get(position).isRTZman() && roundUpRT) {
-                        zmanTime = roundUpFormat.format(zmanim.get(position).getZman());
-                    } else if (zmanim.get(position).isVisibleSunriseZman()) {
-                        zmanTime = visibleSunriseFormat.format(zmanim.get(position).getZman());
-                    } else {
-                        zmanTime = zmanimFormat.format(zmanim.get(position).getZman());
-                    }
-                    if (zmanim.get(position).getZman().equals(sNextUpcomingZman)) {
-                        zmanTime += "◄";
-                    }
+                if (zmanim.get(position).getZman() != null && zmanim.get(position).getZman().equals(sNextUpcomingZman)) {
+                    zmanTime += "◄";
                 }
                 holder.mLeftTextView.setText(zmanTime);
             } else {//switch the views for english
                 holder.mLeftTextView.setTypeface(Typeface.DEFAULT_BOLD);
                 holder.mLeftTextView.setText(zmanim.get(position).getTitle());//zman name
 
-                String zmanTime = "";
                 if (zmanim.get(position).getZman() != null && zmanim.get(position).getZman().equals(sNextUpcomingZman)) {
-                    zmanTime = "➤";//add arrow
-                }
-
-                if (zmanim.get(position).getZman() == null) {
-                    zmanTime = "XX:XX";
-                } else {
-                    if (zmanim.get(position).isRTZman() && roundUpRT) {
-                        zmanTime += roundUpFormat.format(zmanim.get(position).getZman());
-                    } else if (zmanim.get(position).isVisibleSunriseZman()) {
-                        zmanTime += visibleSunriseFormat.format(zmanim.get(position).getZman());
-                    } else {
-                        zmanTime += zmanimFormat.format(zmanim.get(position).getZman());
-                    }
+                    zmanTime = "➤" + zmanTime;//add arrow
                 }
                 holder.mRightTextView.setText(zmanTime);
             }
@@ -650,7 +638,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void showTzaitLChumraDialog() {
-        AlertDialog alertDialog = dialogBuilder.setTitle("Nightfall (Stringent) - צאת הכוכבים לחומרא - Tzet Hakokhavim L'Chumra")
+        AlertDialog alertDialog = dialogBuilder.setTitle("Nightfall (Stringent) - צאת הכוכבים לחומרא - Tzet Hakokhavim L'Ḥumra")
                 .setMessage(R.string.tzait_lchumra_dialog)
                 .create();
         alertDialog.show();
