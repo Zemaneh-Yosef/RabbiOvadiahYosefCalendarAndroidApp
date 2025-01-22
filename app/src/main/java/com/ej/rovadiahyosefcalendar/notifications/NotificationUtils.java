@@ -14,12 +14,8 @@ public class NotificationUtils {
      */
     public static void setExactAndAllowWhileIdle(AlarmManager am, long timeInMillis, PendingIntent pendingIntent) {
         am.cancel(pendingIntent);//cancel any previous alarms
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (am.canScheduleExactAlarms()) {
-                am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
-            } else {
-                am.set(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
-            }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !am.canScheduleExactAlarms()) {
+            am.set(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
         } else {// on lower android version, app will not crash by setting exact alarms
             am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
         }
