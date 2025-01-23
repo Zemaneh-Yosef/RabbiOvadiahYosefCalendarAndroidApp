@@ -59,3 +59,10 @@ Since version 6.0, the weekly view of the original calendar has been implemented
 
 - For an in-depth explanation on each specific time, please look at the descriptions for each individual time, found in the app-itself.
 - For an overall explanation, please visit our organization's ReadME on GitHub.
+
+# Introduction to the calendar in Israel:
+
+<img src="http://www.zmanim-diffusion.com/images/1.jpg" height="650" alt="">
+<img src="https://i.imgur.com/udfwy3R.jpg" height="650" alt="">
+<img src="https://i.imgur.com/ureV4p4.jpg" height="650" alt="">
+<img src="https://i.imgur.com/HXEzXvr.jpg" height="650" alt="">
