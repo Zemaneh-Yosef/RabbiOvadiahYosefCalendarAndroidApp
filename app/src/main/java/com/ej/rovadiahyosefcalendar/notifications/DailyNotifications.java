@@ -87,7 +87,7 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
 
             Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
-            if (!mSharedPreferences.getString("lastKnownDay","").equals(jewishDateInfo.getJewishDate())) {//We only want 1 notification a day.
+            if (!mSharedPreferences.getString("lastKnownDay","").equals(jewishDateInfo.getJewishCalendar().toString())) {//We only want 1 notification a day.
                 String title = (LocaleChecker.isLocaleHebrew() ? "יום מיוחד ביהדות" : "Jewish Special Day");
                 String content = (LocaleChecker.isLocaleHebrew() ? "היום הוא " : "Today is ") + specialDay;
 
@@ -111,7 +111,7 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
                 notificationManager.notify(MID, mNotifyBuilder.build());
 
                 MID++;
-                mSharedPreferences.edit().putString("lastKnownDay", jewishDateInfo.getJewishDate()).apply();
+                mSharedPreferences.edit().putString("lastKnownDay", jewishDateInfo.getJewishCalendar().toString()).apply();
             }
         }
         Calendar cal = Calendar.getInstance();

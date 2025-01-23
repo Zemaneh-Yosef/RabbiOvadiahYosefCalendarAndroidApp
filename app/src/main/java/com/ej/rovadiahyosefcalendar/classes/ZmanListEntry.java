@@ -12,6 +12,7 @@ public class ZmanListEntry {
     private boolean shouldBeDimmed;
     private boolean isVisibleSunriseZman;
     private boolean isBirchatHachamahZman;
+    private boolean is66MisheyakirZman;
 
     public ZmanListEntry(String title) {
         this.title = title;
@@ -82,5 +83,13 @@ public class ZmanListEntry {
 
     public boolean isBirchatHachamahZman() {
         return isBirchatHachamahZman;
+    }
+
+    public boolean is66MisheyakirZman() {
+        return is66MisheyakirZman;
+    }
+
+    public void setIs66MisheyakirZman(boolean is66MisheyakirZman) {
+        this.is66MisheyakirZman = is66MisheyakirZman;
     }
 }

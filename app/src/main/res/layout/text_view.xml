@@ -1,10 +1,19 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:clipChildren="false"
     android:orientation="vertical">
+
+    <com.ej.rovadiahyosefcalendar.classes.JustifyTextView
+        android:id="@+id/info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:drawableEndCompat="@drawable/baseline_keyboard_arrow_left_24"
+        android:padding="16dp"
+        android:visibility="gone"/>
 
     <com.ej.rovadiahyosefcalendar.classes.JustifyTextView
         android:id="@+id/textView"

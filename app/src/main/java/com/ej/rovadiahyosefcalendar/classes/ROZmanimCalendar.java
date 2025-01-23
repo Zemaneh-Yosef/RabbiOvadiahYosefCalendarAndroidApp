@@ -401,6 +401,28 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
 
     /**
      * This method returns the time of misheyakir calculated by the Amudei Horaah calendar.
+     * Rabbi Dahan calculates this zman for as 11/12 of the time between alot and sunrise in the Amudei Horaah calendar.
+     * This zman should NOT be used in Israel.
+     *
+     * @return the time of misheyakir calculated by the Amudei Horaah calendar by adjusting the zman based off of degrees. This zman
+     * should NOT be used in Israel.
+     */
+    public Date getEarliestTalitTefilin66AmudeiHoraah() {
+        Calendar tempCal = (Calendar) getCalendar().clone();
+        setCalendar(new GregorianCalendar(getCalendar().get(Calendar.YEAR), Calendar.MARCH, 17));//set the calendar to the equinox
+
+        double percentage = getPercentOfShaahZmanisFromDegrees(16.04, false);
+        if (percentage == Double.MIN_VALUE) {
+            return null;
+        }
+        setCalendar(tempCal);//reset the calendar to the current day
+
+        long shaahZmanit = getTemporalHour(getSeaLevelSunrise(), getSeaLevelSunset());
+        return getTimeOffset(getSeaLevelSunrise(), -(percentage * shaahZmanit) * 11 / 12);
+    }
+
+    /**
+     * This method returns the time of misheyakir calculated by the Amudei Horaah calendar.
      * Rabbi Dahan calculates this zman for as 5/6 of the time between alot and sunrise in the Amudei Horaah calendar.
      * This zman should NOT be used in Israel.
      *

@@ -16,6 +16,8 @@ public class JustifyTextView extends androidx.appcompat.widget.AppCompatTextView
 
     private boolean justify;
 
+    public boolean wasClicked = false;// nothing to do with justifying
+
     public JustifyTextView(Context context) {
         super(context);
     }

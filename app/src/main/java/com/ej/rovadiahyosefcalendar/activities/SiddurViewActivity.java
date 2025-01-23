@@ -3,9 +3,8 @@ package com.ej.rovadiahyosefcalendar.activities;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
 
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.view.View;
+import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
@@ -20,7 +19,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
-import com.ej.rovadiahyosefcalendar.classes.CategoryOnClick;
+import com.ej.rovadiahyosefcalendar.classes.OnClickListeners;
 import com.ej.rovadiahyosefcalendar.classes.HighlightString;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.SiddurAdapter;
@@ -49,7 +48,6 @@ public class SiddurViewActivity extends AppCompatActivity {
         if (siddurTitle != null) {
             materialToolbar.setTitle((!siddurTitle.isEmpty() ? siddurTitle : getString(R.string.show_siddur)));
         }
-
         JewishDateInfo mJewishDateInfo = new JewishDateInfo(sharedPreferences.getBoolean("inIsrael", false));
         mJewishDateInfo.getJewishCalendar().setJewishDate(
                 getIntent().getIntExtra("JewishYear", mJewishDateInfo.getJewishCalendar().getJewishYear()),
@@ -98,16 +96,36 @@ public class SiddurViewActivity extends AppCompatActivity {
             }
         }
         if (!categories.isEmpty()) {
-            materialToolbar.setTitle(materialToolbar.getTitle() + "▼");
+            materialToolbar.inflateMenu(R.menu.siddur_menu);
         }
         ArrayList<HighlightString> finalPrayers = prayers;
-        CategoryOnClick.OnItemClickListener listener = category -> {
+        OnClickListeners.OnItemClickListener listener = category -> {
             int position = finalPrayers.indexOf(category);
             if (position != -1) {
                 siddur.setSelection(position);
             }
         };
-        materialToolbar.setOnClickListener(v -> showPopupMenu(v, new ArrayList<>(categories.values()), listener));
+        PopupMenu popupMenu = new PopupMenu(this, materialToolbar);
+        popupMenu.setGravity(Gravity.END);
+        for (HighlightString item : new ArrayList<>(categories.values())) {
+            popupMenu.getMenu().add(item.toString());
+        }
+        popupMenu.setOnMenuItemClickListener(menuItem -> {
+            if (menuItem.getTitle() != null) {
+                String selectedItem = menuItem.getTitle().toString();
+                Optional<HighlightString> result = new ArrayList<>(categories.values()).stream()
+                        .filter(obj -> obj.toString().equals(selectedItem))
+                        .findFirst();
+                result.ifPresent(listener::onItemClick);
+            }
+            return true;
+        });
+        materialToolbar.setOnMenuItemClickListener(menuItem -> {
+            if (menuItem.getItemId() == R.id.siddur_categories) {
+                popupMenu.show();
+            }
+            return true;
+        });
 
         SeekBar seekBar = findViewById(R.id.siddur_seekBar);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -149,39 +167,5 @@ public class SiddurViewActivity extends AppCompatActivity {
             // down to descendant views.
             return WindowInsetsCompat.CONSUMED;
         });
-    }
-
-    private void showPopupMenu(View view, ArrayList<HighlightString> categories, CategoryOnClick.OnItemClickListener listener) {
-        final ViewGroup root = getWindow().getDecorView().findViewById(android.R.id.content);
-        final View empty = new View(this);
-        empty.setLayoutParams(new ViewGroup.LayoutParams(1, 1));
-        empty.setBackgroundColor(Color.TRANSPARENT);
-
-        root.addView(empty);
-
-        empty.setX(view.getX() + (view.getWidth() / 3f));
-        empty.setY(0);
-
-        PopupMenu popupMenu = new PopupMenu(this, empty);
-
-        // Add items to the PopupMenu
-        for (HighlightString item : categories) {
-            popupMenu.getMenu().add(item.toString());
-        }
-
-        // Set a listener for item selection
-        popupMenu.setOnMenuItemClickListener(menuItem -> {
-            if (menuItem.getTitle() != null) {
-                String selectedItem = menuItem.getTitle().toString();
-                Optional<HighlightString> result = categories.stream()
-                        .filter(obj -> obj.toString().equals(selectedItem))
-                        .findFirst();
-                result.ifPresent(listener::onItemClick);
-            }
-            return true;
-        });
-
-        // Show the PopupMenu
-        popupMenu.show();
     }
 }

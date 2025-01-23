@@ -28,7 +28,7 @@ public class JewishDateInfo {
     /**
      * The internal Jewish Calendar to manipulate and keep track of the date
      */
-    private final JewishCalendar jewishCalendar;
+    private final JewishCalendarWithExtraMethods jewishCalendar;
     /**
      * The formatter class used to change the raw numbers/enums from the Jewish Calendar to text
      */
@@ -69,7 +69,7 @@ public class JewishDateInfo {
      * @return the current jewish calendar object
      */
     public JewishCalendarWithExtraMethods getJewishCalendar() {
-        return (JewishCalendarWithExtraMethods) this.jewishCalendar;
+        return this.jewishCalendar;
     }
 
     /**
@@ -525,15 +525,6 @@ public class JewishDateInfo {
             return "אומרים תחנון";
         }
         return "There is Tachanun today";
-    }
-
-    /**
-     * This method will return the jewish date as a string.
-     * @return a string containing the jewish date. The format is: 15, Iyar 5782
-     * If {@link #isLocaleHebrew} is true, it will be: ט"ו, אייר תשפ"ב
-     */
-    public String getJewishDate() {
-        return jewishCalendar.toString().replace("Teves", "Tevet").replace("Tishrei", "Tishri");
     }
 
     /**

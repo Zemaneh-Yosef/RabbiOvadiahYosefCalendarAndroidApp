@@ -16,6 +16,7 @@ import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,6 +55,8 @@ import java.util.TimeZone;
 public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder> {
 
     private List<ZmanListEntry> zmanim;
+    private final OnClickListeners.OnZmanClickListener onZmanClickListener;
+    private final OnClickListeners.OnZmanClickListener onDateClickListener;
     private final SharedPreferences mSharedPreferences;
     private final Context context;
     private MaterialAlertDialogBuilder dialogBuilder;
@@ -62,8 +65,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     private final DateFormat roundUpFormat;
     private final boolean roundUpRT;
     private final boolean isZmanimInHebrew;
-
-    private final Locale locale = Locale.getDefault();
+    private final boolean isZmanimEnglishTranslated;
+    private boolean wasTalitTefilinZmanClicked;
 
     static public String dateFormatPattern(boolean showSeconds) {
         return (LocaleChecker.isLocaleHebrew() ? "H" : "h")
@@ -72,11 +75,16 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                 + (LocaleChecker.isLocaleHebrew() ? "" : " aa");
     }
 
-    public ZmanAdapter(Context context, List<ZmanListEntry> zmanim) {
+    public ZmanAdapter(Context context, List<ZmanListEntry> zmanim,
+                       OnClickListeners.OnZmanClickListener onZmanClickListener,
+                       OnClickListeners.OnZmanClickListener onDateClickListener) {
         this.zmanim = zmanim;
+        this.onZmanClickListener = onZmanClickListener;
+        this.onDateClickListener = onDateClickListener;
         this.context = context;
         mSharedPreferences = this.context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         isZmanimInHebrew = mSharedPreferences.getBoolean("isZmanimInHebrew", false);
+        isZmanimEnglishTranslated = mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false);
 
         zmanimFormat = new SimpleDateFormat(
             ZmanAdapter.dateFormatPattern(PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowSeconds", false)),
@@ -149,23 +157,46 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                 }
                 holder.mRightTextView.setText(zmanTime);
             }
+            if (zmanim.get(position).is66MisheyakirZman()) {
+                holder.itemView.setAlpha(0f);
+                holder.itemView.setTranslationY(holder.itemView.getHeight());
+                holder.itemView.animate()
+                        .alpha(1f)
+                        .translationY(0)
+                        .setDuration(300)
+                        .start();
+                if (isZmanimInHebrew) {
+                    holder.mRightTextView.setTypeface(Typeface.DEFAULT);
+                } else {
+                    holder.mLeftTextView.setTypeface(Typeface.DEFAULT);
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    holder.mLeftTextView.setAutoSizeTextTypeWithDefaults(TextView.AUTO_SIZE_TEXT_TYPE_NONE);
+                }
+                holder.mRightTextView.setTextSize(18);
+                holder.mLeftTextView.setTextSize(18);
+            }
         } else {
             holder.mMiddleTextView.setText(zmanim.get(position).getTitle());
+        }
+
+        if (position == 1) {// date
+            holder.mMiddleTextView.setOnClickListener(v -> onDateClickListener.onItemClick());
         }
 
         if (position == 2) {// make parasha text bold
             holder.mMiddleTextView.setTypeface(null, Typeface.BOLD);
         }
 
-        holder.itemView.setOnClickListener(v -> {
-            if (!sShabbatMode && PreferenceManager.getDefaultSharedPreferences(context).getBoolean("showZmanDialogs", true)) {
-                if (isZmanimInHebrew) {
-                    checkHebrewZmanimForDialog(position);
-                } else if (mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false)) {
-                    checkTranslatedEnglishZmanimForDialog(position);
-                } else {
-                    checkEnglishZmanimForDialog(position);
-                }
+            holder.itemView.setOnClickListener(v -> {
+                if (!sShabbatMode && PreferenceManager.getDefaultSharedPreferences(context).getBoolean("showZmanDialogs", true)) {
+                    if (isZmanimInHebrew) {
+                        checkHebrewZmanimForDialog(position);
+                    } else if (isZmanimEnglishTranslated) {
+                        checkTranslatedEnglishZmanimForDialog(position);
+                    } else {
+                        checkEnglishZmanimForDialog(position);
+                    }
 
                 if (position == 0) {// first entry will always be the location name
                     dialogBuilder.setTitle("Location info for: " + zmanim.get(position).getTitle());
@@ -318,7 +349,12 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         if (zmanim.get(position).getTitle().contains("עלות השחר")) {
             showDawnDialog();
         } else if (zmanim.get(position).getTitle().contains("טלית ותפילין")) {
-            showEarliestTalitTefilinDialog();
+            if (wasTalitTefilinZmanClicked) {
+                showEarliestTalitTefilinDialog();
+            } else {
+                wasTalitTefilinZmanClicked = true;
+                onZmanClickListener.onItemClick();// request a new set of data
+            }
         } else if (zmanim.get(position).getTitle().contains("הנץ")) {
             showSunriseDialog();
         } else if (zmanim.get(position).getTitle().contains("אכילת חמץ")) {
@@ -368,7 +404,12 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         if (zmanim.get(position).getTitle().contains("Dawn")) {
             showDawnDialog();
         } else if (zmanim.get(position).getTitle().contains("Earliest Talit/Tefilin")) {
-            showEarliestTalitTefilinDialog();
+            if (wasTalitTefilinZmanClicked) {
+                showEarliestTalitTefilinDialog();
+            } else {
+                wasTalitTefilinZmanClicked = true;
+                onZmanClickListener.onItemClick();// request a new set of data
+            }
         } else if (zmanim.get(position).getTitle().contains("Sunrise")) {
             showSunriseDialog();
         } else if (zmanim.get(position).getTitle().contains("eat Chametz")) {
@@ -418,7 +459,12 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         if (zmanim.get(position).getTitle().contains("Alot Hashachar")) {
             showDawnDialog();
         } else if (zmanim.get(position).getTitle().contains("Earliest Talit/Tefilin")) {
-            showEarliestTalitTefilinDialog();
+            if (wasTalitTefilinZmanClicked) {
+                showEarliestTalitTefilinDialog();
+            } else {
+                wasTalitTefilinZmanClicked = true;
+                onZmanClickListener.onItemClick();// request a new set of data
+            }
         } else if (zmanim.get(position).getTitle().contains("HaNetz")) {
             showSunriseDialog();
         } else if (zmanim.get(position).getTitle().contains("Achilat Chametz")) {
@@ -506,7 +552,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             HtmlRenderer renderer = HtmlRenderer.builder().build();
             String alotHTML = renderer.render(document);
 
-            if (locale.getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+            if (LocaleChecker.isLocaleHebrew()) {
                 AlertDialog alertDialog =  dialogBuilder.setTitle("Dawn - עלות השחר - Alot HaShachar")
                         .setMessage(R.string.alot_dialog)
                         .create();
@@ -719,7 +765,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             Node documentHB = parser.parse(tekufaMarkdownHB);
             String tekufaHTMLHebrew = renderer.render(documentHB);
 
-            if (locale.getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+            if (LocaleChecker.isLocaleHebrew()) {
                 AlertDialog alertDialog = dialogBuilder.setTitle("Tekufa - Season - תקופה")
                         .setMessage(HtmlCompat.fromHtml(tekufaHTMLHebrew, HtmlCompat.FROM_HTML_MODE_LEGACY))
                         .create();
