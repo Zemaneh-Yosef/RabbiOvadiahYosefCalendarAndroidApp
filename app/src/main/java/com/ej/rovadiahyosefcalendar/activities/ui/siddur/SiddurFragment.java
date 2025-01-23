@@ -142,10 +142,26 @@ public class SiddurFragment extends Fragment {
         }
 
         Button havdalah = binding.havdalah;
-        havdalah.setOnClickListener(v -> startSiddurActivity(mContext.getString(R.string.havdala)));
+        havdalah.setOnClickListener(v -> {
+            if (mJewishDateInfo.tomorrow().getJewishCalendar().isTishaBav() && mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY)
+                new MaterialAlertDialogBuilder(mContext)
+                        .setTitle("Havdalah is only said on a flame tonight")
+                        .setMessage("\n\nHavdalah will be completed after the fast.בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵֽינוּ מֶֽלֶךְ הָעוֹלָם, בּוֹרֵא מְאוֹרֵי הָאֵשׁ:")
+                        .setPositiveButton(mContext.getString(R.string.ok), (dialog, which) -> dialog.dismiss())
+                        .show();
+            else
+                startSiddurActivity("הבדלה");
+        });
 
-        if (!mJewishDateInfo.getJewishCalendar().hasCandleLighting() && mJewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
+        if (!mJewishDateInfo.getJewishCalendar().hasCandleLighting() && mJewishDateInfo.getJewishCalendar().isAssurBemelacha()
+         || mJewishDateInfo.getJewishCalendar().isTishaBav()) {
             havdalah.setVisibility(View.VISIBLE);
+            if (mJewishDateInfo.tomorrow().getJewishCalendar().isTishaBav() && mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY) {
+                havdalah.setBackground(AppCompatResources.getDrawable(mContext, R.drawable.colorful_gradient_square));
+            } else {
+                havdalah.setBackground(null);
+                havdalah.setBackgroundColor(Color.GRAY);
+            }
         } else {
             havdalah.setVisibility(View.GONE);
         }
@@ -177,27 +193,18 @@ public class SiddurFragment extends Fragment {
                             .setPositiveButton(mContext.getString(R.string.yes), (dialog, which) -> startSiddurActivity(mContext.getString(R.string.tikkun_chatzot)))
                             .setNegativeButton(mContext.getString(R.string.no), (dialog, which) -> startNextDaySiddurActivity(mContext.getString(R.string.tikkun_chatzot), true))
                             .show();
-                } else {
-                    if (mJewishDateInfo.tomorrow().isNightTikkunChatzotSaid()) {
-                        startNextDaySiddurActivity(mContext.getString(R.string.tikkun_chatzot), true);
-                    } else {
-                        new MaterialAlertDialogBuilder(mContext)
-                                .setTitle(R.string.tikkun_chatzot_is_not_said_today_or_tonight)
-                                .setMessage(R.string.tikkun_chatzot_is_not_said_today_or_tonight_possible_reasons)
-                                .setPositiveButton(mContext.getString(R.string.ok), (dialog, which) -> dialog.dismiss())
-                                .show();
-                    }
+                    return;
                 }
+            }
+
+            if (mJewishDateInfo.tomorrow().isNightTikkunChatzotSaid()) {
+                startNextDaySiddurActivity(mContext.getString(R.string.tikkun_chatzot), true);
             } else {
-                if (mJewishDateInfo.tomorrow().isNightTikkunChatzotSaid()) {
-                    startNextDaySiddurActivity(mContext.getString(R.string.tikkun_chatzot), true);
-                } else {
-                    new MaterialAlertDialogBuilder(mContext)
-                            .setTitle(R.string.tikkun_chatzot_is_not_said_tonight)
-                            .setMessage(R.string.tikkun_chatzot_is_not_said_tonight_possible_reasons)
-                            .setPositiveButton(mContext.getString(R.string.ok), (dialog, which) -> dialog.dismiss())
-                            .show();
-                }
+                new MaterialAlertDialogBuilder(mContext)
+                        .setTitle(R.string.tikkun_chatzot_is_not_said_tonight)
+                        .setMessage(R.string.tikkun_chatzot_is_not_said_tonight_possible_reasons)
+                        .setPositiveButton(mContext.getString(R.string.ok), (dialog, which) -> dialog.dismiss())
+                        .show();
             }
         };
 
