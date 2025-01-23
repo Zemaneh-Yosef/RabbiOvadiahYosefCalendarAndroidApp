@@ -1,7 +1,10 @@
 package com.ej.rovadiahyosefcalendar.classes
 
-class CategoryOnClick {
+class OnClickListeners {
     interface OnItemClickListener {
         fun onItemClick(category: HighlightString?)
+    }
+    interface OnZmanClickListener {
+        fun onItemClick()
     }
 }

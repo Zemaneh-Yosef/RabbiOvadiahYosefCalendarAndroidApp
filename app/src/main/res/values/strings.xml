@@ -370,7 +370,7 @@
     <string name="show_preferred_misheyakir_time">Show Preferred Misheyakir Time</string>
     <string name="after_sunset">(After Sunset)</string>
     <string name="kriatShema">ק״ש שעל המיטה</string>
-    <string name="misc">Misc</string>
+    <string name="misc">Misc.</string>
     <string name="tikkun_chatzot">תיקון חצות</string>
     <string name="do_you_want_to_say_tikkun_chatzot_for_the_day">Do you want to say Tikkun Chatzot for the day?</string>
     <string name="looking_to_say_this_version_of_tikkun_chatzot">During the three weeks, some say a shorter Tikkun Chatzot after mid-day. Are you looking to say this version of Tikkun Chatzot?</string>
@@ -417,4 +417,5 @@
     <string name="havdala">הבדלה</string>
    <string name="hadlakat_neirot_chanuka">הדלקת נרות חנוכה</string>
     <string name="no_tachanun_in_yerushalayim">No Tachanun in Yerushalayim or a Safek Mukaf Choma</string>
+    <string name="siddur_categories">Siddur Categories</string>
 </resources>

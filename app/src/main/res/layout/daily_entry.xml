@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- This xml file will be used for each day to show information about the day-->
 <androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/daily_entry"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"

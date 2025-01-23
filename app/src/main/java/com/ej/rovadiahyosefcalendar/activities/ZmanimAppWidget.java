@@ -79,7 +79,7 @@ public class ZmanimAppWidget extends AppWidgetProvider {
             }
             sZmanimFormat.setTimeZone(mROZmanimCalendar.getCalendar().getTimeZone());
 
-            String jewishDate = mJewishDateInfo.getJewishDate();
+            String jewishDate = mJewishDateInfo.getJewishCalendar().toString();
             String parsha = mJewishDateInfo.getThisWeeksParsha();
             ZmanListEntry nextUpcomingZman = getNextUpcomingZman(context, appWidgetManager, appWidgetId);
             String zman = nextUpcomingZman.getTitle();
@@ -160,7 +160,7 @@ public class ZmanimAppWidget extends AppWidgetProvider {
                     }
                     sZmanimFormat.setTimeZone(mROZmanimCalendar.getCalendar().getTimeZone());
 
-                    String jewishDate = mJewishDateInfo.getJewishDate();
+                    String jewishDate = mJewishDateInfo.getJewishCalendar().toString();
                     String parsha = mJewishDateInfo.getThisWeeksParsha();
                     ZmanListEntry nextUpcomingZman = getNextUpcomingZman(context, appWidgetManager, appWidgetId);
                     String zman = nextUpcomingZman.getTitle();

@@ -47,12 +47,6 @@
 
     <PreferenceCategory app:title="@string/these_settings_only_apply_if_you_do_not_use_the_luach_amudei_horaah_setting">
 
-        <SwitchPreferenceCompat
-            android:defaultValue="false"
-            android:key="showPreferredMisheyakirZman"
-            android:summary="@string/show_the_ideal_zman_for_talit_tefilin_60_seasonal_minutes_before_sunrise"
-            android:title="@string/show_preferred_misheyakir_time" />
-
         <ListPreference
             app:defaultValue="1"
             app:entries="@array/plag_opinion_entries"

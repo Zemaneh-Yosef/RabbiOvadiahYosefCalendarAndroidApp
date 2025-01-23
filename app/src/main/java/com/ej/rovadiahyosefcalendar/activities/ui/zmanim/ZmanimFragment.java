@@ -872,8 +872,21 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private void updateDailyZmanim() {
-        mMainRecyclerView.setAdapter(new ZmanAdapter(mContext, getZmanimList()));
+        mMainRecyclerView.setAdapter(new ZmanAdapter(mContext, getZmanimList(false),
+                () -> {
+                    ZmanAdapter zmanAdapter = (ZmanAdapter) mMainRecyclerView.getAdapter();
+                    if (zmanAdapter != null) {
+                        zmanAdapter.setZmanim(getZmanimList(true));
+                        mMainRecyclerView.getAdapter().notifyDataSetChanged();
+                    }
+                },
+                () -> {
+                    if (mCalendarButton != null) {
+                        mCalendarButton.performClick();
+                    }
+                }));
     }
 
     private void initMenu() {
@@ -973,7 +986,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      * @return List of ZmanListEntry objects that will be used to populate the list view.
      * @see ZmanListEntry
      */
-    private List<ZmanListEntry> getZmanimList() {
+    private List<ZmanListEntry> getZmanimList(boolean add66MisheyakirZman) {
         List<ZmanListEntry> zmanim = new ArrayList<>();
 
         String locationName = sSharedPreferences.getString("Full" + mROZmanimCalendar.getGeoLocation().getLocationName(), "");
@@ -1000,7 +1013,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             sb.append("      ");
         }
 
-        sb.append(mJewishDateInfo.getJewishDate());
+        sb.append(mJewishDateInfo.getJewishCalendar().toString());
 
         zmanim.add(new ZmanListEntry(sb.toString()));
 
@@ -1136,7 +1149,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
         addTekufaLength(zmanim, tekufaOpinions);
 
-        addZmanim(zmanim, false, sSettingsPreferences, sSharedPreferences, mROZmanimCalendar, mJewishDateInfo, mIsZmanimInHebrew, mIsZmanimEnglishTranslated);
+        addZmanim(zmanim, false, sSettingsPreferences, sSharedPreferences, mROZmanimCalendar, mJewishDateInfo, mIsZmanimInHebrew, mIsZmanimEnglishTranslated, add66MisheyakirZman);
 
         zmanim.add(new ZmanListEntry(mJewishDateInfo.getIsMashivHaruchOrMoridHatalSaid()
                 + " / "
@@ -1419,6 +1432,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (mJewishDateInfo.getThisWeeksHaftarah().isEmpty()) {
             mWeeklyHaftorah.setVisibility(View.GONE);
         } else {
+            mWeeklyHaftorah.setVisibility(View.VISIBLE);
             mWeeklyHaftorah.setText(mJewishDateInfo.getThisWeeksHaftarah());
         }
         mROZmanimCalendar.getCalendar().setTimeInMillis(backupCal.getTimeInMillis());
@@ -1428,7 +1442,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
     private String[] getShortZmanim() {
         List<ZmanListEntry> zmanim = new ArrayList<>();
-        addZmanim(zmanim, true, sSettingsPreferences, sSharedPreferences, mROZmanimCalendar, mJewishDateInfo, mIsZmanimInHebrew, mIsZmanimEnglishTranslated);
+        addZmanim(zmanim, true, sSettingsPreferences, sSharedPreferences, mROZmanimCalendar, mJewishDateInfo, mIsZmanimInHebrew, mIsZmanimEnglishTranslated, true);
         DateFormat zmanimFormat;
         if (LocaleChecker.isLocaleHebrew()) {
             if (sSettingsPreferences.getBoolean("ShowSeconds", false)) {

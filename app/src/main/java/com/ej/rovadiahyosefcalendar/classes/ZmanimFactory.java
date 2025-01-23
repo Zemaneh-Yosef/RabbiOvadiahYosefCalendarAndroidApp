@@ -18,9 +18,11 @@ public class ZmanimFactory {
                                   SharedPreferences mSharedPreferences,
                                   ROZmanimCalendar mROZmanimCalendar,
                                   JewishDateInfo mJewishDateInfo,
-                                  boolean mIsZmanimInHebrew, boolean mIsZmanimEnglishTranslated) {
+                                  boolean mIsZmanimInHebrew,
+                                 boolean mIsZmanimEnglishTranslated,
+                                 boolean add66MisheyakirZman) {
         if (mSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
-            addAmudeiHoraahZmanim(zmanim, isForWeeklyZmanim, mSettingsPreferences, mSharedPreferences, mROZmanimCalendar, mJewishDateInfo, mIsZmanimInHebrew, mIsZmanimEnglishTranslated);
+            addAmudeiHoraahZmanim(zmanim, isForWeeklyZmanim, mSettingsPreferences, mSharedPreferences, mROZmanimCalendar, mJewishDateInfo, mIsZmanimInHebrew, mIsZmanimEnglishTranslated, add66MisheyakirZman);
             return;
         }
         ZmanimNames zmanimNames = new ZmanimNames(mIsZmanimInHebrew, mIsZmanimEnglishTranslated);
@@ -30,9 +32,11 @@ public class ZmanimFactory {
             zmanim.add(new ZmanListEntry(zmanimNames.getTaanitString() + zmanimNames.getStartsString(), mROZmanimCalendar.getAlos72Zmanis(), true));
         }
         zmanim.add(new ZmanListEntry(zmanimNames.getAlotString(), mROZmanimCalendar.getAlos72Zmanis(), true));
-        zmanim.add(new ZmanListEntry(zmanimNames.getTalitTefilinString(), mROZmanimCalendar.getEarliestTalitTefilin(), true));
-        if (mSettingsPreferences.getBoolean("showPreferredMisheyakirZman", false)) {
-            zmanim.add(new ZmanListEntry(zmanimNames.getTalitTefilinString() + " " + zmanimNames.getBetterString(), mROZmanimCalendar.getEarliestProperTalitTefilin(), true));
+        zmanim.add(new ZmanListEntry(zmanimNames.getTalitTefilinString(), mROZmanimCalendar.getEarliestProperTalitTefilin(), true));
+        if (add66MisheyakirZman) {
+            ZmanListEntry misheyakir66 = new ZmanListEntry(zmanimNames.getTalitTefilinString() + " (66)", mROZmanimCalendar.getEarliestTalitTefilin(), true);
+            misheyakir66.setIs66MisheyakirZman(true);
+            zmanim.add(misheyakir66);
         }
         if (mSettingsPreferences.getBoolean("ShowElevatedSunrise", false)) {
             zmanim.add(new ZmanListEntry(zmanimNames.getHaNetzString() + " " + zmanimNames.getElevatedString(), mROZmanimCalendar.getSunrise(), true));
@@ -218,7 +222,9 @@ public class ZmanimFactory {
                                               SharedPreferences mSharedPreferences,
                                               ROZmanimCalendar mROZmanimCalendar,
                                               JewishDateInfo mJewishDateInfo,
-                                              boolean mIsZmanimInHebrew, boolean mIsZmanimEnglishTranslated) {
+                                              boolean mIsZmanimInHebrew,
+                                              boolean mIsZmanimEnglishTranslated,
+                                              boolean add66MisheyakirZman) {
         mROZmanimCalendar.setUseElevation(false);
         ZmanimNames zmanimNames = new ZmanimNames(mIsZmanimInHebrew, mIsZmanimEnglishTranslated);
         if (mJewishDateInfo.getJewishCalendar().isTaanis()
@@ -228,6 +234,11 @@ public class ZmanimFactory {
         }
         zmanim.add(new ZmanListEntry(zmanimNames.getAlotString(), mROZmanimCalendar.getAlotAmudeiHoraah(), true));
         zmanim.add(new ZmanListEntry(zmanimNames.getTalitTefilinString(), mROZmanimCalendar.getEarliestTalitTefilinAmudeiHoraah(), true));
+        if (add66MisheyakirZman) {
+            ZmanListEntry misheyakir66 = new ZmanListEntry(zmanimNames.getTalitTefilinString() + " (66)", mROZmanimCalendar.getEarliestTalitTefilin66AmudeiHoraah(), true);
+            misheyakir66.setIs66MisheyakirZman(true);
+            zmanim.add(misheyakir66);
+        }
         if (mSettingsPreferences.getBoolean("ShowElevatedSunrise", false)) {
             zmanim.add(new ZmanListEntry(zmanimNames.getHaNetzString() + " " + zmanimNames.getElevatedString(), mROZmanimCalendar.getSunrise(), true));
         }
@@ -426,17 +437,17 @@ public class ZmanimFactory {
         mROZmanimCalendar.setCalendar(today);
         mJewishDateInfo.setCalendar(today);
         // we only care about the date
-        addZmanim(zmanim, false, mSettingsPreferences, mSharedPreferences, mROZmanimCalendar, mJewishDateInfo, mIsZmanimInHebrew, mIsZmanimEnglishTranslated);//for the previous day
+        addZmanim(zmanim, false, mSettingsPreferences, mSharedPreferences, mROZmanimCalendar, mJewishDateInfo, mIsZmanimInHebrew, mIsZmanimEnglishTranslated, true);//for the previous day
 
         today.add(Calendar.DATE, 1);
         mROZmanimCalendar.setCalendar(today);
         mJewishDateInfo.setCalendar(today);
-        addZmanim(zmanim, false, mSettingsPreferences, mSharedPreferences, mROZmanimCalendar, mJewishDateInfo, mIsZmanimInHebrew, mIsZmanimEnglishTranslated);//for the current day
+        addZmanim(zmanim, false, mSettingsPreferences, mSharedPreferences, mROZmanimCalendar, mJewishDateInfo, mIsZmanimInHebrew, mIsZmanimEnglishTranslated, true);//for the current day
 
         today.add(Calendar.DATE, 1);
         mROZmanimCalendar.setCalendar(today);
         mJewishDateInfo.setCalendar(today);
-        addZmanim(zmanim, false, mSettingsPreferences, mSharedPreferences, mROZmanimCalendar, mJewishDateInfo, mIsZmanimInHebrew, mIsZmanimEnglishTranslated);//for the next day
+        addZmanim(zmanim, false, mSettingsPreferences, mSharedPreferences, mROZmanimCalendar, mJewishDateInfo, mIsZmanimInHebrew, mIsZmanimEnglishTranslated, true);//for the next day
 
         mROZmanimCalendar.setCalendar(mCurrentDateShown);
         mJewishDateInfo.setCalendar(mCurrentDateShown);//reset

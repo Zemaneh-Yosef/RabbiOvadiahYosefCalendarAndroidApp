@@ -7,19 +7,19 @@ import java.util.Objects;
 public class HighlightString {
 
     private String string = "";
+    private String summary;
     private boolean shouldBeHighlighted = false;
     private boolean isCategory = false;
+    private boolean isInfo = false;
 
     public HighlightString(String s) {
         setString(s);
     }
 
-    public boolean shouldBeHighlighted() {
-        return shouldBeHighlighted;
-    }
-
-    public boolean isCategory() {
-        return isCategory;
+    public HighlightString(String s, String summary) {
+        setString(s);
+        setSummary(summary);
+        setInfo(true);
     }
 
     public HighlightString setShouldBeHighlighted(boolean shouldBeHighlighted) {
@@ -36,17 +36,40 @@ public class HighlightString {
         return this;
     }
 
+    public HighlightString setInfo(boolean info) {
+        this.isInfo = info;
+        return this;
+    }
+
+    public HighlightString setSummary(String summary) {
+        this.summary = summary;
+        return this;
+    }
+
+    public boolean shouldBeHighlighted() {
+        return shouldBeHighlighted;
+    }
+    public boolean isCategory() {
+        return isCategory;
+    }
+    public boolean isInfo() {
+        return isInfo;
+    }
+    public String getSummary() {
+        return summary;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         HighlightString that = (HighlightString) o;
-        return shouldBeHighlighted == that.shouldBeHighlighted && isCategory == that.isCategory && Objects.equals(string, that.string);
+        return shouldBeHighlighted == that.shouldBeHighlighted && isCategory == that.isCategory && Objects.equals(string, that.string) && isInfo == that.isInfo;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(string, shouldBeHighlighted, isCategory);
+        return Objects.hash(string, shouldBeHighlighted, isCategory, isInfo);
     }
 
     @NonNull

@@ -84,7 +84,7 @@ public class SiddurFragment extends Fragment {
         TextView specialDay = binding.jewishSpecialDay;
         String dateAndSpecialDay = mJewishDateInfo.getJewishCalendar().getGregorianCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault())
                 + "\n" +
-                mJewishDateInfo.getJewishDate();
+                mJewishDateInfo.getJewishCalendar().toString();
         String specialDayString = mJewishDateInfo.getSpecialDay(false);
         if (!specialDayString.isEmpty()) {
             dateAndSpecialDay += "\n" + specialDayString;
@@ -122,7 +122,7 @@ public class SiddurFragment extends Fragment {
         TextView nightDayOfWeek = binding.nightDayOfWeek;
         String nextDateAndSpecialDay = mJewishDateInfo.getJewishCalendar().getGregorianCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault())
                 + "\n" + mContext.getString(R.string.after_sunset) + "\n" +
-                mJewishDateInfo.tomorrow().getJewishDate();
+                mJewishDateInfo.tomorrow().getJewishCalendar().toString();
         String nextSpecialDayString = mJewishDateInfo.tomorrow().getSpecialDay(false);
         if (!nextSpecialDayString.isEmpty()) {
             nextDateAndSpecialDay += "\n" + nextSpecialDayString;
