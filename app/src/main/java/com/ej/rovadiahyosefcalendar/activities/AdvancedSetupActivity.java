@@ -24,7 +24,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
-import com.ej.rovadiahyosefcalendar.classes.LocaleChecker;
+import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -37,25 +37,9 @@ public class AdvancedSetupActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_advanced_setup);
         MaterialToolbar materialToolbar = findViewById(R.id.topAppBar);
-        if (LocaleChecker.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew()) {
             materialToolbar.setSubtitle("");
         }
-        materialToolbar.setOnMenuItemClickListener(item -> {
-            int id = item.getItemId();
-            if (id == R.id.help) {
-                new MaterialAlertDialogBuilder(this)
-                        .setTitle(R.string.help_using_this_app)
-                        .setPositiveButton(R.string.ok, null)
-                        .setMessage(R.string.helper_text)
-                        .show();
-                return true;
-            } else if (id == R.id.restart) {
-                startActivity(new Intent(this, FullSetupActivity.class));
-                finish();
-                return true;
-            }
-            return false;
-        });
         SharedPreferences.Editor editor = getSharedPreferences(SHARED_PREF, MODE_PRIVATE).edit();
 
         EditText tableLink = findViewById(R.id.tableLink);
@@ -78,19 +62,20 @@ public class AdvancedSetupActivity extends AppCompatActivity {
                 startActivity(new Intent(this, SetupElevationActivity.class)
                         .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
                         .putExtra("downloadTable", true)
-                        .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
+                        .putExtra("fromSetup", AdvancedSetupActivity.this.getIntent().getBooleanExtra("fromSetup", false))
+                        .putExtra("loneActivity", getIntent().getBooleanExtra("loneActivity", false)));
                 finish();
             }
         });
 
-        website.setOnClickListener(v -> {//TODO hebrew this
+        website.setOnClickListener(v -> {
             AlertDialog alertDialog = new MaterialAlertDialogBuilder(AdvancedSetupActivity.this)
-                    .setTitle("Chaitables.com")
-                    .setPositiveButton("Cancel", (dialog, which) -> dialog.dismiss())
+                    .setTitle("chaitables.com")
+                    .setPositiveButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
                     .create();
             WebView webView = new WebView(this);
             webView.getSettings().setJavaScriptEnabled(true);
-            webView.loadUrl("http://www.chaitables.com/");
+            webView.loadUrl(Utils.isLocaleHebrew() ? "https://chaitables.com/chai_heb.php" : "http://www.chaitables.com/");
             webView.setWebViewClient(new WebViewClient() {
                 @Override
                 public void onPageStarted(WebView view, String url, Bitmap favicon) {
@@ -100,12 +85,12 @@ public class AdvancedSetupActivity extends AppCompatActivity {
                         editor.putString("chaitablesLink" + sCurrentLocationName, visibleURL);
                         editor.putBoolean("UseTable" + sCurrentLocationName, true).apply();
                         editor.putBoolean("showMishorSunrise" + sCurrentLocationName, false).apply();
-                        editor.putBoolean("isSetup", true).apply();
                         alertDialog.dismiss();
                         startActivity(new Intent(getApplicationContext(), SetupElevationActivity.class)
                                 .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
                                 .putExtra("downloadTable", true)
-                                .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
+                                .putExtra("fromSetup", AdvancedSetupActivity.this.getIntent().getBooleanExtra("fromSetup", false))
+                                .putExtra("loneActivity", getIntent().getBooleanExtra("loneActivity", false)));
                         finish();
                         }
                     }
@@ -122,7 +107,8 @@ public class AdvancedSetupActivity extends AppCompatActivity {
             startActivity(new Intent(this, SetupElevationActivity.class)
                     .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
                     .putExtra("downloadTable", false)
-                    .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
+                    .putExtra("fromSetup", AdvancedSetupActivity.this.getIntent().getBooleanExtra("fromSetup", false))
+                    .putExtra("loneActivity", getIntent().getBooleanExtra("loneActivity", false)));
             finish();
         });
 
@@ -142,28 +128,29 @@ public class AdvancedSetupActivity extends AppCompatActivity {
             @Override
             public void handleOnBackPressed() {
                 startActivity(new Intent(AdvancedSetupActivity.this, SetupChooserActivity.class)
-                        .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-                        .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
+                        .putExtra("fromSetup", AdvancedSetupActivity.this.getIntent().getBooleanExtra("fromSetup", false)));
                 finish();
             }
         });
     }
 
+    /**
+     * This method ensures that the right page is being scraped. The parameter &cgi_types= refers to the type of sunrise/sunset table to calculate.
+     * This method will change it to 0 for visible sunrise. It will also make sure that the table is in English for data processing, but the user
+     * can use the hebrew site and be non the wiser.
+     * @param url the url for the sunrise/sunset table
+     * @return a url for visible sunrise in English
+     */
     private String getVisibleURL(String url) {
-            if (url.contains("&cgi_types=5")) {
-                return url.replace("&cgi_types=5", "&cgi_types=0");
-            } else if (url.contains("&cgi_types=1")) {
-                return url.replace("&cgi_types=1", "&cgi_types=0");
-            } else if (url.contains("&cgi_types=2")) {
-                return url.replace("&cgi_types=2", "&cgi_types=0");
-            } else if (url.contains("&cgi_types=3")) {
-                return url.replace("&cgi_types=3", "&cgi_types=0");
-            } else if (url.contains("&cgi_types=4")) {
-                return url.replace("&cgi_types=4", "&cgi_types=0");
-            } else if (url.contains("&cgi_types=-1")) {
-                return url.replace("&cgi_types=-1", "&cgi_types=0");
-            }
-        return url;
+        return url
+                .replace("&cgi_types=-1", "&cgi_types=0")
+                .replace("&cgi_types=1", "&cgi_types=0")
+                .replace("&cgi_types=2", "&cgi_types=0")
+                .replace("&cgi_types=3", "&cgi_types=0")
+                .replace("&cgi_types=4", "&cgi_types=0")
+                .replace("&cgi_types=5", "&cgi_types=0")
+                .replace("&cgi_optionheb=0", "&cgi_optionheb=1")
+                .replace("&cgi_Language=Hebrew", "&cgi_Language=English");
     }
 
     private void showDialogBox() {

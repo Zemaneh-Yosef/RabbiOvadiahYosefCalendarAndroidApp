@@ -1,9 +1,7 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
-import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
-import static android.Manifest.permission.ACCESS_FINE_LOCATION;
-import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSharedPreferences;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -15,17 +13,16 @@ import android.widget.LinearLayout;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
-import com.ej.rovadiahyosefcalendar.classes.LocaleChecker;
+import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-public class FullSetupActivity extends AppCompatActivity {
+public class InIsraelActivity extends AppCompatActivity {
 
     private SharedPreferences mSharedPreferences;
 
@@ -33,9 +30,9 @@ public class FullSetupActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_full_setup);
+        setContentView(R.layout.activity_in_israel_setup);
         MaterialToolbar materialToolbar = findViewById(R.id.topAppBar);
-        if (LocaleChecker.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew()) {
             materialToolbar.setSubtitle("");
         }
         materialToolbar.setOnMenuItemClickListener(item -> {
@@ -51,7 +48,7 @@ public class FullSetupActivity extends AppCompatActivity {
                 finish();
                 return true;
             } else if (id == R.id.restart) {
-                startActivity(new Intent(this, FullSetupActivity.class));
+                startActivity(new Intent(this, WelcomeScreenActivity.class));
                 finish();
                 return true;
             }
@@ -87,28 +84,21 @@ public class FullSetupActivity extends AppCompatActivity {
             @Override
             public void handleOnBackPressed() {
                 finish();
+                startActivity(new Intent(InIsraelActivity.this, GetUserLocationWithMapActivity.class));
             }
         });
     }
 
     private void saveInfoAndStartActivity(boolean b) {
         mSharedPreferences.edit().putBoolean("inIsrael", b).apply();
-        if (LocaleChecker.isLocaleHebrew()) {
+        mSharedPreferences.edit().putBoolean("LuachAmudeiHoraah", !b).apply();
+        sSharedPreferences.edit().putBoolean("useElevation", !b).apply();
+        if (Utils.isLocaleHebrew()) {
             mSharedPreferences.edit().putBoolean("isZmanimInHebrew", true).apply();
             mSharedPreferences.edit().putBoolean("isZmanimEnglishTranslated", false).apply();
-            if ((ActivityCompat.checkSelfPermission(getApplicationContext(), ACCESS_FINE_LOCATION) != PERMISSION_GRANTED
-                    && ActivityCompat.checkSelfPermission(getApplicationContext(), ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED) &&
-                    !mSharedPreferences.getBoolean("useZipcode", false)) {
-                startActivity(new Intent(this, GetUserLocationWithMapActivity.class).setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
-            } else {
-                if (!b) { // not in israel
-                    startActivity(new Intent(this, CalendarChooserActivity.class).setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
-                }
-            }
-            mSharedPreferences.edit().putBoolean("isSetup", true).apply();
+            sSharedPreferences.edit().putBoolean("isSetup", true).apply();
         } else {
-            startActivity(new Intent(this, ZmanimLanguageActivity.class).setFlags(
-                    Intent.FLAG_ACTIVITY_FORWARD_RESULT));
+            startActivity(new Intent(this, ZmanimLanguageActivity.class));
         }
         finish();
     }

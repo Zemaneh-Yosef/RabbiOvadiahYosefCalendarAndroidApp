@@ -16,7 +16,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.classes.HebrewDayMonthYearPickerDialog;
-import com.ej.rovadiahyosefcalendar.classes.LocaleChecker;
+import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
@@ -48,7 +48,7 @@ public class MoladActivity extends AppCompatActivity {
         MaterialToolbar materialToolbar = findViewById(R.id.topAppBar);
         materialToolbar.setNavigationIcon(AppCompatResources.getDrawable(this, R.drawable.baseline_arrow_back_24));
         materialToolbar.setNavigationOnClickListener(v -> finish());
-        if (LocaleChecker.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew()) {
             mSDF = new SimpleDateFormat("EEE MMM d H:mm:ss", Locale.getDefault());
             mHebrewMonths = new String[]{ "ניסן", "אייר", "סיון", "תמוז", "אב", "אלול", "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר", "אדר ב", "אדר א"};
         }
@@ -137,7 +137,7 @@ public class MoladActivity extends AppCompatActivity {
 
         String moladTime = moladHours + getString(R.string.h) + moladMinutes + getString(R.string.m_and) + " " + moladChalakim + " " + getString(R.string.chalakim);
 
-        if (LocaleChecker.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew()) {
             TextView m = findViewById(R.id.moladAnnouncement);
             m.setGravity(Gravity.END);
             mMoladAnnouncementTime.setGravity(Gravity.END);

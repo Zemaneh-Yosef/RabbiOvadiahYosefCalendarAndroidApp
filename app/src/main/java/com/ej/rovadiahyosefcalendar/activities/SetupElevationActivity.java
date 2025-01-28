@@ -2,6 +2,7 @@ package com.ej.rovadiahyosefcalendar.activities;
 
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentLocationName;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSharedPreferences;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -27,8 +28,8 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesScraper;
-import com.ej.rovadiahyosefcalendar.classes.LocaleChecker;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
+import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
@@ -46,7 +47,7 @@ public class SetupElevationActivity extends AppCompatActivity {
         setContentView(R.layout.activity_setup_elevation);
 
         MaterialToolbar materialToolbar = findViewById(R.id.topAppBar);
-        if (LocaleChecker.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew()) {
             materialToolbar.setSubtitle("");
         }
         materialToolbar.setOnMenuItemClickListener(item -> {
@@ -78,6 +79,10 @@ public class SetupElevationActivity extends AppCompatActivity {
             if (getIntent().getBooleanExtra("downloadTable",false)) {
                 downloadTablesAndFinish(sharedPreferences);
             } else {
+                if (sSharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
+                    startActivity(new Intent(getBaseContext(), TipScreenActivity.class));
+                    sSharedPreferences.edit().putBoolean("hasNotShownTipScreen", false).apply();
+                }
                 finish();
             }
         });
@@ -108,6 +113,10 @@ public class SetupElevationActivity extends AppCompatActivity {
                     if (getIntent().getBooleanExtra("downloadTable",false)) {
                         downloadTablesAndFinish(sharedPreferences);
                     } else {
+                        if (sSharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
+                            startActivity(new Intent(getBaseContext(), TipScreenActivity.class));
+                            sSharedPreferences.edit().putBoolean("hasNotShownTipScreen", false).apply();
+                        }
                         finish();
                     }
                 }
@@ -131,6 +140,10 @@ public class SetupElevationActivity extends AppCompatActivity {
                     if (getIntent().getBooleanExtra("downloadTable", false)) {
                         downloadTablesAndFinish(sharedPreferences);
                     } else {
+                        if (sSharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
+                            startActivity(new Intent(getBaseContext(), TipScreenActivity.class));
+                            sSharedPreferences.edit().putBoolean("hasNotShownTipScreen", false).apply();
+                        }
                         finish();
                     }
                 });
@@ -153,10 +166,9 @@ public class SetupElevationActivity extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (!getIntent().getBooleanExtra("fromMenu", false)) {
+                if (!SetupElevationActivity.this.getIntent().getBooleanExtra("loneActivity", false)) {
                     startActivity(new Intent(SetupElevationActivity.this, AdvancedSetupActivity.class)
-                            .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-                            .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
+                            .putExtra("fromSetup", SetupElevationActivity.this.getIntent().getBooleanExtra("fromSetup", false)));
                 }
                 finish();
             }

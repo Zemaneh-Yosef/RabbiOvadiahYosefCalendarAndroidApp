@@ -23,8 +23,7 @@
             app:title="@string/app_name"
             app:titleCentered="true"
             app:subtitle="@string/short_app_name"
-            app:subtitleCentered="true"
-            app:menu="@menu/setup_menu" />
+            app:subtitleCentered="true" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

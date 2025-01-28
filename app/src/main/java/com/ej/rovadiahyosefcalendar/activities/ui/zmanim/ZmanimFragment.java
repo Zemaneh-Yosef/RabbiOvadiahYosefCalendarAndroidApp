@@ -21,8 +21,8 @@ import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLongi
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSettingsPreferences;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSetupLauncher;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSharedPreferences;
-import static com.ej.rovadiahyosefcalendar.classes.CalendarDrawable.getCurrentCalendarDrawableDark;
-import static com.ej.rovadiahyosefcalendar.classes.CalendarDrawable.getCurrentCalendarDrawableLight;
+import static com.ej.rovadiahyosefcalendar.classes.Utils.getCurrentCalendarDrawableDark;
+import static com.ej.rovadiahyosefcalendar.classes.Utils.getCurrentCalendarDrawableLight;
 import static com.ej.rovadiahyosefcalendar.classes.ZmanimFactory.addZmanim;
 
 import android.Manifest;
@@ -47,7 +47,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.Surface;
@@ -78,21 +77,18 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.ej.rovadiahyosefcalendar.R;
-import com.ej.rovadiahyosefcalendar.activities.CalendarChooserActivity;
-import com.ej.rovadiahyosefcalendar.activities.FullSetupActivity;
 import com.ej.rovadiahyosefcalendar.activities.GetUserLocationWithMapActivity;
 import com.ej.rovadiahyosefcalendar.activities.JerusalemDirectionMapsActivity;
 import com.ej.rovadiahyosefcalendar.activities.MoladActivity;
 import com.ej.rovadiahyosefcalendar.activities.NetzActivity;
 import com.ej.rovadiahyosefcalendar.activities.SettingsActivity;
-import com.ej.rovadiahyosefcalendar.classes.CalendarDrawable;
+import com.ej.rovadiahyosefcalendar.activities.WelcomeScreenActivity;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTables;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesScraper;
 import com.ej.rovadiahyosefcalendar.classes.HebrewDayMonthYearPickerDialog;
-import com.ej.rovadiahyosefcalendar.classes.LocaleChecker;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
-import com.ej.rovadiahyosefcalendar.classes.PrefToWatchSender;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
+import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.ej.rovadiahyosefcalendar.classes.ZmanAdapter;
 import com.ej.rovadiahyosefcalendar.classes.ZmanListEntry;
 import com.ej.rovadiahyosefcalendar.classes.ZmanimFactory;
@@ -245,7 +241,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         }
                         checkIfUserIsInIsraelOrNot();
                         setNotifications();
-                        PrefToWatchSender.send(mContext);
+                        Utils.PrefToWatchSender.send(mContext);
                     });
                 }
             }
@@ -323,7 +319,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     } else {
                         updateDailyZmanim();
                     }
-                    mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+                    mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
                     seeIfTablesNeedToBeUpdated(true);
                 }
             });
@@ -351,7 +347,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     } else {
                         updateDailyZmanim();
                     }
-                    mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+                    mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
                     seeIfTablesNeedToBeUpdated(true);
                 }
             });
@@ -389,7 +385,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         } else {
                             updateDailyZmanim();
                         }
-                        mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+                        mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
                         seeIfTablesNeedToBeUpdated(true);
                     });
                     DatePickerDialog.OnDateSetListener onDateSetListener = (view, year, month, day) -> {
@@ -403,7 +399,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         } else {
                             updateDailyZmanim();
                         }
-                        mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+                        mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
                         seeIfTablesNeedToBeUpdated(true);
                     };
                     materialDatePicker.addOnNegativeButtonClickListener(selection -> {
@@ -418,7 +414,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 }
             });
 
-            mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+            mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
         }
     }
 
@@ -484,7 +480,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     setNextUpcomingZman();
                     sSharedPreferences.edit().putString("Full" + mROZmanimCalendar.getGeoLocation().getLocationName(), "").apply();
                     updateDailyZmanim();
-                    mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+                    mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
                 });
             }
             swipeRefreshLayout.setRefreshing(false);
@@ -503,7 +499,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             return;
         }
 
-        if (sCurrentTimeZoneID.equals("Asia/Jerusalem")) {//user is in or near israel now
+        if (Utils.isInOrNearIsrael(sLatitude, sLongitude)) {//user is in or near israel now
             sSharedPreferences.edit().putBoolean("askedNotInIsrael", false).apply();//reset that we asked outside israel for next time
             if (!sSharedPreferences.getBoolean("inIsrael", false) && //user was not in israel before
                     !sSharedPreferences.getBoolean("askedInIsrael", false)) {//and we did not ask already
@@ -512,9 +508,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         .setMessage(R.string.if_you_are_in_israel_now_please_confirm_below)
                         .setPositiveButton(R.string.yes_i_am_in_israel, (dialog, which) -> {
                             sSharedPreferences.edit().putBoolean("inIsrael", true).apply();
+                            sSharedPreferences.edit().putBoolean("useElevation", true).apply();
                             sSettingsPreferences.edit().putBoolean("LuachAmudeiHoraah", false).apply();
                             mJewishDateInfo.getJewishCalendar().setInIsrael(true);
-                            initMenu();
                             Toast.makeText(mContext, R.string.settings_updated, Toast.LENGTH_SHORT).show();
                             if (sSharedPreferences.getBoolean("weeklyMode", false)) {
                                 updateWeeklyZmanim();
@@ -541,6 +537,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         .setMessage(R.string.if_you_are_not_in_israel_now_please_confirm_below_otherwise_ignore_this_message)
                         .setPositiveButton(R.string.yes_i_have_left_israel, (dialog, which) -> {
                             sSharedPreferences.edit().putBoolean("inIsrael", false).apply();
+                            sSharedPreferences.edit().putBoolean("useElevation", false).apply();
+                            sSettingsPreferences.edit().putBoolean("LuachAmudeiHoraah", true).apply();
                             mJewishDateInfo.getJewishCalendar().setInIsrael(false);
                             Toast.makeText(mContext, R.string.settings_updated, Toast.LENGTH_SHORT).show();
                             if (sSharedPreferences.getBoolean("weeklyMode", false)) {
@@ -548,7 +546,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                             } else {
                                 updateDailyZmanim();
                             }
-                            startActivity(new Intent(mContext, CalendarChooserActivity.class));
                         })
                         .setNegativeButton(R.string.no_i_have_not_left_israel, (dialog, which) -> {
                             sSharedPreferences.edit().putBoolean("askedInNotIsrael", true).apply();//save that we asked
@@ -795,6 +792,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {// ask for permission to send notifications for newer versions of android ughhhh...
                 if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.POST_NOTIFICATIONS) != PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(mActivity, new String[]{Manifest.permission.POST_NOTIFICATIONS, Manifest.permission.SCHEDULE_EXACT_ALARM}, 1);
+                } else {
+                    if (!sSharedPreferences.getBoolean("hasShownVSNotification", false)) {
+                        Utils.showVisibleSunriseNotification(mContext);
+                        sSharedPreferences.edit().putBoolean("hasShownVSNotification", true).apply();
+                    }
                 }
             }
 
@@ -893,7 +895,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (materialToolbar == null) {
             return;
         }
-        if (LocaleChecker.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew()) {
             materialToolbar.setSubtitle("");
         } else {
             materialToolbar.setTitle(mContext.getString(R.string.app_name));
@@ -904,7 +906,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             int id = item.getItemId();
 
             if (id == R.id.search_for_a_place) {
-                startActivity(new Intent(mContext, GetUserLocationWithMapActivity.class));
+                startActivity(new Intent(mContext, GetUserLocationWithMapActivity.class).putExtra("loneActivity", true));
                 return true;
             } else if (id == R.id.shabbat_mode) {
                 if (!sShabbatMode && mROZmanimCalendar != null && mMainRecyclerView != null) {
@@ -959,7 +961,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 startActivity(new Intent(mContext, MoladActivity.class));
                 return true;
             } else if (id == R.id.fullSetup) {
-                sSetupLauncher.launch(new Intent(mContext, FullSetupActivity.class).putExtra("fromMenu", true));
+                sSetupLauncher.launch(new Intent(mContext, WelcomeScreenActivity.class));
                 return true;
             } else if (id == R.id.settings) {
                 startActivity(new Intent(mContext, SettingsActivity.class));
@@ -976,7 +978,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         menu.findItem(R.id.shabbat_mode).setChecked(sShabbatMode);
         menu.findItem(R.id.weekly_mode).setChecked(sSharedPreferences.getBoolean("weeklyMode", false));
         menu.findItem(R.id.use_elevation).setChecked(sSharedPreferences.getBoolean("useElevation", true));
-        menu.findItem(R.id.use_elevation).setVisible(!sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false));
     }
 
     /**
@@ -1030,7 +1031,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             }
         }
 
-        if (LocaleChecker.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew()) {
             zmanim.add(new ZmanListEntry(mROZmanimCalendar.getCalendar()
                     .getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault())));
         } else {
@@ -1102,7 +1103,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 zmanim.add(new ZmanListEntry(mContext.getString(R.string.there_is_no_moon_tonight)));
             } else {
                 SimpleDateFormat moonFormat;
-                if (LocaleChecker.isLocaleHebrew()) {
+                if (Utils.isLocaleHebrew()) {
                     moonFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
                 } else {
                     moonFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
@@ -1335,7 +1336,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         mJewishDateInfo.setCalendar(mCurrentDateShown);
 
         HebrewDateFormatter hebrewDateFormatter = new HebrewDateFormatter();
-        if (LocaleChecker.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew()) {
             hebrewDateFormatter.setHebrewFormat(true);
         }
         List<TextView[]> weeklyInfo = Arrays.asList(mSunday, mMonday, mTuesday, mWednesday, mThursday, mFriday, mSaturday);
@@ -1347,7 +1348,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 .replace("Tishrei", "Tishri")
                 .replace("Teves", "Tevet");
         String hebrewYear = String.valueOf(mJewishDateInfo.getJewishCalendar().getJewishYear());
-        if (LocaleChecker.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew()) {
             hebrewYear = hebrewDateFormatter.formatHebrewNumber(mJewishDateInfo.getJewishCalendar().getJewishYear());
         }
 
@@ -1359,7 +1360,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             }
             StringBuilder announcements = new StringBuilder();
             mZmanimForAnnouncements = new ArrayList<>();//clear the list, it will be filled again in the getShortZmanim method
-            mListViews[i].setAdapter(new ArrayAdapter<String>(mContext, R.layout.zman_list_view, getShortZmanim()) {
+            mListViews[i].setAdapter(new ArrayAdapter<>(mContext, R.layout.zman_list_view, getShortZmanim()) {
                 @NonNull
                 @Override
                 public View getView(int position, View convertView, @NonNull ViewGroup parent) {
@@ -1410,7 +1411,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     .replace("Tishrei", "Tishri")
                     .replace("Teves", "Tevet");
         }
-        if (LocaleChecker.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew()) {
             if (!hebrewYear.equals(hebrewDateFormatter.formatHebrewNumber(mJewishDateInfo.getJewishCalendar().getJewishYear()))) {
                 hebrewYear += " / " + hebrewDateFormatter.formatHebrewNumber(mJewishDateInfo.getJewishCalendar().getJewishYear());
             }
@@ -1421,11 +1422,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
         String monthYear = month + " " + year;
         mEnglishMonthYear.setText(monthYear);
-        if (LocaleChecker.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew()) {
             mEnglishMonthYear.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_END);
             mHebrewMonthYear.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
         }
-        mLocationName.setText(sCurrentLocationName);
+        mLocationName.setText(mLocationResolver.getFullLocationName());
         String hebrewMonthYear = hebrewMonth + " " + hebrewYear;
         mHebrewMonthYear.setText(hebrewMonthYear);
         mWeeklyParsha.setText(mJewishDateInfo.getThisWeeksParsha());
@@ -1444,7 +1445,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         List<ZmanListEntry> zmanim = new ArrayList<>();
         addZmanim(zmanim, true, sSettingsPreferences, sSharedPreferences, mROZmanimCalendar, mJewishDateInfo, mIsZmanimInHebrew, mIsZmanimEnglishTranslated, true);
         DateFormat zmanimFormat;
-        if (LocaleChecker.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew()) {
             if (sSettingsPreferences.getBoolean("ShowSeconds", false)) {
                 zmanimFormat = new SimpleDateFormat("H:mm:ss", Locale.getDefault());
             } else {
@@ -1466,7 +1467,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 if (zman.isNoteworthyZman()) {
                     if (zman.isRTZman() && sSettingsPreferences.getBoolean("RoundUpRT", false)) {
                         DateFormat rtFormat;
-                        if (LocaleChecker.isLocaleHebrew()) {
+                        if (Utils.isLocaleHebrew()) {
                             if (sSettingsPreferences.getBoolean("ShowSeconds", false)) {
                                 rtFormat = new SimpleDateFormat("H:mm:ss", Locale.getDefault());
                             } else {
@@ -1480,13 +1481,13 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                             }
                         }
                         rtFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
-                        if (!LocaleChecker.isLocaleHebrew()) {
+                        if (!Utils.isLocaleHebrew()) {
                             mZmanimForAnnouncements.add(rtFormat.format(zman.getZman()) + " :" + zman.getTitle().replaceAll("\\(.*\\)", "").trim());
                         } else {
                             mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + ": " + rtFormat.format(zman.getZman()));
                         }
                     } else {
-                        if (!LocaleChecker.isLocaleHebrew()) {
+                        if (!Utils.isLocaleHebrew()) {
                             mZmanimForAnnouncements.add(zmanimFormat.format(zman.getZman()) + " :" + zman.getTitle().replaceAll("\\(.*\\)", "").trim());
                         } else {
                             mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + ": " + zmanimFormat.format(zman.getZman()));
@@ -1517,7 +1518,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             for (ZmanListEntry zman : zmanim) {
                 if (zman.isRTZman() && sSettingsPreferences.getBoolean("RoundUpRT", false)) {
                     DateFormat rtFormat;
-                    if (LocaleChecker.isLocaleHebrew()) {
+                    if (Utils.isLocaleHebrew()) {
                         if (sSettingsPreferences.getBoolean("ShowSeconds", false)) {
                             rtFormat = new SimpleDateFormat("H:mm:ss", Locale.getDefault());
                         } else {
@@ -1531,20 +1532,20 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         }
                     }
                     rtFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
-                    if (!LocaleChecker.isLocaleHebrew()) {
+                    if (!Utils.isLocaleHebrew()) {
                         shortZmanim[zmanim.indexOf(zman)] = rtFormat.format(zman.getZman()) + " :" + zman.getTitle();
                     } else {
                         shortZmanim[zmanim.indexOf(zman)] = zman.getTitle() + " : " + rtFormat.format(zman.getZman());
                     }
                 } else {
-                    if (!LocaleChecker.isLocaleHebrew()) {
-                        shortZmanim[zmanim.indexOf(zman)] = zmanimFormat.format(zman.getZman()) + " :" + zman.getTitle().replace("סוף זמן ", "");
+                    if (!Utils.isLocaleHebrew()) {
+                        shortZmanim[zmanim.indexOf(zman)] = zmanimFormat.format(zman.getZman()) + " :\u202B" + zman.getTitle().replace("סוף זמן ", "");
                     } else {
                         shortZmanim[zmanim.indexOf(zman)] = zman.getTitle().replace("סוף זמן ", "") + ": " + zmanimFormat.format(zman.getZman());
                     }
                 }
                 if (zman.getZman().equals(sNextUpcomingZman)) {
-                    if (LocaleChecker.isLocaleHebrew()) {
+                    if (Utils.isLocaleHebrew()) {
                         shortZmanim[zmanim.indexOf(zman)] = shortZmanim[zmanim.indexOf(zman)] + " ➤ ";
                     } else {
                         shortZmanim[zmanim.indexOf(zman)] = shortZmanim[zmanim.indexOf(zman)] + " ◄ ";
@@ -1561,12 +1562,12 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     shortZmanim[zmanim.indexOf(zman)] = zman.getTitle()
                             .replace("Earliest ", "")
                             .replace("Sof Zman ", "")
-                            .replace("Hacochavim", "")
+                            .replace("Hakokhavim", "")
                             .replace("Latest ", "")
                             + ": " + zmanimFormat.format(zman.getZman());
                 }
                 if (zman.getZman().equals(sNextUpcomingZman)) {
-                    if (LocaleChecker.isLocaleHebrew()) {
+                    if (Utils.isLocaleHebrew()) {
                         shortZmanim[zmanim.indexOf(zman)] = shortZmanim[zmanim.indexOf(zman)] + " ➤ ";
                     } else {
                         shortZmanim[zmanim.indexOf(zman)] = shortZmanim[zmanim.indexOf(zman)] + " ◄ ";
@@ -1586,7 +1587,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      */
     private void addTekufaTime(List<ZmanListEntry> zmanim, boolean shortStyle) {
         DateFormat zmanimFormat;
-        if (LocaleChecker.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew()) {
             zmanimFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
         } else {
             zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
@@ -1605,7 +1606,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
                     cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
 
-                if (LocaleChecker.isLocaleHebrew()) {
+                if (Utils.isLocaleHebrew()) {
                     if (shortStyle) {
                         zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
                                 zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
@@ -1637,7 +1638,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
                     cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
 
-                if (LocaleChecker.isLocaleHebrew()) {
+                if (Utils.isLocaleHebrew()) {
                     if (shortStyle) {
                         zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
                                 zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
@@ -1667,7 +1668,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      */
     private void addAmudeiHoraahTekufaTime(List<ZmanListEntry> zmanim, boolean shortStyle) {
         DateFormat zmanimFormat;
-        if (LocaleChecker.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew()) {
             zmanimFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
         } else {
             zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
@@ -1687,7 +1688,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
                     cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
 
-                if (LocaleChecker.isLocaleHebrew()) {
+                if (Utils.isLocaleHebrew()) {
                     if (shortStyle) {
                         zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
                                 zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
@@ -1719,7 +1720,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
                     cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
 
-                if (LocaleChecker.isLocaleHebrew()) {
+                if (Utils.isLocaleHebrew()) {
                     if (shortStyle) {
                         zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
                                 zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
@@ -1742,7 +1743,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
     public void addTekufaLength(List<ZmanListEntry> zmanim, String opinion) {
         DateFormat zmanimFormat;
-        if (LocaleChecker.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew()) {
             zmanimFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
         } else {
             zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
@@ -1798,7 +1799,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         halfHourBefore = new Date(tekufa.getTime() - (DateUtils.MILLIS_PER_HOUR / 2));
                         halfHourAfter = new Date(tekufa.getTime() + (DateUtils.MILLIS_PER_HOUR / 2));
                     }
-                    if (LocaleChecker.isLocaleHebrew()) {
+                    if (Utils.isLocaleHebrew()) {
                         zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourAfter) + " - " + zmanimFormat.format(halfHourBefore)));
                     } else {
                         zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfter)));
@@ -1807,7 +1808,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 case "2":
                     halfHourBefore = new Date(tekufa.getTime() - (DateUtils.MILLIS_PER_HOUR / 2));
                     halfHourAfter = new Date(tekufa.getTime() + (DateUtils.MILLIS_PER_HOUR / 2));
-                    if (LocaleChecker.isLocaleHebrew()) {
+                    if (Utils.isLocaleHebrew()) {
                         zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourAfter) + " - " + zmanimFormat.format(halfHourBefore)));
                     } else {
                         zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfter)));
@@ -1816,7 +1817,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 case "3":
                     halfHourBefore = new Date(aHTekufa.getTime() - (DateUtils.MILLIS_PER_HOUR / 2));
                     halfHourAfter = new Date(aHTekufa.getTime() + (DateUtils.MILLIS_PER_HOUR / 2));
-                    if (LocaleChecker.isLocaleHebrew()) {
+                    if (Utils.isLocaleHebrew()) {
                         zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourAfter) + " - " + zmanimFormat.format(halfHourBefore)));
                     } else {
                         zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfter)));
@@ -1825,7 +1826,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 default:// 4
                     halfHourBefore = new Date(aHTekufa.getTime() - (DateUtils.MILLIS_PER_HOUR / 2));
                     halfHourAfter = new Date(tekufa.getTime() + (DateUtils.MILLIS_PER_HOUR / 2));
-                    if (LocaleChecker.isLocaleHebrew()) {
+                    if (Utils.isLocaleHebrew()) {
                         zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourAfter) + " - " + zmanimFormat.format(halfHourBefore)));
                     } else {
                         zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfter)));
@@ -1846,39 +1847,30 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private void resolveElevationAndVisibleSunrise(Runnable codeToRunOnMainThread) {
         boolean sUserIsOffline = false;
         if (sCurrentLocationName != null && !sCurrentLocationName.isEmpty()) {// Somehow it is null and crashing in some places
-            Log.d("ELEVATION-LOCATION-NAME", "is not null and is not empty");
-            Log.d("ELEVATION-LOCATION-NAME", sCurrentLocationName);
             if (sCurrentLocationName.contains("Lat:") && sCurrentLocationName.contains("Long:")
                     && sSettingsPreferences.getBoolean("SetElevationToLastKnownLocation", false)) {//only if the user has enabled the setting to set the elevation to the last known location
                 sUserIsOffline = true;
-                Log.d("ELEVATION-LOCATION", "sUserIsOffline = true");
                 sElevation = Double.parseDouble(sSharedPreferences.getString("elevation" + sSharedPreferences.getString("name", ""), "0"));//lastKnownLocation
             } else {//user is online, get the elevation from the shared preferences for the current location
-                Log.d("ELEVATION-LOCATION", "sUserIsOffline = false");
                 sElevation = Double.parseDouble(sSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));//get the last value of the current location or 0 if it doesn't exist
             }
         }
 
-        if (!sUserIsOffline && sSharedPreferences.getBoolean("useElevation", true)
-                && !sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {//update if the user is online and the elevation setting is enabled
+        if (!sUserIsOffline && sSharedPreferences.getBoolean("useElevation", true)) {//update if the user is online and the elevation setting is enabled
             if (!sSharedPreferences.contains("elevation" + sCurrentLocationName)) {//if the elevation for this location has never been set
-                Log.d("ELEVATION-VALUE", "Getting elevation value from Geonames for: " + sCurrentLocationName);
                 Thread thread = new Thread(() -> mLocationResolver.getElevationFromWebService(mHandler,
                         () -> sElevation = Double.parseDouble(sSharedPreferences.getString("elevation" + sCurrentLocationName, "0")),
                         codeToRunOnMainThread));
                 thread.start();
                 seeIfTablesNeedToBeUpdated(false);
             } else {// use elevation that was set before
-                Log.d("ELEVATION-VALUE", "Getting elevation value for: " + sCurrentLocationName);
                 sElevation = Double.parseDouble(sSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));
                 mActivity.runOnUiThread(codeToRunOnMainThread);
             }
-        } else {// user does not want elevation or is in Amudei Horaah mode
+        } else {// user does not want elevation
             sElevation = 0;
             mActivity.runOnUiThread(codeToRunOnMainThread);
         }
-        Log.d("ELEVATION-LOCATION-NAME", sCurrentLocationName);
-        Log.d("ELEVATION-VALUE", String.valueOf(sElevation));
     }
 
     /**
@@ -1961,7 +1953,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 TextClock clock = binding.clock;
                 if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
                     clock.setVisibility(View.VISIBLE);
-                    if (LocaleChecker.isLocaleHebrew()) {
+                    if (Utils.isLocaleHebrew()) {
                         clock.setFormat24Hour("hh:mm:ss");
                     }
                 }
@@ -1975,7 +1967,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 mCurrentDateShown.setTimeInMillis(calendar.getTime().getTime());
                 mROZmanimCalendar.setCalendar(calendar);
                 mJewishDateInfo.setCalendar(calendar);
-                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
                 setShabbatBannerColors(false);
                 if (sSharedPreferences.getBoolean("weeklyMode", false)) {
                     updateWeeklyZmanim();
@@ -2203,7 +2195,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             } else {
                 mCalendarButton.setBackgroundColor(sSharedPreferences.getInt("CalButtonColor", 0x18267C));
             }
-            mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mROZmanimCalendar.getCalendar()));
+            mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mROZmanimCalendar.getCalendar()));
             mNextDate.setVisibility(View.VISIBLE);
             mPreviousDate.setVisibility(View.VISIBLE);
             if (binding != null) {
@@ -2247,13 +2239,13 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     mCalendarButton.setBackgroundColor(sSharedPreferences.getInt("CalButtonColor", 0x18267C));
                 }
             }
-            mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+            mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
         }
         if (binding != null) {
             TextClock clock = binding.clock;
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 clock.setVisibility(View.VISIBLE);
-                if (LocaleChecker.isLocaleHebrew()) {
+                if (Utils.isLocaleHebrew()) {
                     clock.setFormat24Hour("H:mm:ss");
                 }
             } else {
@@ -2312,7 +2304,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
         sLastTimeUserWasInApp = new Date();
 
-        PrefToWatchSender.send(mContext);
+        Utils.PrefToWatchSender.send(mContext);
 
         super.onResume();
     }
@@ -2391,7 +2383,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                                     binding.progressBar.setVisibility(View.GONE);
                                 }
                                 if (mCalendarButton != null) {
-                                    mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+                                    mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
                                 }
                                 setAllNotifications();
                             }

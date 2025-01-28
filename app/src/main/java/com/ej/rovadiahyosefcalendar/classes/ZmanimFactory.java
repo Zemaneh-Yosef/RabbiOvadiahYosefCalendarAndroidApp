@@ -32,9 +32,9 @@ public class ZmanimFactory {
             zmanim.add(new ZmanListEntry(zmanimNames.getTaanitString() + zmanimNames.getStartsString(), mROZmanimCalendar.getAlos72Zmanis(), true));
         }
         zmanim.add(new ZmanListEntry(zmanimNames.getAlotString(), mROZmanimCalendar.getAlos72Zmanis(), true));
-        zmanim.add(new ZmanListEntry(zmanimNames.getTalitTefilinString(), mROZmanimCalendar.getEarliestProperTalitTefilin(), true));
+        zmanim.add(new ZmanListEntry(zmanimNames.getTalitTefilinString(), mROZmanimCalendar.getMisheyakir60ZmaniyotMinutes(), true));
         if (add66MisheyakirZman) {
-            ZmanListEntry misheyakir66 = new ZmanListEntry(zmanimNames.getTalitTefilinString() + " (66)", mROZmanimCalendar.getEarliestTalitTefilin(), true);
+            ZmanListEntry misheyakir66 = new ZmanListEntry(zmanimNames.getTalitTefilinString() + " (66)", mROZmanimCalendar.getMisheyakir66ZmaniyotMinutes(), true);
             misheyakir66.setIs66MisheyakirZman(true);
             zmanim.add(misheyakir66);
         }
@@ -73,19 +73,8 @@ public class ZmanimFactory {
         zmanim.add(new ZmanListEntry(zmanimNames.getChatzotString(), mROZmanimCalendar.getChatzot(), true));
         zmanim.add(new ZmanListEntry(zmanimNames.getMinchaGedolaString(), mROZmanimCalendar.getMinchaGedolaGreaterThan30(), true));
         zmanim.add(new ZmanListEntry(zmanimNames.getMinchaKetanaString(), mROZmanimCalendar.getMinchaKetana(), true));
-        String plagOpinions = mSettingsPreferences.getString("plagOpinion", "1");
-        if (plagOpinions.equals("1")) {
-            zmanim.add(new ZmanListEntry(zmanimNames.getPlagHaminchaString(), mROZmanimCalendar.getPlagHaminchaYalkutYosef(), true));
-        }
-        if (plagOpinions.equals("2")) {
-            zmanim.add(new ZmanListEntry(zmanimNames.getPlagHaminchaString(), mROZmanimCalendar.getPlagHamincha(), true));
-        }
-        if (plagOpinions.equals("3")) {
-            zmanim.add(new ZmanListEntry(zmanimNames.getPlagHaminchaString() + " " + zmanimNames.getAbbreviatedHalachaBerurahString(),
-                    mROZmanimCalendar.getPlagHamincha(), true));
-            zmanim.add(new ZmanListEntry(zmanimNames.getPlagHaminchaString() + " " + zmanimNames.getAbbreviatedYalkutYosefString(),
-                    mROZmanimCalendar.getPlagHaminchaYalkutYosef(), true));
-        }
+        zmanim.add(new ZmanListEntry(zmanimNames.getPlagHaminchaString() + " " + zmanimNames.getAbbreviatedHalachaBerurahString(), mROZmanimCalendar.getPlagHamincha(), true));
+        zmanim.add(new ZmanListEntry(zmanimNames.getPlagHaminchaString() + " " + zmanimNames.getAbbreviatedYalkutYosefString(), mROZmanimCalendar.getPlagHaminchaYalkutYosef(), true));
         if ((mJewishDateInfo.getJewishCalendar().hasCandleLighting() &&
                 !mJewishDateInfo.getJewishCalendar().isAssurBemelacha()) ||
                 mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY) {
@@ -165,19 +154,21 @@ public class ZmanimFactory {
             ZmanListEntry fastEnds = new ZmanListEntry(zmanimNames.getTzaitString() + zmanimNames.getTaanitString() + zmanimNames.getEndsString(), mROZmanimCalendar.getTzaitTaanit(), true);
             fastEnds.setNoteworthyZman(true);
             zmanim.add(fastEnds);
-        } else if (mSettingsPreferences.getBoolean("alwaysShowTzeitLChumra", false)) {
-            ZmanListEntry tzeitLChumra = new ZmanListEntry(zmanimNames.getTzaitHacochavimString() + " " + zmanimNames.getLChumraString(), mROZmanimCalendar.getTzaitTaanit(), true);
-            zmanim.add(tzeitLChumra);
+        } else {
+            zmanim.add(new ZmanListEntry(zmanimNames.getTzaitHacochavimString() + " " + zmanimNames.getLChumraString(), mROZmanimCalendar.getTzaitTaanit(), true));
         }
         if (mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting()) {
-            ZmanListEntry endShabbat;
-            if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("1") || mSharedPreferences.getBoolean("inIsrael", false)) {
-                endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString()
+            ZmanListEntry endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString()
                         + " (" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")", mROZmanimCalendar.getTzaisAteretTorah(), true);
-            } else if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("2")) {
-                endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString() + " (7.14°)", mROZmanimCalendar.getTzaitShabbatAmudeiHoraah(), true);
-            } else {
-                endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString(), mROZmanimCalendar.getTzaitShabbatAmudeiHoraahLesserThan40(), true);
+            if (mSettingsPreferences.getBoolean("overrideAHEndShabbatTime", false)) {
+                if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("1")) {
+                    endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString()
+                            + " (" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")", mROZmanimCalendar.getTzaisAteretTorah(), true);
+                } else if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("2")) {
+                    endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString() + " (7.14°)", mROZmanimCalendar.getTzaitShabbatAmudeiHoraah(), true);
+                } else if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("3")) {
+                    endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString(), mROZmanimCalendar.getTzaitShabbatAmudeiHoraahLesserThan40(), true);
+                }
             }
             endShabbat.setNoteworthyZman(true);
             zmanim.add(endShabbat);
@@ -225,7 +216,6 @@ public class ZmanimFactory {
                                               boolean mIsZmanimInHebrew,
                                               boolean mIsZmanimEnglishTranslated,
                                               boolean add66MisheyakirZman) {
-        mROZmanimCalendar.setUseElevation(false);
         ZmanimNames zmanimNames = new ZmanimNames(mIsZmanimInHebrew, mIsZmanimEnglishTranslated);
         if (mJewishDateInfo.getJewishCalendar().isTaanis()
                 && mJewishDateInfo.getJewishCalendar().getYomTovIndex() != JewishCalendar.TISHA_BEAV
@@ -233,9 +223,9 @@ public class ZmanimFactory {
             zmanim.add(new ZmanListEntry(zmanimNames.getTaanitString() + zmanimNames.getStartsString(), mROZmanimCalendar.getAlotAmudeiHoraah(), true));
         }
         zmanim.add(new ZmanListEntry(zmanimNames.getAlotString(), mROZmanimCalendar.getAlotAmudeiHoraah(), true));
-        zmanim.add(new ZmanListEntry(zmanimNames.getTalitTefilinString(), mROZmanimCalendar.getEarliestTalitTefilinAmudeiHoraah(), true));
+        zmanim.add(new ZmanListEntry(zmanimNames.getTalitTefilinString(), mROZmanimCalendar.getMisheyakir60AmudeiHoraah(), true));
         if (add66MisheyakirZman) {
-            ZmanListEntry misheyakir66 = new ZmanListEntry(zmanimNames.getTalitTefilinString() + " (66)", mROZmanimCalendar.getEarliestTalitTefilin66AmudeiHoraah(), true);
+            ZmanListEntry misheyakir66 = new ZmanListEntry(zmanimNames.getTalitTefilinString() + " (66)", mROZmanimCalendar.getMisheyakir66AmudeiHoraah(), true);
             misheyakir66.setIs66MisheyakirZman(true);
             zmanim.add(misheyakir66);
         }
@@ -317,10 +307,10 @@ public class ZmanimFactory {
         mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
         mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);
         if (mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.TISHA_BEAV) {
-            zmanim.add(new ZmanListEntry(zmanimNames.getTaanitString() + zmanimNames.getStartsString(), mROZmanimCalendar.getSeaLevelSunset(), true));
+            zmanim.add(new ZmanListEntry(zmanimNames.getTaanitString() + zmanimNames.getStartsString(), mROZmanimCalendar.getElevationAdjustedSunset(), true));
         }
         mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
-        zmanim.add(new ZmanListEntry(zmanimNames.getSunsetString(), mROZmanimCalendar.getSeaLevelSunset(), true));
+        zmanim.add(new ZmanListEntry(zmanimNames.getSunsetString(), mROZmanimCalendar.getElevationAdjustedSunset(), true));
         zmanim.add(new ZmanListEntry(zmanimNames.getTzaitHacochavimString(), mROZmanimCalendar.getTzeitAmudeiHoraah(), true));
         zmanim.add(new ZmanListEntry(zmanimNames.getTzaitHacochavimString() + " " + zmanimNames.getLChumraString(), mROZmanimCalendar.getTzeitAmudeiHoraahLChumra(), true));
         if (mJewishDateInfo.getJewishCalendar().hasCandleLighting() &&
@@ -339,32 +329,28 @@ public class ZmanimFactory {
             zmanim.add(fastEnds);
         }
         if (mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting()) {
-            ZmanListEntry endShabbat;
-            if (!mSettingsPreferences.getBoolean("overrideAHEndShabbatTime", false)) {// default zman
-                endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString() + " (7.14°)", mROZmanimCalendar.getTzaitShabbatAmudeiHoraah(), true);
-            } else {// if user wants to override
+            ZmanListEntry endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString() + " (7.14°)", mROZmanimCalendar.getTzaitShabbatAmudeiHoraah(), true);
+            if (mSettingsPreferences.getBoolean("overrideAHEndShabbatTime", false)) {
                 if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("1")) {
                     endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString()
                             + " (" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")", mROZmanimCalendar.getTzaisAteretTorah(), true);
                 } else if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("2")) {
                     endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString() + " (7.14°)", mROZmanimCalendar.getTzaitShabbatAmudeiHoraah(), true);
-                } else {
+                } else if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("3")) {
                     endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString(), mROZmanimCalendar.getTzaitShabbatAmudeiHoraahLesserThan40(), true);
                 }
             }
             endShabbat.setNoteworthyZman(true);
             zmanim.add(endShabbat);
+            ZmanListEntry rt = new ZmanListEntry(zmanimNames.getRTString(), mROZmanimCalendar.getTzais72ZmanisAmudeiHoraahLkulah(), true);
             if (mSettingsPreferences.getBoolean("RoundUpRT", true)) {
-                ZmanListEntry rt = new ZmanListEntry(zmanimNames.getRTString(), addMinuteToZman(mROZmanimCalendar.getTzais72ZmanisAmudeiHoraahLkulah()), true);
-                rt.setRTZman(true);
-                rt.setNoteworthyZman(true);
-                zmanim.add(rt);
-            } else {
-                ZmanListEntry rt = new ZmanListEntry(zmanimNames.getRTString(), mROZmanimCalendar.getTzais72ZmanisAmudeiHoraahLkulah(), true);
-                rt.setRTZman(true);
-                rt.setNoteworthyZman(true);
-                zmanim.add(rt);
+                rt.setZman(addMinuteToZman(mROZmanimCalendar.getTzais72ZmanisAmudeiHoraahLkulah()));
+            } else if (mSettingsPreferences.getBoolean("overrideRTZman", false)) {
+                rt.setZman(mSettingsPreferences.getBoolean("RoundUpRT", true) ? addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()) : mROZmanimCalendar.getTzais72Zmanis());
             }
+            rt.setRTZman(true);
+            rt.setNoteworthyZman(true);
+            zmanim.add(rt);
             //If it is shabbat/yom tov, we want to dim the tzeit hacochavim zmanim in the GUI
             for (ZmanListEntry zman: zmanim) {
                 if (zman.getTitle().equals(zmanimNames.getTzaitHacochavimString()) ||
@@ -375,15 +361,15 @@ public class ZmanimFactory {
         }
         if (mSettingsPreferences.getBoolean("AlwaysShowRT", false)) {
             if (!(mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting())) {//if we want to always show the zman for RT, we can just NOT the previous cases where we do show it
+                ZmanListEntry rt = new ZmanListEntry(zmanimNames.getRTString(), mROZmanimCalendar.getTzais72ZmanisAmudeiHoraahLkulah(), true);
                 if (mSettingsPreferences.getBoolean("RoundUpRT", true)) {
-                    ZmanListEntry rt = new ZmanListEntry(zmanimNames.getRTString(), addMinuteToZman(mROZmanimCalendar.getTzais72ZmanisAmudeiHoraahLkulah()), true);
-                    rt.setRTZman(true);
-                    zmanim.add(rt);
-                } else {
-                    ZmanListEntry rt = new ZmanListEntry(zmanimNames.getRTString(), mROZmanimCalendar.getTzais72ZmanisAmudeiHoraahLkulah(), true);
-                    rt.setRTZman(true);
-                    zmanim.add(rt);
+                    rt.setZman(addMinuteToZman(mROZmanimCalendar.getTzais72ZmanisAmudeiHoraahLkulah()));
+                } else if (mSettingsPreferences.getBoolean("overrideRTZman", false)) {
+                    rt.setZman(mSettingsPreferences.getBoolean("RoundUpRT", true) ? addMinuteToZman(mROZmanimCalendar.getTzais72Zmanis()) : mROZmanimCalendar.getTzais72Zmanis());
                 }
+                rt.setRTZman(true);
+                rt.setNoteworthyZman(true);
+                zmanim.add(rt);
             }
         }
         zmanim.add(new ZmanListEntry(zmanimNames.getChatzotLaylaString(), mROZmanimCalendar.getSolarMidnight(), true));

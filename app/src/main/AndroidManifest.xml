@@ -40,6 +40,7 @@
     <queries>
         <intent>
             <action android:name="android.intent.action.SENDTO" />
+
             <data android:scheme="*" />
         </intent>
     </queries>
@@ -47,6 +48,7 @@
     <application
         android:allowBackup="true"
         android:banner="@mipmap/ic_banner"
+        android:enableOnBackInvokedCallback="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:localeConfig="@xml/locales_config"
@@ -54,11 +56,17 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
-        android:enableOnBackInvokedCallback="true"
         tools:targetApi="tiramisu">
+        <activity
+            android:name=".activities.TipScreenActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.WelcomeScreenActivity"
+            android:exported="false" />
         <activity
             android:name=".activities.ShowErrorActivity"
             android:exported="false" />
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="${MAPS_API_KEY}" /> <!-- Hidden in local.properties -->
@@ -81,9 +89,6 @@
             android:theme="@style/AppTheme.Fullscreen" />
         <activity
             android:name=".activities.SiddurViewActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activities.CalendarChooserActivity"
             android:exported="false" />
         <activity
             android:name=".activities.ZmanimSettingsActivity"
@@ -122,7 +127,7 @@
         <activity
             android:name=".activities.SetupChooserActivity"
             android:exported="true" />
-        <activity android:name=".activities.FullSetupActivity" />
+        <activity android:name=".activities.InIsraelActivity" />
         <activity
             android:name=".activities.SettingsActivity"
             android:label="@string/title_activity_settings" />

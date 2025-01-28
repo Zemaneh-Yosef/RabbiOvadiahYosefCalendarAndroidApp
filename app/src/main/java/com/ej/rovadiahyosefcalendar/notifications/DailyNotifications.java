@@ -26,9 +26,9 @@ import androidx.preference.PreferenceManager;
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.MainFragmentManager;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
-import com.ej.rovadiahyosefcalendar.classes.LocaleChecker;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
+import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.kosherjava.zmanim.AstronomicalCalendar;
 import com.kosherjava.zmanim.util.GeoLocation;
 
@@ -88,45 +88,27 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
             Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
             if (!mSharedPreferences.getString("lastKnownDay","").equals(jewishDateInfo.getJewishCalendar().toString())) {//We only want 1 notification a day.
-                if (LocaleChecker.isLocaleHebrew()) {
-                    NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "Jewish Special Day")
-                            .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
-                            .setSmallIcon(R.drawable.calendar_foreground)
-                            .setContentTitle("יום מיוחד ביהדות")
-                            .setContentText("היום הוא " + specialDay)
-                            .setStyle(new NotificationCompat.BigTextStyle()
-                                    .setBigContentTitle("יום מיוחד ביהדות")
-                                    .setSummaryText(calendar.getGeoLocation().getLocationName())
-                                    .bigText("היום הוא " + specialDay))
-                            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                            .setCategory(NotificationCompat.CATEGORY_REMINDER)
-                            .setPriority(NotificationCompat.PRIORITY_HIGH)
-                            .setSound(alarmSound)
-                            .setColor(context.getColor(R.color.dark_gold))
-                            .setAutoCancel(true)
-                            .setWhen(when)
-                            .setContentIntent(pendingIntent);
-                    notificationManager.notify(MID, mNotifyBuilder.build());
-                } else {
-                    NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "Jewish Special Day")
-                            .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
-                            .setSmallIcon(R.drawable.calendar_foreground)
-                            .setContentTitle("Jewish Special Day")
-                            .setContentText("Today is " + specialDay)
-                            .setStyle(new NotificationCompat.BigTextStyle()
-                                    .setBigContentTitle("Jewish Special Day")
-                                    .setSummaryText(calendar.getGeoLocation().getLocationName())
-                                    .bigText("Today is " + specialDay))
-                            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                            .setCategory(NotificationCompat.CATEGORY_REMINDER)
-                            .setPriority(NotificationCompat.PRIORITY_HIGH)
-                            .setSound(alarmSound)
-                            .setColor(context.getColor(R.color.dark_gold))
-                            .setAutoCancel(true)
-                            .setWhen(when)
-                            .setContentIntent(pendingIntent);
-                    notificationManager.notify(MID, mNotifyBuilder.build());
-                }
+                String title = (Utils.isLocaleHebrew() ? "יום מיוחד ביהדות" : "Jewish Special Day");
+                String content = (Utils.isLocaleHebrew() ? "היום הוא " : "Today is ") + specialDay;
+
+                NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "Jewish Special Day")
+                        .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
+                        .setSmallIcon(R.drawable.calendar_foreground)
+                        .setContentTitle(title)
+                        .setContentText(content)
+                        .setStyle(new NotificationCompat.BigTextStyle()
+                                .setBigContentTitle(title)
+                                .setSummaryText(calendar.getGeoLocation().getLocationName())
+                                .bigText(content))
+                        .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                        .setCategory(NotificationCompat.CATEGORY_REMINDER)
+                        .setPriority(NotificationCompat.PRIORITY_HIGH)
+                        .setSound(alarmSound)
+                        .setColor(context.getColor(R.color.dark_gold))
+                        .setAutoCancel(true)
+                        .setWhen(when)
+                        .setContentIntent(pendingIntent);
+                notificationManager.notify(MID, mNotifyBuilder.build());
                 MID++;
                 mSharedPreferences.edit().putString("lastKnownDay", jewishDateInfo.getJewishCalendar().toString()).apply();
             }
@@ -136,17 +118,15 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
         Class<?> notifClass = TekufaNotifications.class;
         Date tekufaDate = jewishDateInfo.getJewishCalendar().getTekufaAsDate();
         String tekufaOpinions = PreferenceManager.getDefaultSharedPreferences(context).getString("TekufaOpinions", "1");
-        if (tekufaOpinions.equals("1")) {
-            if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("LuachAmudeiHoraah", false)) {
-                notifClass = AmudeiHoraahTekufaNotifications.class;
-            }// otherwise leave alone
-        }
-        // 2, just leave it alone
-        if (tekufaOpinions.equals("3")) {
-            notifClass = AmudeiHoraahTekufaNotifications.class;
-        }
-        if (tekufaOpinions.equals("4")) {
-            notifClass = CombinedTekufaNotifications.class;
+        switch (tekufaOpinions) {
+            case "1" -> {
+                if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("LuachAmudeiHoraah", false)) {
+                    notifClass = AmudeiHoraahTekufaNotifications.class;
+                }// otherwise leave alone
+            }
+            // 2, just leave it alone
+            case "3" -> notifClass = AmudeiHoraahTekufaNotifications.class;
+            case "4" -> notifClass = CombinedTekufaNotifications.class;
         }
         if (notifClass.equals(AmudeiHoraahTekufaNotifications.class) || notifClass.equals(CombinedTekufaNotifications.class)) {
             while (tekufaDate == null) {

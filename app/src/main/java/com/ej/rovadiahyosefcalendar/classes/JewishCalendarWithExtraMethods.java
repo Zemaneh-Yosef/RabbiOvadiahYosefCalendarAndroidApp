@@ -48,7 +48,7 @@ public class JewishCalendarWithExtraMethods extends JewishCalendar {
 
     public String getTekufaName() {
         String[] tekufaNames;
-        if (LocaleChecker.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew()) {
             tekufaNames = new String[]{"תשרי", "טבת", "ניסן", "תמוז"};
         } else {
             tekufaNames = new String[]{"Tishri", "Tevet", "Nissan", "Tammuz"};
@@ -113,7 +113,7 @@ public class JewishCalendarWithExtraMethods extends JewishCalendar {
     @Override
     public String toString() {
         HebrewDateFormatter hebrewDateFormatter = new HebrewDateFormatter();
-        hebrewDateFormatter.setHebrewFormat(LocaleChecker.isLocaleHebrew());
+        hebrewDateFormatter.setHebrewFormat(Utils.isLocaleHebrew());
         return hebrewDateFormatter.format(this).replace("Teves", "Tevet").replace("Tishrei", "Tishri");
     }
 }

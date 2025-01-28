@@ -68,7 +68,7 @@ public class LimudAdapter extends RecyclerView.Adapter<LimudAdapter.ZmanViewHold
 
         if (limudim.get(position) != null) {
             if (limudim.get(position).hasSource()) {// make name text bold
-                if (LocaleChecker.isLocaleHebrew()) {
+                if (Utils.isLocaleHebrew()) {
                     holder.mRightTextView.setText(limudim.get(position).getLimudTitle());
                     holder.mRightTextView.setTypeface(null, Typeface.BOLD);
                 } else {
@@ -119,9 +119,9 @@ public class LimudAdapter extends RecyclerView.Adapter<LimudAdapter.ZmanViewHold
                     });
                     dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
                     dialogBuilder.show();
-                } else if (limudim.get(position).hasSource()) {
+                } else if (limudim.get(position).hasSource()) {// keep the hasSource check to avoid other listings
                     dialogBuilder.setTitle(limudim.get(position).getLimudTitle());
-                    dialogBuilder.setMessage(context.getString(R.string.source) + limudim.get(position).getSource());
+                    dialogBuilder.setMessage(limudim.get(position).getDescription() + "\n-----\n" + context.getString(R.string.source) + limudim.get(position).getSource());
                     dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
                     dialogBuilder.show();
                 }

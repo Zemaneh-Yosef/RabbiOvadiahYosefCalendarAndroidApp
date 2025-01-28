@@ -55,9 +55,9 @@ public class ChaiTablesScraper extends Thread {
     private boolean isSearchRadiusTooSmall;
     private boolean mWebsiteError;
 
-    private ScraperCallback callback;
+    private OnClickListeners.ScraperCallback callback;
 
-    public void setCallback(ScraperCallback callback) {
+    public void setCallback(OnClickListeners.ScraperCallback callback) {
         this.callback = callback;
     }
 

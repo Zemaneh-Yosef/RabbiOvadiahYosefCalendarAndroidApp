@@ -3,6 +3,9 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:id="@+id/skip"
+        android:title="@string/skip_setup_not_recommended" />
+    <item
         android:id="@+id/search_for_a_place_legacy"
         android:title="@string/search_for_a_place_legacy" />
 

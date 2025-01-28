@@ -38,9 +38,8 @@ import androidx.preference.PreferenceManager;
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.JerusalemDirectionMapsActivity;
 import com.ej.rovadiahyosefcalendar.activities.SiddurViewActivity;
-import com.ej.rovadiahyosefcalendar.classes.CalendarDrawable;
+import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.ej.rovadiahyosefcalendar.classes.HebrewDayMonthYearPickerDialog;
-import com.ej.rovadiahyosefcalendar.classes.LocaleChecker;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
 import com.ej.rovadiahyosefcalendar.classes.SiddurMaker;
 import com.ej.rovadiahyosefcalendar.databinding.FragmentSiddurBinding;
@@ -142,10 +141,27 @@ public class SiddurFragment extends Fragment {
         }
 
         Button havdalah = binding.havdalah;
-        havdalah.setOnClickListener(v -> startSiddurActivity(mContext.getString(R.string.havdala)));
+        havdalah.setOnClickListener(v -> {
+            if (mJewishDateInfo.tomorrow().getJewishCalendar().isTishaBav() && mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY) {
+                new MaterialAlertDialogBuilder(mContext)
+                        .setTitle(R.string.havdalah_is_only_said_on_a_flame_tonight)
+                        .setMessage(getString(R.string.havdalah_will_be_completed_after_the_fast) + "\n\n" + "בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵֽינוּ מֶֽלֶךְ הָעוֹלָם, בּוֹרֵא מְאוֹרֵי הָאֵשׁ:")
+                        .setPositiveButton(mContext.getString(R.string.ok), (dialog, which) -> dialog.dismiss())
+                        .show();
+            } else {
+                startSiddurActivity(mContext.getString(R.string.havdala));
+            }
+        });
 
-        if (!mJewishDateInfo.getJewishCalendar().hasCandleLighting() && mJewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
+        if (!mJewishDateInfo.getJewishCalendar().hasCandleLighting() && mJewishDateInfo.getJewishCalendar().isAssurBemelacha()
+                || mJewishDateInfo.getJewishCalendar().isTishaBav()) {
             havdalah.setVisibility(View.VISIBLE);
+            if (mJewishDateInfo.tomorrow().getJewishCalendar().isTishaBav() && mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY) {
+                havdalah.setBackground(null);
+                havdalah.setBackgroundColor(Color.GRAY);
+            } else {
+                havdalah.setBackground(AppCompatResources.getDrawable(mContext, R.drawable.colorful_gradient_square));
+            }
         } else {
             havdalah.setVisibility(View.GONE);
         }
@@ -286,7 +302,7 @@ public class SiddurFragment extends Fragment {
 
         if (mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.TU_BESHVAT) {
             String text;
-            if (LocaleChecker.isLocaleHebrew()) {
+            if (Utils.isLocaleHebrew()) {
                 text = "טוב לאמר את התפילה הזו בטו בשבט:<br><br> <a href='https://elyahu41.github.io/Prayer%20for%20an%20Etrog.pdf'>תפילה לאתרוג</a>";
             } else {
                 text = "It is good to say this prayer on Tu'Beshvat:<br><br> <a href='https://elyahu41.github.io/Prayer%20for%20an%20Etrog.pdf'>Prayer for Etrog</a>";
@@ -297,7 +313,7 @@ public class SiddurFragment extends Fragment {
         if (mJewishDateInfo.getJewishCalendar().getUpcomingParshah() == JewishCalendar.Parsha.BESHALACH &&
                 mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.TUESDAY) {
             String text;
-            if (LocaleChecker.isLocaleHebrew()) {
+            if (Utils.isLocaleHebrew()) {
                 text = "טוב לאמר את התפילה הזו היום:<br><br> <a href='https://www.tefillos.com/Parshas-Haman-3.pdf'>פרשת המן</a>";
             } else {
                 text = "It is good to say this prayer today:<br><br> <a href='https://www.tefillos.com/Parshas-Haman-3.pdf'>Parshat Haman</a>";
@@ -320,7 +336,7 @@ public class SiddurFragment extends Fragment {
             initView();
         }
         if (mCalendarButton != null) {
-            mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+            mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
         }
     }
 
@@ -439,7 +455,7 @@ public class SiddurFragment extends Fragment {
                 mROZmanimCalendar.setCalendar(mCurrentDateShown);
                 mJewishDateInfo.setCalendar(mCurrentDateShown);
                 initView();
-                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
             });
         }
     }
@@ -455,7 +471,7 @@ public class SiddurFragment extends Fragment {
                 mROZmanimCalendar.setCalendar(mCurrentDateShown);
                 mJewishDateInfo.setCalendar(mCurrentDateShown);
                 initView();
-                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
             });
         }
     }
@@ -487,7 +503,7 @@ public class SiddurFragment extends Fragment {
                     mROZmanimCalendar.setCalendar(mCurrentDateShown);
                     mJewishDateInfo.setCalendar(mCurrentDateShown);
                     initView();
-                    mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+                    mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
                 });
                 DatePickerDialog.OnDateSetListener onDateSetListener = (view, year, month, day) -> {
                     Calendar mUserChosenDate = Calendar.getInstance();
@@ -496,7 +512,7 @@ public class SiddurFragment extends Fragment {
                     mJewishDateInfo.setCalendar(mUserChosenDate);
                     mCurrentDateShown = (Calendar) mROZmanimCalendar.getCalendar().clone();
                     initView();
-                    mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+                    mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
                 };
                 materialDatePicker.addOnNegativeButtonClickListener(selection -> {
                     HebrewDayMonthYearPickerDialog hdmypd = new HebrewDayMonthYearPickerDialog(materialDatePicker, mActivity.getSupportFragmentManager(), mJewishDateInfo.getJewishCalendar());
@@ -509,7 +525,7 @@ public class SiddurFragment extends Fragment {
                 materialDatePicker.show(mActivity.getSupportFragmentManager(), null);
             });
 
-            mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, CalendarDrawable.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+            mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
         }
     }
 

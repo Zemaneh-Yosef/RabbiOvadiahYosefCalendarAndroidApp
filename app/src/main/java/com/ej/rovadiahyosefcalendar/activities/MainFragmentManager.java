@@ -117,6 +117,13 @@ public class MainFragmentManager extends AppCompatActivity {
         mHebrewDateFormatter.setUseGershGershayim(false);
         sSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         sSettingsPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        if (sSharedPreferences.getBoolean("massUpdateCheck", true)) {// since version 23.3, we need to move everyone to AH mode if they are outside of Israel. This should eventually be removed, but far into the future
+            if (!sSharedPreferences.getBoolean("inIsrael", false)) {
+                sSettingsPreferences.edit().putBoolean("LuachAmudeiHoraah", true).apply();
+                sSharedPreferences.edit().putBoolean("useElevation", false).apply();
+            }
+            sSharedPreferences.edit().putBoolean("massUpdateCheck", false).apply();// do not check again
+        }
         String lang = sSettingsPreferences.getString("language", "Default");
         if (!lang.equals("Default")) {
             if (!Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals(lang)) {
@@ -142,7 +149,7 @@ public class MainFragmentManager extends AppCompatActivity {
                 && sSharedPreferences.getBoolean("UseTable" + sCurrentLocationName, true)
                 && !sSharedPreferences.getBoolean("isSetup", false)
                 && savedInstanceState == null) {//it should only not exist the first time running the app and only if the user has not set up the app
-            sSetupLauncher.launch(new Intent(this, FullSetupActivity.class));
+            sSetupLauncher.launch(new Intent(this, WelcomeScreenActivity.class));
             initZmanimNotificationDefaults();
         }
         updateWidget();
@@ -271,6 +278,7 @@ public class MainFragmentManager extends AppCompatActivity {
         sSettingsPreferences.edit().putInt("CandleLighting", 15).apply();
         sSettingsPreferences.edit().putInt("Shkia", 15).apply();
         sSettingsPreferences.edit().putInt("TzeitHacochavim", 15).apply();
+        sSettingsPreferences.edit().putInt("TzeitHacochavimLChumra", -1).apply();
         sSettingsPreferences.edit().putInt("FastEnd", 15).apply();
         sSettingsPreferences.edit().putInt("ShabbatEnd", -1).apply();
         sSettingsPreferences.edit().putInt("RT", 0).apply();

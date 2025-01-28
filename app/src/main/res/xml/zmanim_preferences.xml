@@ -31,13 +31,8 @@
             android:summary="@string/override_the_time_for_when_shabbat_ends_to_use_the_below_settings"
             android:title="@string/use_regular_minutes_for_shabbat_end" />
 
-        <EditTextPreference
-            app:defaultValue="40"
-            app:key="EndOfShabbatOffset"
-            app:summary="@string/enter_the_amount_of_minutes_to_add_to_sunset_for_shabbat_to_end"
-            app:title="@string/minutes_till_shabbat_ends" />
-
         <ListPreference
+            android:dependency="overrideAHEndShabbatTime"
             app:defaultValue="1"
             app:entries="@array/shabbat_opinion_entries"
             app:entryValues="@array/shabbat_opinion_values"
@@ -45,23 +40,18 @@
             app:summary="@string/choose_which_opinion_to_use_for_the_time_for_when_shabbat_chag_ends"
             app:title="@string/end_shabbat_opinion" />
 
-    <PreferenceCategory app:title="@string/these_settings_only_apply_if_you_do_not_use_the_luach_amudei_horaah_setting">
-
-        <ListPreference
-            app:defaultValue="1"
-            app:entries="@array/plag_opinion_entries"
-            app:entryValues="@array/plag_opinion_values"
-            app:key="plagOpinion"
-            app:summary="@string/choose_which_opinion_to_show_for_the_time_for_plag_hamincha"
-            app:title="@string/plag_hamincha_opinion" />
+        <EditTextPreference
+            android:dependency="overrideAHEndShabbatTime"
+            app:defaultValue="40"
+            app:key="EndOfShabbatOffset"
+            app:summary="@string/enter_the_amount_of_minutes_to_add_to_sunset_for_shabbat_to_end"
+            app:title="@string/minutes_till_shabbat_ends" />
 
         <SwitchPreferenceCompat
             android:defaultValue="false"
-            android:key="alwaysShowTzeitLChumra"
-            android:summary="@string/always_show_tzeit_l_chumra_according_to_the_ohr_hachaim_calendar"
-            android:title="@string/always_show_tzeit_l_chumra" />
-
-        </PreferenceCategory>
+            android:key="overrideRTZman"
+            android:summary="@string/enable_this_if_you_want_to_always_calculate_rabbeinu_tam_as_a_10th_of_the_day_72_non_deviated_zmaniyot_minutes"
+            android:title="@string/always_use_a_10th_of_the_day_for_rabbeinu_tam" />
 
     </PreferenceCategory>
 

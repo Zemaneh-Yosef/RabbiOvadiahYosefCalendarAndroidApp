@@ -191,12 +191,11 @@ public class SeekBarPreference extends Preference {
 
 
   @Override
-  protected void onSetInitialValue(boolean restoreValue, Object  defaultValue) {
+  protected void onSetInitialValue(boolean restoreValue, Object defaultValue) {
 
     int value;
     if ( defaultValue instanceof Integer ) {
-      //noinspection UnnecessaryUnboxing
-      value = ((Integer)defaultValue).intValue();
+      value = (Integer) defaultValue;
     } else {
       value = NO_ALERT;
     }

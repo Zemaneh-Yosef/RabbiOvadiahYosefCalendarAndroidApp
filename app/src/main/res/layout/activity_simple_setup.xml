@@ -23,8 +23,7 @@
             app:title="@string/app_name"
             app:titleCentered="true"
             app:subtitle="@string/short_app_name"
-            app:subtitleCentered="true"
-            app:menu="@menu/setup_menu" />
+            app:subtitleCentered="true" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -127,8 +126,9 @@
         android:id="@+id/quickSetupDownloadButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="@color/black"
         android:drawableEnd="@android:drawable/stat_sys_download"
-        android:drawableTint="?android:attr/textColorPrimaryInverse"
+        android:drawableTint="@color/black"
         android:backgroundTint="@color/dark_gold"
         android:text="@string/download" />
 

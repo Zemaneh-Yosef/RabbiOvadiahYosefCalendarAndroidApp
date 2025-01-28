@@ -5,7 +5,7 @@ import java.util.Date;
 public class ZmanListEntry {
 
     private String title;
-    private final Date zman;
+    private Date zman;
     private final boolean isZman;
     private boolean isNoteworthyZman;
     private boolean isRTZman;
@@ -43,6 +43,10 @@ public class ZmanListEntry {
 
     public Date getZman() {
         return zman;
+    }
+
+    public void setZman(Date zman) {
+        this.zman = zman;
     }
 
     public boolean isZman() {

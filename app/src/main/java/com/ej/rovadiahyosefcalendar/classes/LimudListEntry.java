@@ -3,6 +3,7 @@ package com.ej.rovadiahyosefcalendar.classes;
 public class LimudListEntry {
 
     private String limudTitle;
+    private String description;
     private String source;
     private boolean hasSource;
 
@@ -12,6 +13,13 @@ public class LimudListEntry {
 
     public LimudListEntry(String limudTitle, String source) {
         this.limudTitle = limudTitle;
+        this.source = source;
+        this.hasSource = true;
+    }
+
+    public LimudListEntry(String limudTitle, String description, String source) {
+        this.limudTitle = limudTitle;
+        this.description = description;
         this.source = source;
         this.hasSource = true;
     }
@@ -38,5 +46,13 @@ public class LimudListEntry {
 
     public void setHasSource(boolean hasSource) {
         this.hasSource = hasSource;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

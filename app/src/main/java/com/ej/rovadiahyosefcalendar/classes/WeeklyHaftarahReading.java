@@ -273,6 +273,6 @@ public class WeeklyHaftarahReading {
             return result;
         }
 
-        return result;
+        return result.replace("מפטירין", Utils.isLocaleHebrew() ? "" : "Haftarah: \u202B");
     }
 }

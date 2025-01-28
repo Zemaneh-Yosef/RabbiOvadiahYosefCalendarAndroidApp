@@ -57,7 +57,7 @@ public class JewishDateInfo {
         jewishCalendar.setUseModernHolidays(true);
         hebrewDateFormatter = new HebrewDateFormatter();
         hebrewDateFormatter.setUseGershGershayim(false);
-        if (LocaleChecker.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew()) {
             hebrewDateFormatter.setHebrewFormat(true);
             isLocaleHebrew = true;
         }
@@ -644,7 +644,7 @@ public class JewishDateInfo {
                 if (isLocaleHebrew) {
                     return "ברכת הלבנה מתחילה הלילה";
                 }
-                return "Birchat HaLevana starts tonight";
+                return "Birkat Halevana starts tonight";
             }
         } else {// Special case for Tisha Beav, see Shulchan Aruch Orach Chaim 426:2
             if (jewishCalendar.getJewishDayOfMonth() < 9) {
@@ -654,7 +654,7 @@ public class JewishDateInfo {
                 if (isLocaleHebrew) {
                     return "ברכת הלבנה מתחילה הלילה";
                 }
-                return "Birchat HaLevana starts tonight";
+                return "Birkat Halevana starts tonight";
             }
         }
 
@@ -662,7 +662,7 @@ public class JewishDateInfo {
             if (isLocaleHebrew) {
                 return "לילה אחרון לברכת הלבנה";
             }
-            return "Last night for Birchat HaLevana";
+            return "Last night for Birkat Halevana";
         }
 
         if (jewishCalendar.getGregorianCalendar().getTime().after(sevenDays.getTime())
@@ -670,7 +670,7 @@ public class JewishDateInfo {
             if (isLocaleHebrew) {
                 return "ברכת הלבנה עד ליל טו'";
             }
-            return "Birchat HaLevana until " + sdf.format(latest.getGregorianCalendar().getTime());
+            return "Birkat Halevana until " + sdf.format(latest.getGregorianCalendar().getTime());
         }
         return "";
     }

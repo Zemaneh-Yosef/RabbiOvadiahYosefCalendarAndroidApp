@@ -8,7 +8,7 @@
     android:layout_alignParentBottom="true"
     android:layout_centerHorizontal="true"
     android:background="?android:attr/colorBackground"
-    tools:context=".activities.FullSetupActivity">
+    tools:context=".activities.InIsraelActivity">
 
 <LinearLayout
     android:layout_height="wrap_content"

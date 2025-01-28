@@ -1,9 +1,9 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
-import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
-import static android.Manifest.permission.ACCESS_FINE_LOCATION;
-import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLatitude;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLongitude;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSharedPreferences;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,13 +14,12 @@ import android.widget.Button;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
-import com.ej.rovadiahyosefcalendar.classes.LocaleChecker;
+import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -34,7 +33,7 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_zmanim_language);
         MaterialToolbar materialToolbar = findViewById(R.id.topAppBar);
-        if (LocaleChecker.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew()) {
             materialToolbar.setSubtitle("");
         }
         materialToolbar.setOnMenuItemClickListener(item -> {
@@ -50,7 +49,7 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
                 finish();
                 return true;
             } else if (id == R.id.restart) {
-                startActivity(new Intent(this, FullSetupActivity.class));
+                startActivity(new Intent(this, WelcomeScreenActivity.class));
                 finish();
                 return true;
             }
@@ -81,28 +80,28 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
         String englishText = "Alot Hashachar" + "\n" +
                 "Earliest Talit/Tefilin" + "\n" +
                 "HaNetz" + "\n" +
-                "Sof Zman Shma Mg'a" + "\n" +
-                "Sof Zman Shma Gr'a" + "\n" +
-                "Sof Zman Brachot Shma" + "\n" +
-                "Chatzot" + "\n" +
-                "Mincha Gedola" + "\n" +
-                "Mincha Ketana" + "\n" +
-                "Plag HaMincha" + "\n" +
-                "Shkia" + "\n" +
-                "Tzeit Hacochavim" + "\n" +
+                "Sof Zeman Shema MG'A" + "\n" +
+                "Sof Zeman Shema GR'A" + "\n" +
+                "Sof Zeman Berakhot Shema" + "\n" +
+                "Ḥatzot" + "\n" +
+                "Minḥa Gedola" + "\n" +
+                "Minḥa Ketana" + "\n" +
+                "Plag HaMinḥa" + "\n" +
+                "Sheqi'a" + "\n" +
+                "Tzet Hakokhavim" + "\n" +
                 "etc...";
         english.setText(englishText);
 
         String englishTranslatedText = "Dawn" + "\n" +
                 "Earliest Talit/Tefilin" + "\n" +
                 "Sunrise" + "\n" +
-                "Latest Shma Mg'a" + "\n" +
-                "Latest Shma Gr'a" + "\n" +
-                "Latest Brachot Shma" + "\n" +
+                "Latest Shema MG'A" + "\n" +
+                "Latest Shema GR'A" + "\n" +
+                "Latest Berakhot Shema" + "\n" +
                 "Mid-Day" + "\n" +
-                "Earliest Mincha" + "\n" +
-                "Mincha Ketana" + "\n" +
-                "Plag HaMincha" + "\n" +
+                "Earliest Minḥa" + "\n" +
+                "Minḥa Ketana" + "\n" +
+                "Plag HaMinḥa" + "\n" +
                 "Sunset" + "\n" +
                 "Nightfall" + "\n" +
                 "etc...";
@@ -127,8 +126,12 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                startActivity(new Intent(ZmanimLanguageActivity.this, FullSetupActivity.class)
-                        .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
+                if (Utils.isInOrNearIsrael(sLatitude, sLongitude)) {
+                    startActivity(new Intent(ZmanimLanguageActivity.this, InIsraelActivity.class));
+                } else {
+                    startActivity(new Intent(ZmanimLanguageActivity.this, GetUserLocationWithMapActivity.class)
+                            .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
+                }
                 finish();
             }
         });
@@ -137,17 +140,7 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
     private void saveInfoAndStartActivity(boolean isHebrew, boolean isTranslated) {
         mSharedPreferences.edit().putBoolean("isZmanimInHebrew", isHebrew).apply();
         mSharedPreferences.edit().putBoolean("isZmanimEnglishTranslated", isTranslated).apply();
-        if ((ActivityCompat.checkSelfPermission(getApplicationContext(), ACCESS_FINE_LOCATION) != PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(getApplicationContext(), ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED)
-                && !mSharedPreferences.getBoolean("useZipcode", false)) {
-            startActivity(new Intent(this, GetUserLocationWithMapActivity.class).setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
-            finish();
-            return;
-        }
-        if (!mSharedPreferences.getBoolean("inIsrael", false)) {
-            startActivity(new Intent(this, CalendarChooserActivity.class).setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
-        }
-        mSharedPreferences.edit().putBoolean("isSetup", true).apply();
+        sSharedPreferences.edit().putBoolean("isSetup", true).apply();
         finish();
     }
 }

@@ -80,7 +80,7 @@ import java.util.GregorianCalendar;
  * Methods used to replicate the Ohr Hachaim calendar's zmanim:
  * {@link #getAlos72Zmanis()}
  * <br>
- * {@link #getEarliestTalitTefilin()} not in KosherJava, but implemented by this class.
+ * {@link #getMisheyakir66ZmaniyotMinutes()} not in KosherJava, but implemented by this class.
  * <br>
  * {@link #getHaNetz()} gets the sunrise times from chaitables, otherwise we should default to {@link #getSeaLevelSunrise()} since it is similar to visible sunrise.
  * <br>
@@ -134,7 +134,7 @@ import java.util.GregorianCalendar;
  * See these methods for more information on the Amudei Horaah's zmanim:
  * <br>
  * {@link #getAlotAmudeiHoraah()},
- * {@link #getEarliestTalitTefilinAmudeiHoraah()},
+ * {@link #getMisheyakir60AmudeiHoraah()},
  * {@link #getSofZmanShmaMGA72MinutesZmanisAmudeiHoraah()},
  * {@link #getSofZmanAchilatChametzAmudeiHoraah()},
  * {@link #getSofZmanBiurChametzMGAAmudeiHoraah()},
@@ -165,7 +165,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
      * {@link #getAlos72Zmanis()} method and adding 6 Dakot Zmaniyot to it. This is the same calculation that is used in the Ohr HaChaim calendar.
      * @return the earliest time that your are allowed to put on your Talit and Tefilin based on the Ohr HaChaim calendar. 66 minutes before sunrise.
      */
-    public Date getEarliestTalitTefilin() {
+    public Date getMisheyakir66ZmaniyotMinutes() {
         long shaahZmanit = getTemporalHour(getElevationAdjustedSunrise(), getElevationAdjustedSunset());
         long dakahZmanit = shaahZmanit / MINUTES_PER_HOUR;
         return getTimeOffset(getAlos72Zmanis(), (6 * dakahZmanit));//use getTimeOffset to handle nulls
@@ -176,7 +176,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
      * {@link #getElevationAdjustedSunrise()} method and subtracting 1 zmaniyot hour from it.
      * @return the earliest time that your are allowed to put on your Talit and Tefilin. 60 seasonal minutes before sunrise.
      */
-    public Date getEarliestProperTalitTefilin() {
+    public Date getMisheyakir60ZmaniyotMinutes() {
         return getTimeOffset(getElevationAdjustedSunrise(), -getTemporalHour(getElevationAdjustedSunrise(), getElevationAdjustedSunset()));//use getTimeOffset to handle nulls
     }
 
@@ -297,9 +297,19 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
      * @return the time for Plag Hamincha as calculated by the Amudei Horaah calendar and Yalkut Yosef.
      */
     public Date getPlagHaminchaYalkutYosefAmudeiHoraah() {
-        long shaahZmanit = getTemporalHour(getSeaLevelSunrise(), getSeaLevelSunset());
+        long shaahZmanit = getTemporalHour(getElevationAdjustedSunrise(), getElevationAdjustedSunset());
         long dakahZmanit = shaahZmanit / MINUTES_PER_HOUR;
         return getTimeOffset(getTzeitAmudeiHoraah(), -(shaahZmanit + (15 * dakahZmanit)));
+    }
+
+    @Override
+    public Date getElevationAdjustedSunrise() {
+        return super.getElevationAdjustedSunrise();
+    }
+
+    @Override
+    public Date getElevationAdjustedSunset() {
+        return super.getElevationAdjustedSunset();
     }
 
     /**
@@ -368,8 +378,6 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         }
     }
 
-    //Amudei Horaah methods start here
-
     /**
      * This method returns the time of alot hashachar (dawn) calculated by the Amudei Horaah calendar. While normally this is calculated as 72 zmaniyot
      * minutes before sunrise, Rabbi Dahan says that the zmanim need to be adjusted for more northern/southern locations. He calculates the time as
@@ -395,8 +403,8 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         }
         setCalendar(tempCal);//reset the calendar to the current day
 
-        long shaahZmanit = getTemporalHour(getSeaLevelSunrise(), getSeaLevelSunset());
-        return getTimeOffset(getSeaLevelSunrise(), -(percentage * shaahZmanit));
+        long shaahZmanit = getTemporalHour(getElevationAdjustedSunrise(), getElevationAdjustedSunset());
+        return getTimeOffset(getElevationAdjustedSunrise(), -(percentage * shaahZmanit));
     }
 
     /**
@@ -407,7 +415,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
      * @return the time of misheyakir calculated by the Amudei Horaah calendar by adjusting the zman based off of degrees. This zman
      * should NOT be used in Israel.
      */
-    public Date getEarliestTalitTefilin66AmudeiHoraah() {
+    public Date getMisheyakir66AmudeiHoraah() {
         Calendar tempCal = (Calendar) getCalendar().clone();
         setCalendar(new GregorianCalendar(getCalendar().get(Calendar.YEAR), Calendar.MARCH, 17));//set the calendar to the equinox
 
@@ -417,8 +425,8 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         }
         setCalendar(tempCal);//reset the calendar to the current day
 
-        long shaahZmanit = getTemporalHour(getSeaLevelSunrise(), getSeaLevelSunset());
-        return getTimeOffset(getSeaLevelSunrise(), -(percentage * shaahZmanit) * 11 / 12);
+        long shaahZmanit = getTemporalHour(getElevationAdjustedSunrise(), getElevationAdjustedSunset());
+        return getTimeOffset(getElevationAdjustedSunrise(), -(percentage * shaahZmanit) * 11 / 12);
     }
 
     /**
@@ -429,7 +437,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
      * @return the time of misheyakir calculated by the Amudei Horaah calendar by adjusting the zman based off of degrees. This zman
      * should NOT be used in Israel.
      */
-    public Date getEarliestTalitTefilinAmudeiHoraah() {
+    public Date getMisheyakir60AmudeiHoraah() {
         Calendar tempCal = (Calendar) getCalendar().clone();
         setCalendar(new GregorianCalendar(getCalendar().get(Calendar.YEAR), Calendar.MARCH, 17));//set the calendar to the equinox
 
@@ -439,8 +447,8 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         }
         setCalendar(tempCal);//reset the calendar to the current day
 
-        long shaahZmanit = getTemporalHour(getSeaLevelSunrise(), getSeaLevelSunset());
-        return getTimeOffset(getSeaLevelSunrise(), -(percentage * shaahZmanit) * 5 / 6);
+        long shaahZmanit = getTemporalHour(getElevationAdjustedSunrise(), getElevationAdjustedSunset());
+        return getTimeOffset(getElevationAdjustedSunrise(), -(percentage * shaahZmanit) * 5 / 6);
     }
 
     // These methods are similar to the ones in the base class, but they use the Amudei Horaah zmanim instead of the regular zmanim
@@ -474,8 +482,8 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         }
         setCalendar(tempCal);//reset the calendar to the current day
 
-        long shaahZmanit = getTemporalHour(getSeaLevelSunrise(), getSeaLevelSunset());
-        return getTimeOffset(getSeaLevelSunset(), percentage * shaahZmanit);
+        long shaahZmanit = getTemporalHour(getElevationAdjustedSunrise(), getElevationAdjustedSunset());
+        return getTimeOffset(getElevationAdjustedSunset(), percentage * shaahZmanit);
     }
 
     /**
@@ -495,8 +503,8 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         }
         setCalendar(tempCal);//reset the calendar to the current day
 
-        long shaahZmanit = getTemporalHour(getSeaLevelSunrise(), getSeaLevelSunset());
-        return getTimeOffset(getSeaLevelSunset(), percentage * shaahZmanit);
+        long shaahZmanit = getTemporalHour(getElevationAdjustedSunrise(), getElevationAdjustedSunset());
+        return getTimeOffset(getElevationAdjustedSunset(), percentage * shaahZmanit);
     }
 
     /**
@@ -537,7 +545,11 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
                 return getTzaitShabbatAmudeiHoraah();
             }
         } else {
-            return null;
+            if (getTzaisAteretTorah() != null) {
+                return getTzaisAteretTorah();
+            } else {
+                return getTzaitShabbatAmudeiHoraah();
+            }
         }
     }
 
@@ -560,8 +572,8 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         }
         setCalendar(tempCal);//reset the calendar to the current day
 
-        long shaahZmanit = getTemporalHour(getSeaLevelSunrise(), getSeaLevelSunset());
-        return getTimeOffset(getSeaLevelSunset(), percentage * shaahZmanit);
+        long shaahZmanit = getTemporalHour(getElevationAdjustedSunrise(), getElevationAdjustedSunset());
+        return getTimeOffset(getElevationAdjustedSunset(), percentage * shaahZmanit);
     }
 
     /**

@@ -4,6 +4,7 @@ import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentLocationName;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLatitude;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLongitude;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSharedPreferences;
 
 import android.app.Activity;
 import android.content.Context;
@@ -34,10 +35,9 @@ import com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesCountries;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesOptionsList;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesScraper;
-import com.ej.rovadiahyosefcalendar.classes.LocaleChecker;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
+import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
 
 import java.util.Arrays;
@@ -59,25 +59,9 @@ public class SimpleSetupActivity extends AppCompatActivity {
         setContentView(R.layout.activity_simple_setup);
 
         MaterialToolbar materialToolbar = findViewById(R.id.topAppBar);
-        if (LocaleChecker.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew()) {
             materialToolbar.setSubtitle("");
         }
-        materialToolbar.setOnMenuItemClickListener(item -> {
-            int id = item.getItemId();
-            if (id == R.id.help) {
-                new MaterialAlertDialogBuilder(this)
-                        .setTitle(R.string.help_using_this_app)
-                        .setPositiveButton(R.string.ok, null)
-                        .setMessage(R.string.helper_text)
-                        .show();
-                return true;
-            } else if (id == R.id.restart) {
-                startActivity(new Intent(this, FullSetupActivity.class));
-                finish();
-                return true;
-            }
-            return false;
-        });
 
         JewishDate jewishDate = new JewishDate();
         LocationResolver locationResolver = new LocationResolver(this, this);
@@ -191,7 +175,7 @@ public class SimpleSetupActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), R.string.something_went_wrong_connecting_to_the_website_please_try_again_later, Toast.LENGTH_SHORT).show();
                     recreate();
                 } else {
-                    Toast.makeText(getApplicationContext(), "Success!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), getString(R.string.success), Toast.LENGTH_SHORT).show();
                     userID.getAndIncrement();
                     mSharedPreferences.edit().putInt("USER_ID", userID.get()).apply();
                     mSharedPreferences.edit().putString("chaitablesLink" + sCurrentLocationName, link).apply();//save the link for this location to automatically download again next time
@@ -203,6 +187,10 @@ public class SimpleSetupActivity extends AppCompatActivity {
                 Intent returnIntent = new Intent();
                 returnIntent.putExtra("elevation", mSharedPreferences.getString("elevation" + sCurrentLocationName, ""));
                 setResult(Activity.RESULT_OK, returnIntent);
+                if (sSharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
+                    startActivity(new Intent(getBaseContext(), TipScreenActivity.class));
+                    sSharedPreferences.edit().putBoolean("hasNotShownTipScreen", false).apply();
+                }
                 finish();
             }));
             thread.start();
@@ -223,6 +211,10 @@ public class SimpleSetupActivity extends AppCompatActivity {
                         Intent returnIntent = new Intent();
                         returnIntent.putExtra("elevation", mSharedPreferences.getString("elevation" + sCurrentLocationName, ""));
                         setResult(Activity.RESULT_OK, returnIntent);
+                        if (sSharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
+                            startActivity(new Intent(getBaseContext(), TipScreenActivity.class));
+                            sSharedPreferences.edit().putBoolean("hasNotShownTipScreen", false).apply();
+                        }
                         finish();
                     }));
             thread.start();
@@ -243,15 +235,8 @@ public class SimpleSetupActivity extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (getIntent().getBooleanExtra("onlyTable", false)) {
-                    startActivity(new Intent(SimpleSetupActivity.this, AdvancedSetupActivity.class)
-                            .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-                            .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
-                } else {
-                    startActivity(new Intent(SimpleSetupActivity.this, SetupChooserActivity.class)
-                            .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-                            .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
-                }
+                startActivity(new Intent(SimpleSetupActivity.this, SetupChooserActivity.class)
+                        .putExtra("fromSetup", SimpleSetupActivity.this.getIntent().getBooleanExtra("fromSetup", false)));
                 finish();
             }
         });

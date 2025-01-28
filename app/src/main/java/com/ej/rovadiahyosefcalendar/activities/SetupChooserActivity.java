@@ -16,7 +16,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
-import com.ej.rovadiahyosefcalendar.classes.LocaleChecker;
+import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -31,28 +31,9 @@ public class SetupChooserActivity extends AppCompatActivity {
         setContentView(R.layout.activity_setup_chooser);
 
         MaterialToolbar materialToolbar = findViewById(R.id.topAppBar);
-        if (LocaleChecker.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew()) {
             materialToolbar.setSubtitle("");
         }
-        materialToolbar.setOnMenuItemClickListener(item -> {
-            int id = item.getItemId();
-            if (id == R.id.help) {
-                new MaterialAlertDialogBuilder(this)
-                        .setTitle(R.string.help_using_this_app)
-                        .setPositiveButton(R.string.ok, null)
-                        .setMessage(R.string.helper_text)
-                        .show();
-                return true;
-            } else if (id == R.id.skipSetup) {
-                finish();
-                return true;
-            } else if (id == R.id.restart) {
-                startActivity(new Intent(this, FullSetupActivity.class));
-                finish();
-                return true;
-            }
-            return false;
-        });
 
         mAlertDialog = new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.Introduction)
@@ -70,15 +51,13 @@ public class SetupChooserActivity extends AppCompatActivity {
 
         quickSetupButton.setOnClickListener(v -> {
             startActivity(new Intent(this, SimpleSetupActivity.class)
-                    .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-                    .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
+                    .putExtra("fromSetup", SetupChooserActivity.this.getIntent().getBooleanExtra("fromSetup", false)));
             finish();
         });
 
         advancedSetupButton.setOnClickListener(v -> {
             startActivity(new Intent(this, AdvancedSetupActivity.class)
-                            .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-                            .putExtra("fromMenu", getIntent().getBooleanExtra("fromMenu", false)));
+                    .putExtra("fromSetup", SetupChooserActivity.this.getIntent().getBooleanExtra("fromSetup", false)));
             finish();
         });
 

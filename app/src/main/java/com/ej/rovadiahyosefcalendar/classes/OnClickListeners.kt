@@ -7,4 +7,7 @@ class OnClickListeners {
     interface OnZmanClickListener {
         fun onItemClick()
     }
+    interface ScraperCallback {
+        fun onScraperFinished()
+    }
 }
