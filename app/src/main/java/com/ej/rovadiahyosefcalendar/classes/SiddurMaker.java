@@ -4223,6 +4223,9 @@ public class SiddurMaker {
             addCategoryToSiddur("תיקון רחל");
             addTikkunRachel(false);
         }
+        if (jewishDateInfo.isAfterTheMoladAndBeforeRoshChodesh()) {
+            addToSiddurHighlighted("כעת זהו זמן שאחרי המולד ולפני ראש חודש. תיקון רחל אינו נאמר בשעה זו./It is currently after the Molad and before Rosh Chodesh. Tikkun Rachel is not said at this time" + "\n(חזון עובדיה ימים נוראים עמוד 46)");
+        }
         addCategoryToSiddur("תיקון לאה");
         addTikkunLeah(isTachanunSaidInTheMorning);
         addToSiddur(ending);

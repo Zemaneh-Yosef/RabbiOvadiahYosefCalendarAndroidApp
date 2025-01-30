@@ -931,26 +931,33 @@ public class JewishDateInfo {
         if (forNightTikkun) {
             if (isTikkunChatzotSaid) {
                 // These are days where we ONLY say Tikkun Leia
-                int currentHebrewMonth = jewishCalendar.getJewishMonth();
-                while (currentHebrewMonth == jewishCalendar.getJewishMonth()) {
-                    jewishCalendar.forward(Calendar.DATE, 1); // go forward until the next month
-                }
-                Date molad = jewishCalendar.getMoladAsDate(); // now we can get the molad for the next month
-                Date roshChodesh = jewishCalendar.getGregorianCalendar().getTime();
-                jewishCalendar.setDate(currentDate); // reset
-                boolean afterMoladBeforeRoshChodesh = molad.before(new Date()) && roshChodesh.after(new Date()) && !jewishCalendar.isRoshChodesh(); // Tikkun Leia (only) is said if it is after the molad but before Rosh Chodesh, this condition is time based even though all the other methods are date based
                 return (jewishCalendar.isAseresYemeiTeshuva() ||
                         jewishCalendar.isCholHamoedSuccos() ||
                         jewishCalendar.getDayOfOmer() != -1 ||
                         (jewishCalendar.getInIsrael() && isShmitaYear()) ||
                         getIsTachanunSaid().equals("No Tachanun today") || getIsTachanunSaid().equals("לא אומרים תחנון") ||
-                        afterMoladBeforeRoshChodesh);
+                        isAfterTheMoladAndBeforeRoshChodesh());
                 // Tikkun Rachel is also skipped in the house of a Mourner, Chatan, or Brit Milah (Specifically the father of the boy)
             }
         } else { // for day tikkun, we do not say Tikkun Rachel if there is no tachanun
             return getIsTachanunSaid().equals("No Tachanun today") || getIsTachanunSaid().equals("לא אומרים תחנון");
         }
         return false;
+    }
+
+    /**
+     * Based off of Chazon Ovadia Yamim Noraim pg 46 that you do not say Tikkun Chatzot if the Molad has passed and only Tikkun Leia is said.
+     * @return if the CURRENT SYSTEM TIME is after the molad and before Rosh Chodesh
+     */
+    public boolean isAfterTheMoladAndBeforeRoshChodesh() {
+        int currentHebrewMonth = jewishCalendar.getJewishMonth();
+        while (currentHebrewMonth == jewishCalendar.getJewishMonth()) {
+            jewishCalendar.forward(Calendar.DATE, 1); // go forward until the next month
+        }
+        Date molad = jewishCalendar.getMoladAsDate(); // now we can get the molad for the next month
+        Date roshChodesh = jewishCalendar.getGregorianCalendar().getTime();
+        jewishCalendar.setDate(currentDate); // reset
+        return molad.before(new Date()) && roshChodesh.after(new Date()) && !jewishCalendar.isRoshChodesh(); // Tikkun Leia (only) is said if it is after the molad but before Rosh Chodesh, this condition is time based even though all the other methods are date based
     }
 
     /**
