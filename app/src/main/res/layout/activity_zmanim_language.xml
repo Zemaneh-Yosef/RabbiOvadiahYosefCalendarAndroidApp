@@ -44,101 +44,62 @@
             android:layout_gravity="center"
             android:layout_margin="28dp"/>
 
-        <LinearLayout
+        <ImageView
+            android:id="@+id/langImageView"
             android:layout_width="match_parent"
+            android:layout_height="260dp"
+            android:src="@drawable/english"
+            android:contentDescription="@string/what_language_would_you_like_the_zmanim_to_be_in" />
+
+            <RadioGroup
+                android:id="@+id/radioGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <RadioButton
+                    android:id="@+id/hebrew"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4dp"
+                    android:padding="8dp"
+                    android:text="@string/hebrew"
+                    android:textAlignment="center"
+                    android:textAllCaps="false"
+                    android:textStyle="bold"
+                    android:textSize="18sp" />
+
+                <RadioButton
+                    android:id="@+id/english"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4dp"
+                    android:padding="8dp"
+                    android:text="@string/english"
+                    android:textAlignment="center"
+                    android:textAllCaps="false"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+            </RadioGroup>
+
+        <CheckBox
+            android:id="@+id/englishTranslated"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="8dp">
+            android:text="@string/translated_english"
+            android:textSize="18sp"
+            android:padding="8dp"
+            android:layout_marginStart="26dp"/>
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:padding="4dp"
-                android:layout_gravity="bottom"
-                android:layout_weight="1"
-                android:text="@string/hebrew"
-                android:textColor="?android:attr/textColorPrimary"
-                android:textSize="28sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:layout_gravity="bottom"
-                android:layout_weight="1"
-                android:padding="4dp"
-                android:text="@string/english"
-                android:textColor="?android:attr/textColorPrimary"
-                android:textSize="28sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:padding="4dp"
-                android:layout_weight="1"
-                android:text="@string/translated_english"
-                android:textColor="?android:attr/textColorPrimary"
-                android:textSize="22sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/lang_options"
-            android:layout_width="match_parent"
+        <Button
+            android:id="@+id/confirm"
+            android:layout_width="320dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/hebrew"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_margin="4dp"
-                android:layout_weight="1"
-                android:background="@drawable/colorful_gradient_square"
-                android:padding="2dp"
-                android:text="@string/hebrew"
-                android:textAlignment="center"
-                android:textAllCaps="false"
-                android:textColor="@color/black"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                app:backgroundTint="@null" />
-
-            <Button
-                android:id="@+id/english"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_margin="4dp"
-                android:layout_weight="1"
-                android:background="@drawable/colorful_gradient_square"
-                android:padding="2dp"
-                android:text="@string/english"
-                android:textAlignment="center"
-                android:textAllCaps="false"
-                android:textColor="@color/black"
-                android:textStyle="bold"
-                android:textSize="18sp"
-                app:backgroundTint="@null" />
-
-            <Button
-                android:id="@+id/englishTranslated"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_margin="4dp"
-                android:layout_weight="1"
-                android:background="@drawable/colorful_gradient_square"
-                android:padding="2dp"
-                android:text="@string/translated_english"
-                android:textAlignment="center"
-                android:textAllCaps="false"
-                android:textColor="@color/black"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                app:backgroundTint="@null" />
-        </LinearLayout>
+            android:layout_gravity="center"
+            android:layout_margin="8dp"
+            android:text="@string/confirm"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/dark_blue" />
 
     </LinearLayout>
 

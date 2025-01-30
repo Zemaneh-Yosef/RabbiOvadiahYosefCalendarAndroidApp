@@ -43,7 +43,6 @@ import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.ui.limudiim.LimudFragment;
 import com.ej.rovadiahyosefcalendar.activities.ui.siddur.SiddurFragment;
 import com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment;
-import com.ej.rovadiahyosefcalendar.classes.ChaiTables;
 import com.ej.rovadiahyosefcalendar.classes.ExceptionHandler;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
@@ -145,10 +144,7 @@ public class MainFragmentManager extends AppCompatActivity {
         }
         mJewishDateInfo.getJewishCalendar().setInIsrael(sSharedPreferences.getBoolean("inIsrael", false));
         initSetupResult();
-        if (ChaiTables.visibleSunriseFileDoesNotExist(getExternalFilesDir(null), sCurrentLocationName, mJewishDateInfo.getJewishCalendar())
-                && sSharedPreferences.getBoolean("UseTable" + sCurrentLocationName, true)
-                && !sSharedPreferences.getBoolean("isSetup", false)
-                && savedInstanceState == null) {//it should only not exist the first time running the app and only if the user has not set up the app
+        if (!sSharedPreferences.getBoolean("isSetup", false)) {// it should only run if the user has not set up the app
             sSetupLauncher.launch(new Intent(this, WelcomeScreenActivity.class));
             initZmanimNotificationDefaults();
         }

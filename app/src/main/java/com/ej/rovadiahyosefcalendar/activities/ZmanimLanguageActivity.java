@@ -10,6 +10,10 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
@@ -26,6 +30,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 public class ZmanimLanguageActivity extends AppCompatActivity {
 
     SharedPreferences mSharedPreferences;
+    boolean translated;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,60 +63,52 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
 
         mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
 
-        Button hebrew = findViewById(R.id.hebrew);
-        Button english = findViewById(R.id.english);
-        Button englishTranslated = findViewById(R.id.englishTranslated);
+        ImageView imageView = findViewById(R.id.langImageView);
+        RadioGroup group = findViewById(R.id.radioGroup);
+        RadioButton hebrew = findViewById(R.id.hebrew);
+        RadioButton english = findViewById(R.id.english);
+        CheckBox englishTranslated = findViewById(R.id.englishTranslated);
 
-        String hebrewText = "עלות השחר\n" +
-                "טלית ותפילין\n" +
-                "הנץ\n" +
-                "סוף זמן שמע מג\"א\n" +
-                "סוף זמן שמע גר\"א\n" +
-                "סוף זמן ברכות שמע\n" +
-                "חצות\n" +
-                "מנחה גדולה\n" +
-                "מנחה קטנה\n" +
-                "פלג המנחה\n" +
-                "שקיעה\n" +
-                "צאת הכוכבים\n" +
-                "וגו...";
-        hebrew.setText(hebrewText);
+        if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
+            group.check(R.id.hebrew);
+            englishTranslated.setEnabled(false);
+            englishTranslated.setChecked(false);
+            imageView.setImageResource(R.drawable.hebrew);
+        } else if (mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false)) {
+            translated = true;
+            group.check(R.id.english);
+            englishTranslated.setEnabled(true);
+            englishTranslated.setChecked(true);
+            imageView.setImageResource(R.drawable.translated);
+        } else {
+            group.check(R.id.english);
+            englishTranslated.setEnabled(true);
+            imageView.setImageResource(R.drawable.english);
+        }
 
-        String englishText = "Alot Hashachar" + "\n" +
-                "Earliest Talit/Tefilin" + "\n" +
-                "HaNetz" + "\n" +
-                "Sof Zeman Shema MG'A" + "\n" +
-                "Sof Zeman Shema GR'A" + "\n" +
-                "Sof Zeman Berakhot Shema" + "\n" +
-                "Ḥatzot" + "\n" +
-                "Minḥa Gedola" + "\n" +
-                "Minḥa Ketana" + "\n" +
-                "Plag HaMinḥa" + "\n" +
-                "Sheqi'a" + "\n" +
-                "Tzet Hakokhavim" + "\n" +
-                "etc...";
-        english.setText(englishText);
+        hebrew.setOnClickListener(v -> {
+            englishTranslated.setChecked(false);
+            englishTranslated.setEnabled(false);
+            imageView.setImageResource(R.drawable.hebrew);
+        });
+        english.setOnClickListener(v -> {
+            englishTranslated.setChecked(false);
+            englishTranslated.setEnabled(true);
+            imageView.setImageResource(R.drawable.english);
+        });
+        englishTranslated.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            translated = isChecked;
+            if (isChecked) {
+                imageView.setImageResource(R.drawable.translated);
+            } else {
+                imageView.setImageResource(R.drawable.english);
+            }
+        });
 
-        String englishTranslatedText = "Dawn" + "\n" +
-                "Earliest Talit/Tefilin" + "\n" +
-                "Sunrise" + "\n" +
-                "Latest Shema MG'A" + "\n" +
-                "Latest Shema GR'A" + "\n" +
-                "Latest Berakhot Shema" + "\n" +
-                "Mid-Day" + "\n" +
-                "Earliest Minḥa" + "\n" +
-                "Minḥa Ketana" + "\n" +
-                "Plag HaMinḥa" + "\n" +
-                "Sunset" + "\n" +
-                "Nightfall" + "\n" +
-                "etc...";
-        englishTranslated.setText(englishTranslatedText);
+        Button confirm = findViewById(R.id.confirm);
+        confirm.setOnClickListener(v -> saveInfoAndFinish(group.getCheckedRadioButtonId() == R.id.hebrew, translated));
 
-        hebrew.setOnClickListener(v -> saveInfoAndStartActivity(true, false));
-        english.setOnClickListener(v -> saveInfoAndStartActivity(false, false));
-        englishTranslated.setOnClickListener(v -> saveInfoAndStartActivity(false, true));
-
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.lang_options), (v, windowInsets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(englishTranslated, (v, windowInsets) -> {
             Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
             ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
             mlp.leftMargin = insets.left;
@@ -137,7 +134,7 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
         });
     }
 
-    private void saveInfoAndStartActivity(boolean isHebrew, boolean isTranslated) {
+    private void saveInfoAndFinish(boolean isHebrew, boolean isTranslated) {
         mSharedPreferences.edit().putBoolean("isZmanimInHebrew", isHebrew).apply();
         mSharedPreferences.edit().putBoolean("isZmanimEnglishTranslated", isTranslated).apply();
         sSharedPreferences.edit().putBoolean("isSetup", true).apply();
