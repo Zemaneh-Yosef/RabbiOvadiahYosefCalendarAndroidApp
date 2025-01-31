@@ -78,33 +78,24 @@ public class ZmanNotification extends BroadcastReceiver {
             jewishCalendar.setDate(calendar);
             if ((jewishCalendar.isAssurBemelacha() && !mSharedPreferences.getBoolean("zmanim_notifications_on_shabbat", true))) {
                 //if tomorrow is shabbat/yom tov, then return if the zman is Tzait, Rabbeinu Tam, or Chatzot Layla (since they are obviously after shabbat/yom tov has started)
-                if (zmanName.equals("חצות לילה") ||
+                if (zmanName.equals("חצות הלילה") ||
                         zmanName.equals("Midnight") ||
-                        zmanName.equals("Chatzot Layla") ||
+                        zmanName.equals("Ḥatzot Layla") ||
                         zmanName.equals("צאת הכוכבים") ||
                         zmanName.equals("Nightfall") ||
-                        zmanName.equals("Tzait Hacochavim") ||
-                        zmanName.equals("Rabbeinu Tam") ||
+                        zmanName.equals("Tzet Hakokhavim") ||
+                        zmanName.equals("Rabbenu Tam") ||
                         zmanName.equals("רבינו תם")) {
                     return;
                 }
             }
             //no need to reset the jewish calendar since we are only using it to check if tomorrow is shabbat/yom tov, but keep in mind that the date is set to tomorrow
 
-            DateFormat zmanimFormat;
-            if (LocaleChecker.isLocaleHebrew()) {
-                if (mSharedPreferences.getBoolean("ShowSeconds", false)) {
-                    zmanimFormat = new SimpleDateFormat("H:mm:ss", Locale.getDefault());
-                } else {
-                    zmanimFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
-                }
-            } else {
-                if (mSharedPreferences.getBoolean("ShowSeconds", false)) {
-                    zmanimFormat = new SimpleDateFormat("h:mm:ss aa", Locale.getDefault());
-                } else {
-                    zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
-                }
-            }
+            String dateFormatPattern = (LocaleChecker.isLocaleHebrew() ? "H" : "h")
+                    + ":mm"
+                    + (mSharedPreferences.getBoolean("ShowSeconds", false) ? ":ss" : "")
+                    + (Utils.isLocaleHebrew() ? "" : " aa");
+            DateFormat zmanimFormat = new SimpleDateFormat(dateFormatPattern, Locale.getDefault());
             zmanimFormat.setTimeZone(TimeZone.getTimeZone(mSharedPreferences.getString("currentTimezone", ""))); //set the formatters time zone
 
             String text;
