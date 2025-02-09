@@ -38,14 +38,16 @@ public class SiddurMaker {
                 || jewishDateInfo.getIsTachanunSaid().equals("There is Tachanun today")
                 || jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון")
                 || jewishDateInfo.getIsTachanunSaid().equals("יש מדלגים תחנון במנחה")
-                || jewishDateInfo.getIsTachanunSaid().equals("Some skip Tachanun by mincha");
+                || jewishDateInfo.getIsTachanunSaid().equals("Some skip Tachanun by mincha")
+                || jewishDateInfo.isPurimMeshulash() && (jewishDateInfo.getJewishCalendar().getIsSafekMukafChoma() || jewishDateInfo.getJewishCalendar().getIsMukafChoma());
 
         this.isTachanunSaidByMincha = jewishDateInfo.getIsTachanunSaid().equals("There is Tachanun today")
                 || jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון")
                 || jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun today")
                 || jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון")
                 || jewishDateInfo.getIsTachanunSaid().equals("יש מדלגים תחנון במנחה")
-                || jewishDateInfo.getIsTachanunSaid().equals("Some skip Tachanun by mincha");
+                || jewishDateInfo.getIsTachanunSaid().equals("Some skip Tachanun by mincha")
+                || jewishDateInfo.isPurimMeshulash() && (jewishDateInfo.getJewishCalendar().getIsSafekMukafChoma() || jewishDateInfo.getJewishCalendar().getIsMukafChoma());
     }
 
     public ArrayList<HighlightString> getSelichotPrayers(boolean isInAMinyan, boolean isAfterChatzot) {
@@ -819,10 +821,6 @@ public class SiddurMaker {
         if (jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun today")
                 || jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון")) {
             addToSiddur("[" + jewishDateInfo.getIsTachanunSaid() + "]");
-        }
-
-        if (jewishDateInfo.isPurimMeshulash()) {
-            addToSiddurHighlighted("אין תחנון בירושלים או בעיר שהיא ספק מוקפת חומה/No Tachanun in Yerushalayim or a city with a doubt of being walled (Safek Mukaf Choma)");
         }
 
         if (isTachanunSaidInTheMorning) {
@@ -3390,10 +3388,6 @@ public class SiddurMaker {
                 || jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun today")
                 || jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון")) {
             addToSiddur("[" + jewishDateInfo.getIsTachanunSaid() + "]");
-        }
-
-        if (jewishDateInfo.isPurimMeshulash()) {
-            addToSiddurHighlighted("אין אומרים תחנון בירושלים/No Tachanun in Yerushalayim");
         }
 
         if (isTachanunSaidByMincha) {

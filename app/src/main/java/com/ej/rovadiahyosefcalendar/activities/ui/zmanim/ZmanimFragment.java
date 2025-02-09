@@ -92,7 +92,6 @@ import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.ej.rovadiahyosefcalendar.classes.ZmanAdapter;
 import com.ej.rovadiahyosefcalendar.classes.ZmanListEntry;
 import com.ej.rovadiahyosefcalendar.classes.ZmanimFactory;
-import com.ej.rovadiahyosefcalendar.classes.ZmanimNames;
 import com.ej.rovadiahyosefcalendar.databinding.FragmentZmanimBinding;
 import com.ej.rovadiahyosefcalendar.notifications.DailyNotifications;
 import com.ej.rovadiahyosefcalendar.notifications.NotificationUtils;
@@ -501,17 +500,15 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
 
         if (Utils.isInOrNearIsrael(sLatitude, sLongitude)) {//user is in or near israel now
-            sSharedPreferences.edit().putBoolean("askedNotInIsrael", false).apply();//reset that we asked outside israel for next time
-            if (!sSharedPreferences.getBoolean("inIsrael", false) && //user was not in israel before
-                    !sSharedPreferences.getBoolean("askedInIsrael", false)) {//and we did not ask already
+            if (!sSharedPreferences.getBoolean("inIsrael", false)) {//user was not in israel before
                 new MaterialAlertDialogBuilder(mContext)
                         .setTitle(R.string.are_u_in_israel)
                         .setMessage(R.string.if_you_are_in_israel_now_please_confirm_below)
                         .setPositiveButton(R.string.yes_i_am_in_israel, (dialog, which) -> {
+                            mJewishDateInfo.getJewishCalendar().setInIsrael(true);
                             sSharedPreferences.edit().putBoolean("inIsrael", true).apply();
                             sSharedPreferences.edit().putBoolean("useElevation", true).apply();
                             sSettingsPreferences.edit().putBoolean("LuachAmudeiHoraah", false).apply();
-                            mJewishDateInfo.getJewishCalendar().setInIsrael(true);
                             Toast.makeText(mContext, R.string.settings_updated, Toast.LENGTH_SHORT).show();
                             if (sSharedPreferences.getBoolean("weeklyMode", false)) {
                                 updateWeeklyZmanim();
@@ -519,10 +516,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                                 updateDailyZmanim();
                             }
                         })
-                        .setNegativeButton(R.string.no_i_am_not_in_israel, (dialog, which) -> {
-                            sSharedPreferences.edit().putBoolean("askedInIsrael", true).apply();//save that we asked already
-                            dialog.dismiss();
-                        })
+                        .setNegativeButton(R.string.no_i_am_not_in_israel, (dialog, which) -> dialog.dismiss())
                         .setNeutralButton(R.string.do_not_ask_me_again, (dialog, which) -> {
                             sSharedPreferences.edit().putBoolean("neverAskInIsraelOrNot", true).apply();//save that we should never ask again
                             dialog.dismiss();
@@ -530,17 +524,15 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         .show();
             }
         } else {//user is not in israel
-            sSharedPreferences.edit().putBoolean("askedInIsrael", false).apply();//reset that we asked in israel
-            if (sSharedPreferences.getBoolean("inIsrael", false) && //user was in israel before
-                    !sSharedPreferences.getBoolean("askedInNotIsrael", false)) {//and we did not ask already
+            if (sSharedPreferences.getBoolean("inIsrael", false)) {//user was in israel before
                 new MaterialAlertDialogBuilder(mContext)
                         .setTitle(R.string.have_you_left_israel)
                         .setMessage(R.string.if_you_are_not_in_israel_now_please_confirm_below_otherwise_ignore_this_message)
                         .setPositiveButton(R.string.yes_i_have_left_israel, (dialog, which) -> {
+                            mJewishDateInfo.getJewishCalendar().setInIsrael(false);
                             sSharedPreferences.edit().putBoolean("inIsrael", false).apply();
                             sSharedPreferences.edit().putBoolean("useElevation", false).apply();
                             sSettingsPreferences.edit().putBoolean("LuachAmudeiHoraah", true).apply();
-                            mJewishDateInfo.getJewishCalendar().setInIsrael(false);
                             Toast.makeText(mContext, R.string.settings_updated, Toast.LENGTH_SHORT).show();
                             if (sSharedPreferences.getBoolean("weeklyMode", false)) {
                                 updateWeeklyZmanim();
@@ -548,10 +540,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                                 updateDailyZmanim();
                             }
                         })
-                        .setNegativeButton(R.string.no_i_have_not_left_israel, (dialog, which) -> {
-                            sSharedPreferences.edit().putBoolean("askedInNotIsrael", true).apply();//save that we asked
-                            dialog.dismiss();
-                        })
+                        .setNegativeButton(R.string.no_i_have_not_left_israel, (dialog, which) -> dialog.dismiss())
                         .setNeutralButton(R.string.do_not_ask_me_again, (dialog, which) -> {
                             sSharedPreferences.edit().putBoolean("neverAskInIsraelOrNot", true).apply();//save that we should never ask again
                             dialog.dismiss();

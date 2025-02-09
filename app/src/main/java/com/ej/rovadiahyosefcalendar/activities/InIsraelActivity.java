@@ -1,7 +1,6 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSharedPreferences;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -92,11 +91,15 @@ public class InIsraelActivity extends AppCompatActivity {
     private void saveInfoAndStartActivity(boolean b) {
         mSharedPreferences.edit().putBoolean("inIsrael", b).apply();
         mSharedPreferences.edit().putBoolean("LuachAmudeiHoraah", !b).apply();
-        sSharedPreferences.edit().putBoolean("useElevation", !b).apply();
+        mSharedPreferences.edit().putBoolean("useElevation", !b).apply();
         if (Utils.isLocaleHebrew()) {
             mSharedPreferences.edit().putBoolean("isZmanimInHebrew", true).apply();
             mSharedPreferences.edit().putBoolean("isZmanimEnglishTranslated", false).apply();
-            sSharedPreferences.edit().putBoolean("isSetup", true).apply();
+            mSharedPreferences.edit().putBoolean("isSetup", true).apply();
+            if (mSharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
+                startActivity(new Intent(getBaseContext(), TipScreenActivity.class));
+                mSharedPreferences.edit().putBoolean("hasNotShownTipScreen", false).apply();
+            }
         } else {
             startActivity(new Intent(this, ZmanimLanguageActivity.class));
         }

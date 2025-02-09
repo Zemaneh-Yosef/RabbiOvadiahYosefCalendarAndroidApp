@@ -49,10 +49,6 @@ public class ExtraQuestionsActivity extends AppCompatActivity {
         });
         skipForNow.setOnClickListener(v -> {
             sSharedPreferences.edit().putBoolean("isSetup", true).apply();
-            if (sSharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
-                startActivity(new Intent(getBaseContext(), TipScreenActivity.class));
-                sSharedPreferences.edit().putBoolean("hasNotShownTipScreen", false).apply();
-            }
             finish();
         });
 

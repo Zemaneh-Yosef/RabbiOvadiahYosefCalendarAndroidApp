@@ -318,6 +318,10 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
             mSharedPreferences.edit().putBoolean("isZmanimInHebrew", true).apply();
             mSharedPreferences.edit().putBoolean("isZmanimEnglishTranslated", false).apply();
             mSharedPreferences.edit().putBoolean("isSetup", true).apply();
+            if (sSharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
+                startActivity(new Intent(getBaseContext(), TipScreenActivity.class));
+                sSharedPreferences.edit().putBoolean("hasNotShownTipScreen", false).apply();
+            }
         }
     }
 

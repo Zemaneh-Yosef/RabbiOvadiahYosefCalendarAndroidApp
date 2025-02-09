@@ -437,4 +437,8 @@
     <string name="tip_you_can_press_on_the_times_to_find_out_more_information_on_them">Tip: You can press on the times to find out more information on them!</string>
     <string name="try_pressing_on_listings_in_the_app_and_you_might_be_suprised_at_what_you_will_find">Try pressing on listings in the app and you might be surprised at what you will find!</string>
     <string name="setup_visible_sunrise_now_wanna_try_later_visit_the_sunrise_description">Setup visible sunrise now! (Want to try later? Visit the Sunrise description)</string>
+    <string name="today">Today</string>
+    <string name="time_zone">"Time Zone: "</string>
+    <string name="use_my_device_s_location">Use my device\'s location</string>
+   <string name="insert_location_name_zip_code">Insert location Name/ZIP code</string>
 </resources>

@@ -18,7 +18,9 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.style.AbsoluteSizeSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -118,6 +120,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             view.setBackgroundColor(b ? context.getColor(R.color.dark_gold) : 0);
         });
         holder.setIsRecyclable(false);
+        String title = zmanim.get(position).getTitle();
         if (zmanim.get(position) != null) {
             String zmanTime;
 
@@ -135,7 +138,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             if (zmanim.get(position).isZman()) {
                 if (isZmanimInHebrew) {
                     holder.mRightTextView.setTypeface(Typeface.DEFAULT_BOLD);
-                    holder.mRightTextView.setText(zmanim.get(position).getTitle());//zman name
+                    holder.mRightTextView.setText(title);//zman name
 
                     if (zmanim.get(position).getZman() != null && zmanim.get(position).getZman().equals(sNextUpcomingZman)) {
                         zmanTime += "◄";
@@ -143,7 +146,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     holder.mLeftTextView.setText(zmanTime);
                 } else {//switch the views for english
                     holder.mLeftTextView.setTypeface(Typeface.DEFAULT_BOLD);
-                    holder.mLeftTextView.setText(zmanim.get(position).getTitle());//zman name
+                    holder.mLeftTextView.setText(title);//zman name
 
                     if (zmanim.get(position).getZman() != null && zmanim.get(position).getZman().equals(sNextUpcomingZman)) {
                         zmanTime = "➤" + zmanTime;//add arrow
@@ -169,8 +172,20 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     holder.mRightTextView.setTextSize(18);
                     holder.mLeftTextView.setTextSize(18);
                 }
-            } else {
-                holder.mMiddleTextView.setText(zmanim.get(position).getTitle());
+                if (title.contains(new ZmanimNames(isZmanimInHebrew, isZmanimEnglishTranslated).getPlagHaminchaString())) {
+                    SpannableStringBuilder spannable = new SpannableStringBuilder(title);
+                    int startIndex = title.indexOf("(");
+                    if (startIndex != -1) {// Set smaller font size for the text inside parenthesis
+                        spannable.setSpan(new AbsoluteSizeSpan(16, true), startIndex, title.indexOf(")") + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    }
+                    if (isZmanimInHebrew) {
+                        holder.mRightTextView.setText(spannable);
+                    } else {
+                        holder.mLeftTextView.setText(spannable);
+                    }
+                }
+            } else {// not a zman
+                holder.mMiddleTextView.setText(title);
             }
 
             if (position == 1) {// date
@@ -192,7 +207,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     }
 
                     if (position == 0) {// first entry will always be the location name
-                        dialogBuilder.setTitle(context.getString(R.string.location_info_for) + " " + zmanim.get(position).getTitle());
+                        dialogBuilder.setTitle(context.getString(R.string.location_info_for) + " " + title);
                         String locationInfo = context.getString(R.string.location_name) + " " + sCurrentLocationName + "\n" +
                                 context.getString(R.string.latitude) + " " + sLatitude + "\n" +
                                 context.getString(R.string.longitude) + " " + sLongitude + "\n" +
@@ -200,7 +215,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                                 (mSharedPreferences.getBoolean("useElevation", true) ?
                                         mSharedPreferences.getString("elevation" + sCurrentLocationName, "0") : "0")
                                 + " " + context.getString(R.string.meters) + "\n" +
-                                "Time Zone: " + sCurrentTimeZoneID;
+                                context.getString(R.string.time_zone) + sCurrentTimeZoneID;
                         dialogBuilder.setMessage(locationInfo);
                         dialogBuilder.setPositiveButton(R.string.share, ((dialog, which) -> {
                             Intent sendIntent = new Intent(Intent.ACTION_SEND);
@@ -216,19 +231,19 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
                     // second entry (position 1) is always the date
 
-                    if (position == 2 && !zmanim.get(position).getTitle().equals("No Weekly Parsha") && !zmanim.get(position).getTitle().equals("אין פרשת שבוע")) {// third entry will always be the weekly parsha
+                    if (position == 2 && !title.equals("No Weekly Parsha") && !title.equals("אין פרשת שבוע")) {// third entry will always be the weekly parsha
                         String parsha;
-                        if (zmanim.get(position).getTitle().equals("לך לך")
-                                || zmanim.get(position).getTitle().equals("חיי שרה")
-                                || zmanim.get(position).getTitle().equals("כי תשא")
-                                || zmanim.get(position).getTitle().equals("אחרי מות")
-                                || zmanim.get(position).getTitle().equals("שלח לך")
-                                || zmanim.get(position).getTitle().equals("כי תצא")
-                                || zmanim.get(position).getTitle().equals("כי תבוא")
-                                || zmanim.get(position).getTitle().equals("וזאת הברכה ")) {
-                            parsha = zmanim.get(position).getTitle();// ugly, but leave the first word and second word in these cases
+                        if (title.equals("לך לך")
+                                || title.equals("חיי שרה")
+                                || title.equals("כי תשא")
+                                || title.equals("אחרי מות")
+                                || title.equals("שלח לך")
+                                || title.equals("כי תצא")
+                                || title.equals("כי תבוא")
+                                || title.equals("וזאת הברכה ")) {
+                            parsha = title;// ugly, but leave the first word and second word in these cases
                         } else {
-                            parsha = zmanim.get(position).getTitle().split(" ")[0];//get first word
+                            parsha = title.split(" ")[0];//get first word
                         }
                         String parshaLink = "https://www.sefaria.org/" + parsha;
                         dialogBuilder.setTitle(context.getString(R.string.open_sefaria_link_for) + parsha + "?");
@@ -243,32 +258,32 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         resetDialogBuilder();
                     }
 
-                    if (zmanim.get(position).getTitle().contains(context.getString(R.string.three_weeks))
-                            || zmanim.get(position).getTitle().contains(context.getString(R.string.nine_days))
-                            || zmanim.get(position).getTitle().contains(context.getString(R.string.shevuah_shechal_bo))) {
-                        showThreeWeeksDialog(zmanim.get(position).getTitle());
+                    if (title.contains(context.getString(R.string.three_weeks))
+                            || title.contains(context.getString(R.string.nine_days))
+                            || title.contains(context.getString(R.string.shevuah_shechal_bo))) {
+                        showThreeWeeksDialog(title);
                     }
 
-                    if (zmanim.get(position).getTitle().contains("וּלְכַפָּרַת פֶּשַׁע")) {
+                    if (title.contains("וּלְכַפָּרַת פֶּשַׁע")) {
                         showUlChaparatPeshaDialog();
                     }
 
-                    if (zmanim.get(position).getTitle().contains("ברכת הלבנה") || zmanim.get(position).getTitle().contains("Birkat HaLevana")) {
+                    if (title.contains("ברכת הלבנה") || title.contains("Birkat Halevana")) {
                         showBirchatLevanaDialog();
                     }
 
-                    if (zmanim.get(position).getTitle().contains(context.getString(R.string.elevation))) {
+                    if (title.contains(context.getString(R.string.elevation))) {
                         showElevationDialog();
                     }
 
-                    if (zmanim.get(position).getTitle().contains("Tekufa") || zmanim.get(position).getTitle().contains("תקופת")) {
+                    if (title.contains("Tekufa") || title.contains("תקופת")) {
                         showTekufaDialog();
                     }
 
-                    if (zmanim.get(position).getTitle().contains("Tachanun") || zmanim.get(position).getTitle().contains("תחנון") || zmanim.get(position).getTitle().contains("צדקתך")) {
+                    if (title.contains("Tachanun") || title.contains("תחנון") || title.contains("צדקתך")) {
                         showTachanunDialog();
                     }
-                    if (zmanim.get(position).getTitle().contains("Shemita") || zmanim.get(position).getTitle().contains("שמיטה")) {
+                    if (title.contains("Shemita") || title.contains("שמיטה")) {
                         showShmitaDialog();
                     }
                 }
@@ -678,7 +693,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void showChatzotLaylaDialog() {
-        AlertDialog alertDialog = dialogBuilder.setTitle("Midnight - חצות לילה - Ḥatzot Layla")
+        AlertDialog alertDialog = dialogBuilder.setTitle("Midnight - חצות הלילה - Ḥatzot Layla")
                 .setMessage(R.string.chatzot_layla_dialog)
                 .create();
         alertDialog.show();

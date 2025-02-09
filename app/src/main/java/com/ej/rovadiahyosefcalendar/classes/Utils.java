@@ -57,7 +57,8 @@ public class Utils {
      * @return if the latitude and longitude are coordinates inside or near Eretz Yisrael (based on halacha)
      */
     public static boolean isInOrNearIsrael(double latitude, double longitude) {
-        return latitude >= 29.7 && latitude <= 36.1 && longitude >= 31.5 && longitude <= 38.0;
+        return sCurrentTimeZoneID.equals("Asia/Jerusalem");//TODO fix this
+        //return latitude >= 29.7 && latitude <= 36.1 && longitude >= 31.5 && longitude <= 38.0;
     }
 
     public static boolean isLocaleHebrew() {

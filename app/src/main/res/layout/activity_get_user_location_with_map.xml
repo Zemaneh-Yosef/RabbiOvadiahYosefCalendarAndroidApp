@@ -41,13 +41,13 @@
         android:layout_height="0dp"
         android:iconifiedByDefault="false"
         android:autofillHints="name"
-        android:queryHint="Insert location Name/ZIP code" />
+        android:queryHint="@string/insert_location_name_zip_code" />
 
         <Button
             android:id="@+id/deviceLocation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Use my device's location"
+            android:text="@string/use_my_device_s_location"
             android:textColor="@color/white"
             android:backgroundTint="@color/light_blue"
             android:drawableLeft="@drawable/baseline_location_on_24"

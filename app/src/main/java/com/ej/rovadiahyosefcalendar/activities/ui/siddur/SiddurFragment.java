@@ -48,6 +48,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.util.GeoLocation;
 
+import org.apache.commons.lang3.time.DateUtils;
+
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -81,9 +83,11 @@ public class SiddurFragment extends Fragment {
 
     private void initView() {
         TextView specialDay = binding.jewishSpecialDay;
-        String dateAndSpecialDay = mJewishDateInfo.getJewishCalendar().getGregorianCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault())
-                + "\n" +
-                mJewishDateInfo.getJewishCalendar().toString();
+        String dateAndSpecialDay = mJewishDateInfo.getJewishCalendar().getGregorianCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault());
+        if (DateUtils.isSameDay(new Date(), mJewishDateInfo.getJewishCalendar().getGregorianCalendar().getTime())) {
+            dateAndSpecialDay += " (" + mContext.getString(R.string.today) + ")";
+        }
+        dateAndSpecialDay +=  "\n" + mJewishDateInfo.getJewishCalendar().toString();
         String specialDayString = mJewishDateInfo.getSpecialDay(false);
         if (!specialDayString.isEmpty()) {
             dateAndSpecialDay += "\n" + specialDayString;
@@ -119,9 +123,12 @@ public class SiddurFragment extends Fragment {
         //}
 
         TextView nightDayOfWeek = binding.nightDayOfWeek;
-        String nextDateAndSpecialDay = mJewishDateInfo.getJewishCalendar().getGregorianCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault())
-                + "\n" + mContext.getString(R.string.after_sunset) + "\n" +
-                mJewishDateInfo.tomorrow().getJewishCalendar().toString();
+        String nextDateAndSpecialDay = mJewishDateInfo.getJewishCalendar().getGregorianCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault());
+        if (DateUtils.isSameDay(new Date(), mJewishDateInfo.getJewishCalendar().getGregorianCalendar().getTime())) {
+            nextDateAndSpecialDay += " (" + mContext.getString(R.string.today) + ")";
+        }
+        nextDateAndSpecialDay += "\n" + mContext.getString(R.string.after_sunset) + "\n" + mJewishDateInfo.tomorrow().getJewishCalendar().toString();
+
         String nextSpecialDayString = mJewishDateInfo.tomorrow().getSpecialDay(false);
         if (!nextSpecialDayString.isEmpty()) {
             nextDateAndSpecialDay += "\n" + nextSpecialDayString;
@@ -154,7 +161,8 @@ public class SiddurFragment extends Fragment {
         });
 
         if (!mJewishDateInfo.getJewishCalendar().hasCandleLighting() && mJewishDateInfo.getJewishCalendar().isAssurBemelacha()
-                || mJewishDateInfo.getJewishCalendar().isTishaBav()) {
+                || (mJewishDateInfo.getJewishCalendar().isTishaBav() && mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY
+                || mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SUNDAY)) {
             havdalah.setVisibility(View.VISIBLE);
             if (mJewishDateInfo.tomorrow().getJewishCalendar().isTishaBav() && mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY) {
                 havdalah.setBackground(null);

@@ -8,7 +8,7 @@ Although each of these actions are based on different forms of recognition, the 
 
 ---
 
-Although earlier authorities did not assign any type of measurement to this time (leaving it to be determined on a practical level), later authorities used measurements relative to the time of Dawn. Without restating how to calculate Dawn, Misheyakir according to the letter of the law happens after **1&frasl;12<sup>th</sup>'s** of the time passed from Dawn until sunrise ("six zemaniyot/seasonal minutes"). However, that time is the letter-of-the-law, for those who need to go to work or leave early in the morning to travel; people should ideally wait until **1&frasl;6<sup>th</sup>'s** of the time passed instead.
+Although earlier authorities did not assign any type of measurement to this time (leaving it to be determined on a practical level), later authorities used measurements relative to the time of Dawn. Without restating how to calculate Dawn, Misheyakir according to the letter of the law happens after **1&frasl;12<sup>th</sup>'s** of the time passed from Dawn until sunrise ("six zemaniyot/seasonal minutes"). However, that time is the letter-of-the-law, for those who need to go to work or leave early in the morning to travel; people should ideally wait until **1&frasl;6<sup>th</sup>'s** of the time passed instead ("twelve zemaniyot/seasonal minutes").
 
 (Source for seasonal minutes: Halacha Berura pg. 227)
 

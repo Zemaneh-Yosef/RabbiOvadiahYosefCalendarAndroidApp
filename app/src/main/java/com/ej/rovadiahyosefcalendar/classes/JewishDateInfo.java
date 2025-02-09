@@ -955,6 +955,10 @@ public class JewishDateInfo {
             jewishCalendar.forward(Calendar.DATE, 1); // go forward until the next month
         }
         Date molad = jewishCalendar.getMoladAsDate(); // now we can get the molad for the next month
+        jewishCalendar.setDate(currentDate); // reset
+        while (!jewishCalendar.isRoshChodesh()) {
+            jewishCalendar.forward(Calendar.DATE, 1); // go forward until the next rosh chodesh
+        }
         Date roshChodesh = jewishCalendar.getGregorianCalendar().getTime();
         jewishCalendar.setDate(currentDate); // reset
         return molad.before(new Date()) && roshChodesh.after(new Date()) && !jewishCalendar.isRoshChodesh(); // Tikkun Leia (only) is said if it is after the molad but before Rosh Chodesh, this condition is time based even though all the other methods are date based
