@@ -89,10 +89,10 @@ public class ZmanNotification extends BroadcastReceiver {
                 //if tomorrow is shabbat/yom tov, then return if the zman is Tzait, Rabbeinu Tam, or Chatzot Layla (since they are obviously after shabbat/yom tov has started)
                 if (zmanName.equals("חצות הלילה") ||
                         zmanName.equals("Midnight") ||
-                        zmanName.equals("Ḥatzot Layla") ||
+                        zmanName.equals("Ḥatzot Ha'Layla") ||
                         zmanName.equals("צאת הכוכבים") ||
                         zmanName.equals("Nightfall") ||
-                        zmanName.equals("Tzet Hakokhavim") ||
+                        zmanName.equals("Tzet Ha'Kokhavim") ||
                         zmanName.equals("Rabbenu Tam") ||
                         zmanName.equals("רבינו תם")) {
                     return;

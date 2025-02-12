@@ -266,9 +266,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
         mLocationResolver.setTimeZoneID();
         setupRecyclerViewAndTextViews();
-        hideWeeklyTextViews();
-        mMainRecyclerView.setVisibility(View.GONE);
-        binding.progressBar.setVisibility(View.VISIBLE);
+        if (binding != null) {
+            hideWeeklyTextViews();
+            mMainRecyclerView.setVisibility(View.GONE);
+            binding.progressBar.setVisibility(View.VISIBLE);
+        }
         // hide everything except the progress bar before trying to see if we need to get elevation data
         if (sLatitude != 0 && sLongitude != 0) {// the values are updated, the accept method will not be called
             resolveElevationAndVisibleSunrise(() -> {
@@ -917,7 +919,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             } else if (id == R.id.weekly_mode) {
                 sSharedPreferences.edit().putBoolean("weeklyMode", !sSharedPreferences.getBoolean("weeklyMode", false)).apply();
                 item.setChecked(sSharedPreferences.getBoolean("weeklyMode", false));//save the state of the menu item
-                if (mMainRecyclerView == null) {
+                if (mMainRecyclerView == null || binding == null) {
                     return true;// Prevent a crash
                 }
                 if (sSharedPreferences.getBoolean("weeklyMode", false)) {
@@ -1118,6 +1120,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             zmanim.add(new ZmanListEntry(mContext.getString(R.string.birchat_hachamah_is_said_today)));
         }
 
+        if (mJewishDateInfo.tomorrow().getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY
+                && mJewishDateInfo.tomorrow().getJewishCalendar().getYomTovIndex() == JewishCalendar.EREV_PESACH) {
+            zmanim.add(new ZmanListEntry(mContext.getString(R.string.burn_your_ametz_today)));
+        }
+
         String tekufaOpinions = sSettingsPreferences.getString("TekufaOpinions", "1");
         switch (tekufaOpinions) {
             case "1":
@@ -1286,6 +1293,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
         if (mJewishDateInfo.getJewishCalendar().isBirkasHachamah()) {
             announcements.append(mContext.getString(R.string.birchat_hachamah_is_said_today)).append("\n");
+        }
+
+        if (mJewishDateInfo.tomorrow().getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY
+                && mJewishDateInfo.tomorrow().getJewishCalendar().getYomTovIndex() == JewishCalendar.EREV_PESACH) {
+            announcements.append(mContext.getString(R.string.burn_your_ametz_today));
         }
 
         List<ZmanListEntry> tekufa = new ArrayList<>();

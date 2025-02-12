@@ -198,13 +198,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
             holder.itemView.setOnClickListener(v -> {
                 if (!sShabbatMode && PreferenceManager.getDefaultSharedPreferences(context).getBoolean("showZmanDialogs", true)) {
-                    if (isZmanimInHebrew) {
-                        checkHebrewZmanimForDialog(position);
-                    } else if (isZmanimEnglishTranslated) {
-                        checkTranslatedEnglishZmanimForDialog(position);
-                    } else {
-                        checkEnglishZmanimForDialog(position);
-                    }
+                    checkZmanimForDialog(position);
 
                     if (position == 0) {// first entry will always be the location name
                         dialogBuilder.setTitle(context.getString(R.string.location_info_for) + " " + title);
@@ -349,167 +343,61 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         dialogBuilder.create();
     }
 
-    private void checkHebrewZmanimForDialog(int position) {
-        if (zmanim.get(position).getTitle().contains("עלות השחר")) {
+    private void checkZmanimForDialog(int position) {
+        ZmanimNames zmanimNames = new ZmanimNames(isZmanimInHebrew, isZmanimEnglishTranslated);
+        if (zmanim.get(position).getTitle().contains(zmanimNames.getAlotString())) {
             showDawnDialog();
-        } else if (zmanim.get(position).getTitle().contains("טלית ותפילין")) {
+        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getTalitTefilinString())) {
             if (wasTalitTefilinZmanClicked) {
                 showEarliestTalitTefilinDialog();
             } else {
                 wasTalitTefilinZmanClicked = true;
                 onZmanClickListener.onItemClick();// request a new set of data
             }
-        } else if (zmanim.get(position).getTitle().contains("הנץ")) {
+        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getHaNetzString())) {
             showSunriseDialog();
-        } else if (zmanim.get(position).getTitle().contains("אכילת חמץ")) {
+        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getAchilatChametzString())) {
             showAchilatChametzDialog();
-        } else if (zmanim.get(position).getTitle().contains("ביעור חמץ")) {
+        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getBiurChametzString())) {
             showBiurChametzDialog();
-        } else if (zmanim.get(position).getTitle().contains("שמע מג\"א")) {
+        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getShmaMgaString())) {
             showShemaMGADialog();
-        } else if (zmanim.get(position).getTitle().contains("שמע גר\"א")) {
+        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getShmaGraString())) {
             showShmaGRADialog();
-        } else if (zmanim.get(position).getTitle().contains("ברכת החמה")) {
+        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getBirkatHachamaString())) {
             showBirchatHachamahDialog();
-        } else if (zmanim.get(position).getTitle().contains("ברכות שמע")) {
+        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getBrachotShmaString())) {
             showBrachotShmaDialog();
-        } else if (zmanim.get(position).getTitle().contains("חצות הלילה")) {
+        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getChatzotLaylaString())) {
             showChatzotLaylaDialog();
-        } else if (zmanim.get(position).getTitle().contains("מנחה גדולה")) {
+        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getMinchaGedolaString())) {
             showMinchaGedolaDialog();
-        } else if (zmanim.get(position).getTitle().contains("מנחה קטנה")) {
+        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getMinchaKetanaString())) {
             showMinchaKetanaDialog();
-        } else if (zmanim.get(position).getTitle().contains("פלג המנחה")) {
+        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getPlagHaminchaString())) {
             showPlagDialog();
-        } else if (zmanim.get(position).getTitle().contains("הדלקת נרות")) {
+        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getCandleLightingString())) {
             showCandleLightingDialog();
-        } else if (zmanim.get(position).getTitle().contains("שקיעה")) {
+        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getSunsetString())) {
             showShkiaDialog();
-        } else if (zmanim.get(position).getTitle().contains("צאת הכוכבים לחומרא")) {
+        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getTzaitHacochavimString() + " " + zmanimNames.getLChumraString())) {
             showTzaitLChumraDialog();
-        } else if (zmanim.get(position).getTitle().contains("צאת הכוכבים")) {
+        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getTzaitHacochavimString())) {
             showTzaitDialog();
-        } else if (zmanim.get(position).getTitle().contains("צאת תענית לחומרא")) {
+        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getTzaitString() + zmanimNames.getTaanitString() + zmanimNames.getEndsString() + " " + zmanimNames.getLChumraString())) {
             showTzaitTaanitLChumraDialog();
-        } else if (zmanim.get(position).getTitle().contains("צאת תענית")) {
+        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getTzaitString() + zmanimNames.getTaanitString() + zmanimNames.getEndsString())) {
             showTzaitTaanitDialog();
         } else if (zmanim.get(position).getTitle().contains("צאת שבת/חג")
-                ||zmanim.get(position).getTitle().contains("צאת שבת")
-                ||zmanim.get(position).getTitle().contains("צאת חג")) {
-            showTzaitShabbatDialog();
-        } else if (zmanim.get(position).getTitle().contains("רבינו תם")) {
-            showRTDialog();
-        } else if (zmanim.get(position).getTitle().contains("חצות")) {
-            showChatzotDialog();
-        }
-    }
-
-    private void checkTranslatedEnglishZmanimForDialog(int position) {
-        if (zmanim.get(position).getTitle().contains("Dawn")) {
-            showDawnDialog();
-        } else if (zmanim.get(position).getTitle().contains("Earliest Talit/Tefilin")) {
-            if (wasTalitTefilinZmanClicked) {
-                showEarliestTalitTefilinDialog();
-            } else {
-                wasTalitTefilinZmanClicked = true;
-                onZmanClickListener.onItemClick();// request a new set of data
-            }
-        } else if (zmanim.get(position).getTitle().contains("Sunrise")) {
-            showSunriseDialog();
-        } else if (zmanim.get(position).getTitle().contains("eat Ḥametz")) {
-            showAchilatChametzDialog();
-        } else if (zmanim.get(position).getTitle().contains("burn Ḥametz")) {
-            showBiurChametzDialog();
-        } else if (zmanim.get(position).getTitle().contains("Shema MG\"A")) {
-            showShemaMGADialog();
-        } else if (zmanim.get(position).getTitle().contains("Shema GR\"A")) {
-            showShmaGRADialog();
-        } else if (zmanim.get(position).getTitle().contains("Birkat HaChamah")) {
-            showBirchatHachamahDialog();
-        } else if (zmanim.get(position).getTitle().contains("Berakhot Shema")) {
-            showBrachotShmaDialog();
-        } else if (zmanim.get(position).getTitle().contains("Mid-day")) {
-            showChatzotDialog();
-        } else if (zmanim.get(position).getTitle().contains("Earliest Minḥa")) {
-            showMinchaGedolaDialog();
-        } else if (zmanim.get(position).getTitle().contains("Minḥa Ketana")) {
-            showMinchaKetanaDialog();
-        } else if (zmanim.get(position).getTitle().contains("Plag HaMinḥa")) {
-            showPlagDialog();
-        } else if (zmanim.get(position).getTitle().contains("Candle Lighting")) {
-            showCandleLightingDialog();
-        } else if (zmanim.get(position).getTitle().contains("Sunset")) {
-            showShkiaDialog();
-        } else if (zmanim.get(position).getTitle().contains("Nightfall (Stringent)")) {
-            showTzaitLChumraDialog();
-        } else if (zmanim.get(position).getTitle().contains("Nightfall")) {
-            showTzaitDialog();
-        } else if (zmanim.get(position).getTitle().contains("Fast Ends (Stringent)")) {
-            showTzaitTaanitLChumraDialog();
-        } else if (zmanim.get(position).getTitle().contains("Fast Ends")) {
-            showTzaitTaanitDialog();
-        } else if (zmanim.get(position).getTitle().contains("Shabbat/Chag Ends")
+                || zmanim.get(position).getTitle().contains("צאת שבת")
+                || zmanim.get(position).getTitle().contains("צאת חג")
+                || zmanim.get(position).getTitle().contains("Shabbat/Chag Ends")
                 || zmanim.get(position).getTitle().contains("Shabbat Ends")
                 || zmanim.get(position).getTitle().contains("Chag Ends")) {
             showTzaitShabbatDialog();
-        } else if (zmanim.get(position).getTitle().contains("Rabbenu Tam")) {
+        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getRTString())) {
             showRTDialog();
-        } else if (zmanim.get(position).getTitle().contains("Midnight")) {
-            showChatzotLaylaDialog();
-        }
-    }
-
-    private void checkEnglishZmanimForDialog(int position) {
-        if (zmanim.get(position).getTitle().contains("Alot Hashachar")) {
-            showDawnDialog();
-        } else if (zmanim.get(position).getTitle().contains("Earliest Talit/Tefilin")) {
-            if (wasTalitTefilinZmanClicked) {
-                showEarliestTalitTefilinDialog();
-            } else {
-                wasTalitTefilinZmanClicked = true;
-                onZmanClickListener.onItemClick();// request a new set of data
-            }
-        } else if (zmanim.get(position).getTitle().contains("HaNetz")) {
-            showSunriseDialog();
-        } else if (zmanim.get(position).getTitle().contains("Akhilat Ḥametz")) {
-            showAchilatChametzDialog();
-        } else if (zmanim.get(position).getTitle().contains("Biur Ḥametz")) {
-            showBiurChametzDialog();
-        } else if (zmanim.get(position).getTitle().contains("Shema MG\"A")) {
-            showShemaMGADialog();
-        } else if (zmanim.get(position).getTitle().contains("Shema GR\"A")) {
-            showShmaGRADialog();
-        } else if (zmanim.get(position).getTitle().contains("Birkat HaChamah")) {
-            showBirchatHachamahDialog();
-        } else if (zmanim.get(position).getTitle().contains("Berakhot Shema")) {
-            showBrachotShmaDialog();
-        } else if (zmanim.get(position).getTitle().contains("Ḥatzot Layla")) {
-            showChatzotLaylaDialog();
-        } else if (zmanim.get(position).getTitle().contains("Minḥa Gedola")) {
-            showMinchaGedolaDialog();
-        } else if (zmanim.get(position).getTitle().contains("Minḥa Ketana")) {
-            showMinchaKetanaDialog();
-        } else if (zmanim.get(position).getTitle().contains("Plag HaMinḥa")) {
-            showPlagDialog();
-        } else if (zmanim.get(position).getTitle().contains("Candle Lighting")) {
-            showCandleLightingDialog();
-        } else if (zmanim.get(position).getTitle().contains("Sheqi'a")) {
-            showShkiaDialog();
-        } else if (zmanim.get(position).getTitle().contains("Tzet Hakokhavim L'Ḥumra")) {
-            showTzaitLChumraDialog();
-        } else if (zmanim.get(position).getTitle().contains("Tzet Hakokhavim")) {
-            showTzaitDialog();
-        } else if (zmanim.get(position).getTitle().contains("Tzet Taanit L'Ḥumra")) {
-            showTzaitTaanitLChumraDialog();
-        } else if (zmanim.get(position).getTitle().contains("Fast Ends")) {
-            showTzaitTaanitDialog();
-        } else if (zmanim.get(position).getTitle().contains("Shabbat/Chag Ends")
-                || zmanim.get(position).getTitle().contains("Shabbat Ends")
-                || zmanim.get(position).getTitle().contains("Chag Ends")) {
-            showTzaitShabbatDialog();
-        } else if (zmanim.get(position).getTitle().contains("Rabbenu Tam")) {
-            showRTDialog();
-        } else if (zmanim.get(position).getTitle().contains("Ḥatzot")) {
+        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getChatzotString())) {
             showChatzotDialog();
         }
     }
@@ -534,7 +422,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void showDawnDialog() {
-        AlertDialog alertDialog = dialogBuilder.setTitle("Dawn - עלות השחר - Alot HaShachar")
+        AlertDialog alertDialog = dialogBuilder.setTitle("Dawn - עלות השחר - Alot HaShaḥar")
                 .setMessage(Utils.isLocaleHebrew() ? loadContentFromFile("alothHB.md") : loadContentFromFile("aloth.md"))
                 .create();
         alertDialog.show();
@@ -566,28 +454,28 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void showAchilatChametzDialog() {
-        AlertDialog alertDialog = dialogBuilder.setTitle("Eating Chametz - אכילת חמץ - Akhilat Ḥametz")
+        AlertDialog alertDialog = dialogBuilder.setTitle("Eating Ḥametz - אכילת חמץ - Akhilat Ḥametz")
                 .setMessage(R.string.achilat_chametz_dialog)
                 .create();
         alertDialog.show();
     }
 
     private void showBiurChametzDialog() {
-        AlertDialog alertDialog = dialogBuilder.setTitle("Burning Chametz - ביעור חמץ - Biur Ḥametz")
+        AlertDialog alertDialog = dialogBuilder.setTitle("Burning Ḥametz - ביעור חמץ - Biur Ḥametz")
                 .setMessage(R.string.biur_chametz_dialog)
                 .create();
         alertDialog.show();
     }
 
     private void showShemaMGADialog() {
-        AlertDialog alertDialog = dialogBuilder.setTitle("Latest time for Shema (MG\"A) - שמע מג\"א - Shema MG\"A")
+        AlertDialog alertDialog = dialogBuilder.setTitle("Latest Shema MG\"A - סוף זמן שמע מג\"א")
                 .setMessage(Utils.isLocaleHebrew() ? loadContentFromFile("kriatShemaHB.md") : loadContentFromFile("kriatShema.md"))
                 .create();
         alertDialog.show();
     }
 
     private void showShmaGRADialog() {
-        AlertDialog alertDialog = dialogBuilder.setTitle("Latest time for Shma (GR\"A) - שמע גר\"א - Shema GR\"A")
+        AlertDialog alertDialog = dialogBuilder.setTitle("Latest Shema GR\"A - סוף זמן שמע גר\"א")
                 .setMessage(Utils.isLocaleHebrew() ? loadContentFromFile("kriatShemaHB.md") : loadContentFromFile("kriatShema.md"))
                 .create();
         alertDialog.show();

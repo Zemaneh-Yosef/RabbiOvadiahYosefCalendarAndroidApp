@@ -63,11 +63,15 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
     private void init(Context context, JewishDateInfo jewishDateInfo, ROZmanimCalendar c) {
         int day = jewishDateInfo.getJewishCalendar().getDayOfOmer();
         if (day != -1 && day != 49) {//we don't want to send a notification right before shavuot
-            long when;
+            long when = System.currentTimeMillis();
             if (mSharedPreferences.getBoolean("LuachAmudeiHoraah", false)) {
-                when = c.getTzeitAmudeiHoraah().getTime();
+                if (c.getTzeitAmudeiHoraah() != null) {
+                    when = c.getTzeitAmudeiHoraah().getTime();
+                }
             } else {
-                when = c.getTzeit().getTime();
+                if (c.getTzeit() != null) {
+                    when = c.getTzeit().getTime();
+                }
             }
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 

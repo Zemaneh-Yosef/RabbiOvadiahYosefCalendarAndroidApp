@@ -61,7 +61,10 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
         String specialDay = jewishDateInfo.getSpecialDay(PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowDayOfOmer",false));
 
         if (!specialDay.isEmpty()) {
-            long when = calendar.getSunrise().getTime();
+            long when = System.currentTimeMillis();
+            if (calendar.getSunrise() != null) {
+                when = calendar.getSunrise().getTime();
+            }
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
