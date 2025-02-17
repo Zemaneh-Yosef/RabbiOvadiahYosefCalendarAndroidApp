@@ -29,8 +29,13 @@ public class ZmanimFactory {
             zmanim.add(new ZmanListEntry(zmanimNames.getTaanitString() + zmanimNames.getStartsString(), useAHZmanim ? mROZmanimCalendar.getAlotAmudeiHoraah() : mROZmanimCalendar.getAlos72Zmanis(), true));
         }
         zmanim.add(new ZmanListEntry(zmanimNames.getAlotString(), useAHZmanim ? mROZmanimCalendar.getAlotAmudeiHoraah() : mROZmanimCalendar.getAlos72Zmanis(), true));
+        if (isForWeeklyZmanim) {
+            ZmanListEntry misheyakir66 = new ZmanListEntry(zmanimNames.getTalitTefilinString() + " (66)", useAHZmanim ? mROZmanimCalendar.getMisheyakir66AmudeiHoraah() : mROZmanimCalendar.getMisheyakir66ZmaniyotMinutes(), true);
+            misheyakir66.setIs66MisheyakirZman(true);
+            zmanim.add(misheyakir66);
+        }
         zmanim.add(new ZmanListEntry(zmanimNames.getTalitTefilinString(), useAHZmanim ? mROZmanimCalendar.getMisheyakir60AmudeiHoraah() : mROZmanimCalendar.getMisheyakir60ZmaniyotMinutes(), true));
-        if (add66MisheyakirZman) {
+        if (add66MisheyakirZman && !isForWeeklyZmanim) {
             ZmanListEntry misheyakir66 = new ZmanListEntry(zmanimNames.getTalitTefilinString() + " (66)", useAHZmanim ? mROZmanimCalendar.getMisheyakir66AmudeiHoraah() : mROZmanimCalendar.getMisheyakir66ZmaniyotMinutes(), true);
             misheyakir66.setIs66MisheyakirZman(true);
             zmanim.add(misheyakir66);

@@ -7,6 +7,7 @@ import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sShare
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -73,35 +74,63 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
             group.check(R.id.hebrew);
             englishTranslated.setEnabled(false);
             englishTranslated.setChecked(false);
-            imageView.setImageResource(R.drawable.hebrew);
+            if ((getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES) {
+                imageView.setImageResource(R.drawable.hebrew_dark);
+            } else {
+                imageView.setImageResource(R.drawable.hebrew);
+            }
         } else if (mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false)) {
             translated = true;
             group.check(R.id.english);
             englishTranslated.setEnabled(true);
             englishTranslated.setChecked(true);
-            imageView.setImageResource(R.drawable.translated);
+            if ((getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES) {
+                imageView.setImageResource(R.drawable.translated_dark);
+            } else {
+                imageView.setImageResource(R.drawable.translated);
+            }
         } else {
             group.check(R.id.english);
             englishTranslated.setEnabled(true);
-            imageView.setImageResource(R.drawable.english);
+            if ((getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES) {
+                imageView.setImageResource(R.drawable.english_dark);
+            } else {
+                imageView.setImageResource(R.drawable.english);
+            }
         }
 
         hebrew.setOnClickListener(v -> {
             englishTranslated.setChecked(false);
             englishTranslated.setEnabled(false);
-            imageView.setImageResource(R.drawable.hebrew);
+            if ((getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES) {
+                imageView.setImageResource(R.drawable.hebrew_dark);
+            } else {
+                imageView.setImageResource(R.drawable.hebrew);
+            }
         });
         english.setOnClickListener(v -> {
             englishTranslated.setChecked(false);
             englishTranslated.setEnabled(true);
-            imageView.setImageResource(R.drawable.english);
+            if ((getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES) {
+                imageView.setImageResource(R.drawable.english_dark);
+            } else {
+                imageView.setImageResource(R.drawable.english);
+            }
         });
         englishTranslated.setOnCheckedChangeListener((buttonView, isChecked) -> {
             translated = isChecked;
             if (isChecked) {
-                imageView.setImageResource(R.drawable.translated);
+                if ((getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES) {
+                    imageView.setImageResource(R.drawable.translated_dark);
+                } else {
+                    imageView.setImageResource(R.drawable.translated);
+                }
             } else {
-                imageView.setImageResource(R.drawable.english);
+                if ((getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES) {
+                    imageView.setImageResource(R.drawable.english_dark);
+                } else {
+                    imageView.setImageResource(R.drawable.english);
+                }
             }
         });
 

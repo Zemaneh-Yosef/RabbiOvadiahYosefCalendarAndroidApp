@@ -95,7 +95,7 @@
             android:layout_height="wrap_content"
             android:backgroundTint="@color/light_blue"
             android:text="@string/confirm"
-            android:textColor="?android:textColorPrimary"
+            android:textColor="@color/white"
             android:textStyle="bold"
             map:layout_constraintBottom_toBottomOf="parent"
             map:layout_constraintEnd_toEndOf="parent"

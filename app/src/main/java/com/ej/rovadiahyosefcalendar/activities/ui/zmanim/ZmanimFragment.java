@@ -1563,8 +1563,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 } else {
                     shortZmanim[zmanim.indexOf(zman)] = zman.getTitle()
                             .replace("Earliest ", "")
-                            .replace("Sof Zman ", "")
-                            .replace("Hakokhavim", "")
+                            .replace("Sof Zeman ", "")
                             .replace("Latest ", "")
                             + ": " + zmanimFormat.format(zman.getZman());
                 }
@@ -2132,44 +2131,46 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      */
     @SuppressWarnings({"BusyWait"})
     private void startScrollingThread() {
-        Thread scrollingThread = new Thread(() -> {
-            while (mMainRecyclerView != null && mMainRecyclerView.canScrollVertically(1)) {
-                if (!sShabbatMode) break;
-                if (mMainRecyclerView.canScrollVertically(1)) {
-                    mMainRecyclerView.smoothScrollBy(0, 5);
+        if (!sSharedPreferences.getBoolean("weeklyMode", false)) {
+            Thread scrollingThread = new Thread(() -> {
+                while (mMainRecyclerView != null && mMainRecyclerView.canScrollVertically(1)) {
+                    if (!sShabbatMode) break;
+                    if (mMainRecyclerView.canScrollVertically(1)) {
+                        mMainRecyclerView.smoothScrollBy(0, 5);
+                    }
+                    try {//must have these busy waits for scrolling to work properly. I assume it breaks because it is currently animating something. Will have to fix this in the future, but it works for now.
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
-                try {//must have these busy waits for scrolling to work properly. I assume it breaks because it is currently animating something. Will have to fix this in the future, but it works for now.
-                    Thread.sleep(100);
+                try {//must have these waits or else the RecyclerView will have corrupted info
+                    Thread.sleep(3000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-            }
-            try {//must have these waits or else the RecyclerView will have corrupted info
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            while (mMainRecyclerView != null && mMainRecyclerView.canScrollVertically(-1)) {
-                if (!sShabbatMode) break;
-                if (mMainRecyclerView.canScrollVertically(-1)) {
-                    mMainRecyclerView.smoothScrollBy(0, -5);
+                while (mMainRecyclerView != null && mMainRecyclerView.canScrollVertically(-1)) {
+                    if (!sShabbatMode) break;
+                    if (mMainRecyclerView.canScrollVertically(-1)) {
+                        mMainRecyclerView.smoothScrollBy(0, -5);
+                    }
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
                 try {
-                    Thread.sleep(100);
+                    Thread.sleep(3000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-            }
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            if (sShabbatMode) {
-                startScrollingThread();
-            }
-        });
-        scrollingThread.start();
+                if (sShabbatMode) {
+                    startScrollingThread();
+                }
+            });
+            scrollingThread.start();
+        }
     }
 
     /**
