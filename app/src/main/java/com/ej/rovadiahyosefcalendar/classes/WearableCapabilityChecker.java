@@ -18,7 +18,7 @@ public class WearableCapabilityChecker {
     public void checkIfWatchExists(final OnWatchCheckListener listener) {
         Task<List<Node>> nodesTask = Wearable.getNodeClient(context).getConnectedNodes();
         nodesTask.addOnSuccessListener(nodes -> {
-            if (nodes.size() > 0) {
+            if (!nodes.isEmpty()) {
                 listener.onWatchCheckResult(true);
             }
         });

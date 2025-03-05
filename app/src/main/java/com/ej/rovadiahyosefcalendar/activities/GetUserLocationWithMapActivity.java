@@ -305,15 +305,17 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                 startActivity(new Intent(this, InIsraelActivity.class));
             }
         } else if (!Utils.isLocaleHebrew()) {
-            mSharedPreferences.edit().putBoolean("inIsrael", false).apply();
             mSharedPreferences.edit().putBoolean("LuachAmudeiHoraah", true).apply();
             sSharedPreferences.edit().putBoolean("useElevation", false).apply();
             if (!getIntent().getBooleanExtra("loneActivity", false)) {
+                mSharedPreferences.edit().putBoolean("inIsrael", false).apply();
                 startActivity(new Intent(this, ZmanimLanguageActivity.class));
             }
         } else {// user is outside of Israel and device is in hebrew
             sSharedPreferences.edit().putBoolean("useElevation", false).apply();
-            mSharedPreferences.edit().putBoolean("inIsrael", false).apply();
+            if (!getIntent().getBooleanExtra("loneActivity", false)) {
+                mSharedPreferences.edit().putBoolean("inIsrael", false).apply();
+            }
             mSharedPreferences.edit().putBoolean("LuachAmudeiHoraah", true).apply();
             mSharedPreferences.edit().putBoolean("isZmanimInHebrew", true).apply();
             mSharedPreferences.edit().putBoolean("isZmanimEnglishTranslated", false).apply();

@@ -110,6 +110,15 @@
             </Button>
 
             <TextView
+                android:id="@+id/siddur_disclaimer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="36dp"
+                android:linksClickable="true"
+                tools:text="It is good to say this prayer today"
+                />
+
+            <TextView
                 android:id="@+id/nightDayOfWeek"
                 android:layout_width="312dp"
                 android:layout_height="wrap_content"
@@ -240,6 +249,7 @@
                 android:layout_width="312dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
+                android:layout_marginBottom="36dp"
                 android:text="@string/birchat_levana"
                 android:textStyle="bold"
                 android:textSize="26sp"
@@ -247,16 +257,6 @@
                 app:backgroundTint="@null"
                 android:background="@drawable/colorful_gradient_square">
             </Button>
-
-            <TextView
-                android:id="@+id/siddur_disclaimer"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="36dp"
-                android:layout_marginBottom="36dp"
-                android:linksClickable="true"
-                tools:text="It is good to say this prayer today"
-                />
 
         </LinearLayout>
 

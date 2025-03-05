@@ -267,8 +267,7 @@ public class LimudFragment extends Fragment {
         List<LimudListEntry> hillulot = new ArrayList<>();
 
         // Read JSON file from the 'raw' directory
-//        String jsonFileString = readJSONFromRawResource(mContext, Utils.isLocaleHebrew() ? R.raw.hiloulah_he : R.raw.hiloulah_en);
-        String jsonFileString = readJSONFromRawResource(mContext, Utils.isLocaleHebrew() ? R.raw.temp_hiloulah_he : R.raw.temp_hiloulah_en);
+        String jsonFileString = readJSONFromRawResource(mContext, Utils.isLocaleHebrew() ? R.raw.hiloulah_he : R.raw.hiloulah_en);
 
         if (jsonFileString != null) {
             try {

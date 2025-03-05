@@ -8,6 +8,11 @@ import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLongi
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.graphics.LinearGradient;
+import android.graphics.Shader;
+import android.graphics.drawable.PaintDrawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.RectShape;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,6 +22,7 @@ import android.view.View;
 import android.view.WindowInsets;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -131,6 +137,8 @@ public class NetzActivity extends AppCompatActivity {
         mVisible = true;
         mControlsView = binding.fullscreenContentControls;
         mContentView = binding.fullscreenContent;
+
+        //binding.netzLayout.setBackground(getDawnBackground());
 
         // Set up the user interaction to manually show or hide the system UI.
         mContentView.setOnClickListener(view -> toggle());
@@ -262,6 +270,31 @@ public class NetzActivity extends AppCompatActivity {
             mIsZmanimInHebrew = false;
             mIsZmanimEnglishTranslated = false;
         }
+    }
+    private static @NonNull PaintDrawable getDawnBackground() {
+        ShapeDrawable.ShaderFactory sf = new ShapeDrawable.ShaderFactory() {
+            @Override
+            public Shader resize(int width, int height) {
+                return new LinearGradient(
+                        0, 0, 0, height,  // Vertical gradient
+                        new int[] {
+                                0xFF0D0D1A,  // Deep dark blue (night fading)
+                                0xFF0D0D1A,  // Deep dark blue (night fading)
+                                0xFF0D0D33,  // Dark blue with slight fade
+                                0xFF333366,  // Faint pre-dawn blue
+                                0xFF664D80,  // Subtle purple transition
+                                0xFF996633   // Faint warm orange glow near the bottom
+                        },
+                        null,
+                        Shader.TileMode.CLAMP  // Ensures colors fill the gradient
+                );
+            }
+        };
+
+        PaintDrawable p = new PaintDrawable();
+        p.setShape(new RectShape());
+        p.setShaderFactory(sf);
+        return p;
     }
 
     @Override

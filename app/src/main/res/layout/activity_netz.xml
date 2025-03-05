@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout
+    android:id="@+id/netzLayout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -26,6 +27,40 @@
             android:textColor="@color/dark_gold"
             android:textSize="50sp"
             android:textStyle="bold" />
+
+<!--        <TextView-->
+<!--            android:id="@+id/fullscreen_content"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:gravity="center"-->
+<!--            android:keepScreenOn="true"-->
+<!--            android:text="Calculating..."-->
+<!--            tools:text="Netz is in...\n\n6h:00m:01s"-->
+<!--            android:shadowColor="@android:color/holo_orange_light"-->
+<!--            android:shadowRadius="12"-->
+<!--            android:textColor="@color/white"-->
+<!--            android:textSize="50sp"-->
+<!--            android:textStyle="bold" />-->
+
+<!--            &lt;!&ndash; Sun Image &ndash;&gt;-->
+<!--            <ImageView-->
+<!--                android:id="@+id/sunImage"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="80dp"-->
+<!--                android:padding="8dp"-->
+<!--                android:src="@drawable/baseline_wb_sunny_24"-->
+<!--                android:visibility="gone"/>-->
+
+<!--            &lt;!&ndash; Background element (Mountain or Sea) &ndash;&gt;-->
+<!--            <ImageView-->
+<!--                android:id="@+id/backgroundElement"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="80dp"-->
+<!--                android:padding="8dp"-->
+<!--                android:src="@drawable/baseline_tsunami_24"-->
+<!--                android:visibility="gone"/>-->
+
+<!--        </LinearLayout>-->
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

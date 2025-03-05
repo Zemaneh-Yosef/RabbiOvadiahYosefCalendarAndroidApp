@@ -84,15 +84,15 @@
 
     <string name="note_times_are_just_for_reference_you_should_ask_a_rav_if_you_can_say_the_bracha_earlier_or_later">כתב ויתור: הזמנים הם רק לעיון, אתה צריך לשאול רב אם אתה יכול להגיד את הברכה מוקדם יותר או מאוחר יותר.</string>
 
-    <string name="latest_birchat_halevanah_15_days">ברכת הלבנה האחרונה (15 ימים):</string>
+    <string name="latest_birchat_halevanah_15_days">ברכת הלבנה האחרונה (15 ימים)</string>
 
-    <string name="earliest_birchat_halevanah_7_days">ברכת הלבנה המוקדמת ביותר (7 ימים):</string>
+    <string name="earliest_birchat_halevanah_7_days">ברכת הלבנה המוקדמת ביותר (7 ימים)</string>
 
-    <string name="the_molad_for_this_month_in_your_timezone">המולד לחודש זה באזור הזמן שלך:</string>
+    <string name="the_molad_for_this_month_in_your_timezone">המולד לחודש זה (באזור הזמן שלך)</string>
 
     <string name="change_date">שנה תאריך</string>
 
-    <string name="the_molad_time_announced">שעת המולד הכריזה:</string>
+    <string name="the_molad_time_announced">שעת המולד הכריזה</string>
 
     <string name="title_activity_shabbat">פעילות שבת</string>
 
@@ -271,7 +271,7 @@
 
     <string name="cancel">לבטל</string>
 
-    <string name="the_whole_night_of_the_15th_day_of_the_hebrew_month">כל הלילה של היום ה-15 לחודש העברי</string>
+    <string name="the_whole_night_of_the_15th_day_of_the_hebrew_month">כל ליל ט\"ו לחודש העברי</string>
 
     <string name="h">ח:</string>
 

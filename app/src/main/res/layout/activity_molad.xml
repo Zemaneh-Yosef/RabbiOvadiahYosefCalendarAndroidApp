@@ -30,6 +30,7 @@
             android:id="@+id/app_bar_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="80dp"
             android:backgroundTint="@null"
             android:background="@null"
             android:fitsSystemWindows="true">
@@ -50,117 +51,158 @@
 
         </com.google.android.material.appbar.AppBarLayout>
 
-    <TextView
-        android:id="@+id/currentMonths"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="18dp"
-        android:padding="4dp"
-        tools:text="September 2021 / Elul 5781"
-        android:textColor="@color/white"
-        android:textSize="22sp"
-        android:textStyle="bold" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="18dp"
+            android:background="@drawable/rounded_background">
 
-    <Button
-        android:id="@+id/molad_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/dark_blue"
-        android:text="@string/change_date"
-        android:textAllCaps="false"
-        android:textColor="@color/white" />
+            <TextView
+                android:id="@+id/currentEnglishMonthYear"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:gravity="center"
+                tools:text="September\n2021 "
+                android:textColor="@color/white"
+                android:textSize="22sp"
+                android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/moladAnnouncement"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="88dp"
-        android:padding="8dp"
-        android:gravity="start"
-        android:text="@string/the_molad_time_announced"
-        android:textColor="@color/white"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+            <ImageButton
+                android:id="@+id/molad_button"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:padding="22dp"
+                android:src="@drawable/baseline_edit_24"
+                android:background="@null"/>
 
-    <TextView
-        android:id="@+id/moladAnnouncementTime"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="88dp"
-        android:gravity="start"
-        android:padding="8dp"
-        tools:text="21h:20m and 6 chalakim"
-        android:textColor="@color/white"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+            <TextView
+                android:id="@+id/currentHebrewMonthYear"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:gravity="center"
+                tools:text="Elul\n5781"
+                android:textColor="@color/white"
+                android:textSize="22sp"
+                android:textStyle="bold" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="12dp"
-        android:text="@string/the_molad_for_this_month_in_your_timezone"
-        android:textColor="@color/white"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:gravity="center" />
+        </LinearLayout>
 
-    <TextView
-        android:id="@+id/moladDate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:padding="4dp"
-        android:shadowColor="@color/black"
-        android:shadowRadius="80"
-        tools:text="Sun Aug 08 4:22:36 AM"
-        android:textColor="@color/white"
-        android:textSize="26sp" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_margin="8dp"
+            android:background="@drawable/rounded_background">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="12dp"
-        android:shadowColor="@color/black"
-        android:shadowRadius="80"
-        android:text="@string/earliest_birchat_halevanah_7_days"
-        android:textColor="@color/white"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+            <TextView
+                android:id="@+id/moladAnnouncement"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:gravity="center"
+                android:text="@string/the_molad_time_announced"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/moladDate7Days"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="4dp"
-        android:shadowColor="@color/black"
-        android:shadowRadius="80"
-        android:textColor="@color/white"
-        android:textSize="26sp"
-        tools:text="Sun Aug 15 4:22:36 AM" />
+            <TextView
+                android:id="@+id/moladAnnouncementTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:padding="8dp"
+                tools:text="21h:20m and 6 chalakim"
+                android:textColor="@color/lightYellow"
+                android:textSize="22sp"
+                android:textStyle="bold" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="12dp"
-        android:shadowColor="@color/black"
-        android:shadowRadius="80"
-        android:text="@string/latest_birchat_halevanah_15_days"
-        android:textColor="@color/white"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        </LinearLayout>
 
-    <TextView
-        android:id="@+id/moladDate15Days"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="4dp"
-        android:shadowColor="@color/black"
-        android:shadowRadius="80"
-        tools:text="The entire night of the 15th day of the Hebrew month"
-        android:gravity="center"
-        android:textColor="@color/white"
-        android:textSize="26sp" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:background="@drawable/rounded_background"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:text="@string/the_molad_for_this_month_in_your_timezone"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:gravity="center" />
+
+            <TextView
+                android:id="@+id/moladDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:padding="4dp"
+                android:layout_gravity="center"
+                tools:text="Sun Aug 08 4:22:36 AM"
+                android:textColor="@color/lightYellow"
+                android:textSize="26sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:background="@drawable/rounded_background"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:layout_gravity="center"
+                android:text="@string/earliest_birchat_halevanah_7_days"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/moladDate7Days"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:layout_gravity="center"
+                android:textColor="@color/lightYellow"
+                android:textSize="26sp"
+                tools:text="Sun Aug 15 4:22:36 AM" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/gray"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:layout_gravity="center"
+                android:text="@string/latest_birchat_halevanah_15_days"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/moladDate15Days"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                android:text="@string/the_whole_night_of_the_15th_day_of_the_hebrew_month"
+                android:gravity="center"
+                android:textColor="@color/lightYellow"
+                android:textSize="26sp" />
+
+        </LinearLayout>
 
     <TextView
         android:id="@+id/molad_disclaimer"

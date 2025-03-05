@@ -868,19 +868,26 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
     @SuppressLint("NotifyDataSetChanged")
     private void updateDailyZmanim() {
-        mMainRecyclerView.setAdapter(new ZmanAdapter(mContext, getZmanimList(false),
-                () -> {
-                    ZmanAdapter zmanAdapter = (ZmanAdapter) mMainRecyclerView.getAdapter();
-                    if (zmanAdapter != null) {
-                        zmanAdapter.setZmanim(getZmanimList(true));
-                        mMainRecyclerView.getAdapter().notifyDataSetChanged();
-                    }
-                },
-                () -> {
-                    if (mCalendarButton != null) {
-                        mCalendarButton.performClick();
-                    }
-                }));
+        if (mMainRecyclerView == null) {
+            if (binding != null) {
+                mMainRecyclerView = binding.mainRV;
+                updateDailyZmanim();// try again
+            }
+        } else {
+            mMainRecyclerView.setAdapter(new ZmanAdapter(mContext, getZmanimList(false),
+                    () -> {
+                        ZmanAdapter zmanAdapter = (ZmanAdapter) mMainRecyclerView.getAdapter();
+                        if (zmanAdapter != null) {
+                            zmanAdapter.setZmanim(getZmanimList(true));
+                            mMainRecyclerView.getAdapter().notifyDataSetChanged();
+                        }
+                    },
+                    () -> {
+                        if (mCalendarButton != null) {
+                            mCalendarButton.performClick();
+                        }
+                    }));
+        }
     }
 
     private void initMenu() {
@@ -1537,13 +1544,19 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     if (!Utils.isLocaleHebrew()) {
                         shortZmanim[zmanim.indexOf(zman)] = rtFormat.format(zman.getZman()) + " :" + zman.getTitle();
                     } else {
-                        shortZmanim[zmanim.indexOf(zman)] = zman.getTitle() + " : " + rtFormat.format(zman.getZman());
+                        shortZmanim[zmanim.indexOf(zman)] = zman.getTitle() + ": " + rtFormat.format(zman.getZman());
                     }
                 } else {
                     if (!Utils.isLocaleHebrew()) {
-                        shortZmanim[zmanim.indexOf(zman)] = zmanimFormat.format(zman.getZman()) + " :\u202B" + zman.getTitle().replace("סוף זמן ", "");
+                        shortZmanim[zmanim.indexOf(zman)] = zmanimFormat.format(zman.getZman()) + " :" + zman.getTitle()
+                                .replace("סוף זמן ", "")
+                                .replace("(", "")
+                                .replace(")", "");
                     } else {
-                        shortZmanim[zmanim.indexOf(zman)] = zman.getTitle().replace("סוף זמן ", "") + ": " + zmanimFormat.format(zman.getZman());
+                        shortZmanim[zmanim.indexOf(zman)] = zman.getTitle()
+                                .replace("סוף זמן ", "")
+                                .replace("(", "")
+                                .replace(")", "") + ": " + zmanimFormat.format(zman.getZman());
                     }
                 }
                 if (zman.getZman().equals(sNextUpcomingZman)) {
@@ -1565,6 +1578,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                             .replace("Earliest ", "")
                             .replace("Sof Zeman ", "")
                             .replace("Latest ", "")
+                            .replace("(", "")
+                            .replace(")", "")
                             + ": " + zmanimFormat.format(zman.getZman());
                 }
                 if (zman.getZman().equals(sNextUpcomingZman)) {
@@ -2367,12 +2382,15 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             synchronized (mJewishDateInfo) {
                 mActivity.runOnUiThread(() -> {
                     if (mMainRecyclerView != null && mMainRecyclerView.isFocusable()) {
-                        mMainRecyclerView.setVisibility(View.VISIBLE);
+                        if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                            showWeeklyTextViews();
+                        } else {
+                            mMainRecyclerView.setVisibility(View.VISIBLE);
+                        }
                         resolveElevationAndVisibleSunrise(() -> {
                             if (mCurrentDateShown != null) {
-                                mCurrentDateShown.setTime(new Date());
-                                mJewishDateInfo.setCalendar(new GregorianCalendar());
                                 instantiateZmanimCalendar();
+                                mROZmanimCalendar.setCalendar(mCurrentDateShown);
                                 setNextUpcomingZman();
                                 createBackgroundThreadForNextUpcomingZman();
                                 if (sSharedPreferences.getBoolean("weeklyMode", false)) {

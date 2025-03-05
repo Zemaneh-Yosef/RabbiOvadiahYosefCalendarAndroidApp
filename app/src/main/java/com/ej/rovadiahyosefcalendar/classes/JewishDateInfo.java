@@ -597,7 +597,8 @@ public class JewishDateInfo {
         }
 
         jewishCalendar.setDate(parshaCalendar);
-        String haftarah = WeeklyHaftarahReading.getThisWeeksHaftarah(jewishCalendar);
+        String haftarah = WeeklyHaftarahReading.getThisWeeksHaftarah(jewishCalendar)
+                .replace("מפטירין", Utils.isLocaleHebrew() ? "מפטירין" : "Haftarah: \u202B");
         jewishCalendar.setDate(currentDate);
         return haftarah;
     }

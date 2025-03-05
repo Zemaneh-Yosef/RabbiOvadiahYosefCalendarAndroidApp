@@ -38,10 +38,10 @@ import androidx.preference.PreferenceManager;
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.JerusalemDirectionMapsActivity;
 import com.ej.rovadiahyosefcalendar.activities.SiddurViewActivity;
-import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.ej.rovadiahyosefcalendar.classes.HebrewDayMonthYearPickerDialog;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
 import com.ej.rovadiahyosefcalendar.classes.SiddurMaker;
+import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.ej.rovadiahyosefcalendar.databinding.FragmentSiddurBinding;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -161,8 +161,8 @@ public class SiddurFragment extends Fragment {
         });
 
         if (!mJewishDateInfo.getJewishCalendar().hasCandleLighting() && mJewishDateInfo.getJewishCalendar().isAssurBemelacha()
-                || (mJewishDateInfo.getJewishCalendar().isTishaBav() && mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY
-                || mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SUNDAY)) {
+                || (mJewishDateInfo.getJewishCalendar().isTishaBav() && (mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY
+                || mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SUNDAY))) {
             havdalah.setVisibility(View.VISIBLE);
             if (mJewishDateInfo.tomorrow().getJewishCalendar().isTishaBav() && mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY) {
                 havdalah.setBackground(null);
@@ -333,6 +333,9 @@ public class SiddurFragment extends Fragment {
                 !(mJewishDateInfo.getJewishCalendar().getUpcomingParshah() == JewishCalendar.Parsha.BESHALACH &&
                 mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.TUESDAY)) {
             disclaimer.setText("");
+            disclaimer.setVisibility(View.GONE);
+        } else {
+            disclaimer.setVisibility(View.VISIBLE);
         }
     }
 
