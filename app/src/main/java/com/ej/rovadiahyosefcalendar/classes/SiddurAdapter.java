@@ -128,8 +128,8 @@ public class SiddurAdapter extends ArrayAdapter<String> implements SensorEventLi
                 viewHolder.info.setTypeface(Typeface.createFromAsset(context.getAssets(), "Guttman Keren.ttf"), Typeface.NORMAL);
                 break;
             case "Taamey Frank":
-                viewHolder.textView.setTypeface(Typeface.createFromAsset(context.getAssets(), "TaameyFrankCLM-Bold.ttf"), Typeface.NORMAL);
-                viewHolder.info.setTypeface(Typeface.createFromAsset(context.getAssets(), "TaameyFrankCLM-Bold.ttf"), Typeface.NORMAL);
+                viewHolder.textView.setTypeface(Typeface.createFromAsset(context.getAssets(), "Taamey_D.ttf"), Typeface.NORMAL);
+                viewHolder.info.setTypeface(Typeface.createFromAsset(context.getAssets(), "Taamey_D.ttf"), Typeface.NORMAL);
                 break;
             default:
                 break;

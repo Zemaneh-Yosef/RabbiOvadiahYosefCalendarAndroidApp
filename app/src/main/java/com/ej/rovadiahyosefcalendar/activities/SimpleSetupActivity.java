@@ -4,7 +4,6 @@ import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentLocationName;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLatitude;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLongitude;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSharedPreferences;
 
 import android.app.Activity;
 import android.content.Context;
@@ -187,10 +186,10 @@ public class SimpleSetupActivity extends AppCompatActivity {
                 Intent returnIntent = new Intent();
                 returnIntent.putExtra("elevation", mSharedPreferences.getString("elevation" + sCurrentLocationName, ""));
                 setResult(Activity.RESULT_OK, returnIntent);
-                if (sSharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
-                    startActivity(new Intent(getBaseContext(), TipScreenActivity.class));
-                    sSharedPreferences.edit().putBoolean("hasNotShownTipScreen", false).apply();
-                }
+//                if (mSharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
+//                    startActivity(new Intent(getBaseContext(), TipScreenActivity.class));
+//                    mSharedPreferences.edit().putBoolean("hasNotShownTipScreen", false).apply();
+//                }
                 finish();
             }));
             thread.start();
@@ -211,10 +210,10 @@ public class SimpleSetupActivity extends AppCompatActivity {
                         Intent returnIntent = new Intent();
                         returnIntent.putExtra("elevation", mSharedPreferences.getString("elevation" + sCurrentLocationName, ""));
                         setResult(Activity.RESULT_OK, returnIntent);
-                        if (sSharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
-                            startActivity(new Intent(getBaseContext(), TipScreenActivity.class));
-                            sSharedPreferences.edit().putBoolean("hasNotShownTipScreen", false).apply();
-                        }
+//                        if (mSharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
+//                            startActivity(new Intent(getBaseContext(), TipScreenActivity.class));
+//                            mSharedPreferences.edit().putBoolean("hasNotShownTipScreen", false).apply();
+//                        }
                         finish();
                     }));
             thread.start();

@@ -11,8 +11,8 @@ android {
         minSdk 25
         compileSdk 35
         targetSdk 35
-        versionCode 217
-        versionName "23.3"
+        versionCode 219
+        versionName "23.5"
         multiDexEnabled true
 
         ndk { debugSymbolLevel 'FULL' }
@@ -54,8 +54,8 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
     implementation 'androidx.viewpager2:viewpager2:1.1.0'
     implementation 'androidx.vectordrawable:vectordrawable:1.2.0'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.8.8'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.8.8'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.8.9'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.8.9'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation group: 'com.kosherjava', name: 'zmanim', version: '2.5.0'
@@ -67,6 +67,7 @@ dependencies {
     implementation 'com.github.luben:zstd-jni:1.5.0-4@aar'
     implementation 'org.jsoup:jsoup:1.17.2'
     implementation 'com.opencsv:opencsv:5.9'
+    implementation 'com.facebook.shimmer:shimmer:0.5.0'
     implementation 'androidx.preference:preference-ktx:1.2.1'
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
     implementation 'com.github.martin-stone:hsv-alpha-color-picker-android:3.0.1'

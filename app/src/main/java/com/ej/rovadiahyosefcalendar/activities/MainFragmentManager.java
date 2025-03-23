@@ -47,6 +47,7 @@ import com.ej.rovadiahyosefcalendar.classes.ChaiTables;
 import com.ej.rovadiahyosefcalendar.classes.ExceptionHandler;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
+import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.ej.rovadiahyosefcalendar.databinding.ActivityMainFragmentManagerBinding;
 import com.ej.rovadiahyosefcalendar.notifications.NextZmanCountdownNotification;
 import com.google.android.material.appbar.AppBarLayout;
@@ -61,6 +62,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.TimeZone;
 
 public class MainFragmentManager extends AppCompatActivity {
 
@@ -73,7 +75,7 @@ public class MainFragmentManager extends AppCompatActivity {
     public static double sLatitude;
     public static double sLongitude;
     public static double sElevation = 0;
-    public static String sCurrentTimeZoneID;//e.g. "America/New_York"
+    public static String sCurrentTimeZoneID = TimeZone.getDefault().getID();//e.g. "America/New_York"
 
     // KosherJava classes
     public static ROZmanimCalendar mROZmanimCalendar = new ROZmanimCalendar(new GeoLocation());// avoid NPE
@@ -179,13 +181,13 @@ public class MainFragmentManager extends AppCompatActivity {
                 if (materialToolbar != null) {
                     if (position == 0) {// Limud
                         materialToolbar.setTitle(getString(R.string.limudim_hillulot));
-                        if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                        if (Utils.isLocaleHebrew()) {
                             materialToolbar.setSubtitle(getString(R.string.app_name));
                         } else {
                             materialToolbar.setSubtitle(getString(R.string.short_app_name));
                         }
                     } else if (position == 1) {// Zmanim
-                        if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+                        if (Utils.isLocaleHebrew()) {
                             materialToolbar.setTitle(getString(R.string.app_name));
                             materialToolbar.setSubtitle("");
                         } else {

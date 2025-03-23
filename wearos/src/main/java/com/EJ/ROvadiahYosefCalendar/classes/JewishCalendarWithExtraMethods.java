@@ -7,10 +7,30 @@ import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 import java.util.TimeZone;
 
 public class JewishCalendarWithExtraMethods extends JewishCalendar {
+
+    private boolean isSafekMukafChoma = false;
+
+    public boolean getIsSafekMukafChoma() {
+        return isSafekMukafChoma;
+    }
+
+    public void setIsSafekMukafChoma(boolean isSafekMukafChoma) {
+        this.isSafekMukafChoma = isSafekMukafChoma;
+    }
+
+    @Override
+    public boolean isPurim() {
+        if (getIsMukafChoma()) {
+            return getYomTovIndex() == SHUSHAN_PURIM;
+        } else if (isSafekMukafChoma) {
+            return getYomTovIndex() == PURIM || getYomTovIndex() == SHUSHAN_PURIM;
+        } else {
+            return getYomTovIndex() == PURIM;
+        }
+    }
 
     public Double getTekufa() {
         double INITIAL_TEKUFA_OFFSET = 12.625;  // the number of days Tekufas Tishrei occurs before JEWISH_EPOCH
@@ -28,7 +48,7 @@ public class JewishCalendarWithExtraMethods extends JewishCalendar {
 
     public String getTekufaName() {
         String[] tekufaNames;
-        if (LocaleChecker.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew()) {
             tekufaNames = new String[]{"תשרי", "טבת", "ניסן", "תמוז"};
         } else {
             tekufaNames = new String[]{"Tishri", "Tevet", "Nissan", "Tammuz"};
@@ -68,7 +88,7 @@ public class JewishCalendarWithExtraMethods extends JewishCalendar {
 
     public Date getAmudeiHoraahTekufaAsDate() {
         //The Luach Amudei Horaah uses the same calculation for the tekufa, however, it uses the local midday time of Israel as the starting point,
-        //instead of 6pm.
+        //instead of 12pm.
 
         // The tekufa Date (point in time) must be generated using standard time. Using "Asia/Jerusalem" timezone will result in the time
         // being incorrectly off by an hour in the summer due to DST. Proper adjustment for the actual time in DST will be done by the date
@@ -93,9 +113,7 @@ public class JewishCalendarWithExtraMethods extends JewishCalendar {
     @Override
     public String toString() {
         HebrewDateFormatter hebrewDateFormatter = new HebrewDateFormatter();
-        if (LocaleChecker.isLocaleHebrew()) {
-            hebrewDateFormatter.setHebrewFormat(true);
-        }
-        return hebrewDateFormatter.format(this);
+        hebrewDateFormatter.setHebrewFormat(Utils.isLocaleHebrew());
+        return hebrewDateFormatter.format(this).replace("Teves", "Tevet").replace("Tishrei", "Tishri");
     }
 }

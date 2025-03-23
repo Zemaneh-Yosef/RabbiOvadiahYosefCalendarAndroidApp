@@ -4,13 +4,15 @@ import java.util.Date;
 
 public class ZmanListEntry {
 
-    private final String title;
-    private final Date zman;
+    private String title;
+    private Date zman;
     private final boolean isZman;
     private boolean isNoteworthyZman;
     private boolean isRTZman;
     private boolean shouldBeDimmed;
     private boolean isVisibleSunriseZman;
+    private boolean isBirchatHachamahZman;
+    private boolean is66MisheyakirZman;
 
     public ZmanListEntry(String title) {
         this.title = title;
@@ -35,8 +37,16 @@ public class ZmanListEntry {
         return title;
     }
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     public Date getZman() {
         return zman;
+    }
+
+    public void setZman(Date zman) {
+        this.zman = zman;
     }
 
     public boolean isZman() {
@@ -69,5 +79,21 @@ public class ZmanListEntry {
 
     public boolean isVisibleSunriseZman() {
         return isVisibleSunriseZman;
+    }
+
+    public void setBirchatHachamahZman(boolean birchatHachamahZman) {
+        isBirchatHachamahZman = birchatHachamahZman;
+    }
+
+    public boolean isBirchatHachamahZman() {
+        return isBirchatHachamahZman;
+    }
+
+    public boolean is66MisheyakirZman() {
+        return is66MisheyakirZman;
+    }
+
+    public void setIs66MisheyakirZman(boolean is66MisheyakirZman) {
+        this.is66MisheyakirZman = is66MisheyakirZman;
     }
 }

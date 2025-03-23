@@ -5,7 +5,6 @@ import android.Manifest
 import android.app.AlarmManager
 import android.app.AlertDialog
 import android.app.DatePickerDialog
-import android.app.Dialog
 import android.app.PendingIntent
 import android.app.PendingIntent.CanceledException
 import android.content.DialogInterface
@@ -74,7 +73,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -96,8 +94,9 @@ import com.EJ.ROvadiahYosefCalendar.classes.LocationResolver
 import com.EJ.ROvadiahYosefCalendar.classes.OnChangeListener
 import com.EJ.ROvadiahYosefCalendar.classes.PreferenceListener
 import com.EJ.ROvadiahYosefCalendar.classes.ROZmanimCalendar
+import com.EJ.ROvadiahYosefCalendar.classes.Utils
 import com.EJ.ROvadiahYosefCalendar.classes.ZmanListEntry
-import com.EJ.ROvadiahYosefCalendar.classes.ZmanimNames
+import com.EJ.ROvadiahYosefCalendar.classes.ZmanimFactory.addZmanim
 import com.EJ.ROvadiahYosefCalendar.classes.ZmanimNotifications
 import com.EJ.ROvadiahYosefCalendar.presentation.theme.DarkGray
 import com.EJ.ROvadiahYosefCalendar.presentation.theme.RabbiOvadiahYosefCalendarTheme
@@ -542,8 +541,6 @@ class MainActivity : ComponentActivity() {
 
         sb.append(
             mJewishDateInfo.jewishCalendar.toString()
-                .replace("Teves", "Tevet")
-                .replace("Tishrei", "Tishri")
         )
 
         zmanim.add(ZmanListEntry(sb.toString()))
@@ -555,18 +552,13 @@ class MainActivity : ComponentActivity() {
             zmanim.add(ZmanListEntry(haftorah))
         }
 
-        mROZmanimCalendar.calendar.add(Calendar.DATE, 1)
-        mJewishDateInfo.setCalendar(mROZmanimCalendar.calendar)
         if (sharedPref.getBoolean("showShabbatMevarchim", true)) {
-            if (mJewishDateInfo.jewishCalendar.isShabbosMevorchim) {
+            if (mJewishDateInfo.tomorrow().jewishCalendar.isShabbosMevorchim) {
                 zmanim.add(ZmanListEntry("שבת מברכים"))
             }
         }
-        mROZmanimCalendar.calendar.add(Calendar.DATE, -1)
-        mJewishDateInfo.setCalendar(mROZmanimCalendar.calendar) //reset
 
-
-        if (Locale.getDefault().getDisplayLanguage(Locale("en", "US")) == "Hebrew") {
+        if (Utils.isLocaleHebrew()) {
             zmanim.add(
                 ZmanListEntry(
                     mROZmanimCalendar.calendar
@@ -600,9 +592,7 @@ class MainActivity : ComponentActivity() {
             zmanim.add(ZmanListEntry(dayOfOmer))
         }
 
-        if (mJewishDateInfo.jewishCalendar.yomTovIndex == JewishCalendar.ROSH_HASHANA &&
-            mJewishDateInfo.isShmitaYear
-        ) {
+        if (mJewishDateInfo.jewishCalendar.isRoshHashana && mJewishDateInfo.isShmitaYear) {
             zmanim.add(ZmanListEntry(getString(R.string.this_year_is_a_shmita_year)))
         }
 
@@ -635,6 +625,10 @@ class MainActivity : ComponentActivity() {
 
         zmanim.add(ZmanListEntry(mJewishDateInfo.isTachanunSaid))
 
+        if (mJewishDateInfo.isPurimMeshulash) {
+            zmanim.add(ZmanListEntry(getString(R.string.no_tachanun_in_yerushalayim_or_a_safek_mukaf_choma)))
+        }
+
         val birchatLevana: String = mJewishDateInfo.birchatLevana
         if (birchatLevana.isNotEmpty()) {
             zmanim.add(ZmanListEntry(birchatLevana))
@@ -644,6 +638,11 @@ class MainActivity : ComponentActivity() {
             zmanim.add(ZmanListEntry(getString(R.string.birchat_hachamah_is_said_today)))
         }
 
+        if (mJewishDateInfo.tomorrow().jewishCalendar.dayOfWeek == Calendar.SATURDAY
+            && mJewishDateInfo.tomorrow().jewishCalendar.getYomTovIndex() == JewishCalendar.EREV_PESACH) {
+            zmanim.add(ZmanListEntry(getString(R.string.burn_your_ametz_today)))
+        }
+
         val tekufaOpinions: String? = sharedPref.getString("TekufaOpinions", "1")
         when (tekufaOpinions) {
             "1" -> if (sharedPref.getBoolean("LuachAmudeiHoraah", false)) {
@@ -651,7 +650,6 @@ class MainActivity : ComponentActivity() {
             } else {
                 addTekufaTime()
             }
-
             "2" -> addTekufaTime()
             "3" -> addAmudeiHoraahTekufaTime()
             else -> {
@@ -661,7 +659,7 @@ class MainActivity : ComponentActivity() {
         }
         addTekufaLength(zmanim, tekufaOpinions)
 
-        addZmanim(zmanim)
+        addZmanim(zmanim, false, sharedPref, sharedPref, mROZmanimCalendar, mJewishDateInfo, sharedPref.getBoolean("isZmanimInHebrew", false), sharedPref.getBoolean("isZmanimEnglishTranslated", false), true)
 
         if (!mCurrentDateShown.before(dafYomiStartDate)) {
             zmanim.add(
@@ -705,26 +703,60 @@ class MainActivity : ComponentActivity() {
                     getString(R.string.shaah_zmanit_gr_a) + " " + mZmanimFormatter.format(
                         mROZmanimCalendar.shaahZmanisGra.toDouble()
                     )
-                            + " / " + getString(R.string.mg_a) + " " + mZmanimFormatter.format(
-                        mROZmanimCalendar.shaahZmanis72MinutesZmanis.toDouble()
+                )
+            )
+            zmanim.add(
+                ZmanListEntry(
+                    getString(R.string.mg_a) + " (" + getString(R.string.ohr_hachaim) + ") " + mZmanimFormatter.format(
+                       mROZmanimCalendar.shaahZmanis72MinutesZmanis.toDouble()
                     )
                 )
             )
         } else {
             val shaahZmanitMGA: Long = mROZmanimCalendar.getTemporalHour(
-                mROZmanimCalendar.alotAmudeiHoraah,
-                mROZmanimCalendar.tzais72ZmanisAmudeiHoraah
+                mROZmanimCalendar.getAlotAmudeiHoraah(),
+                mROZmanimCalendar.getTzais72ZmanisAmudeiHoraah()
             )
             zmanim.add(
                 ZmanListEntry(
                     getString(R.string.shaah_zmanit_gr_a) + " " + mZmanimFormatter.format(
-                        mROZmanimCalendar.shaahZmanisGra.toDouble()
+                       mROZmanimCalendar.shaahZmanisGra.toDouble()
                     )
-                            + " / " + getString(R.string.mg_a) + " " + mZmanimFormatter.format(
+                )
+            )
+            zmanim.add(
+                ZmanListEntry(
+                    getString(R.string.mg_a) + " (" + getString(R.string.amudei_horaah) + ") " + mZmanimFormatter.format(
                         shaahZmanitMGA.toDouble()
                     )
                 )
             )
+        }
+
+        if (sharedPref.getBoolean("ShowLeapYear", false)) {
+            zmanim.add(ZmanListEntry(mJewishDateInfo.isJewishLeapYear()))
+        }
+
+        if (sharedPref.getBoolean("ShowDST", false)) {
+            if (mROZmanimCalendar.getGeoLocation().getTimeZone()
+                    .inDaylightTime(mROZmanimCalendar.getSeaLevelSunrise())
+            ) {
+                zmanim.add(ZmanListEntry(getString(R.string.daylight_savings_time_is_on)))
+            } else {
+                zmanim.add(ZmanListEntry(getString(R.string.daylight_savings_time_is_off)))
+            }
+        }
+
+        if (sharedPref.getBoolean("ShowShmitaYear", false)) {
+            when (mJewishDateInfo.yearOfShmitaCycle) {
+                1 -> zmanim.add(ZmanListEntry(getString(R.string.first_year_of_shmita)))
+                2 -> zmanim.add(ZmanListEntry(getString(R.string.second_year_of_shmita)))
+                3 -> zmanim.add(ZmanListEntry(getString(R.string.third_year_of_shmita)))
+                4 -> zmanim.add(ZmanListEntry(getString(R.string.fourth_year_of_shmita)))
+                5 -> zmanim.add(ZmanListEntry(getString(R.string.fifth_year_of_shmita)))
+                6 -> zmanim.add(ZmanListEntry(getString(R.string.sixth_year_of_shmita)))
+                else -> zmanim.add(ZmanListEntry(getString(R.string.this_year_is_a_shmita_year)))
+            }
         }
 
         if (sharedPref.getBoolean("ShowElevation", false)) {
@@ -736,677 +768,6 @@ class MainActivity : ComponentActivity() {
                 )
             )
         }
-    }
-
-    private fun addZmanim(zmanim: MutableList<ZmanListEntry>) {
-        if (sharedPref.getBoolean("LuachAmudeiHoraah", false)) {
-            addAmudeiHoraahZmanim(zmanim)
-            return
-        }
-        val zmanimNames = ZmanimNames(
-            sharedPref.getBoolean("isZmanimInHebrew", false),
-            sharedPref.getBoolean("isZmanimEnglishTranslated", false)
-        )
-        if (mJewishDateInfo.jewishCalendar.isTaanis && mJewishDateInfo.jewishCalendar.yomTovIndex != JewishCalendar.TISHA_BEAV && mJewishDateInfo.jewishCalendar.yomTovIndex != JewishCalendar.YOM_KIPPUR) {
-            zmanim.add(
-                ZmanListEntry(
-                    zmanimNames.taanitString + zmanimNames.startsString,
-                    mROZmanimCalendar.alos72Zmanis,
-                    true
-                )
-            )
-        }
-        zmanim.add(ZmanListEntry(zmanimNames.alotString, mROZmanimCalendar.alos72Zmanis, true))
-        zmanim.add(
-            ZmanListEntry(
-                zmanimNames.talitTefilinString,
-                mROZmanimCalendar.earliestTalitTefilin,
-                true
-            )
-        )
-        if (sharedPref.getBoolean("ShowElevatedSunrise", false)) {
-            zmanim.add(
-                ZmanListEntry(
-                    zmanimNames.haNetzString + " " + zmanimNames.elevatedString,
-                    mROZmanimCalendar.sunrise,
-                    true
-                )
-            )
-        }
-        if (mROZmanimCalendar.haNetz != null) {
-            zmanim.add(
-                ZmanListEntry(
-                    zmanimNames.haNetzString,
-                    mROZmanimCalendar.haNetz,
-                    true,
-                    true
-                )
-            )
-        } else {
-            zmanim.add(
-                ZmanListEntry(
-                    zmanimNames.haNetzString + " (" + zmanimNames.mishorString + ")",
-                    mROZmanimCalendar.seaLevelSunrise,
-                    true
-                )
-            )
-        }
-        if (mROZmanimCalendar.haNetz != null &&
-            sharedPref.getBoolean("ShowMishorAlways", false)
-        ) {
-            zmanim.add(
-                ZmanListEntry(
-                    zmanimNames.haNetzString + " (" + zmanimNames.mishorString + ")",
-                    mROZmanimCalendar.seaLevelSunrise,
-                    true
-                )
-            )
-        }
-        zmanim.add(
-            ZmanListEntry(
-                zmanimNames.shmaMgaString,
-                mROZmanimCalendar.sofZmanShmaMGA72MinutesZmanis,
-                true
-            )
-        )
-        zmanim.add(ZmanListEntry(zmanimNames.shmaGraString, mROZmanimCalendar.sofZmanShmaGRA, true))
-        if (mJewishDateInfo.jewishCalendar.yomTovIndex == JewishCalendar.EREV_PESACH) {
-            var zman = ZmanListEntry(
-                zmanimNames.achilatChametzString,
-                mROZmanimCalendar.sofZmanTfilaMGA72MinutesZmanis,
-                true
-            )
-            zman.isNoteworthyZman = true
-            zmanim.add(zman)
-            zmanim.add(
-                ZmanListEntry(
-                    zmanimNames.brachotShmaString,
-                    mROZmanimCalendar.sofZmanTfilaGRA,
-                    true
-                )
-            )
-            zman = ZmanListEntry(
-                zmanimNames.biurChametzString,
-                mROZmanimCalendar.sofZmanBiurChametzMGA,
-                true
-            )
-            zman.isNoteworthyZman = true
-            zmanim.add(zman)
-        } else {
-            zmanim.add(
-                ZmanListEntry(
-                    zmanimNames.brachotShmaString,
-                    mROZmanimCalendar.sofZmanTfilaGRA,
-                    true
-                )
-            )
-        }
-        zmanim.add(ZmanListEntry(zmanimNames.chatzotString, mROZmanimCalendar.chatzot, true))
-        zmanim.add(
-            ZmanListEntry(
-                zmanimNames.minchaGedolaString,
-                mROZmanimCalendar.minchaGedolaGreaterThan30,
-                true
-            )
-        )
-        zmanim.add(
-            ZmanListEntry(
-                zmanimNames.minchaKetanaString,
-                mROZmanimCalendar.minchaKetana,
-                true
-            )
-        )
-        val plagOpinions: String? = sharedPref.getString("plagOpinion", "1")
-        if (plagOpinions == "1" || plagOpinions == null) {
-            zmanim.add(
-                ZmanListEntry(
-                    zmanimNames.plagHaminchaString,
-                    mROZmanimCalendar.plagHaminchaYalkutYosef,
-                    true
-                )
-            )
-        }
-        if (plagOpinions == "2") {
-            zmanim.add(
-                ZmanListEntry(
-                    zmanimNames.plagHaminchaString,
-                    mROZmanimCalendar.plagHamincha,
-                    true
-                )
-            )
-        }
-        if (plagOpinions == "3") {
-            zmanim.add(
-                ZmanListEntry(
-                    zmanimNames.plagHaminchaString + " " + zmanimNames.abbreviatedHalachaBerurahString,
-                    mROZmanimCalendar.plagHamincha, true
-                )
-            )
-            zmanim.add(
-                ZmanListEntry(
-                    zmanimNames.plagHaminchaString + " " + zmanimNames.abbreviatedYalkutYosefString,
-                    mROZmanimCalendar.plagHaminchaYalkutYosef, true
-                )
-            )
-        }
-        if (mJewishDateInfo.jewishCalendar.hasCandleLighting() &&
-            !mJewishDateInfo.jewishCalendar.isAssurBemelacha ||
-            mJewishDateInfo.jewishCalendar.gregorianCalendar[Calendar.DAY_OF_WEEK] == Calendar.FRIDAY
-        ) {
-            val candleLightingZman = ZmanListEntry(
-                zmanimNames.candleLightingString + " (" + mROZmanimCalendar.candleLightingOffset.toInt() + ")",
-                mROZmanimCalendar.candleLighting,
-                true
-            )
-            candleLightingZman.isNoteworthyZman = true
-            zmanim.add(candleLightingZman)
-        }
-        if (sharedPref.getBoolean("ShowWhenShabbatChagEnds", false)) {
-            if (mJewishDateInfo.jewishCalendar.isTomorrowShabbosOrYomTov) {
-                mROZmanimCalendar.calendar.add(Calendar.DATE, 1)
-                mJewishDateInfo.setCalendar(mROZmanimCalendar.calendar)
-                if (!mJewishDateInfo.jewishCalendar.isTomorrowShabbosOrYomTov) { //only add if shabbat/yom tov ends tomorrow and not the day after
-                    if (sharedPref.getBoolean("Show Regular Minutes", false)) {
-                        val endShabbat: ZmanListEntry = if (sharedPref.getString(
-                                "EndOfShabbatOpinion",
-                                "1"
-                            ) == "1" || sharedPref.getBoolean("inIsrael", false)
-                        ) {
-                            ZmanListEntry(
-                                zmanimNames.tzaitString + getShabbatAndOrChag() + zmanimNames.endsString
-                                        + " (" + mROZmanimCalendar.ateretTorahSunsetOffset.toInt() + ")" + zmanimNames.macharString,
-                                mROZmanimCalendar.tzaisAteretTorah,
-                                true
-                            )
-                        } else if (sharedPref.getString("EndOfShabbatOpinion", "1") == "2") {
-                            ZmanListEntry(
-                                zmanimNames.tzaitString + getShabbatAndOrChag() + zmanimNames.endsString + zmanimNames.macharString,
-                                mROZmanimCalendar.tzaitShabbatAmudeiHoraah,
-                                true
-                            )
-                        } else {
-                            ZmanListEntry(
-                                zmanimNames.tzaitString + getShabbatAndOrChag() + zmanimNames.endsString + zmanimNames.macharString,
-                                mROZmanimCalendar.tzaitShabbatAmudeiHoraahLesserThan40,
-                                true
-                            )
-                        }
-                        endShabbat.isNoteworthyZman = true
-                        zmanim.add(endShabbat)
-                    }
-                    if (sharedPref.getBoolean("Show Rabbeinu Tam", false)) {
-                        if (sharedPref.getBoolean("RoundUpRT", true)) {
-                            val rt = ZmanListEntry(
-                                zmanimNames.rtString + zmanimNames.macharString,
-                                addMinuteToZman(mROZmanimCalendar.tzais72Zmanis),
-                                true
-                            )
-                            rt.isRTZman = true
-                            zmanim.add(rt)
-                        } else {
-                            val rt = ZmanListEntry(
-                                zmanimNames.rtString + zmanimNames.macharString,
-                                mROZmanimCalendar.tzais72Zmanis,
-                                true
-                            )
-                            rt.isRTZman = true
-                            zmanim.add(rt)
-                        }
-                    }
-                }
-                mROZmanimCalendar.calendar.add(Calendar.DATE, -1)
-                mJewishDateInfo.setCalendar(mROZmanimCalendar.calendar)
-            }
-        }
-        mROZmanimCalendar.calendar.add(Calendar.DATE, 1)
-        mJewishDateInfo.setCalendar(mROZmanimCalendar.calendar)
-        mROZmanimCalendar.calendar.add(Calendar.DATE, -1)
-        if (mJewishDateInfo.jewishCalendar.yomTovIndex == JewishCalendar.TISHA_BEAV) {
-            zmanim.add(
-                ZmanListEntry(
-                    zmanimNames.taanitString + zmanimNames.startsString,
-                    mROZmanimCalendar.sunset,
-                    true
-                )
-            )
-        }
-        mJewishDateInfo.setCalendar(mROZmanimCalendar.calendar)
-        zmanim.add(ZmanListEntry(zmanimNames.sunsetString, mROZmanimCalendar.sunset, true))
-        zmanim.add(ZmanListEntry(zmanimNames.tzaitHacochavimString, mROZmanimCalendar.tzeit, true))
-        if (mJewishDateInfo.jewishCalendar.hasCandleLighting() &&
-            mJewishDateInfo.jewishCalendar.isAssurBemelacha
-        ) {
-            if (mJewishDateInfo.jewishCalendar.gregorianCalendar[Calendar.DAY_OF_WEEK] != Calendar.FRIDAY) {
-                if (mJewishDateInfo.jewishCalendar.gregorianCalendar[Calendar.DAY_OF_WEEK] == Calendar.SATURDAY) { //When today is Shabbat
-                    val endShabbat: ZmanListEntry = if (sharedPref.getString(
-                            "EndOfShabbatOpinion",
-                            "1"
-                        ) == "1" || sharedPref.getBoolean("inIsrael", false)
-                    ) {
-                        ZmanListEntry(
-                            zmanimNames.candleLightingString,
-                            mROZmanimCalendar.tzaisAteretTorah,
-                            true
-                        )
-                    } else if (sharedPref.getString("EndOfShabbatOpinion", "1") == "2") {
-                        ZmanListEntry(
-                            zmanimNames.candleLightingString,
-                            mROZmanimCalendar.tzaitShabbatAmudeiHoraah,
-                            true
-                        )
-                    } else {
-                        ZmanListEntry(
-                            zmanimNames.candleLightingString,
-                            mROZmanimCalendar.tzaitShabbatAmudeiHoraahLesserThan40,
-                            true
-                        )
-                    }
-                    endShabbat.isNoteworthyZman = true
-                    zmanim.add(endShabbat)
-                } else { //When today is Yom Tov
-                    zmanim.add(
-                        ZmanListEntry(
-                            zmanimNames.candleLightingString,
-                            mROZmanimCalendar.tzeit,
-                            true
-                        )
-                    )
-                }
-            }
-        }
-        if (mJewishDateInfo.jewishCalendar.isTaanis && mJewishDateInfo.jewishCalendar.yomTovIndex != JewishCalendar.YOM_KIPPUR) {
-            val fastEnds = ZmanListEntry(
-                zmanimNames.tzaitString + zmanimNames.taanitString + zmanimNames.endsString,
-                mROZmanimCalendar.tzaitTaanit,
-                true
-            )
-            fastEnds.isNoteworthyZman = true
-            zmanim.add(fastEnds)
-        } else if (sharedPref.getBoolean("alwaysShowTzeitLChumra", false)) {
-            val tzeitLChumra = ZmanListEntry(
-                zmanimNames.tzaitHacochavimString + " " + zmanimNames.lChumraString,
-                mROZmanimCalendar.tzaitTaanit,
-                true
-            )
-            zmanim.add(tzeitLChumra)
-        }
-        if (mJewishDateInfo.jewishCalendar.isAssurBemelacha && !mJewishDateInfo.jewishCalendar.hasCandleLighting()) {
-            val endShabbat: ZmanListEntry = if (sharedPref.getString(
-                    "EndOfShabbatOpinion",
-                    "1"
-                ) == "1" || sharedPref.getBoolean("inIsrael", false)
-            ) {
-                ZmanListEntry(
-                    zmanimNames.tzaitString + getShabbatAndOrChag() + zmanimNames.endsString
-                            + " (" + mROZmanimCalendar.ateretTorahSunsetOffset.toInt() + ")",
-                    mROZmanimCalendar.tzaisAteretTorah,
-                    true
-                )
-            } else if (sharedPref.getString("EndOfShabbatOpinion", "1") == "2") {
-                ZmanListEntry(
-                    zmanimNames.tzaitString + getShabbatAndOrChag() + zmanimNames.endsString,
-                    mROZmanimCalendar.tzaitShabbatAmudeiHoraah,
-                    true
-                )
-            } else {
-                ZmanListEntry(
-                    zmanimNames.tzaitString + getShabbatAndOrChag() + zmanimNames.endsString,
-                    mROZmanimCalendar.tzaitShabbatAmudeiHoraahLesserThan40,
-                    true
-                )
-            }
-            endShabbat.isNoteworthyZman = true
-            zmanim.add(endShabbat)
-            if (sharedPref.getBoolean("RoundUpRT", true)) {
-                val rt = ZmanListEntry(
-                    zmanimNames.rtString,
-                    addMinuteToZman(mROZmanimCalendar.tzais72Zmanis),
-                    true
-                )
-                rt.isRTZman = true
-                rt.isNoteworthyZman = true
-                zmanim.add(rt)
-            } else {
-                val rt = ZmanListEntry(zmanimNames.rtString, mROZmanimCalendar.tzais72Zmanis, true)
-                rt.isRTZman = true
-                rt.isNoteworthyZman = true
-                zmanim.add(rt)
-            }
-            //If it is shabbat/yom tov,we want to dim the tzeit hacochavim zmanim in the GUI
-            for (zman in zmanim) {
-                if (zman.title == zmanimNames.tzaitHacochavimString || zman.title == zmanimNames.tzaitHacochavimString + " " + zmanimNames.lChumraString) {
-                    zman.isShouldBeDimmed = true
-                }
-            }
-        }
-        if (sharedPref.getBoolean("AlwaysShowRT", false)) {
-            if (!(mJewishDateInfo.jewishCalendar.isAssurBemelacha && !mJewishDateInfo.jewishCalendar.hasCandleLighting())) { //if we want to always show the zman for RT, we can just NOT the previous cases where we do show it
-                if (sharedPref.getBoolean("RoundUpRT", true)) {
-                    val rt = ZmanListEntry(
-                        zmanimNames.rtString,
-                        addMinuteToZman(mROZmanimCalendar.tzais72Zmanis),
-                        true
-                    )
-                    rt.isRTZman = true
-                    zmanim.add(rt)
-                } else {
-                    val rt =
-                        ZmanListEntry(zmanimNames.rtString, mROZmanimCalendar.tzais72Zmanis, true)
-                    rt.isRTZman = true
-                    zmanim.add(rt)
-                }
-            }
-        }
-        zmanim.add(
-            ZmanListEntry(
-                zmanimNames.chatzotLaylaString,
-                mROZmanimCalendar.solarMidnight,
-                true
-            )
-        )
-    }
-
-    private fun addAmudeiHoraahZmanim(zmanim: MutableList<ZmanListEntry>) {
-        mROZmanimCalendar.isUseElevation = false
-        val zmanimNames = ZmanimNames(
-            sharedPref.getBoolean("isZmanimInHebrew", false),
-            sharedPref.getBoolean("isZmanimEnglishTranslated", false)
-        )
-        if (mJewishDateInfo.jewishCalendar.isTaanis && mJewishDateInfo.jewishCalendar.yomTovIndex != JewishCalendar.TISHA_BEAV && mJewishDateInfo.jewishCalendar.yomTovIndex != JewishCalendar.YOM_KIPPUR) {
-            zmanim.add(
-                ZmanListEntry(
-                    zmanimNames.taanitString + zmanimNames.startsString,
-                    mROZmanimCalendar.alotAmudeiHoraah,
-                    true
-                )
-            )
-        }
-        zmanim.add(ZmanListEntry(zmanimNames.alotString, mROZmanimCalendar.alotAmudeiHoraah, true))
-        zmanim.add(
-            ZmanListEntry(
-                zmanimNames.talitTefilinString,
-                mROZmanimCalendar.earliestTalitTefilinAmudeiHoraah,
-                true
-            )
-        )
-        if (sharedPref.getBoolean("ShowElevatedSunrise", false)) {
-            zmanim.add(
-                ZmanListEntry(
-                    zmanimNames.haNetzString + " " + zmanimNames.elevatedString,
-                    mROZmanimCalendar.sunrise,
-                    true
-                )
-            )
-        }
-        if (mROZmanimCalendar.haNetz != null) {
-            zmanim.add(
-                ZmanListEntry(
-                    zmanimNames.haNetzString,
-                    mROZmanimCalendar.haNetz,
-                    true,
-                    true
-                )
-            )
-        } else {
-            zmanim.add(
-                ZmanListEntry(
-                    zmanimNames.haNetzString + " (" + zmanimNames.mishorString + ")",
-                    mROZmanimCalendar.seaLevelSunrise,
-                    true
-                )
-            )
-        }
-        if (mROZmanimCalendar.haNetz != null &&
-            sharedPref.getBoolean("ShowMishorAlways", false)
-        ) {
-            zmanim.add(
-                ZmanListEntry(
-                    zmanimNames.haNetzString + " (" + zmanimNames.mishorString + ")",
-                    mROZmanimCalendar.seaLevelSunrise,
-                    true
-                )
-            )
-        }
-        zmanim.add(
-            ZmanListEntry(
-                zmanimNames.shmaMgaString,
-                mROZmanimCalendar.sofZmanShmaMGA72MinutesZmanisAmudeiHoraah,
-                true
-            )
-        )
-        zmanim.add(ZmanListEntry(zmanimNames.shmaGraString, mROZmanimCalendar.sofZmanShmaGRA, true))
-        if (mJewishDateInfo.jewishCalendar.yomTovIndex == JewishCalendar.EREV_PESACH) {
-            var zman = ZmanListEntry(
-                zmanimNames.achilatChametzString,
-                mROZmanimCalendar.sofZmanAchilatChametzAmudeiHoraah,
-                true
-            )
-            zman.isNoteworthyZman = true
-            zmanim.add(zman)
-            zmanim.add(
-                ZmanListEntry(
-                    zmanimNames.brachotShmaString,
-                    mROZmanimCalendar.sofZmanTfilaGRA,
-                    true
-                )
-            )
-            zman = ZmanListEntry(
-                zmanimNames.biurChametzString,
-                mROZmanimCalendar.sofZmanBiurChametzMGAAmudeiHoraah,
-                true
-            )
-            zman.isNoteworthyZman = true
-            zmanim.add(zman)
-        } else {
-            zmanim.add(
-                ZmanListEntry(
-                    zmanimNames.brachotShmaString,
-                    mROZmanimCalendar.sofZmanTfilaGRA,
-                    true
-                )
-            )
-        }
-        zmanim.add(ZmanListEntry(zmanimNames.chatzotString, mROZmanimCalendar.chatzot, true))
-        zmanim.add(
-            ZmanListEntry(
-                zmanimNames.minchaGedolaString,
-                mROZmanimCalendar.minchaGedolaGreaterThan30,
-                true
-            )
-        )
-        zmanim.add(
-            ZmanListEntry(
-                zmanimNames.minchaKetanaString,
-                mROZmanimCalendar.minchaKetana,
-                true
-            )
-        )
-        zmanim.add(
-            ZmanListEntry(
-                zmanimNames.plagHaminchaString + " " + zmanimNames.abbreviatedHalachaBerurahString,
-                mROZmanimCalendar.plagHamincha,
-                true
-            )
-        )
-        zmanim.add(
-            ZmanListEntry(
-                zmanimNames.plagHaminchaString + " " + zmanimNames.abbreviatedYalkutYosefString,
-                mROZmanimCalendar.plagHaminchaYalkutYosefAmudeiHoraah,
-                true
-            )
-        )
-        if (mJewishDateInfo.jewishCalendar.hasCandleLighting() &&
-            !mJewishDateInfo.jewishCalendar.isAssurBemelacha ||
-            mJewishDateInfo.jewishCalendar.gregorianCalendar[Calendar.DAY_OF_WEEK] == Calendar.FRIDAY
-        ) {
-            val candleLightingZman = ZmanListEntry(
-                zmanimNames.candleLightingString + " (" + mROZmanimCalendar.candleLightingOffset.toInt() + ")",
-                mROZmanimCalendar.candleLighting,
-                true
-            )
-            candleLightingZman.isNoteworthyZman = true
-            zmanim.add(candleLightingZman)
-        }
-        if (sharedPref.getBoolean("ShowWhenShabbatChagEnds", false)) {
-            if (mJewishDateInfo.jewishCalendar.isTomorrowShabbosOrYomTov) {
-                mROZmanimCalendar.calendar.add(Calendar.DATE, 1)
-                mJewishDateInfo.setCalendar(mROZmanimCalendar.calendar)
-                if (!mJewishDateInfo.jewishCalendar.isTomorrowShabbosOrYomTov) {
-                    if (sharedPref.getBoolean("Show Regular Minutes", false)) {
-                        zmanim.add(
-                            ZmanListEntry(
-                                zmanimNames.tzaitString + getShabbatAndOrChag() + zmanimNames.endsString + zmanimNames.macharString,
-                                mROZmanimCalendar.tzaitShabbatAmudeiHoraah,
-                                true
-                            )
-                        )
-                    }
-                    if (sharedPref.getBoolean("Show Rabbeinu Tam", false)) {
-                        if (sharedPref.getBoolean("RoundUpRT", true)) {
-                            val rt = ZmanListEntry(
-                                zmanimNames.rtString + zmanimNames.macharString,
-                                addMinuteToZman(mROZmanimCalendar.tzais72ZmanisAmudeiHoraahLkulah),
-                                true
-                            )
-                            rt.isRTZman = true
-                            zmanim.add(rt)
-                        } else {
-                            val rt = ZmanListEntry(
-                                zmanimNames.rtString + zmanimNames.macharString,
-                                mROZmanimCalendar.tzais72ZmanisAmudeiHoraahLkulah,
-                                true
-                            )
-                            rt.isRTZman = true
-                            zmanim.add(rt)
-                        }
-                    }
-                }
-            }
-            mROZmanimCalendar.calendar.add(Calendar.DATE, -1)
-            mJewishDateInfo.setCalendar(mROZmanimCalendar.calendar)
-        }
-        mROZmanimCalendar.calendar.add(Calendar.DATE, 1)
-        mJewishDateInfo.setCalendar(mROZmanimCalendar.calendar)
-        mROZmanimCalendar.calendar.add(Calendar.DATE, -1)
-        if (mJewishDateInfo.jewishCalendar.yomTovIndex == JewishCalendar.TISHA_BEAV) {
-            zmanim.add(
-                ZmanListEntry(
-                    zmanimNames.taanitString + zmanimNames.startsString,
-                    mROZmanimCalendar.sunset,
-                    true
-                )
-            )
-        }
-        mJewishDateInfo.setCalendar(mROZmanimCalendar.calendar)
-        zmanim.add(ZmanListEntry(zmanimNames.sunsetString, mROZmanimCalendar.seaLevelSunset, true))
-        zmanim.add(
-            ZmanListEntry(
-                zmanimNames.tzaitHacochavimString,
-                mROZmanimCalendar.tzeitAmudeiHoraah,
-                true
-            )
-        )
-        zmanim.add(
-            ZmanListEntry(
-                zmanimNames.tzaitHacochavimString + " " + zmanimNames.lChumraString,
-                mROZmanimCalendar.tzeitAmudeiHoraahLChumra,
-                true
-            )
-        )
-        if (mJewishDateInfo.jewishCalendar.hasCandleLighting() &&
-            mJewishDateInfo.jewishCalendar.isAssurBemelacha
-        ) {
-            if (mJewishDateInfo.jewishCalendar.gregorianCalendar[Calendar.DAY_OF_WEEK] != Calendar.FRIDAY) {
-                if (mJewishDateInfo.jewishCalendar.gregorianCalendar[Calendar.DAY_OF_WEEK] == Calendar.SATURDAY) { //When today is Shabbat
-                    zmanim.add(
-                        ZmanListEntry(
-                            zmanimNames.candleLightingString,
-                            mROZmanimCalendar.tzaitShabbatAmudeiHoraah,
-                            true
-                        )
-                    )
-                } else { //When today is Yom Tov
-                    zmanim.add(
-                        ZmanListEntry(
-                            zmanimNames.candleLightingString,
-                            mROZmanimCalendar.tzeitAmudeiHoraahLChumra,
-                            true
-                        )
-                    )
-                }
-            }
-        }
-        if (mJewishDateInfo.jewishCalendar.isTaanis && mJewishDateInfo.jewishCalendar.yomTovIndex != JewishCalendar.YOM_KIPPUR) {
-            val fastEnds = ZmanListEntry(
-                zmanimNames.tzaitString + zmanimNames.taanitString + zmanimNames.endsString,
-                mROZmanimCalendar.tzeitAmudeiHoraahLChumra,
-                true
-            )
-            fastEnds.isNoteworthyZman = true
-            zmanim.add(fastEnds)
-        }
-        if (mJewishDateInfo.jewishCalendar.isAssurBemelacha && !mJewishDateInfo.jewishCalendar.hasCandleLighting()) {
-            val endShabbat = ZmanListEntry(
-                zmanimNames.tzaitString + getShabbatAndOrChag() + zmanimNames.endsString,
-                mROZmanimCalendar.tzaitShabbatAmudeiHoraah,
-                true
-            )
-            endShabbat.isNoteworthyZman = true
-            zmanim.add(endShabbat)
-            if (sharedPref.getBoolean("RoundUpRT", true)) {
-                val rt = ZmanListEntry(
-                    zmanimNames.rtString,
-                    addMinuteToZman(mROZmanimCalendar.tzais72ZmanisAmudeiHoraahLkulah),
-                    true
-                )
-                rt.isRTZman = true
-                rt.isNoteworthyZman = true
-                zmanim.add(rt)
-            } else {
-                val rt = ZmanListEntry(
-                    zmanimNames.rtString,
-                    mROZmanimCalendar.tzais72ZmanisAmudeiHoraahLkulah,
-                    true
-                )
-                rt.isRTZman = true
-                rt.isNoteworthyZman = true
-                zmanim.add(rt)
-            }
-            //If it is shabbat/yom tov,we want to dim the tzeit hacochavim zmanim in the GUI
-            for (zman in zmanim) {
-                if (zman.title == zmanimNames.tzaitHacochavimString || zman.title == zmanimNames.tzaitHacochavimString + " " + zmanimNames.lChumraString) {
-                    zman.isShouldBeDimmed = true
-                }
-            }
-        }
-        if (sharedPref.getBoolean("AlwaysShowRT", false)) {
-            if (!(mJewishDateInfo.jewishCalendar.isAssurBemelacha && !mJewishDateInfo.jewishCalendar.hasCandleLighting())) { //if we want to always show the zman for RT, we can just NOT the previous cases where we do show it
-                if (sharedPref.getBoolean("RoundUpRT", true)) {
-                    val rt = ZmanListEntry(
-                        zmanimNames.rtString,
-                        addMinuteToZman(mROZmanimCalendar.tzais72ZmanisAmudeiHoraahLkulah),
-                        true
-                    )
-                    rt.isRTZman = true
-                    zmanim.add(rt)
-                } else {
-                    val rt = ZmanListEntry(
-                        zmanimNames.rtString,
-                        mROZmanimCalendar.tzais72ZmanisAmudeiHoraahLkulah,
-                        true
-                    )
-                    rt.isRTZman = true
-                    zmanim.add(rt)
-                }
-            }
-        }
-        zmanim.add(
-            ZmanListEntry(
-                zmanimNames.chatzotLaylaString,
-                mROZmanimCalendar.solarMidnight,
-                true
-            )
-        )
     }
 
     private fun addTekufaTime() {
@@ -1686,15 +1047,15 @@ class MainActivity : ComponentActivity() {
         today.add(Calendar.DATE, -1)
         mROZmanimCalendar.calendar = today
         mJewishDateInfo.setCalendar(today)
-        addZmanim(zmanim) //for the previous day
+        addZmanim(zmanim, false, sharedPref, sharedPref, mROZmanimCalendar, mJewishDateInfo, sharedPref.getBoolean("isZmanimInHebrew", false), sharedPref.getBoolean("isZmanimEnglishTranslated", false), true) //for the previous day
         today.add(Calendar.DATE, 1)
         mROZmanimCalendar.calendar = today
         mJewishDateInfo.setCalendar(today)
-        addZmanim(zmanim) //for the current day
+        addZmanim(zmanim, false, sharedPref, sharedPref, mROZmanimCalendar, mJewishDateInfo, sharedPref.getBoolean("isZmanimInHebrew", false), sharedPref.getBoolean("isZmanimEnglishTranslated", false), true) //for the current day
         today.add(Calendar.DATE, 1)
         mROZmanimCalendar.calendar = today
         mJewishDateInfo.setCalendar(today)
-        addZmanim(zmanim) //for the next day
+        addZmanim(zmanim, false, sharedPref, sharedPref, mROZmanimCalendar, mJewishDateInfo, sharedPref.getBoolean("isZmanimInHebrew", false), sharedPref.getBoolean("isZmanimEnglishTranslated", false), true) //for the next day
         syncCalendars() //reset
         //find the next upcoming zman that is after the current time and before all the other zmanim
         for (zmanEntry in zmanim) {
@@ -1737,12 +1098,6 @@ class MainActivity : ComponentActivity() {
                 "Chag"
             }
         }
-    }
-
-    private fun addMinuteToZman(date: Date?): Date? {
-        return if (date == null) {
-            null
-        } else Date(date.time + 60000)
     }
 
     private fun createBackgroundThreadForNextUpcomingZman() {

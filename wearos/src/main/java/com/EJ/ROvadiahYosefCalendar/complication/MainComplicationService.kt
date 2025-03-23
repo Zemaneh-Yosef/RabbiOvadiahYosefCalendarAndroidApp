@@ -25,7 +25,7 @@ class MainComplicationService : SuspendingComplicationDataSourceService() {
         if (type == ComplicationType.SHORT_TEXT) {
             return createComplicationData(hebrewDateFormatter.formatDayOfWeek(jewishDateInfo.jewishCalendar), jewishDateInfo.jewishDayOfWeek)
         } else if (type == ComplicationType.LONG_TEXT) {
-            return createComplicationData(jewishDateInfo.jewishDate, jewishDateInfo.jewishDate)
+            return createComplicationData(jewishDateInfo.jewishCalendar.toString(), jewishDateInfo.jewishCalendar.toString())
         }
         return null
     }
@@ -37,7 +37,7 @@ class MainComplicationService : SuspendingComplicationDataSourceService() {
         return if (request.complicationType == ComplicationType.SHORT_TEXT) {
             createComplicationData(hebrewDateFormatter.formatDayOfWeek(jewishDateInfo.jewishCalendar), jewishDateInfo.jewishDayOfWeek)
         } else {
-            createComplicationData(jewishDateInfo.jewishDate, jewishDateInfo.jewishDate)
+            return createComplicationData(jewishDateInfo.jewishCalendar.toString(), jewishDateInfo.jewishCalendar.toString())
         }
     }
 

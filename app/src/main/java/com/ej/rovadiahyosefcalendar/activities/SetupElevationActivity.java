@@ -2,7 +2,6 @@ package com.ej.rovadiahyosefcalendar.activities;
 
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentLocationName;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSharedPreferences;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -79,10 +78,10 @@ public class SetupElevationActivity extends AppCompatActivity {
             if (getIntent().getBooleanExtra("downloadTable",false)) {
                 downloadTablesAndFinish(sharedPreferences);
             } else {
-                if (sSharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
-                    startActivity(new Intent(getBaseContext(), TipScreenActivity.class));
-                    sSharedPreferences.edit().putBoolean("hasNotShownTipScreen", false).apply();
-                }
+//                if (sharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
+//                    startActivity(new Intent(getBaseContext(), TipScreenActivity.class));
+//                    sharedPreferences.edit().putBoolean("hasNotShownTipScreen", false).apply();
+//                }
                 finish();
             }
         });
@@ -113,10 +112,10 @@ public class SetupElevationActivity extends AppCompatActivity {
                     if (getIntent().getBooleanExtra("downloadTable",false)) {
                         downloadTablesAndFinish(sharedPreferences);
                     } else {
-                        if (sSharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
-                            startActivity(new Intent(getBaseContext(), TipScreenActivity.class));
-                            sSharedPreferences.edit().putBoolean("hasNotShownTipScreen", false).apply();
-                        }
+//                        if (sharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
+//                            startActivity(new Intent(getBaseContext(), TipScreenActivity.class));
+//                            sharedPreferences.edit().putBoolean("hasNotShownTipScreen", false).apply();
+//                        }
                         finish();
                     }
                 }
@@ -140,10 +139,10 @@ public class SetupElevationActivity extends AppCompatActivity {
                     if (getIntent().getBooleanExtra("downloadTable", false)) {
                         downloadTablesAndFinish(sharedPreferences);
                     } else {
-                        if (sSharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
-                            startActivity(new Intent(getBaseContext(), TipScreenActivity.class));
-                            sSharedPreferences.edit().putBoolean("hasNotShownTipScreen", false).apply();
-                        }
+//                        if (sharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
+//                            startActivity(new Intent(getBaseContext(), TipScreenActivity.class));
+//                            sharedPreferences.edit().putBoolean("hasNotShownTipScreen", false).apply();
+//                        }
                         finish();
                     }
                 });

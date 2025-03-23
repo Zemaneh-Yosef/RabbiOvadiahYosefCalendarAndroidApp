@@ -85,6 +85,7 @@ import com.ej.rovadiahyosefcalendar.activities.SettingsActivity;
 import com.ej.rovadiahyosefcalendar.activities.WelcomeScreenActivity;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTables;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesScraper;
+import com.ej.rovadiahyosefcalendar.classes.DummyZmanAdapter;
 import com.ej.rovadiahyosefcalendar.classes.HebrewDayMonthYearPickerDialog;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
@@ -140,6 +141,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private View mLayout;
     private TextView mShabbatModeBanner;
     private RecyclerView mMainRecyclerView;
+    private RecyclerView mDummyRecyclerView;
     private Button mNextDate;
     private Button mPreviousDate;
     private Button mCalendarButton;
@@ -265,13 +267,14 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             mLocationResolver.acquireLatitudeAndLongitude(this);
         }
         mLocationResolver.setTimeZoneID();
-        setupRecyclerViewAndTextViews();
+        setupRecyclerViewsAndTextViews();
         if (binding != null) {
             hideWeeklyTextViews();
+            binding.swipeRefreshLayout.setVisibility(View.GONE);
             mMainRecyclerView.setVisibility(View.GONE);
-            binding.progressBar.setVisibility(View.VISIBLE);
+            binding.shimmerLayout.setVisibility(View.VISIBLE);
         }
-        // hide everything except the progress bar before trying to see if we need to get elevation data
+        // hide everything except the shimmer layout before trying to see if we need to get elevation data
         if (sLatitude != 0 && sLongitude != 0) {// the values are updated, the accept method will not be called
             resolveElevationAndVisibleSunrise(() -> {
                 instantiateZmanimCalendar();
@@ -284,7 +287,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     hideWeeklyTextViews();
                     updateDailyZmanim();
                 }
-                binding.progressBar.setVisibility(View.GONE);
+                binding.shimmerLayout.setVisibility(View.GONE);
                 createBackgroundThreadForNextUpcomingZman();
             });
         }
@@ -465,7 +468,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
     }
 
-    private void setupRecyclerViewAndTextViews() {
+    private void setupRecyclerViewsAndTextViews() {
         SwipeRefreshLayout swipeRefreshLayout = binding.swipeRefreshLayout;
         swipeRefreshLayout.setOnRefreshListener(() -> new Thread(() -> {
             Looper.prepare();
@@ -494,6 +497,10 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (mIsZmanimInHebrew) {
             mMainRecyclerView.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         }
+        mDummyRecyclerView = binding.dummyRV;
+        mDummyRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+        mDummyRecyclerView.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
+        mDummyRecyclerView.setAdapter(new DummyZmanAdapter(30));
     }
 
     private void checkIfUserIsInIsraelOrNot() {
@@ -2386,6 +2393,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                             showWeeklyTextViews();
                         } else {
                             mMainRecyclerView.setVisibility(View.VISIBLE);
+                            if (binding != null) {
+                                binding.swipeRefreshLayout.setVisibility(View.VISIBLE);
+                            }
                         }
                         resolveElevationAndVisibleSunrise(() -> {
                             if (mCurrentDateShown != null) {
@@ -2401,7 +2411,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                                     mMainRecyclerView.scrollToPosition(mCurrentPosition);
                                 }
                                 if (binding != null) {
-                                    binding.progressBar.setVisibility(View.GONE);
+                                    binding.shimmerLayout.setVisibility(View.GONE);
                                 }
                                 if (mCalendarButton != null) {
                                     mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));

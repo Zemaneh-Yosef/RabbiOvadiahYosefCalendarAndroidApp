@@ -378,10 +378,11 @@ public class SiddurFragment extends Fragment {
                 .putExtra("isNightTikkunChatzot", false)
                 .putExtra("isAfterChatzot", new Date().after(mZmanimCalendar.getSolarMidnight()) && new Date().before(new Date(mZmanimCalendar.getSolarMidnight().getTime() + 7_200_000)));
 
-        if (mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.PURIM ||
-                mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM &&
-                        !(prayer.equals(mContext.getString(R.string.birchat_levana)) || prayer.equals(mContext.getString(R.string.tikkun_chatzot)) || prayer.equals(mContext.getString(R.string.kriatShema)))
-        ) {// if the prayer is dependant on isMukafChoma, we ask the user
+        if ((mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.PURIM ||
+                mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM)
+                && !prayer.equals(mContext.getString(R.string.birchat_levana))
+                && !prayer.equals(mContext.getString(R.string.tikkun_chatzot))
+                && !prayer.equals(mContext.getString(R.string.kriatShema))) {// if the prayer is dependant on isMukafChoma, we ask the user
             SharedPreferences.Editor sharedPreferences = mContext.getSharedPreferences(SHARED_PREF, MODE_PRIVATE).edit();
             new MaterialAlertDialogBuilder(mContext)
                     .setTitle(R.string.are_you_in_a_walled_mukaf_choma_city)
@@ -418,10 +419,11 @@ public class SiddurFragment extends Fragment {
                 .putExtra("isNightTikkunChatzot", isNightTikkunChatzot);
         mJewishDateInfo.getJewishCalendar().back();//reset
 
-        if (mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.PURIM ||
-                mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM &&
-                        !(prayer.equals(mContext.getString(R.string.birchat_levana)) || prayer.equals(mContext.getString(R.string.tikkun_chatzot)) || prayer.equals(mContext.getString(R.string.kriatShema)))
-        ) {// if the prayer is dependant on isMukafChoma, we ask the user
+        if ((mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.PURIM ||
+                mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM)
+                && !prayer.equals(mContext.getString(R.string.birchat_levana))
+                && !prayer.equals(mContext.getString(R.string.tikkun_chatzot))
+                && !prayer.equals(mContext.getString(R.string.kriatShema))) {// if the prayer is dependant on isMukafChoma, we ask the user
             SharedPreferences.Editor sharedPreferences = mContext.getSharedPreferences(SHARED_PREF, MODE_PRIVATE).edit();
             new MaterialAlertDialogBuilder(mContext)
                     .setTitle(R.string.are_you_in_a_walled_mukaf_choma_city)

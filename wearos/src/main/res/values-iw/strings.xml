@@ -565,5 +565,13 @@
     <string name="if_you_would_like_to_receive_zmanim_notifications">האפליקציה כרגע אינה מסוגלת לשלוח לך התראות לזמנים. האם ברצונך לשנות הגדרה זו? (אם ברצונך להפסיק שהדיאלוג הזה יופיע, יש להשבית את ההתראות לזמנים בהגדרות)</string>
     <string name="tekufa_length">"משך התקופה: "</string>
     <string name="json_error">אירעה שגיאה בהעברת נתונים. אנא ודא שהאפליקציה בטלפון והאפליקציה בשעון מעודכנות לגרסה האחרונה ונסה שוב. אם הבעיה נמשכת, אנא פנה ל-ElyahuJacobi@gmail.com.</string>
+    <string name="no_tachanun_in_yerushalayim_or_a_safek_mukaf_choma">אין אומרים תחנון בירושלים או בספק מוקף חומה</string>
+    <string name="burn_your_ametz_today">שריפת חמץ כל היום</string>
+    <string name="first_year_of_shmita">שנה א׳ של שמיטה</string>
+    <string name="second_year_of_shmita">שנה ב׳ של שמיטה</string>
+    <string name="third_year_of_shmita">שנה ג׳ של שמיטה</string>
+    <string name="fourth_year_of_shmita">שנה ד׳ של שמיטה</string>
+    <string name="fifth_year_of_shmita">שנה ה׳ של שמיטה</string>
+    <string name="sixth_year_of_shmita">שנה ו׳ של שמיטה</string>
 
 </resources>

@@ -293,7 +293,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
 
         minutesBefore = mSharedPreferences.getInt("TalitTefilin", 15);
         if (minutesBefore >= 0) {
-            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTalitTefilinString(), c.getEarliestTalitTefilin(), minutesBefore));//always add
+            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTalitTefilinString(), c.getMisheyakir66ZmaniyotMinutes(), minutesBefore));//always add
         }
 
         minutesBefore = mSharedPreferences.getInt("Alot", -1);
@@ -426,7 +426,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
 
         minutesBefore = mSharedPreferences.getInt("TalitTefilin", 15);
         if (minutesBefore >= 0) {
-            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTalitTefilinString(), c.getEarliestTalitTefilinAmudeiHoraah(), minutesBefore));//always add
+            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTalitTefilinString(), c.getMisheyakir66AmudeiHoraah(), minutesBefore));//always add
         }
 
         minutesBefore = mSharedPreferences.getInt("Alot", -1);
