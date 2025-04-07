@@ -119,6 +119,11 @@ public class LimudAdapter extends RecyclerView.Adapter<LimudAdapter.ZmanViewHold
                     });
                     dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
                     dialogBuilder.show();
+                } else if (limudim.get(position).getLimudTitle().contains(context.getString(R.string.daily_nasi))) {
+                    dialogBuilder.setTitle(limudim.get(position).getLimudTitle());
+                    dialogBuilder.setMessage(limudim.get(position).getSource());
+                    dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
+                    dialogBuilder.show();
                 } else if (limudim.get(position).hasSource()) {// keep the hasSource check to avoid other listings
                     dialogBuilder.setTitle(limudim.get(position).getLimudTitle());
                     dialogBuilder.setMessage(limudim.get(position).getDescription() + "\n-----\n" + context.getString(R.string.source) + limudim.get(position).getSource());

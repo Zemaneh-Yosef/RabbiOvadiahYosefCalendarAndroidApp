@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -53,6 +54,7 @@ import com.ej.rovadiahyosefcalendar.notifications.NextZmanCountdownNotification;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
@@ -119,6 +121,7 @@ public class MainFragmentManager extends AppCompatActivity {
         mHebrewDateFormatter.setUseGershGershayim(false);
         sSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         sSettingsPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
         if (sSharedPreferences.getBoolean("massUpdateCheck", true)) {// since version 23.3, we need to move everyone to AH mode if they are outside of Israel. This should eventually be removed, but far into the future
             if (!sSharedPreferences.getBoolean("inIsrael", false)) {
                 sSettingsPreferences.edit().putBoolean("LuachAmudeiHoraah", true).apply();
@@ -126,6 +129,18 @@ public class MainFragmentManager extends AppCompatActivity {
             }
             sSharedPreferences.edit().putBoolean("massUpdateCheck", false).apply();// do not check again
         }
+
+        if (sSharedPreferences.getBoolean("RYYHaskamaNotShown", true)) {
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.new_haskama)
+                    .setMessage(R.string.the_team_behind_zemaneh_yosef_is_proud_to_announce_that_we_have_recently_received_a_new_haskama_from_the_rishon_l_tzion_harav_yitzhak_yosef_check_it_out)
+                    .setPositiveButton(R.string.haskama_by_rabbi_yitzhak_yosef, (dialog, which) -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://royzmanim.com/assets/haskamah-rishon-letzion.pdf"))))
+                    .setNegativeButton(R.string.dismiss, (dialog, which) -> dialog.dismiss())
+                    .setCancelable(false)
+                    .show();
+            sSharedPreferences.edit().putBoolean("RYYHaskamaNotShown", false).apply();// do not check again
+        }
+
         String lang = sSettingsPreferences.getString("language", "Default");
         if (!lang.equals("Default")) {
             if (!Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals(lang)) {

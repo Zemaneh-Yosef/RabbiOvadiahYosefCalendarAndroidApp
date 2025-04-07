@@ -30,7 +30,7 @@
             android:id="@+id/app_bar_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="80dp"
+            android:layout_marginBottom="18dp"
             android:backgroundTint="@null"
             android:background="@null"
             android:fitsSystemWindows="true">
@@ -54,7 +54,7 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="18dp"
+            android:layout_marginBottom="80dp"
             android:background="@drawable/rounded_background">
 
             <TextView
@@ -72,6 +72,7 @@
                 android:id="@+id/molad_button"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:contentDescription="@string/change_date"
                 android:padding="22dp"
                 android:src="@drawable/baseline_edit_24"
                 android:background="@null"/>
@@ -114,7 +115,7 @@
                 android:gravity="start"
                 android:padding="8dp"
                 tools:text="21h:20m and 6 chalakim"
-                android:textColor="@color/lightYellow"
+                android:textColor="@color/yellow"
                 android:textSize="22sp"
                 android:textStyle="bold" />
 
@@ -145,7 +146,7 @@
                 android:padding="4dp"
                 android:layout_gravity="center"
                 tools:text="Sun Aug 08 4:22:36 AM"
-                android:textColor="@color/lightYellow"
+                android:textColor="@color/yellow"
                 android:textSize="26sp" />
 
         </LinearLayout>
@@ -173,7 +174,7 @@
                 android:layout_height="wrap_content"
                 android:padding="12dp"
                 android:layout_gravity="center"
-                android:textColor="@color/lightYellow"
+                android:textColor="@color/yellow"
                 android:textSize="26sp"
                 tools:text="Sun Aug 15 4:22:36 AM" />
 
@@ -199,7 +200,7 @@
                 android:padding="4dp"
                 android:text="@string/the_whole_night_of_the_15th_day_of_the_hebrew_month"
                 android:gravity="center"
-                android:textColor="@color/lightYellow"
+                android:textColor="@color/yellow"
                 android:textSize="26sp" />
 
         </LinearLayout>

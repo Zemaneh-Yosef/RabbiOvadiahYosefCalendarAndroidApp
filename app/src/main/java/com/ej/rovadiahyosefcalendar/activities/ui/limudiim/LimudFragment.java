@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ej.rovadiahyosefcalendar.R;
+import com.ej.rovadiahyosefcalendar.classes.NisanLimudYomi;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.ej.rovadiahyosefcalendar.classes.ChafetzChayimYomiCalculator;
 import com.ej.rovadiahyosefcalendar.classes.HebrewDayMonthYearPickerDialog;
@@ -33,6 +34,7 @@ import com.ej.rovadiahyosefcalendar.classes.MishnaYomi;
 import com.ej.rovadiahyosefcalendar.databinding.FragmentLimudBinding;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.kosherjava.zmanim.hebrewcalendar.Daf;
+import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
 import com.kosherjava.zmanim.hebrewcalendar.YerushalmiYomiCalculator;
 import com.kosherjava.zmanim.hebrewcalendar.YomiCalculator;
 
@@ -259,6 +261,17 @@ public class LimudFragment extends Fragment {
             ));
         }
         limudim.add(new LimudListEntry(mContext.getString(R.string.daily_tehilim) + mContext.getString(R.string.weekly) + ": " + dailyWeeklyTehilim.get(mCurrentDateShown.get(Calendar.DAY_OF_WEEK) - 1)));
+
+        if (mJewishDateInfo.getJewishCalendar().getJewishMonth() == JewishDate.NISSAN) {
+            String title = NisanLimudYomi.getNisanLimudYomiTitle(mJewishDateInfo.getJewishCalendar().getJewishDayOfMonth());
+            String reading = NisanLimudYomi.getNisanLimudYomiReading(mJewishDateInfo.getJewishCalendar().getJewishDayOfMonth());
+
+            if (!title.isEmpty()) {
+                LimudListEntry limudEntry = new LimudListEntry(getString(R.string.daily_nasi) + title, reading);
+                limudEntry.setHasSource(false);
+                limudim.add(limudEntry);
+            }
+        }
 
         return limudim;
     }

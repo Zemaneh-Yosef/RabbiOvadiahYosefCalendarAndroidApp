@@ -442,4 +442,8 @@
     <string name="use_my_device_s_location">Use my device\'s location</string>
    <string name="insert_location_name_zip_code">Insert location Name/ZIP code</string>
    <string name="burn_your_ametz_today">Burn your Ḥametz today</string>
+    <string name="daily_nasi">"Daily Nasi: "</string>
+    <string name="haskama_by_rabbi_yitzhak_yosef">Haskama by Rav Yitzhak Yosef</string>
+   <string name="new_haskama">New Haskama!</string>
+   <string name="the_team_behind_zemaneh_yosef_is_proud_to_announce_that_we_have_recently_received_a_new_haskama_from_the_rishon_l_tzion_harav_yitzhak_yosef_check_it_out">The team behind Zemaneh Yosef is proud to announce that we have recently received a new haskama from the Rishon L\'Tzion HaRav Yitzhak Yosef! Check it out!</string>
 </resources>

@@ -34,7 +34,11 @@ public class WelcomeScreenActivity extends AppCompatActivity {
         haskamot.setOnClickListener(l -> new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.haskamot)
                 .setMessage(R.string.haskamot_message)
-                .setPositiveButton(R.string.by_rav_elbaz, (dialog, which) -> {
+                .setPositiveButton(R.string.haskama_by_rabbi_yitzhak_yosef, (dialog, which) -> {
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://royzmanim.com/assets/haskamah-rishon-letzion.pdf"));
+                    startActivity(browserIntent);
+                })
+                .setNeutralButton(R.string.by_rav_elbaz, (dialog, which) -> {
                     Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://royzmanim.com/assets/Haskamah.pdf"));
                     startActivity(browserIntent);
                 })

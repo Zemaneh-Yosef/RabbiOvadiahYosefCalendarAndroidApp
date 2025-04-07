@@ -506,10 +506,10 @@
     <string name="neilah">נעילה</string>
     <string name="app_info">מידע על האפליקציה</string>
     <string name="view_rabbinic_approbations_for_this_application">הסכמות של רבנים לאפליקציה</string>
-    <string name="haskamot">הַסְכָּמוֹת</string>
-    <string name="by_rav_elbaz">הַסְכָּמָה מֵאֵת הרב אלבז</string>
+    <string name="haskamot">הסכמות</string>
+    <string name="by_rav_elbaz">הסכמה מאת הרב אלבז</string>
     <string name="haskamot_message">אנא בחר איזו הסכמה תרצה לראות</string>
-    <string name="by_rav_dahan">הַסְכָּמָה מֵאֵת הרב דָּהָן</string>
+    <string name="by_rav_dahan">הסכמה מאת הרב דהן</string>
     <string name="short_app_name">זמני יוסף</string>
     <string name="selichot">סליחות</string>
     <string name="purim_disclaimer">תפילות פורים יוצגו ב-14 (אתמול)</string>
@@ -688,4 +688,8 @@
     <string name="use_my_device_s_location">השתמש במיקום המכשיר שלי.</string>
     <string name="insert_location_name_zip_code">הכנס שם מקום/מיקוד</string>
     <string name="burn_your_ametz_today">שריפת חמץ כל היום</string>
+    <string name="daily_nasi">"נשיא יומי: "</string>
+    <string name="haskama_by_rabbi_yitzhak_yosef">הסכמת הרב יצחק יוסף</string>
+    <string name="new_haskama">הסכמה חדשה!</string>
+    <string name="the_team_behind_zemaneh_yosef_is_proud_to_announce_that_we_have_recently_received_a_new_haskama_from_the_rishon_l_tzion_harav_yitzhak_yosef_check_it_out">"הצוות שמאחורי זמני יוסף גאה להודיע כי לאחרונה קיבלנו הסכמה חדשה מראשון לציון, מרן הרב יצחק יוסף שליט״א!  "</string>
 </resources>
