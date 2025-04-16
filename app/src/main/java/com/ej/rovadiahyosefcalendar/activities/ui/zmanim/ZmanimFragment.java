@@ -2390,7 +2390,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 mActivity.runOnUiThread(() -> {
                     if (mMainRecyclerView != null && mMainRecyclerView.isFocusable()) {
                         if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                            showWeeklyTextViews();
+                            if (binding != null) {
+                                showWeeklyTextViews();
+                            }
                         } else {
                             mMainRecyclerView.setVisibility(View.VISIBLE);
                             if (binding != null) {

@@ -79,6 +79,7 @@ dependencies {
     implementation 'com.google.maps.android:android-maps-utils:3.8.2'
     implementation 'com.google.android.material:material:1.13.0-alpha11'
     implementation 'androidx.activity:activity-ktx:1.10.1'
+    implementation 'com.google.android.play:app-update:2.1.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'

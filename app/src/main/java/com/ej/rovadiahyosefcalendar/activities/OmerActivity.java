@@ -1,8 +1,10 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,6 +12,7 @@ import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.preference.PreferenceManager;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
@@ -89,8 +92,15 @@ public class OmerActivity extends AppCompatActivity {
 
         String beracha = "בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם, אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ עַל סְפִירַת הָעֹמֶר:";
 
+        int day = getIntent().getIntExtra("omerDay", 1);// the day will be based on the gregorian day a.k.a before sunset
+
+        if (day < 0 || day >= 49) {
+            Toast.makeText(this, R.string.error, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         String firstString = beracha + "\n\n" +
-                omerList.get(getIntent().getIntExtra("omerDay", 1)) + "\n\n" +
+                omerList.get(day) + " (" + getSefirahAttribute(day) + ")" + "\n\n" +
                 "הָרַחֲמָן הוּא יַחֲזִיר עֲבוֹדַת בֵּית הַמִּקְדָּשׁ לִמְקוֹמָהּ בִּמְהֵרָה בְיָמֵֽינוּ אָמֵן:";
 
         initialOmerText.setText(firstString);
@@ -109,6 +119,19 @@ public class OmerActivity extends AppCompatActivity {
 
         finalOmerText.setText(finalString);
 
+        switch (PreferenceManager.getDefaultSharedPreferences(this).getString("font", "Guttman Keren")) {
+            case "Guttman Keren":
+                initialOmerText.setTypeface(Typeface.createFromAsset(getAssets(), "Guttman Keren.ttf"), Typeface.NORMAL);
+                finalOmerText.setTypeface(Typeface.createFromAsset(getAssets(), "Guttman Keren.ttf"), Typeface.NORMAL);
+                break;
+            case "Taamey Frank":
+                initialOmerText.setTypeface(Typeface.createFromAsset(getAssets(), "Taamey_D.ttf"), Typeface.NORMAL);
+                finalOmerText.setTypeface(Typeface.createFromAsset(getAssets(), "Taamey_D.ttf"), Typeface.NORMAL);
+                break;
+            default:
+                break;
+        }
+
         ViewCompat.setOnApplyWindowInsetsListener(finalOmerText, (v, windowInsets) -> {
             Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
             ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
@@ -120,5 +143,65 @@ public class OmerActivity extends AppCompatActivity {
             // down to descendant views.
             return WindowInsetsCompat.CONSUMED;
         });
+    }
+
+    public static String getSefirahAttribute(int day) {
+        if (day < 1 || day > 49) {
+            return "Invalid day. Must be between 1 and 49.";
+        }
+
+        String[] attributes = {
+                "חֶסֶד שֶׁבְּחֶסֶד",     // Day 1
+                "גְּבוּרָה שֶׁבְּחֶסֶד",   // Day 2
+                "תִּפְאֶרֶת שֶׁבְּחֶסֶד", // Day 3
+                "נֶצַח שֶׁבְּחֶסֶד",     // Day 4
+                "הוֹד שֶׁבְּחֶסֶד",       // Day 5
+                "יְסוֹד שֶׁבְּחֶסֶד",     // Day 6
+                "מַלְכוּת שֶׁבְּחֶסֶד",   // Day 7
+                "חֶסֶד שֶׁבִּגְּבוּרָה",   // Day 8
+                "גְּבוּרָה שֶׁבִּגְּבוּרָה", // Day 9
+                "תִּפְאֶרֶת שֶׁבִּגְּבוּרָה", // Day 10
+                "נֶצַח שֶׁבִּגְּבוּרָה",     // Day 11
+                "הוֹד שֶׁבִּגְּבוּרָה",       // Day 12
+                "יְסוֹד שֶׁבִּגְּבוּרָה",     // Day 13
+                "מַלְכוּת שֶׁבִּגְּבוּרָה",   // Day 14
+                "חֶסֶד שֶׁבְּתִּפְאֶרֶת",     // Day 15
+                "גְּבוּרָה שֶׁבְּתִּפְאֶרֶת", // Day 16
+                "תִּפְאֶרֶת שֶׁבְּתִּפְאֶרֶת", // Day 17
+                "נֶצַח שֶׁבְּתִּפְאֶרֶת",     // Day 18
+                "הוֹד שֶׁבְּתִּפְאֶרֶת",       // Day 19
+                "יְסוֹד שֶׁבְּתִּפְאֶרֶת",     // Day 20
+                "מַלְכוּת שֶׁבְּתִּפְאֶרֶת",   // Day 21
+                "חֶסֶד שֶׁבְּנֶצַח",     // Day 22
+                "גְּבוּרָה שֶׁבְּנֶצַח",   // Day 23
+                "תִּפְאֶרֶת שֶׁבְּנֶצַח", // Day 24
+                "נֶצַח שֶׁבְּנֶצַח",     // Day 25
+                "הוֹד שֶׁבְּנֶצַח",       // Day 26
+                "יְסוֹד שֶׁבְּנֶצַח",     // Day 27
+                "מַלְכוּת שֶׁבְּנֶצַח",   // Day 28
+                "חֶסֶד שֶׁבְּהוֹד",       // Day 29
+                "גְּבוּרָה שֶׁבְּהוֹד",   // Day 30
+                "תִּפְאֶרֶת שֶׁבְּהוֹד", // Day 31
+                "נֶצַח שֶׁבְּהוֹד",       // Day 32
+                "הוֹד שֶׁבְּהוֹד",         // Day 33
+                "יְסוֹד שֶׁבְּהוֹד",       // Day 34
+                "מַלְכוּת שֶׁבְּהוֹד",     // Day 35
+                "חֶסֶד שֶׁבְּיְסוֹד",     // Day 36
+                "גְּבוּרָה שֶׁבְּיְסוֹד", // Day 37
+                "תִּפְאֶרֶת שֶׁבְּיְסוֹד", // Day 38
+                "נֶצַח שֶׁבְּיְסוֹד",     // Day 39
+                "הוֹד שֶׁבְּיְסוֹד",       // Day 40
+                "יְסוֹד שֶׁבְּיְסוֹד",     // Day 41
+                "מַלְכוּת שֶׁבְּיְסוֹד",   // Day 42
+                "חֶסֶד שֶׁבְּמַלְכוּת",   // Day 43
+                "גְּבוּרָה שֶׁבְּמַלְכוּת", // Day 44
+                "תִּפְאֶרֶת שֶׁבְּמַלְכוּת", // Day 45
+                "נֶצַח שֶׁבְּמַלְכוּת",     // Day 46
+                "הוֹד שֶׁבְּמַלְכוּת",       // Day 47
+                "יְסוֹד שֶׁבְּמַלְכוּת",     // Day 48
+                "מַלְכוּת שֶׁבְּמַלְכוּת"   // Day 49
+        };
+
+        return attributes[day];
     }
 }

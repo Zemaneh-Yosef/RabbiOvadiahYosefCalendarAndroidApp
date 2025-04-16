@@ -2,6 +2,7 @@ package com.ej.rovadiahyosefcalendar.classes;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mJewishDateInfo;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentLocationName;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentTimeZoneID;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLatitude;
@@ -37,6 +38,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.GetUserLocationWithMapActivity;
+import com.ej.rovadiahyosefcalendar.activities.OmerActivity;
 import com.ej.rovadiahyosefcalendar.activities.SetupChooserActivity;
 import com.ej.rovadiahyosefcalendar.activities.SetupElevationActivity;
 import com.ej.rovadiahyosefcalendar.activities.SiddurViewActivity;
@@ -237,7 +239,11 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                                 || title.equals("וזאת הברכה ")) {
                             parsha = title;// ugly, but leave the first word and second word in these cases
                         } else {
-                            parsha = title.split(" ")[0];//get first word
+                            if (title.contains("אחרי מות")) {// edge case for Acharei Mot Kedoshim
+                                parsha = "אחרי מות";
+                            } else {
+                                parsha = title.split(" ")[0];//get first word
+                            }
                         }
                         String parshaLink = "https://www.sefaria.org/" + parsha;
                         dialogBuilder.setTitle(context.getString(R.string.open_sefaria_link_for) + parsha + "?");
@@ -279,6 +285,9 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     }
                     if (title.contains("Shemita") || title.contains("שמיטה")) {
                         showShmitaDialog();
+                    }
+                    if (title.contains("day of Omer") || title.contains("ימים לעומר")) {
+                        showOmerDialog();
                     }
                 }
             });
@@ -378,7 +387,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             showPlagDialog();
         } else if (zmanim.get(position).getTitle().contains(zmanimNames.getCandleLightingString())) {
             showCandleLightingDialog();
-        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getSunsetString())) {
+        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getSunsetString()) && !zmanim.get(position).getTitle().contains("לפני השקיעה")) {
             showShkiaDialog();
         } else if (zmanim.get(position).getTitle().contains(zmanimNames.getTzaitHacochavimString() + " " + zmanimNames.getLChumraString())) {
             showTzaitLChumraDialog();
@@ -637,6 +646,16 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     private void showThreeWeeksDialog(String title) {
         AlertDialog alertDialog = dialogBuilder.setTitle(title)
                 .setMessage(R.string.three_weeks_dialog)
+                .create();
+        alertDialog.show();
+    }
+
+    private void showOmerDialog() {
+        AlertDialog alertDialog = dialogBuilder.setTitle("Sefirat HaOmer - ספירת העומר")
+                .setMessage(R.string.omer_dialog)
+                .setPositiveButton(context.getString(R.string.see_full_text), (dialog, which) ->
+                        context.startActivity(new Intent(context, OmerActivity.class)
+                                .putExtra("omerDay", mJewishDateInfo.getJewishCalendar().getDayOfOmer())))
                 .create();
         alertDialog.show();
     }

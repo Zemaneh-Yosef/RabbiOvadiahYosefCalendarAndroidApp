@@ -143,6 +143,19 @@
             </Button>
 
             <Button
+                android:id="@+id/sefirat_haomer"
+                android:layout_width="312dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:text="@string/sefirat_haomer"
+                android:textStyle="bold"
+                android:textSize="26sp"
+                android:textColor="@color/black"
+                app:backgroundTint="@null"
+                android:background="@drawable/colorful_gradient_square">
+            </Button>
+
+            <Button
                 android:id="@+id/hadlakat_neirot_chanuka"
                 android:layout_width="312dp"
                 android:layout_height="wrap_content"

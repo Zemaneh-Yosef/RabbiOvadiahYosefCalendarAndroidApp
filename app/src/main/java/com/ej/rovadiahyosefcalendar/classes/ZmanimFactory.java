@@ -127,7 +127,8 @@ public class ZmanimFactory {
             fastEnds.setNoteworthyZman(true);
             zmanim.add(fastEnds);
         }
-        if (mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting()) {
+        if (mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting()
+                || mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY) {
             addShabbatEndsZman(zmanim, mSettingsPreferences, mROZmanimCalendar, mJewishDateInfo, mIsZmanimInHebrew, useAHZmanim, zmanimNames, false, false);
             addRTZman(zmanim, mSettingsPreferences, mROZmanimCalendar, zmanimNames, useAHZmanim, false);
             //If it is shabbat/yom tov,we want to dim the tzeit hacochavim zmanim in the GUI
@@ -139,7 +140,7 @@ public class ZmanimFactory {
             }
         }
         if (mSettingsPreferences.getBoolean("AlwaysShowRT", false)) {
-            if (!(mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting())) {//if we want to always show the zman for RT, we can just NOT the previous cases where we do show it
+            if (!(mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting() || mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY)) {//if we want to always show the zman for RT, we can just NOT the previous cases where we do show it
                 addRTZman(zmanim, mSettingsPreferences, mROZmanimCalendar, zmanimNames, useAHZmanim, false);
             }
         }
