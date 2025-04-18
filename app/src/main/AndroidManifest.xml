@@ -157,16 +157,16 @@
             android:exported="false"
             android:foregroundServiceType="location" />
 
-        <receiver android:name=".notifications.DailyNotifications" />
-        <receiver android:name=".notifications.ZmanimNotifications" />
-        <receiver android:name=".notifications.ZmanNotification" />
-        <receiver android:name=".notifications.OmerNotifications" />
-        <receiver android:name=".notifications.TekufaNotifications" />
-        <receiver android:name=".notifications.CombinedTekufaNotifications" />
-        <receiver android:name=".notifications.AmudeiHoraahTekufaNotifications" />
+        <receiver android:name=".notifications.DailyNotifications" android:exported="true" />
+        <receiver android:name=".notifications.ZmanimNotifications" android:exported="true" />
+        <receiver android:name=".notifications.ZmanNotification" android:exported="true" />
+        <receiver android:name=".notifications.OmerNotifications" android:exported="true" />
+        <receiver android:name=".notifications.TekufaNotifications" android:exported="true" />
+        <receiver android:name=".notifications.CombinedTekufaNotifications" android:exported="true" />
+        <receiver android:name=".notifications.AmudeiHoraahTekufaNotifications" android:exported="true" />
         <receiver
             android:name=".notifications.BootNotifications"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>

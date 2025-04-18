@@ -98,10 +98,9 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
 
             Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
-            jewishDateInfo.getJewishCalendar().getGregorianCalendar().add(Calendar.DATE, 1);
-            String nextJewishDay = jewishDateInfo.getJewishCalendar().toString();
+            String nextJewishDay = jewishDateInfo.tomorrow().getJewishCalendar().toString();
 
-            if (!mSharedPreferences.getString("lastKnownDayOmer", "").equals(jewishDateInfo.getJewishCalendar().toString())) {//We only want 1 notification a day.
+            if (!mSharedPreferences.getString("lastKnownDayOmer", "").equals(nextJewishDay)) {//We only want 1 notification a day.
                 NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "Omer")
                         .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
                         .setSmallIcon(R.drawable.omer_wheat)
@@ -123,12 +122,10 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
                         .addAction(new NotificationCompat.Action(0, context.getString(R.string.see_full_text), pendingIntent));
                 notificationManager.notify(MID, mNotifyBuilder.build());
                 MID++;
-                mSharedPreferences.edit().putString("lastKnownDayOmer", jewishDateInfo.getJewishCalendar().toString()).apply();
+                mSharedPreferences.edit().putString("lastKnownDayOmer", nextJewishDay).apply();
             }
-            jewishDateInfo.getJewishCalendar().getGregorianCalendar().add(Calendar.DATE, -1);// reset
         }// end of omer code
-        jewishDateInfo.getJewishCalendar().getGregorianCalendar().add(Calendar.DATE, 1);
-        if (new TefilaRules().isVeseinTalUmatarStartDate(jewishDateInfo.getJewishCalendar())) {// we need to know if user is in Israel or not
+        if (new TefilaRules().isVeseinTalUmatarStartDate(jewishDateInfo.tomorrow().getJewishCalendar())) {// we need to know if user is in Israel or not
             if (mSharedPreferences.getInt("lastKnownBarechAleinu", 0) != jewishDateInfo.getJewishCalendar().getJewishYear()) {//We only want 1 notification a year.
                 notifyBarechAleinu(context);
                 mSharedPreferences.edit().putInt("lastKnownBarechAleinu", jewishDateInfo.getJewishCalendar().getJewishYear()).apply();

@@ -11,8 +11,8 @@ android {
         minSdk 25
         compileSdk 35
         targetSdk 35
-        versionCode 221
-        versionName "23.7"
+        versionCode 223
+        versionName "23.9"
         multiDexEnabled true
 
         ndk { debugSymbolLevel 'FULL' }
@@ -75,9 +75,9 @@ dependencies {
     implementation 'com.atlassian.commonmark:commonmark:0.17.0'
     implementation 'com.google.android.gms:play-services-wearable:19.0.0'
     implementation 'com.google.code.gson:gson:2.11.0'
-    implementation 'com.google.android.gms:play-services-maps:19.1.0'
+    implementation 'com.google.android.gms:play-services-maps:19.2.0'
     implementation 'com.google.maps.android:android-maps-utils:3.8.2'
-    implementation 'com.google.android.material:material:1.13.0-alpha11'
+    implementation 'com.google.android.material:material:1.13.0-alpha12'
     implementation 'androidx.activity:activity-ktx:1.10.1'
     implementation 'com.google.android.play:app-update:2.1.0'
     testImplementation 'junit:junit:4.13.2'
