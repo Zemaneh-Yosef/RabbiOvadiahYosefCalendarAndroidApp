@@ -127,20 +127,20 @@ public class ZmanimFactory {
             fastEnds.setNoteworthyZman(true);
             zmanim.add(fastEnds);
         }
-        if (mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting()
-                || mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY) {
+        if (mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting()) {
             addShabbatEndsZman(zmanim, mSettingsPreferences, mROZmanimCalendar, mJewishDateInfo, mIsZmanimInHebrew, useAHZmanim, zmanimNames, false, false);
             addRTZman(zmanim, mSettingsPreferences, mROZmanimCalendar, zmanimNames, useAHZmanim, false);
-            //If it is shabbat/yom tov,we want to dim the tzeit hacochavim zmanim in the GUI
+            //If shabbat/yom tov ends today, we want to dim the tzeit hacochavim zmanim in the GUI
             for (ZmanListEntry zman: zmanim) {
                 if (zman.getTitle().equals(zmanimNames.getTzaitHacochavimString()) ||
                         zman.getTitle().equals(zmanimNames.getTzaitHacochavimString() + " " + zmanimNames.getLChumraString())) {
                     zman.setShouldBeDimmed(true);
                 }
             }
-        }
-        if (mSettingsPreferences.getBoolean("AlwaysShowRT", false)) {
-            if (!(mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting() || mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY)) {//if we want to always show the zman for RT, we can just NOT the previous cases where we do show it
+        } else if (mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY) {// always add RT for shabbat
+            addRTZman(zmanim, mSettingsPreferences, mROZmanimCalendar, zmanimNames, useAHZmanim, false);
+        } else if (mSettingsPreferences.getBoolean("AlwaysShowRT", false)) {
+            if (!(mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting())) {//if we want to always show the zman for RT, we can just NOT the previous cases where we do show it
                 addRTZman(zmanim, mSettingsPreferences, mROZmanimCalendar, zmanimNames, useAHZmanim, false);
             }
         }
