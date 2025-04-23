@@ -140,13 +140,13 @@ public class SiddurFragment extends Fragment {
         arvit.setOnClickListener(v -> startSiddurActivity(mContext.getString(R.string.arvit)));
 
         Button sefiratHaomer = binding.sefiratHaomer;
-        if (mJewishDateInfo.getJewishCalendar().getDayOfOmer() == -1 || mJewishDateInfo.getJewishCalendar().getDayOfOmer() >= 49) {
+        if (mJewishDateInfo.tomorrow().getJewishCalendar().getDayOfOmer() == -1 || mJewishDateInfo.getJewishCalendar().getDayOfOmer() >= 49) {
             sefiratHaomer.setVisibility(View.GONE);
         } else {
             sefiratHaomer.setVisibility(View.VISIBLE);
         }
         sefiratHaomer.setOnClickListener(v -> startActivity(new Intent(mContext, OmerActivity.class)
-                .putExtra("omerDay", mJewishDateInfo.getJewishCalendar().getDayOfOmer())));
+                .putExtra("omerDay", mJewishDateInfo.tomorrow().getJewishCalendar().getDayOfOmer() - 1)));
 
         Button hadlakatNeirotChanuka = binding.hadlakatNeirotChanuka;
         hadlakatNeirotChanuka.setOnClickListener(v -> startSiddurActivity(mContext.getString(R.string.hadlakat_neirot_chanuka)));

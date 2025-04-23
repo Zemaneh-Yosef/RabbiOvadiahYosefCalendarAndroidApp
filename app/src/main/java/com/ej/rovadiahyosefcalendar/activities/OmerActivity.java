@@ -146,8 +146,8 @@ public class OmerActivity extends AppCompatActivity {
     }
 
     public static String getSefirahAttribute(int day) {
-        if (day < 1 || day > 49) {
-            return "Invalid day. Must be between 1 and 49.";
+        if (day < 0 || day > 49) {
+            return "Invalid day. Must be between 0 and 49.";
         }
 
         String[] attributes = {

@@ -655,7 +655,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                 .setMessage(R.string.omer_dialog)
                 .setPositiveButton(context.getString(R.string.see_full_text), (dialog, which) ->
                         context.startActivity(new Intent(context, OmerActivity.class)
-                                .putExtra("omerDay", mJewishDateInfo.getJewishCalendar().getDayOfOmer())))
+                                .putExtra("omerDay", mJewishDateInfo.getJewishCalendar().getDayOfOmer() - 1)))
                 .create();
         alertDialog.show();
     }
