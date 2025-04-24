@@ -8,9 +8,8 @@ public class ZmanListEntry {
     private Date zman;
     private final boolean isZman;
     private boolean isNoteworthyZman;
-    private boolean isRTZman;
     private boolean shouldBeDimmed;
-    private boolean isVisibleSunriseZman;
+    private com.ej.rovadiahyosefcalendar.classes.secondTreatment secondTreatment;
     private boolean isBirchatHachamahZman;
     private boolean is66MisheyakirZman;
 
@@ -20,17 +19,11 @@ public class ZmanListEntry {
         this.isZman = false;
     }
 
-    public ZmanListEntry(String title, Date zman, boolean isZman) {
+    public ZmanListEntry(String title, Date zman, secondTreatment secondTreatment) {
         this.title = title;
         this.zman = zman;
-        this.isZman = isZman;
-    }
-
-    public ZmanListEntry(String title, Date zman,boolean isZman, boolean isVisibleSunriseZman) {
-        this.title = title;
-        this.zman = zman;
-        this.isZman = isZman;
-        this.isVisibleSunriseZman = isVisibleSunriseZman;
+        this.isZman = true;
+        this.secondTreatment = secondTreatment;
     }
 
     public String getTitle() {
@@ -53,14 +46,6 @@ public class ZmanListEntry {
         return isZman;
     }
 
-    public void setRTZman(boolean b) {
-        isRTZman = b;
-    }
-
-    public boolean isRTZman() {
-        return isRTZman;
-    }
-
     public boolean isNoteworthyZman() {
         return isNoteworthyZman;
     }
@@ -77,8 +62,8 @@ public class ZmanListEntry {
         this.shouldBeDimmed = shouldBeDimmed;
     }
 
-    public boolean isVisibleSunriseZman() {
-        return isVisibleSunriseZman;
+    public com.ej.rovadiahyosefcalendar.classes.secondTreatment getSecondTreatment() {
+        return secondTreatment;
     }
 
     public void setBirchatHachamahZman(boolean birchatHachamahZman) {

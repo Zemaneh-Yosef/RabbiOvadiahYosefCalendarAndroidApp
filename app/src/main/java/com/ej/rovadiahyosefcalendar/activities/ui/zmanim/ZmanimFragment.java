@@ -93,6 +93,7 @@ import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.ej.rovadiahyosefcalendar.classes.ZmanAdapter;
 import com.ej.rovadiahyosefcalendar.classes.ZmanListEntry;
 import com.ej.rovadiahyosefcalendar.classes.ZmanimFactory;
+import com.ej.rovadiahyosefcalendar.classes.secondTreatment;
 import com.ej.rovadiahyosefcalendar.databinding.FragmentZmanimBinding;
 import com.ej.rovadiahyosefcalendar.notifications.DailyNotifications;
 import com.ej.rovadiahyosefcalendar.notifications.NotificationUtils;
@@ -298,65 +299,42 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     }
 
     private void setupButtons() {
-        setupPreviousDayButton();
+        setupDayHopButtons(true);
         setupCalendarButton();
-        setupNextDayButton();
+        setupDayHopButtons(false);
     }
 
     /**
      * Sets up the previous day button
      */
-    private void setupPreviousDayButton() {
-        if (binding != null) {
-            mPreviousDate = binding.prevDay;
-            mPreviousDate.setOnClickListener(v -> {
-                if (!sShabbatMode) {
-                    mCurrentDateShown = (Calendar) mROZmanimCalendar.getCalendar().clone();//just get a calendar object with the same date as the current one
-                    if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                        mCurrentDateShown.add(Calendar.DATE, -7);//subtract seven days
-                    } else {
-                        mCurrentDateShown.add(Calendar.DATE, -1);//subtract one day
-                    }
-                    mROZmanimCalendar.setCalendar(mCurrentDateShown);
-                    mJewishDateInfo.setCalendar(mCurrentDateShown);
-                    if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                        updateWeeklyZmanim();
-                    } else {
-                        updateDailyZmanim();
-                    }
-                    mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
-                    seeIfTablesNeedToBeUpdated(true);
-                }
-            });
-        }
-    }
+    private void setupDayHopButtons(boolean previous) {
+        if (binding == null)
+            return;
 
-    /**
-     * Sets up the next day button
-     */
-    private void setupNextDayButton() {
-        if (binding != null) {
-            mNextDate = binding.nextDay;
-            mNextDate.setOnClickListener(v -> {
-                if (!sShabbatMode) {
-                    mCurrentDateShown = (Calendar) mROZmanimCalendar.getCalendar().clone();
-                    if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                        mCurrentDateShown.add(Calendar.DATE, 7);//add seven days
-                    } else {
-                        mCurrentDateShown.add(Calendar.DATE, 1);//add one day
-                    }
-                    mROZmanimCalendar.setCalendar(mCurrentDateShown);
-                    mJewishDateInfo.setCalendar(mCurrentDateShown);
-                    if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                        updateWeeklyZmanim();
-                    } else {
-                        updateDailyZmanim();
-                    }
-                    mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
-                    seeIfTablesNeedToBeUpdated(true);
+        Button dateBind = (previous ? binding.prevDay : binding.nextDay);
+        dateBind.setOnClickListener(v -> {
+            if (!sShabbatMode) {
+                mCurrentDateShown = (Calendar) mROZmanimCalendar.getCalendar().clone();//just get a calendar object with the same date as the current one
+
+                int dateChange = (sSharedPreferences.getBoolean("weeklyMode", false) ? 7 : 1) * (previous ? -1 : 1);
+                mCurrentDateShown.add(Calendar.DATE, dateChange);
+
+                mROZmanimCalendar.setCalendar(mCurrentDateShown);
+                mJewishDateInfo.setCalendar(mCurrentDateShown);
+                if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                    updateWeeklyZmanim();
+                } else {
+                    updateDailyZmanim();
                 }
-            });
-        }
+                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+                seeIfTablesNeedToBeUpdated(true);
+            }
+        });
+
+        if (previous)
+            mPreviousDate = dateBind;
+        else
+            mNextDate = dateBind;
     }
 
     /**
@@ -909,75 +887,86 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         materialToolbar.getMenu().clear();
         materialToolbar.inflateMenu(R.menu.menu_main);
         materialToolbar.setOnMenuItemClickListener(item -> {
-            int id = item.getItemId();
+            switch (item.getItemId()) {
+                case R.id.search_for_a_place:
+                    startActivity(new Intent(mContext, GetUserLocationWithMapActivity.class).putExtra("loneActivity", true));
+                    return true;
 
-            if (id == R.id.search_for_a_place) {
-                startActivity(new Intent(mContext, GetUserLocationWithMapActivity.class).putExtra("loneActivity", true));
-                return true;
-            } else if (id == R.id.shabbat_mode) {
-                if (!sShabbatMode && mROZmanimCalendar != null && mMainRecyclerView != null) {
-                    mCurrentDateShown.setTime(new Date());
-                    mJewishDateInfo.setCalendar(new GregorianCalendar());
-                    mROZmanimCalendar.setCalendar(new GregorianCalendar());
-                    startShabbatMode();
+                case R.id.shabbat_mode:
+                    if (!sShabbatMode && mROZmanimCalendar != null && mMainRecyclerView != null) {
+                        mCurrentDateShown.setTime(new Date());
+                        mJewishDateInfo.setCalendar(new GregorianCalendar());
+                        mROZmanimCalendar.setCalendar(new GregorianCalendar());
+                        startShabbatMode();
+                        if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                            updateWeeklyZmanim();
+                        } else {
+                            updateDailyZmanim();
+                        }
+                    } else {
+                        endShabbatMode();
+                    }
+                    item.setChecked(sShabbatMode);
+                    return true;
+
+                case R.id.weekly_mode:
+                    sSharedPreferences.edit().putBoolean("weeklyMode", !sSharedPreferences.getBoolean("weeklyMode", false)).apply();
+                    item.setChecked(sSharedPreferences.getBoolean("weeklyMode", false));
+                    if (mMainRecyclerView == null || binding == null) {
+                        return true;
+                    }
                     if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                        showWeeklyTextViews();
                         updateWeeklyZmanim();
                     } else {
+                        hideWeeklyTextViews();
                         updateDailyZmanim();
                     }
-                } else {
-                    endShabbatMode();
-                }
-                item.setChecked(sShabbatMode);
-                return true;
-            } else if (id == R.id.weekly_mode) {
-                sSharedPreferences.edit().putBoolean("weeklyMode", !sSharedPreferences.getBoolean("weeklyMode", false)).apply();
-                item.setChecked(sSharedPreferences.getBoolean("weeklyMode", false));//save the state of the menu item
-                if (mMainRecyclerView == null || binding == null) {
-                    return true;// Prevent a crash
-                }
-                if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                    showWeeklyTextViews();
-                    updateWeeklyZmanim();
-                } else {
-                    hideWeeklyTextViews();
-                    updateDailyZmanim();
-                }
-                return true;
-            } else if (id == R.id.use_elevation) {
-                sSharedPreferences.edit().putBoolean("useElevation", !sSharedPreferences.getBoolean("useElevation", false)).apply();
-                item.setChecked(sSharedPreferences.getBoolean("useElevation", false));//save the state of the menu item
-                resolveElevationAndVisibleSunrise(() -> {
-                    instantiateZmanimCalendar();
-                    setNextUpcomingZman();
-                    if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                        updateWeeklyZmanim();
-                    } else {
-                        updateDailyZmanim();
-                    }
-                });
-                return true;
-            } else if (id == R.id.jerDirection) {
-                startActivity(new Intent(mContext, JerusalemDirectionMapsActivity.class));
-                return true;
-            } else if (id == R.id.netzView) {
-                startActivity(new Intent(mContext, NetzActivity.class));
-                return true;
-            } else if (id == R.id.molad) {
-                startActivity(new Intent(mContext, MoladActivity.class));
-                return true;
-            } else if (id == R.id.fullSetup) {
-                sSetupLauncher.launch(new Intent(mContext, WelcomeScreenActivity.class));
-                return true;
-            } else if (id == R.id.settings) {
-                startActivity(new Intent(mContext, SettingsActivity.class));
-                return true;
-            } else if (id == R.id.website) {
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.royzmanim.com"));
-                startActivity(browserIntent);
-                return true;
+                    return true;
+
+                case R.id.use_elevation:
+                    sSharedPreferences.edit().putBoolean("useElevation", !sSharedPreferences.getBoolean("useElevation", false)).apply();
+                    item.setChecked(sSharedPreferences.getBoolean("useElevation", false));
+                    resolveElevationAndVisibleSunrise(() -> {
+                        instantiateZmanimCalendar();
+                        setNextUpcomingZman();
+                        if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                            updateWeeklyZmanim();
+                        } else {
+                            updateDailyZmanim();
+                        }
+                    });
+                    return true;
+
+                case R.id.jerDirection:
+                    startActivity(new Intent(mContext, JerusalemDirectionMapsActivity.class));
+                    return true;
+
+                case R.id.netzView:
+                    startActivity(new Intent(mContext, NetzActivity.class));
+                    return true;
+
+                case R.id.molad:
+                    startActivity(new Intent(mContext, MoladActivity.class));
+                    return true;
+
+                case R.id.fullSetup:
+                    sSetupLauncher.launch(new Intent(mContext, WelcomeScreenActivity.class));
+                    return true;
+
+                case R.id.settings:
+                    startActivity(new Intent(mContext, SettingsActivity.class));
+                    return true;
+
+                case R.id.website:
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.royzmanim.com"));
+                    startActivity(browserIntent);
+                    return true;
+
+                default:
+                    return false;
             }
-            return false;
+
         });
         Menu menu = materialToolbar.getMenu();
         MenuCompat.setGroupDividerEnabled(menu, true);
@@ -1167,12 +1156,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 + " / "
                 + mJewishDateInfo.getIsBarcheinuOrBarechAleinuSaid()));
 
+        zmanim.add(new ZmanListEntry(mContext.getString(R.string.shaah_zmanit_gr_a) + " " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanisGra())));
         if (!sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
-            zmanim.add(new ZmanListEntry(mContext.getString(R.string.shaah_zmanit_gr_a) + " " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanisGra())));
             zmanim.add(new ZmanListEntry(mContext.getString(R.string.mg_a) + " (" + mContext.getString(R.string.ohr_hachaim) + ") " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanis72MinutesZmanis())));
         } else {
             long shaahZmanitMGA = mROZmanimCalendar.getTemporalHour(mROZmanimCalendar.getAlotAmudeiHoraah(), mROZmanimCalendar.getTzais72ZmanisAmudeiHoraah());
-            zmanim.add(new ZmanListEntry(mContext.getString(R.string.shaah_zmanit_gr_a) + " " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanisGra())));
             zmanim.add(new ZmanListEntry(mContext.getString(R.string.mg_a) + " (" + mContext.getString(R.string.amudei_horaah) + ") " + mZmanimFormatter.format(shaahZmanitMGA)));
         }
 
@@ -1243,7 +1231,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     public void setNextUpcomingZman() {
         ZmanListEntry nextZman = ZmanimFactory.getNextUpcomingZman(mCurrentDateShown, mROZmanimCalendar, mJewishDateInfo, sSettingsPreferences, sSharedPreferences, mIsZmanimInHebrew, mIsZmanimEnglishTranslated);
         if (nextZman == null || nextZman.getZman() == null) {
-            nextZman = new ZmanListEntry("", new Date(System.currentTimeMillis() + 30_000), true);// try again in 30 seconds
+            nextZman = new ZmanListEntry("", new Date(System.currentTimeMillis() + 30_000), secondTreatment.ROUND_EARLIER);// try again in 30 seconds
         }
         sNextUpcomingZman = nextZman.getZman();
     }
@@ -1460,20 +1448,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private String[] getShortZmanim() {
         List<ZmanListEntry> zmanim = new ArrayList<>();
         addZmanim(zmanim, true, sSettingsPreferences, sSharedPreferences, mROZmanimCalendar, mJewishDateInfo, mIsZmanimInHebrew, mIsZmanimEnglishTranslated, true);
-        DateFormat zmanimFormat;
-        if (Utils.isLocaleHebrew()) {
-            if (sSettingsPreferences.getBoolean("ShowSeconds", false)) {
-                zmanimFormat = new SimpleDateFormat("H:mm:ss", Locale.getDefault());
-            } else {
-                zmanimFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
-            }
-        } else {
-            if (sSettingsPreferences.getBoolean("ShowSeconds", false)) {
-                zmanimFormat = new SimpleDateFormat("h:mm:ss aa", Locale.getDefault());
-            } else {
-                zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
-            }
-        }
+
+        String dateFormatPattern = "H:mm" + (sSettingsPreferences.getBoolean("ShowSeconds", false) ? ":ss" : "");
+        if (!Utils.isLocaleHebrew())
+            dateFormatPattern = dateFormatPattern.toLowerCase() + " aa";
+        DateFormat zmanimFormat = new SimpleDateFormat(dateFormatPattern, Locale.getDefault());
         zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
 
         //filter out important zmanim
@@ -1481,33 +1460,10 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (mIsZmanimInHebrew) {
             for (ZmanListEntry zman : zmanim) {
                 if (zman.isNoteworthyZman()) {
-                    if (zman.isRTZman() && sSettingsPreferences.getBoolean("RoundUpRT", false)) {
-                        DateFormat rtFormat;
-                        if (Utils.isLocaleHebrew()) {
-                            if (sSettingsPreferences.getBoolean("ShowSeconds", false)) {
-                                rtFormat = new SimpleDateFormat("H:mm:ss", Locale.getDefault());
-                            } else {
-                                rtFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
-                            }
-                        } else {
-                            if (sSettingsPreferences.getBoolean("ShowSeconds", false)) {
-                                rtFormat = new SimpleDateFormat("h:mm:ss aa", Locale.getDefault());
-                            } else {
-                                rtFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
-                            }
-                        }
-                        rtFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
-                        if (!Utils.isLocaleHebrew()) {
-                            mZmanimForAnnouncements.add(rtFormat.format(zman.getZman()) + " :" + zman.getTitle().replaceAll("\\(.*\\)", "").trim());
-                        } else {
-                            mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + ": " + rtFormat.format(zman.getZman()));
-                        }
+                    if (!Utils.isLocaleHebrew()) {
+                        mZmanimForAnnouncements.add(zmanimFormat.format(zman.getZman()) + " :" + zman.getTitle().replaceAll("\\(.*\\)", "").trim());
                     } else {
-                        if (!Utils.isLocaleHebrew()) {
-                            mZmanimForAnnouncements.add(zmanimFormat.format(zman.getZman()) + " :" + zman.getTitle().replaceAll("\\(.*\\)", "").trim());
-                        } else {
-                            mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + ": " + zmanimFormat.format(zman.getZman()));
-                        }
+                        mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + ": " + zmanimFormat.format(zman.getZman()));
                     }
                     zmansToRemove.add(zman);
                 }
@@ -1515,13 +1471,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         } else {
             for (ZmanListEntry zman : zmanim) {
                 if (zman.isNoteworthyZman()) {
-                    if (zman.isRTZman() && sSettingsPreferences.getBoolean("RoundUpRT", false)) {
-                        DateFormat rtFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
-                        rtFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
-                        mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + ": " + rtFormat.format(zman.getZman()));
-                    } else {
-                        mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + ": " + zmanimFormat.format(zman.getZman()));
-                    }
+                    mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + ": " + zmanimFormat.format(zman.getZman()));
                     zmansToRemove.add(zman);
                 }
             }
@@ -1532,69 +1482,35 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         String[] shortZmanim = new String[zmanim.size()];
         if (mIsZmanimInHebrew) {
             for (ZmanListEntry zman : zmanim) {
-                if (zman.isRTZman() && sSettingsPreferences.getBoolean("RoundUpRT", false)) {
-                    DateFormat rtFormat;
-                    if (Utils.isLocaleHebrew()) {
-                        if (sSettingsPreferences.getBoolean("ShowSeconds", false)) {
-                            rtFormat = new SimpleDateFormat("H:mm:ss", Locale.getDefault());
-                        } else {
-                            rtFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
-                        }
-                    } else {
-                        if (sSettingsPreferences.getBoolean("ShowSeconds", false)) {
-                            rtFormat = new SimpleDateFormat("h:mm:ss aa", Locale.getDefault());
-                        } else {
-                            rtFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
-                        }
-                    }
-                    rtFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
-                    if (!Utils.isLocaleHebrew()) {
-                        shortZmanim[zmanim.indexOf(zman)] = rtFormat.format(zman.getZman()) + " :" + zman.getTitle();
-                    } else {
-                        shortZmanim[zmanim.indexOf(zman)] = zman.getTitle() + ": " + rtFormat.format(zman.getZman());
-                    }
+                if (!Utils.isLocaleHebrew()) {
+                    shortZmanim[zmanim.indexOf(zman)] = zmanimFormat.format(zman.getZman()) + " :" + zman.getTitle()
+                            .replace("סוף זמן ", "")
+                            .replace("(", "")
+                            .replace(")", "");
                 } else {
-                    if (!Utils.isLocaleHebrew()) {
-                        shortZmanim[zmanim.indexOf(zman)] = zmanimFormat.format(zman.getZman()) + " :" + zman.getTitle()
-                                .replace("סוף זמן ", "")
-                                .replace("(", "")
-                                .replace(")", "");
-                    } else {
-                        shortZmanim[zmanim.indexOf(zman)] = zman.getTitle()
-                                .replace("סוף זמן ", "")
-                                .replace("(", "")
-                                .replace(")", "") + ": " + zmanimFormat.format(zman.getZman());
-                    }
+                    shortZmanim[zmanim.indexOf(zman)] = zman.getTitle()
+                            .replace("סוף זמן ", "")
+                            .replace("(", "")
+                            .replace(")", "") + ": " + zmanimFormat.format(zman.getZman());
                 }
+
                 if (zman.getZman().equals(sNextUpcomingZman)) {
-                    if (Utils.isLocaleHebrew()) {
-                        shortZmanim[zmanim.indexOf(zman)] = shortZmanim[zmanim.indexOf(zman)] + " ➤ ";
-                    } else {
-                        shortZmanim[zmanim.indexOf(zman)] = shortZmanim[zmanim.indexOf(zman)] + " ◄ ";
-                    }
+                    shortZmanim[zmanim.indexOf(zman)] = shortZmanim[zmanim.indexOf(zman)] +
+                            (Utils.isLocaleHebrew() ? " ➤ " : " ◄ ");
                 }
             }
         } else {
             for (ZmanListEntry zman : zmanim) {
-                if (zman.isRTZman() && sSettingsPreferences.getBoolean("RoundUpRT", false)) {
-                    DateFormat rtFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
-                    rtFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
-                    shortZmanim[zmanim.indexOf(zman)] = zman.getTitle() + ": " + rtFormat.format(zman.getZman());
-                } else {
-                    shortZmanim[zmanim.indexOf(zman)] = zman.getTitle()
-                            .replace("Earliest ", "")
-                            .replace("Sof Zeman ", "")
-                            .replace("Latest ", "")
-                            .replace("(", "")
-                            .replace(")", "")
-                            + ": " + zmanimFormat.format(zman.getZman());
-                }
+                shortZmanim[zmanim.indexOf(zman)] = zman.getTitle()
+                        .replace("Earliest ", "")
+                        .replace("Sof Zeman ", "")
+                        .replace("Latest ", "")
+                        .replace("(", "")
+                        .replace(")", "")
+                        + ": " + zmanimFormat.format(zman.getZman());
                 if (zman.getZman().equals(sNextUpcomingZman)) {
-                    if (Utils.isLocaleHebrew()) {
-                        shortZmanim[zmanim.indexOf(zman)] = shortZmanim[zmanim.indexOf(zman)] + " ➤ ";
-                    } else {
-                        shortZmanim[zmanim.indexOf(zman)] = shortZmanim[zmanim.indexOf(zman)] + " ◄ ";
-                    }
+                    shortZmanim[zmanim.indexOf(zman)] = shortZmanim[zmanim.indexOf(zman)] +
+                            (Utils.isLocaleHebrew() ? " ➤ " : " ◄ ");
                 }
             }
         }
@@ -1630,21 +1546,13 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
 
                 if (Utils.isLocaleHebrew()) {
-                    if (shortStyle) {
-                        zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
-                                zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
-                    } else {
-                        zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() +
-                                " היום בשעה " + zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
-                    }
+                    zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() +
+                            (shortStyle ? " : " : " היום בשעה ") +
+                            zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
                 } else {
-                    if (shortStyle) {
-                        zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
-                                zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
-                    } else {
-                        zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " is today at " +
-                                zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
-                    }
+                    zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() +
+                            (shortStyle ? " : " : " is today at ") +
+                            zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
                 }
             }
         }
@@ -1662,21 +1570,13 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
 
                 if (Utils.isLocaleHebrew()) {
-                    if (shortStyle) {
-                        zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
-                                zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
-                    } else {
-                        zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() +
-                                " היום בשעה " + zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
-                    }
+                    zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() +
+                            (shortStyle ? " : " : " היום בשעה ") +
+                            zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
                 } else {
-                    if (shortStyle) {
-                        zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
-                                zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
-                    } else {
-                        zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " is today at " +
-                                zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
-                    }
+                    zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() +
+                            (shortStyle ? " : " : " is today at ") +
+                            zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
                 }
             }
         }
@@ -1712,21 +1612,13 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
 
                 if (Utils.isLocaleHebrew()) {
-                    if (shortStyle) {
-                        zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
-                                zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
-                    } else {
-                        zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() +
-                                " היום בשעה " + zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
-                    }
+                    zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() +
+                            (shortStyle ? " : " : " היום בשעה ") +
+                            zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
                 } else {
-                    if (shortStyle) {
-                        zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
-                                zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
-                    } else {
-                        zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " is today at " +
-                                zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
-                    }
+                    zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() +
+                            (shortStyle ? " : " : " is today at ") +
+                            zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
                 }
             }
         }
@@ -1744,21 +1636,13 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
 
                 if (Utils.isLocaleHebrew()) {
-                    if (shortStyle) {
-                        zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
-                                zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
-                    } else {
-                        zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() +
-                                " היום בשעה " + zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
-                    }
+                    zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() +
+                            (shortStyle ? " : " : " היום בשעה ") +
+                            zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
                 } else {
-                    if (shortStyle) {
-                        zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " : " +
-                                zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
-                    } else {
-                        zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() + " is today at " +
-                                zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
-                    }
+                    zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() +
+                            (shortStyle ? " : " : " is today at ") +
+                            zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
                 }
             }
         }
