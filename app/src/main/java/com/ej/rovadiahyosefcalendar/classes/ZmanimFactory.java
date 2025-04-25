@@ -164,7 +164,7 @@ public class ZmanimFactory {
     private static void addShabbatEndsZman(List<ZmanListEntry> zmanim, SharedPreferences mSettingsPreferences, ROZmanimCalendar mROZmanimCalendar, JewishDateInfo mJewishDateInfo, boolean mIsZmanimInHebrew, boolean useAHZmanim, ZmanimNames zmanimNames, boolean isForCandleLigthting, boolean isForTomorrow) {
         ZmanListEntry endShabbat;
         if (useAHZmanim) {
-            endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString() + " (7.14°)", mROZmanimCalendar.getTzaitShabbatAmudeiHoraah(), secondTreatment.ROUND_LATER);
+            endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString() + " (7.165°)", mROZmanimCalendar.getTzaitShabbatAmudeiHoraah(), secondTreatment.ROUND_LATER);
         } else {
             endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString()
                     + " (" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")", mROZmanimCalendar.getTzaisAteretTorah(), secondTreatment.ROUND_LATER);
@@ -174,7 +174,7 @@ public class ZmanimFactory {
                 endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString()
                         + " (" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")", mROZmanimCalendar.getTzaisAteretTorah(), secondTreatment.ROUND_LATER);
             } else if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("2")) {
-                endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString() + " (7.14°)", mROZmanimCalendar.getTzaitShabbatAmudeiHoraah(), secondTreatment.ROUND_LATER);
+                endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString() + " (7.165°)", mROZmanimCalendar.getTzaitShabbatAmudeiHoraah(), secondTreatment.ROUND_LATER);
             } else if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("3")) {
                 endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString(), mROZmanimCalendar.getTzaitShabbatAmudeiHoraahLesserThan40(), secondTreatment.ROUND_LATER);
             }
