@@ -212,6 +212,11 @@
             android:summary="@string/choose_whether_or_not_to_display_if_daylight_savings_is_in_effect"
             android:title="@string/show_dst" />
 
+        <Preference
+            android:key="showNotifDebugLog"
+            android:summary="Click here to see the debug log of the notifications."
+            android:title="Show Notification Debug Log" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>

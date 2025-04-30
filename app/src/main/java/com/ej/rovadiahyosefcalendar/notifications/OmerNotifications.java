@@ -24,6 +24,7 @@ import android.os.Build;
 import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
 
+import com.ej.rovadiahyosefcalendar.BuildConfig;
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.MainFragmentManager;
 import com.ej.rovadiahyosefcalendar.activities.OmerActivity;
@@ -50,11 +51,17 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
     public void onReceive(Context context, Intent intent) {
         this.context = context;
         mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
+        if (BuildConfig.DEBUG) {
+            mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "Omer notifications called at: " + new Date() + "\n\n").apply();
+        }
         JewishDateInfo jewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false));
         mLocationResolver = new LocationResolver(context, null);
         if (mSharedPreferences.getBoolean("isSetup", false)) {
             ROZmanimCalendar c = getROZmanimCalendar();
             if (!c.getGeoLocation().equals(new GeoLocation())) {
+                if (BuildConfig.DEBUG) {
+                    mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "Omer notifications init called with a saved location/zipcode" + "\n\n").apply();
+                }
                 init(context, jewishDateInfo, c);
             }
         }
@@ -62,6 +69,9 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
 
     private void init(Context context, JewishDateInfo jewishDateInfo, ROZmanimCalendar c) {
         int day = jewishDateInfo.getJewishCalendar().getDayOfOmer();
+        if (BuildConfig.DEBUG) {
+            mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "init started with Omer day as: " + day + "\n\n").apply();
+        }
         if (day != -1 && day != 49) {//we don't want to send a notification right before shavuot
             long when = System.currentTimeMillis();
             if (mSharedPreferences.getBoolean("LuachAmudeiHoraah", false)) {
@@ -99,8 +109,15 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
             Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
             String nextJewishDay = jewishDateInfo.tomorrow().getJewishCalendar().toString();
+            if (BuildConfig.DEBUG) {
+                mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "The hebrew date for the omer is: " + nextJewishDay + "\n\n").apply();
+            }
 
             if (!mSharedPreferences.getString("lastKnownDayOmer", "").equals(nextJewishDay)) {//We only want 1 notification a day.
+                mSharedPreferences.edit().putString("lastKnownDayOmer", nextJewishDay).apply();
+                if (BuildConfig.DEBUG) {
+                    mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "The hebrew date for the omer was not the same as the last known day: " + nextJewishDay + "\n\n").apply();
+                }
                 NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "Omer")
                         .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
                         .setSmallIcon(R.drawable.omer_wheat)
@@ -122,9 +139,14 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
                         .addAction(new NotificationCompat.Action(0, context.getString(R.string.see_full_text), pendingIntent));
                 notificationManager.notify(MID, mNotifyBuilder.build());
                 MID++;
-                mSharedPreferences.edit().putString("lastKnownDayOmer", nextJewishDay).apply();
+                if (BuildConfig.DEBUG) {
+                    mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "Omer notification was sent" + "\n\n").apply();
+                }
             }
         }// end of omer code
+        if (BuildConfig.DEBUG) {
+            mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "check if barech aleinu is tonight" + "\n\n").apply();
+        }
         if (new TefilaRules().isVeseinTalUmatarStartDate(jewishDateInfo.tomorrow().getJewishCalendar())) {// we need to know if user is in Israel or not
             if (mSharedPreferences.getInt("lastKnownBarechAleinu", 0) != jewishDateInfo.getJewishCalendar().getJewishYear()) {//We only want 1 notification a year.
                 notifyBarechAleinu(context);
@@ -200,6 +222,9 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
             notificationManager.notify(MID, mNotifyBuilder.build());
         }
         MID++;
+        if (BuildConfig.DEBUG) {
+            mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "barech aleinu notification was sent" + "\n\n").apply();
+        }
     }
 
     private ROZmanimCalendar getROZmanimCalendar() {
@@ -225,11 +250,20 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
         PendingIntent omerPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
                 0, new Intent(context.getApplicationContext(), OmerNotifications.class), PendingIntent.FLAG_IMMUTABLE);
         NotificationUtils.setExactAndAllowWhileIdle(am, calendar.getTimeInMillis(), omerPendingIntent);
+        if (BuildConfig.DEBUG) {
+            mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "Omer notifications alarm was updated to: " + calendar.getTime() + "\n\n").apply();
+        }
     }
 
     @Override
     public void accept(Location location) {
+        if (BuildConfig.DEBUG) {
+            mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "got a location object in OmerNotifications" + "\n\n").apply();
+        }
         if (location != null) {
+            if (BuildConfig.DEBUG) {
+                mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "location object in OmerNotifications was not null" + "\n\n").apply();
+            }
             String locationName = mLocationResolver.getLocationAsName(location.getLatitude(), location.getLongitude());
             mLocationResolver.resolveElevation(() ->
                     init(context, new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false)), new ROZmanimCalendar(new GeoLocation(
@@ -238,6 +272,11 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
                             location.getLongitude(),
                             mLocationResolver.getElevation(),
                             mLocationResolver.getTimeZone()))));
+        } else {
+            if (BuildConfig.DEBUG) {
+                mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "location object in OmerNotifications WAS null" + "\n\n").apply();
+            }
+            init(context, new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false)), new ROZmanimCalendar(mLocationResolver.getLastKnownGeoLocation()));
         }
     }
 }

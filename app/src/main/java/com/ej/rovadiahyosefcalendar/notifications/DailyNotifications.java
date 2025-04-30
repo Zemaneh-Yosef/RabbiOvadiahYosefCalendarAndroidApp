@@ -23,6 +23,7 @@ import android.os.Build;
 import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
 
+import com.ej.rovadiahyosefcalendar.BuildConfig;
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.MainFragmentManager;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
@@ -47,11 +48,17 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
     public void onReceive(Context context, Intent intent) {
         this.context = context;
         mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
+        if (BuildConfig.DEBUG) {
+            mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "Daily Notifications Received" + "\n\n").apply();
+        }
         JewishDateInfo jewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael",false));
         mLocationResolver = new LocationResolver(context, null);
         if (mSharedPreferences.getBoolean("isSetup",false)) {
             ROZmanimCalendar calendar = getROZmanimCalendar();
             if (!calendar.getGeoLocation().equals(new GeoLocation())) {
+                if (BuildConfig.DEBUG) {
+                    mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "Daily notifications init called with a saved location/zipcode" + "\n\n").apply();
+                }
                 init(context, jewishDateInfo, calendar);
             }
         }
@@ -59,8 +66,14 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
 
     private void init(Context context, JewishDateInfo jewishDateInfo, ROZmanimCalendar calendar) {
         String specialDay = jewishDateInfo.getSpecialDay(PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowDayOfOmer",false));
+        if (BuildConfig.DEBUG) {
+            mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "init started with special day as: " + specialDay + "\n\n").apply();
+        }
 
         if (!specialDay.isEmpty()) {
+            if (BuildConfig.DEBUG) {
+                mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "special day was not empty" + "\n\n").apply();
+            }
             long when = System.currentTimeMillis();
             if (calendar.getSunrise() != null) {
                 when = calendar.getSunrise().getTime();
@@ -91,6 +104,11 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
             Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
             if (!mSharedPreferences.getString("lastKnownDay","").equals(jewishDateInfo.getJewishCalendar().toString())) {//We only want 1 notification a day.
+                mSharedPreferences.edit().putString("lastKnownDay", jewishDateInfo.getJewishCalendar().toString()).apply();
+                if (BuildConfig.DEBUG) {
+                    mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "last known day was not the same as today, sending notification" + "\n\n").apply();
+                }
+
                 String title = (Utils.isLocaleHebrew() ? "יום מיוחד ביהדות" : "Jewish Special Day");
                 String content = (Utils.isLocaleHebrew() ? "היום הוא " : "Today is ") + specialDay;
 
@@ -113,7 +131,9 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
                         .setContentIntent(pendingIntent);
                 notificationManager.notify(MID, mNotifyBuilder.build());
                 MID++;
-                mSharedPreferences.edit().putString("lastKnownDay", jewishDateInfo.getJewishCalendar().toString()).apply();
+                if (BuildConfig.DEBUG) {
+                    mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "notification sent" + "\n\n").apply();
+                }
             }
         }
         Calendar cal = Calendar.getInstance();
@@ -151,6 +171,9 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
                     new Intent(context.getApplicationContext(), notifClass),
                     PendingIntent.FLAG_IMMUTABLE);
             NotificationUtils.setExactAndAllowWhileIdle(am, cal.getTimeInMillis(), tekufaPendingIntent);
+            if (BuildConfig.DEBUG) {
+                mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "Tekufa notification was set for: " + cal.getTime() + "\n\n").apply();
+            }
         }
 
         updateAlarm(context, am, calendar);// for next day
@@ -187,11 +210,20 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
         PendingIntent dailyPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
                 0, new Intent(context.getApplicationContext(), DailyNotifications.class), PendingIntent.FLAG_IMMUTABLE);
         NotificationUtils.setExactAndAllowWhileIdle(am, cal.getTimeInMillis(), dailyPendingIntent);
+        if (BuildConfig.DEBUG) {
+            mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "Daily notifications alarm was updated to: " + cal.getTime() + "\n\n").apply();
+        }
     }
 
     @Override
     public void accept(Location location) {
+        if (BuildConfig.DEBUG) {
+            mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "got a location object in DailyNotifications" + "\n\n").apply();
+        }
         if (location != null) {
+            if (BuildConfig.DEBUG) {
+                mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "location object in DailyNotifications was not null" + "\n\n").apply();
+            }
             String locationName = mLocationResolver.getLocationAsName(location.getLatitude(), location.getLongitude());
             mLocationResolver.resolveElevation(() ->
                     init(context, new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false)), new ROZmanimCalendar(new GeoLocation(
@@ -200,6 +232,11 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
                             location.getLongitude(),
                             mLocationResolver.getElevation(),
                             mLocationResolver.getTimeZone()))));
+        } else {
+            if (BuildConfig.DEBUG) {
+                mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "location object in DailyNotifications WAS null" + "\n\n").apply();
+            }
+            init(context, new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false)), new ROZmanimCalendar(mLocationResolver.getLastKnownGeoLocation()));
         }
     }
 }
