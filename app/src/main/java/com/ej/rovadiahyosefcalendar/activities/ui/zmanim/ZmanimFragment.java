@@ -76,6 +76,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.ej.rovadiahyosefcalendar.BuildConfig;
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.GetUserLocationWithMapActivity;
 import com.ej.rovadiahyosefcalendar.activities.JerusalemDirectionMapsActivity;
@@ -812,8 +813,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     }
 
     private void setAllNotifications() {
-        Calendar calendar = (Calendar) mROZmanimCalendar.getCalendar().clone();
-        Date sunrise = mROZmanimCalendar.getSunrise();
+        Calendar calendar = Calendar.getInstance();
+        ROZmanimCalendar roZmanimCalendar = new ROZmanimCalendar(mROZmanimCalendar.getGeoLocation()); // do this in order to always set the notifications on the current date
+        Date sunrise = roZmanimCalendar.getSunrise();
         if (sunrise == null) {
             sunrise = new Date();
         }
@@ -824,13 +826,19 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         PendingIntent dailyPendingIntent = PendingIntent.getBroadcast(mContext, 0,
                 new Intent(mContext, DailyNotifications.class), PendingIntent.FLAG_IMMUTABLE);
         AlarmManager am = (AlarmManager) mContext.getSystemService(ALARM_SERVICE);
+        if (BuildConfig.DEBUG) {
+            if (sSharedPreferences.getString("debugNotifs", "").length() > 1024 * 1024) {// if the logs are greater than 1MB
+                sSharedPreferences.edit().putString("debugNotifs", "").apply();
+            }
+            sSharedPreferences.edit().putString("debugNotifs", sSharedPreferences.getString("debugNotifs", "") + "Daily Notifications set for: " + calendar.getTime() + "\n\n").apply();
+        }
         NotificationUtils.setExactAndAllowWhileIdle(am, calendar.getTimeInMillis(), dailyPendingIntent);
 
         Date tzeit;
         if (sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
-            tzeit = mROZmanimCalendar.getTzeitAmudeiHoraah();
+            tzeit = roZmanimCalendar.getTzeitAmudeiHoraah();
         } else {
-            tzeit = mROZmanimCalendar.getTzeit();
+            tzeit = roZmanimCalendar.getTzeit();
         }
         if (tzeit == null) {
             tzeit = new Date();
@@ -840,6 +848,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             calendar.add(Calendar.DATE, 1);
         }
         PendingIntent omerPendingIntent = PendingIntent.getBroadcast(mContext, 0, new Intent(mContext, OmerNotifications.class), PendingIntent.FLAG_IMMUTABLE);
+        if (BuildConfig.DEBUG) {
+            sSharedPreferences.edit().putString("debugNotifs", sSharedPreferences.getString("debugNotifs", "") + "Omer Notifications set for: " + calendar.getTime() + "\n\n").apply();
+        }
         NotificationUtils.setExactAndAllowWhileIdle(am, calendar.getTimeInMillis(), omerPendingIntent);
 
         Intent zmanIntent = new Intent(mContext, ZmanimNotifications.class);
@@ -2308,6 +2319,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     }
                 });
             }
-        }
+        }// if location object is null, we should probably do something, not sure what
     }
 }

@@ -22,6 +22,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.preference.PreferenceManager;
 
@@ -634,13 +635,7 @@ public class LocationResolver {
             return new GeoLocation(mLocationName, mLatitude, mLongitude, mElevation, mTimeZone);
         } else {// we are using the devices location
             if (ActivityCompat.checkSelfPermission(mContext, ACCESS_BACKGROUND_LOCATION) != PERMISSION_GRANTED) {
-                return new GeoLocation(
-                        mSharedPreferences.getString("name", ""),
-                        Double.longBitsToDouble(mSharedPreferences.getLong("Lat", 0)),
-                        Double.longBitsToDouble(mSharedPreferences.getLong("Long", 0)),
-                        Double.parseDouble(mSharedPreferences.getString("elevation" + mSharedPreferences.getString("name", ""), "0")),
-                        TimeZone.getDefault()
-                );
+                return getLastKnownGeoLocation();
             } else {
                 LocationManager locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
                 if (locationManager != null && consumer != null) {
@@ -673,6 +668,16 @@ public class LocationResolver {
             }
             return new GeoLocation();// the consumer should update with the actual location
         }
+    }
+
+    public @NonNull GeoLocation getLastKnownGeoLocation() {
+        return new GeoLocation(
+                mSharedPreferences.getString("name", ""),
+                Double.longBitsToDouble(mSharedPreferences.getLong("Lat", 0)),
+                Double.longBitsToDouble(mSharedPreferences.getLong("Long", 0)),
+                Double.parseDouble(mSharedPreferences.getString("elevation" + mSharedPreferences.getString("name", ""), "0")),
+                TimeZone.getDefault()
+        );
     }
 
     public void resolveElevation(Runnable codeToRunAfter) {

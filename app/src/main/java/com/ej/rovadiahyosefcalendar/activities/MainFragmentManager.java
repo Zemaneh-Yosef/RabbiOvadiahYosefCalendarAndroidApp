@@ -314,6 +314,31 @@ public class MainFragmentManager extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        if (mNavView != null && mViewPager != null) {
+            if (sSettingsPreferences != null && sSettingsPreferences.getBoolean("hideBottomBar", false)) {
+                mNavView.setVisibility(View.GONE);
+                ViewCompat.setOnApplyWindowInsetsListener(mViewPager, (v, windowInsets) -> {
+                    Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+                    ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+                    mlp.leftMargin = insets.left;
+                    mlp.bottomMargin = insets.bottom;
+                    mlp.rightMargin = insets.right;
+                    v.setLayoutParams(mlp);
+                    // Return CONSUMED if you don't want want the window insets to keep passing
+                    // down to descendant views.
+                    return WindowInsetsCompat.CONSUMED;
+                });
+            } else {
+                if (!sShabbatMode) {
+                    mNavView.setVisibility(View.VISIBLE);
+                    ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) mViewPager.getLayoutParams();
+                    mlp.leftMargin = 0;
+                    mlp.rightMargin = 0;
+                    mlp.bottomMargin = 0;
+                    mViewPager.setLayoutParams(mlp);
+                }
+            }
+        }
         ExceptionHandler.isAppFocused = true;
         stopService(new Intent(this, NextZmanCountdownNotification.class));
         if (sSettingsPreferences.getBoolean("showNextZmanNotification", false)) {
@@ -349,31 +374,6 @@ public class MainFragmentManager extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         updateWidget();
-        if (mNavView != null && mViewPager != null) {
-            if (sSettingsPreferences != null && sSettingsPreferences.getBoolean("hideBottomBar", false)) {
-                mNavView.setVisibility(View.GONE);
-                ViewCompat.setOnApplyWindowInsetsListener(mViewPager, (v, windowInsets) -> {
-                    Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
-                    ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
-                    mlp.leftMargin = insets.left;
-                    mlp.bottomMargin = insets.bottom;
-                    mlp.rightMargin = insets.right;
-                    v.setLayoutParams(mlp);
-                    // Return CONSUMED if you don't want want the window insets to keep passing
-                    // down to descendant views.
-                    return WindowInsetsCompat.CONSUMED;
-                });
-            } else {
-                if (!sShabbatMode) {
-                    mNavView.setVisibility(View.VISIBLE);
-                    ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) mViewPager.getLayoutParams();
-                    mlp.leftMargin = 0;
-                    mlp.rightMargin = 0;
-                    mlp.bottomMargin = 0;
-                    mViewPager.setLayoutParams(mlp);
-                }
-            }
-        }
     }
 
     private void updateWidget() {

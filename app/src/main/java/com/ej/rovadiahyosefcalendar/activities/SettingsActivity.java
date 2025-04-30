@@ -28,6 +28,7 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
+import com.ej.rovadiahyosefcalendar.BuildConfig;
 import com.ej.rovadiahyosefcalendar.R;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -292,6 +293,19 @@ public class SettingsActivity extends AppCompatActivity {
                     return false;
                 });
             }
+
+            Preference debug = findPreference("showNotifDebugLog");
+            if (debug != null) {
+                debug.setVisible(BuildConfig.DEBUG);
+                debug.setOnPreferenceClickListener(v -> {
+                    Intent intent = new Intent(getContext(), ShowErrorActivity.class);
+                    intent.putExtra("error", requireContext().getSharedPreferences(SHARED_PREF, MODE_PRIVATE).getString("debugNotifs", ""))
+                            .putExtra("isNotifDebug", true);
+                    startActivity(intent);
+                    return false;
+                });
+            }
+
         }
 
         public void onDisplayPreferenceDialog(@NonNull Preference preference) {
