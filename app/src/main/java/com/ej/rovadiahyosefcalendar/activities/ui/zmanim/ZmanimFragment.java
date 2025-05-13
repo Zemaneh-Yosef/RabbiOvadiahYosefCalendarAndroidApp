@@ -835,6 +835,12 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     }
 
     private void setAllNotifications() {
+        if (mROZmanimCalendar.getGeoLocation().equals(new GeoLocation())) {
+            return; // DO NOT SET ANY NOTIFICATIONS WITH A DEFAULT LOCATION
+        }
+        if (BuildConfig.DEBUG) {
+            sSharedPreferences.edit().putString("debugNotifs", sSharedPreferences.getString("debugNotifs", "") + "Geolocation for notifications = " + mROZmanimCalendar.getGeoLocation().toString() + "\n\n").apply();
+        }
         Calendar calendar = Calendar.getInstance();
         ROZmanimCalendar roZmanimCalendar = new ROZmanimCalendar(mROZmanimCalendar.getGeoLocation()); // do this in order to always set the notifications on the current date
         Date sunrise = roZmanimCalendar.getSunrise();

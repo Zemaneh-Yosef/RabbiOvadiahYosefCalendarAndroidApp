@@ -38,11 +38,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.GetUserLocationWithMapActivity;
-import com.ej.rovadiahyosefcalendar.activities.OmerActivity;
 import com.ej.rovadiahyosefcalendar.activities.SetupChooserActivity;
 import com.ej.rovadiahyosefcalendar.activities.SetupElevationActivity;
 import com.ej.rovadiahyosefcalendar.activities.SiddurViewActivity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
@@ -653,9 +653,19 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     private void showOmerDialog() {
         AlertDialog alertDialog = dialogBuilder.setTitle("Sefirat HaOmer - ספירת העומר")
                 .setMessage(R.string.omer_dialog)
-                .setPositiveButton(context.getString(R.string.see_full_text), (dialog, which) ->
-                        context.startActivity(new Intent(context, OmerActivity.class)
-                                .putExtra("omerDay", mJewishDateInfo.getJewishCalendar().getDayOfOmer() - 1)))
+                .setPositiveButton(context.getString(R.string.see_full_text), (dialog, which) -> {
+                    JewishCalendar yesterday  = new JewishCalendar();
+                    yesterday.setJewishDate(
+                            mJewishDateInfo.getJewishCalendar().getJewishYear(),
+                            mJewishDateInfo.getJewishCalendar().getJewishMonth(),
+                            mJewishDateInfo.getJewishCalendar().getJewishDayOfMonth());
+                    yesterday.back();// need to go back a day because the siddur automatically goes to the next day
+                    context.startActivity(new Intent(context, SiddurViewActivity.class)
+                            .putExtra("prayer", context.getString(R.string.sefirat_haomer))
+                            .putExtra("JewishDay", yesterday.getJewishDayOfMonth())
+                            .putExtra("JewishMonth", yesterday.getJewishMonth())
+                            .putExtra("JewishYear", yesterday.getJewishYear()));
+                })
                 .create();
         alertDialog.show();
     }
