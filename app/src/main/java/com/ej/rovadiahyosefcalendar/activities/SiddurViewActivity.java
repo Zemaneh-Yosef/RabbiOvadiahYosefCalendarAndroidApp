@@ -19,9 +19,9 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
-import com.ej.rovadiahyosefcalendar.classes.OnClickListeners;
 import com.ej.rovadiahyosefcalendar.classes.HighlightString;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
+import com.ej.rovadiahyosefcalendar.classes.OnClickListeners;
 import com.ej.rovadiahyosefcalendar.classes.SiddurAdapter;
 import com.ej.rovadiahyosefcalendar.classes.SiddurMaker;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -67,6 +67,7 @@ public class SiddurViewActivity extends AppCompatActivity {
                 case "מוסף" -> siddurMaker.getMusafPrayers();
                 case "מנחה" -> siddurMaker.getMinchaPrayers();
                 case "ערבית" -> siddurMaker.getArvitPrayers();
+                case "ספירת העומר" -> siddurMaker.getSefiratHaOmerPrayers();
                 case "הדלקת נרות חנוכה" -> siddurMaker.getHadlakatNeirotChanukaPrayers();
                 case "הבדלה" -> siddurMaker.getHavdalahPrayers();
                 case "ברכת המזון" -> siddurMaker.getBirchatHamazonPrayers();

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Rabbi Ovadiah Yosef Calendar</string>
+    <string name="app_name">Rabbi Ovadia Yosef Calendar</string>
     <string name="ok">OK</string>
     <string name="zipcode">Zipcode</string>
     <string name="title_location_permission">No location permission</string>
@@ -23,11 +23,11 @@
     <string name="chaitables">ChaiTables</string>
 
     <string name="long_explanation">
-        Rabbi Asher Darshan (who was on the team for the Ohr HaChaim calendar in Israel) told me that Rabbi Ovadiah Yosef ZT\"L held that the actual sunrise/sunset that should be used for calculating zmanim is when sunrise/sunset is seen at the highest point in the city. However, Rabbi David Yosef Shlita writes that many have told him that Rabbi Ovadiah ZT\"L held to use Mishor (Sea Level) sunrise/sunset. Rabbi Leeor Dahan says that it makes sense to use elevation in cities that have hills, and to not use it when the city, E.G. New York, is close to sea level. You can use the buttons below to choose the appropriate settings that you want. (See Halacha Berura vol. 14, in Otzrot Yosef (Kuntrus Ki Ba Hashemesh), Siman 6, Perek 21 for an in depth discussion)
+        Rabbi Asher Darshan (who was on the team for the Ohr HaChaim calendar in Israel) told me that Rabbi Ovadia Yosef ZT\"L held that the actual sunrise/sunset that should be used for calculating zmanim is when sunrise/sunset is seen at the highest point in the city. However, Rabbi David Yosef Shlita writes that many have told him that Rabbi Ovadiah ZT\"L held to use Mishor (Sea Level) sunrise/sunset. Rabbi Leeor Dahan says that it makes sense to use elevation in cities that have hills, and to not use it when the city, E.G. New York, is close to sea level. You can use the buttons below to choose the appropriate settings that you want. (See Halacha Berura vol. 14, in Otzrot Yosef (Kuntrus Ki Ba Hashemesh), Siman 6, Perek 21 for an in depth discussion)
     </string>
     <string name="settings">Settings</string>
 
-    <string name="helper_text">Welcome to the Rabbi Ovadiah Yosef Calendar app (also known as Zmanei Yosef), this app was made to help you find out the most accurate zmanim of the day according to Rabbi Ovadiah Yosef ZT\"L for your own city! Please follow the "Get Started" process of the app to set it up and here are some things to keep in mind:
+    <string name="helper_text">Welcome to the Rabbi Ovadia Yosef Calendar app (also known as Zmanei Yosef), this app was made to help you find out the most accurate zmanim of the day according to Rabbi Ovadiah Yosef ZT\"L for your own city! Please follow the "Get Started" process of the app to set it up and here are some things to keep in mind:
 
  \n\n1.) You should ideally choose your city and download the visible sunrise tables through the simple setup. This table contains the most accurate times for VISIBLE sunrise, and this is the algorithm that the Ohr HaChaim calendar uses in Israel as the Yalkut Yosef writes (Yalkut Yosef Tefila 1, page 48). However, these tables only go on for 2 years into the future and will need to be updated bi-yearly. If you do not want to use these tables, you can choose to skip the setup, and the app will instead use the regular NOAA algorithm for sunrise (without elevation included as it is similar enough).
 
@@ -440,7 +440,7 @@
     <string name="today">Today</string>
     <string name="time_zone">"Time Zone: "</string>
     <string name="use_my_device_s_location">Use my device\'s location</string>
-   <string name="insert_location_name_zip_code">Insert location Name/ZIP code</string>
+   <string name="insert_location_name_zip_code">Enter location name/ZIP code</string>
    <string name="burn_your_ametz_today">Burn your Ḥametz today</string>
     <string name="daily_nasi">"Daily Nasi: "</string>
     <string name="haskama_by_rabbi_yitzhak_yosef">Haskama by Rabbi Yitzhak Yosef</string>

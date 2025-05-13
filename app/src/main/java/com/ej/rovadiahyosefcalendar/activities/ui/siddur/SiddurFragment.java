@@ -37,7 +37,6 @@ import androidx.preference.PreferenceManager;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.JerusalemDirectionMapsActivity;
-import com.ej.rovadiahyosefcalendar.activities.OmerActivity;
 import com.ej.rovadiahyosefcalendar.activities.SiddurViewActivity;
 import com.ej.rovadiahyosefcalendar.classes.HebrewDayMonthYearPickerDialog;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
@@ -145,8 +144,7 @@ public class SiddurFragment extends Fragment {
         } else {
             sefiratHaomer.setVisibility(View.VISIBLE);
         }
-        sefiratHaomer.setOnClickListener(v -> startActivity(new Intent(mContext, OmerActivity.class)
-                .putExtra("omerDay", mJewishDateInfo.tomorrow().getJewishCalendar().getDayOfOmer() - 1)));
+        sefiratHaomer.setOnClickListener(v -> startSiddurActivity(mContext.getString(R.string.sefirat_haomer)));
 
         Button hadlakatNeirotChanuka = binding.hadlakatNeirotChanuka;
         hadlakatNeirotChanuka.setOnClickListener(v -> startSiddurActivity(mContext.getString(R.string.hadlakat_neirot_chanuka)));

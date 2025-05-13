@@ -27,7 +27,7 @@ import androidx.preference.PreferenceManager;
 import com.ej.rovadiahyosefcalendar.BuildConfig;
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.MainFragmentManager;
-import com.ej.rovadiahyosefcalendar.activities.OmerActivity;
+import com.ej.rovadiahyosefcalendar.activities.SiddurViewActivity;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
@@ -100,7 +100,11 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
                 notificationManager.createNotificationChannel(channel);
             }
 
-            Intent notificationIntent = new Intent(context, OmerActivity.class).putExtra("omerDay", day);
+            Intent notificationIntent = new Intent(context, SiddurViewActivity.class)
+                    .putExtra("prayer", context.getString(R.string.sefirat_haomer))
+                    .putExtra("JewishDay", jewishDateInfo.getJewishCalendar().getJewishDayOfMonth())
+                    .putExtra("JewishMonth", jewishDateInfo.getJewishCalendar().getJewishMonth())
+                    .putExtra("JewishYear", jewishDateInfo.getJewishCalendar().getJewishYear());
             notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
             PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,

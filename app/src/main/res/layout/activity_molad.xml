@@ -22,8 +22,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_gravity="center"
-        android:paddingTop="56dp"
         android:gravity="center">
 
         <com.google.android.material.appbar.AppBarLayout
