@@ -1,6 +1,6 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
-public enum secondTreatment {
+public enum SecondTreatment {
     ALWAYS_DISPLAY,
     ROUND_EARLIER,
     ROUND_LATER

@@ -94,7 +94,7 @@ import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.ej.rovadiahyosefcalendar.classes.ZmanAdapter;
 import com.ej.rovadiahyosefcalendar.classes.ZmanListEntry;
 import com.ej.rovadiahyosefcalendar.classes.ZmanimFactory;
-import com.ej.rovadiahyosefcalendar.classes.secondTreatment;
+import com.ej.rovadiahyosefcalendar.classes.SecondTreatment;
 import com.ej.rovadiahyosefcalendar.databinding.FragmentZmanimBinding;
 import com.ej.rovadiahyosefcalendar.notifications.DailyNotifications;
 import com.ej.rovadiahyosefcalendar.notifications.NotificationUtils;
@@ -1167,7 +1167,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
         addTekufaLength(zmanim, tekufaOpinions);
 
-        addZmanim(zmanim, false, sSettingsPreferences, sSharedPreferences, mROZmanimCalendar, mJewishDateInfo, mIsZmanimInHebrew, mIsZmanimEnglishTranslated, add66MisheyakirZman);
+        addZmanim(zmanim, false, sSettingsPreferences, sSharedPreferences, mROZmanimCalendar, mJewishDateInfo, add66MisheyakirZman);
 
         zmanim.add(new ZmanListEntry(mJewishDateInfo.getIsMashivHaruchOrMoridHatalSaid()
                 + " / "
@@ -1248,7 +1248,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     public void setNextUpcomingZman() {
         ZmanListEntry nextZman = ZmanimFactory.getNextUpcomingZman(mCurrentDateShown, mROZmanimCalendar, mJewishDateInfo, sSettingsPreferences, sSharedPreferences, mIsZmanimInHebrew, mIsZmanimEnglishTranslated);
         if (nextZman == null || nextZman.getZman() == null) {
-            nextZman = new ZmanListEntry("", new Date(System.currentTimeMillis() + 30_000), secondTreatment.ROUND_EARLIER);// try again in 30 seconds
+            nextZman = new ZmanListEntry("", new Date(System.currentTimeMillis() + 30_000), SecondTreatment.ROUND_EARLIER, 0);// try again in 30 seconds
         }
         sNextUpcomingZman = nextZman.getZman();
     }
@@ -1464,7 +1464,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
     private String[] getShortZmanim() {
         List<ZmanListEntry> zmanim = new ArrayList<>();
-        addZmanim(zmanim, true, sSettingsPreferences, sSharedPreferences, mROZmanimCalendar, mJewishDateInfo, mIsZmanimInHebrew, mIsZmanimEnglishTranslated, true);
+        addZmanim(zmanim, true, sSettingsPreferences, sSharedPreferences, mROZmanimCalendar, mJewishDateInfo, true);
 
         String dateFormatPattern = "H:mm" + (sSettingsPreferences.getBoolean("ShowSeconds", false) ? ":ss" : "");
         if (!Utils.isLocaleHebrew())

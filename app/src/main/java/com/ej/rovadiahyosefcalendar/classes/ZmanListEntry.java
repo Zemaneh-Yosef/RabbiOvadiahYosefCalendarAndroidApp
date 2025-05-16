@@ -9,9 +9,10 @@ public class ZmanListEntry {
     private final boolean isZman;
     private boolean isNoteworthyZman;
     private boolean shouldBeDimmed;
-    private com.ej.rovadiahyosefcalendar.classes.secondTreatment secondTreatment;
+    private SecondTreatment secondTreatment;
     private boolean isBirchatHachamahZman;
     private boolean is66MisheyakirZman;
+    private int notificationDelay;
 
     public ZmanListEntry(String title) {
         this.title = title;
@@ -19,11 +20,12 @@ public class ZmanListEntry {
         this.isZman = false;
     }
 
-    public ZmanListEntry(String title, Date zman, secondTreatment secondTreatment) {
+    public ZmanListEntry(String title, Date zman, SecondTreatment secondTreatment, int notificationDelay) {
         this.title = title;
         this.zman = zman;
         this.isZman = true;
         this.secondTreatment = secondTreatment;
+        this.notificationDelay = notificationDelay;
     }
 
     public String getTitle() {
@@ -62,8 +64,12 @@ public class ZmanListEntry {
         this.shouldBeDimmed = shouldBeDimmed;
     }
 
-    public com.ej.rovadiahyosefcalendar.classes.secondTreatment getSecondTreatment() {
+    public SecondTreatment getSecondTreatment() {
         return secondTreatment;
+    }
+
+    public int getNotificationDelay() {
+        return notificationDelay;
     }
 
     public void setBirchatHachamahZman(boolean birchatHachamahZman) {
@@ -80,5 +86,9 @@ public class ZmanListEntry {
 
     public void setIs66MisheyakirZman(boolean is66MisheyakirZman) {
         this.is66MisheyakirZman = is66MisheyakirZman;
+    }
+
+    public void setNotificationDelay(int notificationDelay) {
+        this.notificationDelay = notificationDelay;
     }
 }

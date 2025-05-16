@@ -129,7 +129,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             if (zmanim.get(position).getZman() == null) {
                 zmanTime = "XX:XX";
             } else {
-                if (zmanim.get(position).getSecondTreatment() == secondTreatment.ALWAYS_DISPLAY || showSeconds) {
+                if (zmanim.get(position).getSecondTreatment() == SecondTreatment.ALWAYS_DISPLAY || showSeconds) {
                     zmanTime = yesSecondDateFormat.format(zmanim.get(position).getZman());
                 } else {
                     // I would normally use the internal .getSeconds() function on the Date itself
@@ -139,7 +139,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     Calendar calendar = Calendar.getInstance();
                     calendar.setTime(zmanim.get(position).getZman());
 
-                    if (calendar.get(Calendar.SECOND) > 40 || calendar.get(Calendar.SECOND) > 20 && zmanim.get(position).getSecondTreatment() == secondTreatment.ROUND_LATER)
+                    if ((calendar.get(Calendar.SECOND) > 40) || (calendar.get(Calendar.SECOND) > 20 && zmanim.get(position).getSecondTreatment() == SecondTreatment.ROUND_LATER))
                         calendar.add(Calendar.MINUTE, 1);
 
                     Date zmanDate = calendar.getTime();
