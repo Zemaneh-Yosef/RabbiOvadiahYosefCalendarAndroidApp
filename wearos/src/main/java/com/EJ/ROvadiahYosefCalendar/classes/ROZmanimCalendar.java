@@ -419,7 +419,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
 
     /**
      * This method calculates the time for Nightfall according to the opinion of the Amudei Horaah Calendar. This is calculated as 13.5
-     * adjusted zmaniyot minutes after sunset. This is based on the calculation of the 3.77&deg which is the time at 13.5 minutes in Netanya, Israel
+     * adjusted zmaniyot minutes after sunset. This is based on the calculation of the 3.7&deg which is the time at 13.5 minutes in Netanya, Israel
      * on the equinox. Why Netanya and not Jerusalem? Because Netanya is the mid point between Israel and Iraq. Therefore, Rabbi Dahan equates them.
      * @return the Date representing 13.5 minutes zmaniyot after sunset adjusted to the users location using degrees based on Netanya, Israel. This zman
      * should NOT be used in Israel.
@@ -428,7 +428,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         Calendar tempCal = (Calendar) getCalendar().clone();
         setCalendar(new GregorianCalendar(getCalendar().get(Calendar.YEAR), Calendar.MARCH, 17));//set the calendar to the equinox
 
-        double percentage = getPercentOfShaahZmanisFromDegrees(3.77, true);
+        double percentage = getPercentOfShaahZmanisFromDegrees(3.7, true);
         if (percentage == Double.MIN_VALUE) {
             return null;
         }
@@ -440,7 +440,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
 
     /**
      * This method returns another time for tzeit (l'chumra) according to the opinion of the Amudei Horaah Calendar. This time is calculated as 20
-     * zmaniyot minutes after sunset adjusted to the users location using degrees. 5.135 degrees is 20 minutes after sunset in Netanya on the equinox.
+     * zmaniyot minutes after sunset adjusted to the users location using degrees. 5.075 degrees is 20 minutes after sunset in Netanya on the equinox.
      * We then calculate the number of minutes between sunset and this time on the equinox and multiply it by the zmaniyot minutes.
      * @return the Date representing 20 minutes zmaniyot after sunset adjusted to the users location using degrees. This zman
      * should NOT be used in Israel.
@@ -449,7 +449,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         Calendar tempCal = (Calendar) getCalendar().clone();
         setCalendar(new GregorianCalendar(getCalendar().get(Calendar.YEAR), Calendar.MARCH, 17));//set the calendar to the equinox
 
-        double percentage = getPercentOfShaahZmanisFromDegrees(5.135, true);
+        double percentage = getPercentOfShaahZmanisFromDegrees(5.075, true);
         if (percentage == Double.MIN_VALUE) {
             return null;
         }
@@ -460,16 +460,16 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     }
 
     /**
-     * This time is when the sun is 7.14° below {@link #GEOMETRIC_ZENITH geometric zenith} (90°). This calculation was provided by Rabbi Dahan himself.
+     * This time is when the sun is 7.165° below {@link #GEOMETRIC_ZENITH geometric zenith} (90°). This calculation was provided by Rabbi Dahan himself.
      * The way Rabbi Dahan calculated this time for motzei shabbat was to find out at what degree would the sun be always 30 minutes or more after sunset
      * throughout the entire year. As Rabbi Ovadiah Yosef held that Shabbat ends after 30 minutes after sunset. Rabbi Dahan used degrees to calculate
      * when the sun is 30 minutes after sunset all year round.
-     * @return the <code>Date</code> of 7.14° below {@link #GEOMETRIC_ZENITH geometric zenith} (90°). If the calculation can't be computed such as in the Arctic
+     * @return the <code>Date</code> of 7.165° below {@link #GEOMETRIC_ZENITH geometric zenith} (90°). If the calculation can't be computed such as in the Arctic
      * Circle where there is at least one day a year where the sun does not rise, and one where it does not set, a null will be returned. See detailed
      * explanation on top of the {@link AstronomicalCalendar} documentation.
      */
     public Date getTzaitShabbatAmudeiHoraah() {
-        Date tzait = getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 7.14);
+        Date tzait = getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 7.165);
         if (tzait != null) {
             if (getTzaitTaanit() != null && getTzaitTaanit().after(tzait)) { // if shabbat ends before 20 minutes after sunset, use 20 minutes
                 return getTzaitTaanit();
@@ -518,7 +518,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
         Calendar tempCal = (Calendar) getCalendar().clone();
         setCalendar(new GregorianCalendar(getCalendar().get(Calendar.YEAR), Calendar.MARCH, 17));//set the calendar to the equinox
 
-        double percentage = getPercentOfShaahZmanisFromDegrees(16.01, true);
+        double percentage = getPercentOfShaahZmanisFromDegrees(16.04, true);
         if (percentage == Double.MIN_VALUE) {
             return null;
         }

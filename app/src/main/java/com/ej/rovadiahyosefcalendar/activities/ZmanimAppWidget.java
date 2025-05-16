@@ -27,6 +27,7 @@ import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
 import com.ej.rovadiahyosefcalendar.classes.ZmanListEntry;
 import com.ej.rovadiahyosefcalendar.classes.ZmanimFactory;
+import com.ej.rovadiahyosefcalendar.classes.secondTreatment;
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
 import com.kosherjava.zmanim.util.GeoLocation;
 
@@ -217,7 +218,7 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         }
         ZmanListEntry nextZman = ZmanimFactory.getNextUpcomingZman(new GregorianCalendar(), mROZmanimCalendar, mJewishDateInfo, mSettingsPreferences, mSharedPreferences, mIsZmanimInHebrew, mIsZmanimEnglishTranslated);
         if (nextZman == null || nextZman.getZman() == null) {
-            nextZman = new ZmanListEntry("", new Date(System.currentTimeMillis() + 300_000), true);// try again in 5 minutes
+            nextZman = new ZmanListEntry("", new Date(System.currentTimeMillis() + 300_000), secondTreatment.ROUND_EARLIER);// try again in 5 minutes
         }
         return nextZman;
     }
