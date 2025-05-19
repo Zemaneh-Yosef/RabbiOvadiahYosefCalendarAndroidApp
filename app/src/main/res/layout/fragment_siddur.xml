@@ -258,6 +258,19 @@
             </Button>
 
             <Button
+                android:id="@+id/tefilat_haderech"
+                android:layout_width="312dp"
+                android:layout_height="wrap_content"
+                android:text="@string/tefilat_haderech"
+                android:layout_marginTop="18dp"
+                android:textStyle="bold"
+                android:textSize="26sp"
+                android:textColor="@color/black"
+                app:backgroundTint="@null"
+                android:background="@drawable/colorful_gradient_square">
+            </Button>
+
+            <Button
                 android:id="@+id/birchat_halevana"
                 android:layout_width="312dp"
                 android:layout_height="wrap_content"
