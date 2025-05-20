@@ -302,6 +302,9 @@ public class SiddurFragment extends Fragment {
             }
         });
 
+        Button tefilatHaderech = binding.tefilatHaderech;
+        tefilatHaderech.setOnClickListener(v -> startSiddurActivity(mContext.getString(R.string.tefilat_haderech)));
+
         Button birchatLevana = binding.birchatHalevana;
         birchatLevana.setOnClickListener(v -> startSiddurActivity(mContext.getString(R.string.birchat_levana)));
 

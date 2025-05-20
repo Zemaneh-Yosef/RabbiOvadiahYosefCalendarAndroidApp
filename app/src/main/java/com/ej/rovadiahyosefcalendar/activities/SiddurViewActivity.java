@@ -71,6 +71,7 @@ public class SiddurViewActivity extends AppCompatActivity {
                 case "הדלקת נרות חנוכה" -> siddurMaker.getHadlakatNeirotChanukaPrayers();
                 case "הבדלה" -> siddurMaker.getHavdalahPrayers();
                 case "ברכת המזון" -> siddurMaker.getBirchatHamazonPrayers();
+                case "תפלת הדרך" -> siddurMaker.getTefilatHaderechPrayer();
                 case "ברכת הלבנה" -> siddurMaker.getBirchatHalevanaPrayers();
                 case "תיקון חצות" -> siddurMaker.getTikkunChatzotPrayers(getIntent().getBooleanExtra("isNightTikkunChatzot", true));
                 case "ק״ש שעל המיטה" -> siddurMaker.getKriatShemaShealHamitaPrayers(getIntent().getBooleanExtra("isBeforeChatzot", false));
