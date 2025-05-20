@@ -373,6 +373,13 @@ public class SiddurFragment extends Fragment {
         Button tefilatHaderech = binding.tefilatHaderech;
         tefilatHaderech.setOnClickListener(v -> startSiddurActivity(mContext.getString(R.string.tefilat_haderech)));
 
+        if (mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && new Date().before(mZmanimCalendar.getTzeit()) // if today is Assur Bemelacha and it is before tzeit, don't show the button
+                || (mJewishDateInfo.getJewishCalendar().hasCandleLighting() && new Date().after(mZmanimCalendar.getSunset()))) {
+            tefilatHaderech.setVisibility(View.GONE);
+        } else {
+            tefilatHaderech.setVisibility(View.VISIBLE);
+        }
+
         Button sederSiyumMasechet = binding.sederSiyumMasechet;
         sederSiyumMasechet.setOnClickListener(v -> {
             String[] masechtosArray = masechtosBavli.toArray(new String[0]);
