@@ -87,13 +87,13 @@
     <string-array name="font_entries">
         <item>גוטמן קרן (ברירת מחדל)</item>
         <item>טעמי פרנק</item>
-        <item>ללא</item>
+        <item>ברירת מחדל של המערכת</item>
     </string-array>
 
     <string-array name="font_values">
         <item>Guttman Keren</item>
         <item>Taamey Frank</item>
-        <item>None</item>
+        <item>System Default</item>
     </string-array>
 
 </resources>

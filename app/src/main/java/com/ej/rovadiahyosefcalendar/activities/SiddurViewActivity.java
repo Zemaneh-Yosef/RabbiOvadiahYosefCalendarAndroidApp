@@ -29,6 +29,7 @@ import com.google.android.material.appbar.MaterialToolbar;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 public class SiddurViewActivity extends AppCompatActivity {
@@ -70,12 +71,13 @@ public class SiddurViewActivity extends AppCompatActivity {
                 case "ספירת העומר" -> siddurMaker.getSefiratHaOmerPrayers();
                 case "הדלקת נרות חנוכה" -> siddurMaker.getHadlakatNeirotChanukaPrayers();
                 case "הבדלה" -> siddurMaker.getHavdalahPrayers();
+                case "סדר סיום מסכת" -> siddurMaker.getSiyumMasechetPrayer(Objects.requireNonNull(getIntent().getStringArrayExtra("masechtas")));
                 case "ברכת המזון" -> siddurMaker.getBirchatHamazonPrayers();
                 case "תפלת הדרך" -> siddurMaker.getTefilatHaderechPrayer();
                 case "ברכת הלבנה" -> siddurMaker.getBirchatHalevanaPrayers();
                 case "תיקון חצות" -> siddurMaker.getTikkunChatzotPrayers(getIntent().getBooleanExtra("isNightTikkunChatzot", true));
                 case "ק״ש שעל המיטה" -> siddurMaker.getKriatShemaShealHamitaPrayers(getIntent().getBooleanExtra("isBeforeChatzot", false));
-                case "ברכת מעין שלוש" -> siddurMaker.getBirchatMeeyinShaloshPrayers();
+                case "ברכת מעין שלוש" -> siddurMaker.getBirchatMeeyinShaloshPrayers(Objects.requireNonNull(getIntent().getStringArrayExtra("itemsForMeyinShalosh")));
                 default -> prayers;
             };
         }

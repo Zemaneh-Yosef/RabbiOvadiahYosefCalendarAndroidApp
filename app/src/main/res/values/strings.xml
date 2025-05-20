@@ -450,4 +450,11 @@
    <string name="menorah">Menorah</string>
     <string name="sefirat_haomer">ספירת העומר</string>
     <string name="tefilat_haderech">תפלת הדרך</string>
+    <string name="seder_siyum_masechet">סדר סיום מסכת</string>
+   <string name="what_did_you_eat_drink">What did you eat/drink?</string>
+   <string name="wine">Wine</string>
+   <string name="_5_grains">5 Grains</string>
+   <string name="_7_fruits">7 Fruits</string>
+   <string name="other">Other</string>
+   <string name="please_select_at_least_one_option">Please select at least one option</string>
 </resources>

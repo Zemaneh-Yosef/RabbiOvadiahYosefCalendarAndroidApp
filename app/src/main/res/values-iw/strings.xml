@@ -696,4 +696,11 @@
     <string name="menorah">חנוכייה</string>
     <string name="sefirat_haomer">ספירת העומר</string>
     <string name="tefilat_haderech">תפלת הדרך</string>
+    <string name="seder_siyum_masechet">סדר סיום מסכת</string>
+    <string name="what_did_you_eat_drink">\?מה אכלת/שתית</string>
+    <string name="wine">יין</string>
+    <string name="_5_grains">חמשת מיני דגן</string>
+    <string name="_7_fruits">שבעת המינים</string>
+    <string name="other">אחר</string>
+    <string name="please_select_at_least_one_option">בבקשה בחר לפחות אפשרות אחת</string>
 </resources>

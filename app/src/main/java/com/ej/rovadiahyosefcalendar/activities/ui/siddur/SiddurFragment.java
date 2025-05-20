@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -51,8 +52,11 @@ import com.kosherjava.zmanim.util.GeoLocation;
 import org.apache.commons.lang3.time.DateUtils;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -63,6 +67,49 @@ public class SiddurFragment extends Fragment {
     private FragmentActivity mActivity;
     private ROZmanimCalendar mZmanimCalendar;
     private Button mCalendarButton;
+    private static final List<String> masechtosBavli = Arrays.asList(
+            "ברכות",
+            "שבת",
+            "עירובין",
+            "פסחים",
+            "שקלים",
+            "יומא",
+            "סוכה",
+            "ביצה",
+            "ראש השנה",
+            "תענית",
+            "מגילה",
+            "מועד קטן",
+            "חגיגה",
+            "יבמות",
+            "כתובות",
+            "נדרים",
+            "נזיר",
+            "סוטה",
+            "גיטין",
+            "קידושין",
+            "בבא קמא",
+            "בבא מציעא",
+            "בבא בתרא",
+            "סנהדרין",
+            "מכות",
+            "שבועות",
+            "עבודה זרה",
+            "הוריות",
+            "זבחים",
+            "מנחות",
+            "חולין",
+            "בכורות",
+            "ערכין",
+            "תמורה",
+            "כריתות",
+            "מעילה",
+            "קינים",
+            "תמיד",
+            "מידות",
+            "נדה" );
+    private String[] selectedMasechtot;
+    private String[] selectedShaloshItems;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -290,20 +337,67 @@ public class SiddurFragment extends Fragment {
 
         Button bms = binding.birchatMeyinShalosh;
         bms.setOnClickListener(v -> {
-            if (new SiddurMaker(mJewishDateInfo).getBirchatMeeyinShaloshPrayers().equals(new SiddurMaker(mJewishDateInfo.tomorrow()).getBirchatMeeyinShaloshPrayers())) {
-                startSiddurActivity(mContext.getString(R.string.birchat_meyin_shalosh));//doesn't matter which day
-            } else {
-                new MaterialAlertDialogBuilder(mContext)
-                        .setTitle(R.string.when_did_you_start_your_meal)
-                        .setMessage(mContext.getString(R.string.did_you_start_your_meal_during_the_day) + " (" + sunset + ")")
-                        .setPositiveButton(mContext.getString(R.string.yes), (dialog, which) -> startSiddurActivity(mContext.getString(R.string.birchat_meyin_shalosh)))
-                        .setNegativeButton(mContext.getString(R.string.no), (dialog, which) -> startNextDaySiddurActivity(mContext.getString(R.string.birchat_meyin_shalosh), false))
-                        .show();
-            }
+            String[] options = {getString(R.string.wine), getString(R.string._5_grains), getString(R.string._7_fruits), getString(R.string.other)};
+            boolean[] checkedItems = new boolean[options.length];
+
+            new MaterialAlertDialogBuilder(mContext)
+                    .setTitle(R.string.what_did_you_eat_drink)
+                    .setMultiChoiceItems(options, checkedItems, (dialog, which, isChecked) -> checkedItems[which] = isChecked)
+                    .setPositiveButton(mContext.getString(R.string.ok), (dialog, which) -> {
+                        List<String> selectedOptions = new ArrayList<>();
+                        for (int i = 0; i < options.length; i++) {
+                            if (checkedItems[i]) {
+                                selectedOptions.add(options[i]);
+                            }
+                        }
+                        if (selectedOptions.isEmpty()) {
+                            Toast.makeText(mContext, R.string.please_select_at_least_one_option, Toast.LENGTH_SHORT).show();
+                        } else {
+                            selectedShaloshItems = selectedOptions.toArray(new String[0]);
+                            if (new SiddurMaker(mJewishDateInfo).getBirchatMeeyinShaloshPrayers(options).equals(new SiddurMaker(mJewishDateInfo.tomorrow()).getBirchatMeeyinShaloshPrayers(options))) {
+                                startSiddurActivity(mContext.getString(R.string.birchat_meyin_shalosh));//doesn't matter which day
+                            } else {
+                                new MaterialAlertDialogBuilder(mContext)
+                                        .setTitle(R.string.when_did_you_start_your_meal)
+                                        .setMessage(mContext.getString(R.string.did_you_start_your_meal_during_the_day) + " (" + sunset + ")")
+                                        .setPositiveButton(mContext.getString(R.string.yes), (dialog2, which2) -> startSiddurActivity(mContext.getString(R.string.birchat_meyin_shalosh)))
+                                        .setNegativeButton(mContext.getString(R.string.no), (dialog2, which2) -> startNextDaySiddurActivity(mContext.getString(R.string.birchat_meyin_shalosh), false))
+                                        .show();
+                            }
+                        }
+                    })
+                    .setNegativeButton(mContext.getString(R.string.cancel), (dialog, which) -> dialog.dismiss())
+                    .show();
         });
 
         Button tefilatHaderech = binding.tefilatHaderech;
         tefilatHaderech.setOnClickListener(v -> startSiddurActivity(mContext.getString(R.string.tefilat_haderech)));
+
+        Button sederSiyumMasechet = binding.sederSiyumMasechet;
+        sederSiyumMasechet.setOnClickListener(v -> {
+            String[] masechtosArray = masechtosBavli.toArray(new String[0]);
+            boolean[] checkedItems = new boolean[masechtosArray.length];
+
+            new MaterialAlertDialogBuilder(mContext)
+                    .setTitle(Utils.isLocaleHebrew() ? "בחר מסכתות" : "Choose Masechtot")
+                    .setMultiChoiceItems(masechtosArray, checkedItems, (dialog, which, isChecked) -> checkedItems[which] = isChecked)
+                    .setPositiveButton(mContext.getString(R.string.ok), (dialog, which) -> {
+                        List<String> selectedMasechtos = new ArrayList<>();
+                        for (int i = 0; i < masechtosArray.length; i++) {
+                            if (checkedItems[i]) {
+                                selectedMasechtos.add(masechtosArray[i]);
+                            }
+                        }
+                        if (selectedMasechtos.isEmpty()) {
+                            Toast.makeText(mContext, R.string.please_select_at_least_one_option, Toast.LENGTH_SHORT).show();
+                        } else {
+                            selectedMasechtot = selectedMasechtos.toArray(new String[0]);
+                            startSiddurActivity(mContext.getString(R.string.seder_siyum_masechet));
+                        }
+                    })
+                    .setNegativeButton(mContext.getString(R.string.cancel), (dialog, which) -> dialog.dismiss())
+                    .show();
+        });
 
         Button birchatLevana = binding.birchatHalevana;
         birchatLevana.setOnClickListener(v -> startSiddurActivity(mContext.getString(R.string.birchat_levana)));
@@ -386,12 +480,16 @@ public class SiddurFragment extends Fragment {
                 .putExtra("JewishDay", mJewishDateInfo.getJewishCalendar().getJewishDayOfMonth())
                 .putExtra("JewishMonth", mJewishDateInfo.getJewishCalendar().getJewishMonth())
                 .putExtra("JewishYear", mJewishDateInfo.getJewishCalendar().getJewishYear())
+                .putExtra("masechtas", selectedMasechtot)
+                .putExtra("itemsForMeyinShalosh", selectedShaloshItems)
                 .putExtra("isNightTikkunChatzot", false)
                 .putExtra("isAfterChatzot", new Date().after(mZmanimCalendar.getSolarMidnight()) && new Date().before(new Date(mZmanimCalendar.getSolarMidnight().getTime() + 7_200_000)));
 
         if ((mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.PURIM ||
                 mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM)
                 && !prayer.equals(mContext.getString(R.string.birchat_levana))
+                && !prayer.equals(mContext.getString(R.string.tefilat_haderech))
+                && !prayer.equals(mContext.getString(R.string.seder_siyum_masechet))
                 && !prayer.equals(mContext.getString(R.string.tikkun_chatzot))
                 && !prayer.equals(mContext.getString(R.string.kriatShema))) {// if the prayer is dependant on isMukafChoma, we ask the user
             SharedPreferences.Editor sharedPreferences = mContext.getSharedPreferences(SHARED_PREF, MODE_PRIVATE).edit();
@@ -426,6 +524,7 @@ public class SiddurFragment extends Fragment {
                 .putExtra("JewishDay", mJewishDateInfo.getJewishCalendar().getJewishDayOfMonth())
                 .putExtra("JewishMonth", mJewishDateInfo.getJewishCalendar().getJewishMonth())
                 .putExtra("JewishYear", mJewishDateInfo.getJewishCalendar().getJewishYear())
+                .putExtra("itemsForMeyinShalosh", selectedShaloshItems)
                 .putExtra("isBeforeChatzot", new Date().before(mZmanimCalendar.getSolarMidnight()))
                 .putExtra("isNightTikkunChatzot", isNightTikkunChatzot);
         mJewishDateInfo.getJewishCalendar().back();//reset
@@ -433,6 +532,8 @@ public class SiddurFragment extends Fragment {
         if ((mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.PURIM ||
                 mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM)
                 && !prayer.equals(mContext.getString(R.string.birchat_levana))
+                && !prayer.equals(mContext.getString(R.string.tefilat_haderech))
+                && !prayer.equals(mContext.getString(R.string.seder_siyum_masechet))
                 && !prayer.equals(mContext.getString(R.string.tikkun_chatzot))
                 && !prayer.equals(mContext.getString(R.string.kriatShema))) {// if the prayer is dependant on isMukafChoma, we ask the user
             SharedPreferences.Editor sharedPreferences = mContext.getSharedPreferences(SHARED_PREF, MODE_PRIVATE).edit();
