@@ -46,7 +46,9 @@ import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.ej.rovadiahyosefcalendar.databinding.FragmentSiddurBinding;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.kosherjava.zmanim.hebrewcalendar.Daf;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
+import com.kosherjava.zmanim.hebrewcalendar.YomiCalculator;
 import com.kosherjava.zmanim.util.GeoLocation;
 
 import org.apache.commons.lang3.time.DateUtils;
@@ -384,6 +386,17 @@ public class SiddurFragment extends Fragment {
         sederSiyumMasechet.setOnClickListener(v -> {
             String[] masechtosArray = masechtosBavli.toArray(new String[0]);
             boolean[] checkedItems = new boolean[masechtosArray.length];
+
+            Daf currentDaf = YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar());
+            Daf nextDaf = YomiCalculator.getDafYomiBavli(mJewishDateInfo.tomorrow().getJewishCalendar());
+
+            if (!currentDaf.getMasechta().equals(nextDaf.getMasechta())) {// we know there is a siyum today
+                for (int i = 0; i < masechtosArray.length; i++) {
+                    if (masechtosArray[i].equals(currentDaf.getMasechta())) {
+                        checkedItems[i] = true;// preset it
+                    }
+                }
+            }
 
             new MaterialAlertDialogBuilder(mContext)
                     .setTitle(Utils.isLocaleHebrew() ? "בחר מסכתות" : "Choose Masechtot")

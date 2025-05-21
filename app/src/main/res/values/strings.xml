@@ -90,9 +90,9 @@
     <string name="give_location_permission">Give Location Permission</string>
     <string name="please_select_a_method_to_find_your_location">Please select a method to find your location</string>
     <string name="simple_setup">Simple Setup</string>
-    <string name="select_your_country">Select your country:</string>
-    <string name="select_your_state">Select your state:</string>
-    <string name="select_your_metro_area">Select your metro area:</string>
+    <string name="select_your_country">Select Country</string>
+    <string name="select_your_state">Select State</string>
+    <string name="select_your_metro_area">Select Metro area</string>
     <string name="chaitables_instructions">Please go to chaitables.com and create a table of the current year for the area you specified. Then copy the link/address of the table and enter it here:</string>
     <string name="go_to_the_website_in_the_app">Go to the website in the app</string>
     <string name="set_link">Set Link</string>

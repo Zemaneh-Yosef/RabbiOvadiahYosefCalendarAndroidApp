@@ -27,126 +27,130 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
         android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/location"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="18sp" />
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center" >
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:padding="8dp"
-        android:text="@string/select_your_country"
-        android:textSize="20sp"
-        android:textColor="?android:attr/textColorPrimary" />
-
-    <Spinner
-        android:id="@+id/countrySpinner"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:layout_gravity="center" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center" >
-
-        <TextView
-            android:id="@+id/selectState"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:padding="8dp"
-            android:text="@string/select_your_state"
-            android:textSize="20sp"
-            android:textColor="?android:attr/textColorPrimary"
-            android:visibility="gone"
-            tools:visibility="visible"/>
+            android:orientation="vertical">
 
-        <Spinner
-            android:id="@+id/stateSpinner"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:padding="8dp"
-            android:layout_gravity="center"
-            android:visibility="gone"
-            tools:visibility="visible"/>
+            <TextView
+                android:id="@+id/location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp" />
 
-    </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center" >
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="@string/select_your_country"
+                    android:textSize="20sp"
+                    android:textColor="?android:attr/textColorPrimary" />
 
-        <TextView
-            android:id="@+id/selectMetroArea"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:padding="8dp"
-            android:text="@string/select_your_metro_area"
-            android:textSize="20sp"
-            android:textColor="?android:attr/textColorPrimary"
-            android:visibility="gone"
-            tools:visibility="visible"/>
+                <Spinner
+                    android:id="@+id/countrySpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="20dp"
+                    android:layout_gravity="center" />
 
-        <Spinner
-            android:id="@+id/metroAreaSpinner"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:layout_gravity="center"
-            android:visibility="gone"
-            tools:visibility="visible"/>
+            </LinearLayout>
 
-    </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
-    <Button
-        android:id="@+id/quickSetupDownloadButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/black"
-        android:drawableEnd="@android:drawable/stat_sys_download"
-        android:drawableTint="@color/black"
-        android:backgroundTint="@color/dark_gold"
-        android:text="@string/download" />
+                <TextView
+                    android:id="@+id/selectState"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="@string/select_your_state"
+                    android:textSize="20sp"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:visibility="gone"
+                    tools:visibility="visible"/>
 
-    <TextView
-        android:id="@+id/notListedArea"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:gravity="center"
-        android:padding="8dp"
-        android:text="@string/area_not_listed"
-        android:textSize="16sp"
-        android:textColor="?android:attr/textColorPrimary" />
+                <Spinner
+                    android:id="@+id/stateSpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="20dp"
+                    android:layout_gravity="center"
+                    android:visibility="gone"
+                    tools:visibility="visible"/>
 
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"/>
-    </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/selectMetroArea"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="@string/select_your_metro_area"
+                    android:textSize="20sp"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:visibility="gone"
+                    tools:visibility="visible"/>
+
+                <Spinner
+                    android:id="@+id/metroAreaSpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="20dp"
+                    android:layout_gravity="center"
+                    android:visibility="gone"
+                    tools:visibility="visible"/>
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/quickSetupDownloadButton"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:drawableEnd="@android:drawable/stat_sys_download"
+                android:drawableTint="@color/black"
+                android:backgroundTint="@color/dark_gold"
+                android:text="@string/download" />
+
+            <TextView
+                android:id="@+id/notListedArea"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="40dp"
+                android:gravity="center"
+                android:padding="8dp"
+                android:text="@string/area_not_listed"
+                android:textSize="16sp"
+                android:textColor="?android:attr/textColorPrimary" />
+
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"/>
+
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>

@@ -50,6 +50,7 @@ public class SimpleSetupActivity extends AppCompatActivity {
     private Spinner mCountrySpinner;
     private Spinner mStateSpinner;
     private Spinner mMetroAreaSpinner;
+    private ChaiTablesCountries mCountry;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +76,7 @@ public class SimpleSetupActivity extends AppCompatActivity {
 
         mCountrySpinner = findViewById(R.id.countrySpinner);
         Context context = this;
-        mCountrySpinner.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, ChaiTablesOptionsList.countries));
+        mCountrySpinner.setAdapter(new ArrayAdapter<>(context, R.layout.custom_spinner_item, ChaiTablesOptionsList.countries));
 
         TextView stateTextView = findViewById(R.id.selectState);
         mStateSpinner = findViewById(R.id.stateSpinner);
@@ -93,11 +94,11 @@ public class SimpleSetupActivity extends AppCompatActivity {
                         .replace("(", "")
                         .replace(")", "")
                         .toUpperCase();
-                ChaiTablesCountries country = ChaiTablesCountries.valueOf(s);
-                if (country.equals(ChaiTablesCountries.USA)) {
+                mCountry = ChaiTablesCountries.valueOf(s);
+                if (mCountry.equals(ChaiTablesCountries.USA) || mCountry.equals(ChaiTablesCountries.CANADA)) {
                     mStateSpinner.setVisibility(View.VISIBLE);
                     stateTextView.setVisibility(View.VISIBLE);
-                    String[] states = ChaiTablesOptionsList.selectCountry(country);
+                    String[] states = ChaiTablesOptionsList.selectCountry(mCountry);
                     Set<String> stateSet = new HashSet<>();//get last 2 letters of each string and add to a set
                     for (String s1 : states) {
                         s1 = s1.substring(s1.length() - 2);
@@ -105,14 +106,14 @@ public class SimpleSetupActivity extends AppCompatActivity {
                     }
                     String[] stateArray = stateSet.toArray(new String[0]);//create an array from the set
                     Arrays.sort(stateArray);
-                    mStateSpinner.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, stateArray));
+                    mStateSpinner.setAdapter(new ArrayAdapter<>(context, R.layout.custom_spinner_item, stateArray));
                     metroArea.setVisibility(View.GONE);
                 } else {
                     mStateSpinner.setVisibility(View.GONE);
                     stateTextView.setVisibility(View.GONE);
                     metroArea.setVisibility(View.VISIBLE);
                     mMetroAreaSpinner.setVisibility(View.VISIBLE);
-                    mMetroAreaSpinner.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, ChaiTablesOptionsList.selectCountry(country)));
+                    mMetroAreaSpinner.setAdapter(new ArrayAdapter<>(context, R.layout.custom_spinner_item, ChaiTablesOptionsList.selectCountry(mCountry)));
                 }
                 downloadButton.setEnabled(false);
             }
@@ -127,7 +128,7 @@ public class SimpleSetupActivity extends AppCompatActivity {
                 mSharedPreferences.edit().putInt("selectedState", position).apply();
                 String s = (String) parent.getItemAtPosition(position);
                 //find all strings that end with the selected last two letters of the state
-                String[] metroAreas = ChaiTablesOptionsList.selectCountry(ChaiTablesCountries.USA);
+                String[] metroAreas = ChaiTablesOptionsList.selectCountry(mCountry);
                 Set<String> metroAreaSet = new HashSet<>();
                 for (String s1 : metroAreas) {
                     if (s1.endsWith(s)) {
@@ -137,7 +138,7 @@ public class SimpleSetupActivity extends AppCompatActivity {
                 String[] metroAreaArray = metroAreaSet.toArray(new String[0]);//create an array from the set
                 metroArea.setVisibility(View.VISIBLE);
                 mMetroAreaSpinner.setVisibility(View.VISIBLE);
-                mMetroAreaSpinner.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, metroAreaArray));
+                mMetroAreaSpinner.setAdapter(new ArrayAdapter<>(context, R.layout.custom_spinner_item, metroAreaArray));
             }
 
             @Override

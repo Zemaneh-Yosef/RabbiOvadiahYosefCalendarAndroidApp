@@ -136,11 +136,11 @@
 
     <string name="simple_setup">הגדרה פשוטה</string>
 
-    <string name="select_your_country">בחר את המדינה שלך:</string>
+    <string name="select_your_country">בחר המדינה</string>
 
-    <string name="select_your_state">בחר את המדינה שלך:</string>
+    <string name="select_your_state">בחר המדינה</string>
 
-    <string name="select_your_metro_area">בחר את אזור המטרו שלך:</string>
+    <string name="select_your_metro_area">בחר אזור המטרו</string>
 
     <string name="chaitables_instructions">נא להיכנס לאתר chaitables.com וליצור טבלה של השנה הנוכחית עבור האזור שציינת. לאחר מכן העתק את הקישור/כתובת של הטבלה והזן אותה כאן:</string>
 
