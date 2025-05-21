@@ -53,6 +53,8 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -65,10 +67,9 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     private final SharedPreferences mSharedPreferences;
     private final Context context;
     private MaterialAlertDialogBuilder dialogBuilder;
-    private final DateFormat zmanimFormat;
-    private final DateFormat visibleSunriseFormat;
-    private final DateFormat roundUpFormat;
-    private final boolean roundUpRT;
+    private final DateFormat noSecondDateFormat;
+    private final DateFormat yesSecondDateFormat;
+    private final boolean showSeconds;
     private final boolean isZmanimInHebrew;
     private final boolean isZmanimEnglishTranslated;
     private boolean wasTalitTefilinZmanClicked;
@@ -90,16 +91,15 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         mSharedPreferences = this.context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         isZmanimInHebrew = mSharedPreferences.getBoolean("isZmanimInHebrew", false);
         isZmanimEnglishTranslated = mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false);
-        zmanimFormat = new SimpleDateFormat(dateFormatPattern(PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowSeconds", false)), Locale.getDefault());
+
+        showSeconds = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowSeconds", false);
+        noSecondDateFormat = new SimpleDateFormat(dateFormatPattern(false), Locale.getDefault());
         if (sCurrentTimeZoneID == null) {
             sCurrentTimeZoneID = TimeZone.getDefault().getID();
         }
-        zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
-        visibleSunriseFormat = new SimpleDateFormat(dateFormatPattern(true), Locale.getDefault());
-        visibleSunriseFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
-        roundUpRT = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("RoundUpRT", false);
-        roundUpFormat = new SimpleDateFormat(dateFormatPattern(false), Locale.getDefault());
-        roundUpFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
+        noSecondDateFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
+        yesSecondDateFormat = new SimpleDateFormat(dateFormatPattern(true), Locale.getDefault());
+        yesSecondDateFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
         dialogBuilder = new MaterialAlertDialogBuilder(context);
         dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
         dialogBuilder.create();
@@ -129,12 +129,21 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             if (zmanim.get(position).getZman() == null) {
                 zmanTime = "XX:XX";
             } else {
-                if (zmanim.get(position).isRTZman() && roundUpRT) {
-                    zmanTime = roundUpFormat.format(zmanim.get(position).getZman());
-                } else if (zmanim.get(position).isVisibleSunriseZman()) {
-                    zmanTime = visibleSunriseFormat.format(zmanim.get(position).getZman());
+                if (zmanim.get(position).getSecondTreatment() == SecondTreatment.ALWAYS_DISPLAY || showSeconds) {
+                    zmanTime = yesSecondDateFormat.format(zmanim.get(position).getZman());
                 } else {
-                    zmanTime = zmanimFormat.format(zmanim.get(position).getZman());
+                    // I would normally use the internal .getSeconds() function on the Date itself
+                    // but Android Studio complains that it's deprecated
+                    // https://stackoverflow.com/a/70448399
+
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(zmanim.get(position).getZman());
+
+                    if ((calendar.get(Calendar.SECOND) > 40) || (calendar.get(Calendar.SECOND) > 20 && zmanim.get(position).getSecondTreatment() == SecondTreatment.ROUND_LATER))
+                        calendar.add(Calendar.MINUTE, 1);
+
+                    Date zmanDate = calendar.getTime();
+                    zmanTime = noSecondDateFormat.format(zmanDate);
                 }
             }
             if (zmanim.get(position).isZman()) {

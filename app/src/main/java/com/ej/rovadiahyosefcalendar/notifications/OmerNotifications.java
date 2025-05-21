@@ -74,14 +74,8 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
         }
         if (day != -1 && day != 49) {//we don't want to send a notification right before shavuot
             long when = System.currentTimeMillis();
-            if (mSharedPreferences.getBoolean("LuachAmudeiHoraah", false)) {
-                if (c.getTzeitAmudeiHoraah() != null) {
-                    when = c.getTzeitAmudeiHoraah().getTime();
-                }
-            } else {
-                if (c.getTzeit() != null) {
-                    when = c.getTzeit().getTime();
-                }
+            if (c.getTzeit() != null) {
+                when = c.getTzeit().getTime();
             }
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -238,12 +232,7 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
     private void updateAlarm(Context context, ROZmanimCalendar c) {
         Calendar calendar = Calendar.getInstance();
         AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
-        Date tzeit;
-        if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("LuachAmudeiHoraah", false)) {
-            tzeit = c.getTzeitAmudeiHoraah();
-        } else {
-            tzeit = c.getTzeit();
-        }
+        Date tzeit = c.getTzeit();
         if (tzeit == null) {
             tzeit = new Date();
         }

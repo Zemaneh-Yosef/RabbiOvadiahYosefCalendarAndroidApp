@@ -243,7 +243,7 @@ public class ChaiTablesOptionsList {
                 "&cgi_exactcoord=OFF" + //not needed
                 "&cgi_MetroArea=jerusalem" + //this only changes when using Eretz Yisroel (cities)
                 "&cgi_types=" + type + //this parameter defines what type of table to produce.
-                "&cgi_RoundSecond=-1" + //-1 = OFF
+                "&cgi_RoundSecond=1" + //1 = Round to nearest second (default/-1 = round to nearet 5 seconds)
                 "&cgi_AddCushion=0" + //cushion for obstructions, leave it at default
                 "&cgi_24hr=" + //whether we want the times in 24h format, default is off
                 "&cgi_typezman=-1" + //whether to calculate extra zmanim, -1 is none because we do not need it
