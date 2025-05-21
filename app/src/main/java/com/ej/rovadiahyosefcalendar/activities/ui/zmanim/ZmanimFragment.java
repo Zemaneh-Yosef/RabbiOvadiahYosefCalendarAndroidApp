@@ -840,12 +840,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
         NotificationUtils.setExactAndAllowWhileIdle(am, calendar.getTimeInMillis(), dailyPendingIntent);
 
-        Date tzeit;
-        if (sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
-            tzeit = roZmanimCalendar.getTzeitAmudeiHoraah();
-        } else {
-            tzeit = roZmanimCalendar.getTzeit();
-        }
+        roZmanimCalendar.setAmudehHoraah(sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false));
+        Date tzeit = roZmanimCalendar.getTzeit();
         if (tzeit == null) {
             tzeit = new Date();
         }
@@ -1174,12 +1170,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 + mJewishDateInfo.getIsBarcheinuOrBarechAleinuSaid()));
 
         zmanim.add(new ZmanListEntry(mContext.getString(R.string.shaah_zmanit_gr_a) + " " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanisGra())));
-        if (!sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
-            zmanim.add(new ZmanListEntry(mContext.getString(R.string.mg_a) + " (" + mContext.getString(R.string.ohr_hachaim) + ") " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanis72MinutesZmanis())));
-        } else {
-            long shaahZmanitMGA = mROZmanimCalendar.getTemporalHour(mROZmanimCalendar.getAlotAmudeiHoraah(), mROZmanimCalendar.getTzais72ZmanisAmudeiHoraah());
-            zmanim.add(new ZmanListEntry(mContext.getString(R.string.mg_a) + " (" + mContext.getString(R.string.amudei_horaah) + ") " + mZmanimFormatter.format(shaahZmanitMGA)));
-        }
+        zmanim.add(new ZmanListEntry(mContext.getString(R.string.mg_a)
+                + " (" + mContext.getString(mROZmanimCalendar.isUseAmudehHoraah() ? R.string.amudei_horaah : R.string.ohr_hachaim) + ") "
+                + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanis72MinutesZmanis())));
 
         if (sSettingsPreferences.getBoolean("ShowLeapYear", false)) {
             zmanim.add(new ZmanListEntry(mJewishDateInfo.isJewishLeapYear()));

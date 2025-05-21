@@ -1,7 +1,5 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSharedPreferences;
-
 import android.content.SharedPreferences;
 
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
@@ -21,22 +19,23 @@ public class ZmanimFactory {
                                   ROZmanimCalendar mROZmanimCalendar,
                                   JewishDateInfo mJewishDateInfo,
                                  boolean add66MisheyakirZman) {
-        boolean useAHZmanim = mSettingsPreferences.getBoolean("LuachAmudeiHoraah", false);
+        mROZmanimCalendar.setAmudehHoraah(mSettingsPreferences.getBoolean("LuachAmudeiHoraah", false));
+
         ZmanimNames zmanimNames = new ZmanimNames(mSharedPreferences.getBoolean("isZmanimInHebrew", false), mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false));
         if (mJewishDateInfo.getJewishCalendar().isTaanis()
                 && mJewishDateInfo.getJewishCalendar().getYomTovIndex() != JewishCalendar.TISHA_BEAV
                 && mJewishDateInfo.getJewishCalendar().getYomTovIndex() != JewishCalendar.YOM_KIPPUR) {
-            zmanim.add(new ZmanListEntry(zmanimNames.getTaanitString() + zmanimNames.getStartsString(), useAHZmanim ? mROZmanimCalendar.getAlotAmudeiHoraah() : mROZmanimCalendar.getAlos72Zmanis(), SecondTreatment.ROUND_EARLIER, 0));
+            zmanim.add(new ZmanListEntry(zmanimNames.getTaanitString() + zmanimNames.getStartsString(), mROZmanimCalendar.getAlotHashachar(), SecondTreatment.ROUND_EARLIER, 0));
         }
-        zmanim.add(new ZmanListEntry(zmanimNames.getAlotString(), useAHZmanim ? mROZmanimCalendar.getAlotAmudeiHoraah() : mROZmanimCalendar.getAlos72Zmanis(), SecondTreatment.ROUND_EARLIER, mSettingsPreferences.getInt("Alot", -1)));
+        zmanim.add(new ZmanListEntry(zmanimNames.getAlotString(), mROZmanimCalendar.getAlotHashachar(), SecondTreatment.ROUND_EARLIER, mSettingsPreferences.getInt("Alot", -1)));
         if (isForWeeklyZmanim) {
-            ZmanListEntry misheyakir66 = new ZmanListEntry(zmanimNames.getTalitTefilinString() + " (66)", useAHZmanim ? mROZmanimCalendar.getMisheyakir66AmudeiHoraah() : mROZmanimCalendar.getMisheyakir66ZmaniyotMinutes(), SecondTreatment.ROUND_LATER, 0);
+            ZmanListEntry misheyakir66 = new ZmanListEntry(zmanimNames.getTalitTefilinString() + " (66)", mROZmanimCalendar.getMisheyakir66ZmaniyotMinutes(), SecondTreatment.ROUND_LATER, 0);
             misheyakir66.setIs66MisheyakirZman(true);
             zmanim.add(misheyakir66);
         }
-        zmanim.add(new ZmanListEntry(zmanimNames.getTalitTefilinString(), useAHZmanim ? mROZmanimCalendar.getMisheyakir60AmudeiHoraah() : mROZmanimCalendar.getMisheyakir60ZmaniyotMinutes(), SecondTreatment.ROUND_LATER, mSettingsPreferences.getInt("TalitTefilin", 15)));
+        zmanim.add(new ZmanListEntry(zmanimNames.getTalitTefilinString(), mROZmanimCalendar.getMisheyakir60ZmaniyotMinutes(), SecondTreatment.ROUND_LATER, mSettingsPreferences.getInt("TalitTefilin", 15)));
         if (add66MisheyakirZman && !isForWeeklyZmanim) {
-            ZmanListEntry misheyakir66 = new ZmanListEntry(zmanimNames.getTalitTefilinString() + " (66)", useAHZmanim ? mROZmanimCalendar.getMisheyakir66AmudeiHoraah() : mROZmanimCalendar.getMisheyakir66ZmaniyotMinutes(), SecondTreatment.ROUND_LATER, 0);
+            ZmanListEntry misheyakir66 = new ZmanListEntry(zmanimNames.getTalitTefilinString() + " (66)", mROZmanimCalendar.getMisheyakir66ZmaniyotMinutes(), SecondTreatment.ROUND_LATER, 0);
             misheyakir66.setIs66MisheyakirZman(true);
             zmanim.add(misheyakir66);
         }
@@ -53,7 +52,7 @@ public class ZmanimFactory {
                 mSettingsPreferences.getBoolean("ShowMishorAlways", false)) {
             zmanim.add(new ZmanListEntry(zmanimNames.getHaNetzString() + " (" + zmanimNames.getMishorString() + ")", mROZmanimCalendar.getSeaLevelSunrise(), SecondTreatment.ROUND_LATER, mSettingsPreferences.getInt("HaNetz", -1)));
         }
-        zmanim.add(new ZmanListEntry(zmanimNames.getShmaMgaString(), useAHZmanim ? mROZmanimCalendar.getSofZmanShmaMGA72MinutesZmanisAmudeiHoraah() : mROZmanimCalendar.getSofZmanShmaMGA72MinutesZmanis(), SecondTreatment.ROUND_EARLIER, mSettingsPreferences.getInt("SofZmanShmaMGA", 15)));
+        zmanim.add(new ZmanListEntry(zmanimNames.getShmaMgaString(), mROZmanimCalendar.getSofZmanShmaMGA72MinutesZmanis(), SecondTreatment.ROUND_EARLIER, mSettingsPreferences.getInt("SofZmanShmaMGA", 15)));
         if (mJewishDateInfo.getJewishCalendar().isBirkasHachamah()) {
             ZmanListEntry birchatHachama = new ZmanListEntry(zmanimNames.getBirkatHachamaString(), mROZmanimCalendar.getSofZmanShmaGRA(), SecondTreatment.ROUND_EARLIER, 0);
             birchatHachama.setBirchatHachamahZman(true);
@@ -62,11 +61,11 @@ public class ZmanimFactory {
         }
         zmanim.add(new ZmanListEntry(zmanimNames.getShmaGraString(), mROZmanimCalendar.getSofZmanShmaGRA(), SecondTreatment.ROUND_EARLIER, mSettingsPreferences.getInt("SofZmanShmaGRA", -1)));
         if (mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.EREV_PESACH) {
-            ZmanListEntry zman = new ZmanListEntry(zmanimNames.getAchilatChametzString(), useAHZmanim ? mROZmanimCalendar.getSofZmanAchilatChametzAmudeiHoraah() : mROZmanimCalendar.getSofZmanTfilaMGA72MinutesZmanis(), SecondTreatment.ROUND_EARLIER, mSettingsPreferences.getInt("SofZmanAchilatChametz", 15));
+            ZmanListEntry zman = new ZmanListEntry(zmanimNames.getAchilatChametzString(), mROZmanimCalendar.getSofZmanTfilaMGA72MinutesZmanis(), SecondTreatment.ROUND_EARLIER, mSettingsPreferences.getInt("SofZmanAchilatChametz", 15));
             zman.setNoteworthyZman(true);
             zmanim.add(zman);
             zmanim.add(new ZmanListEntry(zmanimNames.getBrachotShmaString(), mROZmanimCalendar.getSofZmanTfilaGRA(), SecondTreatment.ROUND_EARLIER, mSettingsPreferences.getInt("SofZmanTefila", 15)));
-            zman = new ZmanListEntry(zmanimNames.getBiurChametzString(), useAHZmanim ? mROZmanimCalendar.getSofZmanBiurChametzMGAAmudeiHoraah() : mROZmanimCalendar.getSofZmanBiurChametzMGA(), SecondTreatment.ROUND_EARLIER, mSettingsPreferences.getInt("SofZmanBiurChametz", 15));
+            zman = new ZmanListEntry(zmanimNames.getBiurChametzString(), mROZmanimCalendar.getSofZmanBiurChametzMGA(), SecondTreatment.ROUND_EARLIER, mSettingsPreferences.getInt("SofZmanBiurChametz", 15));
             zman.setNoteworthyZman(true);
             zmanim.add(zman);
         } else {
@@ -76,7 +75,7 @@ public class ZmanimFactory {
         zmanim.add(new ZmanListEntry(zmanimNames.getMinchaGedolaString(), mROZmanimCalendar.getMinchaGedolaGreaterThan30(), SecondTreatment.ROUND_LATER, mSettingsPreferences.getInt("MinchaGedola", -1)));
         zmanim.add(new ZmanListEntry(zmanimNames.getMinchaKetanaString(), mROZmanimCalendar.getMinchaKetana(), SecondTreatment.ROUND_LATER, mSettingsPreferences.getInt("MinchaKetana", -1)));
         zmanim.add(new ZmanListEntry(zmanimNames.getPlagHaminchaString() + " (" + zmanimNames.getHalachaBerurahString() + ")", mROZmanimCalendar.getPlagHamincha(), SecondTreatment.ROUND_LATER, mSettingsPreferences.getInt("PlagHaMinchaHB", -1)));
-        zmanim.add(new ZmanListEntry(zmanimNames.getPlagHaminchaString() + " (" + zmanimNames.getYalkutYosefString() + ")", useAHZmanim ? mROZmanimCalendar.getPlagHaminchaYalkutYosefAmudeiHoraah() : mROZmanimCalendar.getPlagHaminchaYalkutYosef(), SecondTreatment.ROUND_LATER, mSettingsPreferences.getInt("PlagHaMinchaYY", -1)));
+        zmanim.add(new ZmanListEntry(zmanimNames.getPlagHaminchaString() + " (" + zmanimNames.getYalkutYosefString() + ")", mROZmanimCalendar.getPlagHaminchaYalkutYosef(), SecondTreatment.ROUND_LATER, mSettingsPreferences.getInt("PlagHaMinchaYY", -1)));
         if ((mJewishDateInfo.getJewishCalendar().hasCandleLighting() &&
                 !mJewishDateInfo.getJewishCalendar().isAssurBemelacha()) ||
                 mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY) {
@@ -96,10 +95,10 @@ public class ZmanimFactory {
                     Set<String> stringSet = mSettingsPreferences.getStringSet("displayRTOrShabbatRegTime", null);
                     if (stringSet != null) {
                         if (stringSet.contains("Show Regular Minutes")) {
-                            addShabbatEndsZman(zmanim, mSettingsPreferences, mROZmanimCalendar, mJewishDateInfo, mSharedPreferences.getBoolean("isZmanimInHebrew", false), useAHZmanim, zmanimNames, false, true);
+                            addShabbatEndsZman(zmanim, mSettingsPreferences, mROZmanimCalendar, mJewishDateInfo, mSharedPreferences.getBoolean("isZmanimInHebrew", false), zmanimNames, false, true);
                         }
                         if (stringSet.contains("Show Rabbeinu Tam")) {
-                            addRTZman(zmanim, mSettingsPreferences, mROZmanimCalendar, zmanimNames, useAHZmanim ,true);
+                            addRTZman(zmanim, mSettingsPreferences, mROZmanimCalendar, zmanimNames ,true);
                         }
                     }
                 }
@@ -113,8 +112,8 @@ public class ZmanimFactory {
         zmanim.add(new ZmanListEntry(zmanimNames.getSunsetString(), mROZmanimCalendar.getSunset(), SecondTreatment.ROUND_EARLIER, mSettingsPreferences.getInt("Shkia", 15)));
 
         ZmanListEntry[] nightfallTimes = new ZmanListEntry[2];
-        nightfallTimes[0] = new ZmanListEntry(zmanimNames.getTzaitHacochavimString(), useAHZmanim ? mROZmanimCalendar.getTzeitAmudeiHoraah() : mROZmanimCalendar.getTzeit(), SecondTreatment.ROUND_LATER, mSettingsPreferences.getInt("TzeitHacochavim", 15));
-        nightfallTimes[1] = new ZmanListEntry(zmanimNames.getTzaitHacochavimString() + " " + zmanimNames.getLChumraString(), useAHZmanim ? mROZmanimCalendar.getTzeitAmudeiHoraahLChumra() : mROZmanimCalendar.getTzaitTaanit(), SecondTreatment.ROUND_LATER, mSettingsPreferences.getInt("TzeitHacochavimLChumra", 15));
+        nightfallTimes[0] = new ZmanListEntry(zmanimNames.getTzaitHacochavimString(), mROZmanimCalendar.getTzeit(), SecondTreatment.ROUND_LATER, mSettingsPreferences.getInt("TzeitHacochavim", 15));
+        nightfallTimes[1] = new ZmanListEntry(zmanimNames.getTzaitHacochavimString() + " " + zmanimNames.getLChumraString(), mROZmanimCalendar.isUseAmudehHoraah() ? mROZmanimCalendar.getTzeitAmudeiHoraahLChumra() : mROZmanimCalendar.getTzaitTaanit(), SecondTreatment.ROUND_LATER, mSettingsPreferences.getInt("TzeitHacochavimLChumra", 15));
 
         for (ZmanListEntry nightfallTime : nightfallTimes) {
             if (mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting())
@@ -127,34 +126,36 @@ public class ZmanimFactory {
                 mJewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
             if (mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) != Calendar.FRIDAY) {// we already added Candles
                 if (mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {// Shabbat going into Yom Tov
-                    addShabbatEndsZman(zmanim, mSettingsPreferences, mROZmanimCalendar, mJewishDateInfo, mSharedPreferences.getBoolean("isZmanimInHebrew", false), useAHZmanim, zmanimNames, true, false);
+                    addShabbatEndsZman(zmanim, mSettingsPreferences, mROZmanimCalendar, mJewishDateInfo, mSharedPreferences.getBoolean("isZmanimInHebrew", false), zmanimNames, true, false);
                 } else {// Yom Tov going into Yom Tov
-                    zmanim.add(new ZmanListEntry(zmanimNames.getCandleLightingString(), useAHZmanim ? mROZmanimCalendar.getTzeitAmudeiHoraahLChumra() : mROZmanimCalendar.getTzaitTaanit(), SecondTreatment.ROUND_LATER, mSettingsPreferences.getInt("TzeitHacochavimLChumra", 15)));
+                    zmanim.add(new ZmanListEntry(zmanimNames.getCandleLightingString(), mROZmanimCalendar.isUseAmudehHoraah() ? mROZmanimCalendar.getTzeitAmudeiHoraahLChumra() : mROZmanimCalendar.getTzaitTaanit(), SecondTreatment.ROUND_LATER, mSettingsPreferences.getInt("TzeitHacochavimLChumra", 15)));
                 }
             }
         }
         if (mJewishDateInfo.getJewishCalendar().isTaanis() && !mJewishDateInfo.getJewishCalendar().isYomKippur()) {
-            ZmanListEntry fastEnds = new ZmanListEntry(zmanimNames.getTzaitString() + zmanimNames.getTaanitString() + zmanimNames.getEndsString(), useAHZmanim ? mROZmanimCalendar.getTzeitAmudeiHoraahLChumra() : mROZmanimCalendar.getTzaitTaanit(), SecondTreatment.ROUND_LATER, mSettingsPreferences.getInt("FastEnd", 15));
+            ZmanListEntry fastEnds = new ZmanListEntry(zmanimNames.getTzaitString() + zmanimNames.getTaanitString() + zmanimNames.getEndsString(), mROZmanimCalendar.isUseAmudehHoraah() ? mROZmanimCalendar.getTzeitAmudeiHoraahLChumra() : mROZmanimCalendar.getTzaitTaanit(), SecondTreatment.ROUND_LATER, mSettingsPreferences.getInt("FastEnd", 15));
             fastEnds.setNoteworthyZman(true);
             zmanim.add(fastEnds);
         }
         if (mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting()) {
-            addShabbatEndsZman(zmanim, mSettingsPreferences, mROZmanimCalendar, mJewishDateInfo, mSharedPreferences.getBoolean("isZmanimInHebrew", false), useAHZmanim, zmanimNames, false, false);
-            addRTZman(zmanim, mSettingsPreferences, mROZmanimCalendar, zmanimNames, useAHZmanim, false);
+            addShabbatEndsZman(zmanim, mSettingsPreferences, mROZmanimCalendar, mJewishDateInfo, mSharedPreferences.getBoolean("isZmanimInHebrew", false), zmanimNames, false, false);
+            addRTZman(zmanim, mSettingsPreferences, mROZmanimCalendar, zmanimNames, false);
         } else if (mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY) {// always add RT for shabbat
-            addRTZman(zmanim, mSettingsPreferences, mROZmanimCalendar, zmanimNames, useAHZmanim, false);
+            addRTZman(zmanim, mSettingsPreferences, mROZmanimCalendar, zmanimNames, false);
         } else if (mSettingsPreferences.getBoolean("AlwaysShowRT", false)) {
             if (!(mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting())) {//if we want to always show the zman for RT, we can just NOT the previous cases where we do show it
-                addRTZman(zmanim, mSettingsPreferences, mROZmanimCalendar, zmanimNames, useAHZmanim, false);
+                addRTZman(zmanim, mSettingsPreferences, mROZmanimCalendar, zmanimNames, false);
             }
         }
         zmanim.add(new ZmanListEntry(zmanimNames.getChatzotLaylaString(), mROZmanimCalendar.getSolarMidnight(), SecondTreatment.ROUND_LATER, mSettingsPreferences.getInt("NightChatzot", -1)));
     }
 
-    private static void addRTZman(List<ZmanListEntry> zmanim, SharedPreferences mSettingsPreferences, ROZmanimCalendar mROZmanimCalendar, ZmanimNames zmanimNames, boolean useAHZmanim, boolean isForTomorrow) {
+    private static void addRTZman(List<ZmanListEntry> zmanim, SharedPreferences mSettingsPreferences, ROZmanimCalendar mROZmanimCalendar, ZmanimNames zmanimNames, boolean isForTomorrow) {
         ZmanListEntry rt = new ZmanListEntry(
                 zmanimNames.getRTString() + (isForTomorrow ? zmanimNames.getMacharString() : ""),
-                useAHZmanim && !mSettingsPreferences.getBoolean("overrideRTZman", false) ? mROZmanimCalendar.getTzais72ZmanisAmudeiHoraahLkulah() : mROZmanimCalendar.getTzais72Zmanis(),
+                mSettingsPreferences.getBoolean("overrideRTZman", false) ?
+                    mROZmanimCalendar.getTzais72ForceRegZmanis()
+                    : mROZmanimCalendar.isUseAmudehHoraah() ? mROZmanimCalendar.getTzais72ZmanisAmudeiHoraahLkulah() : mROZmanimCalendar.getTzais72Zmanis(),
                 mSettingsPreferences.getBoolean("RoundUpRT", true) ? SecondTreatment.ROUND_LATER : SecondTreatment.ROUND_EARLIER,
                 mSettingsPreferences.getInt("RT", -1)
         );
@@ -163,9 +164,9 @@ public class ZmanimFactory {
         zmanim.add(rt);
     }
 
-    private static void addShabbatEndsZman(List<ZmanListEntry> zmanim, SharedPreferences mSettingsPreferences, ROZmanimCalendar mROZmanimCalendar, JewishDateInfo mJewishDateInfo, boolean mIsZmanimInHebrew, boolean useAHZmanim, ZmanimNames zmanimNames, boolean isForCandleLigthting, boolean isForTomorrow) {
+    private static void addShabbatEndsZman(List<ZmanListEntry> zmanim, SharedPreferences mSettingsPreferences, ROZmanimCalendar mROZmanimCalendar, JewishDateInfo mJewishDateInfo, boolean mIsZmanimInHebrew, ZmanimNames zmanimNames, boolean isForCandleLigthting, boolean isForTomorrow) {
         ZmanListEntry endShabbat;
-        if (useAHZmanim) {
+        if (mROZmanimCalendar.isUseAmudehHoraah()) {
             endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString() + " (7.165°)", mROZmanimCalendar.getTzaitShabbatAmudeiHoraah(), SecondTreatment.ROUND_LATER, mSettingsPreferences.getInt("ShabbatEnd", -1));
         } else {
             endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString()
