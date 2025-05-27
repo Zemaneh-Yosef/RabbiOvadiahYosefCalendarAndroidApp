@@ -399,7 +399,7 @@ public class SiddurFragment extends Fragment {
             }
 
             new MaterialAlertDialogBuilder(mContext)
-                    .setTitle(Utils.isLocaleHebrew() ? "בחר מסכתות" : "Choose Masechtot")
+                    .setTitle(Utils.isLocaleHebrew() ? "בחר מסכתות" : "Choose Masekhtot")
                     .setMultiChoiceItems(masechtosArray, checkedItems, (dialog, which, isChecked) -> checkedItems[which] = isChecked)
                     .setPositiveButton(mContext.getString(R.string.ok), (dialog, which) -> {
                         List<String> selectedMasechtos = new ArrayList<>();
