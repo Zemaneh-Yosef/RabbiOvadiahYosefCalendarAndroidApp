@@ -18,12 +18,6 @@ import java.io.IOException;
 public class ChaiTablesScraper extends Thread {
 
     /**
-     * The result of the highest point of elevation from the chai tables website.
-     * @deprecated This is no longer used because the chai tables website did not provide the highest point of elevation.
-     */
-    private double mResult;
-
-    /**
      * The URL to scrape, this must be set before we can scrape any webpage.
      */
     private String mUrl;
@@ -40,13 +34,6 @@ public class ChaiTablesScraper extends Thread {
      * Jewish Date to check the time of the tables
      */
     private JewishDate jewishDate;
-
-    /**
-     * Boolean that you can set to only download the tables and not the elevation data
-     * @see #writeZmanimTableToFile()
-     * @deprecated This is no longer used because the chai tables website did not provide the highest point of elevation.
-     */
-    private boolean mOnlyDownloadTable;
 
     /**
      * Boolean that you can set to only download the tables and not the elevation data
@@ -82,16 +69,6 @@ public class ChaiTablesScraper extends Thread {
     /**
      * The setter method for whether or not to download only the table.
      *
-     * @param onlyDownloadTable boolean whether you want to only download the table
-     * @deprecated This is no longer needed.
-     */
-    public void setOnlyDownloadTable(boolean onlyDownloadTable) {
-        mOnlyDownloadTable = onlyDownloadTable;
-    }
-
-    /**
-     * The setter method for whether or not to download only the table.
-     *
      * @param url the url of the chai tables website
      * @param externalFilesDir the directory where to save the tables
      * @param jewishDate the jewish date/year to save the tables
@@ -109,16 +86,6 @@ public class ChaiTablesScraper extends Thread {
      */
     public void setJewishDate(JewishDate jewishDate) {
         this.jewishDate = jewishDate;
-    }
-
-    /**
-     * The getter for the result of the elevation
-     *
-     * @return the double value of the result from the tables
-     * @deprecated This is no longer used.
-     */
-    public double getResult() {
-        return mResult;
     }
 
     /**
