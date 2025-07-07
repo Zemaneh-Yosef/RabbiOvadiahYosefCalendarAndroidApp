@@ -52,7 +52,7 @@ class MainTileService : TileService() {
     }
 
     override fun onTileRequest(requestParams: RequestBuilders.TileRequest): ListenableFuture<Tile> =
-        Futures.immediateFuture(getNextUpcomingZman(applicationContext)?.zman?.let {
+        getNextUpcomingZman(applicationContext)?.zman?.let {
             Tile.Builder()
                 .setResourcesVersion(RESOURCES_VERSION)
                 .setFreshnessIntervalMillis(it.time - Date().time + 100) // add 100 just in case
@@ -79,8 +79,11 @@ class MainTileService : TileService() {
                         .setColor(argb(0xFFFFFFFF.toInt()))
                         .build())
                 ).build()
-        }
-        )
+        }?.let {
+            Futures.immediateFuture(
+                it
+            )
+        }!!
 
     override fun onTileResourcesRequest(requestParams: RequestBuilders.ResourcesRequest): ListenableFuture<ResourceBuilders.Resources> =
         Futures.immediateFuture(

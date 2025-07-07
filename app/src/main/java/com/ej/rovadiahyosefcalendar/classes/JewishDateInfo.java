@@ -894,7 +894,7 @@ public class JewishDateInfo {
     /**
      * Returns true if for the current date (i.e. the night before) we say Tikkun Chatzot.
      * @return Returns true if for the current date (i.e. the night before) we say Tikkun Chatzot
-     * @see #isOnlyTikkunLeiaSaid(boolean, boolean)
+     * @see #isOnlyTikkunLeiaSaid(boolean)
      */
     public boolean isNightTikkunChatzotSaid() {
         // These are all days that Tikkun Chatzot is not said at all, we NOT it to know if Tikkun Chatzot IS said
@@ -912,7 +912,7 @@ public class JewishDateInfo {
      * until sunset.
      * @return Returns true if for the current date (daytime) we say Tikkun Chatzot (Tikkun Rachel)
      * @see #is3Weeks()
-     * @see #isOnlyTikkunLeiaSaid(boolean, boolean)
+     * @see #isOnlyTikkunLeiaSaid(boolean)
      */
     public boolean isDayTikkunChatzotSaid() {
         // Tikkun Rachel is said during the daytime for the three weeks, but not in these cases. Tikkun Rachel IS said on Erev Tisha Beav
@@ -928,22 +928,19 @@ public class JewishDateInfo {
      * prayers that praise Hashem for his glory. It is usually not skipped, however, there are exceptions like Tisha Beav night.
      * @return Returns true if for the current date (i.e. the night before) we say the SECOND part of Tikkun Chatzot i.e. Tikkun Leia
      */
-    public boolean isOnlyTikkunLeiaSaid(boolean forNightTikkun, boolean isTikkunChatzotSaid) {
+    public boolean isOnlyTikkunLeiaSaid(boolean forNightTikkun) {
         if (forNightTikkun) {
-            if (isTikkunChatzotSaid) {
-                // These are days where we ONLY say Tikkun Leia
-                return (jewishCalendar.isAseresYemeiTeshuva() ||
-                        jewishCalendar.isCholHamoedSuccos() ||
-                        jewishCalendar.getDayOfOmer() != -1 ||
-                        (jewishCalendar.getInIsrael() && isShmitaYear()) ||
-                        getIsTachanunSaid().equals("No Tachanun today") || getIsTachanunSaid().equals("לא אומרים תחנון") ||
-                        isAfterTheMoladAndBeforeRoshChodesh());
-                // Tikkun Rachel is also skipped in the house of a Mourner, Chatan, or Brit Milah (Specifically the father of the boy)
-            }
+            // These are days where we ONLY say Tikkun Leia
+            return (jewishCalendar.isAseresYemeiTeshuva() ||
+                    jewishCalendar.isCholHamoedSuccos() ||
+                    jewishCalendar.getDayOfOmer() != -1 ||
+                    (jewishCalendar.getInIsrael() && isShmitaYear()) ||
+                    getIsTachanunSaid().equals("No Tachanun today") || getIsTachanunSaid().equals("לא אומרים תחנון") ||
+                    isAfterTheMoladAndBeforeRoshChodesh());
+            // Tikkun Rachel is also skipped in the house of a Mourner, Chatan, or Brit Milah (Specifically the father of the boy)
         } else { // for day tikkun, we do not say Tikkun Rachel if there is no tachanun
             return getIsTachanunSaid().equals("No Tachanun today") || getIsTachanunSaid().equals("לא אומרים תחנון");
         }
-        return false;
     }
 
     /**

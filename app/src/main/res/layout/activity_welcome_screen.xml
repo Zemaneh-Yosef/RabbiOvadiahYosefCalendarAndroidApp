@@ -18,13 +18,18 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
             android:orientation="vertical">
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
 
             <!-- Logo -->
             <ImageView
@@ -98,16 +103,23 @@
                     android:textSize="24sp" />
             </LinearLayout>
 
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
             <!-- "Get Started" Button -->
-            <Button
+            <com.royrodriguez.transitionbutton.TransitionButton
                 android:id="@+id/getStartedButton"
-                android:layout_width="320dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="40dp"
-                android:backgroundTint="@color/light_blue"
                 android:text="@string/get_started"
                 android:textColor="@android:color/white"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:background="@drawable/button_square_background"
+                android:backgroundTint="@null"
+                app:defaultColor="@color/light_blue"
+                app:loaderColor="@android:color/white" />
 
         </LinearLayout>
     </ScrollView>
