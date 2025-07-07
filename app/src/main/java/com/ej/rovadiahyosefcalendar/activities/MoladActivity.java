@@ -39,7 +39,7 @@ public class MoladActivity extends AppCompatActivity {
     private final JewishCalendar mJewishCalendar = new JewishCalendar();
     private SimpleDateFormat mSDF = new SimpleDateFormat("EEE MMM d h:mm:ss aa", Locale.getDefault());
     private String[] mHebrewMonths = { "Nissan", "Iyar", "Sivan", "Tammuz", "Av",
-            "Elul", "Tishri", "Cheshvan", "Kislev", "Tevet", "Shevat", "Adar", "Adar II", "Adar I"};
+            "Elul", "Tishri", "Ḥeshvan", "Kislev", "Tevet", "Shevat", "Adar", "Adar II", "Adar I"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

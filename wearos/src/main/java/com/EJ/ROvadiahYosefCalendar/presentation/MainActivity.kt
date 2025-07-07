@@ -98,6 +98,7 @@ import com.EJ.ROvadiahYosefCalendar.classes.Utils
 import com.EJ.ROvadiahYosefCalendar.classes.ZmanListEntry
 import com.EJ.ROvadiahYosefCalendar.classes.ZmanimFactory.addZmanim
 import com.EJ.ROvadiahYosefCalendar.classes.ZmanimNotifications
+import com.EJ.ROvadiahYosefCalendar.classes.secondTreatment
 import com.EJ.ROvadiahYosefCalendar.presentation.theme.DarkGray
 import com.EJ.ROvadiahYosefCalendar.presentation.theme.RabbiOvadiahYosefCalendarTheme
 import com.EJ.ROvadiahYosefCalendar.tile.MainTileService
@@ -155,9 +156,9 @@ class MainActivity : ComponentActivity() {
     private var mLastTimeUserWasInApp: Date = Date()
     private val mHebrewDateFormatter = HebrewDateFormatter()
     private val mZmanimFormatter = ZmanimFormatter(TimeZone.getDefault())
-    private lateinit var zmanimFormat: SimpleDateFormat
-    private lateinit var visibleSunriseFormat: SimpleDateFormat
-    private lateinit var roundUpFormat: SimpleDateFormat
+    private lateinit var yesSecondsDFormat: SimpleDateFormat
+    private lateinit var noSecondsDFormat: SimpleDateFormat
+    private var showSeconds = false
     private val mHandler: Handler? = null
     private val dafYomiStartDate: Calendar = GregorianCalendar(1923, Calendar.SEPTEMBER, 11)
     private val dafYomiYerushalmiStartDate: Calendar = GregorianCalendar(1980, Calendar.FEBRUARY, 2)
@@ -481,37 +482,19 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun setDateFormats() {
-        zmanimFormat = if (Locale.getDefault().getDisplayLanguage(Locale("en", "US")) == "Hebrew") {
-            if (sharedPref.getBoolean("ShowSeconds", false)) {
-                SimpleDateFormat("H:mm:ss", Locale.getDefault())
-            } else {
-                SimpleDateFormat("H:mm", Locale.getDefault())
-            }
-        } else {
-            if (sharedPref.getBoolean("ShowSeconds", false)) {
-                SimpleDateFormat("h:mm:ss aa", Locale.getDefault())
-            } else {
-                SimpleDateFormat("h:mm aa", Locale.getDefault())
-            }
-        }
-        zmanimFormat.timeZone = mROZmanimCalendar.geoLocation.timeZone
+        var secondFormatPattern = "H:mm:ss"
+        if (Locale.getDefault().getDisplayLanguage(Locale("en", "US")) == "Hebrew")
+            secondFormatPattern = secondFormatPattern.lowercase() + "aa"
+        yesSecondsDFormat = SimpleDateFormat(secondFormatPattern, Locale.getDefault())
+        yesSecondsDFormat.timeZone = mROZmanimCalendar.geoLocation.timeZone
 
-        visibleSunriseFormat =
-            if (Locale.getDefault().getDisplayLanguage(Locale("en", "US")) == "Hebrew") {
-                SimpleDateFormat("H:mm:ss", Locale.getDefault())
-            } else {
-                SimpleDateFormat("h:mm:ss aa", Locale.getDefault())
-            }
-        visibleSunriseFormat.timeZone = mROZmanimCalendar.geoLocation.timeZone
+        showSeconds = sharedPref.getBoolean("ShowSeconds", false)
 
-        if (Locale.getDefault().getDisplayLanguage(Locale("en", "US")) == "Hebrew") {
-            roundUpFormat = SimpleDateFormat("H:mm", Locale.getDefault())
-            roundUpFormat.timeZone = mROZmanimCalendar.geoLocation.timeZone
-        } else {
-            roundUpFormat = SimpleDateFormat("h:mm aa", Locale.getDefault())
-            roundUpFormat.timeZone = mROZmanimCalendar.geoLocation.timeZone
-        }
-        roundUpFormat.timeZone = mROZmanimCalendar.geoLocation.timeZone
+        var noSecondFormatPattern = "H:mm"
+        if (Locale.getDefault().getDisplayLanguage(Locale("en", "US")) == "Hebrew")
+            noSecondFormatPattern = secondFormatPattern.lowercase() + "aa"
+        noSecondsDFormat = SimpleDateFormat(noSecondFormatPattern, Locale.getDefault())
+        noSecondsDFormat.timeZone = mROZmanimCalendar.geoLocation.timeZone
     }
 
     private fun updateZmanimList() {
@@ -673,7 +656,7 @@ class MainActivity : ComponentActivity() {
                                     mJewishDateInfo.jewishCalendar
                                 ).daf
                             ),
-                    mJewishDateInfo.jewishCalendar.gregorianCalendar.time, false
+                    mJewishDateInfo.jewishCalendar.gregorianCalendar.time, secondTreatment.ALWAYS_DISPLAY
                 )
             )
         }
@@ -1229,14 +1212,23 @@ class MainActivity : ComponentActivity() {
                         items(zmanimList.size) { index ->
                             if (refreshing.not()) {
                                 if (zmanimList[index].isZman) {
-                                    val zmanTime: String =
-                                        if (zmanimList[index].isVisibleSunriseZman) {
-                                            visibleSunriseFormat.format(zmanimList[index].zman)
-                                        } else if (zmanimList[index].isRTZman) { // we already checked and set if the rounded up format should be used
-                                            roundUpFormat.format(zmanimList[index].zman)
-                                        } else { // just format it normally
-                                            zmanimFormat.format(zmanimList[index].zman)
-                                        }
+                                    val zmanTime: String
+                                    if (showSeconds || zmanimList[index].secondTreatment == secondTreatment.ALWAYS_DISPLAY)
+                                        zmanTime = yesSecondsDFormat.format(zmanimList[index].zman)
+                                    else {
+                                        // I would normally use the internal .getSeconds() function on the Date itself
+                                        // but Android Studio complains that it's deprecated
+                                        // https://stackoverflow.com/a/70448399
+                                        val calendar = Calendar.getInstance()
+                                        calendar.time = zmanimList[index].zman
+
+                                        if (calendar[Calendar.SECOND] > 40 || calendar[Calendar.SECOND] > 20 && zmanimList[index].secondTreatment === secondTreatment.ROUND_LATER)
+                                            calendar.add(Calendar.MINUTE, 1)
+
+                                        val zmanDate = calendar.time
+                                        zmanTime = noSecondsDFormat.format(zmanDate)
+                                    }
+
                                     val zmanTitleAndTime: String =
                                         if (sharedPref.getBoolean("isZmanimInHebrew", false)) {
                                             zmanTime + " :" + zmanimList[index].title
