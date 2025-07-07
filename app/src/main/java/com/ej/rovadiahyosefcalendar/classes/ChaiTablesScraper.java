@@ -18,6 +18,12 @@ import java.io.IOException;
 public class ChaiTablesScraper extends Thread {
 
     /**
+     * The result of the highest point of elevation from the chai tables website.
+     * @apiNote This is no longer used because the chai tables website did not provide the highest point of elevation.
+     */
+    private double mResult;
+
+    /**
      * The URL to scrape, this must be set before we can scrape any webpage.
      */
     private String mUrl;
@@ -34,6 +40,13 @@ public class ChaiTablesScraper extends Thread {
      * Jewish Date to check the time of the tables
      */
     private JewishDate jewishDate;
+
+    /**
+     * Boolean that you can set to only download the tables and not the elevation data
+     * @see #writeZmanimTableToFile()
+     * @apiNote This is no longer used because the chai tables website did not provide the highest point of elevation.
+     */
+    private boolean mOnlyDownloadTable;
 
     /**
      * Boolean that you can set to only download the tables and not the elevation data
@@ -69,6 +82,16 @@ public class ChaiTablesScraper extends Thread {
     /**
      * The setter method for whether or not to download only the table.
      *
+     * @param onlyDownloadTable boolean whether you want to only download the table
+     * @apiNote This is no longer needed.
+     */
+    public void setOnlyDownloadTable(boolean onlyDownloadTable) {
+        mOnlyDownloadTable = onlyDownloadTable;
+    }
+
+    /**
+     * The setter method for whether or not to download only the table.
+     *
      * @param url the url of the chai tables website
      * @param externalFilesDir the directory where to save the tables
      * @param jewishDate the jewish date/year to save the tables
@@ -89,6 +112,16 @@ public class ChaiTablesScraper extends Thread {
     }
 
     /**
+     * The getter for the result of the elevation
+     *
+     * @return the double value of the result from the tables
+     * @apiNote This is no longer used.
+     */
+    public double getResult() {
+        return mResult;
+    }
+
+    /**
      * This is a convenience method that automatically searches the URL passed in and makes sure
      * that the page actually has the elevation data. The chai table website has 6 different options
      * for which type of sunrise/sunset table you can choose from. Astronomical, mishor (sea level,
@@ -96,7 +129,7 @@ public class ChaiTablesScraper extends Thread {
      * tables contain the elevation data for whatever reason. Therefore, to help the user out, I
      * simply understood that I can replace whatever option they choose with the correct webpage.
      * All they need to do is choose the city, and it doesn't matter which table they choose.
-     * @deprecated This is no longer used because the elevation on the chai tables website is NOT the highest point of elevation in the city.
+     * @apiNote This is no longer used because the elevation on the chai tables website is NOT the highest point of elevation in the city. Rather some random number chosen off of Google maps
      */
     private void assertElevationURL() {
         if (mUrl.contains("&cgi_types=0")) {
@@ -150,7 +183,7 @@ public class ChaiTablesScraper extends Thread {
      *
      * @return a double containing the highest elevation of the city in meters
      * @throws IOException because of the Jsoup API if an error occurs
-     * @deprecated This is no longer used because the elevation on the chai tables website is NOT the highest point of elevation in the city.
+     * @apiNote This is no longer used because the elevation on the chai tables website is NOT the highest point of elevation in the city.
      */
     public double getElevationData() throws IOException {
         assertElevationURL();
@@ -189,7 +222,7 @@ public class ChaiTablesScraper extends Thread {
      *
      * @param s a string containing the chai tables webpage
      * @return a double containing the highest elevation of the city in meters
-     * @deprecated This is no longer used because the elevation on the chai tables website is NOT the highest point of elevation in the city like
+     * @apiNote This is no longer used because the elevation on the chai tables website is NOT the highest point of elevation in the city like
      * I originally assumed. Rather it was an arbitrary number chosen at random.
      */
     private double findElevation(String s) {

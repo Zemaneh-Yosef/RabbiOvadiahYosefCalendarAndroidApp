@@ -3,19 +3,23 @@ package com.ej.rovadiahyosefcalendar.activities;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSharedPreferences;
 
 import android.content.Intent;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.widget.Button;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.royrodriguez.transitionbutton.TransitionButton;
 
 public class WelcomeScreenActivity extends AppCompatActivity {
 
@@ -48,10 +52,25 @@ public class WelcomeScreenActivity extends AppCompatActivity {
                 })
                 .create()
                 .show());
-        Button getStarted = findViewById(R.id.getStartedButton);
+        TransitionButton getStarted = findViewById(R.id.getStartedButton);
+        GradientDrawable squareBackground = new GradientDrawable();
+        squareBackground.setColor(ContextCompat.getColor(this, R.color.light_blue)); // or your app color
+        squareBackground.setCornerRadius(0f); // removes rounding
+
+        getStarted.setBackground(squareBackground);
         getStarted.setOnClickListener(l -> {
-            startActivity(new Intent(getApplicationContext(), GetUserLocationWithMapActivity.class));
-            finish();
+            getStarted.setText("");
+            getStarted.stopAnimation(TransitionButton.StopAnimationStyle.EXPAND, () -> {
+                startActivity(new Intent(getApplicationContext(), GetUserLocationWithMapActivity.class));
+                finish();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, android.R.anim.fade_in, android.R.anim.fade_out, 0);
+                } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.TIRAMISU) {
+                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out, 0);
+                } else {
+                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                }
+            });
         });
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {

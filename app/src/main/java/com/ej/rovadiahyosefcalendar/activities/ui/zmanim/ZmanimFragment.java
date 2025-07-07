@@ -49,7 +49,6 @@ import android.os.PowerManager;
 import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -64,6 +63,7 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
@@ -143,7 +143,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private View mLayout;
     private TextView mShabbatModeBanner;
     private RecyclerView mMainRecyclerView;
-    private RecyclerView mDummyRecyclerView;
     private Button mNextDate;
     private Button mPreviousDate;
     private Button mCalendarButton;
@@ -254,6 +253,12 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         return root;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        setupButtons();
+    }
+
     private void initNotifResult() {
         sNotificationLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -280,7 +285,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (sLatitude != 0 && sLongitude != 0) {// the values are updated, the accept method will not be called
             resolveElevationAndVisibleSunrise(() -> {
                 instantiateZmanimCalendar();
-                setZmanimLanguageBools();
+                setZmanimLanguageBooleans();
                 setNextUpcomingZman();
                 if (sSharedPreferences.getBoolean("weeklyMode", false)) {
                     showWeeklyTextViews();
@@ -476,10 +481,10 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (mIsZmanimInHebrew) {
             mMainRecyclerView.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         }
-        mDummyRecyclerView = binding.dummyRV;
-        mDummyRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
-        mDummyRecyclerView.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
-        mDummyRecyclerView.setAdapter(new DummyZmanAdapter(30));
+        RecyclerView dummyRecyclerView = binding.dummyRV;
+        dummyRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+        dummyRecyclerView.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
+        dummyRecyclerView.setAdapter(new DummyZmanAdapter(30));
     }
 
     private void checkIfUserIsInIsraelOrNot() {
@@ -498,6 +503,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                             sSharedPreferences.edit().putBoolean("useElevation", true).apply();
                             sSettingsPreferences.edit().putBoolean("LuachAmudeiHoraah", false).apply();
                             Toast.makeText(mContext, R.string.settings_updated, Toast.LENGTH_SHORT).show();
+                            instantiateZmanimCalendar();
                             if (sSharedPreferences.getBoolean("weeklyMode", false)) {
                                 updateWeeklyZmanim();
                             } else {
@@ -522,6 +528,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                             sSharedPreferences.edit().putBoolean("useElevation", false).apply();
                             sSettingsPreferences.edit().putBoolean("LuachAmudeiHoraah", true).apply();
                             Toast.makeText(mContext, R.string.settings_updated, Toast.LENGTH_SHORT).show();
+                            instantiateZmanimCalendar();
                             if (sSharedPreferences.getBoolean("weeklyMode", false)) {
                                 updateWeeklyZmanim();
                             } else {
@@ -699,7 +706,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
     }
 
-    private void setZmanimLanguageBools() {
+    private void setZmanimLanguageBooleans() {
         if (sSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
             mIsZmanimInHebrew = true;
             mIsZmanimEnglishTranslated = false;
@@ -727,9 +734,10 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         mROZmanimCalendar.setCandleLightingOffset(Double.parseDouble(candles));
         String shabbat = sSettingsPreferences.getString("EndOfShabbatOffset", sSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40");
         if (shabbat.isEmpty()) {// for some reason this is happening
-            shabbat = "40";
+            mROZmanimCalendar.setAteretTorahSunsetOffset(sSharedPreferences.getBoolean("inIsrael", false) ? 30 : 40);
+        } else {
+            mROZmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(shabbat));
         }
-        mROZmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(shabbat));
         if (sSharedPreferences.getBoolean("inIsrael", false) && shabbat.equals("40")) {
             mROZmanimCalendar.setAteretTorahSunsetOffset(30);
         }
@@ -1805,7 +1813,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         });
     }
 
-
     /**
      * This method is called when the user clicks on shabbat mode. The main point of this method is to automatically scroll through the list of zmanim
      * and update the date when the time reaches the next date at 12:00:02am. It will also update the shabbat banner to reflect the next day's date.
@@ -1814,7 +1821,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      * @see #startScrollingThread() to start the thread that will scroll through the list of zmanim
      * @see #setShabbatBannerColors(boolean) to set the text of the shabbat banners
      */
-    @SuppressLint("SourceLockedOrientationActivity")
     private void startShabbatMode() {
         if (!sShabbatMode) {
             sShabbatMode = true;
@@ -1828,44 +1834,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 mActivity.getWindow().setHideOverlayWindows(true);
             }
-            WindowManager windowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
             Configuration configuration = getResources().getConfiguration();
-            int rotation = windowManager.getDefaultDisplay().getRotation();
-            // Search for the natural position of the device
-            if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE &&
-                    (rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180) ||
-                    configuration.orientation == Configuration.ORIENTATION_PORTRAIT &&
-                            (rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270)) {
-                switch (rotation) {// Natural position is Landscape
-                    case Surface.ROTATION_0:
-                        mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                        break;
-                    case Surface.ROTATION_90:
-                        mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
-                        break;
-                    case Surface.ROTATION_180:
-                        mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
-                        break;
-                    case Surface.ROTATION_270:
-                        mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                        break;
-                }
-            } else {// Natural position is Portrait
-                switch (rotation) {
-                    case Surface.ROTATION_0:
-                        mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                        break;
-                    case Surface.ROTATION_90:
-                        mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                        break;
-                    case Surface.ROTATION_180:
-                        mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
-                        break;
-                    case Surface.ROTATION_270:
-                        mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
-                        break;
-                }
-            }
             if (binding != null) {
                 TextClock clock = binding.clock;
                 if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -1909,7 +1878,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      * @param isFirstTime if true, the text will be set based on the next day's date, otherwise it will be set based on the current date.
      *                    Since it will be called at 12:00:02am the next day, we do not need to worry about the next day's date.
      */
-    @SuppressLint("SetTextI18n")
     private void setShabbatBannerColors(boolean isFirstTime) {
         if (isFirstTime) {
             mCurrentDateShown.add(Calendar.DATE, 1);
@@ -2020,7 +1988,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawableDark(mCurrentDateShown));
                 break;
             default:
-                mShabbatModeBanner.setText(mContext.getString(R.string.SHABBAT_MODE) +
+                String def = mContext.getString(R.string.SHABBAT_MODE) +
                         "                " +
                         mContext.getString(R.string.SHABBAT_MODE) +
                         "               " +
@@ -2028,7 +1996,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         "               " +
                         mContext.getString(R.string.SHABBAT_MODE) +
                         "               " +
-                        mContext.getString(R.string.SHABBAT_MODE));
+                        mContext.getString(R.string.SHABBAT_MODE);
+                mShabbatModeBanner.setText(def);
                 mShabbatModeBanner.setBackgroundColor(mContext.getColor(R.color.dark_blue));
                 mShabbatModeBanner.setTextColor(mContext.getColor(R.color.white));
                 mCalendarButton.setBackgroundColor(mContext.getColor(R.color.dark_blue));
@@ -2178,7 +2147,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             return;
         }
         mJewishDateInfo.getJewishCalendar().setInIsrael(sSharedPreferences.getBoolean("inIsrael", false));// check if the user changed the inIsrael setting
-        setZmanimLanguageBools();// check if the user changed the zmanim language
+        setZmanimLanguageBooleans();// check if the user changed the zmanim language
         if (sLastTimeUserWasInApp != null) {
             resolveElevationAndVisibleSunrise(() -> {// recreate the zmanim calendar object because it might have changed. Lat, Long, Elevation, or settings might have changed
                 instantiateZmanimCalendar();
@@ -2318,6 +2287,15 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     }
                 });
             }
-        }// if location object is null, we should probably do something, not sure what
+        } else {// if location object is null, we should check the shimmer visibility to see if it was filled by the other request
+            try {
+                Thread.sleep(500);// Let's wait a bit to give the program a chance to update the UI
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            if (binding != null && binding.shimmerLayout.getVisibility() == View.VISIBLE) {
+                mLocationResolver.acquireLatitudeAndLongitude(this);
+            }
+        }
     }
 }

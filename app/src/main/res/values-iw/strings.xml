@@ -136,11 +136,11 @@
 
     <string name="simple_setup">הגדרה פשוטה</string>
 
-    <string name="select_your_country">בחר את המדינה שלך:</string>
+    <string name="select_your_country">בחר המדינה</string>
 
-    <string name="select_your_state">בחר את המדינה שלך:</string>
+    <string name="select_your_state">בחר המדינה</string>
 
-    <string name="select_your_metro_area">בחר את אזור המטרו שלך:</string>
+    <string name="select_your_metro_area">בחר אזור המטרו</string>
 
     <string name="chaitables_instructions">נא להיכנס לאתר chaitables.com וליצור טבלה של השנה הנוכחית עבור האזור שציינת. לאחר מכן העתק את הקישור/כתובת של הטבלה והזן אותה כאן:</string>
 
@@ -696,4 +696,11 @@
     <string name="menorah">חנוכייה</string>
     <string name="sefirat_haomer">ספירת העומר</string>
     <string name="tefilat_haderech">תפלת הדרך</string>
+    <string name="seder_siyum_masechet">סדר סיום מסכת</string>
+    <string name="what_did_you_eat_drink">\?מה אכלת/שתית</string>
+    <string name="wine">יין</string>
+    <string name="_5_grains">חמשת מיני דגן</string>
+    <string name="_7_fruits">זיתים, תמרים, ענבים, תאנים ו/או רימונים</string>
+    <string name="other">אחר</string>
+    <string name="please_select_at_least_one_option">בבקשה בחר לפחות אפשרות אחת</string>
 </resources>
