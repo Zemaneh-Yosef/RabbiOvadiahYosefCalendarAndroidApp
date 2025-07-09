@@ -18,7 +18,8 @@ import com.EJ.ROvadiahYosefCalendar.classes.LocationResolver
 import com.EJ.ROvadiahYosefCalendar.classes.ROZmanimCalendar
 import com.EJ.ROvadiahYosefCalendar.classes.ZmanListEntry
 import com.EJ.ROvadiahYosefCalendar.classes.ZmanimFactory.addZmanim
-import com.EJ.ROvadiahYosefCalendar.classes.secondTreatment
+import com.EJ.ROvadiahYosefCalendar.classes.SecondTreatment
+import com.EJ.ROvadiahYosefCalendar.classes.Utils
 import com.EJ.ROvadiahYosefCalendar.presentation.MainActivity
 import com.kosherjava.zmanim.util.GeoLocation
 import java.text.SimpleDateFormat
@@ -48,7 +49,6 @@ class NextZmanComplicationService : SuspendingComplicationDataSourceService() {
     }
 
     private fun getComplicationData(): ComplicationData {
-        val monochromaticImage: MonochromaticImage?
         val minValue = 0
         val maxValue = 100
         val currentTime = Date().time
@@ -65,7 +65,7 @@ class NextZmanComplicationService : SuspendingComplicationDataSourceService() {
             text = getNextUpcomingZmanTimeAsString(applicationContext)
         ).build()
 
-        monochromaticImage = MonochromaticImage.Builder(
+        val monochromaticImage: MonochromaticImage = MonochromaticImage.Builder(
             image = Icon.createWithResource(this, R.drawable.baseline_av_timer_24),
         ).setAmbientImage(
             ambientImage = Icon.createWithResource(
@@ -104,19 +104,17 @@ class NextZmanComplicationService : SuspendingComplicationDataSourceService() {
 
         if (theZman != null) {
             val zmanTime: String
-            if (showSeconds || theZman.secondTreatment == secondTreatment.ALWAYS_DISPLAY)
+            if (showSeconds || theZman.secondTreatment == SecondTreatment.ALWAYS_DISPLAY)
                 zmanTime = yesSecondFormat.format(theZman.zman)
             else {
-                // I would normally use the internal .getSeconds() function on the Date itself
-                // but Android Studio complains that it's deprecated
-                // https://stackoverflow.com/a/70448399
                 val calendar = Calendar.getInstance()
                 calendar.time = theZman.zman
 
-                if (calendar[Calendar.SECOND] > 40 || calendar[Calendar.SECOND] > 20 && theZman.secondTreatment === secondTreatment.ROUND_LATER)
-                    calendar.add(Calendar.MINUTE, 1)
+                var zmanDate: Date = theZman.zman
+                if (calendar[Calendar.SECOND] > 40 || calendar[Calendar.SECOND] > 20 && theZman.secondTreatment === SecondTreatment.ROUND_LATER) {
+                    zmanDate = Utils.addMinuteToZman(theZman.zman)
+                }
 
-                val zmanDate = calendar.time
                 zmanTime = noSecondFormat.format(zmanDate)
             }
             return zmanTime
@@ -179,16 +177,18 @@ class NextZmanComplicationService : SuspendingComplicationDataSourceService() {
         mROZmanimCalendar.geoLocation.elevation = elevation
 
         var secondFormatPattern = "H:mm:ss"
-        if (Locale.getDefault().getDisplayLanguage(Locale("en", "US")) == "Hebrew")
-            secondFormatPattern = secondFormatPattern.lowercase() + "aa"
+        if (!Utils.isLocaleHebrew()) {
+            secondFormatPattern = "h:mm:ss aa"
+        }
         yesSecondFormat = SimpleDateFormat(secondFormatPattern, Locale.getDefault())
         yesSecondFormat.timeZone = mROZmanimCalendar.geoLocation.timeZone
 
         showSeconds = sharedPref.getBoolean("ShowSeconds", false)
 
         var noSecondFormatPattern = "H:mm"
-        if (Locale.getDefault().getDisplayLanguage(Locale("en", "US")) == "Hebrew")
-            noSecondFormatPattern = secondFormatPattern.lowercase() + "aa"
+        if (!Utils.isLocaleHebrew()) {
+            noSecondFormatPattern = "h:mm aa"
+        }
         noSecondFormat = SimpleDateFormat(noSecondFormatPattern, Locale.getDefault())
         noSecondFormat.timeZone = mROZmanimCalendar.geoLocation.timeZone
 

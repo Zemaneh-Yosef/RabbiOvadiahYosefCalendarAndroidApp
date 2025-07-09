@@ -9,7 +9,7 @@ public class ZmanListEntry {
     private final boolean isZman;
     private boolean isNoteworthyZman;
     private boolean shouldBeDimmed;
-    private secondTreatment secondTreatment;
+    private SecondTreatment secondTreatment;
     private boolean isBirchatHachamahZman;
     private boolean is66MisheyakirZman;
 
@@ -19,7 +19,7 @@ public class ZmanListEntry {
         this.isZman = false;
     }
 
-    public ZmanListEntry(String title, Date zman, secondTreatment secondTreatment) {
+    public ZmanListEntry(String title, Date zman, SecondTreatment secondTreatment) {
         this.title = title;
         this.zman = zman;
         this.isZman = true;
@@ -62,7 +62,7 @@ public class ZmanListEntry {
         this.shouldBeDimmed = shouldBeDimmed;
     }
 
-    public secondTreatment getSecondTreatment() {
+    public SecondTreatment getSecondTreatment() {
         return secondTreatment;
     }
 

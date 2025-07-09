@@ -98,7 +98,7 @@ import com.EJ.ROvadiahYosefCalendar.classes.Utils
 import com.EJ.ROvadiahYosefCalendar.classes.ZmanListEntry
 import com.EJ.ROvadiahYosefCalendar.classes.ZmanimFactory.addZmanim
 import com.EJ.ROvadiahYosefCalendar.classes.ZmanimNotifications
-import com.EJ.ROvadiahYosefCalendar.classes.secondTreatment
+import com.EJ.ROvadiahYosefCalendar.classes.SecondTreatment
 import com.EJ.ROvadiahYosefCalendar.presentation.theme.DarkGray
 import com.EJ.ROvadiahYosefCalendar.presentation.theme.RabbiOvadiahYosefCalendarTheme
 import com.EJ.ROvadiahYosefCalendar.tile.MainTileService
@@ -121,6 +121,8 @@ import java.util.GregorianCalendar
 import java.util.Locale
 import java.util.TimeZone
 import java.util.concurrent.CopyOnWriteArrayList
+import androidx.core.content.edit
+import androidx.core.net.toUri
 
 class MainActivity : ComponentActivity() {
 
@@ -179,11 +181,16 @@ class MainActivity : ComponentActivity() {
                 val message = String(messageEvent.data, StandardCharsets.UTF_8) // convert bytes to String
                 val jsonPreferences = JSONObject(message) // We can just pass that JSON string into the constructor! :)
                 savePreferencesToLocalDevice(jsonPreferences)
-                sharedPref.edit().putBoolean("hasGottenDataFromApp", true).apply()
+                sharedPref.edit { putBoolean("hasGottenDataFromApp", true) }
             }
             if (messageEvent.path == "chaiTable/") {
                 val message = String(messageEvent.data, StandardCharsets.UTF_8) // convert bytes to String
-                sharedPref.edit().putString("chaiTable" + sharedPref.getString("locationName", ""), message).apply() // The location name should be set already from the previous message
+                sharedPref.edit {
+                    putString(
+                        "chaiTable" + sharedPref.getString("locationName", ""),
+                        message
+                    )
+                } // The location name should be set already from the previous message
             }
             updateAppContents() // with the new preferences
         }, this)
@@ -379,7 +386,7 @@ class MainActivity : ComponentActivity() {
             locationResolver.acquireLatitudeAndLongitude()
             resolveElevation()
             initZmanimCalendar()
-            sharedPref.edit().putString("name", sCurrentLocationName).apply()
+            sharedPref.edit { putString("name", sCurrentLocationName) }
             setDateFormats() // should happen after we get the geolocation object because of the timezone
             updateZmanimList()
             setNextUpcomingZman()
@@ -398,7 +405,7 @@ class MainActivity : ComponentActivity() {
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                     if (!sharedPref.getBoolean("hasAskedForNotificationPermissions", false)) {
                         ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1)
-                        sharedPref.edit().putBoolean("hasAskedForNotificationPermissions", true).apply()
+                        sharedPref.edit { putBoolean("hasAskedForNotificationPermissions", true) }
                     }
                 }
             }
@@ -408,7 +415,7 @@ class MainActivity : ComponentActivity() {
                 builder.setMessage(R.string.if_you_would_like_to_receive_zmanim_notifications)
                 builder.setCancelable(false)
                 builder.setPositiveButton(getString(R.string.yes)) { _: DialogInterface?, _: Int ->
-                    sNotificationLauncher?.launch(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:$packageName")))
+                    sNotificationLauncher?.launch(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, "package:$packageName".toUri()))
                 }
                 builder.setNegativeButton(getString(R.string.no)) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
                 if (!isFinishing && !isDestroyed) {
@@ -483,16 +490,18 @@ class MainActivity : ComponentActivity() {
 
     private fun setDateFormats() {
         var secondFormatPattern = "H:mm:ss"
-        if (Locale.getDefault().getDisplayLanguage(Locale("en", "US")) == "Hebrew")
-            secondFormatPattern = secondFormatPattern.lowercase() + "aa"
+        if (!Utils.isLocaleHebrew()) {
+            secondFormatPattern = "h:mm:ss aa"
+        }
         yesSecondsDFormat = SimpleDateFormat(secondFormatPattern, Locale.getDefault())
         yesSecondsDFormat.timeZone = mROZmanimCalendar.geoLocation.timeZone
 
         showSeconds = sharedPref.getBoolean("ShowSeconds", false)
 
         var noSecondFormatPattern = "H:mm"
-        if (Locale.getDefault().getDisplayLanguage(Locale("en", "US")) == "Hebrew")
-            noSecondFormatPattern = secondFormatPattern.lowercase() + "aa"
+        if (!Utils.isLocaleHebrew()) {
+            noSecondFormatPattern = "h:mm aa"
+        }
         noSecondsDFormat = SimpleDateFormat(noSecondFormatPattern, Locale.getDefault())
         noSecondsDFormat.timeZone = mROZmanimCalendar.geoLocation.timeZone
     }
@@ -655,8 +664,7 @@ class MainActivity : ComponentActivity() {
                                 YomiCalculator.getDafYomiBavli(
                                     mJewishDateInfo.jewishCalendar
                                 ).daf
-                            ),
-                    mJewishDateInfo.jewishCalendar.gregorianCalendar.time, secondTreatment.ALWAYS_DISPLAY
+                            )
                 )
             )
         }
@@ -1213,19 +1221,17 @@ class MainActivity : ComponentActivity() {
                             if (refreshing.not()) {
                                 if (zmanimList[index].isZman) {
                                     val zmanTime: String
-                                    if (showSeconds || zmanimList[index].secondTreatment == secondTreatment.ALWAYS_DISPLAY)
+                                    if (showSeconds || zmanimList[index].secondTreatment == SecondTreatment.ALWAYS_DISPLAY)
                                         zmanTime = yesSecondsDFormat.format(zmanimList[index].zman)
                                     else {
-                                        // I would normally use the internal .getSeconds() function on the Date itself
-                                        // but Android Studio complains that it's deprecated
-                                        // https://stackoverflow.com/a/70448399
                                         val calendar = Calendar.getInstance()
                                         calendar.time = zmanimList[index].zman
 
-                                        if (calendar[Calendar.SECOND] > 40 || calendar[Calendar.SECOND] > 20 && zmanimList[index].secondTreatment === secondTreatment.ROUND_LATER)
-                                            calendar.add(Calendar.MINUTE, 1)
+                                        var zmanDate = zmanimList[index].zman
+                                        if (calendar[Calendar.SECOND] > 40 || calendar[Calendar.SECOND] > 20 && zmanimList[index].secondTreatment === SecondTreatment.ROUND_LATER) {
+                                            zmanDate = Utils.addMinuteToZman(zmanimList[index].zman)
+                                        }
 
-                                        val zmanDate = calendar.time
                                         zmanTime = noSecondsDFormat.format(zmanDate)
                                     }
 

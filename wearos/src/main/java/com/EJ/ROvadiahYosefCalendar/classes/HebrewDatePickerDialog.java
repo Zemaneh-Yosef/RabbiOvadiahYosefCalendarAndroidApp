@@ -31,9 +31,9 @@ public class HebrewDatePickerDialog extends Dialog {
     private final NumberPicker mYearPicker;
     DatePickerDialog.OnDateSetListener mListener;
     private String[] mHebrewMonths = {"Nissan", "Iyar", "Sivan", "Tammuz", "Av",
-            "Elul", "Tishri", "Cheshvan", "Kislev", "Tevet", "Shevat", "Adar"};
+            "Elul", "Tishri", "Ḥeshvan", "Kislev", "Tevet", "Shevat", "Adar"};
     private String[] mHebrewMonthsLeap = {"Nissan", "Iyar", "Sivan", "Tammuz", "Av",
-            "Elul", "Tishri", "Cheshvan", "Kislev", "Tevet", "Shevat", "Adar I", "Adar II"};
+            "Elul", "Tishri", "Ḥeshvan", "Kislev", "Tevet", "Shevat", "Adar I", "Adar II"};
 
     public HebrewDatePickerDialog(Activity activity, Context context,
                                   DatePickerDialog.OnDateSetListener listener,

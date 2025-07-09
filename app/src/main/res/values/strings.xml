@@ -457,4 +457,6 @@
    <string name="_7_fruits">Olives, dates, grapes, figs and/or pomegranates</string>
    <string name="other">Other</string>
    <string name="please_select_at_least_one_option">Please select at least one option</string>
+    <string name="post_sunset_date">Post-sunset date:</string>
+   <string name="pre_sunset_date">Pre-sunset date:</string>
 </resources>

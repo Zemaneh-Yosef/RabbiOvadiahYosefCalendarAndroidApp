@@ -13,7 +13,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
-import android.os.Build;
 
 import androidx.preference.PreferenceManager;
 
@@ -98,14 +97,13 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
 
         AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
 
-        for (int i = 0; i < 40; i++) {//we could save the size of the array and get rid of every unique id with that size, but I don't think it will go past 40
+        for (int i = 0; i < 5; i++) {// since we only set a max of 5 zmanim every half an hour, we only need to cancel 5 intents every time
             PendingIntent zmanPendingIntent = PendingIntent.getBroadcast(
                     context.getApplicationContext(),
                     i,
                     new Intent(context, ZmanNotification.class).setAction(String.valueOf(i)),
                     PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
-
-            am.cancel(zmanPendingIntent);//cancel the last zmanim notifications set
+            am.cancel(zmanPendingIntent);
         }
 
         int max = 5;
@@ -113,18 +111,21 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
         for (int i = 0; i < zmanimOver3Days.size(); i++) {
             if (set < max) {
                 if (zmanimOver3Days.get(i).getZman() != null &&
-                        (zmanimOver3Days.get(i).getZman().getTime() - (60_000L * zmanimOver3Days.get(i).getNotificationDelay()) > new Date().getTime())) {
+                        (zmanimOver3Days.get(i).getZman().getTime() - (60_000L * zmanimOver3Days.get(i).getNotificationDelay(mSettingsPreferences)) > new Date().getTime())) {
                     PendingIntent zmanPendingIntent = PendingIntent.getBroadcast(
                             context.getApplicationContext(),
                             set,
                             new Intent(context, ZmanNotification.class)
                                     .setAction(String.valueOf(set))
                                     .putExtra("zman",
-                                            zmanimOver3Days.get(i).getTitle() + ":" + zmanimOver3Days.get(i).getZman().getTime()),//save the zman name and time for the notification e.g. "Chatzot Layla:1331313311"
+                                            zmanimOver3Days.get(i).getTitle() + ":" + zmanimOver3Days.get(i).getZman().getTime()) //save the zman name and time for the notification e.g. "Chatzot Layla:1331313311"
+                                    .putExtra("secondsTreatment", zmanimOver3Days.get(i).getSecondTreatment().getValue()),
                             PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
 
-                    setExactAndAllowWhileIdle(am, zmanimOver3Days.get(i).getZman().getTime() - (60_000L * zmanimOver3Days.get(i).getNotificationDelay()), zmanPendingIntent);
-                    set += 1;
+                    if (zmanimOver3Days.get(i).getNotificationDelay(mSettingsPreferences) != -1) {// only notify if the user wants to be notified i.e. anything greater than -1
+                        setExactAndAllowWhileIdle(am, zmanimOver3Days.get(i).getZman().getTime() - (60_000L * zmanimOver3Days.get(i).getNotificationDelay(mSettingsPreferences)), zmanPendingIntent);
+                        set += 1;
+                    }
                 }
             }
         }

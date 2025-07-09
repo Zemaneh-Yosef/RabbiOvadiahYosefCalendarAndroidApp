@@ -387,13 +387,8 @@ public class SiddurFragment extends Fragment {
 
             mZmanimCalendar = new ROZmanimCalendar(new GeoLocation("", sLatitude, sLongitude, sElevation, TimeZone.getTimeZone((sCurrentTimeZoneID != null && !sCurrentTimeZoneID.isEmpty()) ? sCurrentTimeZoneID : TimeZone.getDefault().getID())));
             mZmanimCalendar.setCalendar(mJewishDateInfo.getJewishCalendar().getGregorianCalendar());
-            mZmanimCalendar.setAmudehHoraah(PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean("LuachAmudeiHoraah", false));
+            mZmanimCalendar.setAmudehHoraah(PreferenceManager.getDefaultSharedPreferences(requireContext()).getBoolean("LuachAmudeiHoraah", false));
             Date tzeit = mZmanimCalendar.getTzeit();
-            if (PreferenceManager.getDefaultSharedPreferences(requireContext()).getBoolean("LuachAmudeiHoraah", false)) {
-                tzeit = mZmanimCalendar.getTzeitAmudeiHoraah();
-            } else {
-                tzeit = mZmanimCalendar.getTzeit();
-            }
             if (new Date().after(tzeit) && new Date().before(mZmanimCalendar.getSolarMidnight())) {
                 if (selichot != null) {
                     selichot.setDimmed(true);

@@ -2,6 +2,7 @@ package com.ej.rovadiahyosefcalendar.activities;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.classes.Utils.dateFormatPattern;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -25,13 +26,17 @@ import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
+import com.ej.rovadiahyosefcalendar.classes.SecondTreatment;
+import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.ej.rovadiahyosefcalendar.classes.ZmanListEntry;
 import com.ej.rovadiahyosefcalendar.classes.ZmanimFactory;
-import com.ej.rovadiahyosefcalendar.classes.SecondTreatment;
+import com.ej.rovadiahyosefcalendar.classes.ZmanimNames;
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
 import com.kosherjava.zmanim.util.GeoLocation;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
@@ -72,19 +77,31 @@ public class ZmanimAppWidget extends AppWidgetProvider {
                 mROZmanimCalendar.setAteretTorahSunsetOffset(30);
             }
             mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false));
-            SimpleDateFormat sZmanimFormat;
-            if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
-                sZmanimFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
-            } else {
-                sZmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
-            }
-            sZmanimFormat.setTimeZone(mROZmanimCalendar.getCalendar().getTimeZone());
+
+            DateFormat noSecondDateFormat = new SimpleDateFormat(dateFormatPattern(false), Locale.getDefault());
+            noSecondDateFormat.setTimeZone(mROZmanimCalendar.getCalendar().getTimeZone()); //set the formatters time zone
+            DateFormat yesSecondDateFormat = new SimpleDateFormat(dateFormatPattern(true), Locale.getDefault());
+            yesSecondDateFormat.setTimeZone(mROZmanimCalendar.getCalendar().getTimeZone()); //set the formatters time zone
 
             String jewishDate = mJewishDateInfo.getJewishCalendar().toString();
             String parsha = mJewishDateInfo.getThisWeeksParsha();
             ZmanListEntry nextUpcomingZman = getNextUpcomingZman(context, appWidgetManager, appWidgetId);
-            String zman = nextUpcomingZman.getTitle();
-            String time = sZmanimFormat.format(nextUpcomingZman.getZman());
+            ZmanimNames zmanimNames = new ZmanimNames(mSharedPreferences.getBoolean("isZmanimInHebrew", false), mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false));
+            String zman = nextUpcomingZman.getTitle()
+                            .replace(zmanimNames.getHalachaBerurahString(), zmanimNames.getAbbreviatedHalachaBerurahString()
+                            .replace(zmanimNames.getYalkutYosefString(), zmanimNames.getAbbreviatedYalkutYosefString()));
+            String time;
+            if (nextUpcomingZman.getSecondTreatment() == SecondTreatment.ALWAYS_DISPLAY || mSettingsPreferences.getBoolean("ShowSeconds", false)) {
+                time = yesSecondDateFormat.format(nextUpcomingZman.getZman());
+            } else {
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(nextUpcomingZman.getZman());
+                if ((calendar.get(Calendar.SECOND) > 40) || (calendar.get(Calendar.SECOND) > 20 && nextUpcomingZman.getSecondTreatment() == SecondTreatment.ROUND_LATER)) {
+                    time = noSecondDateFormat.format(Utils.addMinuteToZman(nextUpcomingZman.getZman()));
+                } else {
+                    time = noSecondDateFormat.format(nextUpcomingZman.getZman());
+                }
+            }
             String tachanun = mJewishDateInfo.getIsTachanunSaid()
                     .replace("No Tachanun today", "No Tachanun")
                     .replace("Tachanun only in the morning", "Tachanun morning only")
@@ -153,19 +170,31 @@ public class ZmanimAppWidget extends AppWidgetProvider {
                         mROZmanimCalendar.setAteretTorahSunsetOffset(30);
                     }
                     mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false));
-                    SimpleDateFormat sZmanimFormat;
-                    if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
-                        sZmanimFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
-                    } else {
-                        sZmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
-                    }
-                    sZmanimFormat.setTimeZone(mROZmanimCalendar.getCalendar().getTimeZone());
+
+                    DateFormat noSecondDateFormat = new SimpleDateFormat(dateFormatPattern(false), Locale.getDefault());
+                    noSecondDateFormat.setTimeZone(mROZmanimCalendar.getCalendar().getTimeZone()); //set the formatters time zone
+                    DateFormat yesSecondDateFormat = new SimpleDateFormat(dateFormatPattern(true), Locale.getDefault());
+                    yesSecondDateFormat.setTimeZone(mROZmanimCalendar.getCalendar().getTimeZone()); //set the formatters time zone
 
                     String jewishDate = mJewishDateInfo.getJewishCalendar().toString();
                     String parsha = mJewishDateInfo.getThisWeeksParsha();
                     ZmanListEntry nextUpcomingZman = getNextUpcomingZman(context, appWidgetManager, appWidgetId);
-                    String zman = nextUpcomingZman.getTitle();
-                    String time = sZmanimFormat.format(nextUpcomingZman.getZman());
+                    ZmanimNames zmanimNames = new ZmanimNames(mSharedPreferences.getBoolean("isZmanimInHebrew", false), mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false));
+                    String zman = nextUpcomingZman.getTitle()
+                                    .replace(zmanimNames.getHalachaBerurahString(), zmanimNames.getAbbreviatedHalachaBerurahString()
+                                    .replace(zmanimNames.getYalkutYosefString(), zmanimNames.getAbbreviatedYalkutYosefString()));
+                    String time;
+                    if (nextUpcomingZman.getSecondTreatment() == SecondTreatment.ALWAYS_DISPLAY || mSettingsPreferences.getBoolean("ShowSeconds", false)) {
+                        time = yesSecondDateFormat.format(nextUpcomingZman.getZman());
+                    } else {
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.setTime(nextUpcomingZman.getZman());
+                        if ((calendar.get(Calendar.SECOND) > 40) || (calendar.get(Calendar.SECOND) > 20 && nextUpcomingZman.getSecondTreatment() == SecondTreatment.ROUND_LATER)) {
+                            time = noSecondDateFormat.format(Utils.addMinuteToZman(nextUpcomingZman.getZman()));
+                        } else {
+                            time = noSecondDateFormat.format(nextUpcomingZman.getZman());
+                        }
+                    }
                     String tachanun = mJewishDateInfo.getIsTachanunSaid()
                             .replace("No Tachanun today", "No Tachanun")
                             .replace("Tachanun only in the morning", "Tachanun morning only")
@@ -218,7 +247,7 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         }
         ZmanListEntry nextZman = ZmanimFactory.getNextUpcomingZman(new GregorianCalendar(), mROZmanimCalendar, mJewishDateInfo, mSettingsPreferences, mSharedPreferences, mIsZmanimInHebrew, mIsZmanimEnglishTranslated);
         if (nextZman == null || nextZman.getZman() == null) {
-            nextZman = new ZmanListEntry("", new Date(System.currentTimeMillis() + 300_000), SecondTreatment.ROUND_EARLIER, 0);// try again in 5 minutes
+            nextZman = new ZmanListEntry("", new Date(System.currentTimeMillis() + 300_000), SecondTreatment.ROUND_EARLIER, "");// try again in 5 minutes
         }
         return nextZman;
     }

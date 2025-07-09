@@ -286,29 +286,30 @@ public class MainFragmentManager extends AppCompatActivity {
     }
 
     private void initZmanimNotificationDefaults() {
-        sSettingsPreferences.edit().putBoolean("zmanim_notifications", true).apply();
-        sSettingsPreferences.edit().putInt("autoDismissNotifications", -1).apply();
-        sSettingsPreferences.edit().putInt("Alot", -1).apply();
-        sSettingsPreferences.edit().putInt("TalitTefilin", -1).apply();
-        sSettingsPreferences.edit().putInt("HaNetz", -1).apply();
-        sSettingsPreferences.edit().putInt("SofZmanShmaMGA", 15).apply();
-        sSettingsPreferences.edit().putInt("SofZmanShmaGRA", 15).apply();
-        sSettingsPreferences.edit().putInt("SofZmanTefila", 15).apply();
-        sSettingsPreferences.edit().putInt("SofZmanAchilatChametz", 15).apply();
-        sSettingsPreferences.edit().putInt("SofZmanBiurChametz", 15).apply();
-        sSettingsPreferences.edit().putInt("Chatzot", 20).apply();
-        sSettingsPreferences.edit().putInt("MinchaGedola", -1).apply();
-        sSettingsPreferences.edit().putInt("MinchaKetana", -1).apply();
-        sSettingsPreferences.edit().putInt("PlagHaMinchaYY", -1).apply();
-        sSettingsPreferences.edit().putInt("PlagHaMinchaHB", -1).apply();
-        sSettingsPreferences.edit().putInt("CandleLighting", 15).apply();
-        sSettingsPreferences.edit().putInt("Shkia", 15).apply();
-        sSettingsPreferences.edit().putInt("TzeitHacochavim", 15).apply();
-        sSettingsPreferences.edit().putInt("TzeitHacochavimLChumra", -1).apply();
-        sSettingsPreferences.edit().putInt("FastEnd", 15).apply();
-        sSettingsPreferences.edit().putInt("ShabbatEnd", -1).apply();
-        sSettingsPreferences.edit().putInt("RT", 0).apply();
-        sSettingsPreferences.edit().putInt("NightChatzot", -1).apply();
+        sSettingsPreferences.edit()
+                .putBoolean("zmanim_notifications", true)
+                .putInt("autoDismissNotifications", -1)
+                .putInt("Alot", -1)
+                .putInt("TalitTefilin", -1)
+                .putInt("HaNetz", -1)
+                .putInt("SofZmanShmaMGA", 15)
+                .putInt("SofZmanShmaGRA", 15)
+                .putInt("SofZmanTefila", 15)
+                .putInt("SofZmanAchilatChametz", 15)
+                .putInt("SofZmanBiurChametz", 15)
+                .putInt("Chatzot", 20)
+                .putInt("MinchaGedola", -1)
+                .putInt("MinchaKetana", -1)
+                .putInt("PlagHaMinchaYY", -1)
+                .putInt("PlagHaMinchaHB", -1)
+                .putInt("CandleLighting", 15)
+                .putInt("Shkia", 15)
+                .putInt("TzeitHacochavim", 15)
+                .putInt("TzeitHacochavimLChumra", -1)
+                .putInt("FastEnd", 15)
+                .putInt("ShabbatEnd", -1)
+                .putInt("RT", 0)
+                .putInt("NightChatzot", -1).apply();
     }
 
     @Override

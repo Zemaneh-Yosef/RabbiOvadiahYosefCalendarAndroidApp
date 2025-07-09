@@ -3,13 +3,9 @@ package com.EJ.ROvadiahYosefCalendar.tile
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.wear.protolayout.ActionBuilders
-import androidx.wear.protolayout.ActionBuilders.LoadAction
 import androidx.wear.protolayout.ColorBuilders.argb
-import androidx.wear.protolayout.DimensionBuilders
 import androidx.wear.protolayout.ModifiersBuilders
-import androidx.wear.protolayout.ModifiersBuilders.Border
 import androidx.wear.protolayout.ModifiersBuilders.Clickable
-import androidx.wear.protolayout.ModifiersBuilders.Semantics
 import androidx.wear.protolayout.ResourceBuilders
 import androidx.wear.protolayout.TimelineBuilders.Timeline
 import androidx.wear.protolayout.material.Text
@@ -17,19 +13,16 @@ import androidx.wear.protolayout.material.Typography
 import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.TileBuilders.Tile
 import androidx.wear.tiles.TileService
-import com.EJ.ROvadiahYosefCalendar.R
 import com.EJ.ROvadiahYosefCalendar.classes.JewishDateInfo
 import com.EJ.ROvadiahYosefCalendar.classes.LocationResolver
 import com.EJ.ROvadiahYosefCalendar.classes.ROZmanimCalendar
 import com.EJ.ROvadiahYosefCalendar.classes.ZmanListEntry
-import com.EJ.ROvadiahYosefCalendar.classes.ZmanimFactory
 import com.EJ.ROvadiahYosefCalendar.classes.ZmanimFactory.addZmanim
-import com.EJ.ROvadiahYosefCalendar.classes.ZmanimNames
-import com.EJ.ROvadiahYosefCalendar.classes.secondTreatment
+import com.EJ.ROvadiahYosefCalendar.classes.SecondTreatment
+import com.EJ.ROvadiahYosefCalendar.classes.Utils
 import com.EJ.ROvadiahYosefCalendar.presentation.MainActivity
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
-import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar
 import com.kosherjava.zmanim.util.GeoLocation
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -97,19 +90,17 @@ class MainTileService : TileService() {
 
         if (theZman != null) {
             val zmanTime: String
-            if (showSeconds || theZman.secondTreatment == secondTreatment.ALWAYS_DISPLAY)
+            if (showSeconds || theZman.secondTreatment == SecondTreatment.ALWAYS_DISPLAY) {
                 zmanTime = yesSecondFormat.format(theZman.zman)
-            else {
-                // I would normally use the internal .getSeconds() function on the Date itself
-                // but Android Studio complains that it's deprecated
-                // https://stackoverflow.com/a/70448399
+            } else {
                 val calendar = Calendar.getInstance()
                 calendar.time = theZman.zman
 
-                if (calendar[Calendar.SECOND] > 40 || calendar[Calendar.SECOND] > 20 && theZman.secondTreatment === secondTreatment.ROUND_LATER)
-                    calendar.add(Calendar.MINUTE, 1)
+                var zmanDate: Date = theZman.zman
+                if (calendar[Calendar.SECOND] > 40 || calendar[Calendar.SECOND] > 20 && theZman.secondTreatment === SecondTreatment.ROUND_LATER) {
+                    zmanDate = Utils.addMinuteToZman(theZman.zman)
+                }
 
-                val zmanDate = calendar.time
                 zmanTime = noSecondFormat.format(zmanDate)
             }
 
@@ -176,16 +167,18 @@ class MainTileService : TileService() {
         mROZmanimCalendar.geoLocation.elevation = elevation
 
         var secondFormatPattern = "H:mm:ss"
-        if (Locale.getDefault().getDisplayLanguage(Locale("en", "US")) == "Hebrew")
-            secondFormatPattern = secondFormatPattern.lowercase() + "aa"
+        if (!Utils.isLocaleHebrew()) {
+            secondFormatPattern = "h:mm:ss aa"
+        }
         yesSecondFormat = SimpleDateFormat(secondFormatPattern, Locale.getDefault())
         yesSecondFormat.timeZone = mROZmanimCalendar.geoLocation.timeZone
 
         showSeconds = sharedPref.getBoolean("ShowSeconds", false)
 
         var noSecondFormatPattern = "H:mm"
-        if (Locale.getDefault().getDisplayLanguage(Locale("en", "US")) == "Hebrew")
-            noSecondFormatPattern = secondFormatPattern.lowercase() + "aa"
+        if (!Utils.isLocaleHebrew()) {
+            noSecondFormatPattern = "h:mm aa"
+        }
         noSecondFormat = SimpleDateFormat(noSecondFormatPattern, Locale.getDefault())
         noSecondFormat.timeZone = mROZmanimCalendar.geoLocation.timeZone
 

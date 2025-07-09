@@ -166,7 +166,7 @@ public class ROZmanimCalendar extends ZmanimCalendar {
         return amudehHoraah;
     }
 
-    void setAmudehHoraah(boolean amudehHoraah) {
+    public void setAmudehHoraah(boolean amudehHoraah) {
         this.amudehHoraah = amudehHoraah;
     }
 

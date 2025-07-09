@@ -179,7 +179,7 @@ public class WeeklyHaftarahReading {
                 result += "\"וישלח\" יהושע ב";
                 break;
             case KORACH:
-                result += "\"ויאמר\" שמואל א י\"א";
+                result += "\"ויאמר שמואל\" שמואל א י\"א";
                 break;
             case CHUKAS:
                 result += "\"ויפתח\" שופטים י\"א";

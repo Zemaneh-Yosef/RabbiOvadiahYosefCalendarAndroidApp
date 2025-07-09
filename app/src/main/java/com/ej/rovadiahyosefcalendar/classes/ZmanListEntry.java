@@ -1,5 +1,7 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
+import android.content.SharedPreferences;
+
 import java.util.Date;
 
 public class ZmanListEntry {
@@ -12,7 +14,7 @@ public class ZmanListEntry {
     private SecondTreatment secondTreatment;
     private boolean isBirchatHachamahZman;
     private boolean is66MisheyakirZman;
-    private int notificationDelay;
+    private String notificationKey;
 
     public ZmanListEntry(String title) {
         this.title = title;
@@ -20,12 +22,12 @@ public class ZmanListEntry {
         this.isZman = false;
     }
 
-    public ZmanListEntry(String title, Date zman, SecondTreatment secondTreatment, int notificationDelay) {
+    public ZmanListEntry(String title, Date zman, SecondTreatment secondTreatment, String notificationKey) {
         this.title = title;
         this.zman = zman;
         this.isZman = true;
         this.secondTreatment = secondTreatment;
-        this.notificationDelay = notificationDelay;
+        this.notificationKey = notificationKey;
     }
 
     public String getTitle() {
@@ -68,8 +70,8 @@ public class ZmanListEntry {
         return secondTreatment;
     }
 
-    public int getNotificationDelay() {
-        return notificationDelay;
+    public int getNotificationDelay(SharedPreferences mSettingsPreferences) {
+        return mSettingsPreferences.getInt(notificationKey, -1);
     }
 
     public void setBirchatHachamahZman(boolean birchatHachamahZman) {
@@ -86,9 +88,5 @@ public class ZmanListEntry {
 
     public void setIs66MisheyakirZman(boolean is66MisheyakirZman) {
         this.is66MisheyakirZman = is66MisheyakirZman;
-    }
-
-    public void setNotificationDelay(int notificationDelay) {
-        this.notificationDelay = notificationDelay;
     }
 }

@@ -3,6 +3,7 @@ package com.ej.rovadiahyosefcalendar.classes;
 import static android.content.Context.MODE_PRIVATE;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mJewishDateInfo;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mROZmanimCalendar;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentLocationName;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentTimeZoneID;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLatitude;
@@ -10,6 +11,7 @@ import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLongi
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSetupLauncher;
 import static com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment.sNextUpcomingZman;
 import static com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment.sShabbatMode;
+import static com.ej.rovadiahyosefcalendar.classes.Utils.dateFormatPattern;
 
 import android.content.Context;
 import android.content.Intent;
@@ -44,6 +46,7 @@ import com.ej.rovadiahyosefcalendar.activities.SiddurViewActivity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 import org.jetbrains.annotations.NotNull;
@@ -73,13 +76,6 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     private final boolean isZmanimInHebrew;
     private final boolean isZmanimEnglishTranslated;
     private boolean wasTalitTefilinZmanClicked;
-
-    private String dateFormatPattern(boolean showSeconds) {
-        return (Utils.isLocaleHebrew() ? "H" : "h")
-                + ":mm"
-                + (showSeconds ? ":ss" : "")
-                + (Utils.isLocaleHebrew() ? "" : " aa");
-    }
 
     public ZmanAdapter(Context context, List<ZmanListEntry> zmanim,
                        OnClickListeners.OnZmanClickListener onZmanClickListener,
@@ -123,26 +119,23 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         });
         holder.setIsRecyclable(false);
         String title = zmanim.get(position).getTitle();
+        Date zman = zmanim.get(position).getZman();
         if (zmanim.get(position) != null) {
             String zmanTime;
-
-            if (zmanim.get(position).getZman() == null) {
+            if (zman == null) {
                 zmanTime = "XX:XX";
             } else {
                 if (zmanim.get(position).getSecondTreatment() == SecondTreatment.ALWAYS_DISPLAY || showSeconds) {
-                    zmanTime = yesSecondDateFormat.format(zmanim.get(position).getZman());
+                    zmanTime = yesSecondDateFormat.format(zman);
                 } else {
-                    // I would normally use the internal .getSeconds() function on the Date itself
-                    // but Android Studio complains that it's deprecated
-                    // https://stackoverflow.com/a/70448399
-
                     Calendar calendar = Calendar.getInstance();
-                    calendar.setTime(zmanim.get(position).getZman());
+                    calendar.setTime(zman);
 
-                    if ((calendar.get(Calendar.SECOND) > 40) || (calendar.get(Calendar.SECOND) > 20 && zmanim.get(position).getSecondTreatment() == SecondTreatment.ROUND_LATER))
-                        calendar.add(Calendar.MINUTE, 1);
+                    Date zmanDate = zman;
+                    if ((calendar.get(Calendar.SECOND) > 40) || (calendar.get(Calendar.SECOND) > 20 && zmanim.get(position).getSecondTreatment() == SecondTreatment.ROUND_LATER)) {
+                        zmanDate = Utils.addMinuteToZman(zman);
+                    }
 
-                    Date zmanDate = calendar.getTime();
                     zmanTime = noSecondDateFormat.format(zmanDate);
                 }
             }
@@ -151,7 +144,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     holder.mRightTextView.setTypeface(Typeface.DEFAULT_BOLD);
                     holder.mRightTextView.setText(title);//zman name
 
-                    if (zmanim.get(position).getZman() != null && zmanim.get(position).getZman().equals(sNextUpcomingZman)) {
+                    if (zman != null && zman.equals(sNextUpcomingZman)) {
                         zmanTime += "◄";
                     }
                     holder.mLeftTextView.setText(zmanTime);
@@ -159,7 +152,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     holder.mLeftTextView.setTypeface(Typeface.DEFAULT_BOLD);
                     holder.mLeftTextView.setText(title);//zman name
 
-                    if (zmanim.get(position).getZman() != null && zmanim.get(position).getZman().equals(sNextUpcomingZman)) {
+                    if (zman != null && zman.equals(sNextUpcomingZman)) {
                         zmanTime = "➤" + zmanTime;//add arrow
                     }
                     holder.mRightTextView.setText(zmanTime);
@@ -201,6 +194,23 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
             if (position == 1) {// date
                 holder.mMiddleTextView.setOnClickListener(v -> onDateClickListener.onItemClick());
+                if (DateUtils.isSameDay(mROZmanimCalendar.getCalendar().getTime(), new Date())) {
+                    holder.mMiddleTextView.setMaxLines(2);
+                    String engDate = mROZmanimCalendar.getCalendar().get(Calendar.DATE) +
+                            " " +
+                            mROZmanimCalendar.getCalendar().getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault()) +
+                            ", " +
+                            mROZmanimCalendar.getCalendar().get(Calendar.YEAR);
+                    String updatedText;
+                    if (new Date().after(mROZmanimCalendar.getSunset())) {
+                        updatedText = context.getString(R.string.today) + " — " + engDate + "\n"
+                                + context.getString(R.string.post_sunset_date) + " " + mJewishDateInfo.tomorrow().getJewishCalendar().toString();
+                    } else {
+                        updatedText = context.getString(R.string.today) + " — " + engDate + "\n"
+                                + context.getString(R.string.pre_sunset_date) + " " + mJewishDateInfo.getJewishCalendar().toString();
+                    }
+                    holder.mMiddleTextView.setText(updatedText);
+                }
             }
 
             if (position == 2) {// make parasha text bold

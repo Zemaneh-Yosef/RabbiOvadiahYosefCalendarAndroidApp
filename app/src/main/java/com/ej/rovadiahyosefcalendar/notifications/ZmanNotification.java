@@ -2,6 +2,7 @@ package com.ej.rovadiahyosefcalendar.notifications;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.classes.Utils.dateFormatPattern;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -23,6 +24,7 @@ import androidx.preference.PreferenceManager;
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.MainFragmentManager;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
+import com.ej.rovadiahyosefcalendar.classes.SecondTreatment;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
@@ -44,11 +46,11 @@ public class ZmanNotification extends BroadcastReceiver {
         mSettingsSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         if (mSharedPreferences.getBoolean("isSetup",false)
                 && mSettingsSharedPreferences.getBoolean("zmanim_notifications", true)) {
-            notifyUser(context, new JewishCalendar(), intent.getStringExtra("zman"));
+            notifyUser(context, new JewishCalendar(), intent.getStringExtra("zman"), intent.getIntExtra("secondsTreatment", 0));
         }
     }
 
-    private void notifyUser(Context context, JewishCalendar jewishCalendar, String zman) {
+    private void notifyUser(Context context, JewishCalendar jewishCalendar, String zman, int secondsTreatment) {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel("Zmanim", "Daily Zemanim Notifications", NotificationManager.IMPORTANCE_HIGH);
@@ -78,7 +80,6 @@ public class ZmanNotification extends BroadcastReceiver {
             String zmanName = zmanSeparated[0];
             String zmanTime = zmanSeparated[1];
 
-            Date zmanAsDate = new Date(Long.parseLong(zmanTime));
             if ((jewishCalendar.isAssurBemelacha() && !mSettingsSharedPreferences.getBoolean("zmanim_notifications_on_shabbat", true))) {
                 return;//if the user does not want to be notified on shabbat/yom tov, then return
             }
@@ -100,18 +101,28 @@ public class ZmanNotification extends BroadcastReceiver {
             }
             //no need to reset the jewish calendar since we are only using it to check if tomorrow is shabbat/yom tov, but keep in mind that the date is set to tomorrow
 
-            String dateFormatPattern = (Utils.isLocaleHebrew() ? "H" : "h")
-                    + ":mm"
-                    + (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowSeconds", false) ? ":ss" : "")
-                    + (Utils.isLocaleHebrew() ? "" : " aa");
-            DateFormat zmanimFormat = new SimpleDateFormat(dateFormatPattern, Locale.getDefault());
-            zmanimFormat.setTimeZone(new LocationResolver(context, null).getTimeZone()); //set the formatters time zone
+            DateFormat noSecondDateFormat = new SimpleDateFormat(dateFormatPattern(false), Locale.getDefault());
+            noSecondDateFormat.setTimeZone(new LocationResolver(context, null).getTimeZone()); //set the formatters time zone
+            DateFormat yesSecondDateFormat = new SimpleDateFormat(dateFormatPattern(true), Locale.getDefault());
+            yesSecondDateFormat.setTimeZone(new LocationResolver(context, null).getTimeZone()); //set the formatters time zone
 
-            String text;
-            if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
-                text = String.format("%s : %s", zmanimFormat.format(zmanAsDate), zmanName);
+            Date zmanAsDate = new Date(Long.parseLong(zmanTime));
+            String time;
+            if (secondsTreatment == SecondTreatment.ALWAYS_DISPLAY.getValue() || PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowSeconds", false)) {
+                time = yesSecondDateFormat.format(zmanAsDate);
             } else {
-                text = zmanName + " is at " + zmanimFormat.format(zmanAsDate);
+                calendar.setTime(zmanAsDate);
+                if ((calendar.get(Calendar.SECOND) > 40) || (calendar.get(Calendar.SECOND) > 20 && secondsTreatment == SecondTreatment.ROUND_LATER.getValue())) {
+                    time = noSecondDateFormat.format(Utils.addMinuteToZman(zmanAsDate));
+                } else {
+                    time = noSecondDateFormat.format(zmanAsDate);
+                }
+            }
+            String displayedText;
+            if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
+                displayedText = String.format("%s : %s", time, zmanName);
+            } else {
+                displayedText = zmanName + " is at " + time;
             }
             long notificationID = Long.parseLong(zmanTime);//the notification ID is the time of the zman
 
@@ -119,11 +130,11 @@ public class ZmanNotification extends BroadcastReceiver {
                     .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
                     .setSmallIcon(R.drawable.ic_baseline_alarm_24)
                     .setContentTitle(zmanName)
-                    .setContentText(text)
+                    .setContentText(displayedText)
                     .setStyle(new NotificationCompat.BigTextStyle()
                             .setBigContentTitle(zmanName)
                             .setSummaryText(mSharedPreferences.getString("locationNameFN", ""))
-                            .bigText(text))
+                            .bigText(displayedText))
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     .setCategory(NotificationCompat.CATEGORY_REMINDER)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)

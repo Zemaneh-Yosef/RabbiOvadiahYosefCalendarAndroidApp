@@ -741,6 +741,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (sSharedPreferences.getBoolean("inIsrael", false) && shabbat.equals("40")) {
             mROZmanimCalendar.setAteretTorahSunsetOffset(30);
         }
+        mROZmanimCalendar.setAmudehHoraah(sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false));
     }
 
     private void askForRealTimeNotificationPermissions() {
@@ -848,7 +849,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
         NotificationUtils.setExactAndAllowWhileIdle(am, calendar.getTimeInMillis(), dailyPendingIntent);
 
-        roZmanimCalendar.setAmudehHoraah(sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false));
         Date tzeit = roZmanimCalendar.getTzeit();
         if (tzeit == null) {
             tzeit = new Date();
@@ -908,85 +908,74 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         materialToolbar.getMenu().clear();
         materialToolbar.inflateMenu(R.menu.menu_main);
         materialToolbar.setOnMenuItemClickListener(item -> {
-            switch (item.getItemId()) {
-                case R.id.search_for_a_place:
-                    startActivity(new Intent(mContext, GetUserLocationWithMapActivity.class).putExtra("loneActivity", true));
-                    return true;
-
-                case R.id.shabbat_mode:
-                    if (!sShabbatMode && mROZmanimCalendar != null && mMainRecyclerView != null) {
-                        mCurrentDateShown.setTime(new Date());
-                        mJewishDateInfo.setCalendar(new GregorianCalendar());
-                        mROZmanimCalendar.setCalendar(new GregorianCalendar());
-                        startShabbatMode();
-                        if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                            updateWeeklyZmanim();
-                        } else {
-                            updateDailyZmanim();
-                        }
-                    } else {
-                        endShabbatMode();
-                    }
-                    item.setChecked(sShabbatMode);
-                    return true;
-
-                case R.id.weekly_mode:
-                    sSharedPreferences.edit().putBoolean("weeklyMode", !sSharedPreferences.getBoolean("weeklyMode", false)).apply();
-                    item.setChecked(sSharedPreferences.getBoolean("weeklyMode", false));
-                    if (mMainRecyclerView == null || binding == null) {
-                        return true;
-                    }
+            int itemId = item.getItemId();
+            if (itemId == R.id.search_for_a_place) {
+                startActivity(new Intent(mContext, GetUserLocationWithMapActivity.class).putExtra("loneActivity", true));
+                return true;
+            } else if (itemId == R.id.shabbat_mode) {
+                if (!sShabbatMode && mROZmanimCalendar != null && mMainRecyclerView != null) {
+                    mCurrentDateShown.setTime(new Date());
+                    mJewishDateInfo.setCalendar(new GregorianCalendar());
+                    mROZmanimCalendar.setCalendar(new GregorianCalendar());
+                    startShabbatMode();
                     if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                        showWeeklyTextViews();
                         updateWeeklyZmanim();
                     } else {
-                        hideWeeklyTextViews();
                         updateDailyZmanim();
                     }
+                } else {
+                    endShabbatMode();
+                }
+                item.setChecked(sShabbatMode);
+                return true;
+            } else if (itemId == R.id.weekly_mode) {
+                sSharedPreferences.edit().putBoolean("weeklyMode", !sSharedPreferences.getBoolean("weeklyMode", false)).apply();
+                item.setChecked(sSharedPreferences.getBoolean("weeklyMode", false));
+                if (mMainRecyclerView == null || binding == null) {
                     return true;
-
-                case R.id.use_elevation:
-                    sSharedPreferences.edit().putBoolean("useElevation", !sSharedPreferences.getBoolean("useElevation", false)).apply();
-                    item.setChecked(sSharedPreferences.getBoolean("useElevation", false));
-                    resolveElevationAndVisibleSunrise(() -> {
-                        instantiateZmanimCalendar();
-                        setNextUpcomingZman();
-                        if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                            updateWeeklyZmanim();
-                        } else {
-                            updateDailyZmanim();
-                        }
-                    });
-                    return true;
-
-                case R.id.jerDirection:
-                    startActivity(new Intent(mContext, JerusalemDirectionMapsActivity.class));
-                    return true;
-
-                case R.id.netzView:
-                    startActivity(new Intent(mContext, NetzActivity.class));
-                    return true;
-
-                case R.id.molad:
-                    startActivity(new Intent(mContext, MoladActivity.class));
-                    return true;
-
-                case R.id.fullSetup:
-                    sSetupLauncher.launch(new Intent(mContext, WelcomeScreenActivity.class));
-                    return true;
-
-                case R.id.settings:
-                    startActivity(new Intent(mContext, SettingsActivity.class));
-                    return true;
-
-                case R.id.website:
-                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.royzmanim.com"));
-                    startActivity(browserIntent);
-                    return true;
-
-                default:
-                    return false;
+                }
+                if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                    showWeeklyTextViews();
+                    updateWeeklyZmanim();
+                } else {
+                    hideWeeklyTextViews();
+                    updateDailyZmanim();
+                }
+                return true;
+            } else if (itemId == R.id.use_elevation) {
+                sSharedPreferences.edit().putBoolean("useElevation", !sSharedPreferences.getBoolean("useElevation", false)).apply();
+                item.setChecked(sSharedPreferences.getBoolean("useElevation", false));
+                resolveElevationAndVisibleSunrise(() -> {
+                    instantiateZmanimCalendar();
+                    setNextUpcomingZman();
+                    if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                        updateWeeklyZmanim();
+                    } else {
+                        updateDailyZmanim();
+                    }
+                });
+                return true;
+            } else if (itemId == R.id.jerDirection) {
+                startActivity(new Intent(mContext, JerusalemDirectionMapsActivity.class));
+                return true;
+            } else if (itemId == R.id.netzView) {
+                startActivity(new Intent(mContext, NetzActivity.class));
+                return true;
+            } else if (itemId == R.id.molad) {
+                startActivity(new Intent(mContext, MoladActivity.class));
+                return true;
+            } else if (itemId == R.id.fullSetup) {
+                sSetupLauncher.launch(new Intent(mContext, WelcomeScreenActivity.class));
+                return true;
+            } else if (itemId == R.id.settings) {
+                startActivity(new Intent(mContext, SettingsActivity.class));
+                return true;
+            } else if (itemId == R.id.website) {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.royzmanim.com"));
+                startActivity(browserIntent);
+                return true;
             }
+            return false;
 
         });
         Menu menu = materialToolbar.getMenu();
@@ -1016,23 +1005,15 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
         zmanim.add(new ZmanListEntry(locationName));
 
-        StringBuilder sb = new StringBuilder();
+        String sb = mROZmanimCalendar.getCalendar().get(Calendar.DATE) +
+                " " +
+                mROZmanimCalendar.getCalendar().getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault()) +
+                ", " +
+                mROZmanimCalendar.getCalendar().get(Calendar.YEAR) +
+                "      " +
+                mJewishDateInfo.getJewishCalendar().toString();
 
-        sb.append(mROZmanimCalendar.getCalendar().get(Calendar.DATE));
-        sb.append(" ");
-        sb.append(mROZmanimCalendar.getCalendar().getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault()));
-        sb.append(", ");
-        sb.append(mROZmanimCalendar.getCalendar().get(Calendar.YEAR));
-
-        if (DateUtils.isSameDay(mROZmanimCalendar.getCalendar().getTime(), new Date())) {
-            sb.append("   ▼   ");//add a down arrow to indicate that this is the current day
-        } else {
-            sb.append("      ");
-        }
-
-        sb.append(mJewishDateInfo.getJewishCalendar().toString());
-
-        zmanim.add(new ZmanListEntry(sb.toString()));
+        zmanim.add(new ZmanListEntry(sb));
 
         zmanim.add(new ZmanListEntry(mJewishDateInfo.getThisWeeksParsha()));
 
@@ -1249,7 +1230,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     public void setNextUpcomingZman() {
         ZmanListEntry nextZman = ZmanimFactory.getNextUpcomingZman(mCurrentDateShown, mROZmanimCalendar, mJewishDateInfo, sSettingsPreferences, sSharedPreferences, mIsZmanimInHebrew, mIsZmanimEnglishTranslated);
         if (nextZman == null || nextZman.getZman() == null) {
-            nextZman = new ZmanListEntry("", new Date(System.currentTimeMillis() + 30_000), SecondTreatment.ROUND_EARLIER, 0);// try again in 30 seconds
+            nextZman = new ZmanListEntry("", new Date(System.currentTimeMillis() + 30_000), SecondTreatment.ROUND_EARLIER, "");// try again in 30 seconds
         }
         sNextUpcomingZman = nextZman.getZman();
     }
