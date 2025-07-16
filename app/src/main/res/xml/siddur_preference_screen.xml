@@ -8,19 +8,19 @@
         android:singleLineTitle="false"
         tools:targetApi="26" />
 
-    <com.ej.rovadiahyosefcalendar.classes.DimmedPreference
+    <com.ej.rovadiahyosefcalendar.classes.CustomPreferenceView
         android:key="siddur_selichot"
         android:title="@string/selichot" />
 
-    <Preference
+    <com.ej.rovadiahyosefcalendar.classes.CustomPreferenceView
         android:key="siddur_shacharit"
         android:title="@string/shacharit" />
 
-    <Preference
+    <com.ej.rovadiahyosefcalendar.classes.CustomPreferenceView
         android:key="siddur_mussaf"
         android:title="@string/mussaf" />
 
-    <Preference
+    <com.ej.rovadiahyosefcalendar.classes.CustomPreferenceView
         android:key="siddur_mincha"
         android:title="@string/mincha" />
 
@@ -30,60 +30,66 @@
         android:singleLineTitle="false"
         tools:targetApi="26" />
 
-    <Preference
+    <com.ej.rovadiahyosefcalendar.classes.CustomPreferenceView
         android:key="siddur_arvit"
         android:title="@string/arvit" />
 
-    <Preference
+    <com.ej.rovadiahyosefcalendar.classes.CustomPreferenceView
         android:key="siddur_sefirat_haomer"
         android:title="@string/sefirat_haomer" />
 
-    <Preference
+    <com.ej.rovadiahyosefcalendar.classes.CustomPreferenceView
         android:key="siddur_hadlakat_neirot_chanuka"
         android:title="@string/hadlakat_neirot_chanuka" />
 
-    <com.ej.rovadiahyosefcalendar.classes.DimmedPreference
+    <com.ej.rovadiahyosefcalendar.classes.CustomPreferenceView
         android:key="siddur_havdala"
         android:title="@string/havdala" />
 
-    <Preference
+    <com.ej.rovadiahyosefcalendar.classes.CustomPreferenceView
         android:key="siddur_kriatShema"
         android:title="@string/kriatShema" />
 
-    <com.ej.rovadiahyosefcalendar.classes.DimmedPreference
+    <com.ej.rovadiahyosefcalendar.classes.CustomPreferenceView
         android:key="siddur_tikkun_chatzot"
         android:title="@string/tikkun_chatzot" />
 
     <PreferenceCategory android:title="@string/misc" />
 
     <!-- For during the 3 weeks -->
-    <com.ej.rovadiahyosefcalendar.classes.DimmedPreference
+    <com.ej.rovadiahyosefcalendar.classes.CustomPreferenceView
         android:key="siddur_tikkun_chatzot_3_weeks"
         android:title="@string/tikkun_chatzot" />
 
-    <Preference
+    <com.ej.rovadiahyosefcalendar.classes.CustomPreferenceView
         android:key="siddur_birchat_hamazon"
         android:title="@string/birchat_hamazon" />
 
-    <Preference
+    <com.ej.rovadiahyosefcalendar.classes.CustomPreferenceView
         android:key="siddur_birchat_meyin_shalosh"
         android:title="@string/birchat_meyin_shalosh" />
 
-    <com.ej.rovadiahyosefcalendar.classes.DimmedPreference
+    <com.ej.rovadiahyosefcalendar.classes.CustomPreferenceView
         android:key="siddur_tefilat_haderech"
         android:title="@string/tefilat_haderech" />
 
-    <Preference
+    <com.ej.rovadiahyosefcalendar.classes.CustomPreferenceView
         android:key="siddur_seder_siyum_masechet"
         android:title="@string/seder_siyum_masechet" />
 
-    <Preference
+    <com.ej.rovadiahyosefcalendar.classes.CustomPreferenceView
         android:key="siddur_birchat_levana"
         android:title="@string/birchat_levana" />
 
-    <Preference
+    <com.ej.rovadiahyosefcalendar.classes.CustomPreferenceView
         android:key="siddur_misc_prayer"
         android:title="פרשת המן"
         app:isPreferenceVisible="false"/>
+
+    <PreferenceCategory android:key="siddur_see_more_title" android:title="@string/see_more" />
+
+    <com.ej.rovadiahyosefcalendar.classes.CustomPreferenceView
+        android:key="siddur_see_more"
+        android:title="@string/see_all_prayers" />
 
 </PreferenceScreen>

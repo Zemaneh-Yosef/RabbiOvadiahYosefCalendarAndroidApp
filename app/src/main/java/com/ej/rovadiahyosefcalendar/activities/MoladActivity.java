@@ -51,7 +51,7 @@ public class MoladActivity extends AppCompatActivity {
         materialToolbar.setNavigationOnClickListener(v -> finish());
         if (Utils.isLocaleHebrew()) {
             mSDF = new SimpleDateFormat("EEE MMM d H:mm:ss", Locale.getDefault());
-            mHebrewMonths = new String[]{ "ניסן", "אייר", "סיון", "תמוז", "אב", "אלול", "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר", "אדר ב", "אדר א"};
+            mHebrewMonths = new String[]{ "ניסן", "אייר", "סיון", "תמוז", "אב", "אלול", "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר", "אדר ב", "אדר א" };
         }
 
         mCurrentEnglishMonthYear = findViewById(R.id.currentEnglishMonthYear);

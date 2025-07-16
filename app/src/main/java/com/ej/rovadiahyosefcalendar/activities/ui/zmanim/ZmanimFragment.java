@@ -37,6 +37,7 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
@@ -83,23 +84,26 @@ import com.ej.rovadiahyosefcalendar.activities.JerusalemDirectionMapsActivity;
 import com.ej.rovadiahyosefcalendar.activities.MoladActivity;
 import com.ej.rovadiahyosefcalendar.activities.NetzActivity;
 import com.ej.rovadiahyosefcalendar.activities.SettingsActivity;
+import com.ej.rovadiahyosefcalendar.activities.SetupElevationActivity;
 import com.ej.rovadiahyosefcalendar.activities.WelcomeScreenActivity;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTables;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesScraper;
 import com.ej.rovadiahyosefcalendar.classes.DummyZmanAdapter;
 import com.ej.rovadiahyosefcalendar.classes.HebrewDayMonthYearPickerDialog;
+import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
+import com.ej.rovadiahyosefcalendar.classes.SecondTreatment;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.ej.rovadiahyosefcalendar.classes.ZmanAdapter;
 import com.ej.rovadiahyosefcalendar.classes.ZmanListEntry;
 import com.ej.rovadiahyosefcalendar.classes.ZmanimFactory;
-import com.ej.rovadiahyosefcalendar.classes.SecondTreatment;
 import com.ej.rovadiahyosefcalendar.databinding.FragmentZmanimBinding;
 import com.ej.rovadiahyosefcalendar.notifications.DailyNotifications;
 import com.ej.rovadiahyosefcalendar.notifications.NotificationUtils;
 import com.ej.rovadiahyosefcalendar.notifications.OmerNotifications;
 import com.ej.rovadiahyosefcalendar.notifications.ZmanimNotifications;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
@@ -829,7 +833,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             sSharedPreferences.edit().putString("debugNotifs", sSharedPreferences.getString("debugNotifs", "") + "Geolocation for notifications = " + mROZmanimCalendar.getGeoLocation().toString() + "\n\n").apply();
         }
         Calendar calendar = Calendar.getInstance();
-        ROZmanimCalendar roZmanimCalendar = new ROZmanimCalendar(mROZmanimCalendar.getGeoLocation()); // do this in order to always set the notifications on the current date
+        ROZmanimCalendar roZmanimCalendar = mROZmanimCalendar.getCopy(); // do this in order to always set the notifications on the current date
         Date sunrise = roZmanimCalendar.getSunrise();
         if (sunrise == null) {
             sunrise = new Date();
@@ -886,11 +890,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         if (zmanAdapter != null) {
                             zmanAdapter.setZmanim(getZmanimList(true));
                             mMainRecyclerView.getAdapter().notifyDataSetChanged();
-                        }
-                    },
-                    () -> {
-                        if (mCalendarButton != null) {
-                            mCalendarButton.performClick();
                         }
                     }));
         }
@@ -1003,17 +1002,71 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (locationName != null && locationName.isEmpty()) {//if it's still empty, use backup. NPE was thrown here for some reason
             locationName = mROZmanimCalendar.getGeoLocation().getLocationName();
         }
-        zmanim.add(new ZmanListEntry(locationName));
 
-        String sb = mROZmanimCalendar.getCalendar().get(Calendar.DATE) +
+        String engDate = mROZmanimCalendar.getCalendar().get(Calendar.DATE) +
                 " " +
                 mROZmanimCalendar.getCalendar().getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault()) +
                 ", " +
-                mROZmanimCalendar.getCalendar().get(Calendar.YEAR) +
-                "      " +
-                mJewishDateInfo.getJewishCalendar().toString();
+                mROZmanimCalendar.getCalendar().get(Calendar.YEAR);
 
-        zmanim.add(new ZmanListEntry(sb));
+        if (binding != null) {
+            TextView dailyLocationName = binding.dailyLocationName;
+            dailyLocationName.setText(locationName);
+            dailyLocationName.setPaintFlags(dailyLocationName.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+            String finalLocationName = locationName;
+            dailyLocationName.setOnClickListener(v -> new MaterialAlertDialogBuilder(mContext)
+                    .setTitle(mContext.getString(R.string.location_info_for) + " " + finalLocationName)
+                    .setMessage(mContext.getString(R.string.location_name) + " " + sCurrentLocationName + "\n" +
+                            mContext.getString(R.string.latitude) + " " + sLatitude + "\n" +
+                            mContext.getString(R.string.longitude) + " " + sLongitude + "\n" +
+                            mContext.getString(R.string.elevation) + " " +
+                            (sSharedPreferences.getBoolean("useElevation", true) ?
+                                    sSharedPreferences.getString("elevation" + sCurrentLocationName, "0") : "0")
+                            + " " + mContext.getString(R.string.meters) + "\n" +
+                            mContext.getString(R.string.time_zone) + sCurrentTimeZoneID)
+                    .setPositiveButton(R.string.share, ((dialog, which) -> {
+                        Intent sendIntent = new Intent(Intent.ACTION_SEND);
+                        sendIntent.setType("text/plain");
+                        sendIntent.putExtra(Intent.EXTRA_TEXT, "https://royzmanim.com/calendar?locationName=" + sCurrentLocationName.replace(" ", "+").replace(",", "%2C") + "&lat=" + sLatitude + "&long=" + sLongitude + "&elevation=" + sElevation + "&timeZone=" + sCurrentTimeZoneID);
+                        mContext.startActivity(Intent.createChooser(sendIntent, mContext.getString(R.string.share)));
+                    }))
+                    .setNeutralButton(R.string.change_location, (dialog, which) -> mContext.startActivity(new Intent(mContext, GetUserLocationWithMapActivity.class).putExtra("loneActivity", true)))
+                    .setNegativeButton(mContext.getString(R.string.setup_elevation), (dialog, which) -> mContext.startActivity(new Intent(mContext, SetupElevationActivity.class).putExtra("loneActivity", true)))
+                    .show());
+            MaterialCardView card = binding.dailyCard;
+            card.setOnClickListener(l -> {
+                if (mCalendarButton != null) {
+                    mCalendarButton.performClick();
+                }
+            });
+            card.setCardElevation(12f);
+            if (DateUtils.isSameDay(mROZmanimCalendar.getCalendar().getTime(), new Date())) {
+                card.setStrokeColor(ContextCompat.getColor(mContext, R.color.sunset_orange)); // define this in colors.xml
+                card.setStrokeWidth(6);
+
+                String hebDate;
+                if (new Date().after(mROZmanimCalendar.getSunset())) {
+                    engDate = mContext.getString(R.string.today) + " — " + engDate;
+                    hebDate = mContext.getString(R.string.post_sunset_date) + " " + mJewishDateInfo.tomorrow().getJewishCalendar().toString();
+                } else if (new Date().before(mROZmanimCalendar.getAlotHashachar())) {
+                    engDate = mContext.getString(R.string.today) + " — " + engDate;
+                    JewishDateInfo copy = mJewishDateInfo.getCopy();
+                    copy.back();
+                    hebDate = getString(R.string.pre_dawn_date) + " " + copy.getJewishCalendar().toString();
+                } else {
+                    engDate = mContext.getString(R.string.today) + " — " + engDate;
+                    hebDate = mContext.getString(R.string.pre_sunset_date) + " " + mJewishDateInfo.getJewishCalendar().toString();
+                }
+                binding.gregDate.setText(engDate);
+                binding.hebDate.setText(hebDate);
+            } else {
+                MaterialCardView defaultCard = new MaterialCardView(mContext);
+                card.setStrokeColor(Objects.requireNonNull(defaultCard.getStrokeColorStateList()).getDefaultColor());
+                card.setStrokeWidth(defaultCard.getStrokeWidth());
+                binding.gregDate.setText(engDate);
+                binding.hebDate.setText(mJewishDateInfo.getJewishCalendar().toString());
+            }
+        }
 
         zmanim.add(new ZmanListEntry(mJewishDateInfo.getThisWeeksParsha()));
 
@@ -1531,51 +1584,53 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
         }
         zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
-        mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);//check next day for tekufa, because the tekufa time can go back a day
-        mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
-        mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);//reset the calendar to check for the current date
-        if (mJewishDateInfo.getJewishCalendar().getTekufa() != null) {
+        ROZmanimCalendar zmanimCalendarCopy = mROZmanimCalendar.getCopy();
+        JewishDateInfo jewishDateInfoCopy = mJewishDateInfo.getCopy();
+        zmanimCalendarCopy.getCalendar().add(Calendar.DATE, 1);//check next day for tekufa, because the tekufa time can go back a day
+        jewishDateInfoCopy.setCalendar(zmanimCalendarCopy.getCalendar());
+        zmanimCalendarCopy.getCalendar().add(Calendar.DATE, -1);//reset the calendar to check for the current date
+        if (jewishDateInfoCopy.getJewishCalendar().getTekufa() != null) {
 
-            final Calendar cal1 = (Calendar) mROZmanimCalendar.getCalendar().clone();
-            final Calendar cal2 = (Calendar) mROZmanimCalendar.getCalendar().clone();
-            cal2.setTime(mJewishDateInfo.getJewishCalendar().getTekufaAsDate());// should not be null in this if block
+            final Calendar cal1 = (Calendar) zmanimCalendarCopy.getCalendar().clone();
+            final Calendar cal2 = (Calendar) zmanimCalendarCopy.getCalendar().clone();
+            cal2.setTime(jewishDateInfoCopy.getJewishCalendar().getTekufaAsDate());// should not be null in this if block
 
             if (cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA) &&
                     cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
                     cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
 
                 if (Utils.isLocaleHebrew()) {
-                    zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() +
+                    zmanim.add(new ZmanListEntry("תקופת " + jewishDateInfoCopy.getJewishCalendar().getTekufaName() +
                             (shortStyle ? " : " : " היום בשעה ") +
-                            zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
+                            zmanimFormat.format(jewishDateInfoCopy.getJewishCalendar().getTekufaAsDate())));
                 } else {
-                    zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() +
+                    zmanim.add(new ZmanListEntry("Tekufa " + jewishDateInfoCopy.getJewishCalendar().getTekufaName() +
                             (shortStyle ? " : " : " is today at ") +
-                            zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
+                            zmanimFormat.format(jewishDateInfoCopy.getJewishCalendar().getTekufaAsDate())));
                 }
             }
         }
-        mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());//reset
+        jewishDateInfoCopy.setCalendar(zmanimCalendarCopy.getCalendar());//reset
 
         //else the tekufa time is on the same day as the current date, so we can add it normally
-        if (mJewishDateInfo.getJewishCalendar().getTekufa() != null) {
+        if (jewishDateInfoCopy.getJewishCalendar().getTekufa() != null) {
 
-            final Calendar cal1 = (Calendar) mROZmanimCalendar.getCalendar().clone();
-            final Calendar cal2 = (Calendar) mROZmanimCalendar.getCalendar().clone();
-            cal2.setTime(mJewishDateInfo.getJewishCalendar().getTekufaAsDate());// should not be null in this if block
+            final Calendar cal1 = (Calendar) zmanimCalendarCopy.getCalendar().clone();
+            final Calendar cal2 = (Calendar) zmanimCalendarCopy.getCalendar().clone();
+            cal2.setTime(jewishDateInfoCopy.getJewishCalendar().getTekufaAsDate());// should not be null in this if block
 
             if (cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA) &&
                     cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
                     cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
 
                 if (Utils.isLocaleHebrew()) {
-                    zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() +
+                    zmanim.add(new ZmanListEntry("תקופת " + jewishDateInfoCopy.getJewishCalendar().getTekufaName() +
                             (shortStyle ? " : " : " היום בשעה ") +
-                            zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
+                            zmanimFormat.format(jewishDateInfoCopy.getJewishCalendar().getTekufaAsDate())));
                 } else {
-                    zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() +
+                    zmanim.add(new ZmanListEntry("Tekufa " + jewishDateInfoCopy.getJewishCalendar().getTekufaName() +
                             (shortStyle ? " : " : " is today at ") +
-                            zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getTekufaAsDate())));
+                            zmanimFormat.format(jewishDateInfoCopy.getJewishCalendar().getTekufaAsDate())));
                 }
             }
         }
@@ -1596,52 +1651,54 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
         }
         zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
-        mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);//check next day for tekufa, because the tekufa time can go back a day
-        mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
-        mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);//reset the calendar to check for the current date
+        ROZmanimCalendar zmanimCalendarCopy = mROZmanimCalendar.getCopy();
+        JewishDateInfo jewishDateInfoCopy = mJewishDateInfo.getCopy();
+        zmanimCalendarCopy.getCalendar().add(Calendar.DATE, 1);//check next day for tekufa, because the tekufa time can go back a day
+        jewishDateInfoCopy.setCalendar(zmanimCalendarCopy.getCalendar());
+        zmanimCalendarCopy.getCalendar().add(Calendar.DATE, -1);//reset the calendar to check for the current date
 
-        if (mJewishDateInfo.getJewishCalendar().getTekufa() != null) {
+        if (jewishDateInfoCopy.getJewishCalendar().getTekufa() != null) {
 
-            final Calendar cal1 = (Calendar) mROZmanimCalendar.getCalendar().clone();
-            final Calendar cal2 = (Calendar) mROZmanimCalendar.getCalendar().clone();
-            cal2.setTime(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate());// should not be null in this if block
+            final Calendar cal1 = (Calendar) zmanimCalendarCopy.getCalendar().clone();
+            final Calendar cal2 = (Calendar) zmanimCalendarCopy.getCalendar().clone();
+            cal2.setTime(jewishDateInfoCopy.getJewishCalendar().getAmudeiHoraahTekufaAsDate());// should not be null in this if block
 
             if (cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA) &&
                     cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
                     cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
 
                 if (Utils.isLocaleHebrew()) {
-                    zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() +
+                    zmanim.add(new ZmanListEntry("תקופת " + jewishDateInfoCopy.getJewishCalendar().getTekufaName() +
                             (shortStyle ? " : " : " היום בשעה ") +
-                            zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
+                            zmanimFormat.format(jewishDateInfoCopy.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
                 } else {
-                    zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() +
+                    zmanim.add(new ZmanListEntry("Tekufa " + jewishDateInfoCopy.getJewishCalendar().getTekufaName() +
                             (shortStyle ? " : " : " is today at ") +
-                            zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
+                            zmanimFormat.format(jewishDateInfoCopy.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
                 }
             }
         }
-        mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());//reset
+        jewishDateInfoCopy.setCalendar(zmanimCalendarCopy.getCalendar());//reset
 
         //else the tekufa time is on the same day as the current date, so we can add it normally
-        if (mJewishDateInfo.getJewishCalendar().getTekufa() != null) {
+        if (jewishDateInfoCopy.getJewishCalendar().getTekufa() != null) {
 
-            final Calendar cal1 = (Calendar) mROZmanimCalendar.getCalendar().clone();
-            final Calendar cal2 = (Calendar) mROZmanimCalendar.getCalendar().clone();
-            cal2.setTime(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate());// should not be null in this if block
+            final Calendar cal1 = (Calendar) zmanimCalendarCopy.getCalendar().clone();
+            final Calendar cal2 = (Calendar) zmanimCalendarCopy.getCalendar().clone();
+            cal2.setTime(jewishDateInfoCopy.getJewishCalendar().getAmudeiHoraahTekufaAsDate());// should not be null in this if block
 
             if (cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA) &&
                     cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
                     cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
 
                 if (Utils.isLocaleHebrew()) {
-                    zmanim.add(new ZmanListEntry("תקופת " + mJewishDateInfo.getJewishCalendar().getTekufaName() +
+                    zmanim.add(new ZmanListEntry("תקופת " + jewishDateInfoCopy.getJewishCalendar().getTekufaName() +
                             (shortStyle ? " : " : " היום בשעה ") +
-                            zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
+                            zmanimFormat.format(jewishDateInfoCopy.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
                 } else {
-                    zmanim.add(new ZmanListEntry("Tekufa " + mJewishDateInfo.getJewishCalendar().getTekufaName() +
+                    zmanim.add(new ZmanListEntry("Tekufa " + jewishDateInfoCopy.getJewishCalendar().getTekufaName() +
                             (shortStyle ? " : " : " is today at ") +
-                            zmanimFormat.format(mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
+                            zmanimFormat.format(jewishDateInfoCopy.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
                 }
             }
         }
@@ -1659,37 +1716,40 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         Date tekufa = null;
         Date aHTekufa = null;
 
-        mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);//check next day for tekufa, because the tekufa time can go back a day
-        mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
-        mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);//reset the calendar to check for the current date
+        ROZmanimCalendar zmanimCalendarCopy = mROZmanimCalendar.getCopy();
+        JewishDateInfo jewishDateInfoCopy = mJewishDateInfo.getCopy();
 
-        if (mJewishDateInfo.getJewishCalendar().getTekufa() != null) {
+        zmanimCalendarCopy.getCalendar().add(Calendar.DATE, 1);//check next day for tekufa, because the tekufa time can go back a day
+        jewishDateInfoCopy.setCalendar(zmanimCalendarCopy.getCalendar());
+        zmanimCalendarCopy.getCalendar().add(Calendar.DATE, -1);//reset the calendar to check for the current date
 
-            final Calendar cal1 = (Calendar) mROZmanimCalendar.getCalendar().clone();
-            final Calendar cal2 = (Calendar) mROZmanimCalendar.getCalendar().clone();
-            cal2.setTime(mJewishDateInfo.getJewishCalendar().getTekufaAsDate());// should not be null in this if block
+        if (jewishDateInfoCopy.getJewishCalendar().getTekufa() != null) {
+
+            final Calendar cal1 = (Calendar) zmanimCalendarCopy.getCalendar().clone();
+            final Calendar cal2 = (Calendar) zmanimCalendarCopy.getCalendar().clone();
+            cal2.setTime(jewishDateInfoCopy.getJewishCalendar().getTekufaAsDate());// should not be null in this if block
 
             if (cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA) &&
                     cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
                     cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
-                tekufa = mJewishDateInfo.getJewishCalendar().getTekufaAsDate();
-                aHTekufa = mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate();
+                tekufa = jewishDateInfoCopy.getJewishCalendar().getTekufaAsDate();
+                aHTekufa = jewishDateInfoCopy.getJewishCalendar().getAmudeiHoraahTekufaAsDate();
             }
         }
-        mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());//reset
+        jewishDateInfoCopy.setCalendar(zmanimCalendarCopy.getCalendar());//reset
 
         //else the tekufa time is on the same day as the current date, so we can add it normally
-        if (mJewishDateInfo.getJewishCalendar().getTekufa() != null) {
+        if (jewishDateInfoCopy.getJewishCalendar().getTekufa() != null) {
 
-            final Calendar cal1 = (Calendar) mROZmanimCalendar.getCalendar().clone();
-            final Calendar cal2 = (Calendar) mROZmanimCalendar.getCalendar().clone();
-            cal2.setTime(mJewishDateInfo.getJewishCalendar().getTekufaAsDate());// should not be null in this if block
+            final Calendar cal1 = (Calendar) zmanimCalendarCopy.getCalendar().clone();
+            final Calendar cal2 = (Calendar) zmanimCalendarCopy.getCalendar().clone();
+            cal2.setTime(jewishDateInfoCopy.getJewishCalendar().getTekufaAsDate());// should not be null in this if block
 
             if (cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA) &&
                     cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
                     cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
-                tekufa = mJewishDateInfo.getJewishCalendar().getTekufaAsDate();
-                aHTekufa = mJewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate();
+                tekufa = jewishDateInfoCopy.getJewishCalendar().getTekufaAsDate();
+                aHTekufa = jewishDateInfoCopy.getJewishCalendar().getAmudeiHoraahTekufaAsDate();
             }
         }
 
@@ -2088,6 +2148,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     @Override
     public void onResume() {
         initMenu();
+        setupButtons();
         mActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         resetTheme();
         if (mLayout != null && mCalendarButton != null && sSharedPreferences != null) {

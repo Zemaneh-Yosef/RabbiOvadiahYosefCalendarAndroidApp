@@ -16,9 +16,10 @@ public class ZmanimFactory {
                                   boolean isForWeeklyZmanim,
                                   SharedPreferences mSettingsPreferences,
                                   SharedPreferences mSharedPreferences,
-                                  ROZmanimCalendar mROZmanimCalendar,
+                                  ROZmanimCalendar roZmanimCalendar,
                                   JewishDateInfo mJewishDateInfo,
                                  boolean add66MisheyakirZman) {
+        ROZmanimCalendar mROZmanimCalendar = roZmanimCalendar.getCopy();
         mROZmanimCalendar.setAmudehHoraah(mSettingsPreferences.getBoolean("LuachAmudeiHoraah", false));
 
         ZmanimNames zmanimNames = new ZmanimNames(mSharedPreferences.getBoolean("isZmanimInHebrew", false), mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false));
@@ -219,10 +220,11 @@ public class ZmanimFactory {
         }
     }
 
-    public static ZmanListEntry getNextUpcomingZman(Calendar mCurrentDateShown, ROZmanimCalendar mROZmanimCalendar, JewishDateInfo mJewishDateInfo, SharedPreferences mSettingsPreferences, SharedPreferences mSharedPreferences, boolean mIsZmanimInHebrew, boolean mIsZmanimEnglishTranslated) {
+    public static ZmanListEntry getNextUpcomingZman(Calendar mCurrentDateShown, ROZmanimCalendar roZmanimCalendar, JewishDateInfo mJewishDateInfo, SharedPreferences mSettingsPreferences, SharedPreferences mSharedPreferences, boolean mIsZmanimInHebrew, boolean mIsZmanimEnglishTranslated) {
         ZmanListEntry theZman = null;
         List<ZmanListEntry> zmanim = new ArrayList<>();
         Calendar today = Calendar.getInstance();
+        ROZmanimCalendar mROZmanimCalendar = roZmanimCalendar.getCopy();
 
         today.add(Calendar.DATE, -1);
         mROZmanimCalendar.setCalendar(today);

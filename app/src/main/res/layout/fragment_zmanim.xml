@@ -54,23 +54,88 @@
             app:layout_constrainedHeight="true" />
 
     </com.facebook.shimmer.ShimmerFrameLayout>
-
+    
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:visibility="gone">
+        android:visibility="visible">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/mainRV"
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:focusable="true"
-            android:descendantFocusability="afterDescendants"
-            app:layout_constrainedHeight="true"
-            android:visibility="gone"/>
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/daily_location_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-light"
+                    android:autoSizeTextType="uniform"
+                    android:autoSizeMaxTextSize="22sp"
+                    android:autoSizeMinTextSize="8sp"
+                    android:maxLines="1"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
+                    tools:ignore="UnusedAttribute" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/daily_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/greg_date"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:layout_gravity="center"
+                        android:textSize="26sp"
+                        tools:text="Today - July 10th, 2025"/>
+
+                    <TextView
+                        android:id="@+id/heb_date"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:layout_gravity="center"
+                        android:textSize="20sp"
+                        tools:text="Pre-sunset: 14 Ḥeshvan 5785"/>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/mainRV"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:focusable="true"
+                android:nestedScrollingEnabled="false"
+                android:overScrollMode="never"
+                android:descendantFocusability="afterDescendants"
+                app:layout_constrainedHeight="true"
+                android:visibility="visible"/>
+
+            </LinearLayout>
+
+        </androidx.core.widget.NestedScrollView>
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
@@ -81,7 +146,7 @@
         android:layout_weight="1"
         android:layoutDirection="ltr"
         android:visibility="invisible"
-        tools:visibility="visible"
+        tools:visibility="gone"
         android:orientation="vertical">
 
         <TextView

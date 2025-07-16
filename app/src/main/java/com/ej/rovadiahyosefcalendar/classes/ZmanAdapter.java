@@ -3,11 +3,8 @@ package com.ej.rovadiahyosefcalendar.classes;
 import static android.content.Context.MODE_PRIVATE;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mJewishDateInfo;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mROZmanimCalendar;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentLocationName;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentTimeZoneID;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLatitude;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLongitude;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSetupLauncher;
 import static com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment.sNextUpcomingZman;
 import static com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment.sShabbatMode;
@@ -39,14 +36,12 @@ import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ej.rovadiahyosefcalendar.R;
-import com.ej.rovadiahyosefcalendar.activities.GetUserLocationWithMapActivity;
 import com.ej.rovadiahyosefcalendar.activities.SetupChooserActivity;
 import com.ej.rovadiahyosefcalendar.activities.SetupElevationActivity;
 import com.ej.rovadiahyosefcalendar.activities.SiddurViewActivity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
-import org.apache.commons.lang3.time.DateUtils;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 import org.jetbrains.annotations.NotNull;
@@ -66,7 +61,6 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
     private List<ZmanListEntry> zmanim;
     private final OnClickListeners.OnZmanClickListener onZmanClickListener;
-    private final OnClickListeners.OnZmanClickListener onDateClickListener;
     private final SharedPreferences mSharedPreferences;
     private final Context context;
     private MaterialAlertDialogBuilder dialogBuilder;
@@ -78,11 +72,9 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     private boolean wasTalitTefilinZmanClicked;
 
     public ZmanAdapter(Context context, List<ZmanListEntry> zmanim,
-                       OnClickListeners.OnZmanClickListener onZmanClickListener,
-                       OnClickListeners.OnZmanClickListener onDateClickListener) {
+                       OnClickListeners.OnZmanClickListener onZmanClickListener) {
         this.zmanim = zmanim;
         this.onZmanClickListener = onZmanClickListener;
-        this.onDateClickListener = onDateClickListener;
         this.context = context;
         mSharedPreferences = this.context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         isZmanimInHebrew = mSharedPreferences.getBoolean("isZmanimInHebrew", false);
@@ -192,61 +184,11 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                 holder.mMiddleTextView.setText(title);
             }
 
-            if (position == 1) {// date
-                holder.mMiddleTextView.setOnClickListener(v -> onDateClickListener.onItemClick());
-                if (DateUtils.isSameDay(mROZmanimCalendar.getCalendar().getTime(), new Date())) {
-                    holder.mMiddleTextView.setMaxLines(2);
-                    String engDate = mROZmanimCalendar.getCalendar().get(Calendar.DATE) +
-                            " " +
-                            mROZmanimCalendar.getCalendar().getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault()) +
-                            ", " +
-                            mROZmanimCalendar.getCalendar().get(Calendar.YEAR);
-                    String updatedText;
-                    if (new Date().after(mROZmanimCalendar.getSunset())) {
-                        updatedText = context.getString(R.string.today) + " — " + engDate + "\n"
-                                + context.getString(R.string.post_sunset_date) + " " + mJewishDateInfo.tomorrow().getJewishCalendar().toString();
-                    } else {
-                        updatedText = context.getString(R.string.today) + " — " + engDate + "\n"
-                                + context.getString(R.string.pre_sunset_date) + " " + mJewishDateInfo.getJewishCalendar().toString();
-                    }
-                    holder.mMiddleTextView.setText(updatedText);
-                }
-            }
-
-            if (position == 2) {// make parasha text bold
-                holder.mMiddleTextView.setTypeface(null, Typeface.BOLD);
-            }
-
             holder.itemView.setOnClickListener(v -> {
                 if (!sShabbatMode && PreferenceManager.getDefaultSharedPreferences(context).getBoolean("showZmanDialogs", true)) {
                     checkZmanimForDialog(position);
 
-                    if (position == 0) {// first entry will always be the location name
-                        dialogBuilder.setTitle(context.getString(R.string.location_info_for) + " " + title);
-                        String locationInfo = context.getString(R.string.location_name) + " " + sCurrentLocationName + "\n" +
-                                context.getString(R.string.latitude) + " " + sLatitude + "\n" +
-                                context.getString(R.string.longitude) + " " + sLongitude + "\n" +
-                                context.getString(R.string.elevation) + " " +
-                                (mSharedPreferences.getBoolean("useElevation", true) ?
-                                        mSharedPreferences.getString("elevation" + sCurrentLocationName, "0") : "0")
-                                + " " + context.getString(R.string.meters) + "\n" +
-                                context.getString(R.string.time_zone) + sCurrentTimeZoneID;
-                        dialogBuilder.setMessage(locationInfo);
-                        dialogBuilder.setPositiveButton(R.string.share, ((dialog, which) -> {
-                            Intent sendIntent = new Intent(Intent.ACTION_SEND);
-                            sendIntent.setType("text/plain");
-                            sendIntent.putExtra(Intent.EXTRA_TEXT, "https://royzmanim.com/calendar?locationName=" + sCurrentLocationName.replace(" ", "+").replace(",", "%2C") + "&lat=" + sLatitude + "&long=" + sLongitude + "&elevation=" + getElevation() + "&timeZone=" + sCurrentTimeZoneID);
-                            context.startActivity(Intent.createChooser(sendIntent, context.getString(R.string.share)));
-                        }));
-                        dialogBuilder.setNeutralButton(R.string.change_location, (dialog, which) -> context.startActivity(new Intent(context, GetUserLocationWithMapActivity.class).putExtra("loneActivity", true)));
-                        dialogBuilder.setNegativeButton(context.getString(R.string.setup_elevation), (dialog, which) -> context.startActivity(new Intent(context, SetupElevationActivity.class).putExtra("loneActivity", true)));
-                        dialogBuilder.show();
-                        resetDialogBuilder();
-                    }
-
-                    // second entry (position 1) is always the date
-
-                    if (position == 2 && !title.equals("No Weekly Parsha") && !title.equals("אין פרשת שבוע")) {// third entry will always be the weekly parsha
+                    if (position == 0 && !title.equals("No Weekly Parsha") && !title.equals("אין פרשת שבוע")) {// third entry will always be the weekly parsha
                         String parsha;
                         if (title.equals("לך לך")
                                 || title.equals("חיי שרה")

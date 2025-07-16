@@ -85,6 +85,12 @@ public class JewishDateInfo {
         return tomorrow;
     }
 
+    public JewishDateInfo getCopy() {
+        Calendar clonedDate = (Calendar) currentDate.clone(); // Clone the current date to avoid modifying it directly
+        JewishDateInfo copy = new JewishDateInfo(this.jewishCalendar.getInIsrael());
+        copy.setCalendar(clonedDate);
+        return copy;
+    }
 
     /**
      * This method is used to set the current date.
