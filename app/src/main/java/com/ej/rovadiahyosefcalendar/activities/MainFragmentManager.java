@@ -138,13 +138,15 @@ public class MainFragmentManager extends AppCompatActivity {
         }
 
         if (sSharedPreferences.getBoolean("RYYHaskamaNotShown", true)) {
-            new MaterialAlertDialogBuilder(this)
-                    .setTitle(R.string.new_haskama)
-                    .setMessage(R.string.the_team_behind_zemaneh_yosef_is_proud_to_announce_that_we_have_recently_received_a_new_haskama_from_the_rishon_l_tzion_harav_yitzhak_yosef_check_it_out)
-                    .setPositiveButton(R.string.haskama_by_rabbi_yitzhak_yosef, (dialog, which) -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://royzmanim.com/assets/haskamah-rishon-letzion.pdf"))))
-                    .setNegativeButton(R.string.dismiss, (dialog, which) -> dialog.dismiss())
-                    .setCancelable(false)
-                    .show();
+            if (!sSharedPreferences.getBoolean("isSetup", false)) {
+                new MaterialAlertDialogBuilder(this)
+                        .setTitle(R.string.new_haskama)
+                        .setMessage(R.string.the_team_behind_zemaneh_yosef_is_proud_to_announce_that_we_have_recently_received_a_new_haskama_from_the_rishon_l_tzion_harav_yitzhak_yosef_check_it_out)
+                        .setPositiveButton(R.string.haskama_by_rabbi_yitzhak_yosef, (dialog, which) -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://royzmanim.com/assets/haskamah-rishon-letzion.pdf"))))
+                        .setNegativeButton(R.string.dismiss, (dialog, which) -> dialog.dismiss())
+                        .setCancelable(false)
+                        .show();
+            }
             sSharedPreferences.edit().putBoolean("RYYHaskamaNotShown", false).apply();// do not check again
         }
 

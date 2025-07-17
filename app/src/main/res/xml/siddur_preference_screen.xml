@@ -6,6 +6,7 @@
         android:key="siddur_day_text"
         android:title="Sunday (Today)\n3 Tammuz, 5785"
         android:singleLineTitle="false"
+        android:layout="@layout/custom_material_preference_category"
         tools:targetApi="26" />
 
     <com.ej.rovadiahyosefcalendar.classes.CustomPreferenceView
@@ -28,6 +29,7 @@
         android:key="siddur_night_text"
         android:title="Sunday (Today) (After Sunset)\n4 Tammuz, 5785"
         android:singleLineTitle="false"
+        android:layout="@layout/custom_material_preference_category"
         tools:targetApi="26" />
 
     <com.ej.rovadiahyosefcalendar.classes.CustomPreferenceView
@@ -54,7 +56,9 @@
         android:key="siddur_tikkun_chatzot"
         android:title="@string/tikkun_chatzot" />
 
-    <PreferenceCategory android:title="@string/misc" />
+    <PreferenceCategory
+        android:title="@string/misc"
+        android:layout="@layout/custom_material_preference_category" />
 
     <!-- For during the 3 weeks -->
     <com.ej.rovadiahyosefcalendar.classes.CustomPreferenceView
@@ -86,7 +90,10 @@
         android:title="פרשת המן"
         app:isPreferenceVisible="false"/>
 
-    <PreferenceCategory android:key="siddur_see_more_title" android:title="@string/see_more" />
+    <PreferenceCategory
+        android:key="siddur_see_more_title"
+        android:title="@string/see_more"
+        android:layout="@layout/custom_material_preference_category" />
 
     <com.ej.rovadiahyosefcalendar.classes.CustomPreferenceView
         android:key="siddur_see_more"

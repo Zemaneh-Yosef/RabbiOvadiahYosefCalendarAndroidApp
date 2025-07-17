@@ -240,7 +240,7 @@ public class SiddurFragment extends Fragment {
                 });
                 CharSequence title = selichot.getTitle();
                 if (title != null) {
-                    //selichot.setSummary(getSecondaryText(title));
+                    selichot.setSummary(getSecondaryText(title));
                 }
             }
 
@@ -252,7 +252,7 @@ public class SiddurFragment extends Fragment {
                 });
                 CharSequence title = shacharit.getTitle();
                 if (title != null) {
-                    //shacharit.setSummary(getSecondaryText(title));
+                    shacharit.setSummary(getSecondaryText(title));
                 }
                 if (showAllPrayers) {
                     shacharit.setVisible(true);
@@ -274,7 +274,7 @@ public class SiddurFragment extends Fragment {
                 });
                 CharSequence title = mussaf.getTitle();
                 if (title != null) {
-                    //mussaf.setSummary(getSecondaryText(title));
+                    mussaf.setSummary(getSecondaryText(title));
                 }
             }
 
@@ -286,13 +286,10 @@ public class SiddurFragment extends Fragment {
                 });
                 CharSequence title = mincha.getTitle();
                 if (title != null) {
-                    //mincha.setSummary(getSecondaryText(title));
+                    mincha.setSummary(getSecondaryText(title));
                 }
-                if (showAllPrayers) {
-                    mincha.setVisible(true);
-                } else {
-                    mincha.setVisible(isPrayerCurrentlySaid(mincha.getKey()));
-                }
+
+                mincha.setVisible(showAllPrayers || isPrayerCurrentlySaid(mincha.getKey()));
             }
 
             Preference nightDayOfWeek = findPreference("siddur_night_text");
@@ -319,7 +316,7 @@ public class SiddurFragment extends Fragment {
                 });
                 CharSequence title = arvit.getTitle();
                 if (title != null) {
-                    //arvit.setSummary(getSecondaryText(title));
+                    arvit.setSummary(getSecondaryText(title));
                 }
                 if (showAllPrayers) {
                     arvit.setVisible(true);
@@ -336,7 +333,7 @@ public class SiddurFragment extends Fragment {
                 });
                 CharSequence title = sefiratHaomer.getTitle();
                 if (title != null) {
-                    //sefiratHaomer.setSummary(getSecondaryText(title));
+                    sefiratHaomer.setSummary(getSecondaryText(title));
                 }
                 if (showAllPrayers) {
                     sefiratHaomer.setVisible(!(mJewishDateInfo.tomorrow().getJewishCalendar().getDayOfOmer() == -1 || mJewishDateInfo.getJewishCalendar().getDayOfOmer() >= 49));
@@ -354,7 +351,7 @@ public class SiddurFragment extends Fragment {
                 });
                 CharSequence title = hadlakatNeirotChanuka.getTitle();
                 if (title != null) {
-                    //hadlakatNeirotChanuka.setSummary(getSecondaryText(title));
+                    hadlakatNeirotChanuka.setSummary(getSecondaryText(title));
                 }
                 if (showAllPrayers) {
                     hadlakatNeirotChanuka.setVisible(mJewishDateInfo.tomorrow().getJewishCalendar().isChanukah() || mJewishDateInfo.getJewishCalendar().isChanukah() && mJewishDateInfo.getJewishCalendar().getDayOfChanukah() != 8);
@@ -409,7 +406,7 @@ public class SiddurFragment extends Fragment {
 
                 CharSequence title = havdalah.getTitle();
                 if (title != null) {
-                    //havdalah.setSummary(getSecondaryText(title));
+                    havdalah.setSummary(getSecondaryText(title));
                 }
             }
 
@@ -426,7 +423,7 @@ public class SiddurFragment extends Fragment {
                 });
                 CharSequence title = kriatShemaAlHamita.getTitle();
                 if (title != null) {
-                    //kriatShemaAlHamita.setSummary(getSecondaryText(title));
+                    kriatShemaAlHamita.setSummary(getSecondaryText(title));
                 }
             }
 
@@ -508,7 +505,7 @@ public class SiddurFragment extends Fragment {
                 tikkunChatzot.setOnPreferenceClickListener(tikkunChatzotOnClickListener);
                 CharSequence title = tikkunChatzot.getTitle();
                 if (title != null) {// only add summary if not during the 3 weeks
-                    //tikkunChatzot.setSummary(getSecondaryText(title));
+                    tikkunChatzot.setSummary(getSecondaryText(title));
                 }
             }
             if (tikkunChatzot3Weeks != null) {
@@ -568,7 +565,7 @@ public class SiddurFragment extends Fragment {
                 });
                 CharSequence title = bh.getTitle();
                 if (title != null) {
-                    //bh.setSummary(getSecondaryText(title));
+                    bh.setSummary(getSecondaryText(title));
                 }
             }
 
@@ -618,7 +615,7 @@ public class SiddurFragment extends Fragment {
                 });
                 CharSequence title = bms.getTitle();
                 if (title != null) {
-                    //bms.setSummary(getSecondaryText(title));
+                    bms.setSummary(getSecondaryText(title));
                 }
             }
 
@@ -632,7 +629,7 @@ public class SiddurFragment extends Fragment {
                         || (currentJewishDateInfo.getJewishCalendar().hasCandleLighting() && new Date().after(currentZmanimCalendar.getSunset()))));
                 CharSequence title = tefilatHaderech.getTitle();
                 if (title != null) {
-                    //tefilatHaderech.setSummary(getSecondaryText(title));
+                    tefilatHaderech.setSummary(getSecondaryText(title));
                 }
             }
 
@@ -676,7 +673,7 @@ public class SiddurFragment extends Fragment {
                 });
                 CharSequence title = sederSiyumMasechet.getTitle();
                 if (title != null) {
-                    //sederSiyumMasechet.setSummary(getSecondaryText(title));
+                    sederSiyumMasechet.setSummary(getSecondaryText(title));
                 }
             }
 
@@ -689,7 +686,7 @@ public class SiddurFragment extends Fragment {
                 birchatLevana.setVisible(!getBoolBasedJewishDateInfo().getBirchatLevana().isEmpty());// hide the button if there's no status text returned
                 CharSequence title = birchatLevana.getTitle();
                 if (title != null) {
-                    //birchatLevana.setSummary(getSecondaryText(title));
+                    birchatLevana.setSummary(getSecondaryText(title));
                 }
             }
 
