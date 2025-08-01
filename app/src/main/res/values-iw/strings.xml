@@ -327,10 +327,6 @@
 
     <string name="round_up_rabbeinu_tam">זמן רבנו תם מעוגל</string>
 
-    <string name="choose_whether_or_not_the_app_will_notify_you_of_the_day_of_the_omer_during_the_day">בחר אם האפליקציה תודיע לך על יום העומר במהלך היום</string>
-
-    <string name="notify_day_of_omer_as_well">להודיע על יום העומר גם</string>
-
     <string name="choose_whether_or_not_to_display_sea_level_sunrise_even_if_visible_sunrise_is_setup_as_well">בחר אם להציג את זמן הזריחה בגובה פני הים גם כשהוגדר להציג את זמן הזריחה הנראית</string>
 
     <string name="always_show_mishor_sunrise">הצגה קבועה של זמן הנץ במישור</string>
@@ -705,4 +701,9 @@
     <string name="please_select_at_least_one_option">בבקשה בחר לפחות אפשרות אחת</string>
     <string name="post_sunset_date">תאריך לאחר השקיעה:</string>
     <string name="pre_sunset_date">תאריך לפני השקיעה:</string>
+    <string name="see_all_prayers">ראה את כל התפילות</string>
+    <string name="see_more">ראה עוד…</string>
+    <string name="prayers_able_to_be_said_now">תפילות שניתן לומר כעת</string>
+    <string name="see_prayers_currently_applicable">ראה תפילות שתקפות כעת</string>
+    <string name="_default">ברירת מחדל</string>
 </resources>

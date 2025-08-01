@@ -54,7 +54,7 @@
             app:layout_constrainedHeight="true" />
 
     </com.facebook.shimmer.ShimmerFrameLayout>
-    
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh_layout"
         android:layout_width="match_parent"
@@ -63,6 +63,7 @@
         android:visibility="visible">
 
         <androidx.core.widget.NestedScrollView
+            android:id="@+id/nestedScrollView"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -84,54 +85,138 @@
                     android:autoSizeMaxTextSize="22sp"
                     android:autoSizeMinTextSize="8sp"
                     android:maxLines="1"
-                    android:paddingStart="4dp"
-                    android:paddingEnd="4dp"
+                    android:padding="4dp"
                     tools:ignore="UnusedAttribute" />
 
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/daily_card"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="4dp">
-
-                <LinearLayout
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/daily_card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_marginVertical="10dp">
 
-                    <TextView
-                        android:id="@+id/greg_date"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:layout_gravity="center"
-                        android:textSize="26sp"
-                        tools:text="Today - July 10th, 2025"/>
+                        android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/heb_date"
+                        <TextView
+                            android:id="@+id/weekday"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="20sp"
+                            android:gravity="center"
+                            android:layout_gravity="center"
+                            android:paddingStart="8dp"
+                            android:paddingEnd="8dp"
+                            android:autoSizeTextType="uniform"
+                            android:autoSizeMaxTextSize="20sp"
+                            android:autoSizeMinTextSize="8sp"
+                            tools:text="Friday / יום שישי"/>
+
+                        <TextView
+                            android:id="@+id/greg_date"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:layout_gravity="center"
+                            android:textSize="26sp"
+                            android:autoSizeTextType="uniform"
+                            android:autoSizeMaxTextSize="26sp"
+                            android:autoSizeMinTextSize="8sp"
+                            tools:text="Today - July 10th, 2025"/>
+
+                        <TextView
+                            android:id="@+id/heb_date"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:layout_gravity="center"
+                            android:textSize="20sp"
+                            android:autoSizeTextType="uniform"
+                            android:autoSizeMaxTextSize="20sp"
+                            android:autoSizeMinTextSize="8sp"
+                            tools:text="Pre-sunset: 14 Ḥeshvan 5785"/>
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/parsha_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_marginVertical="10dp">
+
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:layout_gravity="center"
-                        android:textSize="20sp"
-                        tools:text="Pre-sunset: 14 Ḥeshvan 5785"/>
+                        android:orientation="vertical">
 
-                </LinearLayout>
+                        <TextView
+                            android:id="@+id/parsha"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:layout_gravity="center"
+                            android:textSize="24sp"
+                            android:textStyle="bold"
+                            android:paddingStart="8dp"
+                            android:paddingEnd="8dp"
+                            android:autoSizeTextType="uniform"
+                            android:autoSizeMaxTextSize="24sp"
+                            android:autoSizeMinTextSize="8sp"
+                            tools:text="דברים / חזון"/>
 
-            </com.google.android.material.card.MaterialCardView>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="horizontal">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/mainRV"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:focusable="true"
-                android:nestedScrollingEnabled="false"
-                android:overScrollMode="never"
-                android:descendantFocusability="afterDescendants"
-                app:layout_constrainedHeight="true"
-                android:visibility="visible"/>
+                            <ImageView
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:textSize="20sp"
+                                android:paddingStart="8dp"
+                                android:paddingEnd="8dp"
+                                android:src="@drawable/megila_icon"
+                                android:autoSizeTextType="uniform"
+                                android:autoSizeMaxTextSize="20sp"
+                                android:autoSizeMinTextSize="8sp"
+                                android:text="@string/haftara"/>
+
+                            <TextView
+                                android:id="@+id/haftara"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="20sp"
+                                android:layout_gravity="center"
+                                android:autoSizeTextType="uniform"
+                                android:autoSizeMaxTextSize="20sp"
+                                android:autoSizeMinTextSize="8sp"
+                                tools:text="Haftarah: חזון (ישעיה א)"/>
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/mainRV"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:focusable="true"
+                    android:nestedScrollingEnabled="false"
+                    android:overScrollMode="never"
+                    android:descendantFocusability="afterDescendants"
+                    app:layout_constrainedHeight="true"
+                    android:visibility="visible"/>
 
             </LinearLayout>
 

@@ -1,10 +1,11 @@
 <resources>
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="AppTheme" parent="Theme.Material3Expressive.DayNight.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="actionOverflowMenuStyle">@style/popupOverflowMenu</item>
         <item name="android:windowAllowReturnTransitionOverlap">true</item>
         <item name="android:windowAllowEnterTransitionOverlap">true</item>
+        <item name="alertDialogTheme">@style/AppTheme.AlertDialogTheme</item>
     </style>
 
     <style name="popupOverflowMenu" parent="@style/Widget.Material3.PopupMenu.Overflow">
@@ -27,6 +28,19 @@
     <style name="Widget.AppTheme.ButtonBar.Fullscreen" parent="">
         <item name="android:background">@color/black_overlay</item>
         <item name="android:buttonBarStyle">?android:attr/buttonBarStyle</item>
+    </style>
+
+    <style name="tooltip" parent="Widget.MaterialComponents.Tooltip">
+        <item name="shapeAppearanceOverlay">@style/tooltipShapeOverylay</item>
+        <item name="backgroundTint">@color/textColor</item>
+    </style>
+
+    <style name="tooltipShapeOverylay">
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <style name="AppTheme.AlertDialogTheme" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
+        <item name="dialogCornerRadius">20dp</item>
     </style>
 
 </resources>

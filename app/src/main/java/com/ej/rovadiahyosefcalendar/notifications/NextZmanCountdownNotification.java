@@ -78,9 +78,7 @@ public class NextZmanCountdownNotification extends Service {
                         mROZmanimCalendar,
                         mJewishDateInfo,
                         mSettingsPreferences,
-                        mSharedPreferences,
-                        mIsZmanimInHebrew,
-                        mIsZmanimEnglishTranslated);
+                        mSharedPreferences);
             }
         };
         mSharedPreferences.registerOnSharedPreferenceChangeListener(sharedPrefListener);
@@ -207,9 +205,7 @@ public class NextZmanCountdownNotification extends Service {
                                     mROZmanimCalendar,
                                     mJewishDateInfo,
                                     mSettingsPreferences,
-                                    mSharedPreferences,
-                                    mIsZmanimInHebrew,
-                                    mIsZmanimEnglishTranslated
+                                    mSharedPreferences
                             );
                             timeTillNextZman = nextZman.getZman().getTime() - currentTime;
                             remainingTime = timeTillNextZman;

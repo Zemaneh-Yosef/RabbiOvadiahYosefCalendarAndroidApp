@@ -15,7 +15,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
-import android.net.Uri;
 import android.os.Build;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -40,7 +39,6 @@ import com.ej.rovadiahyosefcalendar.activities.SetupChooserActivity;
 import com.ej.rovadiahyosefcalendar.activities.SetupElevationActivity;
 import com.ej.rovadiahyosefcalendar.activities.SiddurViewActivity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
@@ -186,38 +184,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
             holder.itemView.setOnClickListener(v -> {
                 if (!sShabbatMode && PreferenceManager.getDefaultSharedPreferences(context).getBoolean("showZmanDialogs", true)) {
-                    checkZmanimForDialog(position);
 
-                    if (position == 0 && !title.equals("No Weekly Parsha") && !title.equals("אין פרשת שבוע")) {// third entry will always be the weekly parsha
-                        String parsha;
-                        if (title.equals("לך לך")
-                                || title.equals("חיי שרה")
-                                || title.equals("כי תשא")
-                                || title.equals("אחרי מות")
-                                || title.equals("שלח לך")
-                                || title.equals("כי תצא")
-                                || title.equals("כי תבוא")
-                                || title.equals("וזאת הברכה ")) {
-                            parsha = title;// ugly, but leave the first word and second word in these cases
-                        } else {
-                            if (title.contains("אחרי מות")) {// edge case for Acharei Mot Kedoshim
-                                parsha = "אחרי מות";
-                            } else {
-                                parsha = title.split(" ")[0];//get first word
-                            }
-                        }
-                        String parshaLink = "https://www.sefaria.org/" + parsha;
-                        dialogBuilder.setTitle(context.getString(R.string.open_sefaria_link_for) + parsha + "?");
-                        dialogBuilder.setMessage(R.string.this_will_open_the_sefaria_website_or_app_in_a_new_window_with_the_weekly_parsha);
-                        dialogBuilder.setPositiveButton(context.getString(R.string.ok), (dialog, which) -> {
-                            Intent intent = new Intent(Intent.ACTION_VIEW);
-                            intent.setData(Uri.parse(parshaLink));
-                            context.startActivity(intent);
-                        });
-                        dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
-                        dialogBuilder.show();
-                        resetDialogBuilder();
-                    }
+                    checkZmanimForDialog(position);
 
                     if (title.contains(context.getString(R.string.three_weeks))
                             || title.contains(context.getString(R.string.nine_days))
@@ -615,17 +583,11 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         AlertDialog alertDialog = dialogBuilder.setTitle("Sefirat HaOmer - ספירת העומר")
                 .setMessage(R.string.omer_dialog)
                 .setPositiveButton(context.getString(R.string.see_full_text), (dialog, which) -> {
-                    JewishCalendar yesterday  = new JewishCalendar();
-                    yesterday.setJewishDate(
-                            mJewishDateInfo.getJewishCalendar().getJewishYear(),
-                            mJewishDateInfo.getJewishCalendar().getJewishMonth(),
-                            mJewishDateInfo.getJewishCalendar().getJewishDayOfMonth());
-                    yesterday.back();// need to go back a day because the siddur automatically goes to the next day
                     context.startActivity(new Intent(context, SiddurViewActivity.class)
                             .putExtra("prayer", context.getString(R.string.sefirat_haomer))
-                            .putExtra("JewishDay", yesterday.getJewishDayOfMonth())
-                            .putExtra("JewishMonth", yesterday.getJewishMonth())
-                            .putExtra("JewishYear", yesterday.getJewishYear()));
+                            .putExtra("JewishDay", mJewishDateInfo.getJewishCalendar().getJewishDayOfMonth())
+                            .putExtra("JewishMonth", mJewishDateInfo.getJewishCalendar().getJewishMonth())
+                            .putExtra("JewishYear", mJewishDateInfo.getJewishCalendar().getJewishYear()));
                 })
                 .create();
         alertDialog.show();

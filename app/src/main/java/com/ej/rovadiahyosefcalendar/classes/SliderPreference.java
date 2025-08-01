@@ -8,10 +8,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.SeekBar;
-import android.widget.SeekBar.OnSeekBarChangeListener;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,19 +16,19 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceViewHolder;
 
 import com.ej.rovadiahyosefcalendar.R;
+import com.google.android.material.checkbox.MaterialCheckBox;
+import com.google.android.material.slider.Slider;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class SeekBarPreference extends Preference {
+public class SliderPreference extends Preference {
 
-  private static final Map<EditText, SeekBarPreference> cache = new HashMap<>();
-  public static final int MIN_TO_MS_CONVERSION = 60 * 1000;
-  private static final int MAX_ALERT_TIME = 60 * MIN_TO_MS_CONVERSION; // 1 hour
+  private static final Map<EditText, SliderPreference> cache = new HashMap<>();
   private static final int NO_ALERT = -1;
 
-  private CheckBox enabled;
-  private SeekBar seekBar;
+  private MaterialCheckBox enabled;
+  private Slider slider;
   private EditText currentValueDisplay;
 
   private int defaultValue;
@@ -39,33 +36,27 @@ public class SeekBarPreference extends Preference {
 
   private final CurrentValueTextWatcher currentValueTextWatcher;
 
-  private final SeekBarListener seekBarListener;
+  private final OnSliderListener sliderListener;
 
   private final View.OnClickListener enabledClickListener;
 
-
-  @SuppressWarnings("unused")
-  public SeekBarPreference(Context context) {
+  public SliderPreference(Context context) {
     this(context, null, 0);
   }
 
-
-  @SuppressWarnings("unused")
-  public SeekBarPreference(Context context, AttributeSet attrs) {
+  public SliderPreference(Context context, AttributeSet attrs) {
     this(context, attrs, 0);
   }
 
-
-  public SeekBarPreference(Context context, @Nullable AttributeSet attrs, int defStyle) {
+  public SliderPreference(Context context, @Nullable AttributeSet attrs, int defStyle) {
     super(context, attrs, defStyle);
-    setLayoutResource(R.layout.preference_seekbar);
+    setLayoutResource(R.layout.preference_slider);
 
     currentValueTextWatcher = new CurrentValueTextWatcher();
-    seekBarListener = new SeekBarListener();
+    sliderListener = new OnSliderListener();
 
     enabledClickListener = new EnabledClickListener();
   }
-
 
   @Override
   public void onDetached() {
@@ -75,7 +66,6 @@ public class SeekBarPreference extends Preference {
 
     super.onDetached();
   }
-
 
   @Override
   public void onDependencyChanged(@NonNull Preference dependency, boolean disableDependent) {
@@ -87,7 +77,6 @@ public class SeekBarPreference extends Preference {
       enableControls(!disableDependent);
     }
   }
-
 
   @Override
   protected Parcelable onSaveInstanceState() {
@@ -106,7 +95,6 @@ public class SeekBarPreference extends Preference {
 
     return myState;
   }
-
 
   @Override
   protected void onRestoreInstanceState(Parcelable state) {
@@ -127,37 +115,33 @@ public class SeekBarPreference extends Preference {
     initView();
   }
 
-
   @Override
   public void onBindViewHolder(@NonNull PreferenceViewHolder holder) {
-
     cleanup();
 
     super.onBindViewHolder(holder);
 
-    seekBar = (SeekBar) holder.findViewById(R.id.seekbar);
-    seekBar.setProgress(progress);
-    seekBar.setMax(MAX_ALERT_TIME / MIN_TO_MS_CONVERSION);
+    slider = (Slider) holder.findViewById(R.id.seekbar);
+    slider.setValue(progress);
 
     currentValueDisplay = (EditText) holder.findViewById(R.id.value);
-    enabled = (CheckBox) holder.findViewById(R.id.enable);
+    enabled = (MaterialCheckBox) holder.findViewById(R.id.enable);
 
     updateCache();
-
 
     // Forces everything to get setup correctly.
     initView();
 
     // Add the listeners now, so we don't get anything while initializing.
     enabled.setOnClickListener(enabledClickListener);
-    seekBar.setOnSeekBarChangeListener(seekBarListener);
+    slider.addOnSliderTouchListener(sliderListener);
+    slider.addOnChangeListener(sliderListener);
+    slider.setLabelFormatter(v -> String.valueOf((int)v));
     currentValueDisplay.addTextChangedListener(currentValueTextWatcher);
   }
 
-
   private void updateCache() {
-
-    final SeekBarPreference other = cache.remove(currentValueDisplay);
+    final SliderPreference other = cache.remove(currentValueDisplay);
     if ((other != null) && (other != this)) {
       other.cleanup();
     }
@@ -165,11 +149,9 @@ public class SeekBarPreference extends Preference {
     cache.put(currentValueDisplay, this);
   }
 
-
   private void cleanup() {
-
-    if (seekBar != null) {
-      seekBar.setOnSeekBarChangeListener(null);
+    if (slider != null) {
+      slider.removeOnSliderTouchListener(sliderListener);
     }
 
     if (enabled != null) {
@@ -181,28 +163,17 @@ public class SeekBarPreference extends Preference {
     }
   }
 
-
   @Override
   protected void onPrepareForRemoval() {
-
     cleanup();
     super.onPrepareForRemoval();
   }
 
-
   @Override
-  protected void onSetInitialValue(boolean restoreValue, Object defaultValue) {
-
-    int value;
-    if ( defaultValue instanceof Integer ) {
-      value = (Integer) defaultValue;
-    } else {
-      value = NO_ALERT;
-    }
-
-    setValue( restoreValue ? getPersistedInt( progress ) : value );
+  protected void onSetInitialValue(@Nullable Object defaultValue) {
+    setValue(getPersistedInt(progress));
+    super.onSetInitialValue(defaultValue);
   }
-
 
   @Override
   protected Object onGetDefaultValue(TypedArray a, int index) {
@@ -210,27 +181,23 @@ public class SeekBarPreference extends Preference {
     return defaultValue;
   }
 
-
   private void initView() {
     final boolean thisAlertIsEnabled = progress >= 0;
     enabled.setChecked(thisAlertIsEnabled);
 
-    enableControls( thisAlertIsEnabled);
+    enableControls(thisAlertIsEnabled);
     updateValueDisplay(true);
   }
-
 
   private void enableControls(boolean isEnabled) {
 
     // Do NOT try to call setEnabled() on 'this' -- since we call this method from onBindViewHolder() and other times
     // while performing a layout, it will cause an exception.
-    seekBar.setEnabled(isEnabled);
+    slider.setEnabled(isEnabled);
     currentValueDisplay.setEnabled(isEnabled);
   }
 
-
   private void setValue(int value) {
-
     if (value != progress) {
 
       persistInt(value);
@@ -244,7 +211,6 @@ public class SeekBarPreference extends Preference {
 //      }
     }
   }
-
 
   private void updateValueDisplay(boolean initialUpdate) {
 
@@ -267,55 +233,47 @@ public class SeekBarPreference extends Preference {
     }
   }
 
-
   private void updateSeekBar() {
-    seekBar.setProgress(progress);
+    slider.setValue(progress);
   }
-
 
   private boolean isViewReady() {
     // Will be null when we're setting up.
     return currentValueDisplay != null;
   }
 
-
   private int getAlertValue() {
     final String value = currentValueDisplay.getText().toString();
     return (value.isEmpty() ? NO_ALERT : Integer.parseInt(value));
   }
 
-
   /**
    * Listen for the user to slide the seek bar, and make sure the text value is updated.
    */
-  private class SeekBarListener implements OnSeekBarChangeListener {
+  private class OnSliderListener implements Slider.OnSliderTouchListener, Slider.OnChangeListener {
 
     boolean isTracking = false;
 
     @Override
-    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+    public void onStartTrackingTouch(@NonNull Slider slider) {
+      isTracking = true;
+    }
+
+    @Override
+    public void onStopTrackingTouch(@NonNull Slider slider) {
+      isTracking = false;
+    }
+
+    @Override
+    public void onValueChange(@NonNull Slider slider, float progress, boolean fromUser) {
       if (!fromUser) {
         return;
       }
 
-      setValue(progress);
+      setValue((int) progress);
       updateValueDisplay(false);
     }
-
-
-    @Override
-    public void onStartTrackingTouch(SeekBar seekBar) {
-      isTracking = true;
-    }
-
-
-    @Override
-    public void onStopTrackingTouch(SeekBar seekBar) {
-      isTracking = false;
-    }
-
   }
-
 
   /**
    * Listen for the user to enter a value in the text box, and make sure the seek bar is updated.
@@ -324,42 +282,37 @@ public class SeekBarPreference extends Preference {
 
     @Override
     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-      if (!seekBarListener.isTracking) {
-        seekBar.setOnSeekBarChangeListener(null);
+      if (!sliderListener.isTracking) {
+        slider.removeOnChangeListener(sliderListener);
       }
     }
 
 
     @Override
-    public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+    }
 
     @Override
     public void afterTextChanged(Editable s) {
-      if (!seekBarListener.isTracking) {
+      if (!sliderListener.isTracking) {
         int alertTime = getAlertValue();
         setValue(alertTime);
         updateSeekBar();
-
-        seekBar.setOnSeekBarChangeListener(seekBarListener);
+        slider.addOnSliderTouchListener(sliderListener);
       }
     }
   }
 
-
   /**
-   * Save/restore the data. See https://developer.android.com/guide/topics/ui/settings.html
+   * Save/restore the data. See <a href="https://developer.android.com/guide/topics/ui/settings.html">here</a>
    */
-  private static class SavedState
-          extends BaseSavedState {
+  private static class SavedState extends BaseSavedState {
 
     int value;
-
 
     SavedState(Parcelable superState) {
       super(superState);
     }
-
 
     SavedState(Parcel source) {
       super(source);
@@ -367,32 +320,25 @@ public class SeekBarPreference extends Preference {
       value = source.readInt();
     }
 
-
     @Override
-    public void writeToParcel(
-            Parcel dest,
-            int flags
-    ) {
+    public void writeToParcel(Parcel dest, int flags) {
       super.writeToParcel(dest, flags);
       // Write the preference's value
       dest.writeInt(value);
     }
 
-
     // Standard creator object using an instance of this class
-    public static final Creator<SavedState> CREATOR = new Creator<SavedState>() {
+    public static final Creator<SavedState> CREATOR = new Creator<>() {
 
       public SavedState createFromParcel(Parcel in) {
         return new SavedState(in);
       }
-
 
       public SavedState[] newArray(int size) {
         return new SavedState[size];
       }
     };
   }
-
 
   private class EnabledClickListener implements View.OnClickListener {
 

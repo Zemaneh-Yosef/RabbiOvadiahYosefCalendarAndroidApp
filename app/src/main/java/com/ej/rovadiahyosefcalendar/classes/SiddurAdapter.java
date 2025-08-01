@@ -154,13 +154,13 @@ public class SiddurAdapter extends ArrayAdapter<String> implements SensorEventLi
             }
             //viewHolder.info.setVisibility(View.VISIBLE);
             viewHolder.textView.setVisibility(View.VISIBLE);
-            String summary = "▲" + siddur.get(position).getSummary();
+            String summary = "▲ " + siddur.get(position).getSummary();
             viewHolder.textView.setText(summary);
             View.OnClickListener onClickListener = l -> {
                 viewHolder.textView.wasClicked = !viewHolder.textView.wasClicked;
                 if (viewHolder.textView.wasClicked) {
                     //viewHolder.info.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.baseline_keyboard_arrow_down_24, 0);
-                    String full = "▼" + siddur.get(position).getSummary() + siddur.get(position).toString();
+                    String full = "▼ " + siddur.get(position).getSummary() + siddur.get(position).toString();
                     viewHolder.textView.setText(full);
                 } else {
                     //viewHolder.info.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.baseline_keyboard_arrow_left_24, 0);

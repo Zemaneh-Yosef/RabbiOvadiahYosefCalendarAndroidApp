@@ -1,15 +1,17 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory app:title="Zmanim Options">
+    <PreferenceCategory
+        app:title="@string/zmanim_options"
+        android:layout="@layout/custom_material_preference_category">
 
-        <SwitchPreferenceCompat
+        <com.github.tttt55.materialyoupreferences.preferences.MaterialSwitchPreference
             android:defaultValue="false"
             android:key="LuachAmudeiHoraah"
             android:summary="@string/make_the_zmanim_like_the_luach_amudei_horaah_only_outside_israel"
             android:title="@string/luach_amudei_horaah" />
 
-        <ListPreference
+        <com.github.tttt55.materialyoupreferences.preferences.MaterialListPreference
             app:defaultValue="1"
             app:entries="@array/tekufa_opinion_entries"
             app:entryValues="@array/tekufa_opinion_values"
@@ -17,7 +19,7 @@
             app:summary="@string/choose_which_opinions_to_use_for_the_time_for_the_tekufas"
             app:title="@string/tekufa_opinion" />
 
-        <ListPreference
+        <com.github.tttt55.materialyoupreferences.preferences.MaterialListPreference
             app:defaultValue="20"
             app:entries="@array/candle_lighting_entries"
             app:entryValues="@array/candle_lighting_values"
@@ -25,13 +27,13 @@
             app:summary="@string/enter_the_amount_of_minutes_for_candle_lighting"
             app:title="@string/candle_lighting_time" />
 
-        <SwitchPreferenceCompat
+        <com.github.tttt55.materialyoupreferences.preferences.MaterialSwitchPreference
             android:defaultValue="false"
             android:key="overrideAHEndShabbatTime"
             android:summary="@string/override_the_time_for_when_shabbat_ends_to_use_the_below_settings"
             android:title="@string/use_regular_minutes_for_shabbat_end" />
 
-        <ListPreference
+        <com.github.tttt55.materialyoupreferences.preferences.MaterialListPreference
             android:dependency="overrideAHEndShabbatTime"
             app:defaultValue="1"
             app:entries="@array/shabbat_opinion_entries"
@@ -40,14 +42,14 @@
             app:summary="@string/choose_which_opinion_to_use_for_the_time_for_when_shabbat_chag_ends"
             app:title="@string/end_shabbat_opinion" />
 
-        <EditTextPreference
+        <com.github.tttt55.materialyoupreferences.preferences.MaterialEditTextPreference
             android:dependency="overrideAHEndShabbatTime"
             app:defaultValue="40"
             app:key="EndOfShabbatOffset"
             app:summary="@string/enter_the_amount_of_minutes_to_add_to_sunset_for_shabbat_to_end"
             app:title="@string/minutes_till_shabbat_ends" />
 
-        <SwitchPreferenceCompat
+        <com.github.tttt55.materialyoupreferences.preferences.MaterialSwitchPreference
             android:defaultValue="false"
             android:key="overrideRTZman"
             android:summary="@string/enable_this_if_you_want_to_always_calculate_rabbeinu_tam_as_a_10th_of_the_day_72_non_deviated_zmaniyot_minutes"

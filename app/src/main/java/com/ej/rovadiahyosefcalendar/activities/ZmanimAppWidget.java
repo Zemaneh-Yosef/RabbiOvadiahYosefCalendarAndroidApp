@@ -52,14 +52,11 @@ public class ZmanimAppWidget extends AppWidgetProvider {
     private static LocationResolver mLocationResolver;
     private static JewishDateInfo mJewishDateInfo;
     private static ROZmanimCalendar mROZmanimCalendar;
-    private static boolean mIsZmanimInHebrew;
-    private static boolean mIsZmanimEnglishTranslated;
 
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
         mLocationResolver = new LocationResolver(context, null);
         mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         mSettingsPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        setZmanimLanguageBools();
         mROZmanimCalendar = getROZmanimCalendar(context, appWidgetManager, appWidgetId);
         if (!mROZmanimCalendar.getGeoLocation().equals(new GeoLocation())) {// if using location, default GeoLocation will be returned. Avoid that
             mROZmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
@@ -233,7 +230,6 @@ public class ZmanimAppWidget extends AppWidgetProvider {
             mLocationResolver = new LocationResolver(context, null);
             mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
             mSettingsPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-            setZmanimLanguageBools();
             mROZmanimCalendar = getROZmanimCalendar(context, appWidgetManager, appWidgetId);
             mROZmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
             mROZmanimCalendar.setCandleLightingOffset(Double.parseDouble(mSettingsPreferences.getString("CandleLightingOffset", "20")));
@@ -243,26 +239,12 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         if (mSettingsPreferences == null || mSharedPreferences == null) {
             mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
             mSettingsPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-            setZmanimLanguageBools();
         }
-        ZmanListEntry nextZman = ZmanimFactory.getNextUpcomingZman(new GregorianCalendar(), mROZmanimCalendar, mJewishDateInfo, mSettingsPreferences, mSharedPreferences, mIsZmanimInHebrew, mIsZmanimEnglishTranslated);
+        ZmanListEntry nextZman = ZmanimFactory.getNextUpcomingZman(new GregorianCalendar(), mROZmanimCalendar, mJewishDateInfo, mSettingsPreferences, mSharedPreferences);
         if (nextZman == null || nextZman.getZman() == null) {
             nextZman = new ZmanListEntry("", new Date(System.currentTimeMillis() + 300_000), SecondTreatment.ROUND_EARLIER, "");// try again in 5 minutes
         }
         return nextZman;
-    }
-
-    private static void setZmanimLanguageBools() {
-        if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
-            mIsZmanimInHebrew = true;
-            mIsZmanimEnglishTranslated = false;
-        } else if (mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false)) {
-            mIsZmanimInHebrew = false;
-            mIsZmanimEnglishTranslated = true;
-        } else {
-            mIsZmanimInHebrew = false;
-            mIsZmanimEnglishTranslated = false;
-        }
     }
 
     @Override

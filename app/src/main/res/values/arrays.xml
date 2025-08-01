@@ -85,7 +85,7 @@
     </string-array>
 
     <string-array name="font_entries">
-        <item>Guttman Keren (Default)</item>
+        <item>Guttman Keren</item>
         <item>Taamey Frank</item>
         <item>System Default</item>
     </string-array>

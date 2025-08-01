@@ -10,10 +10,14 @@ import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.google.android.material.appbar.MaterialToolbar;
+
+import java.util.Objects;
 
 public class ZmanimSettingsActivity extends AppCompatActivity {
 
@@ -55,6 +59,18 @@ public class ZmanimSettingsActivity extends AppCompatActivity {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.zmanim_preferences, rootKey);
+            Preference overrideAHEndShabbatTime = findPreference("overrideAHEndShabbatTime");
+            Preference endOfShabbatOpinion = findPreference("EndOfShabbatOpinion");
+            Preference endOfShabbatOffset = findPreference("EndOfShabbatOffset");
+            if (overrideAHEndShabbatTime != null && endOfShabbatOpinion != null && endOfShabbatOffset != null) {
+                endOfShabbatOpinion.setVisible(PreferenceManager.getDefaultSharedPreferences(requireContext()).getBoolean("overrideAHEndShabbatTime", false));
+                endOfShabbatOffset.setVisible(PreferenceManager.getDefaultSharedPreferences(requireContext()).getBoolean("overrideAHEndShabbatTime", false));
+                overrideAHEndShabbatTime.setOnPreferenceClickListener(preference -> {
+                    endOfShabbatOpinion.setVisible(Objects.requireNonNull(preference.getSharedPreferences()).getBoolean("overrideAHEndShabbatTime", false));
+                    endOfShabbatOffset.setVisible(Objects.requireNonNull(preference.getSharedPreferences()).getBoolean("overrideAHEndShabbatTime", false));
+                    return false;
+                });
+            }
         }
     }
 }

@@ -158,7 +158,7 @@ public class LocationResolver {
             String lat = String.format(Locale.getDefault(), "%.3f", sLatitude);
             String longitude = String.format(Locale.getDefault(), "%.3f", sLongitude);
 
-            sCurrentLocationName = "Lat: " + lat + " Long: " + longitude;
+            sCurrentLocationName = "Lat: " + lat + ", Long: " + longitude;
         }
         mSharedPreferences.edit().putString("name", sCurrentLocationName).apply();
     }

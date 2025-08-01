@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
 import android.util.Log;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
@@ -18,6 +19,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -30,9 +32,12 @@ import androidx.preference.PreferenceManager;
 
 import com.ej.rovadiahyosefcalendar.BuildConfig;
 import com.ej.rovadiahyosefcalendar.R;
+import com.ej.rovadiahyosefcalendar.classes.MaterialButtonToggleGroupPreference;
+import com.github.tttt55.materialyoupreferences.preferences.MaterialColorPreference;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.rarepebble.colorpicker.ColorPreference;
+import com.skydoves.colorpickerview.ColorPickerDialog;
+import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -50,19 +55,22 @@ public class SettingsActivity extends AppCompatActivity {
         String theme = mSettingsPreferences.getString("theme", "Auto (Follow System Theme)");
         switch (theme) {
             case "Auto (Follow System Theme)":
-                if (AppCompatDelegate.getDefaultNightMode() != AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                if (getDelegate().getLocalNightMode() == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
+                    break;
                 }
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
                 break;
             case "Day":
-                if (AppCompatDelegate.getDefaultNightMode() != AppCompatDelegate.MODE_NIGHT_NO) {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                if (getDelegate().getLocalNightMode() == AppCompatDelegate.MODE_NIGHT_NO) {
+                    break;
                 }
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
                 break;
             case "Night":
-                if (AppCompatDelegate.getDefaultNightMode() != AppCompatDelegate.MODE_NIGHT_YES) {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                if (getDelegate().getLocalNightMode() == AppCompatDelegate.MODE_NIGHT_YES) {
+                    break;
                 }
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
                 break;
         }
         EdgeToEdge.enable(this);
@@ -119,6 +127,23 @@ public class SettingsActivity extends AppCompatActivity {
                 });
             }
 
+            hideDisabledViews();
+
+            Preference showSecondsPref = findPreference("ShowSeconds");
+            if (showSecondsPref != null) {
+                showSecondsPref.setOnPreferenceClickListener(preference -> {
+                    if (Objects.requireNonNull(preference.getSharedPreferences()).getBoolean("ShowSeconds", false)) {
+                        new MaterialAlertDialogBuilder(requireContext())
+                                .setTitle(R.string.do_not_rely_on_the_seconds)
+                                .setMessage(R.string.do_not_rely_on_the_seconds_message)
+                                .setPositiveButton(R.string.ok, (dialogInterface, i) -> dialogInterface.dismiss())
+                                .create()
+                                .show();
+                    }
+                    return false;
+                });
+            }
+
             Preference themePref = findPreference("theme");
             if (themePref != null) {
                 themePref.setOnPreferenceChangeListener((preference, newValue) -> {
@@ -142,19 +167,45 @@ public class SettingsActivity extends AppCompatActivity {
                 });
             }
 
-            Preference showSecondsPref = findPreference("ShowSeconds");
-            if (showSecondsPref != null) {
-                showSecondsPref.setOnPreferenceClickListener(preference  -> {
-                    boolean isOn = Objects.requireNonNull(preference.getSharedPreferences()).getBoolean("ShowSeconds",false);
-                    if (isOn) {
-                        new MaterialAlertDialogBuilder(requireContext())
-                                .setTitle(R.string.do_not_rely_on_the_seconds)
-                                .setMessage(R.string.do_not_rely_on_the_seconds_message)
-                                .setPositiveButton(R.string.ok, (dialogInterface, i) -> dialogInterface.dismiss())
-                                .create()
-                                .show();
-                    }
-                    return false;
+            MaterialColorPreference backgroundColorPref = findPreference("backgroundColor");
+            if (backgroundColorPref != null) {
+                backgroundColorPref.setOnPreferenceClickListener(preference -> {
+                    new ColorPickerDialog.Builder(requireContext())
+                            .setTitle(getString(R.string.set_background_color))
+                            .setPreferenceName("backgroundColor")
+                            .setPositiveButton(getString(R.string.confirm), (ColorEnvelopeListener) (envelope, fromUser) -> {
+                                if (fromUser) {
+                                    requireContext().getSharedPreferences(SHARED_PREF, MODE_PRIVATE)
+                                            .edit()
+                                            .putBoolean("useDefaultBackgroundColor", false)
+                                            .putBoolean("customBackgroundColor", true)
+                                            .putBoolean("useImage", false)
+                                            .putInt("bColor", envelope.getColor())
+                                            .apply();
+                                    PreferenceManager.getDefaultSharedPreferences(requireContext())
+                                            .edit()
+                                            .putInt("backgroundColor", envelope.getColor())
+                                            .apply();
+                                    backgroundColorPref.setColor(envelope.getColor());
+                                }
+                            })
+                            .setNeutralButton(requireContext().getString(R.string._default), (dialogInterface, i) -> {
+                                requireContext().getSharedPreferences(SHARED_PREF, MODE_PRIVATE)
+                                        .edit()
+                                        .putBoolean("useDefaultBackgroundColor", true)
+                                        .putBoolean("customBackgroundColor", false)
+                                        .putBoolean("useImage", false)
+                                        .apply();
+                                PreferenceManager.getDefaultSharedPreferences(requireContext())
+                                        .edit()
+                                        .putInt("backgroundColor", 0x32312C)
+                                        .apply();
+                                backgroundColorPref.setColor(0x32312C);
+                            })
+                            .setNegativeButton(getString(R.string.cancel), (dialogInterface, i) -> dialogInterface.dismiss())
+                            .setBottomSpace(12) // set a bottom space between the last slidebar and buttons.
+                            .show();
+                    return true;
                 });
             }
 
@@ -229,6 +280,82 @@ public class SettingsActivity extends AppCompatActivity {
                     }
             );
 
+            MaterialColorPreference textColorPref = findPreference("textColor");
+            if (textColorPref != null) {
+                textColorPref.setOnPreferenceClickListener(preference -> {
+                    new ColorPickerDialog.Builder(requireContext())
+                            .setTitle(getString(R.string.set_text_color))
+                            .setPreferenceName("textColor")
+                            .setPositiveButton(getString(R.string.confirm), (ColorEnvelopeListener) (envelope, fromUser) -> {
+                                if (fromUser) {
+                                    requireContext().getSharedPreferences(SHARED_PREF, MODE_PRIVATE)
+                                            .edit()
+                                            .putBoolean("customTextColor", true)
+                                            .putInt("tColor", envelope.getColor())
+                                            .apply();
+                                    PreferenceManager.getDefaultSharedPreferences(requireContext())
+                                            .edit()
+                                            .putInt("textColor", envelope.getColor())
+                                            .apply();
+                                    textColorPref.setColor(envelope.getColor());
+                                }
+                            })
+                            .setNeutralButton(requireContext().getString(R.string._default), (dialogInterface, i) -> {
+                                requireContext().getSharedPreferences(SHARED_PREF, MODE_PRIVATE)
+                                        .edit()
+                                        .putBoolean("customTextColor", false)
+                                        .apply();
+                                PreferenceManager.getDefaultSharedPreferences(requireContext())
+                                        .edit()
+                                        .putInt("textColor", 0xFFFFFF)
+                                        .apply();
+                                textColorPref.setColor(0xFFFFFF);
+                            })
+                            .setNegativeButton(getString(R.string.cancel), (dialogInterface, i) -> dialogInterface.dismiss())
+                            .setBottomSpace(12) // set a bottom space between the last slidebar and buttons.
+                            .show();
+                    return true;
+                });
+            }
+
+            MaterialColorPreference calendarButtonColorPref = findPreference("calendarButtonColor");
+            if (calendarButtonColorPref != null) {
+                calendarButtonColorPref.setOnPreferenceClickListener(preference -> {
+                    new ColorPickerDialog.Builder(requireContext())
+                            .setTitle(getString(R.string.set_calendar_button_color))
+                            .setPreferenceName("calendarButtonColor")
+                            .setPositiveButton(getString(R.string.confirm), (ColorEnvelopeListener) (envelope, fromUser) -> {
+                                if (fromUser) {
+                                    requireContext().getSharedPreferences(SHARED_PREF, MODE_PRIVATE)
+                                            .edit()
+                                            .putBoolean("useDefaultCalButtonColor", false)
+                                            .putInt("CalButtonColor", envelope.getColor())
+                                            .apply();
+                                    PreferenceManager.getDefaultSharedPreferences(requireContext())
+                                            .edit()
+                                            .putInt("calendarButtonColor", envelope.getColor())
+                                            .apply();
+                                    calendarButtonColorPref.setColor(envelope.getColor());
+                                }
+                            })
+                            .setNeutralButton(requireContext().getString(R.string._default), (dialogInterface, i) -> {
+                                requireContext().getSharedPreferences(SHARED_PREF, MODE_PRIVATE)
+                                        .edit()
+                                        .putBoolean("useDefaultCalButtonColor", true)
+                                        .apply();
+                                PreferenceManager.getDefaultSharedPreferences(requireContext())
+                                        .edit()
+                                        .putInt("calendarButtonColor", 0xFFFFFF)
+                                        .apply();
+                                calendarButtonColorPref.setColor(0xFFFFFF);
+                            })
+                            .setNegativeButton(getString(R.string.cancel), (dialogInterface, i) -> dialogInterface.dismiss())
+                            .setBottomSpace(12) // set a bottom space between the last slidebar and buttons.
+                            .show();
+                    return true;
+                });
+            }
+
             Preference contactUsPref = findPreference(getResources().getString(R.string.contact_header));
             PackageManager packageManager = requireActivity().getPackageManager();
             if (contactUsPref != null) {
@@ -273,23 +400,10 @@ public class SettingsActivity extends AppCompatActivity {
                 });
             }
 
-            Preference help = findPreference("help");
-            if (help != null) {
-                help.setOnPreferenceClickListener(v -> {
-                    new MaterialAlertDialogBuilder(requireContext())
-                            .setTitle(R.string.help_using_this_app)
-                            .setPositiveButton(R.string.ok, null)
-                            .setMessage(R.string.helper_text)
-                            .show();
-                    return false;
-                });
-            }
-
-            Preference lang = findPreference("language");
+            MaterialButtonToggleGroupPreference lang = findPreference("language");
             if (lang != null) {
-                lang.setOnPreferenceChangeListener((preference, newValue) -> {
-                    Objects.requireNonNull(preference.getSharedPreferences()).edit().putString(preference.getKey(), (String) newValue).apply();
-                    Toast.makeText(getContext(), getString(R.string.restart_app), Toast.LENGTH_LONG).show();
+                lang.setOnPreferenceClickListener(l -> {
+                    Toast.makeText(getContext(), getString(R.string.restart_app), Toast.LENGTH_SHORT).show();
                     return false;
                 });
             }
@@ -308,52 +422,30 @@ public class SettingsActivity extends AppCompatActivity {
 
         }
 
-        public void onDisplayPreferenceDialog(@NonNull Preference preference) {
-            if (preference instanceof ColorPreference colorPreference) {
-                colorPreference.showDialog(this, 0);
-                SharedPreferences.Editor editor = requireContext().getSharedPreferences(SHARED_PREF, MODE_PRIVATE).edit();
-                colorPreference.setOnPreferenceChangeListener((preference1, newValue) -> {
-                    switch (preference1.getKey()) {
-                        case "backgroundColor"://FIXME there is a bug with the dialog that will make the color transparent by default. Only happens for the background
-                            if (newValue == null) {
-                                editor.putBoolean("useDefaultBackgroundColor", true)
-                                        .putInt("bColor", (Integer) 0x32312C)
-                                        .apply();
-                            } else {
-                                editor.putBoolean("useDefaultBackgroundColor", false)
-                                        .putInt("bColor", (Integer) newValue)
-                                        .apply();
-                            }
-                            editor.putBoolean("useImage", false)
-                                    .putBoolean("customBackgroundColor", true)
-                                    .apply();
-                            break;
-                        case "textColor":
-                            if (newValue == null) {
-                                editor.putBoolean("customTextColor", false).apply();
-                            } else {
-                                editor.putBoolean("customTextColor", true)
-                                        .putInt("tColor", (Integer) newValue)
-                                        .apply();
-                            }
-                            break;
-                        case "calendarButtonColor":
-                            if (newValue != null) {
-                                editor.putBoolean("useDefaultCalButtonColor", false)
-                                        .apply();
-                                editor.putInt("CalButtonColor", (Integer) newValue)
-                                        .apply();
-                            } else {
-                                editor.putBoolean("useDefaultCalButtonColor", true)
-                                        .apply();
-                            }
-                            break;
-                    }
-                    colorPreference.setColor((Integer) newValue);
+        @Override
+        public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+            super.onViewCreated(view, savedInstanceState);
+            hideDisabledViews();
+        }
+
+        private void hideDisabledViews() {
+            Preference zmanimNotificationPreference = findPreference("zmanim_notifications");
+            Preference notificationPreference = findPreference("zmanim_notifications_settings");
+            if (zmanimNotificationPreference != null && notificationPreference != null) {
+                notificationPreference.setVisible(PreferenceManager.getDefaultSharedPreferences(requireContext()).getBoolean("zmanim_notifications", true));
+                zmanimNotificationPreference.setOnPreferenceClickListener(preference -> {
+                    notificationPreference.setVisible(Objects.requireNonNull(preference.getSharedPreferences()).getBoolean("zmanim_notifications", true));
                     return false;
                 });
-            } else {
-                super.onDisplayPreferenceDialog(preference);
+            }
+            Preference showWhenShabbatChagEnds = findPreference("ShowWhenShabbatChagEnds");
+            Preference displayRTOrShabbatRegTime = findPreference("displayRTOrShabbatRegTime");
+            if (showWhenShabbatChagEnds != null && displayRTOrShabbatRegTime != null) {
+                displayRTOrShabbatRegTime.setVisible(PreferenceManager.getDefaultSharedPreferences(requireContext()).getBoolean("ShowWhenShabbatChagEnds", false));
+                showWhenShabbatChagEnds.setOnPreferenceClickListener(preference -> {
+                    displayRTOrShabbatRegTime.setVisible(Objects.requireNonNull(preference.getSharedPreferences()).getBoolean("ShowWhenShabbatChagEnds", false));
+                    return false;
+                });
             }
         }
     }
@@ -363,19 +455,22 @@ public class SettingsActivity extends AppCompatActivity {
         String theme = mSettingsPreferences.getString("theme", "Auto (Follow System Theme)");
         switch (theme) {
             case "Auto (Follow System Theme)":
-                if (AppCompatDelegate.getDefaultNightMode() != AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                if (getDelegate().getLocalNightMode() == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
+                    break;
                 }
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
                 break;
             case "Day":
-                if (AppCompatDelegate.getDefaultNightMode() != AppCompatDelegate.MODE_NIGHT_NO) {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                if (getDelegate().getLocalNightMode() == AppCompatDelegate.MODE_NIGHT_NO) {
+                    break;
                 }
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
                 break;
             case "Night":
-                if (AppCompatDelegate.getDefaultNightMode() != AppCompatDelegate.MODE_NIGHT_YES) {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                if (getDelegate().getLocalNightMode() == AppCompatDelegate.MODE_NIGHT_YES) {
+                    break;
                 }
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
                 break;
         }
         super.onResume();

@@ -97,9 +97,9 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
 
             Intent notificationIntent = new Intent(context, SiddurViewActivity.class)
                     .putExtra("prayer", context.getString(R.string.sefirat_haomer))
-                    .putExtra("JewishDay", jewishDateInfo.getJewishCalendar().getJewishDayOfMonth())
-                    .putExtra("JewishMonth", jewishDateInfo.getJewishCalendar().getJewishMonth())
-                    .putExtra("JewishYear", jewishDateInfo.getJewishCalendar().getJewishYear());
+                    .putExtra("JewishDay", jewishDateInfo.tomorrow().getJewishCalendar().getJewishDayOfMonth())
+                    .putExtra("JewishMonth", jewishDateInfo.tomorrow().getJewishCalendar().getJewishMonth())
+                    .putExtra("JewishYear", jewishDateInfo.tomorrow().getJewishCalendar().getJewishYear());
             notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
             PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,

@@ -1,6 +1,6 @@
 <resources>
     <string-array name="language_entries">
-        <item>ברירת המחדל של המערכת</item>
+        <item>ברירת מחדל</item>
         <item>אנגלית</item>
         <item>עברית</item>
     </string-array>
@@ -85,9 +85,9 @@
     </string-array>
 
     <string-array name="font_entries">
-        <item>גוטמן קרן (ברירת מחדל)</item>
+        <item>גוטמן קרן</item>
         <item>טעמי פרנק</item>
-        <item>ברירת מחדל של המערכת</item>
+        <item>ברירת מחדל</item>
     </string-array>
 
     <string-array name="font_values">

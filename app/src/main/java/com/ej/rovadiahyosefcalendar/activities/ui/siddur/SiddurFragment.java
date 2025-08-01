@@ -6,10 +6,6 @@ import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mCurre
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mJewishDateInfo;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mROZmanimCalendar;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.materialToolbar;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentTimeZoneID;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sElevation;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLatitude;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLongitude;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSettingsPreferences;
 
 import android.app.DatePickerDialog;
@@ -33,7 +29,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.PreferenceManager;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.JerusalemDirectionMapsActivity;
@@ -51,7 +46,6 @@ import com.kosherjava.zmanim.hebrewcalendar.Daf;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.TefilaRules;
 import com.kosherjava.zmanim.hebrewcalendar.YomiCalculator;
-import com.kosherjava.zmanim.util.GeoLocation;
 
 import org.apache.commons.lang3.time.DateUtils;
 
@@ -95,6 +89,14 @@ public class SiddurFragment extends Fragment {
         setupButtons();
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (mActivity.findViewById(R.id.siddur_preferences_container) != null) {
+            updateView();
+        }
+    }
+
     public void updateView() {
         getChildFragmentManager()
                 .beginTransaction()
@@ -104,7 +106,6 @@ public class SiddurFragment extends Fragment {
 
     public static class SiddurPreferenceFragment extends PreferenceFragmentCompat {
 
-        private ROZmanimCalendar mZmanimCalendar;
         private ROZmanimCalendar currentZmanimCalendar;
         private JewishDateInfo currentJewishDateInfo;
         private static final List<String> masechtosBavli = Arrays.asList(
@@ -150,8 +151,8 @@ public class SiddurFragment extends Fragment {
                 "נדה");
         private String[] selectedMasechtot;
         private String[] selectedShaloshItems;
-        private boolean hebrewDayIsAhead = false;
         private boolean isNightTikkunChatzot = true;
+        private boolean isAfterSunset = false;
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -159,17 +160,24 @@ public class SiddurFragment extends Fragment {
             initView();
         }
 
+        @Override
+        public void onResume() {
+            super.onResume();
+            initView();
+        }
+
+        @Override
+        public void onStart() {
+            super.onStart();
+            initView();
+        }
+
         private void initView() {
-            mZmanimCalendar = new ROZmanimCalendar(new GeoLocation("", sLatitude, sLongitude, sElevation, TimeZone.getTimeZone((sCurrentTimeZoneID != null && !sCurrentTimeZoneID.isEmpty()) ? sCurrentTimeZoneID : TimeZone.getDefault().getID())));
-            mZmanimCalendar.setCalendar(mJewishDateInfo.getJewishCalendar().getGregorianCalendar());
-            mZmanimCalendar.setAmudehHoraah(PreferenceManager.getDefaultSharedPreferences(requireContext()).getBoolean("LuachAmudeiHoraah", false));
-            currentZmanimCalendar = mZmanimCalendar.getCopy();
+            currentZmanimCalendar = mROZmanimCalendar.getCopy();
             currentZmanimCalendar.setCalendar(Calendar.getInstance());
             currentJewishDateInfo = new JewishDateInfo(mJewishDateInfo.getJewishCalendar().getInIsrael());
-            if (!showAllPrayers) {// I.E. we want current applicable prayers. We need to check if it's before alot hashachar, if so we are a hebrew day ahead
-                if (new Date().before(mZmanimCalendar.getAlotHashachar())) {
-                    hebrewDayIsAhead = true;
-                }
+            if (currentZmanimCalendar.getSunset() != null && new Date().after(currentZmanimCalendar.getSunset())) {
+                isAfterSunset = true;
             }
             Preference seeMoreTitle = findPreference("siddur_see_more_title");
             Preference seeMore = findPreference("siddur_see_more");
@@ -205,33 +213,16 @@ public class SiddurFragment extends Fragment {
                 if (showAllPrayers) {
                     specialDay.setTitle(dateAndSpecialDay);
                 } else {
-                    if (hebrewDayIsAhead) {
-                        currentJewishDateInfo.back();
-                    }
-                    String currentHebrewDay = currentJewishDateInfo.getJewishCalendar().toString();
-                    if (new Date().after(currentZmanimCalendar.getSunset())) {
-                        currentHebrewDay = currentJewishDateInfo.tomorrow().getJewishCalendar().toString();
-                    } else if (new Date().before(currentZmanimCalendar.getAlotHashachar())) {
-                        currentJewishDateInfo.back();
-                        currentHebrewDay = currentJewishDateInfo.getJewishCalendar().toString();
-                        currentJewishDateInfo.forward();
-                    }
-                    specialDay.setTitle(requireContext().getString(R.string.prayers_able_to_be_said_now) + "\n" + currentHebrewDay);
-                    if (hebrewDayIsAhead) {
-                        currentJewishDateInfo.forward();
-                    }
+                    specialDay.setTitle(requireContext().getString(R.string.prayers_able_to_be_said_now) + "\n" +
+                            currentJewishDateInfo.getJewishCalendar().currentToString(currentZmanimCalendar));
                 }
             }
 
             CustomPreferenceView selichot = findPreference("siddur_selichot");
             if (selichot != null) {
-                if (showAllPrayers) {
-                    selichot.setVisible(mJewishDateInfo.isSelichotSaid());
-                } else {
-                    selichot.setVisible(isPrayerCurrentlySaid(selichot.getKey()));
-                }
-                Date tzeit = mZmanimCalendar.getTzeit();
-                if (new Date().after(tzeit) && new Date().before(mZmanimCalendar.getSolarMidnight())) {
+                selichot.setVisible(showAllPrayers ? mJewishDateInfo.isSelichotSaid() : getSunsetBasedJewishDateInfo().isSelichotSaid() && isPrayerCurrentlySaid(selichot.getKey()));
+                if (currentZmanimCalendar.getTzeit() != null && new Date().after(currentZmanimCalendar.getTzeit()) &&
+                        currentZmanimCalendar.getSolarMidnight() != null && new Date().before(currentZmanimCalendar.getSolarMidnight())) {
                     selichot.setDimmed(true);
                 }
                 selichot.setOnPreferenceClickListener(v -> {
@@ -242,9 +233,10 @@ public class SiddurFragment extends Fragment {
                 if (title != null) {
                     selichot.setSummary(getSecondaryText(title));
                 }
+                selichot.setForceLTRTextDirection(!Utils.isLocaleHebrew());
             }
 
-            Preference shacharit = findPreference("siddur_shacharit");
+            CustomPreferenceView shacharit = findPreference("siddur_shacharit");
             if (shacharit != null) {
                 shacharit.setOnPreferenceClickListener(v -> {
                     startSiddurActivity(getString(R.string.shacharit));
@@ -254,20 +246,14 @@ public class SiddurFragment extends Fragment {
                 if (title != null) {
                     shacharit.setSummary(getSecondaryText(title));
                 }
-                if (showAllPrayers) {
-                    shacharit.setVisible(true);
-                } else {
-                    shacharit.setVisible(isPrayerCurrentlySaid(shacharit.getKey()));
-                }
+                shacharit.setVisible(showAllPrayers || isPrayerCurrentlySaid(shacharit.getKey()));
+                shacharit.setForceLTRTextDirection(!Utils.isLocaleHebrew());
             }
 
-            Preference mussaf = findPreference("siddur_mussaf");
+            CustomPreferenceView mussaf = findPreference("siddur_mussaf");
             if (mussaf != null) {
-                if (showAllPrayers) {
-                    mussaf.setVisible(mJewishDateInfo.getJewishCalendar().isRoshChodesh() || mJewishDateInfo.getJewishCalendar().isCholHamoed());
-                } else {
-                    mussaf.setVisible(currentJewishDateInfo.getJewishCalendar().isRoshChodesh() || currentJewishDateInfo.getJewishCalendar().isCholHamoed() && isPrayerCurrentlySaid(mussaf.getKey()));
-                }
+                mussaf.setVisible((getSunsetBasedJewishDateInfo().getJewishCalendar().isRoshChodesh() || getSunsetBasedJewishDateInfo().getJewishCalendar().isCholHamoed())
+                        && (showAllPrayers || isPrayerCurrentlySaid(mussaf.getKey())));
                 mussaf.setOnPreferenceClickListener(v -> {
                     startSiddurActivity(getString(R.string.mussaf));
                     return true;
@@ -276,9 +262,10 @@ public class SiddurFragment extends Fragment {
                 if (title != null) {
                     mussaf.setSummary(getSecondaryText(title));
                 }
+                mussaf.setForceLTRTextDirection(!Utils.isLocaleHebrew());
             }
 
-            Preference mincha = findPreference("siddur_mincha");
+            CustomPreferenceView mincha = findPreference("siddur_mincha");
             if (mincha != null) {
                 mincha.setOnPreferenceClickListener(v -> {
                     startSiddurActivity(getString(R.string.mincha));
@@ -290,6 +277,7 @@ public class SiddurFragment extends Fragment {
                 }
 
                 mincha.setVisible(showAllPrayers || isPrayerCurrentlySaid(mincha.getKey()));
+                mincha.setForceLTRTextDirection(!Utils.isLocaleHebrew());
             }
 
             Preference nightDayOfWeek = findPreference("siddur_night_text");
@@ -308,27 +296,24 @@ public class SiddurFragment extends Fragment {
                 nightDayOfWeek.setVisible(showAllPrayers);
             }
 
-            Preference arvit = findPreference("siddur_arvit");
+            CustomPreferenceView arvit = findPreference("siddur_arvit");
             if (arvit != null) {
                 arvit.setOnPreferenceClickListener(v -> {
-                    startSiddurActivity(getString(R.string.arvit));
+                    startSiddurActivity(getString(R.string.arvit), true);
                     return true;
                 });
                 CharSequence title = arvit.getTitle();
                 if (title != null) {
                     arvit.setSummary(getSecondaryText(title));
                 }
-                if (showAllPrayers) {
-                    arvit.setVisible(true);
-                } else {
-                    arvit.setVisible(isPrayerCurrentlySaid(arvit.getKey()));
-                }
+                arvit.setVisible(showAllPrayers || isPrayerCurrentlySaid(arvit.getKey()));
+                arvit.setForceLTRTextDirection(!Utils.isLocaleHebrew());
             }
 
-            Preference sefiratHaomer = findPreference("siddur_sefirat_haomer");
+            CustomPreferenceView sefiratHaomer = findPreference("siddur_sefirat_haomer");
             if (sefiratHaomer != null) {
                 sefiratHaomer.setOnPreferenceClickListener(v -> {
-                    startSiddurActivity(getString(R.string.sefirat_haomer));
+                    startSiddurActivity(getString(R.string.sefirat_haomer), true);
                     return true;
                 });
                 CharSequence title = sefiratHaomer.getTitle();
@@ -336,35 +321,27 @@ public class SiddurFragment extends Fragment {
                     sefiratHaomer.setSummary(getSecondaryText(title));
                 }
                 if (showAllPrayers) {
-                    sefiratHaomer.setVisible(!(mJewishDateInfo.tomorrow().getJewishCalendar().getDayOfOmer() == -1 || mJewishDateInfo.getJewishCalendar().getDayOfOmer() >= 49));
+                    sefiratHaomer.setVisible((getSunsetBasedJewishDateInfo().tomorrow().getJewishCalendar().getDayOfOmer() != -1 && getSunsetBasedJewishDateInfo().getJewishCalendar().getDayOfOmer() <= 49));
                 } else {
-                    sefiratHaomer.setVisible(!(currentJewishDateInfo.tomorrow().getJewishCalendar().getDayOfOmer() == -1 || currentJewishDateInfo.getJewishCalendar().getDayOfOmer() >= 49)
-                            && isPrayerCurrentlySaid(sefiratHaomer.getKey()));
+                    sefiratHaomer.setVisible((getSunsetBasedJewishDateInfo().getJewishCalendar().getDayOfOmer() != -1 && getSunsetBasedJewishDateInfo().getJewishCalendar().getDayOfOmer() <= 49) && isPrayerCurrentlySaid(sefiratHaomer.getKey()));
                 }
+                sefiratHaomer.setForceLTRTextDirection(!Utils.isLocaleHebrew());
             }
 
-            Preference hadlakatNeirotChanuka = findPreference("siddur_hadlakat_neirot_chanuka");
+            CustomPreferenceView hadlakatNeirotChanuka = findPreference("siddur_hadlakat_neirot_chanuka");
             if (hadlakatNeirotChanuka != null) {
                 hadlakatNeirotChanuka.setOnPreferenceClickListener(v -> {
-                    startSiddurActivity(getString(R.string.hadlakat_neirot_chanuka));
+                    startSiddurActivity(getString(R.string.hadlakat_neirot_chanuka), true);
                     return true;
                 });
                 CharSequence title = hadlakatNeirotChanuka.getTitle();
                 if (title != null) {
                     hadlakatNeirotChanuka.setSummary(getSecondaryText(title));
                 }
-                if (showAllPrayers) {
-                    hadlakatNeirotChanuka.setVisible(mJewishDateInfo.tomorrow().getJewishCalendar().isChanukah() || mJewishDateInfo.getJewishCalendar().isChanukah() && mJewishDateInfo.getJewishCalendar().getDayOfChanukah() != 8);
-                } else {
-                    if (hebrewDayIsAhead) {
-                        currentJewishDateInfo.back();
-                    }
-                    hadlakatNeirotChanuka.setVisible(currentJewishDateInfo.tomorrow().getJewishCalendar().isChanukah() || currentJewishDateInfo.getJewishCalendar().isChanukah()
-                            && isPrayerCurrentlySaid(hadlakatNeirotChanuka.getKey()));
-                    if (hebrewDayIsAhead) {
-                        currentJewishDateInfo.forward();
-                    }
-                }
+                hadlakatNeirotChanuka.setVisible((showAllPrayers ? getSunsetBasedJewishDateInfo().getJewishCalendar().getDayOfChanukah() != 8
+                        && (getSunsetBasedJewishDateInfo().getJewishCalendar().isChanukah() || getSunsetBasedJewishDateInfo().tomorrow().getJewishCalendar().isChanukah())
+                        : isPrayerCurrentlySaid(hadlakatNeirotChanuka.getKey()) && getSunsetBasedJewishDateInfo().getJewishCalendar().isChanukah()));
+                hadlakatNeirotChanuka.setForceLTRTextDirection(!Utils.isLocaleHebrew());
             }
 
             CustomPreferenceView havdalah = findPreference("siddur_havdala");
@@ -374,49 +351,48 @@ public class SiddurFragment extends Fragment {
                             .setTitle(R.string.havdalah_is_only_said_on_a_flame_tonight)
                             .setMessage(getString(R.string.havdalah_will_be_completed_after_the_fast) + "\n\n" + "בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵֽינוּ מֶֽלֶךְ הָעוֹלָם, בּוֹרֵא מְאוֹרֵי הָאֵשׁ:")
                             .setPositiveButton(getString(R.string.ok), (dialog, which) -> dialog.dismiss());
-                    if (showAllPrayers) {
-                        if (mJewishDateInfo.tomorrow().getJewishCalendar().isTishaBav() && mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY) {
-                            builder.show();
-                        } else {
-                            startSiddurActivity(getString(R.string.havdala));
-                        }
+                    if (showAllPrayers && getSunsetBasedJewishDateInfo().tomorrow().getJewishCalendar().isTishaBav() && getSunsetBasedJewishDateInfo().getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY) {
+                        builder.show();
                     } else {
-                        if (hebrewDayIsAhead) {
-                            currentJewishDateInfo.back();
-                        }
-                        if (currentJewishDateInfo.tomorrow().getJewishCalendar().isTishaBav() && currentJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY) {
+                        if (!showAllPrayers && getSunsetBasedJewishDateInfo().getJewishCalendar().isTishaBav() && getSunsetBasedJewishDateInfo().getJewishCalendar().getDayOfWeek() == Calendar.SUNDAY) {
                             builder.show();
                         } else {
-                            startSiddurActivity(getString(R.string.havdala));
-                        }
-                        if (hebrewDayIsAhead) {
-                            currentJewishDateInfo.forward();
+                            startSiddurActivity(getString(R.string.havdala), true);
                         }
                     }
                     return true;
                 });
 
-                havdalah.setVisible(!getBoolBasedJewishDateInfo().getJewishCalendar().hasCandleLighting() && getBoolBasedJewishDateInfo().getJewishCalendar().isAssurBemelacha()
-                        || (getBoolBasedJewishDateInfo().getJewishCalendar().isTishaBav() && (getBoolBasedJewishDateInfo().getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY
-                        || getBoolBasedJewishDateInfo().getJewishCalendar().getDayOfWeek() == Calendar.SUNDAY)));
-                if (getBoolBasedJewishDateInfo().tomorrow().getJewishCalendar().isTishaBav() && getBoolBasedJewishDateInfo().getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY) {
-                    havdalah.setVisible(true);
-                    havdalah.setDimmed(true);
+                if (showAllPrayers) {
+                    havdalah.setVisible(!getSunsetBasedJewishDateInfo().getJewishCalendar().hasCandleLighting()
+                            && getSunsetBasedJewishDateInfo().getJewishCalendar().isAssurBemelacha()
+                            || (getSunsetBasedJewishDateInfo().getJewishCalendar().isTishaBav()
+                            && (getSunsetBasedJewishDateInfo().getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY
+                            || getSunsetBasedJewishDateInfo().getJewishCalendar().getDayOfWeek() == Calendar.SUNDAY)));
+                } else {
+                    havdalah.setVisible(!getSunsetBasedJewishDateInfo().yesterday().getJewishCalendar().hasCandleLighting()
+                            && getSunsetBasedJewishDateInfo().yesterday().getJewishCalendar().isAssurBemelacha()
+                            || (getSunsetBasedJewishDateInfo().yesterday().getJewishCalendar().isTishaBav()
+                            && getSunsetBasedJewishDateInfo().getJewishCalendar().getDayOfWeek() == Calendar.MONDAY)// because after sunset
+                            && isPrayerCurrentlySaid(havdalah.getKey()));
                 }
+                havdalah.setDimmed(showAllPrayers ?
+                        getSunsetBasedJewishDateInfo().tomorrow().getJewishCalendar().isTishaBav()
+                                && getSunsetBasedJewishDateInfo().getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY
+                        : getSunsetBasedJewishDateInfo().getJewishCalendar().isTishaBav()
+                        && getSunsetBasedJewishDateInfo().getJewishCalendar().getDayOfWeek() == Calendar.SUNDAY
+                        && isPrayerCurrentlySaid(havdalah.getKey()));
 
                 CharSequence title = havdalah.getTitle();
                 if (title != null) {
                     havdalah.setSummary(getSecondaryText(title));
                 }
+                havdalah.setForceLTRTextDirection(!Utils.isLocaleHebrew());
             }
 
-            Preference kriatShemaAlHamita = findPreference("siddur_kriatShema");
+            CustomPreferenceView kriatShemaAlHamita = findPreference("siddur_kriatShema");
             if (kriatShemaAlHamita != null) {
-                if (showAllPrayers) {
-                    kriatShemaAlHamita.setVisible(true);
-                } else {
-                    kriatShemaAlHamita.setVisible(isPrayerCurrentlySaid(kriatShemaAlHamita.getKey()));
-                }
+                kriatShemaAlHamita.setVisible(showAllPrayers || isPrayerCurrentlySaid(kriatShemaAlHamita.getKey()));
                 kriatShemaAlHamita.setOnPreferenceClickListener(v -> {
                     startSiddurActivity(getString(R.string.kriatShema), true);
                     return true;
@@ -425,43 +401,35 @@ public class SiddurFragment extends Fragment {
                 if (title != null) {
                     kriatShemaAlHamita.setSummary(getSecondaryText(title));
                 }
+                kriatShemaAlHamita.setForceLTRTextDirection(!Utils.isLocaleHebrew());
             }
 
             CustomPreferenceView tikkunChatzot = findPreference("siddur_tikkun_chatzot");
             CustomPreferenceView tikkunChatzot3Weeks = findPreference("siddur_tikkun_chatzot_3_weeks");
 
-            Preference.OnPreferenceClickListener tikkunChatzotOnClickListener = v -> {
-                if (getBoolBasedJewishDateInfo().is3Weeks()) {
-                    String tachanun = getBoolBasedJewishDateInfo().getIsTachanunSaid();
-                    boolean isTachanunSaid = tachanun.equals("Tachanun only in the morning")
-                            || tachanun.equals("אומרים תחנון רק בבוקר")
-                            || tachanun.equals("אומרים תחנון")
-                            || tachanun.equals("There is Tachanun today");// no need to check for Yom Yerushalayim or Yom Ha'atzmaut because they're in another month
-                    if (getBoolBasedJewishDateInfo().isDayTikkunChatzotSaid() && isTachanunSaid) {
-                        if (showAllPrayers) {
+            Preference.OnPreferenceClickListener tikkunChatzotOnClickListener;
+            if (showAllPrayers) {
+                tikkunChatzotOnClickListener = v -> {
+                    if (getSunsetBasedJewishDateInfo().is3Weeks()) {
+                        boolean isNightTikkunSaid = getSunsetBasedJewishDateInfo().tomorrow().isNightTikkunChatzotSaid();
+                        boolean isDayTikkunSaid = getSunsetBasedJewishDateInfo().isDayTikkunChatzotSaid();
+                        if (isNightTikkunSaid && isDayTikkunSaid) {// ask the user
                             new MaterialAlertDialogBuilder(requireContext())
                                     .setTitle(R.string.do_you_want_to_say_tikkun_chatzot_for_the_day)
                                     .setMessage(R.string.looking_to_say_this_version_of_tikkun_chatzot)
-                                    .setPositiveButton(getString(R.string.yes), (dialog, which) -> startSiddurActivity(getString(R.string.tikkun_chatzot)))
+                                    .setPositiveButton(getString(R.string.yes), (dialog, which) -> {
+                                        isNightTikkunChatzot = false;
+                                        startSiddurActivity(getString(R.string.tikkun_chatzot));
+                                    })
                                     .setNegativeButton(getString(R.string.no), (dialog, which) -> {
                                         isNightTikkunChatzot = true;
                                         startSiddurActivity(getString(R.string.tikkun_chatzot), true);
                                     })
                                     .show();
-                        } else {
-                            if (new Date().after(currentZmanimCalendar.getSunrise()) && new Date().before(currentZmanimCalendar.getSunset())) {
-                                isNightTikkunChatzot = false;
-                                startSiddurActivity(getString(R.string.tikkun_chatzot));
-                            } else {// UI will not show tikkun chatzot unless it is said
-                                isNightTikkunChatzot = true;
-                                startSiddurActivity(getString(R.string.tikkun_chatzot));
-                            }
-                        }
-                    } else {
-                        if (!showAllPrayers && hebrewDayIsAhead) {
-                            currentJewishDateInfo.back();
-                        }
-                        if (getBoolBasedJewishDateInfo().tomorrow().isNightTikkunChatzotSaid()) {
+                        } else if (isDayTikkunSaid) {
+                            isNightTikkunChatzot = false;
+                            startSiddurActivity(getString(R.string.tikkun_chatzot));
+                        } else if (isNightTikkunSaid) {
                             isNightTikkunChatzot = true;
                             startSiddurActivity(getString(R.string.tikkun_chatzot), true);
                         } else {
@@ -471,79 +439,117 @@ public class SiddurFragment extends Fragment {
                                     .setPositiveButton(getString(R.string.ok), (dialog, which) -> dialog.dismiss())
                                     .show();
                         }
-                        if (!showAllPrayers && hebrewDayIsAhead) {
-                            currentJewishDateInfo.forward();
+                    } else {// not the 3 weeks
+                        if (getSunsetBasedJewishDateInfo().tomorrow().isNightTikkunChatzotSaid()) {
+                            isNightTikkunChatzot = true;
+                            startSiddurActivity(getString(R.string.tikkun_chatzot), true);
+                        } else {
+                            new MaterialAlertDialogBuilder(requireContext())
+                                    .setTitle(R.string.tikkun_chatzot_is_not_said_tonight)
+                                    .setMessage(R.string.tikkun_chatzot_is_not_said_tonight_possible_reasons)
+                                    .setPositiveButton(getString(R.string.ok), (dialog, which) -> dialog.dismiss())
+                                    .show();
                         }
                     }
-                } else {
-                    if (!showAllPrayers && hebrewDayIsAhead) {
-                        currentJewishDateInfo.back();
+                    return true;
+                };
+            } else {// based on current time
+                tikkunChatzotOnClickListener = v -> {
+                    if (getSunsetBasedJewishDateInfo().is3Weeks()) {
+                        boolean isNightTikkunSaid = getSunsetBasedJewishDateInfo().tomorrow().isNightTikkunChatzotSaid();
+                        boolean isDayTikkunSaid = getSunsetBasedJewishDateInfo().isDayTikkunChatzotSaid();
+                        boolean isNowForDayTikkun = (currentZmanimCalendar.getChatzot() != null && new Date().after(currentZmanimCalendar.getChatzot()))
+                                && (currentZmanimCalendar.getSunset() != null && new Date().before(currentZmanimCalendar.getSunset()));
+                        if (isNightTikkunSaid && isDayTikkunSaid) {// figure out which it is by the time
+                            isNightTikkunChatzot = !isNowForDayTikkun;
+                            startSiddurActivity(getString(R.string.tikkun_chatzot), isNightTikkunChatzot);
+                        } else if (isDayTikkunSaid && isNowForDayTikkun) {
+                            isNightTikkunChatzot = false;
+                            startSiddurActivity(getString(R.string.tikkun_chatzot));
+                        } else if (isNightTikkunSaid && !isNowForDayTikkun) {
+                            isNightTikkunChatzot = true;
+                            startSiddurActivity(getString(R.string.tikkun_chatzot), true);
+                        } else {
+                            new MaterialAlertDialogBuilder(requireContext())
+                                    .setTitle(R.string.tikkun_chatzot_is_not_said_today_or_tonight)
+                                    .setMessage(R.string.tikkun_chatzot_is_not_said_today_or_tonight_possible_reasons)
+                                    .setPositiveButton(getString(R.string.ok), (dialog, which) -> dialog.dismiss())
+                                    .show();
+                        }
+                    } else {// not the 3 weeks
+                        if (currentZmanimCalendar.getAlotHashachar() != null && new Date().before(currentZmanimCalendar.getAlotHashachar())) {
+                            currentJewishDateInfo.back();
+                        }
+                        if (getSunsetBasedJewishDateInfo().tomorrow().isNightTikkunChatzotSaid()) {
+                            isNightTikkunChatzot = true;
+                            currentJewishDateInfo.setCalendar(Calendar.getInstance());
+                            startSiddurActivity(getString(R.string.tikkun_chatzot), true);
+                        } else {
+                            new MaterialAlertDialogBuilder(requireContext())
+                                    .setTitle(R.string.tikkun_chatzot_is_not_said_tonight)
+                                    .setMessage(R.string.tikkun_chatzot_is_not_said_tonight_possible_reasons)
+                                    .setPositiveButton(getString(R.string.ok), (dialog, which) -> dialog.dismiss())
+                                    .show();
+                        }
                     }
-                    if (getBoolBasedJewishDateInfo().tomorrow().isNightTikkunChatzotSaid()) {
-                        isNightTikkunChatzot = true;
-                        startSiddurActivity(getString(R.string.tikkun_chatzot), true);
-                    } else {
-                        new MaterialAlertDialogBuilder(requireContext())
-                                .setTitle(R.string.tikkun_chatzot_is_not_said_tonight)
-                                .setMessage(R.string.tikkun_chatzot_is_not_said_tonight_possible_reasons)
-                                .setPositiveButton(getString(R.string.ok), (dialog, which) -> dialog.dismiss())
-                                .show();
-                    }
-                    if (!showAllPrayers && hebrewDayIsAhead) {
-                        currentJewishDateInfo.forward();
-                    }
-                }
-                return true;
-            };
+                    return true;
+                };
+            }
 
             if (tikkunChatzot != null) {
-                if (showAllPrayers) {
-                    tikkunChatzot.setVisible(!mJewishDateInfo.is3Weeks());
-                } else {
-                    tikkunChatzot.setVisible(isPrayerCurrentlySaid(tikkunChatzot.getKey()));
-                }
+                tikkunChatzot.setVisible(showAllPrayers ? !getSunsetBasedJewishDateInfo(false).is3Weeks() : isPrayerCurrentlySaid(tikkunChatzot.getKey()));
                 tikkunChatzot.setOnPreferenceClickListener(tikkunChatzotOnClickListener);
                 CharSequence title = tikkunChatzot.getTitle();
                 if (title != null) {// only add summary if not during the 3 weeks
                     tikkunChatzot.setSummary(getSecondaryText(title));
                 }
+                tikkunChatzot.setForceLTRTextDirection(!Utils.isLocaleHebrew());
             }
             if (tikkunChatzot3Weeks != null) {
-                if (showAllPrayers) {
-                    tikkunChatzot3Weeks.setVisible(mJewishDateInfo.is3Weeks());
-                } else {
-                    tikkunChatzot3Weeks.setVisible(isPrayerCurrentlySaid(tikkunChatzot3Weeks.getKey()));
-                }
+                tikkunChatzot3Weeks.setVisible(showAllPrayers ? getSunsetBasedJewishDateInfo(false).is3Weeks() : isPrayerCurrentlySaid(tikkunChatzot3Weeks.getKey()));
                 tikkunChatzot3Weeks.setOnPreferenceClickListener(tikkunChatzotOnClickListener);
+                tikkunChatzot3Weeks.setForceLTRTextDirection(!Utils.isLocaleHebrew());
             }
 
-            if (getBoolBasedJewishDateInfo().is3Weeks()) {
-                String tachanun = getBoolBasedJewishDateInfo().getIsTachanunSaid();
-                boolean isTachanunSaid = tachanun.equals("Tachanun only in the morning")
-                        || tachanun.equals("אומרים תחנון רק בבוקר")
-                        || tachanun.equals("אומרים תחנון")
-                        || tachanun.equals("There is Tachanun today");
-                if (!getBoolBasedJewishDateInfo().isDayTikkunChatzotSaid() || !isTachanunSaid) {
-                    if (!getBoolBasedJewishDateInfo().tomorrow().isNightTikkunChatzotSaid()) {
-                        if (tikkunChatzot3Weeks != null) {
-                            tikkunChatzot3Weeks.setDimmed(true);
-                        }
+            // dimming code
+            if (showAllPrayers) {
+                if (getSunsetBasedJewishDateInfo(false).is3Weeks()) {
+                    if (tikkunChatzot3Weeks != null) {
+                        tikkunChatzot3Weeks.setDimmed(!getSunsetBasedJewishDateInfo(false).isDayTikkunChatzotSaid() &&
+                                !getSunsetBasedJewishDateInfo(false).tomorrow().isNightTikkunChatzotSaid());// dim it if both the night and day are not said
+                    }
+                } else {// not the 3 weeks
+                    if (tikkunChatzot != null) {
+                        tikkunChatzot.setDimmed(!getSunsetBasedJewishDateInfo(false).tomorrow().isNightTikkunChatzotSaid());
                     }
                 }
             } else {
-                if (!getBoolBasedJewishDateInfo().tomorrow().isNightTikkunChatzotSaid()) {
+                if (getSunsetBasedJewishDateInfo().is3Weeks()) {
+                    if (tikkunChatzot3Weeks != null) {
+                        if (currentZmanimCalendar.getAlotHashachar() != null && new Date().before(currentZmanimCalendar.getAlotHashachar())) {
+                            currentJewishDateInfo.back();
+                        }
+                        tikkunChatzot3Weeks.setDimmed(!getSunsetBasedJewishDateInfo().isDayTikkunChatzotSaid() && !getSunsetBasedJewishDateInfo().tomorrow().isNightTikkunChatzotSaid());// dim it if both the night and day are not said
+                        currentJewishDateInfo.setCalendar(Calendar.getInstance());
+                    }
+                } else {
                     if (tikkunChatzot != null) {
-                        tikkunChatzot.setDimmed(true);
+                        if (currentZmanimCalendar.getAlotHashachar() != null && new Date().before(currentZmanimCalendar.getAlotHashachar())) {
+                            currentJewishDateInfo.back();
+                        }
+                        tikkunChatzot.setDimmed(!getSunsetBasedJewishDateInfo().tomorrow().isNightTikkunChatzotSaid());
+                        currentJewishDateInfo.setCalendar(Calendar.getInstance());
                     }
                 }
             }
+            // end of dimming code
 
-            String sunset = DateFormat.getTimeInstance(DateFormat.SHORT).format(currentZmanimCalendar.getSunset());
+            String sunset = DateFormat.getTimeInstance(DateFormat.SHORT).format(currentZmanimCalendar.getSunset() != null ? currentZmanimCalendar.getSunset() : new Date());
 
-            Preference bh = findPreference("siddur_birchat_hamazon");
+            CustomPreferenceView bh = findPreference("siddur_birchat_hamazon");
             if (bh != null) {
                 bh.setOnPreferenceClickListener(v -> {
-                    if (new SiddurMaker(getBoolBasedJewishDateInfo()).getBirchatHamazonPrayers().equals(new SiddurMaker(getBoolBasedJewishDateInfo().tomorrow()).getBirchatHamazonPrayers())) {
+                    if (new SiddurMaker(getSunsetBasedJewishDateInfo()).getBirchatHamazonPrayers().equals(new SiddurMaker(getSunsetBasedJewishDateInfo().tomorrow()).getBirchatHamazonPrayers())) {
                         startSiddurActivity(getString(R.string.birchat_hamazon));//doesn't matter which day
                     } else {
                         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
@@ -554,7 +560,7 @@ public class SiddurFragment extends Fragment {
                         if (showAllPrayers) {
                             builder.show();
                         } else {
-                            if (new Date().after(currentZmanimCalendar.getSunset())) {
+                            if (currentZmanimCalendar.getSunset() != null && new Date().after(currentZmanimCalendar.getSunset())) {
                                 builder.show();
                             } else {
                                 startSiddurActivity(getString(R.string.birchat_hamazon));
@@ -567,9 +573,10 @@ public class SiddurFragment extends Fragment {
                 if (title != null) {
                     bh.setSummary(getSecondaryText(title));
                 }
+                bh.setForceLTRTextDirection(!Utils.isLocaleHebrew());
             }
 
-            Preference bms = findPreference("siddur_birchat_meyin_shalosh");
+            CustomPreferenceView bms = findPreference("siddur_birchat_meyin_shalosh");
             if (bms != null) {
                 bms.setOnPreferenceClickListener(v -> {
                     String[] options = {getString(R.string.wine), getString(R.string._5_grains), getString(R.string._7_fruits), getString(R.string.other)};
@@ -589,7 +596,7 @@ public class SiddurFragment extends Fragment {
                                     Toast.makeText(requireContext(), R.string.please_select_at_least_one_option, Toast.LENGTH_SHORT).show();
                                 } else {
                                     selectedShaloshItems = selectedOptions.toArray(new String[0]);
-                                    if (new SiddurMaker(getBoolBasedJewishDateInfo()).getBirchatMeeyinShaloshPrayers(options).equals(new SiddurMaker(getBoolBasedJewishDateInfo().tomorrow()).getBirchatMeeyinShaloshPrayers(options))) {
+                                    if (new SiddurMaker(getSunsetBasedJewishDateInfo()).getBirchatMeeyinShaloshPrayers(options).equals(new SiddurMaker(getSunsetBasedJewishDateInfo().tomorrow()).getBirchatMeeyinShaloshPrayers(options))) {
                                         startSiddurActivity(getString(R.string.birchat_meyin_shalosh));//doesn't matter which day
                                     } else {
                                         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
@@ -600,7 +607,7 @@ public class SiddurFragment extends Fragment {
                                         if (showAllPrayers) {
                                             builder.show();
                                         } else {
-                                            if (new Date().after(currentZmanimCalendar.getSunset())) {
+                                            if (currentZmanimCalendar.getSunset() != null && new Date().after(currentZmanimCalendar.getSunset())) {
                                                 builder.show();
                                             } else {
                                                 startSiddurActivity(getString(R.string.birchat_meyin_shalosh));
@@ -617,30 +624,32 @@ public class SiddurFragment extends Fragment {
                 if (title != null) {
                     bms.setSummary(getSecondaryText(title));
                 }
+                bms.setForceLTRTextDirection(!Utils.isLocaleHebrew());
             }
 
-            Preference tefilatHaderech = findPreference("siddur_tefilat_haderech");
+            CustomPreferenceView tefilatHaderech = findPreference("siddur_tefilat_haderech");
             if (tefilatHaderech != null) {
                 tefilatHaderech.setOnPreferenceClickListener(v -> {
                     startSiddurActivity(getString(R.string.tefilat_haderech));
                     return true;
                 });
-                tefilatHaderech.setVisible(!(currentJewishDateInfo.getJewishCalendar().isAssurBemelacha() && new Date().before(currentZmanimCalendar.getTzeit()) // if today is Assur Bemelacha and it is before tzeit, don't show the button
-                        || (currentJewishDateInfo.getJewishCalendar().hasCandleLighting() && new Date().after(currentZmanimCalendar.getSunset()))));
+                tefilatHaderech.setVisible(!(getSunsetBasedJewishDateInfo().getJewishCalendar().isAssurBemelacha() && currentZmanimCalendar.getTzeit() != null && new Date().before(currentZmanimCalendar.getTzeit()) // if today is Assur Bemelacha and it is before tzeit, don't show the button
+                        || (getSunsetBasedJewishDateInfo().getJewishCalendar().hasCandleLighting() && currentZmanimCalendar.getSunset() != null && new Date().after(currentZmanimCalendar.getSunset()))));
                 CharSequence title = tefilatHaderech.getTitle();
                 if (title != null) {
                     tefilatHaderech.setSummary(getSecondaryText(title));
                 }
+                tefilatHaderech.setForceLTRTextDirection(!Utils.isLocaleHebrew());
             }
 
-            Preference sederSiyumMasechet = findPreference("siddur_seder_siyum_masechet");
+            CustomPreferenceView sederSiyumMasechet = findPreference("siddur_seder_siyum_masechet");
             if (sederSiyumMasechet != null) {
                 sederSiyumMasechet.setOnPreferenceClickListener(v -> {
                     String[] masechtosArray = masechtosBavli.toArray(new String[0]);
                     boolean[] checkedItems = new boolean[masechtosArray.length];
 
-                    Daf currentDaf = YomiCalculator.getDafYomiBavli(getBoolBasedJewishDateInfo().getJewishCalendar());
-                    Daf nextDaf = YomiCalculator.getDafYomiBavli(getBoolBasedJewishDateInfo().tomorrow().getJewishCalendar());
+                    Daf currentDaf = YomiCalculator.getDafYomiBavli(getSunsetBasedJewishDateInfo().getJewishCalendar());
+                    Daf nextDaf = YomiCalculator.getDafYomiBavli(getSunsetBasedJewishDateInfo().tomorrow().getJewishCalendar());
 
                     if (!currentDaf.getMasechta().equals(nextDaf.getMasechta())) {// we know there is a siyum today
                         for (int i = 0; i < masechtosArray.length; i++) {
@@ -675,26 +684,29 @@ public class SiddurFragment extends Fragment {
                 if (title != null) {
                     sederSiyumMasechet.setSummary(getSecondaryText(title));
                 }
+                sederSiyumMasechet.setForceLTRTextDirection(!Utils.isLocaleHebrew());
             }
 
-            Preference birchatLevana = findPreference("siddur_birchat_levana");
+            CustomPreferenceView birchatLevana = findPreference("siddur_birchat_levana");
             if (birchatLevana != null) {
                 birchatLevana.setOnPreferenceClickListener(v -> {
                     startSiddurActivity(getString(R.string.birchat_levana));
                     return true;
                 });
-                birchatLevana.setVisible(!getBoolBasedJewishDateInfo().getBirchatLevana().isEmpty());// hide the button if there's no status text returned
+                birchatLevana.setVisible(!getSunsetBasedJewishDateInfo().getBirchatLevana().isEmpty());// hide the button if there's no status text returned
                 CharSequence title = birchatLevana.getTitle();
                 if (title != null) {
                     birchatLevana.setSummary(getSecondaryText(title));
                 }
+                birchatLevana.setForceLTRTextDirection(!Utils.isLocaleHebrew());
             }
 
-            Preference disclaimer = findPreference("siddur_misc_prayer");
+            CustomPreferenceView disclaimer = findPreference("siddur_misc_prayer");
             if (disclaimer != null) {
+                disclaimer.setForceLTRTextDirection(!Utils.isLocaleHebrew());
                 String title = "";
                 String summary = "";
-                if (getBoolBasedJewishDateInfo().getJewishCalendar().getYomTovIndex() == JewishCalendar.TU_BESHVAT) {
+                if (getSunsetBasedJewishDateInfo().getJewishCalendar().getYomTovIndex() == JewishCalendar.TU_BESHVAT) {
                     if (Utils.isLocaleHebrew()) {
                         title = "תפילה לאתרוג";
                         summary = "טוב לאמר את התפילה הזו בטו בשבט";
@@ -708,8 +720,8 @@ public class SiddurFragment extends Fragment {
                     });
                 }
 
-                if (getBoolBasedJewishDateInfo().getJewishCalendar().getUpcomingParshah() == JewishCalendar.Parsha.BESHALACH &&
-                        getBoolBasedJewishDateInfo().getJewishCalendar().getDayOfWeek() == Calendar.TUESDAY) {
+                if (getSunsetBasedJewishDateInfo().getJewishCalendar().getUpcomingParshah() == JewishCalendar.Parsha.BESHALACH &&
+                        getSunsetBasedJewishDateInfo().getJewishCalendar().getDayOfWeek() == Calendar.TUESDAY) {
                     if (Utils.isLocaleHebrew()) {
                         title = "פרשת המן";
                         summary = "טוב לאמר את התפילה הזו היום";
@@ -725,70 +737,80 @@ public class SiddurFragment extends Fragment {
 
                 disclaimer.setTitle(title);
                 disclaimer.setSummary(summary);
-                disclaimer.setVisible(!(getBoolBasedJewishDateInfo().getJewishCalendar().getYomTovIndex() != JewishCalendar.TU_BESHVAT &&
-                        !(getBoolBasedJewishDateInfo().getJewishCalendar().getUpcomingParshah() == JewishCalendar.Parsha.BESHALACH &&
-                                getBoolBasedJewishDateInfo().getJewishCalendar().getDayOfWeek() == Calendar.TUESDAY)));
+                disclaimer.setVisible(!(getSunsetBasedJewishDateInfo().getJewishCalendar().getYomTovIndex() != JewishCalendar.TU_BESHVAT &&
+                        !(getSunsetBasedJewishDateInfo().getJewishCalendar().getUpcomingParshah() == JewishCalendar.Parsha.BESHALACH &&
+                                getSunsetBasedJewishDateInfo().getJewishCalendar().getDayOfWeek() == Calendar.TUESDAY)));
 
             }
         }
 
-        private JewishDateInfo getBoolBasedJewishDateInfo() {
-            if (hebrewDayIsAhead) {
-                currentJewishDateInfo.back();
-            }
-            JewishDateInfo jdi = showAllPrayers ? mJewishDateInfo : currentJewishDateInfo;
-            if (hebrewDayIsAhead) {
+        /**
+         * Returns a {@link JewishDateInfo} based on the current date and time. If showAllPrayers is true, the public editable date is returned.
+         * Otherwise, the current date is returned taking into account if it is before/after sunset.
+         * @return a {@link JewishDateInfo} based on the current time or the public editable date.
+         */
+        private JewishDateInfo getSunsetBasedJewishDateInfo(boolean adjust) {
+            if (isAfterSunset && adjust) {
                 currentJewishDateInfo.forward();
             }
+            JewishDateInfo jdi = showAllPrayers ? mJewishDateInfo.getCopy() : currentJewishDateInfo.getCopy();
+            currentJewishDateInfo.setCalendar(Calendar.getInstance());
             return jdi;
         }
 
+        private JewishDateInfo getSunsetBasedJewishDateInfo() {
+            return getSunsetBasedJewishDateInfo(true);
+        }
+
         private boolean isPrayerCurrentlySaid(String key) {
+            if (currentZmanimCalendar.getSunset() == null || currentZmanimCalendar.getSunrise() == null) {
+                return true;// show the prayer by default
+            }
             return switch (key) {
                 case "siddur_selichot" -> {
-                    boolean isSelichotNotSaidNow = new Date().after(currentZmanimCalendar.getSunset()) && new Date().before(currentZmanimCalendar.getSolarMidnight());// easier to check
-                    yield currentJewishDateInfo.isSelichotSaid() && !isSelichotNotSaidNow;// easier to check
+                    boolean isSelichotNotSaidNow = new Date().after(currentZmanimCalendar.getSunset()) && new Date().before(currentZmanimCalendar.getSolarMidnight());// easier to check for the NOT case
+                    yield !isSelichotNotSaidNow;
                 }
-                case "siddur_shacharit",
-                     "siddur_mussaf" -> new Date().after(currentZmanimCalendar.getAlotHashachar()) && new Date().before(currentZmanimCalendar.getSunset());
-                case "siddur_mincha" ->
-                        new Date().after(currentZmanimCalendar.getMinchaGedolaGreaterThan30()) && new Date().before(currentZmanimCalendar.getTzeit());
+                case "siddur_shacharit" -> new Date().after(currentZmanimCalendar.getAlotHashachar()) && new Date().before(currentZmanimCalendar.getChatzot());
+                case "siddur_mussaf" -> new Date().after(currentZmanimCalendar.getAlotHashachar()) && new Date().before(currentZmanimCalendar.getSunset());
+                case "siddur_mincha" -> new Date().after(currentZmanimCalendar.getMinchaGedolaGreaterThan30()) && new Date().before(currentZmanimCalendar.getTzeit());
                 case "siddur_arvit" -> new Date().after(currentZmanimCalendar.getPlagHamincha()) || new Date().before(currentZmanimCalendar.getAlotHashachar());
                 case "siddur_sefirat_haomer",
                      "siddur_hadlakat_neirot_chanuka",
                      "siddur_havdala",
                      "siddur_kriatShema" -> new Date().after(currentZmanimCalendar.getSunset()) || new Date().before(currentZmanimCalendar.getAlotHashachar());
-                case "siddur_tikkun_chatzot" -> !currentJewishDateInfo.is3Weeks() &&
-                        (new Date().after(currentZmanimCalendar.getSunset()) || new Date().before(currentZmanimCalendar.getAlotHashachar()));
-                case "siddur_tikkun_chatzot_3_weeks" -> currentJewishDateInfo.is3Weeks() &&
-                        (new Date().after(currentZmanimCalendar.getSunset()) || new Date().before(currentZmanimCalendar.getAlotHashachar())) // night tikkun chatzot
-                        || (new Date().after(currentZmanimCalendar.getSunrise()) && new Date().before(currentZmanimCalendar.getSunset())); // day tikkun chatzot, even though beki'im behalacha says to not say it after mincha ketana. I do not see that brought down by Rabbi Ovadiah and his sons
+                case "siddur_tikkun_chatzot" -> !getSunsetBasedJewishDateInfo().is3Weeks() &&
+                        (new Date().after(currentZmanimCalendar.getSolarMidnight()) || new Date().before(currentZmanimCalendar.getAlotHashachar()));
+                case "siddur_tikkun_chatzot_3_weeks" -> getSunsetBasedJewishDateInfo().is3Weeks() &&
+                        ((new Date().after(currentZmanimCalendar.getSolarMidnight()) || new Date().before(currentZmanimCalendar.getAlotHashachar())) // night tikkun chatzot
+                        || (new Date().after(currentZmanimCalendar.getChatzot()) && new Date().before(currentZmanimCalendar.getSunset()) && getSunsetBasedJewishDateInfo().getJewishCalendar().getDayOfWeek() != Calendar.SATURDAY)); // day tikkun chatzot, even though beki'im behalacha says to NOT say it after mincha ketana. However, that is not brought down by Rabbi Ovadiah and his sons
                 default -> true;
             };
         }
 
         @Nullable
-        public static String getSecondaryText(CharSequence prayer) {
+        public String getSecondaryText(CharSequence prayer) {
             String result = "";
+            JewishDateInfo timeAdjustedJDI = getSunsetBasedJewishDateInfo();
 
             if (prayer.equals("סליחות")) {
-                if (mJewishDateInfo.getJewishCalendar().isAseresYemeiTeshuva()) {
+                if (timeAdjustedJDI.getJewishCalendar().isAseresYemeiTeshuva()) {
                     result = "עשרת ימי תשובה";
                 }
             } else if (prayer.equals("שחרית")) {
                 List<String> entries = new ArrayList<>();
-                if (mJewishDateInfo.getJewishCalendar().isRoshChodesh() || mJewishDateInfo.getJewishCalendar().isCholHamoed()) {
+                if (timeAdjustedJDI.getJewishCalendar().isRoshChodesh() || timeAdjustedJDI.getJewishCalendar().isCholHamoed()) {
                     entries.add("יעלה ויבוא");
                 }
-                if (mJewishDateInfo.getJewishCalendar().isPurim() || mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM) {
+                if (timeAdjustedJDI.getJewishCalendar().isPurim() || timeAdjustedJDI.getJewishCalendar().getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM) {
                     entries.add("[על הניסים]");
                 }
-                if (mJewishDateInfo.getJewishCalendar().isChanukah()) {
+                if (timeAdjustedJDI.getJewishCalendar().isChanukah()) {
                     entries.add("על הניסים");
                 }
-                String hallel = mJewishDateInfo.getHallelOrChatziHallel();
+                String hallel = timeAdjustedJDI.getHallelOrChatziHallel();
                 if (hallel.isEmpty()) {
-                    String tachanun = mJewishDateInfo.getIsTachanunSaid()
+                    String tachanun = timeAdjustedJDI.getIsTachanunSaid()
                             .replace("צדקתך", "")
                             .replace("לא אומרים תחנון", "יהי שם")
                             .replace("אומרים תחנון רק בבוקר", "תחנון")
@@ -806,29 +828,29 @@ public class SiddurFragment extends Fragment {
                 result = TextUtils.join(", ", entries);
             } else if (prayer.equals("מוסף")) {
                 List<String> entries = new ArrayList<>();
-                String ulChaparat = mJewishDateInfo.getIsUlChaparatPeshaSaid();
+                String ulChaparat = timeAdjustedJDI.getIsUlChaparatPeshaSaid();
                 if ("אומרים וּלְכַפָּרַת פֶּשַׁע".equals(ulChaparat) || "Say וּלְכַפָּרַת פֶּשַׁע".equals(ulChaparat)) {
                     entries.add(ulChaparat.replace("אומרים ", "").replace("Say ", ""));
                 }
-                if (mJewishDateInfo.getJewishCalendar().isPurim() || mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM) {
+                if (timeAdjustedJDI.getJewishCalendar().isPurim() || timeAdjustedJDI.getJewishCalendar().getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM) {
                     entries.add("[על הניסים]");
                 }
-                if (mJewishDateInfo.getJewishCalendar().isChanukah()) {
+                if (timeAdjustedJDI.getJewishCalendar().isChanukah()) {
                     entries.add("על הניסים");
                 }
                 result = TextUtils.join(", ", entries);
             } else if (prayer.equals("מנחה")) {
                 List<String> entries = new ArrayList<>();
-                if (mJewishDateInfo.getJewishCalendar().isRoshChodesh() || mJewishDateInfo.getJewishCalendar().isCholHamoed()) {
+                if (timeAdjustedJDI.getJewishCalendar().isRoshChodesh() || timeAdjustedJDI.getJewishCalendar().isCholHamoed()) {
                     entries.add("יעלה ויבוא");
                 }
-                if (mJewishDateInfo.getJewishCalendar().isPurim() || mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM) {
+                if (timeAdjustedJDI.getJewishCalendar().isPurim() || timeAdjustedJDI.getJewishCalendar().getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM) {
                     entries.add("[על הניסים]");
                 }
-                if (mJewishDateInfo.getJewishCalendar().isChanukah()) {
+                if (timeAdjustedJDI.getJewishCalendar().isChanukah()) {
                     entries.add("על הניסים");
                 }
-                String tachanun = mJewishDateInfo.getIsTachanunSaid()
+                String tachanun = timeAdjustedJDI.getIsTachanunSaid()
                         .replace("לא אומרים תחנון", "יהי שם")
                         .replace("אומרים תחנון רק בבוקר", "יהי שם")
                         .replace("יש מדלגים תחנון במנחה", "יש אומרים תחנון")
@@ -841,54 +863,57 @@ public class SiddurFragment extends Fragment {
                 if (!tachanun.isEmpty()) entries.add(tachanun);
                 result = TextUtils.join(", ", entries);
             } else if (prayer.equals("ערבית")) {
-                mJewishDateInfo.forward();
                 List<String> entries = new ArrayList<>();
-                if (mJewishDateInfo.getJewishCalendar().isRoshChodesh()) {
+                if (timeAdjustedJDI.getJewishCalendar().isRoshChodesh()) {
                     entries.add("ברכי נפשי");
                 }
-                if (new TefilaRules().isVeseinTalUmatarStartDate(mJewishDateInfo.getJewishCalendar())) {
+                if (new TefilaRules().isVeseinTalUmatarStartDate(timeAdjustedJDI.getJewishCalendar())) {
                     entries.add("ברך עלינו");
                 }
-                if (mJewishDateInfo.getJewishCalendar().isRoshChodesh() || mJewishDateInfo.getJewishCalendar().isCholHamoed()) {
+                if (timeAdjustedJDI.getJewishCalendar().isRoshChodesh() || timeAdjustedJDI.getJewishCalendar().isCholHamoed()) {
                     entries.add("יעלה ויבוא");
                 }
-                if (mJewishDateInfo.getJewishCalendar().isPurim() || mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM) {
+                if (timeAdjustedJDI.getJewishCalendar().isPurim() || timeAdjustedJDI.getJewishCalendar().getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM) {
                     entries.add("[על הניסים]");
                 }
-                if (mJewishDateInfo.getJewishCalendar().isChanukah()) {
+                if (timeAdjustedJDI.getJewishCalendar().isChanukah()) {
                     entries.add("על הניסים");
                 }
-                mJewishDateInfo.back();
                 result = TextUtils.join(", ", entries);
             } else if (prayer.equals("ספירת העומר")) {
-                int omer = mJewishDateInfo.tomorrow().getJewishCalendar().getDayOfOmer();
+                int omer = getSunsetBasedJewishDateInfo().getJewishCalendar().getDayOfOmer();
+                if (showAllPrayers) {
+                    omer = getSunsetBasedJewishDateInfo(false).tomorrow().getJewishCalendar().getDayOfOmer();
+                }
                 if (omer != -1) {
                     return String.valueOf(omer);
                 }
             } else if (prayer.equals("ברכת המזון")) {
                 List<String> entries = new ArrayList<>();
-                if (mJewishDateInfo.getJewishCalendar().isPurim() || mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM) {
+                if (timeAdjustedJDI.getJewishCalendar().isPurim() || timeAdjustedJDI.getJewishCalendar().getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM) {
                     entries.add("[על הניסים]");
                 }
-                if (mJewishDateInfo.getJewishCalendar().isChanukah()) {
+                if (timeAdjustedJDI.getJewishCalendar().isChanukah()) {
                     entries.add("על הניסים");
                 }
-                if (mJewishDateInfo.getJewishCalendar().getDayOfWeek() == 7) {
-                    entries.add("[רצה]");
+                if (timeAdjustedJDI.getJewishCalendar().getDayOfWeek() == 7) {
+                    if (showAllPrayers && currentZmanimCalendar.getTzeit() != null && !new Date().before(currentZmanimCalendar.getTzeit())) {
+                        entries.add("[רצה]");
+                    }
                 }
-                if (mJewishDateInfo.getJewishCalendar().isRoshChodesh() || mJewishDateInfo.getJewishCalendar().isCholHamoed()
-                        || mJewishDateInfo.getJewishCalendar().isYomTovAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().isYomKippur()) {
+                if (timeAdjustedJDI.getJewishCalendar().isRoshChodesh() || timeAdjustedJDI.getJewishCalendar().isCholHamoed()
+                        || timeAdjustedJDI.getJewishCalendar().isYomTovAssurBemelacha() && !timeAdjustedJDI.getJewishCalendar().isYomKippur()) {
                     entries.add("יעלה ויבוא");
                 }
                 result = TextUtils.join(", ", entries);
             } else if (prayer.equals("תיקון חצות")) {
-                if (mJewishDateInfo.tomorrow().isNightTikkunChatzotSaid()) {
-                    return mJewishDateInfo.tomorrow().isOnlyTikkunLeiaSaid(true) ? "תיקון לאה" : "תיקון רחל ,תיקון לאה";
+                if (timeAdjustedJDI.isNightTikkunChatzotSaid()) {
+                    return timeAdjustedJDI.isOnlyTikkunLeiaSaid(true) ? "תיקון לאה" : "תיקון רחל ,תיקון לאה";
                 }
                 return "";
             } else if (prayer.equals("סדר סיום מסכת")) {
-                Daf currentDaf = YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar());
-                Daf nextDaf = YomiCalculator.getDafYomiBavli(mJewishDateInfo.tomorrow().getJewishCalendar());
+                Daf currentDaf = YomiCalculator.getDafYomiBavli(timeAdjustedJDI.getJewishCalendar());
+                Daf nextDaf = YomiCalculator.getDafYomiBavli(timeAdjustedJDI.tomorrow().getJewishCalendar());
                 if (currentDaf != null && nextDaf != null && !currentDaf.getMasechta().equals(nextDaf.getMasechta())) {
                     return currentDaf.getMasechta();
                 }
@@ -900,37 +925,45 @@ public class SiddurFragment extends Fragment {
             return result;
         }
 
+        /**
+         * Convenience method to start the SiddurViewActivity with a prayer based on the DAY.
+         * @param prayer a string representing the prayer. For example: "שחרית"
+         */
         private void startSiddurActivity(String prayer) {
             startSiddurActivity(prayer, false);
         }
 
+        /**
+         * Actual method to start the SiddurViewActivity with a prayer based on the DAY. However, if forNextDay is true, the prayer passed in is for
+         * the NEXT DAY. I.E. Night
+         * @param prayer a string representing the prayer. For example: "שחרית"
+         * @param forNextDay if true, the prayer passed in is for the NEXT DAY. I.E. Night
+         */
         private void startSiddurActivity(String prayer, boolean forNextDay) {
             if (forNextDay) {
-                mJewishDateInfo.forward();
+                mJewishDateInfo.forward();// forNextDay is only for the editable date. We will adjust the date for the current jdi object in the get method
             }
+            boolean isAfterChatzot = false;
+            if (currentZmanimCalendar.getAlotHashachar() != null && currentZmanimCalendar.getAlotHashachar().after(new Date())) {// if alot hashachar is in the future, subtract a day from the current date
+                currentZmanimCalendar.getCalendar().add(Calendar.DATE, -1);
+                isAfterChatzot = new Date().after(currentZmanimCalendar.getSolarMidnight());
+            }
+            currentZmanimCalendar.setCalendar(Calendar.getInstance());// reset to not affect the getSunsetBasedJewishDateInfo method
             Intent intent = new Intent(requireContext(), SiddurViewActivity.class)
                     .putExtra("prayer", prayer)
-                    .putExtra("JewishDay", mJewishDateInfo.getJewishCalendar().getJewishDayOfMonth())
-                    .putExtra("JewishMonth", mJewishDateInfo.getJewishCalendar().getJewishMonth())
-                    .putExtra("JewishYear", mJewishDateInfo.getJewishCalendar().getJewishYear())
+                    .putExtra("JewishDay", getSunsetBasedJewishDateInfo().getJewishCalendar().getJewishDayOfMonth())
+                    .putExtra("JewishMonth", getSunsetBasedJewishDateInfo().getJewishCalendar().getJewishMonth())
+                    .putExtra("JewishYear", getSunsetBasedJewishDateInfo().getJewishCalendar().getJewishYear())
                     .putExtra("masechtas", selectedMasechtot)
                     .putExtra("itemsForMeyinShalosh", selectedShaloshItems)
                     .putExtra("isNightTikkunChatzot", isNightTikkunChatzot)
-                    .putExtra("isAfterChatzot", new Date().after(currentZmanimCalendar.getSolarMidnight()));
-
-            if (!showAllPrayers && hebrewDayIsAhead) {
-                currentJewishDateInfo.back();
-                currentZmanimCalendar.setCalendar(currentJewishDateInfo.getJewishCalendar().getGregorianCalendar());
-                intent.putExtra("JewishDay", currentJewishDateInfo.getJewishCalendar().getJewishDayOfMonth())
-                        .putExtra("JewishMonth", currentJewishDateInfo.getJewishCalendar().getJewishMonth())
-                        .putExtra("JewishYear", currentJewishDateInfo.getJewishCalendar().getJewishYear());
-            }
+                    .putExtra("isAfterChatzot", isAfterChatzot);// only used for kriat shema she'al hamita
             if (forNextDay) {
                 mJewishDateInfo.back();
             }
 
-            if ((mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.PURIM ||
-                    mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM)
+            if ((getSunsetBasedJewishDateInfo().getJewishCalendar().getYomTovIndex() == JewishCalendar.PURIM ||
+                    getSunsetBasedJewishDateInfo().getJewishCalendar().getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM)
                     && !prayer.equals(getString(R.string.birchat_levana))
                     && !prayer.equals(getString(R.string.tefilat_haderech))
                     && !prayer.equals(getString(R.string.seder_siyum_masechet))
@@ -961,10 +994,6 @@ public class SiddurFragment extends Fragment {
                         .show();
             } else {
                 startActivity(intent);
-            }
-            if (!showAllPrayers && hebrewDayIsAhead) {// reset
-                currentJewishDateInfo.forward();
-                currentZmanimCalendar.setCalendar(currentJewishDateInfo.getJewishCalendar().getGregorianCalendar());
             }
         }
     }

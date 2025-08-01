@@ -163,6 +163,11 @@ public class MainFragmentManager extends AppCompatActivity {
                         Locale helocale = new Locale("he", "IL");
                         Locale.setDefault(helocale);
                         setLocale(helocale);
+                        mJewishDateInfo.resetLocale();
+                        sSharedPreferences.edit()
+                                .putBoolean("isZmanimInHebrew", true)
+                                .putBoolean("isZmanimEnglishTranslated", false)
+                                .apply();
                         break;
                     default:
                         break;
