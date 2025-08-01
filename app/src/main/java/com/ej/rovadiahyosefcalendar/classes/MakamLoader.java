@@ -11,6 +11,7 @@ import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
@@ -22,7 +23,7 @@ import java.util.concurrent.Executors;
 public class MakamLoader {
 
     public interface Callback {
-        void onResult(JSONObject result);
+        void onResult(JSONObject result) throws JSONException;
         void onError(Throwable throwable);
     }
 
@@ -33,7 +34,7 @@ public class MakamLoader {
     private static JavaScriptSandbox activeSandbox = null;
     private static boolean sandboxBusy = false;
 
-    public static synchronized void loadData(final Context context, final JewishCalendar jCal, final Callback callback) {
+    public static synchronized void loadData(final Context context, final JewishCalendar jCal, final Callback callback) throws JSONException {
         if (sandboxBusy) {
             Log.e("makaml", "Previous sandbox still active, refusing to create another.");
             callback.onError(new IllegalStateException("Previous sandbox still active"));

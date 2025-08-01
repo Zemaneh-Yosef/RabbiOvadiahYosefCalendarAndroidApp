@@ -114,6 +114,7 @@ import com.kosherjava.zmanim.util.GeoLocation;
 import com.kosherjava.zmanim.util.ZmanimFormatter;
 
 import org.apache.commons.lang3.time.DateUtils;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.shredzone.commons.suncalc.MoonTimes;
 
@@ -166,6 +167,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private final TextView[] mSaturday = new TextView[6];
     private TextView mWeeklyParsha;
     private TextView mWeeklyHaftorah;
+    private TextView mWeeklyMakam;
 
     //This array holds the zmanim that we want to display in the announcements section of the weekly view:
     private ArrayList<String> mZmanimForAnnouncements;
@@ -721,6 +723,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
         mWeeklyParsha = binding.weeklyParsha;
         mWeeklyHaftorah = binding.weeklyHaftorah;
+        mWeeklyMakam = binding.weeklyMakam;
         updateWeeklyTextViewTextColor();
     }
 
@@ -1096,6 +1099,29 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     mROZmanimCalendar.getCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, new Locale("he", "IL")));
             binding.parsha.setText(mJewishDateInfo.getThisWeeksParsha());
             binding.haftara.setText(mJewishDateInfo.getThisWeeksHaftarah());
+
+            try {
+                MakamLoader.loadData(getContext(), mJewishDateInfo.getJewishCalendar(), new MakamLoader.Callback() {
+                    @Override
+                    public void onResult(JSONObject result) {
+                        try {
+                            if (result.has("GABRIEL A SHREM 1964 SUHV"))
+                                binding.makam.setText(result.get("GABRIEL A SHREM 1964 SUHV").toString());
+                            else if (result.has("ADES: 24793"))
+                                binding.makam.setText(result.get("ADES: 24793").toString());
+                        } catch (Exception e) {
+                            binding.makam.setVisibility(View.INVISIBLE);
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        // Handle error
+                    }
+                });
+            } catch (JSONException e) {
+                binding.makam.setVisibility(View.INVISIBLE);
+            }
         }
 
         if (sSettingsPreferences.getBoolean("showShabbatMevarchim", false)) {
@@ -1112,17 +1138,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (!dayOfOmer.isEmpty()) {
             zmanim.add(new ZmanListEntry(dayOfOmer));
         }
-
-        MakamLoader.loadData(getContext(), mJewishDateInfo.getJewishCalendar(), new MakamLoader.Callback() {
-            @Override
-            public void onResult(JSONObject result) {
-                zmanim.add(new ZmanListEntry(result.toString()));
-            }
-            @Override
-            public void onError(Throwable throwable) {
-                // Handle error
-            }
-        });
 
         if (mJewishDateInfo.getJewishCalendar().isRoshHashana() && mJewishDateInfo.isShmitaYear()) {
             zmanim.add(new ZmanListEntry(mContext.getString(R.string.this_year_is_a_shmita_year)));
