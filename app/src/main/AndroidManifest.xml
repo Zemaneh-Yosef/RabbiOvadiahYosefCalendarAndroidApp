@@ -45,6 +45,8 @@
         </intent>
     </queries>
 
+    <uses-sdk tools:overrideLibrary="androidx.javascriptengine" />
+
     <application
         android:allowBackup="true"
         android:banner="@mipmap/ic_banner"
@@ -172,5 +174,4 @@
             </intent-filter>
         </receiver>
     </application>
-
 </manifest>

@@ -92,6 +92,7 @@ import com.ej.rovadiahyosefcalendar.classes.DummyZmanAdapter;
 import com.ej.rovadiahyosefcalendar.classes.HebrewDayMonthYearPickerDialog;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
+import com.ej.rovadiahyosefcalendar.classes.MakamLoader;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
 import com.ej.rovadiahyosefcalendar.classes.SecondTreatment;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
@@ -113,6 +114,7 @@ import com.kosherjava.zmanim.util.GeoLocation;
 import com.kosherjava.zmanim.util.ZmanimFormatter;
 
 import org.apache.commons.lang3.time.DateUtils;
+import org.json.JSONObject;
 import org.shredzone.commons.suncalc.MoonTimes;
 
 import java.text.DateFormat;
@@ -1100,6 +1102,17 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (!dayOfOmer.isEmpty()) {
             zmanim.add(new ZmanListEntry(dayOfOmer));
         }
+
+        MakamLoader.loadData(getContext(), mJewishDateInfo.getJewishCalendar(), new MakamLoader.Callback() {
+            @Override
+            public void onResult(JSONObject result) {
+                zmanim.add(new ZmanListEntry(result.toString()));
+            }
+            @Override
+            public void onError(Throwable throwable) {
+                // Handle error
+            }
+        });
 
         if (mJewishDateInfo.getJewishCalendar().isRoshHashana() && mJewishDateInfo.isShmitaYear()) {
             zmanim.add(new ZmanListEntry(mContext.getString(R.string.this_year_is_a_shmita_year)));
