@@ -48,6 +48,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -114,10 +115,13 @@ import com.kosherjava.zmanim.util.GeoLocation;
 import com.kosherjava.zmanim.util.ZmanimFormatter;
 
 import org.apache.commons.lang3.time.DateUtils;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.shredzone.commons.suncalc.MoonTimes;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -1101,14 +1105,30 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             binding.haftara.setText(mJewishDateInfo.getThisWeeksHaftarah());
 
             try {
+                JSONArray makamNames = new JSONArray(inputStreamToString(mActivity.getResources().openRawResource(R.raw.makam_names)));
                 MakamLoader.loadData(getContext(), mJewishDateInfo.getJewishCalendar(), new MakamLoader.Callback() {
                     @Override
                     public void onResult(JSONObject result) {
                         try {
-                            if (result.has("GABRIEL A SHREM 1964 SUHV"))
-                                binding.makam.setText(result.get("GABRIEL A SHREM 1964 SUHV").toString());
-                            else if (result.has("ADES: 24793"))
-                                binding.makam.setText(result.get("ADES: 24793").toString());
+                            if (result.has("GABRIEL A SHREM 1964 SUHV")) {
+                                binding.makam.setVisibility(View.VISIBLE);
+
+                                JSONArray makamObj = (JSONArray)result.get("GABRIEL A SHREM 1964 SUHV");
+                                String makamText = "Makam: ";
+                                for (int i = 0; i < makamObj.length(); i++) {
+                                    makamText += makamNames.get((int) makamObj.get(i));
+                                }
+                                binding.makam.setText(makamText);
+                            } else if (result.has("ADES: 24793")) {
+                                binding.makam.setVisibility(View.VISIBLE);
+
+                                JSONArray makamObj = (JSONArray)result.get("ADES: 24793");
+                                String makamText = "Makam: ";
+                                for (int i = 0; i < makamObj.length(); i++) {
+                                    makamText += makamNames.get((int) makamObj.get(i));
+                                }
+                                binding.makam.setText(makamText);
+                            }
                         } catch (Exception e) {
                             binding.makam.setVisibility(View.INVISIBLE);
                         }
@@ -2402,6 +2422,17 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     });
                 }
             });
+        }
+    }
+
+    private String inputStreamToString(InputStream inputStream) {
+        try {
+            byte[] bytes = new byte[inputStream.available()];
+            inputStream.read(bytes, 0, bytes.length);
+            String json = new String(bytes);
+            return json;
+        } catch (IOException e) {
+            return null;
         }
     }
 }
