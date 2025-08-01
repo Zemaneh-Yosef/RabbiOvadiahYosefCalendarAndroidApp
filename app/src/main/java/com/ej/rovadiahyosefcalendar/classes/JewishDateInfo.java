@@ -64,6 +64,13 @@ public class JewishDateInfo {
         tefilaRules = new TefilaRules();
     }
 
+    public void resetLocale() {
+        if (Utils.isLocaleHebrew()) {
+            hebrewDateFormatter.setHebrewFormat(true);
+            isLocaleHebrew = true;
+        }
+    }
+
     /**
      * This method is used to get the current jewish calendar object.
      * @return the current jewish calendar object
@@ -79,6 +86,15 @@ public class JewishDateInfo {
     public JewishDateInfo tomorrow() {
         Calendar clonedDate = (Calendar) currentDate.clone(); // Clone the current date to avoid modifying it directly
         clonedDate.add(Calendar.DATE, 1); // Move to tomorrow
+
+        JewishDateInfo tomorrow = new JewishDateInfo(this.jewishCalendar.getInIsrael());
+        tomorrow.setCalendar(clonedDate);
+        return tomorrow;
+    }
+
+    public JewishDateInfo yesterday() {
+        Calendar clonedDate = (Calendar) currentDate.clone(); // Clone the current date to avoid modifying it directly
+        clonedDate.add(Calendar.DATE, -1); // Move to tomorrow
 
         JewishDateInfo tomorrow = new JewishDateInfo(this.jewishCalendar.getInIsrael());
         tomorrow.setCalendar(clonedDate);
@@ -123,9 +139,7 @@ public class JewishDateInfo {
             if (jewishCalendar.isRoshChodesh()) {
                 result = hebrewDateFormatter.formatRoshChodesh(jewishCalendar);
             } else if (jewishCalendar.isErevRoshChodesh()) {
-                jewishCalendar.forward(Calendar.DATE, 1);
-                String hebrewMonth = hebrewDateFormatter.formatRoshChodesh(jewishCalendar);
-                jewishCalendar.setDate(currentDate);
+                String hebrewMonth = hebrewDateFormatter.formatRoshChodesh(tomorrow().getJewishCalendar());
                 result = "ערב " + hebrewMonth;
             } else {
                 result = "";
@@ -136,11 +150,9 @@ public class JewishDateInfo {
                         .replace("Teves", "Tevet")
                         .replace("Tishrei", "Tishri");
             } else if (jewishCalendar.isErevRoshChodesh()) {
-                jewishCalendar.forward(Calendar.DATE, 1);
-                String hebrewMonth = hebrewDateFormatter.formatRoshChodesh(jewishCalendar)
+                String hebrewMonth = hebrewDateFormatter.formatRoshChodesh(tomorrow().getJewishCalendar())
                         .replace("Teves", "Tevet")
                         .replace("Tishrei", "Tishri");
-                jewishCalendar.setDate(currentDate);
                 result = "Erev " + hebrewMonth;
             } else {
                 result = "";
@@ -242,10 +254,7 @@ public class JewishDateInfo {
      * @return a boolean value indicating if the next day is Taanit Bechorot
      */
     private boolean tomorrowIsTaanitBechorot() {
-        jewishCalendar.forward(Calendar.DATE, 1);
-        boolean result = jewishCalendar.isTaanisBechoros();
-        jewishCalendar.setDate(currentDate);
-        return result;
+        return tomorrow().getJewishCalendar().isTaanisBechoros();
     }
 
     /**
@@ -412,10 +421,7 @@ public class JewishDateInfo {
      * @return a string containing the next day's yom tov/holiday
      */
     private String getYomTovForNextDay() {
-        jewishCalendar.forward(Calendar.DATE, 1);
-        String result = getYomTov();
-        jewishCalendar.setDate(currentDate);//reset
-        return result;
+        return tomorrow().getYomTov();
     }
 
     /**
@@ -424,10 +430,7 @@ public class JewishDateInfo {
      * @return an int containing the next day's holiday as an index
      */
     private int getYomTovIndexForNextDay() {
-        jewishCalendar.forward(Calendar.DATE, 1);
-        int result = jewishCalendar.getYomTovIndex();
-        jewishCalendar.setDate(currentDate);//reset
-        return result;
+        return tomorrow().getJewishCalendar().getYomTovIndex();
     }
 
     /**
@@ -842,7 +845,7 @@ public class JewishDateInfo {
         }
 
         jewishCalendar.setJewishDayOfMonth(9);
-        if (jewishCalendar.getDayOfWeek() == 1 || jewishCalendar.getDayOfWeek() == 7) {
+        if (jewishCalendar.getDayOfWeek() == Calendar.SUNDAY || jewishCalendar.getDayOfWeek() == Calendar.SATURDAY) {
             jewishCalendar.setDate(currentDate);//reset
             return false;//there is no shevua shechal bo if tisha beav falls out on a sunday or shabbat
         }
@@ -854,7 +857,7 @@ public class JewishDateInfo {
                 8);// 1 day before to not include tisha beav itself
 
         ArrayList<Integer> daysOfShevuahShechalBo = new ArrayList<>();
-        while (tishaBeav.getDayOfWeek() != 7) {
+        while (tishaBeav.getDayOfWeek() != Calendar.SATURDAY) {
             daysOfShevuahShechalBo.add(tishaBeav.getJewishDayOfMonth());
             tishaBeav.setJewishDayOfMonth(tishaBeav.getJewishDayOfMonth() - 1);
         }
@@ -904,7 +907,7 @@ public class JewishDateInfo {
      */
     public boolean isNightTikkunChatzotSaid() {
         // These are all days that Tikkun Chatzot is not said at all, we NOT it to know if Tikkun Chatzot IS said
-        return !(jewishCalendar.getDayOfWeek() == 7 ||
+        return !(jewishCalendar.getDayOfWeek() == Calendar.SATURDAY ||
                 jewishCalendar.isRoshHashana() ||
                 jewishCalendar.isYomKippur() ||
                 jewishCalendar.getYomTovIndex() == JewishCalendar.SUCCOS ||
@@ -921,12 +924,14 @@ public class JewishDateInfo {
      * @see #isOnlyTikkunLeiaSaid(boolean)
      */
     public boolean isDayTikkunChatzotSaid() {
-        // Tikkun Rachel is said during the daytime for the three weeks, but not in these cases. Tikkun Rachel IS said on Erev Tisha Beav
+        String tachanun = getIsTachanunSaid();
+        // Tikkun Rachel is said during the daytime for the three weeks, but not in these cases. Tikkun Rachel IS said on Erev Tisha Beav, even though some say that the custom is to NOT say it then, Maran Rabbi Ovadia said to say it on Erev Tisha Beav as well.
         return !((jewishCalendar.isErevRoshChodesh() && jewishCalendar.getJewishMonth() == JewishDate.TAMMUZ) ||// Use tammuz to check for erev rosh chodesh Av
-                jewishCalendar.isRoshChodesh() ||
-                jewishCalendar.getDayOfWeek() == 6 ||
-                jewishCalendar.getDayOfWeek() == 7 ||
-                getIsTachanunSaid().equals("No Tachanun today") || getIsTachanunSaid().equals("לא אומרים תחנון"));
+                jewishCalendar.isRoshChodesh() ||// rosh chodesh Av
+                jewishCalendar.getDayOfWeek() == Calendar.FRIDAY ||
+                jewishCalendar.getDayOfWeek() == Calendar.SATURDAY ||
+                tachanun.equals("No Tachanun today") || tachanun.equals("לא אומרים תחנון") ||
+                tachanun.equals("Tachanun only in the morning") || tachanun.equals("אומרים תחנון רק בבוקר"));
     }
 
     /**
@@ -977,7 +982,7 @@ public class JewishDateInfo {
         JewishCalendar yesterday = new JewishCalendar();
         yesterday.setDate(clonedDate);
         yesterday.back(); // Move to yesterday
-        return yesterday.getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM && yesterday.getDayOfWeek() == 7;
+        return yesterday.getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM && yesterday.getDayOfWeek() == Calendar.SATURDAY;
     }
 
 }

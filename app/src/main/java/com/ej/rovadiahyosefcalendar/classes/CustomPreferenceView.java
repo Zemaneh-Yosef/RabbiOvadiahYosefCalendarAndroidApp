@@ -12,6 +12,7 @@ import com.github.tttt55.materialyoupreferences.preferences.MaterialPreference;
 public class CustomPreferenceView extends MaterialPreference {
 
     private boolean isDimmed = false;
+    private boolean forceLTRTextDirection = false;
 
     public CustomPreferenceView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -36,11 +37,22 @@ public class CustomPreferenceView extends MaterialPreference {
         return isDimmed;
     }
 
+    public boolean isLTRTextDirectionForced() {
+        return forceLTRTextDirection;
+    }
+
+    public void setForceLTRTextDirection(boolean forceLTRTextDirection) {
+        this.forceLTRTextDirection = forceLTRTextDirection;
+    }
+
     @Override
     public void onBindViewHolder(@NonNull PreferenceViewHolder holder) {
         super.onBindViewHolder(holder);
 
-        holder.itemView.setTextDirection(View.TEXT_DIRECTION_LTR);
+        if (forceLTRTextDirection) {
+            holder.itemView.setTextDirection(View.TEXT_DIRECTION_LTR);
+        }
+
         // Apply dim effect
         holder.itemView.setAlpha(isDimmed ? 0.4f : 1.0f);
 

@@ -65,7 +65,7 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
     }
 
     private void init(Context context, JewishDateInfo jewishDateInfo, ROZmanimCalendar calendar) {
-        String specialDay = jewishDateInfo.getSpecialDay(PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowDayOfOmer",false));
+        String specialDay = jewishDateInfo.getSpecialDay(false);
         if (BuildConfig.DEBUG) {
             mSharedPreferences.edit().putString("debugNotifs", "ShowDayOfOmer: " + PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowDayOfOmer",false) + "\n\n").apply();
             mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "init started with special day as: " + specialDay + "\n\n").apply();

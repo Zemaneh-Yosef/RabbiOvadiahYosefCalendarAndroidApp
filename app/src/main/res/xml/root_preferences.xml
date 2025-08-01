@@ -1,221 +1,269 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory app:title="@string/zmanim_options">
-        <Preference
+    <PreferenceCategory
+        app:title="@string/zmanim_options"
+        android:layout="@layout/custom_material_preference_category">
+        <com.ej.rovadiahyosefcalendar.classes.CustomPreferenceView
             android:key="zmanim_settings"
             android:summary="@string/change_the_zmanim_settings"
-            android:title="@string/zmanim_settings" />
+            android:title="@string/zmanim_settings"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false" />
 
-        <SwitchPreferenceCompat
+        <com.github.tttt55.materialyoupreferences.preferences.MaterialSwitchPreference
             android:defaultValue="true"
             android:key="zmanim_notifications"
             android:summary="@string/enable_or_disable_zmanim_notifications"
-            android:title="@string/zmanim_notifications" />
+            android:title="@string/zmanim_notifications"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false" />
 
-        <Preference
+        <com.ej.rovadiahyosefcalendar.classes.CustomPreferenceView
             android:dependency="zmanim_notifications"
             android:key="zmanim_notifications_settings"
             android:summary="@string/change_the_zmanim_notifications_settings"
-            android:title="@string/zmanim_notifications_settings" />
+            android:title="@string/zmanim_notifications_settings"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false" />
 
-        <SwitchPreferenceCompat
+        <com.github.tttt55.materialyoupreferences.preferences.MaterialSwitchPreference
             android:defaultValue="false"
             android:key="ShowSeconds"
             android:summary="@string/choose_whether_or_not_to_display_the_seconds_of_the_zmanim"
-            android:title="@string/show_seconds" />
+            android:title="@string/show_seconds"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false" />
 
-        <SwitchPreferenceCompat
+        <com.github.tttt55.materialyoupreferences.preferences.MaterialSwitchPreference
             android:defaultValue="false"
             android:key="AlwaysShowRT"
             android:summary="@string/choose_whether_or_not_to_display_rabbeinu_tam_s_nightfall_everyday"
-            android:title="@string/show_rabbeinu_tam_everyday" />
+            android:title="@string/show_rabbeinu_tam_everyday"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false" />
 
-        <SwitchPreferenceCompat
+        <com.github.tttt55.materialyoupreferences.preferences.MaterialSwitchPreference
             android:defaultValue="true"
             android:key="RoundUpRT"
             android:summary="@string/choose_whether_or_not_to_round_up_the_zman_of_rabbeinu_tam_up_to_the_nearest_minute"
-            android:title="@string/round_up_rabbeinu_tam" />
+            android:title="@string/round_up_rabbeinu_tam"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false" />
 
-        <SwitchPreferenceCompat
-            android:defaultValue="false"
-            android:key="ShowDayOfOmer"
-            android:summary="@string/choose_whether_or_not_the_app_will_notify_you_of_the_day_of_the_omer_during_the_day"
-            android:title="@string/notify_day_of_omer_as_well" />
-
-        <SwitchPreferenceCompat
+        <com.github.tttt55.materialyoupreferences.preferences.MaterialSwitchPreference
             android:defaultValue="false"
             android:key="ShowMishorAlways"
             android:summary="@string/choose_whether_or_not_to_display_sea_level_sunrise_even_if_visible_sunrise_is_setup_as_well"
-            android:title="@string/always_show_mishor_sunrise" />
+            android:title="@string/always_show_mishor_sunrise"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false" />
 
-        <SwitchPreferenceCompat
+        <com.github.tttt55.materialyoupreferences.preferences.MaterialSwitchPreference
             android:defaultValue="true"
             android:key="showZmanDialogs"
             android:summary="@string/choose_whether_or_not_to_display_the_zman_dialogs_when_you_press_on_a_zman"
-            android:title="@string/show_zman_dialogs" />
+            android:title="@string/show_zman_dialogs"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false" />
 
-        <SwitchPreferenceCompat
+        <com.github.tttt55.materialyoupreferences.preferences.MaterialSwitchPreference
             android:defaultValue="false"
             android:key="hideBottomBar"
             android:summary="@string/choose_whether_or_not_the_navigation_bar_that_shows_limudim_zmanim_siddur_should_be_shown_this_may_help_users_with_smaller_screens"
-            android:title="@string/hide_the_bottom_navigation_bar" />
+            android:title="@string/hide_the_bottom_navigation_bar"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false" />
 
-        <SwitchPreferenceCompat
+        <com.github.tttt55.materialyoupreferences.preferences.MaterialSwitchPreference
             android:defaultValue="false"
             android:key="showShabbatMevarchim"
             android:summary="@string/choose_whether_or_not_to_display_if_shabbat_mevarchim_happens_tomorrow_on_friday"
-            android:title="@string/show_shabbat_mevarchim" />
+            android:title="@string/show_shabbat_mevarchim"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false" />
 
-        <SwitchPreferenceCompat
+        <com.github.tttt55.materialyoupreferences.preferences.MaterialSwitchPreference
             android:defaultValue="false"
             android:key="ShowShmitaYear"
             android:summary="@string/choose_whether_or_not_to_show_if_the_year_is_a_shmita_year_or_not"
-            android:title="@string/show_shmita_year" />
+            android:title="@string/show_shmita_year"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false" />
 
-        <SwitchPreferenceCompat
+        <com.github.tttt55.materialyoupreferences.preferences.MaterialSwitchPreference
             android:defaultValue="false"
             android:key="ShowWhenShabbatChagEnds"
             android:summary="@string/choose_whether_or_not_to_display_when_shabbat_or_chag_ends_the_day_before_after_the_candle_lighting_time"
-            android:title="@string/show_tzait_shabbat_the_day_before" />
+            android:title="@string/show_tzait_shabbat_the_day_before"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false" />
 
-        <MultiSelectListPreference
+        <com.github.tttt55.materialyoupreferences.preferences.MaterialMultiSelectListPreference
             android:dependency="ShowWhenShabbatChagEnds"
             android:entryValues="@array/shabbat_entries"
             android:key="displayRTOrShabbatRegTime"
             android:title="@string/choose_which_zmanim_to_display"
             app:entries="@array/shabbat_entries"
-            app:summary="@string/choose_whether_to_display_rabbeinu_tam_or_regular_shabbat_end_times_or_both" />
+            app:summary="@string/choose_whether_to_display_rabbeinu_tam_or_regular_shabbat_end_times_or_both"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false" />
 
-        <SwitchPreferenceCompat
+        <com.github.tttt55.materialyoupreferences.preferences.MaterialSwitchPreference
             android:defaultValue="false"
             android:key="SetElevationToLastKnownLocation"
             android:summary="@string/choose_whether_or_not_to_set_the_elevation_to_the_last_known_location_when_the_app_is_opened_offline"
-            android:title="@string/set_elevation_to_last_known_location" />
+            android:title="@string/set_elevation_to_last_known_location"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false" />
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="@string/appearance">
+    <PreferenceCategory
+        app:title="@string/appearance"
+        android:layout="@layout/custom_material_preference_category">
 
-        <ListPreference
+        <com.github.tttt55.materialyoupreferences.preferences.MaterialListPreference
             android:defaultValue="Auto (Follow System Theme)"
             app:entries="@array/theme_entries"
             app:entryValues="@array/theme_values"
             app:key="theme"
             app:selectable="true"
             app:summary="@string/choose_a_theme_for_the_app"
-            app:title="@string/theme" />
+            app:title="@string/theme"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false" />
 
-        <com.rarepebble.colorpicker.ColorPreference
+        <com.github.tttt55.materialyoupreferences.preferences.MaterialColorPreference
             android:defaultValue="?attr/colorOnBackground"
-            app:colorpicker_selectNoneButtonText="Default/ברירת מחדל"
             app:key="backgroundColor"
             app:selectable="true"
             app:summary="@string/choose_the_color_of_the_background"
-            app:title="@string/set_background_color" />
+            app:title="@string/set_background_color"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false" />
 
-        <Preference
+        <com.ej.rovadiahyosefcalendar.classes.CustomPreferenceView
             app:key="background"
             app:selectable="true"
             app:summary="@string/choose_your_own_image_as_the_app_s_background"
-            app:title="@string/set_background_from_image" />
+            app:title="@string/set_background_from_image"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false" />
 
-        <com.rarepebble.colorpicker.ColorPreference
+        <com.github.tttt55.materialyoupreferences.preferences.MaterialColorPreference
             android:defaultValue="#FFFFFFFF"
             app:key="textColor"
-            app:colorpicker_selectNoneButtonText="Default/ברירת מחדל"
             app:selectable="true"
             app:summary="@string/choose_the_color_of_the_text"
-            app:title="@string/set_text_color" />
+            app:title="@string/set_text_color"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false" />
 
-        <com.rarepebble.colorpicker.ColorPreference
+        <com.github.tttt55.materialyoupreferences.preferences.MaterialColorPreference
             android:defaultValue="@color/dark_blue"
-            app:colorpicker_selectNoneButtonText="Default/ברירת מחדל"
             app:key="calendarButtonColor"
             app:selectable="true"
             app:summary="@string/choose_the_color_of_the_calendar_button"
-            app:title="@string/set_calendar_button_color" />
+            app:title="@string/set_calendar_button_color"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false" />
 
-        <SwitchPreferenceCompat
+        <com.github.tttt55.materialyoupreferences.preferences.MaterialSwitchPreference
             android:defaultValue="false"
             android:key="useDarkCalendarIcon"
             android:summary="@string/choose_whether_or_not_to_use_a_dark_calendar_icon_for_the_calendar_button"
-            android:title="@string/use_dark_calendar_icon" />
+            android:title="@string/use_dark_calendar_icon"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false" />
 
-        <ListPreference
+        <com.ej.rovadiahyosefcalendar.classes.MaterialButtonToggleGroupPreference
             android:defaultValue="Guttman Keren"
             app:entries="@array/font_entries"
             app:entryValues="@array/font_values"
             app:key="font"
             app:selectable="true"
             app:summary="@string/choose_a_font_for_the_siddur"
-            app:title="@string/siddur_font" />
+            app:title="@string/siddur_font"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false" />
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="@string/app_info">
+    <PreferenceCategory
+        app:title="@string/app_info"
+        android:layout="@layout/custom_material_preference_category">
 
-        <Preference
+        <com.ej.rovadiahyosefcalendar.classes.CustomPreferenceView
             app:key="@string/contact_header"
             app:selectable="true"
             app:summary="@string/contact_header"
-            app:title="@string/have_questions" />
+            app:title="@string/have_questions"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false" />
 
-        <Preference
+        <com.ej.rovadiahyosefcalendar.classes.CustomPreferenceView
             app:key="haskamot"
             app:selectable="true"
             app:summary="@string/view_rabbinic_approbations_for_this_application"
-            app:title="@string/haskamot" />
+            app:title="@string/haskamot"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false" />
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="@string/help">
+    <PreferenceCategory
+        app:title="@string/debug"
+        android:layout="@layout/custom_material_preference_category">
 
-        <Preference
-            android:key="help"
-            android:summary="@string/click_here_to_see_the_help_page"
-            android:title="@string/help" />
-
-    </PreferenceCategory>
-
-    <PreferenceCategory app:title="@string/debug">
-
-        <ListPreference
+        <com.ej.rovadiahyosefcalendar.classes.MaterialButtonToggleGroupPreference
             app:defaultValue="en"
             app:entries="@array/language_entries"
             app:entryValues="@array/language_values"
             app:key="language"
             app:summary=""
-            app:title="@string/manually_set_the_language_of_the_app" />
+            app:title="@string/manually_set_the_language_of_the_app"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false" />
 
-        <SwitchPreferenceCompat
+        <com.github.tttt55.materialyoupreferences.preferences.MaterialSwitchPreference
             android:defaultValue="false"
             android:key="ShowElevation"
             android:summary="@string/choose_whether_or_not_to_display_the_current_elevation_level"
-            android:title="@string/show_elevation" />
+            android:title="@string/show_elevation"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false" />
 
-        <SwitchPreferenceCompat
+        <com.github.tttt55.materialyoupreferences.preferences.MaterialSwitchPreference
             android:defaultValue="false"
             android:key="ShowElevatedSunrise"
             android:summary="@string/choose_whether_or_not_to_display_the_time_for_elevated_sunrise_that_is_used_for_calculating_the_zmanim"
-            android:title="@string/add_elevated_sunrise_zman" />
+            android:title="@string/add_elevated_sunrise_zman"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false" />
 
-        <SwitchPreferenceCompat
+        <com.github.tttt55.materialyoupreferences.preferences.MaterialSwitchPreference
             android:defaultValue="false"
             android:key="ShowLeapYear"
             android:summary="@string/choose_whether_or_not_to_display_if_it_is_a_leap_year"
-            android:title="@string/show_if_it_is_a_leap_year" />
+            android:title="@string/show_if_it_is_a_leap_year"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false" />
 
-        <SwitchPreferenceCompat
+        <com.github.tttt55.materialyoupreferences.preferences.MaterialSwitchPreference
             android:defaultValue="false"
             android:key="ShowDST"
             android:summary="@string/choose_whether_or_not_to_display_if_daylight_savings_is_in_effect"
-            android:title="@string/show_dst" />
+            android:title="@string/show_dst"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false" />
 
-        <Preference
+        <com.ej.rovadiahyosefcalendar.classes.CustomPreferenceView
             android:key="showNotifDebugLog"
             android:summary="Click here to see the debug log of the notifications."
-            android:title="Show Notification Debug Log" />
+            android:title="Show Notification Debug Log"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false" />
 
     </PreferenceCategory>
 

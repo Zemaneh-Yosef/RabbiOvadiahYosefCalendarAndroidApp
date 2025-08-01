@@ -10,7 +10,7 @@
             android:summary="@string/when_you_open_the_app_show_a_notification_that_will_tell_you_when_the_next_zman_is"
             android:title="@string/display_next_upcoming_zman_sticky_notification" />
 
-        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+        <com.ej.rovadiahyosefcalendar.classes.SliderPreference
             android:key="autoDismissNotifications"
             android:title="@string/dismiss_notifications"
             android:defaultValue="-1"
@@ -22,127 +22,127 @@
             android:summary="@string/show_zmanim_notifications_on_shabbat_yom_tov"
             android:title="@string/notifications_on_shabbat_and_yom_tov" />
 
-        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+        <com.ej.rovadiahyosefcalendar.classes.SliderPreference
             android:key="Alot"
             android:title="@string/alot_hashachar"
             android:defaultValue="15"
             />
 
-        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+        <com.ej.rovadiahyosefcalendar.classes.SliderPreference
             android:key="TalitTefilin"
             android:title="@string/talit_and_tefilin"
             android:defaultValue="15"
             />
 
-        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+        <com.ej.rovadiahyosefcalendar.classes.SliderPreference
             android:key="HaNetz"
             android:title="@string/hanetz"
             android:defaultValue="15"
             />
 
-        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+        <com.ej.rovadiahyosefcalendar.classes.SliderPreference
             android:key="SofZmanShmaMGA"
             android:title="@string/sof_zman_shma_mga"
             android:defaultValue="15"
             />
 
-        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+        <com.ej.rovadiahyosefcalendar.classes.SliderPreference
             android:key="SofZmanShmaGRA"
             android:title="@string/sof_zman_shma_gra"
             android:defaultValue="15"
             />
 
-        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+        <com.ej.rovadiahyosefcalendar.classes.SliderPreference
             android:key="SofZmanTefila"
             android:title="@string/sof_zman_tefila"
             android:defaultValue="15"
             />
 
-        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+        <com.ej.rovadiahyosefcalendar.classes.SliderPreference
             android:key="SofZmanAchilatChametz"
             android:title="@string/achilat_chametz"
             android:defaultValue="15"
             />
 
-        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+        <com.ej.rovadiahyosefcalendar.classes.SliderPreference
             android:key="SofZmanBiurChametz"
             android:title="@string/biur_chametz"
             android:defaultValue="15"
             />
 
-        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+        <com.ej.rovadiahyosefcalendar.classes.SliderPreference
             android:key="Chatzot"
             android:title="@string/chatzot"
             android:defaultValue="15"
             />
 
-        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+        <com.ej.rovadiahyosefcalendar.classes.SliderPreference
             android:key="MinchaGedola"
             android:title="@string/mincha_gedola"
             android:defaultValue="15"
             />
 
-        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+        <com.ej.rovadiahyosefcalendar.classes.SliderPreference
             android:key="MinchaKetana"
             android:title="@string/mincha_ketana"
             android:defaultValue="15"
             />
 
-        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+        <com.ej.rovadiahyosefcalendar.classes.SliderPreference
             android:key="PlagHaMinchaHB"
             android:title="@string/plag_hamincha_halacha_berurah"
             android:defaultValue="15"
             />
 
-        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+        <com.ej.rovadiahyosefcalendar.classes.SliderPreference
             android:key="PlagHaMinchaYY"
             android:title="@string/plag_hamincha_yalkut_yosef"
             android:defaultValue="15"
             />
 
-        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+        <com.ej.rovadiahyosefcalendar.classes.SliderPreference
             android:key="CandleLighting"
             android:title="@string/candle_lighting"
             android:defaultValue="15"
             />
 
-        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+        <com.ej.rovadiahyosefcalendar.classes.SliderPreference
             android:key="Shkia"
             android:title="@string/shkia"
             android:defaultValue="15"
             />
 
-        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+        <com.ej.rovadiahyosefcalendar.classes.SliderPreference
             android:key="TzeitHacochavim"
             android:title="@string/tzeit_hacochavim"
             android:defaultValue="15"
             />
 
-        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+        <com.ej.rovadiahyosefcalendar.classes.SliderPreference
             android:key="TzeitHacochavimLChumra"
             android:title="@string/tzeit_hacochavim_l_chumra"
             android:defaultValue="15"
             />
 
-        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+        <com.ej.rovadiahyosefcalendar.classes.SliderPreference
             android:key="FastEnd"
             android:title="@string/fast_ends"
             android:defaultValue="15"
             />
 
-        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+        <com.ej.rovadiahyosefcalendar.classes.SliderPreference
             android:key="ShabbatEnd"
             android:title="@string/shabbat_ends"
             android:defaultValue="15"
             />
 
-        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+        <com.ej.rovadiahyosefcalendar.classes.SliderPreference
             android:key="RT"
             android:title="@string/rabbeinu_tam"
             android:defaultValue="0"
             />
 
-        <com.ej.rovadiahyosefcalendar.classes.SeekBarPreference
+        <com.ej.rovadiahyosefcalendar.classes.SliderPreference
             android:key="NightChatzot"
             android:title="@string/chatzot_layla"
             android:defaultValue="15"

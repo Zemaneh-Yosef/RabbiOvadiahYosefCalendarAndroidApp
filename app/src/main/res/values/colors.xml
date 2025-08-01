@@ -8,9 +8,15 @@
     <color name="teal_200">#FF03DAC5</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="textColor">#FF000000</color>
     <color name="dark_gold">#C6AA14</color>
     <color name="gray">#32312C</color>
     <color name="background_gray">#1e1e1e</color>
+    <color name="disabled_gray">#44888888</color>
+    <color name="gray600">#C8C2CE</color>
+    <color name="cardview_background">#EDE4F4</color>
+    <color name="cardview_border">#C8C2CE</color>
+    <color name="buttonColor">#FCF5FD</color>
     <color name="light_blue">#3458D5</color>
     <color name="dark_blue">#18267C</color>
     <color name="dark_red">#A60202</color>

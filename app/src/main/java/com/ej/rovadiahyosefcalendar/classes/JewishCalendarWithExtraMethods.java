@@ -109,6 +109,24 @@ public class JewishCalendarWithExtraMethods extends JewishCalendar {
         return cal.getTime();
     }
 
+    /**
+     * This method is used to get the current date of the jewish calendar based on sunset. The start of the hebrew date is based on the night time.
+     * Therefore, the date changes after sunset. However, the Gregorian date is based on Midnight. Internally, the JewishCalendar uses the Gregorian
+     * date, and this causes the hebrew date to be a day before even after sunset. This method will check for sunset and adjust the date accordingly.
+     * For example, if the date is 18 July 2025, and the hebrew date is 22 Tammuz 5785, this method will return 22 Tammuz 5785 before sunset, and
+     * 23 Tammuz 5785 after sunset.
+     * @param zmanimCalendar the zmanim calendar set to the location where sunset occurs
+     * @return the current jewish date based on if it's before or after sunset/dawn
+     */
+    public String currentToString(ROZmanimCalendar zmanimCalendar) {
+        JewishCalendarWithExtraMethods jewishCalendar = new JewishCalendarWithExtraMethods();
+        jewishCalendar.setDate(zmanimCalendar.getCalendar());// set the date to the date of the zmanim calendar, because we are going based on that sunset
+        if (zmanimCalendar.getSunset() != null && new Date().after(zmanimCalendar.getSunset())) {
+            jewishCalendar.forward(Calendar.DATE, 1);
+        }
+        return jewishCalendar.toString();
+    }
+
     @NonNull
     @Override
     public String toString() {

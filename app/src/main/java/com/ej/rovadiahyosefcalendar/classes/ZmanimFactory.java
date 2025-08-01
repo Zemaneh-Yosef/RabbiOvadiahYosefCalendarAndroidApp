@@ -220,7 +220,7 @@ public class ZmanimFactory {
         }
     }
 
-    public static ZmanListEntry getNextUpcomingZman(Calendar mCurrentDateShown, ROZmanimCalendar roZmanimCalendar, JewishDateInfo mJewishDateInfo, SharedPreferences mSettingsPreferences, SharedPreferences mSharedPreferences, boolean mIsZmanimInHebrew, boolean mIsZmanimEnglishTranslated) {
+    public static ZmanListEntry getNextUpcomingZman(Calendar mCurrentDateShown, ROZmanimCalendar roZmanimCalendar, JewishDateInfo mJewishDateInfo, SharedPreferences mSettingsPreferences, SharedPreferences mSharedPreferences) {
         ZmanListEntry theZman = null;
         List<ZmanListEntry> zmanim = new ArrayList<>();
         Calendar today = Calendar.getInstance();
