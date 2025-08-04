@@ -913,7 +913,8 @@ public class JewishDateInfo {
                 jewishCalendar.getYomTovIndex() == JewishCalendar.SUCCOS ||
                 jewishCalendar.isShminiAtzeres() ||
                 jewishCalendar.isSimchasTorah() ||
-                jewishCalendar.isPesach() || jewishCalendar.isShavuos());
+                jewishCalendar.isPesach() ||
+                jewishCalendar.isShavuos());
     }
 
     /**

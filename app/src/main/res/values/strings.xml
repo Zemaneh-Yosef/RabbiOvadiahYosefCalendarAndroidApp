@@ -464,4 +464,5 @@
    <string name="_default">Default</string>
     <string name="parsha">Parsha</string>
     <string name="haftara">Haftara</string>
+    <string name="updating">Updating…</string>
 </resources>

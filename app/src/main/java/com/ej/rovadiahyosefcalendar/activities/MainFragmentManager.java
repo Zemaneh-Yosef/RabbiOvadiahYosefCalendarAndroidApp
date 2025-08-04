@@ -6,7 +6,6 @@ import static android.Manifest.permission.FOREGROUND_SERVICE_LOCATION;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment.sShabbatMode;
 
-import android.app.ForegroundServiceStartNotAllowedException;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -358,7 +357,7 @@ public class MainFragmentManager extends AppCompatActivity {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     try {
                         startForegroundService(new Intent(this, NextZmanCountdownNotification.class));
-                    } catch (ForegroundServiceStartNotAllowedException exception) {
+                    } catch (Exception exception) {
                         exception.printStackTrace();
                     }
                 } else {

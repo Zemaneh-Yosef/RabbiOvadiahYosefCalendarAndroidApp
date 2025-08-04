@@ -56,8 +56,6 @@ public class NextZmanCountdownNotification extends Service {
     private LocationResolver mLocationResolver;
     private JewishDateInfo mJewishDateInfo;
     private ROZmanimCalendar mROZmanimCalendar;
-    private boolean mIsZmanimInHebrew;
-    private boolean mIsZmanimEnglishTranslated;
 
     private boolean shouldShowNotification = true;
     private ZmanListEntry nextZman;
@@ -68,11 +66,11 @@ public class NextZmanCountdownNotification extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        updateNotificationWithSkeleton();
         handler = new Handler();
         mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         sharedPrefListener = (prefs, key) -> {
             if (key != null && (key.equals("isZmanimInHebrew") || key.equals("isZmanimEnglishTranslated"))) {
-                setZmanimLanguageBools();
                 nextZman = ZmanimFactory.getNextUpcomingZman(
                         new GregorianCalendar(),
                         mROZmanimCalendar,
@@ -89,7 +87,6 @@ public class NextZmanCountdownNotification extends Service {
             }
         };
         mSettingsPreferences.registerOnSharedPreferenceChangeListener(settingsPrefListener);
-        setZmanimLanguageBools();
         if (Utils.isLocaleHebrew()) {
             if (mSettingsPreferences.getBoolean("ShowSeconds", false)) {
                 zmanimFormat = new SimpleDateFormat("H:mm:ss", Locale.getDefault());
@@ -124,16 +121,38 @@ public class NextZmanCountdownNotification extends Service {
         createNotificationChannel();
     }
 
-    private void setZmanimLanguageBools() {
-        if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
-            mIsZmanimInHebrew = true;
-            mIsZmanimEnglishTranslated = false;
-        } else if (mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false)) {
-            mIsZmanimInHebrew = false;
-            mIsZmanimEnglishTranslated = true;
+    private void updateNotificationWithSkeleton() {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(R.drawable.baseline_av_timer_24)
+                .setContentTitle(getString(R.string.updating))
+                .setSubText(getString(R.string.updating))
+                .setSilent(true)
+                .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+                .setWhen(System.currentTimeMillis())
+                .setContentText(String.format(Locale.getDefault(),"%02dh:%02dm:%02ds", 0, 0, 0))
+                .setProgress(100, 0, false)
+                .setOngoing(true);
+
+        Intent notificationIntent = new Intent(this, MainFragmentManager.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
+        builder.setContentIntent(pendingIntent);
+
+        Notification notification = builder.build();
+        notification.flags = Notification.FLAG_ONGOING_EVENT;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            try {
+                ServiceCompat.startForeground(this, NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            try {
+                ServiceCompat.startForeground(this, NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
         } else {
-            mIsZmanimInHebrew = false;
-            mIsZmanimEnglishTranslated = false;
+            startForeground(NOTIFICATION_ID, notification);
         }
     }
 
@@ -231,7 +250,7 @@ public class NextZmanCountdownNotification extends Service {
         long hours = (remainingTime / (1000 * 60 * 60)) % 24;
 
         String text;
-        if (mIsZmanimInHebrew) {
+        if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
             text = String.format("%s : %s", zmanimFormat.format(zman.getZman()), zman.getTitle());
         } else {
             text = zman.getTitle() + " is at " + zmanimFormat.format(zman.getZman());

@@ -290,14 +290,16 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             resolveElevationAndVisibleSunrise(() -> {
                 instantiateZmanimCalendar();
                 setNextUpcomingZman();
-                if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                    showWeeklyTextViews();
-                    updateWeeklyZmanim();
-                } else {
-                    hideWeeklyTextViews();
-                    updateDailyZmanim();
+                if (binding != null) {
+                    if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                        showWeeklyTextViews();
+                        updateWeeklyZmanim();
+                    } else {
+                        hideWeeklyTextViews();
+                        updateDailyZmanim();
+                    }
+                    binding.shimmerLayout.setVisibility(View.GONE);
                 }
-                binding.shimmerLayout.setVisibility(View.GONE);
                 createBackgroundThreadForNextUpcomingZman();
             });
         }

@@ -706,4 +706,7 @@
     <string name="prayers_able_to_be_said_now">תפילות שניתן לומר כעת</string>
     <string name="see_prayers_currently_applicable">ראה תפילות שתקפות כעת</string>
     <string name="_default">ברירת מחדל</string>
+    <string name="parsha">פרשה</string>
+    <string name="haftara">הפטרה</string>
+    <string name="updating">מעדכן…</string>
 </resources>
