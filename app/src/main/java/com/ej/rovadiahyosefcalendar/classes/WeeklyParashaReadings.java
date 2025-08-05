@@ -15,11 +15,13 @@ public class WeeklyParashaReadings {
      * {@link com.kosherjava.zmanim.hebrewcalendar.JewishCalendar.Parsha} passed into the parameter.
      * Taaniyot/Fasts and Purim can change the result of this method and should be set accordingly.
      * @param parsha the current week's parasha as an Enum in {@link com.kosherjava.zmanim.hebrewcalendar.JewishCalendar.Parsha}
-     * @param isTaanit true if the current day for the reading is on a Taanit/Fast
-     * @param isPurim true if the current day for the reading is on Purim
+     * @param jewishCalendar the current jewish calendar
+     * @param isForShacharit if the reading is for shacharit or mincha
      * @return a string containing the weekly torah reading
      */
-    public static String getWeeklyParashaReading(JewishCalendar.Parsha parsha, boolean isTaanit, boolean isPurim, boolean isTishaBeav) {
+    public static String getWeeklyParashaReading(JewishCalendar.Parsha parsha, JewishCalendarWithExtraMethods jewishCalendar, boolean isForShacharit) {
+        boolean isTaanit = jewishCalendar.isTaanis() && !jewishCalendar.isYomKippur();
+        boolean isPurim = jewishCalendar.isPurim();
         String result = "";
 
         if (isPurim) {
@@ -52,11 +54,11 @@ public class WeeklyParashaReadings {
                     "וַיֹּ֡אמֶר אִם־נָא֩ מָצָ֨אתִי חֵ֤ן בְּעֵינֶ֙יךָ֙ אֲדֹנָ֔י יֵֽלֶךְ־נָ֥א אֲדֹנָ֖י בְּקִרְבֵּ֑נוּ כִּ֤י עַם־קְשֵׁה־עֹ֙רֶף֙ ה֔וּא וְסָלַחְתָּ֛ לַעֲוֺנֵ֥נוּ וּלְחַטָּאתֵ֖נוּ וּנְחַלְתָּֽנוּ׃ \n" +
                     "וַיֹּ֗אמֶר הִנֵּ֣ה אָנֹכִי֮ כֹּרֵ֣ת בְּרִית֒ נֶ֤גֶד כׇּֽל־עַמְּךָ֙ אֶעֱשֶׂ֣ה נִפְלָאֹ֔ת אֲשֶׁ֛ר לֹֽא־נִבְרְא֥וּ בְכׇל־הָאָ֖רֶץ וּבְכׇל־הַגּוֹיִ֑ם וְרָאָ֣ה כׇל־הָ֠עָ֠ם אֲשֶׁר־אַתָּ֨ה בְקִרְבּ֜וֹ אֶת־מַעֲשֵׂ֤ה יְהֹוָה֙ כִּֽי־נוֹרָ֣א ה֔וּא אֲשֶׁ֥ר אֲנִ֖י עֹשֶׂ֥ה עִמָּֽךְ׃\n\n";
 
-            if (isTishaBeav) {
-                return result;
-            } else {
+            if (isForShacharit && (jewishCalendar.getDayOfWeek() == 2 || jewishCalendar.getDayOfWeek() == 5)) {
                 result += "(If there are less than 6 people fasting/אם אין ששה אנשים הצמים)\n\n";
-                // if there less than 6 people fasting, we will append the next week's parsha
+                // if there less than 6 people fasting, we will append the next week's parsha ONLY ON MONDAYS AND THURSDAYS
+            } else {
+                return result;
             }
         }
 

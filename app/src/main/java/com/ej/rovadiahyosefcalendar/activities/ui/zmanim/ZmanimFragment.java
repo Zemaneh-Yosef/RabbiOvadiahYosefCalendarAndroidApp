@@ -282,6 +282,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             setupDailyViews();
             hideWeeklyTextViews();
             binding.swipeRefreshLayout.setVisibility(View.GONE);
+            binding.nestedScrollView.setVisibility(View.GONE);
             mMainRecyclerView.setVisibility(View.GONE);
             binding.shimmerLayout.setVisibility(View.VISIBLE);
         }
@@ -1444,14 +1445,14 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
                     return view;
                 }
-            });//E.G. "Sunrise: 5:45 AM, Sunset: 8:30 PM, etc."
+            });//E.G. "Candle Lighting: 5:45 AM, Rabbenu Tam: 8:30 PM, etc."
             if (!mZmanimForAnnouncements.isEmpty()) {
                 for (String zman : mZmanimForAnnouncements) {
                     announcements.append(zman).append("\n");
                 }
             }
             announcements.append(getAnnouncements());
-            weeklyInfo.get(i)[1].setText(announcements.toString());//E.G. "Yom Tov, Yom Kippur, etc."
+            weeklyInfo.get(i)[1].setText(announcements.toString());//E.G. "Succot, Yom Kippur, etc."
             if (announcements.toString().isEmpty()) {
                 weeklyInfo.get(i)[1].setVisibility(View.INVISIBLE);
             } else {
@@ -1513,21 +1514,15 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         List<ZmanListEntry> zmanim = new ArrayList<>();
         addZmanim(zmanim, true, sSettingsPreferences, sSharedPreferences, mROZmanimCalendar, mJewishDateInfo, true);
 
-        String dateFormatPattern = "H:mm" + (sSettingsPreferences.getBoolean("ShowSeconds", false) ? ":ss" : "");
-        if (!Utils.isLocaleHebrew())
-            dateFormatPattern = dateFormatPattern.toLowerCase() + " aa";
-        DateFormat zmanimFormat = new SimpleDateFormat(dateFormatPattern, Locale.getDefault());
-        zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
-
         //filter out important zmanim
         List<ZmanListEntry> zmansToRemove = new ArrayList<>();
         if (sSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
             for (ZmanListEntry zman : zmanim) {
                 if (zman.isNoteworthyZman()) {
                     if (!Utils.isLocaleHebrew()) {
-                        mZmanimForAnnouncements.add(zmanimFormat.format(zman.getZman()) + " :" + zman.getTitle().replaceAll("\\(.*\\)", "").trim());
+                        mZmanimForAnnouncements.add(Utils.formatZmanTime(mContext, zman) + " :" + zman.getTitle().replaceAll("\\(.*\\)", "").trim());
                     } else {
-                        mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + ": " + zmanimFormat.format(zman.getZman()));
+                        mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + ": " + Utils.formatZmanTime(mContext, zman));
                     }
                     zmansToRemove.add(zman);
                 }
@@ -1535,7 +1530,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         } else {
             for (ZmanListEntry zman : zmanim) {
                 if (zman.isNoteworthyZman()) {
-                    mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + ": " + zmanimFormat.format(zman.getZman()));
+                    mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + ": " + Utils.formatZmanTime(mContext, zman));
                     zmansToRemove.add(zman);
                 }
             }
@@ -1547,7 +1542,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (sSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
             for (ZmanListEntry zman : zmanim) {
                 if (!Utils.isLocaleHebrew()) {
-                    shortZmanim[zmanim.indexOf(zman)] = zmanimFormat.format(zman.getZman()) + " :" + zman.getTitle()
+                    shortZmanim[zmanim.indexOf(zman)] = Utils.formatZmanTime(mContext, zman) + " :" + zman.getTitle()
                             .replace("סוף זמן ", "")
                             .replace("(", "")
                             .replace(")", "");
@@ -1555,7 +1550,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     shortZmanim[zmanim.indexOf(zman)] = zman.getTitle()
                             .replace("סוף זמן ", "")
                             .replace("(", "")
-                            .replace(")", "") + ": " + zmanimFormat.format(zman.getZman());
+                            .replace(")", "") + ": " + Utils.formatZmanTime(mContext, zman);
                 }
 
                 if (zman.getZman().equals(sNextUpcomingZman)) {
@@ -1571,7 +1566,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         .replace("Latest ", "")
                         .replace("(", "")
                         .replace(")", "")
-                        + ": " + zmanimFormat.format(zman.getZman());
+                        + ": " + Utils.formatZmanTime(mContext, zman);
                 if (zman.getZman().equals(sNextUpcomingZman)) {
                     shortZmanim[zmanim.indexOf(zman)] = shortZmanim[zmanim.indexOf(zman)] +
                             (Utils.isLocaleHebrew() ? " ➤ " : " ◄ ");
@@ -1589,12 +1584,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      * @param shortStyle if the tekufa should be added as "Tekufa Nissan : 4:30" or "Tekufa Nissan is today at 4:30"
      */
     private void addTekufaTime(List<ZmanListEntry> zmanim, boolean shortStyle) {
-        DateFormat zmanimFormat;
-        if (Utils.isLocaleHebrew()) {
-            zmanimFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
-        } else {
-            zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
-        }
+        DateFormat zmanimFormat = new SimpleDateFormat(Utils.dateFormatPattern(false), Locale.getDefault());
         zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
         ROZmanimCalendar zmanimCalendarCopy = mROZmanimCalendar.getCopy();
         JewishDateInfo jewishDateInfoCopy = mJewishDateInfo.getCopy();
@@ -1656,12 +1646,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      * @param shortStyle if the tekufa should be added as "Tekufa Nissan : 4:30" or "Tekufa Nissan is today at 4:30"
      */
     private void addAmudeiHoraahTekufaTime(List<ZmanListEntry> zmanim, boolean shortStyle) {
-        DateFormat zmanimFormat;
-        if (Utils.isLocaleHebrew()) {
-            zmanimFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
-        } else {
-            zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
-        }
+        DateFormat zmanimFormat = new SimpleDateFormat(Utils.dateFormatPattern(false), Locale.getDefault());
         zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
         ROZmanimCalendar zmanimCalendarCopy = mROZmanimCalendar.getCopy();
         JewishDateInfo jewishDateInfoCopy = mJewishDateInfo.getCopy();
@@ -1717,12 +1702,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     }
 
     public void addTekufaLength(List<ZmanListEntry> zmanim, String opinion) {
-        DateFormat zmanimFormat;
-        if (Utils.isLocaleHebrew()) {
-            zmanimFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
-        } else {
-            zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
-        }
+        DateFormat zmanimFormat = new SimpleDateFormat(Utils.dateFormatPattern(false), Locale.getDefault());
         zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
 
         Date tekufa = null;
@@ -2348,6 +2328,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     } else {
                         mMainRecyclerView.setVisibility(View.VISIBLE);
                         if (binding != null) {
+                            binding.nestedScrollView.setVisibility(View.VISIBLE);
                             binding.swipeRefreshLayout.setVisibility(View.VISIBLE);
                         }
                     }

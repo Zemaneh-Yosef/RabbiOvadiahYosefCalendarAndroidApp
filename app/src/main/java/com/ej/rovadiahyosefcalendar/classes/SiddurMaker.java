@@ -1068,9 +1068,8 @@ public class SiddurMaker {
             } else {
                 addToSiddur(WeeklyParashaReadings.getWeeklyParashaReading(
                         jewishDateInfo.getJewishCalendar().getUpcomingParshah(),
-                        jewishDateInfo.getJewishCalendar().isTaanis(),
-                        jewishDateInfo.getJewishCalendar().isPurim(),
-                        jewishDateInfo.getJewishCalendar().isTishaBav()));
+                        jewishDateInfo.getJewishCalendar(),
+                        true));
             }
             if (jewishDateInfo.getJewishCalendar().isTishaBav()) {
                 addToSiddurHighlighted("אין אומרים חצי קדיש (Do NOT say Half Kaddish here)");
@@ -3491,9 +3490,8 @@ public class SiddurMaker {
                     "מוציאים ספר תורה וקוראים ג' עולים (Three people go up for Aliya)\n\n" +
                     WeeklyParashaReadings.getWeeklyParashaReading(
                             jewishDateInfo.getJewishCalendar().getUpcomingParshah(),
-                            jewishDateInfo.getJewishCalendar().isTaanis(),
-                            jewishDateInfo.getJewishCalendar().isPurim(),
-                            jewishDateInfo.getJewishCalendar().isTishaBav()));
+                            jewishDateInfo.getJewishCalendar(),
+                            false));
             if (jewishDateInfo.getJewishCalendar().isTishaBav()) {
                 addToSiddurHighlighted("אין אומרים חצי קדיש (Do NOT say Half Kaddish here)");
                 addToSiddurHighlighted("בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם, אֲשֶׁר בָּחַר בִּנְבִיאִים טוֹבִים וְרָצָה בְדִבְרֵיהֶם הַנֶּאֱמָרִים בֶּאֱמֶת. בָּרוּךְ אַתָּה יְהֹוָה, הַבּוֹחֵר בַּתּוֹרָה וּבְמֹשֶׁה עַבְדּוֹ, וּבְיִשְׂרָאֵל עַמּוֹ וּבִנְבִיאֵי הָאֱמֶת וְהַצֶּדֶק:");

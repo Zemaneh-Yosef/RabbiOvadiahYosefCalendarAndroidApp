@@ -4,11 +4,9 @@ import static android.content.Context.MODE_PRIVATE;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mJewishDateInfo;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentLocationName;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentTimeZoneID;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSetupLauncher;
 import static com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment.sNextUpcomingZman;
 import static com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment.sShabbatMode;
-import static com.ej.rovadiahyosefcalendar.classes.Utils.dateFormatPattern;
 
 import android.content.Context;
 import android.content.Intent;
@@ -47,13 +45,8 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
 
 public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder> {
 
@@ -62,9 +55,6 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     private final SharedPreferences mSharedPreferences;
     private final Context context;
     private MaterialAlertDialogBuilder dialogBuilder;
-    private final DateFormat noSecondDateFormat;
-    private final DateFormat yesSecondDateFormat;
-    private final boolean showSeconds;
     private final boolean isZmanimInHebrew;
     private final boolean isZmanimEnglishTranslated;
     private boolean wasTalitTefilinZmanClicked;
@@ -77,15 +67,6 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         mSharedPreferences = this.context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         isZmanimInHebrew = mSharedPreferences.getBoolean("isZmanimInHebrew", false);
         isZmanimEnglishTranslated = mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false);
-
-        showSeconds = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowSeconds", false);
-        noSecondDateFormat = new SimpleDateFormat(dateFormatPattern(false), Locale.getDefault());
-        if (sCurrentTimeZoneID == null) {
-            sCurrentTimeZoneID = TimeZone.getDefault().getID();
-        }
-        noSecondDateFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
-        yesSecondDateFormat = new SimpleDateFormat(dateFormatPattern(true), Locale.getDefault());
-        yesSecondDateFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
         dialogBuilder = new MaterialAlertDialogBuilder(context);
         dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
         dialogBuilder.create();
@@ -115,19 +96,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             if (zman == null) {
                 zmanTime = "XX:XX";
             } else {
-                if (zmanim.get(position).getSecondTreatment() == SecondTreatment.ALWAYS_DISPLAY || showSeconds) {
-                    zmanTime = yesSecondDateFormat.format(zman);
-                } else {
-                    Calendar calendar = Calendar.getInstance();
-                    calendar.setTime(zman);
-
-                    Date zmanDate = zman;
-                    if ((calendar.get(Calendar.SECOND) > 40) || (calendar.get(Calendar.SECOND) > 20 && zmanim.get(position).getSecondTreatment() == SecondTreatment.ROUND_LATER)) {
-                        zmanDate = Utils.addMinuteToZman(zman);
-                    }
-
-                    zmanTime = noSecondDateFormat.format(zmanDate);
-                }
+                zmanTime = Utils.formatZmanTime(context, zmanim.get(position));
             }
             if (zmanim.get(position).isZman()) {
                 if (isZmanimInHebrew) {
