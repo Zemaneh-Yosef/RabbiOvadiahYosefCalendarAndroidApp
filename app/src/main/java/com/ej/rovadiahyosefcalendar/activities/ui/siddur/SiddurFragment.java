@@ -300,7 +300,11 @@ public class SiddurFragment extends Fragment {
             CustomPreferenceView arvit = findPreference("siddur_arvit");
             if (arvit != null) {
                 arvit.setOnPreferenceClickListener(v -> {
-                    isArvitAfterPlagBeforeSunset = new Date().after(currentZmanimCalendar.getPlagHamincha()) && new Date().before(currentZmanimCalendar.getSunset());
+                    Date plag = currentZmanimCalendar.getPlagHamincha();
+                    Date sunset = currentZmanimCalendar.getSunset();
+                    if (plag != null && sunset != null) {
+                        isArvitAfterPlagBeforeSunset = new Date().after(plag) && new Date().before(sunset);
+                    }
                     startSiddurActivity(getString(R.string.arvit), true);
                     return true;
                 });
@@ -481,7 +485,6 @@ public class SiddurFragment extends Fragment {
                     } else {// not the 3 weeks
                         if (getSunsetBasedJewishDateInfo().isNightTikkunChatzotSaid()) {
                             isNightTikkunChatzot = true;
-                            currentJewishDateInfo.setCalendar(Calendar.getInstance());
                             startSiddurActivity(getString(R.string.tikkun_chatzot), true);
                         } else {
                             new MaterialAlertDialogBuilder(requireContext())
@@ -890,7 +893,7 @@ public class SiddurFragment extends Fragment {
                 }
                 result = TextUtils.join(", ", entries);
             } else if (prayer.equals("ספירת העומר")) {
-                int omer = getSunsetBasedJewishDateInfo().getJewishCalendar().getDayOfOmer();
+                int omer = timeAdjustedJDI.getJewishCalendar().getDayOfOmer();
                 if (showAllPrayers) {
                     omer = getSunsetBasedJewishDateInfo(false).tomorrow().getJewishCalendar().getDayOfOmer();
                 }
