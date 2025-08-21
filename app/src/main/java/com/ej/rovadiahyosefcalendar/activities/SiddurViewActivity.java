@@ -1,11 +1,13 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSettingsPreferences;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SeekBar;
@@ -159,6 +161,10 @@ public class SiddurViewActivity extends AppCompatActivity {
             sa.setIsJustified(isJustified);
             siddur.invalidateViews();
         });
+
+        if (sSettingsPreferences.getBoolean("siddurAlwaysOn", false)) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
 
         ViewCompat.setOnApplyWindowInsetsListener(seekBar, (v, windowInsets) -> {
             Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());

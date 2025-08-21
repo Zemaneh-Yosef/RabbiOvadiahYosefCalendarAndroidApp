@@ -2133,7 +2133,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
     @Override
     public void onPause() {
-        mActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         if (mMainRecyclerView != null) {
             mCurrentPosition = ((LinearLayoutManager) Objects.requireNonNull(mMainRecyclerView.getLayoutManager())).findFirstVisibleItemPosition();
         }
@@ -2144,7 +2143,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     public void onResume() {
         initMenu();
         setupButtons();
-        mActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        if (sSettingsPreferences.getBoolean("mainAlwaysOn", false)) {
+            mActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
         resetSystemTheme();
         setCustomThemeColors();
         if (binding != null) {

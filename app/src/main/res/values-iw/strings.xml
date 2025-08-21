@@ -709,4 +709,8 @@
     <string name="parsha">פרשה</string>
     <string name="haftara">הפטרה</string>
     <string name="updating">מעדכן…</string>
+    <string name="keep_screen_on_main">השארת מסך דולק (ראשי)</string>
+    <string name="prevent_the_main_display_from_turning_off_while_using_the_app">מניעת כיבוי המסך הראשי בזמן השימוש באפליקציה</string>
+    <string name="keep_screen_on_siddur">השארת המסך דלוק (סידור)</string>
+    <string name="prevent_the_screen_from_turning_off_while_viewing_the_siddur">למנוע מהמסך להיכבות בזמן צפייה בסידור</string>
 </resources>

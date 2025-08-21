@@ -47,8 +47,11 @@ public class MaterialButtonToggleGroupPreference extends ListPreference {
         button2 = (Button) holder.findViewById(R.id.button2);
         button3 = (Button) holder.findViewById(R.id.button3);
         button1.setText(getEntries()[0].toString());
+        button1.setOnClickListener(l -> toggleButton.check(R.id.button1));
         button2.setText(getEntries()[1].toString());
+        button2.setOnClickListener(l -> toggleButton.check(R.id.button2));
         button3.setText(getEntries()[2].toString());
+        button3.setOnClickListener(l -> toggleButton.check(R.id.button3));
         toggleButton.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
             if (isBinding) {
                 return;
@@ -56,28 +59,26 @@ public class MaterialButtonToggleGroupPreference extends ListPreference {
             if (getOnPreferenceClickListener() != null) {
                 getOnPreferenceClickListener().onPreferenceClick(this);
             }
-            if (isChecked) {
-                group.post(() -> {
-                    if (checkedId == R.id.button1) {
-                        setValue(button1.getText().toString());
-                    } else if (checkedId == R.id.button2) {
-                        setValue(button2.getText().toString());
-                    } else {
-                        setValue(button3.getText().toString());
-                    }
-                });
+            if (!isChecked) {
+                return;
             }
+            group.post(() -> {
+                if (checkedId == R.id.button1) {
+                    setValue(getEntryValues()[0].toString());
+                } else if (checkedId == R.id.button2) {
+                    setValue(getEntryValues()[1].toString());
+                } else {
+                    setValue(getEntryValues()[2].toString());
+                }
+            });
         });
-        String firstButtonValue = button1.getText().toString();
-        String secondButtonValue = button2.getText().toString();
-        String thirdButtonValue = button3.getText().toString();
-        if (getPersistedString(getKey()).equals(firstButtonValue)) {
+        if (getPersistedString(getKey()).equals(getEntryValues()[0].toString())) {
             toggleButton.check(R.id.button1);
-        } else if (getPersistedString(getKey()).equals(secondButtonValue)) {
+        } else if (getPersistedString(getKey()).equals(getEntryValues()[1].toString())) {
             toggleButton.check(R.id.button2);
-        } else if (getPersistedString(getKey()).equals(thirdButtonValue)) {
+        } else if (getPersistedString(getKey()).equals(getEntryValues()[2].toString())) {
             toggleButton.check(R.id.button3);
-        } else {// this could happen in rare cases where the string is not the same as the button text. For example, the app's language has changed.
+        } else {// this could happen in rare cases where the string is not the same as the values. For example, the app's language has changed.
             toggleButton.clearChecked();
         }
         isBinding = false;

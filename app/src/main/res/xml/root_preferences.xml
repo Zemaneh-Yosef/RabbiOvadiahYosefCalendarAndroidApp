@@ -177,6 +177,22 @@
             app:allowDividerAbove="false"
             app:allowDividerBelow="false" />
 
+        <com.github.tttt55.materialyoupreferences.preferences.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:key="mainAlwaysOn"
+            android:title="@string/keep_screen_on_main"
+            android:summary="@string/prevent_the_main_display_from_turning_off_while_using_the_app"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false" />
+
+        <com.github.tttt55.materialyoupreferences.preferences.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:key="siddurAlwaysOn"
+            android:title="@string/keep_screen_on_siddur"
+            android:summary="@string/prevent_the_screen_from_turning_off_while_viewing_the_siddur"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false" />
+
         <com.ej.rovadiahyosefcalendar.classes.MaterialButtonToggleGroupPreference
             android:defaultValue="Guttman Keren"
             app:entries="@array/font_entries"
