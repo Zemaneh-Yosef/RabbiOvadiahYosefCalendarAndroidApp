@@ -21,6 +21,7 @@ import android.util.Log;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.preference.PreferenceManager;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.SetupChooserActivity;
@@ -33,6 +34,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.nio.charset.StandardCharsets;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -40,6 +43,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -71,6 +75,37 @@ public class Utils {
                 + ":mm"
                 + (showSeconds ? ":ss" : "")
                 + (Utils.isLocaleHebrew() ? "" : " aa");
+    }
+
+    public static  String formatZmanTime(Context context, ZmanListEntry zmanListEntry) {
+        return formatZmanTime(context, zmanListEntry.getZman(), zmanListEntry.getSecondTreatment());
+    }
+
+    public static String formatZmanTime(Context context, Date zman, SecondTreatment secondTreatment) {
+        boolean showSeconds = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowSeconds", false);
+        DateFormat noSecondDateFormat = new SimpleDateFormat(dateFormatPattern(false), Locale.getDefault());
+        DateFormat yesSecondDateFormat = new SimpleDateFormat(dateFormatPattern(true), Locale.getDefault());
+        if (sCurrentTimeZoneID == null) {
+            sCurrentTimeZoneID = TimeZone.getDefault().getID();
+        }
+        noSecondDateFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
+        yesSecondDateFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
+
+        String zmanTime;
+        if (secondTreatment == SecondTreatment.ALWAYS_DISPLAY || showSeconds) {
+            zmanTime = yesSecondDateFormat.format(zman);
+        } else {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(zman);
+
+            Date zmanDate = zman;
+            if ((calendar.get(Calendar.SECOND) > 40) || (calendar.get(Calendar.SECOND) > 20 && secondTreatment == SecondTreatment.ROUND_LATER)) {
+                zmanDate = Utils.addMinuteToZman(zman);
+            }
+
+            zmanTime = noSecondDateFormat.format(zmanDate);
+        }
+        return zmanTime;
     }
 
     /**

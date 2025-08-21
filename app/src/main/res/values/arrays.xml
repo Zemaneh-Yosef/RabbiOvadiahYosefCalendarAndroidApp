@@ -1,6 +1,6 @@
 <resources>
     <string-array name="language_entries">
-        <item>System Default</item>
+        <item>Default</item>
         <item>English</item>
         <item>Hebrew</item>
     </string-array>
@@ -85,15 +85,15 @@
     </string-array>
 
     <string-array name="font_entries">
-        <item>Guttman Keren</item>
-        <item>Taamey Frank</item>
-        <item>System Default</item>
+        <item>Keren</item>
+        <item>Frank</item>
+        <item>Default</item>
     </string-array>
 
     <string-array name="font_values">
         <item>Guttman Keren</item>
         <item>Taamey Frank</item>
-        <item>System Default</item>
+        <item>Default</item>
     </string-array>
 
 </resources>

@@ -464,4 +464,9 @@
    <string name="_default">Default</string>
     <string name="parsha">Parsha</string>
     <string name="haftara">Haftara</string>
+    <string name="updating">Updating…</string>
+   <string name="keep_screen_on_main">Keep Screen On (Main)</string>
+   <string name="prevent_the_main_display_from_turning_off_while_using_the_app">Prevent the main display from turning off while using the app</string>
+   <string name="keep_screen_on_siddur">Keep Screen On (Siddur)</string>
+   <string name="prevent_the_screen_from_turning_off_while_viewing_the_siddur">Prevent the screen from turning off while viewing the Siddur</string>
 </resources>

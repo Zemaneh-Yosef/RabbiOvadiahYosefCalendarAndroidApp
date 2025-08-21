@@ -107,17 +107,7 @@ public class ZmanNotification extends BroadcastReceiver {
             yesSecondDateFormat.setTimeZone(new LocationResolver(context, null).getTimeZone()); //set the formatters time zone
 
             Date zmanAsDate = new Date(Long.parseLong(zmanTime));
-            String time;
-            if (secondsTreatment == SecondTreatment.ALWAYS_DISPLAY.getValue() || PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowSeconds", false)) {
-                time = yesSecondDateFormat.format(zmanAsDate);
-            } else {
-                calendar.setTime(zmanAsDate);
-                if ((calendar.get(Calendar.SECOND) > 40) || (calendar.get(Calendar.SECOND) > 20 && secondsTreatment == SecondTreatment.ROUND_LATER.getValue())) {
-                    time = noSecondDateFormat.format(Utils.addMinuteToZman(zmanAsDate));
-                } else {
-                    time = noSecondDateFormat.format(zmanAsDate);
-                }
-            }
+            String time = Utils.formatZmanTime(context, zmanAsDate, SecondTreatment.values()[secondsTreatment]);
             String displayedText;
             if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
                 displayedText = String.format("%s : %s", time, zmanName);
