@@ -949,6 +949,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                             mMainRecyclerView.getAdapter().notifyDataSetChanged();
                         }
                     }));
+            if (mNestedScrollView != null) {
+                mNestedScrollView.scrollTo(0, 0);
+            }
         }
     }
 

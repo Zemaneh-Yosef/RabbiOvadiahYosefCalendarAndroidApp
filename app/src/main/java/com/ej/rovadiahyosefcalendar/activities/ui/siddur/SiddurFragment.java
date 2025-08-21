@@ -154,6 +154,7 @@ public class SiddurFragment extends Fragment {
         private boolean isNightTikkunChatzot = true;
         private boolean isAfterSunset = false;
         private boolean isArvitAfterPlagBeforeSunset = false;
+        private boolean isMinchaAfterSunsetBeforeTzeit = false;
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -269,6 +270,11 @@ public class SiddurFragment extends Fragment {
             CustomPreferenceView mincha = findPreference("siddur_mincha");
             if (mincha != null) {
                 mincha.setOnPreferenceClickListener(v -> {
+                    Date sunset = currentZmanimCalendar.getSunset();
+                    Date tzeit = currentZmanimCalendar.getTzeit();
+                    if (sunset != null && tzeit != null) {
+                        isMinchaAfterSunsetBeforeTzeit = new Date().after(sunset) && new Date().before(tzeit);
+                    }
                     startSiddurActivity(getString(R.string.mincha));
                     return true;
                 });
@@ -543,7 +549,7 @@ public class SiddurFragment extends Fragment {
             CustomPreferenceView bh = findPreference("siddur_birchat_hamazon");
             if (bh != null) {
                 bh.setOnPreferenceClickListener(v -> {
-                    if (new SiddurMaker(getSunsetBasedJewishDateInfo()).getBirchatHamazonPrayers().equals(new SiddurMaker(getSunsetBasedJewishDateInfo().tomorrow()).getBirchatHamazonPrayers())) {
+                    if (new SiddurMaker(getSunsetBasedJewishDateInfo(false)).getBirchatHamazonPrayers().equals(new SiddurMaker(getSunsetBasedJewishDateInfo(false).tomorrow()).getBirchatHamazonPrayers())) {
                         startSiddurActivity(getString(R.string.birchat_hamazon));//doesn't matter which day
                     } else {
                         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
@@ -555,6 +561,11 @@ public class SiddurFragment extends Fragment {
                             builder.show();
                         } else {
                             if (currentZmanimCalendar.getSunset() != null && new Date().after(currentZmanimCalendar.getSunset())) {
+                                builder.setPositiveButton(getString(R.string.yes), (dialog, which) -> {// it is after sunset and the user started before sunset, go back to yesterday
+                                    currentJewishDateInfo.back();
+                                    startSiddurActivity(getString(R.string.birchat_hamazon));
+                                    currentJewishDateInfo.forward();
+                                }).setNegativeButton(getString(R.string.no), (dialog, which) -> startSiddurActivity(getString(R.string.birchat_hamazon), true));
                                 builder.show();
                             } else {
                                 startSiddurActivity(getString(R.string.birchat_hamazon));
@@ -590,7 +601,7 @@ public class SiddurFragment extends Fragment {
                                     Toast.makeText(requireContext(), R.string.please_select_at_least_one_option, Toast.LENGTH_SHORT).show();
                                 } else {
                                     selectedShaloshItems = selectedOptions.toArray(new String[0]);
-                                    if (new SiddurMaker(getSunsetBasedJewishDateInfo()).getBirchatMeeyinShaloshPrayers(options).equals(new SiddurMaker(getSunsetBasedJewishDateInfo().tomorrow()).getBirchatMeeyinShaloshPrayers(options))) {
+                                    if (new SiddurMaker(getSunsetBasedJewishDateInfo(false)).getBirchatMeeyinShaloshPrayers(options).equals(new SiddurMaker(getSunsetBasedJewishDateInfo(false).tomorrow()).getBirchatMeeyinShaloshPrayers(options))) {
                                         startSiddurActivity(getString(R.string.birchat_meyin_shalosh));//doesn't matter which day
                                     } else {
                                         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
@@ -602,6 +613,12 @@ public class SiddurFragment extends Fragment {
                                             builder.show();
                                         } else {
                                             if (currentZmanimCalendar.getSunset() != null && new Date().after(currentZmanimCalendar.getSunset())) {
+                                                builder.setPositiveButton(getString(R.string.yes), (dialog2, which2) -> {// it is after sunset and the user started before sunset, go back to yesterday
+                                                            currentJewishDateInfo.back();
+                                                            startSiddurActivity(getString(R.string.birchat_meyin_shalosh));
+                                                            currentJewishDateInfo.forward();
+                                                        })
+                                                        .setNegativeButton(getString(R.string.no), (dialog2, which2) -> startSiddurActivity(getString(R.string.birchat_meyin_shalosh), true));
                                                 builder.show();
                                             } else {
                                                 startSiddurActivity(getString(R.string.birchat_meyin_shalosh));
@@ -958,6 +975,9 @@ public class SiddurFragment extends Fragment {
             if (forNextDay) {
                 mJewishDateInfo.forward();// forNextDay is only for the editable date. We will adjust the date for the current jdi object in the get method
             }
+            if (isMinchaAfterSunsetBeforeTzeit) {
+                currentJewishDateInfo.back();// edge case for mincha after sunset but before tzeit so date has changed
+            }
             if (isArvitAfterPlagBeforeSunset) {
                 currentJewishDateInfo.forward();// edge case for arvit after plag but before sunset so date hasn't changed
             }
@@ -972,6 +992,9 @@ public class SiddurFragment extends Fragment {
                     .putExtra("isAfterChatzot", isAfterHalachicSolarMidnight());// only used for kriat shema she'al hamita
             if (forNextDay) {
                 mJewishDateInfo.back();
+            }
+            if (isMinchaAfterSunsetBeforeTzeit) {
+                currentJewishDateInfo.forward();
             }
             if (isArvitAfterPlagBeforeSunset) {
                 currentJewishDateInfo.back();
