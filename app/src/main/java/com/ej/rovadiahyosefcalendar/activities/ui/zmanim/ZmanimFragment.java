@@ -189,6 +189,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private SharedPreferences.OnSharedPreferenceChangeListener sSharedPrefListener;
     private TextView mDailyLocationName;
 
+    private static JSONArray makamNames;
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -212,6 +214,12 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         mLocationResolver = new LocationResolver(mContext, mActivity);
         if (mLocationName == null) {// if first view is null
             findAllWeeklyViews();
+        }
+
+        try {
+            makamNames = new JSONArray(inputStreamToString(mActivity.getResources().openRawResource(Utils.isLocaleHebrew() ? R.raw.makam_names_he : R.raw.makam_names)));
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
 
         if (sSharedPreferences.getBoolean("isSetup", false)) {
@@ -1110,33 +1118,41 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             binding.parsha.setText(mJewishDateInfo.getThisWeeksParsha());
             binding.haftara.setText(mJewishDateInfo.getThisWeeksHaftarah());
 
+            new Thread(() -> {
             try {
-                JSONArray makamNames = new JSONArray(inputStreamToString(mActivity.getResources().openRawResource(R.raw.makam_names)));
                 MakamLoader.loadData(getContext(), mJewishDateInfo.getJewishCalendar(), new MakamLoader.Callback() {
                     @Override
                     public void onResult(JSONObject result) {
                         try {
                             if (result.has("GABRIEL A SHREM 1964 SUHV")) {
-                                binding.makam.setVisibility(View.VISIBLE);
-
                                 JSONArray makamObj = (JSONArray)result.get("GABRIEL A SHREM 1964 SUHV");
-                                String makamText = "Makam: ";
+                                StringBuilder makamText = new StringBuilder(mContext.getString(R.string.makam));
                                 for (int i = 0; i < makamObj.length(); i++) {
-                                    makamText += makamNames.get((int) makamObj.get(i));
+                                    makamText.append(makamNames.get((int) makamObj.get(i))).append(" ");
                                 }
-                                binding.makam.setText(makamText);
-                            } else if (result.has("ADES: 24793")) {
-                                binding.makam.setVisibility(View.VISIBLE);
 
+                                String finalMakamText = makamText.toString();
+                                mActivity.runOnUiThread(() -> {
+                                    TextView makamTextView = mActivity.findViewById(R.id.makam);
+                                    makamTextView.setVisibility(View.VISIBLE);
+                                    makamTextView.setText(finalMakamText);
+                                });
+                            } else if (result.has("ADES: 24793")) {
                                 JSONArray makamObj = (JSONArray)result.get("ADES: 24793");
-                                String makamText = "Makam: ";
+                                StringBuilder makamText = new StringBuilder(mContext.getString(R.string.makam));
                                 for (int i = 0; i < makamObj.length(); i++) {
-                                    makamText += makamNames.get((int) makamObj.get(i));
+                                    makamText.append(makamNames.get((int) makamObj.get(i))).append(" ");
                                 }
-                                binding.makam.setText(makamText);
+
+                                String finalMakamText = makamText.toString();
+                                mActivity.runOnUiThread(() -> {
+                                    TextView makamTextView = mActivity.findViewById(R.id.makam);
+                                    makamTextView.setVisibility(View.VISIBLE);
+                                    makamTextView.setText(finalMakamText);
+                                });
                             }
                         } catch (Exception e) {
-                            binding.makam.setVisibility(View.INVISIBLE);
+                            e.printStackTrace();
                         }
                     }
 
@@ -1148,6 +1164,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             } catch (JSONException e) {
                 binding.makam.setVisibility(View.INVISIBLE);
             }
+            }).start();
         }
 
         if (sSettingsPreferences.getBoolean("showShabbatMevarchim", false)) {
@@ -2215,6 +2232,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
         mJewishDateInfo.getJewishCalendar().setInIsrael(sSharedPreferences.getBoolean("inIsrael", false));// check if the user changed the inIsrael setting
         mJewishDateInfo.resetLocale();
+        try {
+            makamNames = new JSONArray(inputStreamToString(mActivity.getResources().openRawResource(Utils.isLocaleHebrew() ? R.raw.makam_names_he : R.raw.makam_names)));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         if (sLastTimeUserWasInApp != null) {
             resolveElevationAndVisibleSunrise(() -> {// recreate the zmanim calendar object because it might have changed. Lat, Long, Elevation, or settings might have changed
                 instantiateZmanimCalendar();
@@ -2292,6 +2314,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             binding.hebDate.setTextColor(textColor);
             binding.parsha.setTextColor(textColor);
             binding.haftara.setTextColor(textColor);
+            binding.makam.setTextColor(textColor);
             if (!sShabbatMode) {
                 mCalendarButton.setBackgroundColor(sSharedPreferences.getBoolean("useDefaultCalButtonColor", true) ? mContext.getColor(R.color.dark_blue) : sSharedPreferences.getInt("CalButtonColor", 0x18267C));
             }

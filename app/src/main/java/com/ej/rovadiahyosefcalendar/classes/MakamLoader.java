@@ -31,7 +31,6 @@ public class MakamLoader {
     private static final Executor executor = Executors.newSingleThreadExecutor();
 
     // Track the currently active sandbox instance
-    private static JavaScriptSandbox activeSandbox = null;
     private static boolean sandboxBusy = false;
 
     public static synchronized void loadData(final Context context, final JewishCalendar jCal, final Callback callback) throws JSONException {
@@ -63,9 +62,6 @@ public class MakamLoader {
                     throw new IllegalStateException("Sandbox future not done");
                 }
                 jsSandbox = sandboxFuture.get();
-                synchronized (MakamLoader.class) {
-                    activeSandbox = jsSandbox;
-                }
                 Log.i("makaml", "Sandbox connected");
 
                 if (!jsSandbox.isFeatureSupported(JavaScriptSandbox.JS_FEATURE_PROVIDE_CONSUME_ARRAY_BUFFER)) {
@@ -168,7 +164,6 @@ public class MakamLoader {
         if (jsSandbox != null) {
             try { jsSandbox.close(); } catch (Exception ignored) {}
         }
-        activeSandbox = null;
         sandboxBusy = false;
     }
 }

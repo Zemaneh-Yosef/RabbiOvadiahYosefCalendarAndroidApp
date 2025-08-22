@@ -215,7 +215,7 @@
                                 android:textSize="20sp"
                                 android:paddingStart="8dp"
                                 android:paddingEnd="8dp"
-                                android:src="@drawable/megila_icon"
+                                android:src="@drawable/musical_note_svgrepo_com"
                                 android:autoSizeTextType="uniform"
                                 android:autoSizeMaxTextSize="20sp"
                                 android:autoSizeMinTextSize="8sp"
