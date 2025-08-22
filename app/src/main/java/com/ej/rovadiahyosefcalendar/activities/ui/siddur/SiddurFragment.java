@@ -269,12 +269,12 @@ public class SiddurFragment extends Fragment {
 
             CustomPreferenceView mincha = findPreference("siddur_mincha");
             if (mincha != null) {
+                Date sunset = currentZmanimCalendar.getSunset();
+                Date tzeit = currentZmanimCalendar.getTzeit();
+                if (sunset != null && tzeit != null) {
+                    isMinchaAfterSunsetBeforeTzeit = new Date().after(sunset) && new Date().before(tzeit);
+                }
                 mincha.setOnPreferenceClickListener(v -> {
-                    Date sunset = currentZmanimCalendar.getSunset();
-                    Date tzeit = currentZmanimCalendar.getTzeit();
-                    if (sunset != null && tzeit != null) {
-                        isMinchaAfterSunsetBeforeTzeit = new Date().after(sunset) && new Date().before(tzeit);
-                    }
                     startSiddurActivity(getString(R.string.mincha));
                     return true;
                 });
@@ -305,12 +305,12 @@ public class SiddurFragment extends Fragment {
 
             CustomPreferenceView arvit = findPreference("siddur_arvit");
             if (arvit != null) {
+                Date plag = currentZmanimCalendar.getPlagHamincha();
+                Date sunset = currentZmanimCalendar.getSunset();
+                if (plag != null && sunset != null) {
+                    isArvitAfterPlagBeforeSunset = new Date().after(plag) && new Date().before(sunset);
+                }
                 arvit.setOnPreferenceClickListener(v -> {
-                    Date plag = currentZmanimCalendar.getPlagHamincha();
-                    Date sunset = currentZmanimCalendar.getSunset();
-                    if (plag != null && sunset != null) {
-                        isArvitAfterPlagBeforeSunset = new Date().after(plag) && new Date().before(sunset);
-                    }
                     startSiddurActivity(getString(R.string.arvit), true);
                     return true;
                 });
@@ -870,6 +870,9 @@ public class SiddurFragment extends Fragment {
                 result = TextUtils.join(", ", entries);
             } else if (prayer.equals("מנחה")) {
                 List<String> entries = new ArrayList<>();
+                if (isMinchaAfterSunsetBeforeTzeit) {
+                    timeAdjustedJDI.back();
+                }
                 if (timeAdjustedJDI.getJewishCalendar().isRoshChodesh() || timeAdjustedJDI.getJewishCalendar().isCholHamoed()) {
                     entries.add("יעלה ויבוא");
                 }
@@ -891,7 +894,13 @@ public class SiddurFragment extends Fragment {
                         .replace("There is Tachanun today", "תחנון");
                 if (!tachanun.isEmpty()) entries.add(tachanun);
                 result = TextUtils.join(", ", entries);
+                if (isMinchaAfterSunsetBeforeTzeit) {
+                    timeAdjustedJDI.forward();
+                }
             } else if (prayer.equals("ערבית")) {
+                if (isArvitAfterPlagBeforeSunset) {
+                    timeAdjustedJDI.forward();
+                }
                 List<String> entries = new ArrayList<>();
                 if (timeAdjustedJDI.getJewishCalendar().isRoshChodesh()) {
                     entries.add("ברכי נפשי");
@@ -909,6 +918,9 @@ public class SiddurFragment extends Fragment {
                     entries.add("על הניסים");
                 }
                 result = TextUtils.join(", ", entries);
+                if (isArvitAfterPlagBeforeSunset) {
+                    timeAdjustedJDI.back();
+                }
             } else if (prayer.equals("ספירת העומר")) {
                 int omer = timeAdjustedJDI.getJewishCalendar().getDayOfOmer();
                 if (showAllPrayers) {
@@ -925,10 +937,9 @@ public class SiddurFragment extends Fragment {
                 if (timeAdjustedJDI.getJewishCalendar().isChanukah()) {
                     entries.add("על הניסים");
                 }
-                if (timeAdjustedJDI.getJewishCalendar().getDayOfWeek() == 7) {
-                    if (showAllPrayers && currentZmanimCalendar.getTzeit() != null && !new Date().before(currentZmanimCalendar.getTzeit())) {
-                        entries.add("[רצה]");
-                    }
+                if (showAllPrayers && timeAdjustedJDI.getJewishCalendar().getDayOfWeek() == 7 &&
+                            currentZmanimCalendar.getTzeit() != null && !new Date().before(currentZmanimCalendar.getTzeit())) {
+                    entries.add("[רצה]");
                 }
                 if (timeAdjustedJDI.getJewishCalendar().isRoshChodesh() || timeAdjustedJDI.getJewishCalendar().isCholHamoed()
                         || timeAdjustedJDI.getJewishCalendar().isYomTovAssurBemelacha() && !timeAdjustedJDI.getJewishCalendar().isYomKippur()) {
@@ -975,11 +986,13 @@ public class SiddurFragment extends Fragment {
             if (forNextDay) {
                 mJewishDateInfo.forward();// forNextDay is only for the editable date. We will adjust the date for the current jdi object in the get method
             }
-            if (isMinchaAfterSunsetBeforeTzeit) {
-                currentJewishDateInfo.back();// edge case for mincha after sunset but before tzeit so date has changed
-            }
-            if (isArvitAfterPlagBeforeSunset) {
-                currentJewishDateInfo.forward();// edge case for arvit after plag but before sunset so date hasn't changed
+            if (prayer.equals(getString(R.string.mincha)) || prayer.equals(getString(R.string.arvit))) {
+                if (isMinchaAfterSunsetBeforeTzeit) {
+                    currentJewishDateInfo.back();// edge case for mincha after sunset but before tzeit so date has changed
+                }
+                if (isArvitAfterPlagBeforeSunset) {
+                    currentJewishDateInfo.forward();// edge case for arvit after plag but before sunset so date hasn't changed
+                }
             }
             Intent intent = new Intent(requireContext(), SiddurViewActivity.class)
                     .putExtra("prayer", prayer)
@@ -993,11 +1006,13 @@ public class SiddurFragment extends Fragment {
             if (forNextDay) {
                 mJewishDateInfo.back();
             }
-            if (isMinchaAfterSunsetBeforeTzeit) {
-                currentJewishDateInfo.forward();
-            }
-            if (isArvitAfterPlagBeforeSunset) {
-                currentJewishDateInfo.back();
+            if (prayer.equals(getString(R.string.mincha)) || prayer.equals(getString(R.string.arvit))) {
+                if (isMinchaAfterSunsetBeforeTzeit) {
+                    currentJewishDateInfo.forward();
+                }
+                if (isArvitAfterPlagBeforeSunset) {
+                    currentJewishDateInfo.back();
+                }
             }
 
             if ((getSunsetBasedJewishDateInfo().getJewishCalendar().getYomTovIndex() == JewishCalendar.PURIM ||
