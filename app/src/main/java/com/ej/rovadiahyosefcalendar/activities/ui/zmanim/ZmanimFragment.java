@@ -1116,7 +1116,13 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     + " / " +
                     mROZmanimCalendar.getCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, new Locale("he", "IL")));
             binding.parsha.setText(mJewishDateInfo.getThisWeeksParsha());
-            binding.haftara.setText(mJewishDateInfo.getThisWeeksHaftarah());
+            String haftara = mJewishDateInfo.getThisWeeksHaftarah();
+            if (haftara.isEmpty()) {
+                binding.haftaraLayout.setVisibility(View.GONE);
+            } else {
+                binding.haftaraLayout.setVisibility(View.VISIBLE);
+                binding.haftara.setText(haftara);
+            }
 
             new Thread(() -> {
             try {

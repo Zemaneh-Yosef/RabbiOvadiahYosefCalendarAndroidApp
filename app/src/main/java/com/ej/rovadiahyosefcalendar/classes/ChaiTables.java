@@ -33,7 +33,7 @@ public class ChaiTables {
         this.jewishCalendar = jewishCalendar;
 
         if (visibleSunriseFileExists()) {
-            File file = new File(externalFilesDir, "visibleSunriseTable"+ currentLocation + jewishCalendar.getJewishYear() +".csv");
+            File file = new File(externalFilesDir, "visibleSunriseTable" + currentLocation + jewishCalendar.getJewishYear() + ".csv");
             CSVReader visibleSunriseReader = new CSVReader(new FileReader(file));
 
             List<String[]> visibleSunriseCSVBody = visibleSunriseReader.readAll();
