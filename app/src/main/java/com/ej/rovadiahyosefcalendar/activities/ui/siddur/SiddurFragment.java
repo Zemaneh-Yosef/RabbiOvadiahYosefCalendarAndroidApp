@@ -779,7 +779,7 @@ public class SiddurFragment extends Fragment {
             }
             return switch (key) {
                 case "siddur_selichot" -> {
-                    boolean isSelichotNotSaidNow = new Date().after(currentZmanimCalendar.getSunset()) && new Date().before(currentZmanimCalendar.getSolarMidnight()) || !isAfterHalachicSolarMidnight();// easier to check for the NOT case
+                    boolean isSelichotNotSaidNow = new Date().after(currentZmanimCalendar.getSunset()) && new Date().before(currentZmanimCalendar.getSecondAshmora()) || !isAfterHalachicSolarMidnight();// easier to check for the NOT case
                     yield !isSelichotNotSaidNow;
                 }
                 case "siddur_shacharit" -> new Date().after(currentZmanimCalendar.getAlotHashachar()) && new Date().before(currentZmanimCalendar.getChatzot());
