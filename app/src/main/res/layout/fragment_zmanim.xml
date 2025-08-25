@@ -204,6 +204,37 @@
 
                         </LinearLayout>
 
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:textSize="20sp"
+                                android:paddingStart="8dp"
+                                android:paddingEnd="8dp"
+                                android:src="@drawable/musical_note_svgrepo_com"
+                                android:autoSizeTextType="uniform"
+                                android:autoSizeMaxTextSize="20sp"
+                                android:autoSizeMinTextSize="8sp"
+                                android:text="@string/haftara"/>
+
+                            <TextView
+                                android:id="@+id/makam"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="20sp"
+                                android:layout_gravity="center"
+                                android:autoSizeTextType="uniform"
+                                android:autoSizeMaxTextSize="20sp"
+                                android:autoSizeMinTextSize="8sp"
+                                tools:text="Makam: חזון (ישעיה א)"/>
+
+                        </LinearLayout>
+
                     </LinearLayout>
 
                 </com.google.android.material.card.MaterialCardView>
@@ -1012,6 +1043,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             tools:text="מפטירין: מחר חודש שמואל א כ"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:visibility="gone"
+            android:background="@drawable/border"
+            android:textColor="?android:attr/textColorPrimary"
+            tools:visibility="visible"
+            />
+
+        <TextView
+            android:id="@+id/weeklyMakam"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="Makam"
             android:textSize="16sp"
             android:textStyle="bold"
             android:gravity="center"

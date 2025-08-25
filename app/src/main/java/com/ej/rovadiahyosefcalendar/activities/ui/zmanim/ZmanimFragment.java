@@ -48,6 +48,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -93,6 +94,7 @@ import com.ej.rovadiahyosefcalendar.classes.DummyZmanAdapter;
 import com.ej.rovadiahyosefcalendar.classes.HebrewDayMonthYearPickerDialog;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
+import com.ej.rovadiahyosefcalendar.classes.MakamLoader;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
 import com.ej.rovadiahyosefcalendar.classes.SecondTreatment;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
@@ -113,8 +115,13 @@ import com.kosherjava.zmanim.util.GeoLocation;
 import com.kosherjava.zmanim.util.ZmanimFormatter;
 
 import org.apache.commons.lang3.time.DateUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.shredzone.commons.suncalc.MoonTimes;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -164,6 +171,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private final TextView[] mSaturday = new TextView[6];
     private TextView mWeeklyParsha;
     private TextView mWeeklyHaftorah;
+    private TextView mWeeklyMakam;
 
     //This array holds the zmanim that we want to display in the announcements section of the weekly view:
     private ArrayList<String> mZmanimForAnnouncements;
@@ -180,6 +188,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private Runnable mZmanimUpdater;
     private SharedPreferences.OnSharedPreferenceChangeListener sSharedPrefListener;
     private TextView mDailyLocationName;
+
+    private static JSONArray makamNames;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -204,6 +214,12 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         mLocationResolver = new LocationResolver(mContext, mActivity);
         if (mLocationName == null) {// if first view is null
             findAllWeeklyViews();
+        }
+
+        try {
+            makamNames = new JSONArray(inputStreamToString(mActivity.getResources().openRawResource(Utils.isLocaleHebrew() ? R.raw.makam_names_he : R.raw.makam_names)));
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
 
         if (sSharedPreferences.getBoolean("isSetup", false)) {
@@ -722,6 +738,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
         mWeeklyParsha = binding.weeklyParsha;
         mWeeklyHaftorah = binding.weeklyHaftorah;
+        mWeeklyMakam = binding.weeklyMakam;
         updateWeeklyTextViewTextColor();
     }
 
@@ -1106,6 +1123,54 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 binding.haftaraLayout.setVisibility(View.VISIBLE);
                 binding.haftara.setText(haftara);
             }
+
+            new Thread(() -> {
+            try {
+                MakamLoader.loadData(getContext(), mJewishDateInfo.getJewishCalendar(), new MakamLoader.Callback() {
+                    @Override
+                    public void onResult(JSONObject result) {
+                        try {
+                            if (result.has("GABRIEL A SHREM 1964 SUHV")) {
+                                JSONArray makamObj = (JSONArray)result.get("GABRIEL A SHREM 1964 SUHV");
+                                StringBuilder makamText = new StringBuilder(mContext.getString(R.string.makam));
+                                for (int i = 0; i < makamObj.length(); i++) {
+                                    makamText.append(makamNames.get((int) makamObj.get(i))).append(" ");
+                                }
+
+                                String finalMakamText = makamText.toString();
+                                mActivity.runOnUiThread(() -> {
+                                    TextView makamTextView = mActivity.findViewById(R.id.makam);
+                                    makamTextView.setVisibility(View.VISIBLE);
+                                    makamTextView.setText(finalMakamText);
+                                });
+                            } else if (result.has("ADES: 24793")) {
+                                JSONArray makamObj = (JSONArray)result.get("ADES: 24793");
+                                StringBuilder makamText = new StringBuilder(mContext.getString(R.string.makam));
+                                for (int i = 0; i < makamObj.length(); i++) {
+                                    makamText.append(makamNames.get((int) makamObj.get(i))).append(" ");
+                                }
+
+                                String finalMakamText = makamText.toString();
+                                mActivity.runOnUiThread(() -> {
+                                    TextView makamTextView = mActivity.findViewById(R.id.makam);
+                                    makamTextView.setVisibility(View.VISIBLE);
+                                    makamTextView.setText(finalMakamText);
+                                });
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        // Handle error
+                    }
+                });
+            } catch (JSONException e) {
+                binding.makam.setVisibility(View.INVISIBLE);
+            }
+            }).start();
         }
 
         if (sSettingsPreferences.getBoolean("showShabbatMevarchim", false)) {
@@ -2173,6 +2238,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
         mJewishDateInfo.getJewishCalendar().setInIsrael(sSharedPreferences.getBoolean("inIsrael", false));// check if the user changed the inIsrael setting
         mJewishDateInfo.resetLocale();
+        try {
+            makamNames = new JSONArray(inputStreamToString(mActivity.getResources().openRawResource(Utils.isLocaleHebrew() ? R.raw.makam_names_he : R.raw.makam_names)));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         if (sLastTimeUserWasInApp != null) {
             resolveElevationAndVisibleSunrise(() -> {// recreate the zmanim calendar object because it might have changed. Lat, Long, Elevation, or settings might have changed
                 instantiateZmanimCalendar();
@@ -2250,6 +2320,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             binding.hebDate.setTextColor(textColor);
             binding.parsha.setTextColor(textColor);
             binding.haftara.setTextColor(textColor);
+            binding.makam.setTextColor(textColor);
             if (!sShabbatMode) {
                 mCalendarButton.setBackgroundColor(sSharedPreferences.getBoolean("useDefaultCalButtonColor", true) ? mContext.getColor(R.color.dark_blue) : sSharedPreferences.getInt("CalButtonColor", 0x18267C));
             }
@@ -2367,6 +2438,17 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     });
                 }
             });
+        }
+    }
+
+    private String inputStreamToString(InputStream inputStream) {
+        try {
+            byte[] bytes = new byte[inputStream.available()];
+            inputStream.read(bytes, 0, bytes.length);
+            String json = new String(bytes);
+            return json;
+        } catch (IOException e) {
+            return null;
         }
     }
 }
