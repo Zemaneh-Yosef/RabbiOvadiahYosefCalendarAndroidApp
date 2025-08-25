@@ -48,7 +48,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -94,7 +93,7 @@ import com.ej.rovadiahyosefcalendar.classes.DummyZmanAdapter;
 import com.ej.rovadiahyosefcalendar.classes.HebrewDayMonthYearPickerDialog;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
-import com.ej.rovadiahyosefcalendar.classes.MakamLoader;
+import com.ej.rovadiahyosefcalendar.classes.MakamJCal;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
 import com.ej.rovadiahyosefcalendar.classes.SecondTreatment;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
@@ -117,7 +116,6 @@ import com.kosherjava.zmanim.util.ZmanimFormatter;
 import org.apache.commons.lang3.time.DateUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.shredzone.commons.suncalc.MoonTimes;
 
 import java.io.IOException;
@@ -131,6 +129,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.TimeZone;
 import java.util.function.Consumer;
@@ -1112,9 +1111,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     mROZmanimCalendar.getCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault())
                     :
                     mROZmanimCalendar.getCalendar()
-                    .getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault())
-                    + " / " +
-                    mROZmanimCalendar.getCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, new Locale("he", "IL")));
+                            .getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault())
+                            + " / " +
+                            mROZmanimCalendar.getCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, new Locale("he", "IL")));
             binding.parsha.setText(mJewishDateInfo.getThisWeeksParsha());
             String haftara = mJewishDateInfo.getThisWeeksHaftarah();
             if (haftara.isEmpty()) {
@@ -1124,53 +1123,37 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 binding.haftara.setText(haftara);
             }
 
-            new Thread(() -> {
             try {
-                MakamLoader.loadData(getContext(), mJewishDateInfo.getJewishCalendar(), new MakamLoader.Callback() {
-                    @Override
-                    public void onResult(JSONObject result) {
-                        try {
-                            if (result.has("GABRIEL A SHREM 1964 SUHV")) {
-                                JSONArray makamObj = (JSONArray)result.get("GABRIEL A SHREM 1964 SUHV");
-                                StringBuilder makamText = new StringBuilder(mContext.getString(R.string.makam));
-                                for (int i = 0; i < makamObj.length(); i++) {
-                                    makamText.append(makamNames.get((int) makamObj.get(i))).append(" ");
-                                }
-
-                                String finalMakamText = makamText.toString();
-                                mActivity.runOnUiThread(() -> {
-                                    TextView makamTextView = mActivity.findViewById(R.id.makam);
-                                    makamTextView.setVisibility(View.VISIBLE);
-                                    makamTextView.setText(finalMakamText);
-                                });
-                            } else if (result.has("ADES: 24793")) {
-                                JSONArray makamObj = (JSONArray)result.get("ADES: 24793");
-                                StringBuilder makamText = new StringBuilder(mContext.getString(R.string.makam));
-                                for (int i = 0; i < makamObj.length(); i++) {
-                                    makamText.append(makamNames.get((int) makamObj.get(i))).append(" ");
-                                }
-
-                                String finalMakamText = makamText.toString();
-                                mActivity.runOnUiThread(() -> {
-                                    TextView makamTextView = mActivity.findViewById(R.id.makam);
-                                    makamTextView.setVisibility(View.VISIBLE);
-                                    makamTextView.setText(finalMakamText);
-                                });
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                Map<String, List<MakamJCal.Makam>> shabbatMakam = mJewishDateInfo.getThisWeeksMakam();
+                if (shabbatMakam.containsKey("GABRIEL A SHREM 1964 SUHV")) {
+                    List<MakamJCal.Makam> makamObj = shabbatMakam.get("GABRIEL A SHREM 1964 SUHV");
+                    StringBuilder makamText = new StringBuilder(mContext.getString(R.string.makam));
+                    for (int i = 0; i < makamObj.size(); i++) {
+                        makamText.append(makamNames.get(makamObj.get(i).ordinal())).append(" ");
                     }
 
-                    @Override
-                    public void onError(Throwable throwable) {
-                        // Handle error
+                    String finalMakamText = makamText.toString();
+
+                    binding.makam.setVisibility(View.VISIBLE);
+                    binding.makam.setText(finalMakamText);
+                } else if (shabbatMakam.containsKey("ADES: 24793")) {
+                    List<MakamJCal.Makam> makamObj = shabbatMakam.get("ADES: 24793");
+                    StringBuilder makamText = new StringBuilder(mContext.getString(R.string.makam));
+                    for (int i = 0; i < makamObj.size(); i++) {
+                        makamText.append(makamNames.get(makamObj.get(i).ordinal())).append(" ");
                     }
-                });
-            } catch (JSONException e) {
+
+                    String finalMakamText = makamText.toString();
+
+                    binding.makam.setVisibility(View.VISIBLE);
+                    binding.makam.setText(finalMakamText);
+                } else {
+                    binding.makam.setVisibility(View.INVISIBLE);
+                }
+            } catch (org.json.JSONException e) {
+                e.printStackTrace();
                 binding.makam.setVisibility(View.INVISIBLE);
             }
-            }).start();
         }
 
         if (sSettingsPreferences.getBoolean("showShabbatMevarchim", false)) {

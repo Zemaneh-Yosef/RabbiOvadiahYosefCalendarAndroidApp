@@ -11,7 +11,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * This class is used to get the information about the Jewish date. It is a helper class to manipulate the classes in the kosherjava library.
@@ -608,6 +610,25 @@ public class JewishDateInfo {
         jewishCalendar.setDate(parshaCalendar);
         String haftarah = WeeklyHaftarahReading.getThisWeeksHaftarah(jewishCalendar)
                 .replace("מפטירין", Utils.isLocaleHebrew() ? "מפטירין" : "Haftarah: \u202B");
+        jewishCalendar.setDate(currentDate);
+        return haftarah;
+    }
+
+    /**
+     * This method will return the haftarah or haftorah of the current week by rolling the calendar to saturday.
+     * @see WeeklyHaftarahReading
+     * @return a string containing the haftarah or haftorah of the current week
+     */
+    public Map<String, List<MakamJCal.Makam>> getThisWeeksMakam() {
+        currentDate = jewishCalendar.getGregorianCalendar();
+        Calendar parshaCalendar = jewishCalendar.getGregorianCalendar();
+
+        while (parshaCalendar.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY) {
+            parshaCalendar.add(Calendar.DATE, 1);
+        }
+
+        jewishCalendar.setDate(parshaCalendar);
+        Map<String, List<MakamJCal.Makam>> haftarah = MakamJCal.Companion.getMakamData(jewishCalendar);
         jewishCalendar.setDate(currentDate);
         return haftarah;
     }
