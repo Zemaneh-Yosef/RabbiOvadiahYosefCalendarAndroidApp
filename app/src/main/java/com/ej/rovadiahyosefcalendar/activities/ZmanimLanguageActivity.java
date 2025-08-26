@@ -3,7 +3,6 @@ package com.ej.rovadiahyosefcalendar.activities;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLatitude;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLongitude;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSharedPreferences;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -166,10 +165,10 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
     private void saveInfoAndFinish(boolean isHebrew, boolean isTranslated) {
         mSharedPreferences.edit().putBoolean("isZmanimInHebrew", isHebrew).apply();
         mSharedPreferences.edit().putBoolean("isZmanimEnglishTranslated", isTranslated).apply();
-        sSharedPreferences.edit().putBoolean("isSetup", true).apply();
-        if (sSharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
+        mSharedPreferences.edit().putBoolean("isSetup", true).apply();
+        if (mSharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
             startActivity(new Intent(getBaseContext(), TipScreenActivity.class));
-            sSharedPreferences.edit().putBoolean("hasNotShownTipScreen", false).apply();
+            mSharedPreferences.edit().putBoolean("hasNotShownTipScreen", false).apply();
         }
         finish();
     }

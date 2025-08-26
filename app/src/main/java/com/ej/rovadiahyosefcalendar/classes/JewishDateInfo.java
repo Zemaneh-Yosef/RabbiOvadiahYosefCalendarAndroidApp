@@ -628,9 +628,9 @@ public class JewishDateInfo {
         }
 
         jewishCalendar.setDate(parshaCalendar);
-        Map<String, List<MakamJCal.Makam>> haftarah = MakamJCal.Companion.getMakamData(jewishCalendar);
+        Map<String, List<MakamJCal.Makam>> makamData = MakamJCal.Companion.getMakamData(jewishCalendar);
         jewishCalendar.setDate(currentDate);
-        return haftarah;
+        return makamData;
     }
 
     /**

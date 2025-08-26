@@ -23,6 +23,7 @@ import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSetup
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSharedPreferences;
 import static com.ej.rovadiahyosefcalendar.classes.Utils.getCurrentCalendarDrawableDark;
 import static com.ej.rovadiahyosefcalendar.classes.Utils.getCurrentCalendarDrawableLight;
+import static com.ej.rovadiahyosefcalendar.classes.Utils.inputStreamToString;
 import static com.ej.rovadiahyosefcalendar.classes.ZmanimFactory.addZmanim;
 
 import android.Manifest;
@@ -55,7 +56,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextClock;
 import android.widget.TextView;
@@ -118,8 +118,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.shredzone.commons.suncalc.MoonTimes;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -170,7 +168,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private final TextView[] mSaturday = new TextView[6];
     private TextView mWeeklyParsha;
     private TextView mWeeklyHaftorah;
-    private TextView mWeeklyMakam;
 
     //This array holds the zmanim that we want to display in the announcements section of the weekly view:
     private ArrayList<String> mZmanimForAnnouncements;
@@ -186,8 +183,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private Handler mHandler = null;
     private Runnable mZmanimUpdater;
     private SharedPreferences.OnSharedPreferenceChangeListener sSharedPrefListener;
-    private TextView mDailyLocationName;
-
     private static JSONArray makamNames;
 
     @Override
@@ -295,23 +290,21 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         mLocationResolver.setTimeZoneID();
         if (binding != null) {
             setupDailyViews();
-            hideWeeklyTextViews();
+            // hide everything except the shimmer layout before updating the UI
+            setWeeklyViewVisibility(false);
             binding.swipeRefreshLayout.setVisibility(View.GONE);
-            binding.nestedScrollView.setVisibility(View.GONE);
-            mMainRecyclerView.setVisibility(View.GONE);
             binding.shimmerLayout.setVisibility(View.VISIBLE);
         }
-        // hide everything except the shimmer layout before trying to see if we need to get elevation data
-        if (sLatitude != 0 && sLongitude != 0) {// the values are updated, the accept method will not be called
+        if (sLatitude != 0 && sLongitude != 0) {// the values are updated, the user is using a zipcode or saved location or the app was just restarted
             resolveElevationAndVisibleSunrise(() -> {
                 instantiateZmanimCalendar();
                 setNextUpcomingZman();
                 if (binding != null) {
                     if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                        showWeeklyTextViews();
+                        setWeeklyViewVisibility(true);
                         updateWeeklyZmanim();
                     } else {
-                        hideWeeklyTextViews();
+                        setWeeklyViewVisibility(false);
                         updateDailyZmanim();
                     }
                     binding.shimmerLayout.setVisibility(View.GONE);
@@ -332,11 +325,12 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     }
 
     /**
-     * Sets up the previous day button
+     * Sets up the previous day button if true, or the next day button if false.
      */
     private void setupDayHopButtons(boolean previous) {
-        if (binding == null)
+        if (binding == null) {
             return;
+        }
 
         Button dateBind = (previous ? binding.prevDay : binding.nextDay);
         dateBind.setOnClickListener(v -> {
@@ -358,10 +352,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             }
         });
 
-        if (previous)
+        if (previous) {
             mPreviousDate = dateBind;
-        else
+        } else {
             mNextDate = dateBind;
+            }
     }
 
     /**
@@ -503,9 +498,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             Objects.requireNonNull(Looper.myLooper()).quit();
         }).start());
         mNestedScrollView = binding.nestedScrollView;
-        mDailyLocationName = binding.dailyLocationName;
-        mDailyLocationName.setPaintFlags(mDailyLocationName.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-        mDailyLocationName.setOnClickListener(v -> new MaterialAlertDialogBuilder(mContext)
+        TextView dailyLocationName = binding.dailyLocationName;
+        dailyLocationName.setPaintFlags(dailyLocationName.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        dailyLocationName.setOnClickListener(v -> new MaterialAlertDialogBuilder(mContext)
                 .setTitle(mContext.getString(R.string.location_info_for) + " " + sSharedPreferences.getString("Full" + mROZmanimCalendar.getGeoLocation().getLocationName(), ""))
                 .setMessage(mContext.getString(R.string.location_name) + " " + sCurrentLocationName + "\n" +
                         mContext.getString(R.string.latitude) + " " + sLatitude + "\n" +
@@ -631,54 +626,34 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
     }
 
-    private void showWeeklyTextViews() {
-        LinearLayout mainWeekly = binding.mainWeeklyLayout;
+    private void setWeeklyViewVisibility(boolean showWeekly) {
+        if (showWeekly) {
+            binding.mainWeeklyLayout.setVisibility(View.VISIBLE);
+            binding.swipeRefreshLayout.setVisibility(View.GONE);
 
-        mEnglishMonthYear.setVisibility(View.VISIBLE);
-        mLocationName.setVisibility(View.VISIBLE);
-        mHebrewMonthYear.setVisibility(View.VISIBLE);
-        mainWeekly.setVisibility(View.VISIBLE);
-        mWeeklyParsha.setVisibility(View.VISIBLE);
-        mWeeklyHaftorah.setVisibility(View.VISIBLE);
-        mMainRecyclerView.setVisibility(View.GONE);
-        mNestedScrollView.setVisibility(View.GONE);
-        SwipeRefreshLayout swipeRefreshLayout = binding.swipeRefreshLayout;
-        swipeRefreshLayout.setVisibility(View.GONE);
+            // 800dp is perfect for the weekly view. However, smaller screens have less space, so we need to shrink it
+            float screenHeight = getResources().getDisplayMetrics().heightPixels / getResources().getDisplayMetrics().density;
+            if (screenHeight < 750) {
+                binding.hebrewDay.setTextSize(12);
+                binding.hebrewDay2.setTextSize(12);
+                binding.hebrewDay3.setTextSize(12);
+                binding.hebrewDay4.setTextSize(12);
+                binding.hebrewDay5.setTextSize(12);
+                binding.hebrewDay6.setTextSize(12);
+                binding.hebrewDay7.setTextSize(12);
 
-        // 800dp is perfect for the weekly view. However, smaller screens have less space, so we need to shrink it
-        float screenHeight = getResources().getDisplayMetrics().heightPixels / getResources().getDisplayMetrics().density;
-        if (screenHeight < 750) {
-            binding.hebrewDay.setTextSize(12);
-            binding.hebrewDay2.setTextSize(12);
-            binding.hebrewDay3.setTextSize(12);
-            binding.hebrewDay4.setTextSize(12);
-            binding.hebrewDay5.setTextSize(12);
-            binding.hebrewDay6.setTextSize(12);
-            binding.hebrewDay7.setTextSize(12);
-
-            binding.hebrewDate.setTextSize(16);
-            binding.hebrewDate2.setTextSize(16);
-            binding.hebrewDate3.setTextSize(16);
-            binding.hebrewDate4.setTextSize(16);
-            binding.hebrewDate5.setTextSize(16);
-            binding.hebrewDate6.setTextSize(16);
-            binding.hebrewDate7.setTextSize(16);
+                binding.hebrewDate.setTextSize(16);
+                binding.hebrewDate2.setTextSize(16);
+                binding.hebrewDate3.setTextSize(16);
+                binding.hebrewDate4.setTextSize(16);
+                binding.hebrewDate5.setTextSize(16);
+                binding.hebrewDate6.setTextSize(16);
+                binding.hebrewDate7.setTextSize(16);
+            }
+        } else {
+            binding.mainWeeklyLayout.setVisibility(View.GONE);
+            binding.swipeRefreshLayout.setVisibility(View.VISIBLE);
         }
-    }
-
-    private void hideWeeklyTextViews() {
-        LinearLayout mainWeekly = binding.mainWeeklyLayout;
-
-        mEnglishMonthYear.setVisibility(View.GONE);
-        mLocationName.setVisibility(View.GONE);
-        mHebrewMonthYear.setVisibility(View.GONE);
-        mainWeekly.setVisibility(View.GONE);
-        mWeeklyParsha.setVisibility(View.GONE);
-        mWeeklyHaftorah.setVisibility(View.GONE);
-        mMainRecyclerView.setVisibility(View.VISIBLE);
-        mNestedScrollView.setVisibility(View.VISIBLE);
-        SwipeRefreshLayout swipeRefreshLayout = binding.swipeRefreshLayout;
-        swipeRefreshLayout.setVisibility(View.VISIBLE);
     }
 
     private void findAllWeeklyViews() {
@@ -737,7 +712,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
         mWeeklyParsha = binding.weeklyParsha;
         mWeeklyHaftorah = binding.weeklyHaftorah;
-        mWeeklyMakam = binding.weeklyMakam;
         updateWeeklyTextViewTextColor();
     }
 
@@ -747,49 +721,15 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             mLocationName.setTextColor(textColor);
             mEnglishMonthYear.setTextColor(textColor);
             mHebrewMonthYear.setTextColor(textColor);
-            //there are 7 of these sets of views
-            mSunday[1].setTextColor(textColor);
-            mSunday[2].setTextColor(textColor);
-            mSunday[3].setTextColor(textColor);
-            mSunday[4].setTextColor(textColor);
-            mSunday[5].setTextColor(textColor);
-
-            mMonday[1].setTextColor(textColor);
-            mMonday[2].setTextColor(textColor);
-            mMonday[3].setTextColor(textColor);
-            mMonday[4].setTextColor(textColor);
-            mMonday[5].setTextColor(textColor);
-
-            mTuesday[1].setTextColor(textColor);
-            mTuesday[2].setTextColor(textColor);
-            mTuesday[3].setTextColor(textColor);
-            mTuesday[4].setTextColor(textColor);
-            mTuesday[5].setTextColor(textColor);
-
-            mWednesday[1].setTextColor(textColor);
-            mWednesday[2].setTextColor(textColor);
-            mWednesday[3].setTextColor(textColor);
-            mWednesday[4].setTextColor(textColor);
-            mWednesday[5].setTextColor(textColor);
-
-            mThursday[1].setTextColor(textColor);
-            mThursday[2].setTextColor(textColor);
-            mThursday[3].setTextColor(textColor);
-            mThursday[4].setTextColor(textColor);
-            mThursday[5].setTextColor(textColor);
-
-            mFriday[1].setTextColor(textColor);
-            mFriday[2].setTextColor(textColor);
-            mFriday[3].setTextColor(textColor);
-            mFriday[4].setTextColor(textColor);
-            mFriday[5].setTextColor(textColor);
-
-            mSaturday[1].setTextColor(textColor);
-            mSaturday[2].setTextColor(textColor);
-            mSaturday[3].setTextColor(textColor);
-            mSaturday[4].setTextColor(textColor);
-            mSaturday[5].setTextColor(textColor);
-
+            for (int i = 1; i <= 5; i++) {
+                mSunday[i].setTextColor(textColor);
+                mMonday[i].setTextColor(textColor);
+                mTuesday[i].setTextColor(textColor);
+                mWednesday[i].setTextColor(textColor);
+                mThursday[i].setTextColor(textColor);
+                mFriday[i].setTextColor(textColor);
+                mSaturday[i].setTextColor(textColor);
+            }
             mWeeklyParsha.setTextColor(textColor);
             mWeeklyHaftorah.setTextColor(textColor);
         }
@@ -1009,11 +949,10 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 if (mMainRecyclerView == null || binding == null) {
                     return true;
                 }
+                setWeeklyViewVisibility(item.isChecked());
                 if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                    showWeeklyTextViews();
                     updateWeeklyZmanim();
                 } else {
-                    hideWeeklyTextViews();
                     updateDailyZmanim();
                 }
                 return true;
@@ -1118,9 +1057,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             String haftara = mJewishDateInfo.getThisWeeksHaftarah();
             if (haftara.isEmpty()) {
                 binding.haftaraLayout.setVisibility(View.GONE);
+                binding.makamLayout.setVisibility(View.GONE);
             } else {
                 binding.haftaraLayout.setVisibility(View.VISIBLE);
                 binding.haftara.setText(haftara);
+                binding.makamLayout.setVisibility(View.VISIBLE);
             }
 
             try {
@@ -1128,36 +1069,36 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 if (shabbatMakam.containsKey("GABRIEL A SHREM 1964 SUHV")) {
                     List<MakamJCal.Makam> makamObj = shabbatMakam.get("GABRIEL A SHREM 1964 SUHV");
                     StringBuilder makamText = new StringBuilder(mContext.getString(R.string.makam));
-                    for (int i = 0; i < makamObj.size(); i++) {
-                        makamText.append(makamNames.get(makamObj.get(i).ordinal())).append(" ");
+                    if (makamObj != null) {
+                        for (int i = 0; i < makamObj.size(); i++) {
+                            makamText.append(makamNames.get(makamObj.get(i).ordinal())).append(" ");
+                        }
                     }
 
                     String finalMakamText = makamText.toString();
 
-                    binding.makam.setVisibility(View.VISIBLE);
                     binding.makam.setText(finalMakamText);
                 } else if (shabbatMakam.containsKey("ADES: 24793")) {
                     List<MakamJCal.Makam> makamObj = shabbatMakam.get("ADES: 24793");
                     StringBuilder makamText = new StringBuilder(mContext.getString(R.string.makam));
-                    for (int i = 0; i < makamObj.size(); i++) {
-                        makamText.append(makamNames.get(makamObj.get(i).ordinal())).append(" ");
+                    if (makamObj != null) {
+                        for (int i = 0; i < makamObj.size(); i++) {
+                            makamText.append(makamNames.get(makamObj.get(i).ordinal())).append(" ");
+                        }
                     }
 
-                    String finalMakamText = makamText.toString();
-
-                    binding.makam.setVisibility(View.VISIBLE);
-                    binding.makam.setText(finalMakamText);
+                    binding.makam.setText(makamText.toString());
                 } else {
-                    binding.makam.setVisibility(View.INVISIBLE);
+                    binding.makamLayout.setVisibility(View.GONE);
                 }
             } catch (org.json.JSONException e) {
                 e.printStackTrace();
-                binding.makam.setVisibility(View.INVISIBLE);
+                binding.makamLayout.setVisibility(View.GONE);
             }
         }
 
         if (sSettingsPreferences.getBoolean("showShabbatMevarchim", false)) {
-            if (mJewishDateInfo.tomorrow().getJewishCalendar().isShabbosMevorchim()) {
+            if (mJewishDateInfo.getJewishCalendar().isShabbosMevorchim()) {
                 zmanim.add(new ZmanListEntry("שבת מברכים"));
             }
         }
@@ -1371,7 +1312,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
 
         if (sSettingsPreferences.getBoolean("showShabbatMevarchim", true)) {
-            if (mJewishDateInfo.tomorrow().getJewishCalendar().isShabbosMevorchim()) {
+            if (mJewishDateInfo.getJewishCalendar().isShabbosMevorchim()) {
                 announcements.append("שבת מברכים").append("\n");
             }
         }
@@ -2367,7 +2308,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             }
             mLocationResolver.resolveCurrentLocationName();
             mLocationResolver.setTimeZoneID();
-            showScrollViewAfterLocationCall();
+            showViewAfterLocationCall();
         } else {// if location object is null, we should check the shimmer visibility to see if it was filled by the other request
             try {
                 Thread.sleep(500);// Let's wait a bit to give the program a chance to update the UI
@@ -2375,24 +2316,22 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 throw new RuntimeException(e);
             }
             if (binding != null && binding.shimmerLayout.getVisibility() == View.VISIBLE) {
-                showScrollViewAfterLocationCall();
+                showViewAfterLocationCall();
                 mLocationResolver.acquireLatitudeAndLongitude(this);
             }
         }
     }
 
-    private void showScrollViewAfterLocationCall() {
+    private void showViewAfterLocationCall() {
         synchronized (mJewishDateInfo) {
             mActivity.runOnUiThread(() -> {
                 if (mMainRecyclerView != null && mMainRecyclerView.isFocusable()) {
                     if (sSharedPreferences.getBoolean("weeklyMode", false)) {
                         if (binding != null) {
-                            showWeeklyTextViews();
+                            setWeeklyViewVisibility(true);
                         }
                     } else {
-                        mMainRecyclerView.setVisibility(View.VISIBLE);
                         if (binding != null) {
-                            binding.nestedScrollView.setVisibility(View.VISIBLE);
                             binding.swipeRefreshLayout.setVisibility(View.VISIBLE);
                         }
                     }
@@ -2421,17 +2360,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     });
                 }
             });
-        }
-    }
-
-    private String inputStreamToString(InputStream inputStream) {
-        try {
-            byte[] bytes = new byte[inputStream.available()];
-            inputStream.read(bytes, 0, bytes.length);
-            String json = new String(bytes);
-            return json;
-        } catch (IOException e) {
-            return null;
         }
     }
 }

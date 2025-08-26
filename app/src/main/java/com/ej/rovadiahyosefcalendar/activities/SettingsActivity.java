@@ -149,19 +149,36 @@ public class SettingsActivity extends AppCompatActivity {
                 themePref.setOnPreferenceChangeListener((preference, newValue) -> {
                     String theme = (String) newValue;
                     Objects.requireNonNull(preference.getSharedPreferences()).edit().putString(preference.getKey(), theme).apply();
-                    switch (theme) {
-                        case "Auto (Follow System Theme)":
-                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
-                            requireActivity().recreate();
-                            break;
-                        case "Day":
-                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                            requireActivity().recreate();
-                            break;
-                        case "Night":
-                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                            requireActivity().recreate();
-                            break;
+                    if (isAdded()) {
+                        switch (theme) {
+                            case "Auto (Follow System Theme)":
+                                if (requireActivity() instanceof AppCompatActivity activity) {
+                                    if (activity.getDelegate().getLocalNightMode() == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
+                                        break;
+                                    }
+                                }
+                                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                                requireActivity().recreate();
+                                break;
+                            case "Day":
+                                if (requireActivity() instanceof AppCompatActivity activity) {
+                                    if (activity.getDelegate().getLocalNightMode() == AppCompatDelegate.MODE_NIGHT_NO) {
+                                        break;
+                                    }
+                                }
+                                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                                requireActivity().recreate();
+                                break;
+                            case "Night":
+                                if (requireActivity() instanceof AppCompatActivity activity) {
+                                    if (activity.getDelegate().getLocalNightMode() == AppCompatDelegate.MODE_NIGHT_YES) {
+                                        break;
+                                    }
+                                }
+                                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                                requireActivity().recreate();
+                                break;
+                        }
                     }
                     return false;
                 });

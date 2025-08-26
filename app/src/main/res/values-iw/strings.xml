@@ -335,7 +335,7 @@
 
     <string name="show_zman_dialogs">הצגת הסבר על הזמן</string>
 
-    <string name="choose_whether_or_not_to_display_if_shabbat_mevarchim_happens_tomorrow_on_friday">בחר אם להציג האם השבת היא שבת מברכים (ביום שישי)</string>
+    <string name="choose_whether_or_not_to_display_if_shabbat_mevarchim_happens_tomorrow_on_friday">בחר אם להציג האם השבת היא שבת מברכים (ביום שבת)</string>
 
     <string name="show_shabbat_mevarchim">הצגת שבת מברכים</string>
 
