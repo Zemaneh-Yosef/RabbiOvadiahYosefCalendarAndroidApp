@@ -8,12 +8,12 @@
         Therefore, it is better to allow the app to see your location. We do not use your location
         for any other purpose than to calculate the zmanim.\n\nHowever, if you still do not want to give location
         permissions, you can choose to search for your address or a zipcode and the app will find your location based on your approximate area.
-        (Using a zip code is not recommended if you want accurate zmanim. It is better to put in your address.)
+        (Using a zip code is not recommended if you want accurate Zemanim. It is better to put in your address.)
     </string>
 
     <string name="setup_elevation">Setup Elevation</string>
     <string name="mishor_request">If you want to use Mishor (Sea Level) Sunrise/Sunset for your calculations
-        of the zmanim, just press the button below:</string>
+        of the zemanim, just press the button below:</string>
     <string name="mishor_sea_level">Mishor (Sea Level)</string>
     <string name="manual_button">If you want to specify the elevation level (in meters) yourself,
         press this button:</string>
@@ -27,7 +27,7 @@
     </string>
     <string name="settings">Settings</string>
 
-    <string name="helper_text">Welcome to the Rabbi Ovadia Yosef Calendar app (also known as Zmanei Yosef), this app was made to help you find out the most accurate zmanim of the day according to Rabbi Ovadiah Yosef ZT\"L for your own city! Please follow the "Get Started" process of the app to set it up and here are some things to keep in mind:
+    <string name="helper_text">Welcome to the Rabbi Ovadia Yosef Calendar app (also known as Zemaneh Yosef), this app was made to help you find out the most accurate Zemanim of the day according to Rabbi Ovadiah Yosef ZT\"L for your own city! Please follow the "Get Started" process of the app to set it up and here are some things to keep in mind:
 
  \n\n1.) You should ideally choose your city and download the visible sunrise tables through the simple setup. This table contains the most accurate times for VISIBLE sunrise, and this is the algorithm that the Ohr HaChaim calendar uses in Israel as the Yalkut Yosef writes (Yalkut Yosef Tefila 1, page 48). However, these tables only go on for 2 years into the future and will need to be updated bi-yearly. If you do not want to use these tables, you can choose to skip the setup, and the app will instead use the regular NOAA algorithm for sunrise (without elevation included as it is similar enough).
 
@@ -120,8 +120,8 @@
     <string name="yes_i_have_left_israel">Yes, I have left Israel</string>
     <string name="no_i_have_not_left_israel">No, I have not left Israel</string>
     <string name="please_enable_gps">Please Enable GPS</string>
-    <string name="would_you_like_to_receive_real_time_notifications_for_zmanim">Would you like to receive real-time notifications for zmanim?</string>
-    <string name="if_you_would_like_to_receive_real_time_zmanim_notifications">If you would like to receive real-time zmanim notifications for your current location, please navigate to the settings page and enable location services all the time for this app. Do not forget to check your battery saver settings as well. Would you like to do this now?</string>
+    <string name="would_you_like_to_receive_real_time_notifications_for_zmanim">Would you like to receive real-time notifications for zemanim?</string>
+    <string name="if_you_would_like_to_receive_real_time_zmanim_notifications">If you would like to receive real-time zemanim notifications for your current location, please navigate to the settings page and enable location services all the time for this app. Do not forget to check your battery saver settings as well. Would you like to do this now?</string>
     <string name="update_tables">Update Tables?</string>
     <string name="the_visible_sunrise_tables_for_the_current_location_and_year_need_to_be_updated_do_you_want_to_update_the_tables_now">The visible sunrise tables for the current location and year need to be updated.\n\nDo you want to update the tables now?</string>
     <string name="PESACH">PESACH</string>
@@ -139,15 +139,15 @@
     <string name="daf_yomi">Daf Yomi:</string>
     <string name="yerushalmi_yomi">Yerushalmi Vilna Yomi:</string>
     <string name="just_yerushalmi_yomi">Yerushalmi Yomi:</string>
-    <string name="shaah_zmanit_gr_a">Shaah Zmanit GR\"A:</string>
-    <string name="mg_a">Shaah Zmanit MG\"A:</string>
+    <string name="shaah_zmanit_gr_a">Shaah Zemanit GR\"A:</string>
+    <string name="mg_a">Shaah Zemanit MG\"A:</string>
     <string name="daylight_savings_time_is_on">Daylight Savings Time is on</string>
     <string name="daylight_savings_time_is_off">Daylight Savings Time is off</string>
     <string name="elevation">Elevation:</string>
     <string name="meters">meters</string>
     <string name="there_is_tachanun_today">There is Tachanun today</string>
     <string name="enter_zipcode_or_address">Enter Zipcode or Address</string>
-    <string name="warning_zmanim_will_be_based_on_your_approximate_area">WARNING! Entering a zipcode will give you zmanim based on approximately where you are, and they will not be as accurate. For more accurate zmanim, please allow the app to see your location or enter an EXACT address.</string>
+    <string name="warning_zmanim_will_be_based_on_your_approximate_area">WARNING! Entering a zipcode will give you zemanim based on approximately where you are, and they will not be as accurate. For more accurate zmanim, please allow the app to see your location or enter an EXACT address.</string>
     <string name="please_enter_something">Please enter something</string>
     <string name="use_location">Use location</string>
     <string name="press_back_again_to_close_the_app">Press back again to close the app</string>
@@ -163,7 +163,7 @@
     <string name="m_and">m and</string>
     <string name="chalakim">Chalakim</string>
     <string name="do_not_rely_on_the_seconds">Do NOT rely on the seconds!</string>
-    <string name="do_not_rely_on_the_seconds_message">DO NOT RELY ON THESE SECONDS. The only zman that can be relied on to the second is the visible sunrise time based on chaitables.com. Otherwise, these zmanim are NOT accurate to the second! You should always round up or down a minute or two just in case.</string>
+    <string name="do_not_rely_on_the_seconds_message">DO NOT RELY ON THESE SECONDS. The only zman that can be relied on to the second is the visible sunrise time based on chaitables.com. Otherwise, these zemanim are NOT accurate to the second! You should always round up or down a minute or two just in case.</string>
     <string name="No_email_app_error">No email app, please contact elyahujacobi@gmail.com</string>
     <string name="Introduction">Introduction</string>
     <string name="enter_elevation_in_meters">Enter elevation in meters:</string>
@@ -173,29 +173,29 @@
     <string name="success">Success!</string>
     <string name="something_went_wrong_did_you_choose_the_right_area">Something went wrong. Did you choose the right area?</string>
     <string name="something_went_wrong_connecting_to_the_website_please_try_again_later">Something went wrong connecting to the website. Please try again later.</string>
-    <string name="zmanim_options">Zmanim Options</string>
-    <string name="change_the_zmanim_settings">Change the zmanim settings</string>
-    <string name="zmanim_settings">Zmanim Settings</string>
-    <string name="enable_or_disable_zmanim_notifications">Enable or disable zmanim notifications</string>
-    <string name="zmanim_notifications">Zmanim Notifications</string>
-    <string name="change_the_zmanim_notifications_settings">Change the zmanim notifications settings</string>
-    <string name="zmanim_notifications_settings">Zmanim Notifications Settings</string>
-    <string name="choose_whether_or_not_to_display_the_seconds_of_the_zmanim">Display the seconds of the zmanim</string>
+    <string name="zmanim_options">Zemanim Options</string>
+    <string name="change_the_zmanim_settings">Change the zemanim settings</string>
+    <string name="zmanim_settings">Zemanim Settings</string>
+    <string name="enable_or_disable_zmanim_notifications">Enable or disable zemanim notifications</string>
+    <string name="zmanim_notifications">Zemanim Notifications</string>
+    <string name="change_the_zmanim_notifications_settings">Change the zemanim notifications settings</string>
+    <string name="zmanim_notifications_settings">Zemanim Notifications Settings</string>
+    <string name="choose_whether_or_not_to_display_the_seconds_of_the_zmanim">Display the seconds of the zemanim</string>
     <string name="show_seconds">Show seconds</string>
-    <string name="choose_whether_or_not_to_display_rabbeinu_tam_s_nightfall_everyday">Display Rabbeinu Tam\'s nightfall everyday</string>
-    <string name="show_rabbeinu_tam_everyday">Always show Rabbeinu Tam</string>
-    <string name="choose_whether_or_not_to_round_up_the_zman_of_rabbeinu_tam_up_to_the_nearest_minute">Round up the zman of Rabbeinu Tam up to the nearest minute (if seconds are not shown)</string>
-    <string name="round_up_rabbeinu_tam">Round up Rabbeinu Tam?</string>
+    <string name="choose_whether_or_not_to_display_rabbeinu_tam_s_nightfall_everyday">Display Rabbenu Tam\'s nightfall everyday</string>
+    <string name="show_rabbeinu_tam_everyday">Always show Rabbenu Tam</string>
+    <string name="choose_whether_or_not_to_round_up_the_zman_of_rabbeinu_tam_up_to_the_nearest_minute">Round up the zeman of Rabbenu Tam up to the nearest minute (if seconds are not shown)</string>
+    <string name="round_up_rabbeinu_tam">Round up Rabbenu Tam?</string>
     <string name="choose_whether_or_not_to_display_sea_level_sunrise_even_if_visible_sunrise_is_setup_as_well">Display sea level sunrise even if visible sunrise is setup as well</string>
     <string name="always_show_mishor_sunrise">Always show mishor sunrise</string>
-    <string name="choose_whether_or_not_to_display_the_zman_dialogs_when_you_press_on_a_zman">Display the dialogs when you press on a zman</string>
-    <string name="show_zman_dialogs">Show zman dialogs?</string>
+    <string name="choose_whether_or_not_to_display_the_zman_dialogs_when_you_press_on_a_zman">Display the dialogs when you press on a zeman</string>
+    <string name="show_zman_dialogs">Show zeman dialogs?</string>
     <string name="choose_whether_or_not_to_display_if_shabbat_mevarchim_happens_tomorrow_on_friday">Display if it is Shabbat Mevarchim on Friday</string>
     <string name="show_shabbat_mevarchim">Show Shabbat Mevarchim?</string>
     <string name="choose_whether_or_not_to_display_when_shabbat_or_chag_ends_the_day_before_after_the_candle_lighting_time">Display when Shabbat or Chag ends the day before</string>
     <string name="show_tzait_shabbat_the_day_before">Show Shabbat End Times the day before?</string>
-    <string name="choose_which_zmanim_to_display">Choose which zmanim to display</string>
-    <string name="choose_whether_to_display_rabbeinu_tam_or_regular_shabbat_end_times_or_both">Display Rabbeinu tam or regular shabbat end times or both</string>
+    <string name="choose_which_zmanim_to_display">Choose which zemanim to display</string>
+    <string name="choose_whether_to_display_rabbeinu_tam_or_regular_shabbat_end_times_or_both">Display Rabbenu Tam or regular shabbat end times or both</string>
     <string name="choose_whether_or_not_to_set_the_elevation_to_the_last_known_location_when_the_app_is_opened_offline">Set the elevation to the last known location when the app is opened offline</string>
     <string name="set_elevation_to_last_known_location">Set elevation to last known location?</string>
     <string name="appearance">Appearance</string>
@@ -222,23 +222,18 @@
     <string name="show_if_it_is_a_leap_year">Show if it is a leap year?</string>
     <string name="choose_whether_or_not_to_display_if_daylight_savings_is_in_effect">Display if Daylight Savings is in effect</string>
     <string name="show_dst">Show DST?</string>
-    <string name="always_show_tzeit_l_chumra">Always show Tzeit L\'Chumra</string>
-    <string name="always_show_tzeit_l_chumra_according_to_the_ohr_hachaim_calendar">Always show Tzeit L\'Chumra according to the Ohr HaChaim calendar</string>
-    <string name="plag_hamincha_opinion">Plag HaMincha Opinion</string>
-    <string name="choose_which_opinion_to_show_for_the_time_for_plag_hamincha">Choose which opinion to show for the time for Plag HaMincha</string>
     <string name="end_shabbat_opinion">End Shabbat Opinion</string>
     <string name="choose_which_opinion_to_use_for_the_time_for_when_shabbat_chag_ends">Choose which opinion to use for the time for when shabbat/chag ends</string>
     <string name="minutes_till_shabbat_ends">Minutes Till Shabbat Ends</string>
     <string name="enter_the_amount_of_minutes_to_add_to_sunset_for_shabbat_to_end">Enter the amount of minutes to add to sunset for shabbat to end</string>
-    <string name="these_settings_only_apply_if_you_do_not_use_the_luach_amudei_horaah_setting">These settings only apply if you do not use the Luach Amudei Horaah setting</string>
     <string name="candle_lighting_time">Candle Lighting Time</string>
     <string name="enter_the_amount_of_minutes_for_candle_lighting">Enter the amount of minutes for candle lighting</string>
-    <string name="choose_which_opinions_to_use_for_the_time_for_the_tekufas">Choose which opinions to use for the time of the tekufas</string>
+    <string name="choose_which_opinions_to_use_for_the_time_for_the_tekufas">Choose which opinions to use for the time of the tekufot</string>
     <string name="tekufa_opinion">Tekufa Opinion</string>
-    <string name="luach_amudei_horaah">Amudei Horaah Mode</string>
-    <string name="make_the_zmanim_like_the_luach_amudei_horaah_only_outside_israel">Apply a deviation to the zmanim like the Amudei Horaah calendar does (Only outside Israel)</string>
-    <string name="minutes_before_the_zman_for_notifications">Minutes before the zman for notifications</string>
-    <string name="show_zmanim_notifications_on_shabbat_yom_tov">Zmanim notifications on shabbat/yom tov?</string>
+    <string name="luach_amudei_horaah">Amudeh Horaah Mode</string>
+    <string name="make_the_zmanim_like_the_luach_amudei_horaah_only_outside_israel">Extend/Shorten the times of twilight based on their degree equivalent, while still using seasonal minutes (Only outside Israel)</string>
+    <string name="minutes_before_the_zman_for_notifications">Minutes before the zeman for notifications</string>
+    <string name="show_zmanim_notifications_on_shabbat_yom_tov">Zemanim notifications on shabbat/yom tov?</string>
     <string name="notifications_on_shabbat_and_yom_tov">Notifications on Shabbat and Yom Tov?</string>
     <string name="alot_hashachar">Alot Hashachar</string>
     <string name="alot">Alot</string>
@@ -327,7 +322,7 @@
     <string name="restart_app">Please restart the app</string>
     <string name="see_full_text">See Full Text</string>
     <string name="show_shmita_year">Show year of Shmita cycle?</string>
-    <string name="choose_whether_or_not_to_show_if_the_year_is_a_shmita_year_or_not">Show the year of the shmita cycle or if the current year is a shmita year</string>
+    <string name="choose_whether_or_not_to_show_if_the_year_is_a_shmita_year_or_not">Show the year of the shemita cycle or if the current year is a shmita year</string>
     <string name="this_year_is_a_shmita_year">This year is a Shmita Year</string>
     <string name="this_year_is_not_a_shmita_year">This year is not a Shmita year</string>
     <string name="advanced">Advanced</string>
@@ -336,10 +331,10 @@
     <string name="enter_longitude">Enter longitude:</string>
     <string name="choose_timezone">Choose a timezone</string>
     <string name="dismiss_notifications">Dismiss notifications automatically?</string>
-    <string name="zmanim_notifications_will_not_work">Zmanim notifications will not work!</string>
-    <string name="if_you_would_like_to_receive_zmanim_notifications">The app cannot currently send you zmanim notifications. Would you would like to change this setting? (If you want to stop this dialog from popping up, disable zmanim notifications in the settings)</string>
-    <string name="display_next_upcoming_zman_sticky_notification">Display Next Upcoming Zman Sticky Notification</string>
-    <string name="when_you_open_the_app_show_a_notification_that_will_tell_you_when_the_next_zman_is">When you open the app, show a notification that will tell you when the next zman is. NEEDS LOCATION PERMISSION</string>
+    <string name="zmanim_notifications_will_not_work">Zemanim notifications will not work!</string>
+    <string name="if_you_would_like_to_receive_zmanim_notifications">The app cannot currently send you zemanim notifications. Would you would like to change this setting? (If you want to stop this dialog from popping up, disable zmanim notifications in the settings)</string>
+    <string name="display_next_upcoming_zman_sticky_notification">Display Next Upcoming Zeman Sticky Notification</string>
+    <string name="when_you_open_the_app_show_a_notification_that_will_tell_you_when_the_next_zman_is">When you open the app, show a notification that will tell you when the next zeman is. NEEDS LOCATION PERMISSION</string>
     <string name="do_you_want_to_delete_this_location">Do you want to delete this location?</string>
     <string name="birchat_hachama_dialog">Birchat HaChamah is said today! This occurs once every 28 years, and a person should be careful to say the beracha on the sun early in the morning on this day.\n\nAccording to many poskim, you can say the beracha on the sun all day, however, Rabbi Ovadiah Yosef ZT\"L writes in Chazon Ovadiah Berachot that a person should try to say the beracha before 3 zmaniyot hours into the day. If this time passes, he should say the beracha without hashem\'s name.\n\nIt should be noted that it is the minhag of Am Yisrael to wake up early and pray at Netz on this day and after the Amidah (Kadish Titkabal), they go outside to say the beracha.</string>
     <string name="location_hint">ex: New York, USA</string>
@@ -370,12 +365,12 @@
     <string name="kriatShema">ק״ש שעל המיטה</string>
     <string name="misc">Misc.</string>
     <string name="tikkun_chatzot">תיקון חצות</string>
-    <string name="do_you_want_to_say_tikkun_chatzot_for_the_day">Do you want to say Tikkun Chatzot for the day?</string>
+    <string name="do_you_want_to_say_tikkun_chatzot_for_the_day">Do you want to say Tikkun Ḥatzot for the day?</string>
     <string name="looking_to_say_this_version_of_tikkun_chatzot">During the three weeks, some say a shorter Tikkun Chatzot after mid-day. Are you looking to say this version of Tikkun Chatzot?</string>
-    <string name="tikkun_chatzot_is_not_said_tonight">Tikkun Chatzot is not said tonight</string>
-    <string name="tikkun_chatzot_is_not_said_tonight_possible_reasons">Tikkun Chatzot is not said tonight. Possible reasons for why it is not said: It is Friday night, Rosh Hashana, Yom Kippur, Succot/Shemini Atzeret, Pesach, or Shavuot.</string>
-    <string name="tikkun_chatzot_is_not_said_today_or_tonight">Tikkun Chatzot is not said today or tonight</string>
-    <string name="tikkun_chatzot_is_not_said_today_or_tonight_possible_reasons">Tikkun Chatzot is not said today or tonight. Possible reasons for why it is not said: It is Friday/Friday night, No Tachanun is said today, Erev Rosh Chodesh AV, Rosh Chodesh, Rosh Hashana, Yom Kippur, Succot/Shemini Atzeret, Pesach, or Shavuot.</string>
+    <string name="tikkun_chatzot_is_not_said_tonight">Tikkun Ḥatzot is not said tonight</string>
+    <string name="tikkun_chatzot_is_not_said_tonight_possible_reasons">Tikkun Ḥatzot is not said tonight. Possible reasons for why it is not said: It is Friday night, Rosh Hashana, Yom Kippur, Succot/Shemini Atzeret, Pesach, or Shavuot.</string>
+    <string name="tikkun_chatzot_is_not_said_today_or_tonight">Tikkun Ḥatzot is not said today or tonight</string>
+    <string name="tikkun_chatzot_is_not_said_today_or_tonight_possible_reasons">Tikkun Ḥatzot is not said today or tonight. Possible reasons for why it is not said: It is Friday/Friday night, No Tachanun is said today, Erev Rosh Chodesh AV, Rosh Chodesh, Rosh Hashana, Yom Kippur, Succot/Shemini Atzeret, Pesach, or Shavuot.</string>
     <string name="birchat_meyin_shalosh">ברכת מעין שלוש</string>
     <string name="are_you_in_a_walled_mukaf_choma_city">Are you in a walled (Mukaf Choma) city?</string>
     <string name="are_you_located_in_a_walled_mukaf_choma_city_from_the_time_of_yehoshua_bin_nun">Are you located in a walled (Mukaf Choma) city from the time of Yehoshua Bin Nun?</string>
@@ -392,7 +387,7 @@
     <string name="daily_chafetz_chaim">"Daily Chafetz Chaim: "</string>
     <string name="open">Open</string>
     <string name="hide_the_bottom_navigation_bar">Hide the Bottom Nav Bar</string>
-    <string name="choose_whether_or_not_the_navigation_bar_that_shows_limudim_zmanim_siddur_should_be_shown_this_may_help_users_with_smaller_screens">Choose whether or not the navigation bar that shows Limudim/Zmanim/Siddur should be shown. This may help users with smaller screens.</string>
+    <string name="choose_whether_or_not_the_navigation_bar_that_shows_limudim_zmanim_siddur_should_be_shown_this_may_help_users_with_smaller_screens">Choose whether or not the navigation bar that shows Limudim/Zemanim/Siddur should be shown. This may help users with smaller screens.</string>
     <string name="mishna_yomi">Mishna Yomi:</string>
     <string name="the_moon_is_up_all_night">The moon is up all night</string>
     <string name="there_is_no_moon_tonight">There is no moon tonight</string>
@@ -410,7 +405,7 @@
     <string name="shmita_dialog">During the six-year cycle prior to shemita, there is an obligation to separate and gift portions of your field\'s grains, fruits and vegetables grown in Israel to various causes (Bamidbar 18). We separate Terumah Gedolah, Maaser Rishon, and Terumat Maaser every year, however, Maaser Sheni is replaced with Maaser Ani on the 3rd and 6th years (Devarim 14:28).</string>
     <string name="siddur_font">Siddur Font</string>
     <string name="choose_a_font_for_the_siddur">Choose a font for the siddur</string>
-    <string name="no_location_permission_for_next_zman_notification">No Location Permission for Next Zman Notification</string>
+    <string name="no_location_permission_for_next_zman_notification">No Location Permission for Next Zeman Notification</string>
     <string name="find_your_location">Find your location</string>
     <string name="havdala">הבדלה</string>
     <string name="hadlakat_neirot_chanuka">הדלקת נרות חנוכה</string>
@@ -428,7 +423,7 @@
     <string name="latitude">Latitude:</string>
     <string name="longitude">Longitude:</string>
     <string name="enable_this_if_you_want_to_always_calculate_rabbeinu_tam_as_a_10th_of_the_day_72_non_deviated_zmaniyot_minutes">Enable this if you want to always calculate Rabbeinu Tam as a 10th of the day (72 non-deviated zmaniyot minutes)</string>
-    <string name="always_use_a_10th_of_the_day_for_rabbeinu_tam">Always use a 10th of the day for Rabbeinu Tam</string>
+    <string name="always_use_a_10th_of_the_day_for_rabbeinu_tam">Always use a 10th of the day for Rabbenu Tam</string>
     <string name="havdalah_is_only_said_on_a_flame_tonight">Havdalah is only said on a flame tonight.</string>
     <string name="havdalah_will_be_completed_after_the_fast">Havdalah will be completed after the fast.</string>
     <string name="about_us_text">We are the platform to use whenever and wherever you\'d need Halachic Times (Zemanim) according to Hakham Ovadia Yosef zt\'l, following his practices represented in his Ohr Hachaim calendar from Eretz Yisrael. Outside Israel, our algorithm follow\'s the rules outlined by the Minḥat Kohen (as quoted by R David Yosef, approved by R Yitzḥak Yosef) to comply with the astronomical differences while sticking to seasonal minutes.</string>

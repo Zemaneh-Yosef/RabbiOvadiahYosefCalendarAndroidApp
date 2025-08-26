@@ -235,15 +235,10 @@
     <string name="show_if_it_is_a_leap_year">Show if it is a leap year?</string>
     <string name="choose_whether_or_not_to_display_if_daylight_savings_is_in_effect">Choose whether or not to display if Daylight Savings is in effect</string>
     <string name="show_dst">Show DST?</string>
-    <string name="always_show_tzeit_l_chumra">Always show Tzeit L\'Chumra</string>
-    <string name="always_show_tzeit_l_chumra_according_to_the_ohr_hachaim_calendar">Always show Tzeit L\'Chumra according to the Ohr HaChaim calendar</string>
-    <string name="plag_hamincha_opinion">Plag HaMincha Opinion</string>
-    <string name="choose_which_opinion_to_show_for_the_time_for_plag_hamincha">Choose which opinion to show for the time for Plag HaMincha</string>
     <string name="end_shabbat_opinion">End Shabbat Opinion</string>
     <string name="choose_which_opinion_to_use_for_the_time_for_when_shabbat_chag_ends">Choose which opinion to use for the time for when shabbat/chag ends</string>
     <string name="minutes_till_shabbat_ends">Minutes Till Shabbat Ends</string>
     <string name="enter_the_amount_of_minutes_to_add_to_sunset_for_shabbat_to_end">Enter the amount of minutes to add to sunset for shabbat to end</string>
-    <string name="these_settings_only_apply_if_you_do_not_use_the_luach_amudei_horaah_setting">These settings only apply if you do not use the Luach Amudei Horaah setting</string>
     <string name="candle_lighting_time">Candle Lighting Time</string>
     <string name="enter_the_amount_of_minutes_for_candle_lighting">Enter the amount of minutes for candle lighting</string>
     <string name="choose_which_opinions_to_use_for_the_time_for_the_tekufas">Choose which opinions to use for the time for the tekufas</string>

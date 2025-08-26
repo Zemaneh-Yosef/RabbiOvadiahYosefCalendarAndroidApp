@@ -399,14 +399,6 @@
 
     <string name="show_dst">להציג את שעון הקיץ</string>
 
-    <string name="always_show_tzeit_l_chumra">הראו תמיד \"צאת לחומרא\"</string>
-
-    <string name="always_show_tzeit_l_chumra_according_to_the_ohr_hachaim_calendar">הראו תמיד את \"צאת לחומרא\" לפי לוח \"אור החיים\".</string>
-
-    <string name="plag_hamincha_opinion">דעה לפלג המנחה</string>
-
-    <string name="choose_which_opinion_to_show_for_the_time_for_plag_hamincha">בחר איזו דעה להראות לזמן פלג המנחה</string>
-
     <string name="end_shabbat_opinion">סיום השבת חוות דעת</string>
 
     <string name="choose_which_opinion_to_use_for_the_time_for_when_shabbat_chag_ends">בחר באיזו דעה להשתמש לזמן שבו מסתיימת שבת/חג</string>
@@ -414,8 +406,6 @@
     <string name="minutes_till_shabbat_ends">דקות עד צאת השבת</string>
 
     <string name="enter_the_amount_of_minutes_to_add_to_sunset_for_shabbat_to_end">הזינו את כמות הדקות להוסיף לשקיעה לסיום השבת</string>
-
-    <string name="these_settings_only_apply_if_you_do_not_use_the_luach_amudei_horaah_setting">הגדרות אלו חלות רק אם אינך משתמש בהגדרה \"לוח עמודי הוראה\".</string>
 
     <string name="candle_lighting_time">זמן הדלקת נרות</string>
 
