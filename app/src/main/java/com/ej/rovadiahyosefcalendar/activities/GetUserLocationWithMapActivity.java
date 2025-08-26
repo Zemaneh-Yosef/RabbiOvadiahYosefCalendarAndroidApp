@@ -6,7 +6,6 @@ import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurre
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sElevation;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLatitude;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLongitude;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSharedPreferences;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -306,13 +305,13 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
             }
         } else if (!Utils.isLocaleHebrew()) {
             mSharedPreferences.edit().putBoolean("LuachAmudeiHoraah", true).apply();
-            sSharedPreferences.edit().putBoolean("useElevation", false).apply();
+            mSharedPreferences.edit().putBoolean("useElevation", false).apply();
             if (!getIntent().getBooleanExtra("loneActivity", false)) {
                 mSharedPreferences.edit().putBoolean("inIsrael", false).apply();
                 startActivity(new Intent(this, ZmanimLanguageActivity.class));
             }
         } else {// user is outside of Israel and device is in hebrew
-            sSharedPreferences.edit().putBoolean("useElevation", false).apply();
+            mSharedPreferences.edit().putBoolean("useElevation", false).apply();
             if (!getIntent().getBooleanExtra("loneActivity", false)) {
                 mSharedPreferences.edit().putBoolean("inIsrael", false).apply();
             }
@@ -320,9 +319,9 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
             mSharedPreferences.edit().putBoolean("isZmanimInHebrew", true).apply();
             mSharedPreferences.edit().putBoolean("isZmanimEnglishTranslated", false).apply();
             mSharedPreferences.edit().putBoolean("isSetup", true).apply();
-            if (sSharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
+            if (mSharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
                 startActivity(new Intent(getBaseContext(), TipScreenActivity.class));
-                sSharedPreferences.edit().putBoolean("hasNotShownTipScreen", false).apply();
+                mSharedPreferences.edit().putBoolean("hasNotShownTipScreen", false).apply();
             }
         }
     }

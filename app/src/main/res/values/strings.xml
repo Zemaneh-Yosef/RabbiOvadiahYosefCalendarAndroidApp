@@ -190,7 +190,7 @@
     <string name="always_show_mishor_sunrise">Always show mishor sunrise</string>
     <string name="choose_whether_or_not_to_display_the_zman_dialogs_when_you_press_on_a_zman">Display the dialogs when you press on a zman</string>
     <string name="show_zman_dialogs">Show zman dialogs?</string>
-    <string name="choose_whether_or_not_to_display_if_shabbat_mevarchim_happens_tomorrow_on_friday">Display if it is Shabbat Mevarchim on Friday</string>
+    <string name="choose_whether_or_not_to_display_if_shabbat_mevarchim_happens_tomorrow_on_friday">Display if it is Shabbat Mevarchim on Saturday</string>
     <string name="show_shabbat_mevarchim">Show Shabbat Mevarchim?</string>
     <string name="choose_whether_or_not_to_display_when_shabbat_or_chag_ends_the_day_before_after_the_candle_lighting_time">Display when Shabbat or Chag ends the day before</string>
     <string name="show_tzait_shabbat_the_day_before">Show Shabbat End Times the day before?</string>

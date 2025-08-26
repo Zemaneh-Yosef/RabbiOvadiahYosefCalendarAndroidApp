@@ -86,7 +86,6 @@ public class SiddurAdapter extends ArrayAdapter<String> implements SensorEventLi
             viewHolder.line.setBackgroundColor(viewHolder.textView.getCurrentTextColor());
             convertView.setTag(viewHolder);
             viewHolder.defaultTextColor = viewHolder.textView.getCurrentTextColor();
-            //viewHolder.info = convertView.findViewById(R.id.info);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
@@ -125,11 +124,10 @@ public class SiddurAdapter extends ArrayAdapter<String> implements SensorEventLi
         switch (PreferenceManager.getDefaultSharedPreferences(context).getString("font", "Guttman Keren")) {
             case "Guttman Keren":
                 viewHolder.textView.setTypeface(Typeface.createFromAsset(context.getAssets(), "Guttman Keren.ttf"), Typeface.NORMAL);
-                //viewHolder.info.setTypeface(Typeface.createFromAsset(context.getAssets(), "Guttman Keren.ttf"), Typeface.NORMAL);
+                viewHolder.textView.setLineSpacing(4f, 1.2f);
                 break;
             case "Taamey Frank":
                 viewHolder.textView.setTypeface(Typeface.createFromAsset(context.getAssets(), "Taamey_D.ttf"), Typeface.NORMAL);
-                //viewHolder.info.setTypeface(Typeface.createFromAsset(context.getAssets(), "Taamey_D.ttf"), Typeface.NORMAL);
                 break;
             default:
                 break;
@@ -147,33 +145,26 @@ public class SiddurAdapter extends ArrayAdapter<String> implements SensorEventLi
             viewHolder.textView.setVisibility(View.GONE);
             viewHolder.line.setVisibility(View.VISIBLE);
         } else if (siddur.get(position).isInfo()) {
-            //viewHolder.info.setBackgroundColor(Color.DKGRAY);
             viewHolder.textView.setBackgroundColor(Color.DKGRAY);
             if ((context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_NO) {// light mode
                 viewHolder.textView.setTextColor(Color.BLACK);
             }
-            //viewHolder.info.setVisibility(View.VISIBLE);
             viewHolder.textView.setVisibility(View.VISIBLE);
             String summary = "▲ " + siddur.get(position).getSummary();
             viewHolder.textView.setText(summary);
             View.OnClickListener onClickListener = l -> {
                 viewHolder.textView.wasClicked = !viewHolder.textView.wasClicked;
                 if (viewHolder.textView.wasClicked) {
-                    //viewHolder.info.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.baseline_keyboard_arrow_down_24, 0);
                     String full = "▼ " + siddur.get(position).getSummary() + siddur.get(position).toString();
                     viewHolder.textView.setText(full);
                 } else {
-                    //viewHolder.info.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.baseline_keyboard_arrow_left_24, 0);
                     viewHolder.textView.setText(summary);
                 }
             };
-            //viewHolder.info.setOnClickListener(onClickListener);
             viewHolder.textView.setOnClickListener(onClickListener);
         } else {
             viewHolder.textView.setVisibility(View.VISIBLE);
             viewHolder.line.setVisibility(View.GONE);
-            //viewHolder.info.setVisibility(View.GONE);
-            //viewHolder.info.setBackgroundColor(Color.TRANSPARENT);
             viewHolder.textView.setBackgroundColor(Color.TRANSPARENT);
             if ((context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_NO) {// light mode
                 if (siddur.get(position).shouldBeHighlighted()) {
@@ -284,6 +275,5 @@ public class SiddurAdapter extends ArrayAdapter<String> implements SensorEventLi
         ImageView imageView;
         View line;
         int defaultTextColor; // Store the default color
-        JustifyTextView info;
     }
 }

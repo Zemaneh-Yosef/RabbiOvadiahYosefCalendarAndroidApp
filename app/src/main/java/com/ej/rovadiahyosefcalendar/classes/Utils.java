@@ -33,6 +33,8 @@ import com.google.android.gms.wearable.Wearable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -68,6 +70,17 @@ public class Utils {
 
     public static boolean isLocaleHebrew() {
         return Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew");
+    }
+
+    public static String inputStreamToString(InputStream inputStream) {
+        try {
+            byte[] bytes = new byte[inputStream.available()];
+            inputStream.read(bytes, 0, bytes.length);
+            String json = new String(bytes);
+            return json;
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     public static String dateFormatPattern(boolean showSeconds) {
