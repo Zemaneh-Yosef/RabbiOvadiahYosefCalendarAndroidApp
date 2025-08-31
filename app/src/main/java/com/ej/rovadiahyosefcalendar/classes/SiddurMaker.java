@@ -367,7 +367,7 @@ public class SiddurMaker {
         }
 
         addToSiddur(
-                "שִׁיר הַמַּעֲלוֹת. מִמַּעֲמַקִּים קְרָאתִיךָ יהוה: אֲדֹנָי שִׁמְעָה בְקוֹלִי. תִּהְיֶינָה אָזְנֶיךָ קַשֻּׁבוֹת. לְקוֹל תַּחֲנוּנָי: אִם עֲוֹנוֹת תִּשְׁמָר יָהּ. אֲדֹנָי מִי יַעֲמֹד: כִּי עִמְּךָ הַסְּלִיחָה. לְמַעַן תִּוָּרֵא: קִוִּיתִי יהוה קִוְּתָה נַפְשִׁי. וְלִדְבָרוֹ הוֹחָלְתִּי: נַפְשִׁי לַאדֹנָי. מִשֹּׁמְרִים לַבֹּקֶר שֹׁמְרִים לַבֹּקֶר: יַחֵל יִשְׂרָאֵל אֶל יהוה. כִּי עִם יהוה הַחֶסֶד. וְהַרְבֵּה עִמּוֹ פְדוּת: וְהוּא יִפְדֶּה אֶת יִשְׂרָאֵל מִכֹּל עֲוֹנוֹתָיו: \n\n" +
+                "שִׁ֥יר הַֽמַּעֲל֑וֹת מִמַּעֲמַקִּ֖ים קְרָאתִ֣יךָ יְהֹוָֽה׃ אֲדֹנָי֮ שִׁמְעָ֢ה בְק֫וֹלִ֥י תִּהְיֶ֣ינָה אׇ֭זְנֶיךָ קַשֻּׁב֑וֹת לְ֝ק֗וֹל תַּחֲנוּנָֽי׃ אִם־עֲוֺנ֥וֹת תִּשְׁמׇר־יָ֑הּ אֲ֝דֹנָ֗י מִ֣י יַעֲמֹֽד׃ כִּֽי־עִמְּךָ֥ הַסְּלִיחָ֑ה לְ֝מַ֗עַן תִּוָּרֵֽא׃ קִוִּ֣יתִי יְ֭הֹוָה קִוְּתָ֣ה נַפְשִׁ֑י וְֽלִדְבָר֥וֹ הוֹחָֽלְתִּי׃ נַפְשִׁ֥י לַאדֹנָ֑י מִשֹּׁמְרִ֥ים לַ֝בֹּ֗קֶר שֹׁמְרִ֥ים לַבֹּֽקֶר׃ יַחֵ֥ל יִשְׂרָאֵ֗ל אֶל־יְהֹ֫וָ֥ה כִּֽי־עִם־יְהֹוָ֥ה הַחֶ֑סֶד וְהַרְבֵּ֖ה עִמּ֣וֹ פְדֽוּת׃ וְ֭הוּא יִפְדֶּ֣ה אֶת־יִשְׂרָאֵ֑ל מִ֝כֹּ֗ל עֲוֺנֹתָֽיו׃\n\n" +
                         "(ואומרים קדיש יהא שלמא:)(Chazzan says kaddish)"
         );
         addKaddishYeheShelama();
@@ -547,10 +547,10 @@ public class SiddurMaker {
 
         addAmidahToSiddur(false, false);
 
+        addAvinuMalkeinu(isTachanunSaidInTheMorning);
         if (jewishDateInfo.getJewishCalendar().isRoshChodesh()
                 || jewishDateInfo.getJewishCalendar().isCholHamoed()
                 || jewishDateInfo.getJewishCalendar().isChanukah()) {
-            addAvinuMalkeinu(isTachanunSaidInTheMorning);//Obviously, Avinu Malkeinu does not fall out on Rosh Chodesh or Chol Hamoed or Chanukah, however, we say it in a time of sorrow
             addHallel();
 
             if (jewishDateInfo.getJewishCalendar().isCholHamoedSuccos()) {
@@ -957,8 +957,6 @@ public class SiddurMaker {
             }
             return siddur;// Early return statement
         }
-
-        addAvinuMalkeinu(isTachanunSaidInTheMorning);
 
         if (jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun today")
                 || jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון")) {
