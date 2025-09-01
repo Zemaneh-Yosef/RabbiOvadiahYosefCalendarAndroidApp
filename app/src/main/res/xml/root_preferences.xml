@@ -99,7 +99,9 @@
             app:allowDividerAbove="false"
             app:allowDividerBelow="false" />
 
-        <com.github.tttt55.materialyoupreferences.preferences.MaterialMultiSelectListPreference
+        <MultiSelectListPreference
+            app:layout="@layout/material_preference_multiselectlist"
+            app:iconSpaceReserved="false"
             android:dependency="ShowWhenShabbatChagEnds"
             android:entryValues="@array/shabbat_entries"
             android:key="displayRTOrShabbatRegTime"
