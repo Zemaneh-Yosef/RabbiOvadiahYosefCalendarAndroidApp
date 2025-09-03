@@ -223,10 +223,8 @@ public class SiddurFragment extends Fragment {
             CustomPreferenceView selichot = findPreference("siddur_selichot");
             if (selichot != null) {
                 selichot.setVisible(showAllPrayers ? mJewishDateInfo.isSelichotSaid() : getSunsetBasedJewishDateInfo().isSelichotSaid() && isPrayerCurrentlySaid(selichot.getKey()));
-                if (currentZmanimCalendar.getTzeit() != null && new Date().after(currentZmanimCalendar.getTzeit()) &&
-                        currentZmanimCalendar.getSolarMidnight() != null && new Date().before(currentZmanimCalendar.getSolarMidnight())) {
-                    selichot.setDimmed(true);
-                }
+                    selichot.setDimmed(currentZmanimCalendar.getTzeit() != null && new Date().after(currentZmanimCalendar.getTzeit()) &&
+                            currentZmanimCalendar.getSolarMidnight() != null && new Date().before(currentZmanimCalendar.getSolarMidnight()));
                 selichot.setOnPreferenceClickListener(v -> {
                     startSiddurActivity(getString(R.string.selichot));
                     return true;
@@ -898,7 +896,7 @@ public class SiddurFragment extends Fragment {
                     timeAdjustedJDI.forward();
                 }
             } else if (prayer.equals("ערבית")) {
-                if (isArvitAfterPlagBeforeSunset) {
+                if (showAllPrayers || isArvitAfterPlagBeforeSunset) {
                     timeAdjustedJDI.forward();
                 }
                 List<String> entries = new ArrayList<>();
@@ -918,7 +916,7 @@ public class SiddurFragment extends Fragment {
                     entries.add("על הניסים");
                 }
                 result = TextUtils.join(", ", entries);
-                if (isArvitAfterPlagBeforeSunset) {
+                if (showAllPrayers || isArvitAfterPlagBeforeSunset) {
                     timeAdjustedJDI.back();
                 }
             } else if (prayer.equals("ספירת העומר")) {
@@ -947,11 +945,17 @@ public class SiddurFragment extends Fragment {
                 }
                 result = TextUtils.join(", ", entries);
             } else if (prayer.equals("תיקון חצות")) {
+                if (showAllPrayers) {
+                    timeAdjustedJDI.forward();
+                }
                 if (timeAdjustedJDI.isNightTikkunChatzotSaid()) {
                     if (timeAdjustedJDI.getJewishCalendar().isTishaBav()) {
                         return "תיקון רחל";
                     }
                     return timeAdjustedJDI.isOnlyTikkunLeiaSaid(true) ? "תיקון לאה" : "תיקון רחל ,תיקון לאה";
+                }
+                if (showAllPrayers) {
+                    timeAdjustedJDI.back();
                 }
                 return "";
             } else if (prayer.equals("סדר סיום מסכת")) {
