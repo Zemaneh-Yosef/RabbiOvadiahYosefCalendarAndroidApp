@@ -950,14 +950,14 @@ public class SiddurFragment extends Fragment {
                 }
                 if (timeAdjustedJDI.isNightTikkunChatzotSaid()) {
                     if (timeAdjustedJDI.getJewishCalendar().isTishaBav()) {
-                        return "תיקון רחל";
+                        result = "תיקון רחל";
+                    } else {
+                        result = timeAdjustedJDI.isOnlyTikkunLeiaSaid(true) ? "תיקון לאה" : "תיקון רחל ,תיקון לאה";
                     }
-                    return timeAdjustedJDI.isOnlyTikkunLeiaSaid(true) ? "תיקון לאה" : "תיקון רחל ,תיקון לאה";
                 }
                 if (showAllPrayers) {
                     timeAdjustedJDI.back();
                 }
-                return "";
             } else if (prayer.equals("סדר סיום מסכת")) {
                 Daf currentDaf = YomiCalculator.getDafYomiBavli(timeAdjustedJDI.getJewishCalendar());
                 Daf nextDaf = YomiCalculator.getDafYomiBavli(timeAdjustedJDI.tomorrow().getJewishCalendar());
