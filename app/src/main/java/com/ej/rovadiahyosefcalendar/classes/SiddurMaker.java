@@ -4215,7 +4215,9 @@ public class SiddurMaker {
 
 			if (jewishDateInfo.getJewishCalendar().getDayOfWeek() == 7) {
 				addToSiddurHighlighted("וּרְצֵה וְהַחֲלִיצֵֽנוּ בְּיוֹם הַשַּׁבָּת הַזֶּה.");
-			} else if (jewishDateInfo.getJewishCalendar().isRoshChodesh()) {
+			}
+
+			if (jewishDateInfo.getJewishCalendar().isRoshChodesh()) {
 				addToSiddurHighlighted("וְזָכְרֵֽנוּ לְטוֹבָה בְּיוֹם רֹאשׁ הַחֹֽדֶשׁ הַזֶּה.");
 			} else if (jewishDateInfo.getJewishCalendar().isRoshHashana()) {
 				addToSiddurHighlighted("וְזָכְרֵֽנוּ לְטוֹבָה בְּיוֹם הַזִּכָּרוֹן הַזֶּה.");
@@ -4592,23 +4594,14 @@ public class SiddurMaker {
 			"בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵֽינוּ מֶלֶֽךְ הָעוֹלָם, הַמַּבְדִּיל בֵּין קֹֽדֶשׁ לְחוֹל, וּבֵין אוֹר לְחֹֽשֶׁךְ, וּבֵין יִשְׂרָאֵל לָעַמִּים, וּבֵין יוֹם הַשְּׁבִיעִי לְשֵֽׁשֶׁת יְמֵי הַמַּעֲשֶׂה. בָּרוּךְ אַתָּה יְהֹוָה, הַמַּבְדִּיל בֵּין קֹֽדֶשׁ לְחוֹל:");
 		addToSiddur("שותה רביעית ומברך על הגפן/Drink a revi'it and then say 'Al HaGefen'");
 
-		addToSiddur("בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵֽינוּ מֶֽלֶךְ הָעוֹלָם \n\n" +
-			":עַל הַגֶּֽפֶן וְעַל פְּרִי הַגֶּֽפֶן \n\n" +
-			"וְעַל תְּנוּבַת הַשָּׂדֶה, וְעַל אֶֽרֶץ חֶמְדָּה טוֹבָה וּרְחָבָה, שֶׁרָצִֽיתָ וְהִנְחַֽלְתָּ לַאֲבוֹתֵֽינוּ, לֶאֱכֹל מִפִּרְיָהּ וְלִשְׂבֹּֽעַ מִטּוּבָהּ. רַחֵם יְהֹוָה אֱלֹהֵֽינוּ עָלֵֽינוּ וְעַל יִשְׂרָאֵל עַמָּךְ, וְעַל יְרוּשָׁלַֽיִם עִירָךְ, וְעַל הַר צִיּוֹן מִשְׁכַּן כְּבוֹדָךְ, וְעַל מִזְבָּחָךְ וְעַל הֵיכָלָךְ. וּבְנֵה יְרוּשָׁלַֽיִם עִיר הַקֹּֽדֶשׁ בִּמְהֵרָה בְיָמֵֽינוּ, וְהַעֲלֵֽנוּ לְתוֹכָהּ, וְשַׂמְּחֵֽנוּ בְּבִנְיָנָהּ, וּנְבָֽרְכָֽךְ עָלֶֽיהָ בִּקְדֻשָּׁה וּבְטָהֳרָה:");
+		ArrayList<HighlightString> havdalaSiddur = siddur.clone();
 
-		if (jewishDateInfo.getJewishCalendar().isRoshChodesh()) {
-			addToSiddurHighlighted("וְזָכְרֵֽנוּ לְטוֹבָה בְּיוֹם רֹאשׁ הַחֹֽדֶשׁ הַזֶּה.");
-		} else if (jewishDateInfo.getJewishCalendar().isPesach()) {
-			addToSiddurHighlighted("וְשַׂמְּחֵֽנוּ בְּיוֹם חַג הַמַּצּוֹת הַזֶּה, בְּיוֹם מִקְרָא קֹדֶשׁ הַזֶּה.");
-		} else if (jewishDateInfo.getJewishCalendar().isSuccos()) {
-			addToSiddurHighlighted("וְשַׂמְּחֵֽנוּ בְּיוֹם חַג הַסֻּכּוֹת הַזֶּה, בְּיוֹם מִקְרָא קֹֽדֶשׁ הַזֶּה.");
-		}
+		String[] meeyinShalosh = {"Wine"};
+		ArrayList<HighlightString> meeyinShaloshSiddur = getBirchatMeeyinShaloshPrayers(meeyinShalosh);
 
-		addToSiddur("כִּי אַתָּה טוֹב וּמֵטִיב לַכֹּל, וְנוֹדֶה לְךָ יְהֹוָה אֱלֹהֵֽינוּ עַל הָאָֽרֶץ");
-		addToSiddur("וְעַל פְּרִי הַגֶּֽפֶן\nשל ארץ ישראל/for wine made in Israel:\nוְעַל פְּרִי גַפְנָהּ");
-
-		addToSiddur("בָּרוּךְ אַתָּה יְהֹוָה, עַל הָאָֽרֶץ וְעַל");
-		addToSiddur("פְּרִי הַגֶּֽפֶן:\nשל ארץ ישראל/for wine made in Israel:\nפְּרִי גַפְנָהּ:");
+		siddur = new ArrayList<>();
+		siddur.addAll(havdalaSiddur);
+		siddur.addAll(meeyinShaloshSiddur);
 
 		return siddur;
 	}
