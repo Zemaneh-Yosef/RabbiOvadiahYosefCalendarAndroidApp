@@ -137,7 +137,7 @@ public class MainFragmentManager extends AppCompatActivity {
         }
 
         if (sSharedPreferences.getBoolean("RYYHaskamaNotShown", true)) {
-            if (!sSharedPreferences.getBoolean("isSetup", false)) {
+            if (sSharedPreferences.getBoolean("isSetup", false)) {// so.. this is confusing because we do not want to show this dialog to new users, however, new users are not setup yet, so instead we check for if they are setup...
                 new MaterialAlertDialogBuilder(this)
                         .setTitle(R.string.new_haskama)
                         .setMessage(R.string.the_team_behind_zemaneh_yosef_is_proud_to_announce_that_we_have_recently_received_a_new_haskama_from_the_rishon_l_tzion_harav_yitzhak_yosef_check_it_out)

@@ -90,7 +90,7 @@ public class Utils {
                 + (Utils.isLocaleHebrew() ? "" : " aa");
     }
 
-    public static  String formatZmanTime(Context context, ZmanListEntry zmanListEntry) {
+    public static String formatZmanTime(Context context, ZmanListEntry zmanListEntry) {
         return formatZmanTime(context, zmanListEntry.getZman(), zmanListEntry.getSecondTreatment());
     }
 

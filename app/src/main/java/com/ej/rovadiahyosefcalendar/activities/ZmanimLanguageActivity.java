@@ -72,7 +72,6 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
         if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
             group.check(R.id.hebrew);
             englishTranslated.setEnabled(false);
-            englishTranslated.setChecked(false);
             if ((getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES) {
                 imageView.setImageResource(R.drawable.hebrew_dark);
             } else {
@@ -82,7 +81,6 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
             translated = true;
             group.check(R.id.english);
             englishTranslated.setEnabled(true);
-            englishTranslated.setChecked(true);
             if ((getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES) {
                 imageView.setImageResource(R.drawable.translated_dark);
             } else {
@@ -97,6 +95,7 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
                 imageView.setImageResource(R.drawable.english);
             }
         }
+        englishTranslated.setChecked(translated);
 
         hebrew.setOnClickListener(v -> {
             englishTranslated.setChecked(false);

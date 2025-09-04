@@ -190,6 +190,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         super.onAttach(context);
         mContext = context;
         mActivity = requireActivity();
+        initNotifResult();
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -201,7 +202,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         mLayout = binding.mainLayout;
         mHandler = new Handler(mContext.getMainLooper());
         initMenu();
-        initNotifResult();
         setupShabbatModeBanner();
 
         mZmanimFormatter.setTimeFormat(ZmanimFormatter.SEXAGESIMAL_SECONDS_FORMAT);
