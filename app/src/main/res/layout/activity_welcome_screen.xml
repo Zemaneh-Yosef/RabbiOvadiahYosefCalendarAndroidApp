@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
-        android:src="@drawable/welcome_bg_ivana_cajina"
+        android:src="@drawable/splash"
         android:contentDescription="@string/worldwide_halachic_times_according_to_our_sepharadic_tradition" />
 
     <ScrollView
