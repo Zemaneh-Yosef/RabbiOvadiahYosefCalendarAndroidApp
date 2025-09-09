@@ -13,7 +13,7 @@
     </style>
 
     <style name="SplashTheme" parent="AppTheme">
-        <item name="android:windowBackground">@drawable/splash</item>
+        <item name="android:windowBackground">@drawable/welcome_bg</item>
     </style>
 
     <style name="Widget.RabbiOvadiahYosefCalendar.AppWidget.Container" parent="android:Widget">
