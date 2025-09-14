@@ -4,6 +4,7 @@ import static android.Manifest.permission.ACCESS_BACKGROUND_LOCATION;
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.Context.ALARM_SERVICE;
+import static android.content.Context.POWER_SERVICE;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mCurrentDateShown;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mHebrewDateFormatter;
@@ -816,7 +817,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             }
 
             if (!sSharedPreferences.getBoolean("neverAskBatteryOptimization", false)) {
-                PowerManager powerManager = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
+                PowerManager powerManager = (PowerManager) mContext.getSystemService(POWER_SERVICE);
                 if (!powerManager.isIgnoringBatteryOptimizations(mContext.getPackageName())) {
                     MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext);
                     builder.setTitle(R.string.battery_optimization_is_enabled);
@@ -1071,7 +1072,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     StringBuilder makamText = new StringBuilder(mContext.getString(R.string.makam));
                     if (makamObj != null) {
                         for (int i = 0; i < makamObj.size(); i++) {
-                            makamText.append(makamNames.get(makamObj.get(i).ordinal())).append(" ");
+                            makamText.append(makamNames.get(makamObj.get(i).ordinal()));
                         }
                     }
 
@@ -1083,7 +1084,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     StringBuilder makamText = new StringBuilder(mContext.getString(R.string.makam));
                     if (makamObj != null) {
                         for (int i = 0; i < makamObj.size(); i++) {
-                            makamText.append(makamNames.get(makamObj.get(i).ordinal())).append(" ");
+                            makamText.append(makamNames.get(makamObj.get(i).ordinal()));
                         }
                     }
 
@@ -1391,6 +1392,36 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 announcements.append(tekufaEntry.getTitle()).append("\n");
             }
         }
+
+        try {
+            Map<String, List<MakamJCal.Makam>> makamData = MakamJCal.Companion.getMakamData(mJewishDateInfo.getJewishCalendar());
+            if (makamData.containsKey("GABRIEL A SHREM 1964 SUHV")) {
+                List<MakamJCal.Makam> makamObj = makamData.get("GABRIEL A SHREM 1964 SUHV");
+                StringBuilder makamText = new StringBuilder(mContext.getString(R.string.makam));
+                if (makamObj != null) {
+                    for (int i = 0; i < makamObj.size(); i++) {
+                        makamText.append(makamNames.get(makamObj.get(i).ordinal()));
+                    }
+                }
+
+                announcements.append(makamText).append("\n");
+            } else if (makamData.containsKey("ADES: 24793")) {
+                List<MakamJCal.Makam> makamObj = makamData.get("ADES: 24793");
+                StringBuilder makamText = new StringBuilder(mContext.getString(R.string.makam));
+                if (makamObj != null) {
+                    for (int i = 0; i < makamObj.size(); i++) {
+                        makamText.append(makamNames.get(makamObj.get(i).ordinal()));
+                    }
+                }
+
+                announcements.append(makamText).append("\n");
+            }
+        } catch (org.json.JSONException e) {
+            e.printStackTrace();
+        }
+        if (announcements.length() > 0 && announcements.charAt(announcements.length() - 1) == '\n') {
+            announcements.deleteCharAt(announcements.length() - 1);
+        }
         return announcements.toString();
     }
 
@@ -1450,6 +1481,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 }
             }
             announcements.append(getAnnouncements());
+            if (announcements.length() > 0 && announcements.charAt(announcements.length() - 1) == '\n') {
+                announcements.deleteCharAt(announcements.length() - 1);
+            }
             weeklyInfo.get(i)[1].setText(announcements.toString());//E.G. "Succot, Yom Kippur, etc."
             if (announcements.toString().isEmpty()) {
                 weeklyInfo.get(i)[1].setVisibility(View.INVISIBLE);
@@ -1497,6 +1531,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         String hebrewMonthYear = hebrewMonth + " " + hebrewYear;
         mHebrewMonthYear.setText(hebrewMonthYear);
         mWeeklyParsha.setText(mJewishDateInfo.getThisWeeksParsha());
+        mWeeklyParsha.setVisibility(View.VISIBLE);
         if (mJewishDateInfo.getThisWeeksHaftarah().isEmpty()) {
             mWeeklyHaftorah.setVisibility(View.GONE);
         } else {
@@ -2138,7 +2173,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     public void onResume() {
         initMenu();
         setupButtons();
-        if (sSettingsPreferences.getBoolean("mainAlwaysOn", false)) {
+        if (sSettingsPreferences.getBoolean("mainAlwaysOn", false) || sShabbatMode) {
             mActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
         resetSystemTheme();

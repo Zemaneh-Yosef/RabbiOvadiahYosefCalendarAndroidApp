@@ -152,11 +152,13 @@ public class ZmanimFactory {
     }
 
     private static void addRTZman(List<ZmanListEntry> zmanim, SharedPreferences mSettingsPreferences, ROZmanimCalendar mROZmanimCalendar, ZmanimNames zmanimNames, boolean isForTomorrow) {
+        Date rtZman = mSettingsPreferences.getBoolean("overrideRTZman", false) ?
+                mROZmanimCalendar.getTzais72ForceRegZmanis() : mROZmanimCalendar.isUseAmudehHoraah() ?
+                mROZmanimCalendar.getTzais72ZmanisAmudeiHoraahLkulah() : mROZmanimCalendar.getTzais72Zmanis();
+
         ZmanListEntry rt = new ZmanListEntry(
-                zmanimNames.getRTString() + (isForTomorrow ? zmanimNames.getMacharString() : ""),
-                mSettingsPreferences.getBoolean("overrideRTZman", false) ?
-                    mROZmanimCalendar.getTzais72ForceRegZmanis()
-                    : mROZmanimCalendar.isUseAmudehHoraah() ? mROZmanimCalendar.getTzais72ZmanisAmudeiHoraahLkulah() : mROZmanimCalendar.getTzais72Zmanis(),
+                zmanimNames.getRTString() + zmanimNames.getRTType(rtZman.equals(mROZmanimCalendar.getTzais72())) +
+                        (isForTomorrow ? zmanimNames.getMacharString() : ""), rtZman,
                 mSettingsPreferences.getBoolean("RoundUpRT", true) ? SecondTreatment.ROUND_LATER : SecondTreatment.ROUND_EARLIER,
                 "RT");
 

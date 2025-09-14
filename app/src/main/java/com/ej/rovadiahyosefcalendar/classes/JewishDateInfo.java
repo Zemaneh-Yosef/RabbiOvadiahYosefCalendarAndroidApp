@@ -615,9 +615,9 @@ public class JewishDateInfo {
     }
 
     /**
-     * This method will return the haftarah or haftorah of the current week by rolling the calendar to saturday.
-     * @see WeeklyHaftarahReading
-     * @return a string containing the haftarah or haftorah of the current week
+     * This method will return the makam of the current week by rolling the calendar to saturday.
+     * @see MakamJCal
+     * @return a map containing the makam of the current week according to multiple books
      */
     public Map<String, List<MakamJCal.Makam>> getThisWeeksMakam() {
         currentDate = jewishCalendar.getGregorianCalendar();

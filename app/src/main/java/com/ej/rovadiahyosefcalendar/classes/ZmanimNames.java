@@ -295,4 +295,20 @@ public class ZmanimNames {
             return "Alot Ha'Shaḥar";
         }
     }
+
+    public String getRTType(boolean isFixed) {
+        if (isFixed) {
+            if (mIsZmanimInHebrew) {
+                return " (קבוע) ";
+            } else {
+                return " (Fixed) ";
+            }
+        } else {
+            if (mIsZmanimInHebrew) {
+                return " (זמנית) ";
+            } else {
+                return " (Seasonal) ";
+            }
+        }
+    }
 }
