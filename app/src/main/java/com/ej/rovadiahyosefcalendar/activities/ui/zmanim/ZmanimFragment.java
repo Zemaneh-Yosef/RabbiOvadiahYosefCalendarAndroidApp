@@ -1072,7 +1072,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     StringBuilder makamText = new StringBuilder(mContext.getString(R.string.makam));
                     if (makamObj != null) {
                         for (int i = 0; i < makamObj.size(); i++) {
-                            makamText.append(makamNames.get(makamObj.get(i).ordinal()));
+                            makamText.append(makamNames.get(makamObj.get(i).ordinal())).append(" ");
                         }
                     }
 
@@ -1084,11 +1084,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     StringBuilder makamText = new StringBuilder(mContext.getString(R.string.makam));
                     if (makamObj != null) {
                         for (int i = 0; i < makamObj.size(); i++) {
-                            makamText.append(makamNames.get(makamObj.get(i).ordinal()));
+                            makamText.append(makamNames.get(makamObj.get(i).ordinal())).append(" ");
                         }
                     }
 
-                    binding.makam.setText(makamText.toString());
+                    binding.makam.setText(makamText.toString().trim());
                 } else {
                     binding.makamLayout.setVisibility(View.GONE);
                 }
@@ -1400,7 +1400,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 StringBuilder makamText = new StringBuilder(mContext.getString(R.string.makam));
                 if (makamObj != null) {
                     for (int i = 0; i < makamObj.size(); i++) {
-                        makamText.append(makamNames.get(makamObj.get(i).ordinal()));
+                        makamText.append(makamNames.get(makamObj.get(i).ordinal())).append(" ");
                     }
                 }
 
@@ -1410,11 +1410,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 StringBuilder makamText = new StringBuilder(mContext.getString(R.string.makam));
                 if (makamObj != null) {
                     for (int i = 0; i < makamObj.size(); i++) {
-                        makamText.append(makamNames.get(makamObj.get(i).ordinal()));
+                        makamText.append(makamNames.get(makamObj.get(i).ordinal())).append(" ");
                     }
                 }
 
-                announcements.append(makamText).append("\n");
+                announcements.append(makamText.toString().trim()).append("\n");
             }
         } catch (org.json.JSONException e) {
             e.printStackTrace();
