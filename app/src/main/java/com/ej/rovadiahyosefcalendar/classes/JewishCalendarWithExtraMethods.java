@@ -32,6 +32,12 @@ public class JewishCalendarWithExtraMethods extends JewishCalendar {
         }
     }
 
+    public boolean isRegularTaanis() {
+        int holidayIndex = getYomTovIndex();
+        return holidayIndex == SEVENTEEN_OF_TAMMUZ || holidayIndex == TISHA_BEAV
+                || holidayIndex == FAST_OF_GEDALYAH || holidayIndex == TENTH_OF_TEVES || holidayIndex == FAST_OF_ESTHER;
+    }
+
     public Double getTekufa() {
         double INITIAL_TEKUFA_OFFSET = 12.625;  // the number of days Tekufas Tishrei occurs before JEWISH_EPOCH
 
