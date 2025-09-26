@@ -57,7 +57,7 @@ The goal original of this project was to recreate the "Luach HaMaor Ohr HaChaim"
 
 <img src="https://i.imgur.com/QqGAtTB.jpg" height="750" alt="Picture of Ohr HaChaim calendar">
 
-In order to recreate the calendar, we needed use an API that would give the times for sunrise and sunset everyday (since all the other zemanim (times) are based on sunrise/sunset). I was recommended the well known [KosherJava](https://github.com/KosherJava/zmanim) package for it's accuracy and transparency, and that is the basis for all of the app's calculations.
+In order to recreate the calendar, we needed an API that would give the times for sunrise and sunset everyday (since all the other zemanim (times) are based on sunrise/sunset). I was recommended the well known [KosherJava](https://github.com/KosherJava/zmanim) package for it's accuracy and transparency, and that is the basis for all of the app's calculations.
 
 The app was originally made for primarily english speakers, however, it has been localized for both english and hebrew speakers.
 
