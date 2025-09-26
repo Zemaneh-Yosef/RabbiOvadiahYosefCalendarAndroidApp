@@ -1012,7 +1012,6 @@ public class SiddurMaker {
 					"שַׂמְּחֵנוּ יְהֹוָה אֱלֹהֵינוּ, בְּאֵלִיָהוּ הַנָּבִיא עַבְדָּךְ, וּבְמַלְכוּת בֵּית דָּוִד מְשִׁיחָךְ, בִּמְהֵרָה יָבֹא וְיָגֵל לִבֵּנוּ, עַל כִּסְאוֹ לֹא יֵשֶׁב זָר, וְלֹא יִנְחֲלוּ עוֹד אֲחֵרִים אֶת כְּבוֹדוֹ, כִּי בְשֵׁם קָדְשְׁךָ נִשְׁבַּעְתָּ לּוֹ, שֶׁלֹּא יִכְבֶּה נֵרוֹ לְעוֹלָם וָעֶד. בָּרוּךְ אַתָּה יְהֹוָה, מָגֵן דָּוִד: [אָמֵן]");
 			} else {
 				addToSiddur(WeeklyParashaReadings.getWeeklyParashaReading(
-						jewishDateInfo.getJewishCalendar().getUpcomingParshah(),
 						jewishDateInfo.getJewishCalendar(),
 						true));
 
@@ -3177,7 +3176,6 @@ public class SiddurMaker {
 				"בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵינוּ  מֶלֶךְ הָעוֹלָם, אֲשֶׁר נָתַן לָנוּ אֶת תּוֹרָתוֹ תּוֹרַת אֱמֶת, וְחַיֵּי עוֹלָם נָטַע בְּתוֹכֵנוּ. בָּרוּךְ אַתָּה יְהֹוָה, נוֹתֵן הַתּוֹרָה: [אמן] \n\n" +
 				"מוציאים ספר תורה וקוראים ג' עולים (Three people go up for Aliya)\n\n" +
 				WeeklyParashaReadings.getWeeklyParashaReading(
-						jewishDateInfo.getJewishCalendar().getUpcomingParshah(),
 						jewishDateInfo.getJewishCalendar(),
 						false));
 			if (jewishDateInfo.getJewishCalendar().isTishaBav()) {
