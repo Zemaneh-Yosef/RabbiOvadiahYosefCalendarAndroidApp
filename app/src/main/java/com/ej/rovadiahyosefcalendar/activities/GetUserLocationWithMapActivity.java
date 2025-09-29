@@ -91,6 +91,8 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        LocationResolver.getTimeshapeEngine();// need to init as soon as possible
+
         binding = ActivityGetUserLocationWithMapBinding.inflate(getLayoutInflater());
         EdgeToEdge.enable(this);
         setContentView(binding.getRoot());

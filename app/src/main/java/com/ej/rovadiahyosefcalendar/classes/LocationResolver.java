@@ -20,6 +20,7 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.NetworkOnMainThreadException;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -30,14 +31,16 @@ import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.MainFragmentManager;
 import com.kosherjava.zmanim.util.GeoLocation;
 
+import net.iakovlev.timeshape.TimeZoneEngine;
+
 import org.geonames.WebService;
 
 import java.io.IOException;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
@@ -45,10 +48,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 
-import us.dustinj.timezonemap.TimeZoneMap;
-
 public class LocationResolver {
 
+    public static TimeZoneEngine ENGINE = null;
+    private static boolean sTimeZoneEngineHasBeenInitialized = false;
     private final Context mContext;
     private final Activity mActivity;
     private final Geocoder mGeocoder;
@@ -397,6 +400,19 @@ public class LocationResolver {
     }
 
     /**
+     * This method initializes the TimeZoneEngine if it has not been already and then returns it. Ideally, this method should be called as early as
+     * possible in the application's lifecycle in order to avoid any long pauses.
+     * @return the TimeZoneEngine object
+     */
+    public static TimeZoneEngine getTimeshapeEngine() {
+        if (ENGINE == null && !sTimeZoneEngineHasBeenInitialized) {
+            new Thread(() -> ENGINE = TimeZoneEngine.initialize()).start();
+            sTimeZoneEngineHasBeenInitialized = true;
+        }
+        return ENGINE;
+    }
+
+    /**
      * This method will try to find the timezone of the location set. It uses the TimeZoneMap to get the current timezone ID when using a zipcode
      */
     public void setTimeZoneID() {
@@ -414,14 +430,42 @@ public class LocationResolver {
             mTimeZone = TimeZone.getTimeZone(mSharedPreferences.getString("location5Timezone", TimeZone.getDefault().getID()));
         } else {
             if (mSharedPreferences.getBoolean("useZipcode", false)) {
+                String savedZipcodeLocation = "location";
+                for (int i = 1; i <= 5; i++) {
+                    if (mSharedPreferences.getString("location" + i, "").equals(sCurrentLocationName)) {
+                        savedZipcodeLocation = "location" + i;
+                        break;
+                    }
+                }
+                if (mSharedPreferences.getString(savedZipcodeLocation, "").equals(sCurrentLocationName)) {
+                    mTimeZone = TimeZone.getTimeZone(mSharedPreferences.getString(savedZipcodeLocation + "Timezone", TimeZone.getDefault().getID()));
+                    sCurrentTimeZoneID = mTimeZone.getID();
+                    return; // basically, avoid making the engine if we already got the timezone last time
+                }
                 try {
-                    TimeZoneMap timeZoneMap = TimeZoneMap.forRegion(
-                            Math.floor(sLatitude), Math.floor(sLongitude),
-                            Math.ceil(sLatitude), Math.ceil(sLongitude));//trying to avoid using the forEverywhere() method
-                    String zoneID = Objects.requireNonNull(timeZoneMap.getOverlappingTimeZone(sLatitude, sLongitude)).getZoneId();
-                    mTimeZone = TimeZone.getTimeZone(zoneID);
-                    sCurrentTimeZoneID = mTimeZone.getID();// need to set this for the saveLocationInformation method
-                    saveLocationInformation();// only want to use this when people search their location
+                    if (sLatitude != 0.0 && sLongitude != 0.0) {
+                        while (ENGINE == null) {// we need to wait for the TimeZoneEngine to be initialized
+                            if (!sTimeZoneEngineHasBeenInitialized) {
+                                getTimeshapeEngine();
+                            }
+                        }
+                        String zoneID = TimeZone.getDefault().getID();
+                        List<ZoneId> allZones = getTimeshapeEngine().queryAll(sLatitude, sLongitude);// first query all possible time zones in the area. There could be multiple due to border disputes
+                        if (allZones.size() > 1) {// if there are multiple
+                            for (ZoneId zone : allZones) {
+                                zoneID = zone.toString();
+                                if (zone.toString().equals(TimeZone.getDefault().getID())) {// if the zone is the device default, assumingly use that
+                                    mTimeZone = TimeZone.getDefault();
+                                    break;
+                                }
+                            }
+                        } else if (allZones.size() == 1) {// if there is at least one
+                            zoneID = allZones.get(0).toString();
+                        }
+                        mTimeZone = TimeZone.getTimeZone(zoneID);
+                        sCurrentTimeZoneID = mTimeZone.getID();// need to set this for the saveLocationInformation method
+                        saveLocationInformation();// only want to use this when people search their location
+                    }
                 } catch (IllegalArgumentException e) {
                     mTimeZone = TimeZone.getDefault();
                 }
@@ -440,10 +484,23 @@ public class LocationResolver {
      */
     public void acquireTimeZoneID() {
         try {
-            TimeZoneMap timeZoneMap = TimeZoneMap.forRegion(
-                    Math.floor(sLatitude), Math.floor(sLongitude),
-                    Math.ceil(sLatitude), Math.ceil(sLongitude));//trying to avoid using the forEverywhere() method
-            String zoneID = Objects.requireNonNull(timeZoneMap.getOverlappingTimeZone(sLatitude, sLongitude)).getZoneId();
+            while (ENGINE == null) {// we need to wait for the TimeZoneEngine to be initialized
+                if (!sTimeZoneEngineHasBeenInitialized) {
+                    getTimeshapeEngine();
+                }
+            }
+            String zoneID = TimeZone.getDefault().getID();
+            List<ZoneId> allZones = getTimeshapeEngine().queryAll(sLatitude, sLongitude);// first query all possible time zones in the area. There could be multiple due to border disputes
+            if (allZones.size() > 1) {// if there are multiple
+                for (ZoneId zone : allZones) {
+                    if (zone.toString().equals(TimeZone.getDefault().getID())) {// if the zone is the device default, assumingly use that
+                        mTimeZone = TimeZone.getDefault();
+                        break;
+                    }
+                }
+            } else if (allZones.size() == 1) {// if there is at least one
+                zoneID = allZones.get(0).toString();
+            }
             mTimeZone = TimeZone.getTimeZone(zoneID);
         } catch (IllegalArgumentException e) {
             mTimeZone = TimeZone.getDefault();
@@ -495,7 +552,7 @@ public class LocationResolver {
     /**
      * This method tries to "resolve" the average elevation of the latitude and longitude set. It will try to make a network call to geonames.org
      * three separate times to request all known elevation data available and it will then average the three results. This method must be called on
-     * another thread that is NOT the MAIN UI thread, otherwise, a {@link android.os.NetworkOnMainThreadException} will occur. Any other code that
+     * another thread that is NOT the MAIN UI thread, otherwise, a {@link NetworkOnMainThreadException} will occur. Any other code that
      * needs to run in the background as well can be passed in as a {@link Runnable} in the second parameter. Any UI code that needs
      * to run after this method runs can be passed in as a {@link Runnable} object in the third parameter. Note: The code that is executed by the
      * handler class will run on the MAIN UI thread.

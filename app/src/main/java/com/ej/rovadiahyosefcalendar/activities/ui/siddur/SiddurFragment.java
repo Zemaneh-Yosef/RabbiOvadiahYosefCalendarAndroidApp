@@ -223,8 +223,22 @@ public class SiddurFragment extends Fragment {
             CustomPreferenceView selichot = findPreference("siddur_selichot");
             if (selichot != null) {
                 selichot.setVisible(showAllPrayers ? mJewishDateInfo.isSelichotSaid() : getSunsetBasedJewishDateInfo().isSelichotSaid() && isPrayerCurrentlySaid(selichot.getKey()));
-                selichot.setDimmed(currentZmanimCalendar.getTzeit() != null && new Date().after(currentZmanimCalendar.getTzeit()) &&
-                        currentZmanimCalendar.getSolarMidnight() != null && new Date().before(currentZmanimCalendar.getSolarMidnight()));
+                Date tzeit = currentZmanimCalendar.getTzeit();
+                Date solarMidnight = currentZmanimCalendar.getSolarMidnight();
+                Calendar midnightCal = Calendar.getInstance();
+                if (midnightCal.get(Calendar.HOUR_OF_DAY) < 3) {// i.e right now is after midnight
+                    if (solarMidnight != null) {
+                        midnightCal.setTime(solarMidnight);
+                    }
+                    if (midnightCal.get(Calendar.HOUR_OF_DAY) < 3) {// i.e halachic midnight if after 12AM
+                        ROZmanimCalendar yesterday = mROZmanimCalendar.getCopy();
+                        yesterday.getCalendar().add(Calendar.DATE, -1);
+                        tzeit = currentZmanimCalendar.getTzeit();
+                        solarMidnight = currentZmanimCalendar.getSolarMidnight();
+                    }
+                }
+                selichot.setDimmed(tzeit != null && new Date().after(tzeit) ||
+                        solarMidnight != null && new Date().before(solarMidnight));
                 selichot.setOnPreferenceClickListener(v -> {
                     startSiddurActivity(getString(R.string.selichot));
                     return true;
@@ -778,7 +792,8 @@ public class SiddurFragment extends Fragment {
             }
             return switch (key) {
                 case "siddur_selichot" -> {
-                    boolean isSelichotNotSaidNow = new Date().after(currentZmanimCalendar.getSunset()) && new Date().before(currentZmanimCalendar.getSecondAshmora()) || !isNowAfterHalachicSolarMidnight();// easier to check for the NOT case
+                    boolean isSelichotNotSaidNow = (new Date().after(currentZmanimCalendar.getSunset()) && !currentZmanimCalendar.isNowAfterSecondAshmora())
+                            || (!currentZmanimCalendar.isNowAfterSecondAshmora() && !currentZmanimCalendar.isNowAfterHalachicSolarMidnight());// easier to check for the NOT case
                     yield !isSelichotNotSaidNow;
                 }
                 case "siddur_shacharit" ->
@@ -795,30 +810,12 @@ public class SiddurFragment extends Fragment {
                      "siddur_kriatShema" ->
                         new Date().after(currentZmanimCalendar.getSunset()) || new Date().before(currentZmanimCalendar.getAlotHashachar());
                 case "siddur_tikkun_chatzot" ->
-                        !getSunsetBasedJewishDateInfo().is3Weeks() && isNowAfterHalachicSolarMidnight() && new Date().before(currentZmanimCalendar.getAlotHashachar());
+                        !getSunsetBasedJewishDateInfo().is3Weeks() && currentZmanimCalendar.isNowAfterHalachicSolarMidnight() && new Date().before(currentZmanimCalendar.getAlotHashachar());
                 case "siddur_tikkun_chatzot_3_weeks" -> getSunsetBasedJewishDateInfo().is3Weeks() &&
-                        ((isNowAfterHalachicSolarMidnight() && new Date().before(currentZmanimCalendar.getAlotHashachar())) // night tikkun chatzot
+                        ((currentZmanimCalendar.isNowAfterHalachicSolarMidnight() && new Date().before(currentZmanimCalendar.getAlotHashachar())) // night tikkun chatzot
                                 || (new Date().after(currentZmanimCalendar.getChatzot()) && new Date().before(currentZmanimCalendar.getSunset()) && getSunsetBasedJewishDateInfo().getJewishCalendar().getDayOfWeek() != Calendar.SATURDAY)); // day tikkun chatzot, even though beki'im behalacha says to NOT say it after mincha ketana. However, that is not brought down by Rabbi Ovadiah and his sons
                 default -> true;
             };
-        }
-
-        private boolean isNowAfterHalachicSolarMidnight() {
-            Date now = new Date();
-            Date solarMidnight = currentZmanimCalendar.getSolarMidnight();
-            // Handle possible edge case when solarMidnight is "tomorrow"
-            Calendar midnightCal = Calendar.getInstance();
-            if (solarMidnight != null) {
-                midnightCal.setTime(solarMidnight);
-            }
-            // The zmanimCalendar changes at 12 AM. If solarMidnight occurs between 12 AM–3 AM and now is after 12 AM, we need to go back to yesterday to get the correct solarMidnight.
-            // However, if solarMidnight occurs before 12 AM, there is no need to go back to yesterday because we are already checking for the correct solarMidnight.
-            if (midnightCal.get(Calendar.HOUR_OF_DAY) < 3) {
-                currentZmanimCalendar.getCalendar().add(Calendar.DATE, -1);
-                solarMidnight = currentZmanimCalendar.getSolarMidnight();
-                currentZmanimCalendar.setCalendar(Calendar.getInstance());
-            }
-            return now.after(solarMidnight == null ? new Date() : solarMidnight);
         }
 
         @Nullable
@@ -1012,7 +1009,7 @@ public class SiddurFragment extends Fragment {
                     .putExtra("masechtas", selectedMasechtot)
                     .putExtra("itemsForMeyinShalosh", selectedShaloshItems)
                     .putExtra("isNightTikkunChatzot", isNightTikkunChatzot)
-                    .putExtra("isAfterChatzot", isNowAfterHalachicSolarMidnight());// only used for kriat shema she'al hamita
+                    .putExtra("isAfterChatzot", currentZmanimCalendar.isNowAfterHalachicSolarMidnight());// only used for kriat shema she'al hamita
             if (forNextDay) {
                 mJewishDateInfo.back();
             }

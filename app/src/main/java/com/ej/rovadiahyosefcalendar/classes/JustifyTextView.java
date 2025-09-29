@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.view.Gravity;
+import android.view.View;
 
 import androidx.annotation.Nullable;
 
@@ -153,6 +154,9 @@ public class JustifyTextView extends androidx.appcompat.widget.AppCompatTextView
     private boolean isRtl(String text) {
         if (text.isEmpty()) {
             return false;
+        }
+        if (getTextDirection() == View.TEXT_DIRECTION_RTL) {
+            return true;
         }
         char firstChar = text.charAt(0);
         int directionality = Character.getDirectionality(firstChar);
