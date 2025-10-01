@@ -230,15 +230,15 @@ public class SiddurFragment extends Fragment {
                     if (solarMidnight != null) {
                         midnightCal.setTime(solarMidnight);
                     }
-                    if (midnightCal.get(Calendar.HOUR_OF_DAY) < 3) {// i.e halachic midnight if after 12AM
+                    if (midnightCal.get(Calendar.HOUR_OF_DAY) < 3) {// i.e halachic midnight is after 12AM
                         ROZmanimCalendar yesterday = mROZmanimCalendar.getCopy();
                         yesterday.getCalendar().add(Calendar.DATE, -1);
-                        tzeit = currentZmanimCalendar.getTzeit();
-                        solarMidnight = currentZmanimCalendar.getSolarMidnight();
+                        tzeit = yesterday.getTzeit();
+                        solarMidnight = yesterday.getSolarMidnight();
                     }
                 }
-                selichot.setDimmed(tzeit != null && new Date().after(tzeit) ||
-                        solarMidnight != null && new Date().before(solarMidnight));
+                selichot.setDimmed((tzeit != null && new Date().after(tzeit)) &&
+                        (solarMidnight != null && new Date().before(solarMidnight)));
                 selichot.setOnPreferenceClickListener(v -> {
                     startSiddurActivity(getString(R.string.selichot));
                     return true;
@@ -792,8 +792,8 @@ public class SiddurFragment extends Fragment {
             }
             return switch (key) {
                 case "siddur_selichot" -> {
-                    boolean isSelichotNotSaidNow = (new Date().after(currentZmanimCalendar.getSunset()) && !currentZmanimCalendar.isNowAfterSecondAshmora())
-                            || (!currentZmanimCalendar.isNowAfterSecondAshmora() && !currentZmanimCalendar.isNowAfterHalachicSolarMidnight());// easier to check for the NOT case
+                    boolean isSelichotNotSaidNow = (new Date().after(currentZmanimCalendar.getSunset()) && currentZmanimCalendar.isNowBeforeSecondAshmora())
+                            || (!currentZmanimCalendar.isNowBeforeSecondAshmora() && !currentZmanimCalendar.isNowAfterHalachicSolarMidnight());// easier to check for the NOT case
                     yield !isSelichotNotSaidNow;
                 }
                 case "siddur_shacharit" ->

@@ -51,6 +51,7 @@ public class SiddurMaker {
 	 * NOTE: All methods that return prayers for the night time should have the
 	 * jewish date be set to the NEXT DATE.
 	 *
+     * @// TODO: 9/30/2025 mark which texts need a minyan and add a button in the UI to hide them
 	 * @param jewishDateInfo the information for the current jewish date
 	 * @see JewishDateInfo
 	 * @see HighlightString
@@ -78,7 +79,7 @@ public class SiddurMaker {
 						|| jewishDateInfo.getJewishCalendar().getIsMukafChoma());
 	}
 
-	public ArrayList<HighlightString> getSelichotPrayers(boolean isInAMinyan, boolean isAfterChatzot) {
+	public ArrayList<HighlightString> getSelichotPrayers(boolean isAfterChatzot) {
 		siddur = new ArrayList<>();// reset
 
 		if (jewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
@@ -147,6 +148,7 @@ public class SiddurMaker {
 				"רַחֲמָנָא כַּתְבִינָן בְּסִפְרָא דְפַרְנָסָתָא טַבְתָּא וּמְזוֹנֵי טָבֵי, בְּדִיל וַיַּעֲבֹר:");
 		}
 
+        // TODO deal with the edge case of erev rosh hashana and erev yom kippur where no tachanun is said. NOTE: After Alot Hashachar and before sunrise tachanun is still said
 		addToSiddur(
 			"רַחֲמָנָא כְּבֹשׁ חֶמְתָּא וְרֻגְזָא מִנָּן, בְּדִיל וַיַּעֲבֹר: \n\n" +
 			"רַחֲמָנָא לָא תַעְבֵּיד גְּמִירָא לָן, בְּדִיל וַיַּעֲבֹר: \n\n" +
@@ -4355,6 +4357,14 @@ public class SiddurMaker {
 	private void addToSiddurHighlighted(String s) {
 		siddur.add(new HighlightString(s).setShouldBeHighlighted(true));
 	}
+
+    private void addToSiddur(String s, boolean needsMinyan) {
+        siddur.add(new HighlightString(s).setNeedsMinyan(needsMinyan));
+    }
+
+    private void addToSiddurHighlighted(String s, boolean needsMinyan) {
+        siddur.add(new HighlightString(s).setShouldBeHighlighted(true).setNeedsMinyan(needsMinyan));
+    }
 
 	private void addCategoryToSiddur(String s) {
 		siddur.add(new HighlightString(s).setShouldBeHighlighted(false).setCategory(true));
