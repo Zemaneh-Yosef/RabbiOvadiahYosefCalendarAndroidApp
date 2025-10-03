@@ -1,7 +1,5 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
-import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
-
 /**
  * This class follows the factory design pattern and it's purpose is to return a string containing
  * the weekly parasha reading for Mondays and Thursdays. Taaniyot/Fasts and Purim are also taken into
@@ -46,12 +44,11 @@ public class WeeklyParashaReadings {
      * This method returns a string containing the weekly torah reading for the
      * {@link com.kosherjava.zmanim.hebrewcalendar.JewishCalendar.Parsha} passed into the parameter.
      * Taaniyot/Fasts and Purim can change the result of this method and should be set accordingly.
-     * @param parsha the current week's parasha as an Enum in {@link com.kosherjava.zmanim.hebrewcalendar.JewishCalendar.Parsha}
      * @param jewishCalendar the current jewish calendar
      * @param isForShacharit if the reading is for shacharit or mincha
      * @return a string containing the weekly torah reading
      */
-    public static String getWeeklyParashaReading(JewishCalendar.Parsha parsha, JewishCalendarWithExtraMethods jewishCalendar, boolean isForShacharit) {
+    public static String getWeeklyParashaReading(JewishCalendarWithExtraMethods jewishCalendar, boolean isForShacharit) {
         boolean isTaanit = jewishCalendar.isTaanis() && !jewishCalendar.isYomKippur();
         boolean isPurim = jewishCalendar.isPurim();
         String result = "";
@@ -74,17 +71,17 @@ public class WeeklyParashaReadings {
                     "זְכֹ֡ר לְאַבְרָהָם֩ לְיִצְחָ֨ק וּלְיִשְׂרָאֵ֜ל עֲבָדֶ֗יךָ אֲשֶׁ֨ר נִשְׁבַּ֣עְתָּ לָהֶם֮ בָּךְ֒ וַתְּדַבֵּ֣ר אֲלֵהֶ֔ם אַרְבֶּה֙ אֶֽת־זַרְעֲכֶ֔ם כְּכוֹכְבֵ֖י הַשָּׁמָ֑יִם וְכׇל־הָאָ֨רֶץ הַזֹּ֜את אֲשֶׁ֣ר אָמַ֗רְתִּי אֶתֵּן֙ לְזַרְעֲכֶ֔ם וְנָחֲל֖וּ לְעֹלָֽם׃ \n" +
                     "וַיִּנָּ֖חֶם יְהֹוָ֑ה עַל־הָ֣רָעָ֔ה אֲשֶׁ֥ר דִּבֶּ֖ר לַעֲשׂ֥וֹת לְעַמּֽוֹ׃ \n\n" +
                     "[לוי]: " + vayavorParagraph[0] + "\n\n" +
-                    "[ישראל]: " + vayavorParagraph[1] + "\n\n";
+                    "[ישראל]: " + vayavorParagraph[1];
 
             if (isForShacharit && (jewishCalendar.getDayOfWeek() == 2 || jewishCalendar.getDayOfWeek() == 5)) {
-                result += "(If there are less than 6 people fasting/אם אין ששה אנשים הצמים)\n\n";
+                result += "\n\n" + "(If there are less than 6 people fasting/אם אין ששה אנשים הצמים)\n\n";
                 // if there less than 6 people fasting, we will append the next week's parsha ONLY ON MONDAYS AND THURSDAYS
             } else {
                 return result;
             }
         }
 
-        switch (parsha) {
+        switch (jewishCalendar.getUpcomingParshah()) {
             case BERESHIS:
                 result += "בְּרֵאשִׁ֖ית בָּרָ֣א אֱלֹהִ֑ים אֵ֥ת הַשָּׁמַ֖יִם וְאֵ֥ת הָאָֽרֶץ׃ \n" +
                         "וְהָאָ֗רֶץ הָיְתָ֥ה תֹ֙הוּ֙ וָבֹ֔הוּ וְחֹ֖שֶׁךְ עַל־פְּנֵ֣י תְה֑וֹם וְר֣וּחַ אֱלֹהִ֔ים מְרַחֶ֖פֶת עַל־פְּנֵ֥י הַמָּֽיִם׃ \n" +
@@ -1180,7 +1177,7 @@ public class WeeklyParashaReadings {
                         "וַיִּכְתֹּ֣ב מֹשֶׁה֮ אֶת־הַתּוֹרָ֣ה הַזֹּאת֒ וַֽיִּתְּנָ֗הּ אֶל־הַכֹּֽהֲנִים֙ בְּנֵ֣י לֵוִ֔י הַנֹּ֣שְׂאִ֔ים אֶת־אֲר֖וֹן בְּרִ֣ית יְהֹוָ֑ה וְאֶל־כׇּל־זִקְנֵ֖י יִשְׂרָאֵֽל׃ \n" +
                         "וַיְצַ֥ו מֹשֶׁ֖ה אוֹתָ֣ם לֵאמֹ֑ר מִקֵּ֣ץ ׀ שֶׁ֣בַע שָׁנִ֗ים בְּמֹעֵ֛ד שְׁנַ֥ת הַשְּׁמִטָּ֖ה בְּחַ֥ג הַסֻּכּֽוֹת׃ \n\n" +
 
-                        "\n\n In a shmita year, Rabbi Ovadiah Yosef ZT\"L had the custom to add these verses/בשנת השמיטה שיש \"הקהל\", מנהג מרן רבינו עובדיה יוסף זצ\"ל להוסיף ולקרוא פסוקים האלו." +
+                        "בשנת השמיטה שיש \"הקהל\", מנהג מרן רבינו עובדיה יוסף זצ\"ל להוסיף ולקרוא פסוקים האלו/In a shmita year, Rabbi Ovadiah Yosef ZT\"L had the custom to add these verses" + "\n\n" +
 
                         "בְּב֣וֹא כׇל־יִשְׂרָאֵ֗ל לֵֽרָאוֹת֙ אֶת־פְּנֵי֙ יְהֹוָ֣ה אֱלֹהֶ֔יךָ בַּמָּק֖וֹם אֲשֶׁ֣ר יִבְחָ֑ר תִּקְרָ֞א אֶת־הַתּוֹרָ֥ה הַזֹּ֛את נֶ֥גֶד כׇּל־יִשְׂרָאֵ֖ל בְּאׇזְנֵיהֶֽם׃ \n" +
                         "הַקְהֵ֣ל אֶת־הָעָ֗ם הָֽאֲנָשִׁ֤ים וְהַנָּשִׁים֙ וְהַטַּ֔ף וְגֵרְךָ֖ אֲשֶׁ֣ר בִּשְׁעָרֶ֑יךָ לְמַ֨עַן יִשְׁמְע֜וּ וּלְמַ֣עַן יִלְמְד֗וּ וְיָֽרְאוּ֙ אֶת־יְהֹוָ֣ה אֱלֹהֵיכֶ֔ם וְשָֽׁמְר֣וּ לַעֲשׂ֔וֹת אֶת־כׇּל־דִּבְרֵ֖י הַתּוֹרָ֥ה הַזֹּֽאת׃ \n" +

@@ -577,12 +577,57 @@ public class ROZmanimCalendar extends ZmanimCalendar {
         return getZmanisBasedOffset(1.2);
     }
 
+    /**
+     * The halachic night is divided into 3 ashmoras (watches). Each ashmora is 2 seasonal hours, for a total of 6 seasonal hours.
+     * This method returns the time for the second ashmora, which is two seasonal hours after sunset. Right now, this method is used to get the
+     * earliest time possible to say selichot according to Rabbi David Yosef in Halacha Berurah.
+     * @return the time for the second ashmora, which is two seasonal hours after sunset. A.K.A. earliest selichot time
+     */
     public Date getSecondAshmora() {
         ROZmanimCalendar clonedCal = (ROZmanimCalendar) clone();
         clonedCal.getCalendar().add(Calendar.DAY_OF_MONTH, 1);
         Date sunsetForToday = getElevationAdjustedSunset();
         Date sunriseForTomorrow = clonedCal.getElevationAdjustedSunrise();
         return getShaahZmanisBasedZman(sunsetForToday, sunriseForTomorrow, 4);
+    }
+
+    public boolean isNowBeforeSecondAshmora() {
+        Date now = new Date();
+        Date solarMidnight = getSolarMidnight();
+        Date secondAshmora = getSecondAshmora();
+        // Handle possible edge case when solarMidnight is "tomorrow"
+        Calendar midnightCal = Calendar.getInstance();
+        if (midnightCal.get(Calendar.HOUR_OF_DAY) < 3) {// now is before 3 AM
+            if (solarMidnight != null) {
+                midnightCal.setTime(solarMidnight);
+            }
+            // The calendar changes at 12 AM. If solarMidnight occurs between 12 AM–3 AM and now is after 12 AM, we need to go back to yesterday to get the correct solarMidnight.
+            // However, if solarMidnight occurs before 12 AM, there is no need to go back to yesterday because we are already checking for the correct solarMidnight.
+            if (midnightCal.get(Calendar.HOUR_OF_DAY) < 3) {
+                getCalendar().add(Calendar.DATE, -1);
+                secondAshmora = getSecondAshmora();
+                getCalendar().add(Calendar.DATE, 1);
+            }
+        }
+        return now.before(secondAshmora == null ? new Date() : secondAshmora);
+    }
+
+    public boolean isNowAfterHalachicSolarMidnight() {
+        Date now = new Date();
+        Date solarMidnight = getSolarMidnight();
+        // Handle possible edge case when solarMidnight is "tomorrow"
+        Calendar midnightCal = Calendar.getInstance();
+        if (solarMidnight != null) {
+            midnightCal.setTime(solarMidnight);
+        }
+        // The calendar changes at 12 AM. If solarMidnight occurs between 12 AM–3 AM and now is after 12 AM, we need to go back to yesterday to get the correct solarMidnight.
+        // However, if solarMidnight occurs before 12 AM, there is no need to go back to yesterday because we are already checking for the correct solarMidnight.
+        if (midnightCal.get(Calendar.HOUR_OF_DAY) < 3) {
+            getCalendar().add(Calendar.DATE, -1);
+            solarMidnight = getSolarMidnight();
+            getCalendar().add(Calendar.DATE, 1);
+        }
+        return now.after(solarMidnight == null ? new Date() : solarMidnight);
     }
 
     public Date getSolarMidnight() {

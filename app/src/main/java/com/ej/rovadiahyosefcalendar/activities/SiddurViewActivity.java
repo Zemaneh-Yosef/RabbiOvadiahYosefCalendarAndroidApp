@@ -65,7 +65,7 @@ public class SiddurViewActivity extends AppCompatActivity {
         ArrayList<HighlightString> prayers = new ArrayList<>();
         if (siddurTitle != null) {
             prayers = switch (siddurTitle) {
-                case "סליחות" -> siddurMaker.getSelichotPrayers(false, getIntent().getBooleanExtra("isAfterChatzot", false));
+                case "סליחות" -> siddurMaker.getSelichotPrayers(getIntent().getBooleanExtra("isAfterChatzot", false));
                 case "שחרית" -> siddurMaker.getShacharitPrayers();
                 case "מוסף" -> siddurMaker.getMusafPrayers();
                 case "מנחה" -> siddurMaker.getMinchaPrayers();

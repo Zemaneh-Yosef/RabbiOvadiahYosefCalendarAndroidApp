@@ -92,6 +92,7 @@ public class SiddurAdapter extends ArrayAdapter<String> implements SensorEventLi
 
         String itemText = siddur.get(position).toString();
         viewHolder.textView.setText(itemText);
+        viewHolder.textView.setTextDirection(View.TEXT_DIRECTION_RTL);
         viewHolder.textView.setTextSize(textSize);
         viewHolder.textView.setJustify(isJustified);
         if (siddur.get(position).shouldBeHighlighted()) {

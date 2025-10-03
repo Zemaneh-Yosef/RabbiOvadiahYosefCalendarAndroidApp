@@ -11,6 +11,7 @@ public class HighlightString {
     private boolean shouldBeHighlighted = false;
     private boolean isCategory = false;
     private boolean isInfo = false;
+    private boolean needsMinyan = false;
 
     public HighlightString(String s) {
         setString(s);
@@ -46,6 +47,14 @@ public class HighlightString {
         return this;
     }
 
+    public HighlightString setNeedsMinyan(boolean needsMinyan) {
+        this.needsMinyan = needsMinyan;
+        return this;
+    }
+
+    public boolean isNeedsMinyan() {
+        return needsMinyan;
+    }
     public boolean shouldBeHighlighted() {
         return shouldBeHighlighted;
     }
