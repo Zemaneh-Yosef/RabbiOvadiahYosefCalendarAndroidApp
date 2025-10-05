@@ -227,7 +227,7 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
     }
 
     private ROZmanimCalendar getROZmanimCalendar() {
-        return new ROZmanimCalendar(mLocationResolver.getRealtimeNotificationData(this));// we will continue in the accept method
+        return new ROZmanimCalendar(mLocationResolver.getRealtimeNotificationData(this, false));// we will continue in the accept method
     }
 
     private void updateAlarm(Context context, ROZmanimCalendar c) {

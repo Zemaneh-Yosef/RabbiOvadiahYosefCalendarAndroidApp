@@ -46,9 +46,10 @@ public class BootNotifications extends BroadcastReceiver {
                         } else {
                             setDailyNotifications(context, new ROZmanimCalendar(mLocationResolver.getLastKnownGeoLocation()));
                         }
-                    });
+                    }
+                    , false);
                 } else {
-                    setDailyNotifications(context, new ROZmanimCalendar(mLocationResolver.getRealtimeNotificationData(null)));
+                    setDailyNotifications(context, new ROZmanimCalendar(mLocationResolver.getRealtimeNotificationData(null, false)));
                 }
 
                 PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(context, 0, new Intent(context, ZmanimNotifications.class), PendingIntent.FLAG_IMMUTABLE);

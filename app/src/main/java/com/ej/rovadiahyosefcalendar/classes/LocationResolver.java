@@ -455,11 +455,10 @@ public class LocationResolver {
                             for (ZoneId zone : allZones) {
                                 zoneID = zone.toString();
                                 if (zone.toString().equals(TimeZone.getDefault().getID())) {// if the zone is the device default, assumingly use that
-                                    mTimeZone = TimeZone.getDefault();
                                     break;
                                 }
                             }
-                        } else if (allZones.size() == 1) {// if there is at least one
+                        } else if (allZones.size() == 1) {// if there is only one
                             zoneID = allZones.get(0).toString();
                         }
                         mTimeZone = TimeZone.getTimeZone(zoneID);
@@ -493,12 +492,12 @@ public class LocationResolver {
             List<ZoneId> allZones = getTimeshapeEngine().queryAll(sLatitude, sLongitude);// first query all possible time zones in the area. There could be multiple due to border disputes
             if (allZones.size() > 1) {// if there are multiple
                 for (ZoneId zone : allZones) {
+                    zoneID = zone.toString();
                     if (zone.toString().equals(TimeZone.getDefault().getID())) {// if the zone is the device default, assumingly use that
-                        mTimeZone = TimeZone.getDefault();
                         break;
                     }
                 }
-            } else if (allZones.size() == 1) {// if there is at least one
+            } else if (allZones.size() == 1) {// if there is only one
                 zoneID = allZones.get(0).toString();
             }
             mTimeZone = TimeZone.getTimeZone(zoneID);
@@ -632,7 +631,19 @@ public class LocationResolver {
         }
     }
 
-    public GeoLocation getRealtimeNotificationData(Consumer<Location> consumer) {
+    /**
+     * This method will attempt to get the current location of the device as a GeoLocation object. If the user set a location via the advanced
+     * location or a zipcode, it will use that instead and it will not request the device's location.
+     * <p> 
+     * NOTE: As of Android 10, we can only request the device's location if it is being called by a Service, BroadcastReceiver, or some service 
+     * that is in the Foreground. All other requests while the app is not in the foreground will silently fail as Android will log a warning and 
+     * not request the location, resulting in the consumer method not being called. Therefore, use the isForWidget parameter to determine if the
+     * request is being made by a widget or any other UI element that is not in the foreground.
+     * @param consumer the block of code to run when the location is retrieved
+     * @param isForWidget if the request is being made by a widget or not
+     * @return a GeoLocation object containing the current location
+     */
+    public GeoLocation getRealtimeNotificationData(Consumer<Location> consumer, boolean isForWidget) {
         if (mSharedPreferences.getBoolean("useAdvanced", false)) {
             mLocationName = mSharedPreferences.getString("advancedLN", "");
             mLatitude = Double.parseDouble(mSharedPreferences.getString("advancedLat", "0"));
@@ -691,9 +702,9 @@ public class LocationResolver {
             setTimeZoneID();
             return new GeoLocation(mLocationName, mLatitude, mLongitude, mElevation, mTimeZone);
         } else {// we are using the devices location
-            if (ActivityCompat.checkSelfPermission(mContext, ACCESS_BACKGROUND_LOCATION) != PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(mContext, ACCESS_BACKGROUND_LOCATION) != PERMISSION_GRANTED || isForWidget) {
                 return getLastKnownGeoLocation();
-            } else {
+            } else {// this code can only run in a service, broadcast receiver, or some other service that is in the foreground. Widgets can't use this while the app is not in the foreground
                 LocationManager locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
                 if (locationManager != null && consumer != null) {
                     List<String> providers = locationManager.getAllProviders();

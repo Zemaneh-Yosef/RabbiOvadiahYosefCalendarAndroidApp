@@ -23,8 +23,9 @@
             android:id="@+id/jewish_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:autoSizeMinTextSize="4dp"
-            android:autoSizeMaxTextSize="36dp"
+            android:autoSizeMaxTextSize="36sp"
+            android:autoSizeMinTextSize="11sp"
+            android:autoSizeStepGranularity="1sp"
             android:autoSizeTextType="uniform"
             android:textStyle="bold"
             android:gravity="center"
@@ -35,8 +36,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="16dp"
-            android:autoSizeMinTextSize="4dp"
-            android:autoSizeMaxTextSize="36dp"
+            android:autoSizeMaxTextSize="36sp"
+            android:autoSizeMinTextSize="11sp"
+            android:autoSizeStepGranularity="1sp"
             android:autoSizeTextType="uniform"
             android:gravity="center"
             tools:text="וַיַּקְהֵל פְּקוּדֵי / הַחֹדֶשׁ"/>
@@ -48,15 +50,16 @@
         android:layout_width="0dp"
         android:layout_weight="1"
         android:layout_height="match_parent"
-        android:gravity="center"
+        android:gravity="center|bottom"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/zman"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:autoSizeMinTextSize="4dp"
-            android:autoSizeMaxTextSize="36dp"
+            android:autoSizeMaxTextSize="36sp"
+            android:autoSizeMinTextSize="11sp"
+            android:autoSizeStepGranularity="1sp"
             android:autoSizeTextType="uniform"
             android:gravity="center"
             tools:text="Mincha Ketana"/>
@@ -66,8 +69,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="16dp"
-            android:autoSizeMinTextSize="4dp"
-            android:autoSizeMaxTextSize="36dp"
+            android:autoSizeMaxTextSize="36sp"
+            android:autoSizeMinTextSize="11sp"
+            android:autoSizeStepGranularity="1sp"
             android:autoSizeTextType="uniform"
             android:gravity="center"
             android:textStyle="bold"
@@ -87,8 +91,9 @@
             android:id="@+id/tachanun"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:autoSizeMinTextSize="4dp"
-            android:autoSizeMaxTextSize="36dp"
+            android:autoSizeMaxTextSize="36sp"
+            android:autoSizeMinTextSize="11sp"
+            android:autoSizeStepGranularity="1sp"
             android:autoSizeTextType="uniform"
             android:gravity="center"
             tools:text="Tachanun morning only"/>
@@ -98,8 +103,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="16dp"
-            android:autoSizeMinTextSize="4dp"
-            android:autoSizeMaxTextSize="36dp"
+            android:autoSizeMaxTextSize="36sp"
+            android:autoSizeMinTextSize="11sp"
+            android:autoSizeStepGranularity="1sp"
             android:autoSizeTextType="uniform"
             android:gravity="center"
             tools:text="בבא בתרא ב"/>
@@ -122,10 +128,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="8dp"
-            android:autoSizeMaxTextSize="36dp"
+            android:autoSizeMaxTextSize="36sp"
+            android:autoSizeMinTextSize="11sp"
+            android:autoSizeStepGranularity="1sp"
             android:autoSizeTextType="uniform"
             android:gravity="center"
-            tools:text="23rd Day Of Omer (Before sunset)"/>
+            tools:text="23rd Day Of Omer (before sunset)"/>
     </LinearLayout>
 
 </LinearLayout>

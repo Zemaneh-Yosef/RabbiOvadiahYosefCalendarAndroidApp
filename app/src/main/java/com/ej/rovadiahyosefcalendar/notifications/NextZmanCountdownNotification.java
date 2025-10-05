@@ -189,10 +189,10 @@ public class NextZmanCountdownNotification extends Service {
                         // startCountdown will already be called, just make it re-get the correct time
                     });
                 }
-            });
+            }, false);
             // no need to worry about returning null here because the above code will reset everything
         }
-        return new ROZmanimCalendar(mLocationResolver.getRealtimeNotificationData(null));
+        return new ROZmanimCalendar(mLocationResolver.getRealtimeNotificationData(null, false));
     }
 
     @Override

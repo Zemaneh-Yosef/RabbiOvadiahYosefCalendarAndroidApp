@@ -234,7 +234,9 @@ public class SliderPreference extends Preference {
   }
 
   private void updateSeekBar() {
-    slider.setValue(progress);
+    if (slider.getValue() != progress) {
+      slider.post(() -> slider.setValue(progress));// Post it to avoid concurrent modification while dispatching
+    }
   }
 
   private boolean isViewReady() {
@@ -266,9 +268,7 @@ public class SliderPreference extends Preference {
 
     @Override
     public void onValueChange(@NonNull Slider slider, float progress, boolean fromUser) {
-      if (!fromUser) {
-        return;
-      }
+      if (!fromUser) return;
 
       setValue((int) progress);
       updateValueDisplay(false);
@@ -287,10 +287,8 @@ public class SliderPreference extends Preference {
       }
     }
 
-
     @Override
-    public void onTextChanged(CharSequence s, int start, int before, int count) {
-    }
+    public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
     @Override
     public void afterTextChanged(Editable s) {

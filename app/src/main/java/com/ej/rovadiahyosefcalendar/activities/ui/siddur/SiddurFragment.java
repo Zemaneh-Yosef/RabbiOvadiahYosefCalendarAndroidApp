@@ -36,6 +36,7 @@ import com.ej.rovadiahyosefcalendar.activities.SiddurViewActivity;
 import com.ej.rovadiahyosefcalendar.classes.CustomPreferenceView;
 import com.ej.rovadiahyosefcalendar.classes.HebrewDayMonthYearPickerDialog;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
+import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
 import com.ej.rovadiahyosefcalendar.classes.SiddurMaker;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
@@ -46,6 +47,7 @@ import com.kosherjava.zmanim.hebrewcalendar.Daf;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.TefilaRules;
 import com.kosherjava.zmanim.hebrewcalendar.YomiCalculator;
+import com.kosherjava.zmanim.util.GeoLocation;
 
 import org.apache.commons.lang3.time.DateUtils;
 
@@ -175,8 +177,23 @@ public class SiddurFragment extends Fragment {
         }
 
         private void initView() {
-            currentZmanimCalendar = mROZmanimCalendar.getCopy();
-            currentZmanimCalendar.setCalendar(Calendar.getInstance());
+            if (currentZmanimCalendar == null) {
+                LocationResolver locationResolver = new LocationResolver(requireContext(), requireActivity());
+                currentZmanimCalendar = new ROZmanimCalendar(locationResolver.getRealtimeNotificationData(location -> {
+                    if (location != null) {
+                        String locationName = locationResolver.getLocationAsName(location.getLatitude(), location.getLongitude());
+                        locationResolver.resolveElevation(() ->
+                                currentZmanimCalendar = new ROZmanimCalendar(new GeoLocation(
+                                        locationName,
+                                        location.getLatitude(),
+                                        location.getLongitude(),
+                                        locationResolver.getElevation(),
+                                        locationResolver.getTimeZone())));
+                    }
+                    initView();
+                }, false));
+            }
+            currentZmanimCalendar.setCalendar(Calendar.getInstance());// make sure the date is for right now when the user gets back to the page
             currentJewishDateInfo = new JewishDateInfo(mJewishDateInfo.getJewishCalendar().getInIsrael());
             if (currentZmanimCalendar.getSunset() != null && new Date().after(currentZmanimCalendar.getSunset())) {
                 isAfterSunset = true;

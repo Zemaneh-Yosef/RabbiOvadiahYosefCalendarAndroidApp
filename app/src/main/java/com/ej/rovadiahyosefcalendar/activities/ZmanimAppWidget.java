@@ -54,6 +54,7 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         mSettingsPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         mROZmanimCalendar = getROZmanimCalendar(context, appWidgetManager, appWidgetId);
         if (!mROZmanimCalendar.getGeoLocation().equals(new GeoLocation())) {// if using location, default GeoLocation will be returned. Avoid that
+            Log.d("ZmanimAppWidget", "GeoLocation is not default");
             mROZmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
             String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
             if (candles.isEmpty()) {
@@ -184,7 +185,7 @@ public class ZmanimAppWidget extends AppWidgetProvider {
                     appWidgetManager.updateAppWidget(appWidgetId, views);
                 });
             }
-        }));
+        }, true));
     }
 
     public static ZmanListEntry getNextUpcomingZman(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
@@ -223,13 +224,9 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions);
 
         int minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
-        Log.d("App widget", "MIN Width: " + minWidth);
         int maxWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH);
-        Log.d("App widget", "MAX Width: " + maxWidth);
         int minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT);
-        Log.d("App widget", "MIN Height: " + minHeight);
         int maxHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT);
-        Log.d("App widget", "MAX Height: " + maxHeight);
 
         Map<SizeF, RemoteViews> viewMapping = getViewMapping(context,
                 false, null, null, null, null, null, null, null);

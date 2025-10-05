@@ -67,7 +67,7 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
     }
 
     private ROZmanimCalendar getROZmanimCalendar() {
-        return new ROZmanimCalendar(mLocationResolver.getRealtimeNotificationData(this));// we will continue in the accept method
+        return new ROZmanimCalendar(mLocationResolver.getRealtimeNotificationData(this, false));// we will continue in the accept method
     }
 
     /**

@@ -182,7 +182,7 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
     }
 
     private ROZmanimCalendar getROZmanimCalendar() {
-        return new ROZmanimCalendar(mLocationResolver.getRealtimeNotificationData(this));// we will continue in the accept method
+        return new ROZmanimCalendar(mLocationResolver.getRealtimeNotificationData(this, false));// we will continue in the accept method
     }
 
     private void startUpDailyZmanim(Context context) {
