@@ -665,6 +665,7 @@ public class SiddurMaker {
 			if (jewishDateInfo.getJewishCalendar().isCholHamoedSuccos()) {
 				addHotzahSeferTorah();
 				addHoshanot();
+				addToSiddurHighlighted(lineBreak);
 			}
 
 			if (jewishDateInfo.getJewishCalendar().isChanukah()
@@ -1102,7 +1103,7 @@ public class SiddurMaker {
 			addCategoryToSiddur("קריאת המגילה");
 			if (jewishDateInfo.getJewishCalendar().getIsSafekMukafChoma()) {
 				addToSiddurHighlighted(
-					"ב-14 באדר, בעיר שהיא ספק מוקפת חומה, קוראים את המגילה עם הברכות, ולא אומרים את הברכות ב-15/On the 14th of Adar, in a safek mufak choma, we read the megilah with the berachot, and we do not say the berachot on the 15th. (הליכות עולם רל)");
+					"ב-14 באדר, בעיר שהיא ספק מוקפת חומה, קוראים את המגילה עם הברכות, ולא אומרים את הברכות ב-15/In a Safek Mukaf Choma, the Megilah with its blessings are read on the 14th of Adar; the blessings are omitted on the 15th. (הליכות עולם רל)");
 			}
 			addToSiddurHighlighted(
 				"לפני קריאת המגילה החזן מברך מעומד, וגם הקהל יעמדו בשעת הברכה: (Before the Megilah is read, everyone should stand for the bracha) \n\n" +

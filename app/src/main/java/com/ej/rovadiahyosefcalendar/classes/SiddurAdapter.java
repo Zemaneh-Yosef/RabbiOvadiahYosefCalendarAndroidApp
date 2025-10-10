@@ -83,7 +83,6 @@ public class SiddurAdapter extends ArrayAdapter<String> implements SensorEventLi
             viewHolder.textView = convertView.findViewById(R.id.textView);
             viewHolder.imageView = convertView.findViewById(R.id.imageView);
             viewHolder.line = convertView.findViewById(R.id.line);
-            viewHolder.line.setBackgroundColor(viewHolder.textView.getCurrentTextColor());
             convertView.setTag(viewHolder);
             viewHolder.defaultTextColor = viewHolder.textView.getCurrentTextColor();
         } else {
@@ -150,6 +149,11 @@ public class SiddurAdapter extends ArrayAdapter<String> implements SensorEventLi
         if (currentText.toString().equals("[break here]")) {
             viewHolder.textView.setVisibility(View.GONE);
             viewHolder.line.setVisibility(View.VISIBLE);
+
+            if (currentText.shouldBeHighlighted())
+                viewHolder.line.setBackgroundColor(context.getColor(R.color.black));
+            else
+                viewHolder.line.setBackgroundColor(viewHolder.textView.getCurrentTextColor());
         } else if (currentText.isInfo()) {
             viewHolder.textView.setBackgroundColor(Color.DKGRAY);
             if ((context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_NO) {// light mode
