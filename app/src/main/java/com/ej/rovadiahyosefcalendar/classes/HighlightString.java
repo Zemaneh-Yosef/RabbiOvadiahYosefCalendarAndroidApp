@@ -1,5 +1,7 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
+import android.text.Spannable;
+
 import androidx.annotation.NonNull;
 
 import java.util.Objects;
@@ -12,9 +14,22 @@ public class HighlightString {
     private boolean isCategory = false;
     private boolean isInfo = false;
     private boolean needsMinyan = false;
+    private Spannable spannableString;
 
     public HighlightString(String s) {
         setString(s);
+    }
+
+    public HighlightString(Spannable s) {
+        setSpannableString(s);
+    }
+
+    private void setSpannableString(Spannable s) {
+        this.spannableString = s;
+    }
+
+    public Spannable getSpannableString() {
+        return spannableString;
     }
 
     public HighlightString(String s, String summary) {
@@ -67,6 +82,7 @@ public class HighlightString {
     public String getSummary() {
         return summary;
     }
+    public boolean isSpannableString() { return spannableString != null; }
 
     @Override
     public boolean equals(Object o) {

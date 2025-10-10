@@ -90,12 +90,17 @@ public class SiddurAdapter extends ArrayAdapter<String> implements SensorEventLi
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        String itemText = siddur.get(position).toString();
-        viewHolder.textView.setText(itemText);
+        HighlightString currentText = siddur.get(position);
+
+        if (currentText.isSpannableString())
+            viewHolder.textView.setText(currentText.getSpannableString());
+        else
+            viewHolder.textView.setText(currentText.toString());
+
         viewHolder.textView.setTextDirection(View.TEXT_DIRECTION_RTL);
         viewHolder.textView.setTextSize(textSize);
         viewHolder.textView.setJustify(isJustified);
-        if (siddur.get(position).shouldBeHighlighted()) {
+        if (currentText.shouldBeHighlighted()) {
             if ((context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES) {
                 convertView.setBackgroundColor(context.getColor(R.color.goldenrod));
             } else {// light mode
@@ -108,12 +113,12 @@ public class SiddurAdapter extends ArrayAdapter<String> implements SensorEventLi
         }
 
         viewHolder.textView.setOnClickListener(l -> {
-            if (siddur.get(position).toString().equals("Open Sefaria Siddur/פתח את סידור ספריה")) {
+            if (currentText.toString().equals("Open Sefaria Siddur/פתח את סידור ספריה")) {
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.sefaria.org/Siddur_Edot_HaMizrach?tab=contents"));
                 context.startActivity(browserIntent);
             }
-            if (siddur.get(position).toString().equals("Mussaf is said here, press here to go to Mussaf")
-                    || siddur.get(position).toString().equals("מוסף אומרים כאן, לחץ כאן כדי להמשיך למוסף")) {
+            if (currentText.toString().equals("Mussaf is said here, press here to go to Mussaf")
+                    || currentText.toString().equals("מוסף אומרים כאן, לחץ כאן כדי להמשיך למוסף")) {
                 context.startActivity(new Intent(context, SiddurViewActivity.class)
                         .putExtra("prayer", "מוסף")
                         .putExtra("JewishDay", jewishDateInfo.getJewishCalendar().getJewishDayOfMonth())
@@ -134,7 +139,7 @@ public class SiddurAdapter extends ArrayAdapter<String> implements SensorEventLi
                 break;
         }
 
-        if (siddur.get(position).isCategory()) {
+        if (currentText.isCategory()) {
             viewHolder.textView.setTypeface(Typeface.createFromAsset(context.getAssets(), "MANTB 2.ttf"), Typeface.NORMAL);
             viewHolder.textView.setGravity(Gravity.CENTER);
             viewHolder.textView.setTextSize(textSize + 8);
@@ -142,16 +147,16 @@ public class SiddurAdapter extends ArrayAdapter<String> implements SensorEventLi
             viewHolder.textView.setGravity(Gravity.NO_GRAVITY);
         }
 
-        if (siddur.get(position).toString().equals("[break here]")) {
+        if (currentText.toString().equals("[break here]")) {
             viewHolder.textView.setVisibility(View.GONE);
             viewHolder.line.setVisibility(View.VISIBLE);
-        } else if (siddur.get(position).isInfo()) {
+        } else if (currentText.isInfo()) {
             viewHolder.textView.setBackgroundColor(Color.DKGRAY);
             if ((context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_NO) {// light mode
                 viewHolder.textView.setTextColor(Color.BLACK);
             }
             viewHolder.textView.setVisibility(View.VISIBLE);
-            String summary = "▲ " + siddur.get(position).getSummary();
+            String summary = "▲ " + currentText.getSummary();
             viewHolder.textView.setText(summary);
             View.OnClickListener onClickListener = l -> {
                 viewHolder.textView.wasClicked = !viewHolder.textView.wasClicked;
