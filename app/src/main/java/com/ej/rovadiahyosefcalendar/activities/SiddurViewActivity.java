@@ -93,7 +93,7 @@ public class SiddurViewActivity extends AppCompatActivity {
         Map<Integer, HighlightString> categories = new LinkedHashMap<>();
         int index = 0;
         for (HighlightString string: prayers) {
-            if (string.isCategory()) {
+            if (string.getType() == HighlightString.StringType.CATEGORY) {
                 if (categories.containsValue(string)) {
                     string.setString(string + "\u200E");// this unicode character is invisible. So it will always increment without showing in the UI
                 }
