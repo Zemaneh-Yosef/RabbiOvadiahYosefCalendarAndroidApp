@@ -64,7 +64,7 @@ public class SiddurViewActivity extends AppCompatActivity {
         mJewishDateInfo.getJewishCalendar().setIsMukafChoma(sharedPreferences.getBoolean("isMukafChoma", false));
         mJewishDateInfo.getJewishCalendar().setIsSafekMukafChoma(sharedPreferences.getBoolean("isSafekMukafChoma", false));
 
-        LayoutInflater inflater = LayoutInflater.from(this);
+        LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
         View textViewLayout = inflater.inflate(R.layout.text_view, null); // Don't attach to root
         TextView otherTextView = textViewLayout.findViewById(R.id.textView);
         int color = otherTextView.getCurrentTextColor();
