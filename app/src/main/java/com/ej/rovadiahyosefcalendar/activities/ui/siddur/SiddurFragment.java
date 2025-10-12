@@ -578,7 +578,7 @@ public class SiddurFragment extends Fragment {
             CustomPreferenceView bh = findPreference("siddur_birchat_hamazon");
             if (bh != null) {
                 bh.setOnPreferenceClickListener(v -> {
-                    if (new SiddurMaker(getSunsetBasedJewishDateInfo(false)).getBirchatHamazonPrayers().equals(new SiddurMaker(getSunsetBasedJewishDateInfo(false).tomorrow()).getBirchatHamazonPrayers())) {
+                    if (new SiddurMaker(getSunsetBasedJewishDateInfo(false), -1).getBirchatHamazonPrayers().equals(new SiddurMaker(getSunsetBasedJewishDateInfo(false).tomorrow(), -1).getBirchatHamazonPrayers())) {
                         startSiddurActivity(getString(R.string.birchat_hamazon));//doesn't matter which day
                     } else {
                         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
@@ -630,7 +630,7 @@ public class SiddurFragment extends Fragment {
                                     Toast.makeText(requireContext(), R.string.please_select_at_least_one_option, Toast.LENGTH_SHORT).show();
                                 } else {
                                     selectedShaloshItems = selectedOptions.toArray(new String[0]);
-                                    if (new SiddurMaker(getSunsetBasedJewishDateInfo(false)).getBirchatMeeyinShaloshPrayers(options).equals(new SiddurMaker(getSunsetBasedJewishDateInfo(false).tomorrow()).getBirchatMeeyinShaloshPrayers(options))) {
+                                    if (new SiddurMaker(getSunsetBasedJewishDateInfo(false), -1).getBirchatMeeyinShaloshPrayers(options).equals(new SiddurMaker(getSunsetBasedJewishDateInfo(false).tomorrow(), -1).getBirchatMeeyinShaloshPrayers(options))) {
                                         startSiddurActivity(getString(R.string.birchat_meyin_shalosh));//doesn't matter which day
                                     } else {
                                         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
