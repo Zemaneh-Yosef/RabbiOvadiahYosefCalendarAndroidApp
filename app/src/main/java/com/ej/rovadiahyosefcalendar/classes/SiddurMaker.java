@@ -4024,6 +4024,7 @@ public class SiddurMaker {
 					addToSiddurHighlighted("חַג הַסֻּכּוֹת הַזֶּה, בְּיוֹם טוֹב מִקְרָא קֹֽדֶשׁ הַזֶּה,");
 					break;
 				case JewishCalendar.CHOL_HAMOED_SUCCOS:
+                case JewishCalendar.HOSHANA_RABBA:
 					addToSiddurHighlighted("חַג הַסֻּכּוֹת הַזֶּה, בְּיוֹם מִקְרָא קֹֽדֶשׁ הַזֶּה,");
 					break;
 				case JewishCalendar.SHEMINI_ATZERES:
@@ -4060,7 +4061,8 @@ public class SiddurMaker {
 				break;
 			case JewishCalendar.SUCCOS:
 			case JewishCalendar.CHOL_HAMOED_SUCCOS:
-				addToSiddurHighlighted("הָרַחֲמָן הוּא יְזַכֵּֽנוּ לֵישֵׁב בְּסֻכַּת עוֹרוֹ שֶׁל לִוְיָתָן: הָרַחֲמָן הוּא יַשְׁפִּֽיעַ עָלֵֽינוּ שֶֽׁפַע קְדֻשָּׁה וְטָהֳרָה מִשִּׁבְעָה אוּשְׁפִּיזִין עִלָּאִין קַדִּישִׁין, זְכוּתָם תְּהֵא מָגֵן וְצִנָּה בַּעֲדֵֽינוּ: הָרַחֲמָן הוּא יָקִים לָֽנוּ אֶת סֻכַּת דָּוִד הַנּוֹפֶֽלֶת:");
+            case JewishCalendar.HOSHANA_RABBA:
+                addToSiddurHighlighted("הָרַחֲמָן הוּא יְזַכֵּֽנוּ לֵישֵׁב בְּסֻכַּת עוֹרוֹ שֶׁל לִוְיָתָן: הָרַחֲמָן הוּא יַשְׁפִּֽיעַ עָלֵֽינוּ שֶֽׁפַע קְדֻשָּׁה וְטָהֳרָה מִשִּׁבְעָה אוּשְׁפִּיזִין עִלָּאִין קַדִּישִׁין, זְכוּתָם תְּהֵא מָגֵן וְצִנָּה בַּעֲדֵֽינוּ: הָרַחֲמָן הוּא יָקִים לָֽנוּ אֶת סֻכַּת דָּוִד הַנּוֹפֶֽלֶת:");
 			case JewishCalendar.PESACH:
 			case JewishCalendar.CHOL_HAMOED_PESACH:
 			case JewishCalendar.SHAVUOS:
