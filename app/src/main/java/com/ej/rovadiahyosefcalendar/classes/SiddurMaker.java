@@ -331,30 +331,7 @@ public class SiddurMaker {
 			"אֶחָד אֱלֹהֵינוּ. גָּדוֹל אֲדוֹנֵנוּ. קָדוֹשׁ וְנוֹרָא שְׁמוֹ: כִּי גָדוֹל מֵעַל שָׁמַיִם חַסְדֶּךָ. וְעַד שְׁחָקִים אֲמִתֶּךָ: כִּי גָדוֹל אַתָּה וְעֹשֵׂה נִפְלָאוֹת. אַתָּה אֱלֹהִים לְבַדֶּךָ: שְׁפֹךְ חֲמָתְךָ אֶל הַגּוֹיִם אֲשֶׁר לֹא יְדָעוּךָ. וְעַל מַמְלָכוֹת. אֲשֶׁר בְּשִׁמְךָ לֹא קָרָאוּ: \n\n" +
 			"לִקְדֻשַּׁת שִׁמְךָ עֲשֵׂה וְלֹא לָנוּ: לֹא לָנוּ יהוה לֹא לָנוּ. כִּי לְשִׁמְךָ תֵּן כָּבוֹד. עַל חַסְדְּךָ עַל אֲמִתֶּךָ: לָמָּה יֹאמְרוּ הַגּוֹיִם. אַיֵּה נָא אֱלֹהֵיהֶם: וֵאלֹהֵינוּ בַּשָּׁמַיִם. אֶחָד אֱלֹהֵינוּ בַּשָּׁמַיִם. עֵדוּתֵנוּ בְּכָל יוֹם פַּעֲמַיִם. חַי וְקַיָּם הוּא. מָלֵא רַחֲמִים הוּא. מָלֵא זַכִּיּוּת הוּא. כָּל אֲשֶׁר חָפֵץ עָשָׂה בַשָּׁמַיִם וּבָאָרֶץ. אֵין מִי יֹאמַר לוֹ מַה תַּעֲשֶׂה. וְאֵין מִי יֹאמַר לוֹ מַה תִּפְעַל. כִּי הַכֹּל מַעֲשֵׂה יָדָיו:");
 
-        for (int i = 0; i < elokenuShebashamayim.length; i++) {
-            if (i == 11 && !jewishDateInfo.getJewishCalendar().isAseresYemeiTeshuva())
-                continue;
-
-            SpannableStringBuilder longDescription = new SpannableStringBuilder();
-            for (int j = 0; j < elokenuShebashamayim[i].length; j++) {
-                if (j == 0) {
-					longDescription.append("אֱלֹהֵֽינוּ שֶׁבַּשָּׁמַֽיִם ");
-				} else {
-					longDescription.append("\n");
-
-					int start = longDescription.length();
-					longDescription.append("אֱ\"שֶׁ ");
-					longDescription.setSpan(new ForegroundColorSpan(halfOpaqueColor), start, longDescription.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-				}
-                longDescription.append(elokenuShebashamayim[i][j]);
-            }
-
-            if (i == 11)
-                addToSiddurHighlighted(longDescription);
-            else
-                addToSiddur(longDescription);
-        }
-
+		addElokenuShebashamayim(0, elokenuShebashamayim.length, false, false);
         addToSiddur(
 			"אֱלֹהֵֽינוּ שֶׁבַּשָּׁמַֽיִם עֲשֵׂה עִמָּנוּ אוֹת לְטוֹבָה. עֲשֵׂה עִמָּנוּ אוֹת לִישׁוּעָה. עֲשֵׂה עִמָּנוּ אוֹת לְרַחֲמִים. יִרְאוּ שׂוֹנְאֵינוּ וְיֵבוֹשׁוּ. יֶחֱזוּ אוֹיְבֵינוּ וְיִכָּלְמוּ. כִּי אַתָּה יהוה עֲזַרְתָּנוּ וְנִחַמְתָּנוּ: \n\n" +
 			"בְּרֹגֶז רַחֵם תִּזְכֹּר. בְּרֹגֶז אַהֲבָה תִּזְכֹּר. בְּרֹגֶז עֲקֵדָה תִּזְכֹּר. בְּרֹגֶז תְּמִימוּת תִּזְכֹּר. הַבֵּט לַבְּרִית וְאַל תָּפֵר בְּרִיתְךָ אִתָּנוּ. עֲנֵנוּ בָעֵת וּבָעוֹנָה הַזֹּאת:");
@@ -2040,29 +2017,8 @@ public class SiddurMaker {
 
 					"יְהֹוָה מֶֽלֶךְ, יְהֹוָה מָלָֽךְ, יְהֹוָ֥ה ׀ יִמְלֹ֖ךְ לְעֹלָ֥ם וָעֶֽד׃ (שתי פעמים/twice)");
 
-				for (int i = 0; i < 3; i++) {
-					SpannableStringBuilder longDescription = new SpannableStringBuilder();
-					String[] nextHothMenu = (i == 2 ? hothMenu : elokenuShebashamayim[i]);
-					for (int j = 0; j < nextHothMenu.length; j++) {
-						if (j == 0) {
-							longDescription.append("אֱלֹהֵֽינוּ שֶׁבַּשָּׁמַֽיִם ");
-						} else {
-							longDescription.append("\n");
-
-							int start = longDescription.length();
-							longDescription.append("אֱ\"שֶׁ ");
-							longDescription.setSpan(new ForegroundColorSpan(halfOpaqueBlack), start, longDescription.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-						}
-						longDescription.append(nextHothMenu[j]);
-					}
-
-					addToSiddurHighlighted(longDescription);
-				}
-
+				addElokenuShebashamayim(0,2, true, true);
 				addToSiddurHighlighted(
-					"אֱלֹהֵֽינוּ שֶׁבַּשָּׁמַֽיִם קָֽרְבֵֽנוּ לַעֲבוֹדָתֶֽךָ:\n" +
-					"אֱלֹהֵֽינוּ שֶׁבַּשָּׁמַֽיִם רְפָא כָּל־חוֹלֵי עַמְּךָ יִשְׂרָאֵל:\n\n" +
-
 					"עֲנֵֽנוּ אֱלֹהֵי אַבְרָהָם עֲנֵֽנוּ: עֲנֵֽנוּ הָעוֹנֶה בְּעֵת רָצוֹן עֲנֵֽנוּ: עֲנֵֽנוּ רַחוּם וְחַנּוּן עֲנֵֽנוּ:\n\n" +
 
 					"יְהֹוָה חָנֵּֽנוּ וַהֲקִימֵֽנוּ. וּבְסֵֽפֶר חַיִּים זָכְרֵֽנוּ וְחָתְמֵֽנוּ:\n" +
@@ -2150,29 +2106,8 @@ public class SiddurMaker {
 
 					"יְהֹוָה מֶֽלֶךְ, יְהֹוָה מָלָֽךְ, יְהֹוָ֥ה ׀ יִמְלֹ֖ךְ לְעֹלָ֥ם וָעֶֽד׃ (שתי פעמים/twice)");
 
-				for (int i = 2; i < 4; i++) {
-					SpannableStringBuilder longDescription = new SpannableStringBuilder();
-					String[] nextHothMenu = (i == 3 ? hothMenu : elokenuShebashamayim[i]);
-					for (int j = 0; j < nextHothMenu.length; j++) {
-						if (j == 0) {
-							longDescription.append("אֱלֹהֵֽינוּ שֶׁבַּשָּׁמַֽיִם ");
-						} else {
-							longDescription.append("\n");
-
-							int start = longDescription.length();
-							longDescription.append("אֱ\"שֶׁ ");
-							longDescription.setSpan(new ForegroundColorSpan(halfOpaqueBlack), start, longDescription.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-						}
-						longDescription.append(nextHothMenu[j]);
-					}
-
-					addToSiddurHighlighted(longDescription);
-				}
-
+				addElokenuShebashamayim(2,3, true, true);
 				addToSiddurHighlighted(
-					"אֱלֹהֵֽינוּ שֶׁבַּשָּׁמַֽיִם קָֽרְבֵֽנוּ לַעֲבוֹדָתֶֽךָ:\n" +
-					"אֱלֹהֵֽינוּ שֶׁבַּשָּׁמַֽיִם רְפָא כָּל־חוֹלֵי עַמְּךָ יִשְׂרָאֵל:\n\n" +
-
 					"עֲנֵֽנוּ וּפַֽחַד יִצְחָק עֲנֵֽנוּ: עֲנֵֽנוּ הָעוֹנֶה בְּעֵת צָרָה עֲנֵֽנוּ: עֲנֵֽנוּ רַחוּם וְחַנּוּן עֲנֵֽנוּ:\n\n" +
 
 					"יְהֹוָה חָנֵּֽנוּ וַהֲקִימֵֽנוּ. וּבְסֵֽפֶר חַיִּים זָכְרֵֽנוּ וְחָתְמֵֽנוּ:\n" +
@@ -2247,29 +2182,8 @@ public class SiddurMaker {
 
 					"יְהֹוָה מֶֽלֶךְ, יְהֹוָה מָלָֽךְ, יְהֹוָ֥ה ׀ יִמְלֹ֖ךְ לְעֹלָ֥ם וָעֶֽד׃ (שתי פעמים/twice)");
 
-				for (int i = 3; i < 5; i++) {
-					SpannableStringBuilder longDescription = new SpannableStringBuilder();
-					String[] nextHothMenu = (i == 4 ? hothMenu : elokenuShebashamayim[i]);
-					for (int j = 0; j < nextHothMenu.length; j++) {
-						if (j == 0) {
-							longDescription.append("אֱלֹהֵֽינוּ שֶׁבַּשָּׁמַֽיִם ");
-						} else {
-							longDescription.append("\n");
-
-							int start = longDescription.length();
-							longDescription.append("אֱ\"שֶׁ ");
-							longDescription.setSpan(new ForegroundColorSpan(halfOpaqueBlack), start, longDescription.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-						}
-						longDescription.append(nextHothMenu[j]);
-					}
-
-					addToSiddurHighlighted(longDescription);
-				}
-
+				addElokenuShebashamayim(3,4, true, true);
 				addToSiddurHighlighted(
-					"אֱלֹהֵֽינוּ שֶׁבַּשָּׁמַֽיִם קָֽרְבֵֽנוּ לַעֲבוֹדָתֶֽךָ:\n" +
-					"אֱלֹהֵֽינוּ שֶׁבַּשָּׁמַֽיִם רְפָא כָּל־חוֹלֵי עַמְּךָ יִשְׂרָאֵל:\n\n" +
-
 					"עֲנֵֽנוּ אֲבִיר יַעֲקֹב עֲנֵֽנוּ: עֲנֵֽנוּ הָעוֹנֶה בְּעֵת רַחֲמִים עֲנֵֽנוּ: עֲנֵֽנוּ רַחוּם וְחַנּוּן עֲנֵֽנוּ:\n\n" +
 
 					"יְהֹוָה חָנֵּֽנוּ וַהֲקִימֵֽנוּ. וּבְסֵֽפֶר חַיִּים זָכְרֵֽנוּ וְחָתְמֵֽנוּ:\n" +
@@ -2341,29 +2255,8 @@ public class SiddurMaker {
 
 					"יְהֹוָה מֶֽלֶךְ, יְהֹוָה מָלָֽךְ, יְהֹוָ֥ה ׀ יִמְלֹ֖ךְ לְעֹלָ֥ם וָעֶֽד׃ (שתי פעמים/twice)");
 
-				for (int i = 4; i < 6; i++) {
-					SpannableStringBuilder longDescription = new SpannableStringBuilder();
-					String[] nextHothMenu = (i == 5 ? hothMenu : elokenuShebashamayim[i]);
-					for (int j = 0; j < nextHothMenu.length; j++) {
-						if (j == 0) {
-							longDescription.append("אֱלֹהֵֽינוּ שֶׁבַּשָּׁמַֽיִם ");
-						} else {
-							longDescription.append("\n");
-
-							int start = longDescription.length();
-							longDescription.append("אֱ\"שֶׁ ");
-							longDescription.setSpan(new ForegroundColorSpan(halfOpaqueBlack), start, longDescription.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-						}
-						longDescription.append(nextHothMenu[j]);
-					}
-
-					addToSiddurHighlighted(longDescription);
-				}
-
+				addElokenuShebashamayim(4,5, true, true);
 				addToSiddurHighlighted(
-					"אֱלֹהֵֽינוּ שֶׁבַּשָּׁמַֽיִם קָֽרְבֵֽנוּ לַעֲבוֹדָתֶֽךָ:\n" +
-					"אֱלֹהֵֽינוּ שֶׁבַּשָּׁמַֽיִם רְפָא כָּל־חוֹלֵי עַמְּךָ יִשְׂרָאֵל:\n\n" +
-
 					"עֲנֵֽנוּ הָעוֹנֶה בְּעֵת רָצוֹן עֲנֵֽנוּ: עֲנֵֽנוּ רַחוּם וְחַנּוּן עֲנֵֽנוּ:\n\n" +
 
 					"יְהֹוָה חָנֵּֽנוּ וַהֲקִימֵֽנוּ. וּבְסֵֽפֶר חַיִּים זָכְרֵֽנוּ וְחָתְמֵֽנוּ:\n" +
@@ -2436,29 +2329,9 @@ public class SiddurMaker {
 
 					"יְהֹוָה מֶֽלֶךְ, יְהֹוָה מָלָֽךְ, יְהֹוָ֥ה ׀ יִמְלֹ֖ךְ לְעֹלָ֥ם וָעֶֽד׃ (שתי פעמים/twice)");
 
-				for (int i = 5; i < 7; i++) {
-					SpannableStringBuilder longDescription = new SpannableStringBuilder();
-					String[] nextHothMenu = (i == 6 ? hothMenu : elokenuShebashamayim[i]);
-					for (int j = 0; j < nextHothMenu.length; j++) {
-						if (j == 0) {
-							longDescription.append("אֱלֹהֵֽינוּ שֶׁבַּשָּׁמַֽיִם ");
-						} else {
-							longDescription.append("\n");
-
-							int start = longDescription.length();
-							longDescription.append("אֱ\"שֶׁ ");
-							longDescription.setSpan(new ForegroundColorSpan(halfOpaqueBlack), start, longDescription.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-						}
-						longDescription.append(nextHothMenu[j]);
-					}
-
-					addToSiddurHighlighted(longDescription);
-				}
+				addElokenuShebashamayim(5,6, true, true);
 
 				addToSiddurHighlighted(
-					"אֱלֹהֵֽינוּ שֶׁבַּשָּׁמַֽיִם קָֽרְבֵֽנוּ לַעֲבוֹדָתֶֽךָ:\n" +
-					"אֱלֹהֵֽינוּ שֶׁבַּשָּׁמַֽיִם רְפָא כָּל־חוֹלֵי עַמְּךָ יִשְׂרָאֵל:\n\n" +
-
 					"עֲנֵֽנוּ הָעוֹנֶה בְּעֵת צָרָה עֲנֵֽנוּ: עֲנֵֽנוּ רַחוּם וְחַנּוּן עֲנֵֽנוּ:\n\n" +
 
 					"יְהֹוָה חָנֵּֽנוּ וַהֲקִימֵֽנוּ. וּבְסֵֽפֶר חַיִּים זָכְרֵֽנוּ וְחָתְמֵֽנוּ:\n" +
@@ -2534,29 +2407,9 @@ public class SiddurMaker {
 
 					"יְהֹוָה מֶֽלֶךְ, יְהֹוָה מָלָֽךְ, יְהֹוָ֥ה ׀ יִמְלֹ֖ךְ לְעֹלָ֥ם וָעֶֽד׃ (שתי פעמים/twice)");
 
-				for (int i = 6; i < 8; i++) {
-					SpannableStringBuilder longDescription = new SpannableStringBuilder();
-					String[] nextHothMenu = (i == 7 ? hothMenu : elokenuShebashamayim[i]);
-					for (int j = 0; j < nextHothMenu.length; j++) {
-						if (j == 0) {
-							longDescription.append("אֱלֹהֵֽינוּ שֶׁבַּשָּׁמַֽיִם ");
-						} else {
-							longDescription.append("\n");
-
-							int start = longDescription.length();
-							longDescription.append("אֱ\"שֶׁ ");
-							longDescription.setSpan(new ForegroundColorSpan(halfOpaqueBlack), start, longDescription.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-						}
-						longDescription.append(nextHothMenu[j]);
-					}
-
-					addToSiddurHighlighted(longDescription);
-				}
+				addElokenuShebashamayim(6,7, true, true);
 
 				addToSiddurHighlighted(
-					"אֱלֹהֵֽינוּ שֶׁבַּשָּׁמַֽיִם קָֽרְבֵֽנוּ לַעֲבוֹדָתֶֽךָ:\n" +
-					"אֱלֹהֵֽינוּ שֶׁבַּשָּׁמַֽיִם רְפָא כָּל־חוֹלֵי עַמְּךָ יִשְׂרָאֵל:\n\n" +
-
 					"עֲנֵֽנוּ הָעוֹנֶה בְּעֵת רָצוֹן עֲנֵֽנוּ: עֲנֵֽנוּ רַחוּם וְחַנּוּן עֲנֵֽנוּ:\n\n" +
 
 					"יְהֹוָה חָנֵּֽנוּ וַהֲקִימֵֽנוּ. וּבְסֵֽפֶר חַיִּים זָכְרֵֽנוּ וְחָתְמֵֽנוּ:\n" +
@@ -2787,6 +2640,44 @@ public class SiddurMaker {
 				"אֲנִי וָהוּ הוֹשִֽׁיעָה נָּא. אֲנִי וָהוּ הוֹשִֽׁיעָה נָּא:\n\n" +
 				"כַּכָּתוּב: הוֹשִׁ֤יעָה ׀ אֶת־עַמֶּ֗ךָ וּבָרֵ֥ךְ אֶת־נַחֲלָתֶ֑ךָ וּרְעֵ֥ם וְ֝נַשְּׂאֵ֗ם עַד־הָעוֹלָֽם: וְנֶאֱמַר: וְיִהְי֨וּ דְבָרַ֜י אֵ֗לֶּה אֲשֶׁ֤ר הִתְחַנַּ֙נְתִּי֙ לִפְנֵ֣י יְהֹוָ֔ה קְרֹבִ֛ים אֶל־יְהֹוָ֥ה אֱלֹהֵ֖ינוּ יוֹמָ֣ם וָלָ֑יְלָה לַעֲשׂ֣וֹת ׀ מִשְׁפַּ֣ט עַבְדּ֗וֹ וּמִשְׁפַּ֛ט עַמּ֥וֹ יִשְׂרָאֵ֖ל דְּבַר־י֥וֹם בְּיוֹמֽוֹ: לְמַ֗עַן דַּ֚עַת כָּל־עַמֵּ֣י הָאָ֔רֶץ כִּ֥י יְהֹוָ֖ה ה֣וּא הָאֱלֹהִ֑ים אֵ֖ין עֽוֹד: לֹא־יָמ֡וּשׁ סֵפֶר֩ הַתּוֹרָ֨ה הַזֶּ֜ה מִפִּ֗יךָ וְהָגִ֤יתָ בּוֹ֙ יוֹמָ֣ם וָלַ֔יְלָה לְמַ֙עַן֙ תִּשְׁמֹ֣ר לַעֲשׂ֔וֹת כְּכָל־הַכָּת֖וּב בּ֑וֹ כִּי־אָ֛ז תַּצְלִ֥יחַ אֶת־דְּרָכֶ֖ךָ וְאָ֥ז תַּשְׂכִּֽיל: הֲל֤וֹא צִוִּיתִ֙יךָ֙ חֲזַ֣ק וֶאֱמָ֔ץ אַל־תַּעֲרֹ֖ץ וְאַל־תֵּחָ֑ת כִּ֤י עִמְּךָ֙ יְהֹוָ֣ה אֱלֹהֶ֔יךָ בְּכֹ֖ל אֲשֶׁ֥ר תֵּלֵֽךְ:");
 		}
+	}
+
+	private void addElokenuShebashamayim(int startIndex, int notInclusiveEndIndex, boolean injectHothmenu, boolean highlighted) {
+		String[] hothMenu = new String[]{
+			"חָתְמֵֽנוּ בְּסֵֽפֶר חַיִּים טוֹבִים",
+			"חָתְמֵֽנוּ בְּסֵֽפֶר צַדִּיקִים וַחֲסִידִים",
+			"חָתְמֵֽנוּ בְּסֵֽפֶר יְשָׁרִים וּתְמִימִים",
+			"חָתְמֵֽנוּ בְּסֵֽפֶר מְזוֹנוֹת וּפַרְנָסָה טוֹבָה"
+		};
+
+		for (int i = startIndex; i < (notInclusiveEndIndex + (injectHothmenu ? 1 : 0)); i++) {
+			if (i == 11 && !jewishDateInfo.getJewishCalendar().isAseresYemeiTeshuva())
+				continue;
+
+			SpannableStringBuilder longDescription = new SpannableStringBuilder();
+			String[] nextStanza = (i == notInclusiveEndIndex ? hothMenu : elokenuShebashamayim[i]);
+			for (int j = 0; j < nextStanza.length; j++) {
+				if (j == 0) {
+					longDescription.append("אֱלֹהֵֽינוּ שֶׁבַּשָּׁמַֽיִם ");
+				} else {
+					longDescription.append("\n");
+
+					int start = longDescription.length();
+					longDescription.append("אֱ\"שֶׁ ");
+					longDescription.setSpan(new ForegroundColorSpan(halfOpaqueColor), start, longDescription.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				}
+				longDescription.append(nextStanza[j]);
+			}
+
+			if (i == 11 || highlighted)
+				addToSiddurHighlighted(longDescription);
+			else
+				addToSiddur(longDescription);
+		}
+
+		if (injectHothmenu)
+			addToSiddurHighlighted("אֱלֹהֵֽינוּ שֶׁבַּשָּׁמַֽיִם קָֽרְבֵֽנוּ לַעֲבוֹדָתֶֽךָ:\n" +
+				"אֱלֹהֵֽינוּ שֶׁבַּשָּׁמַֽיִם רְפָא כָּל־חוֹלֵי עַמְּךָ יִשְׂרָאֵל:");
 	}
 
 	private void addAmidahToSiddur(TefilotForAmidah curTefila) {
@@ -3970,7 +3861,7 @@ public class SiddurMaker {
 		addCategoryToSiddur("ברכת המזון");
 
 		addToSiddur("בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵֽינוּ מֶֽלֶךְ הָעוֹלָם, הָאֵל הַזָּן אוֹתָֽנוּ וְאֶת־הָעוֹלָם כֻּלּוֹ בְּטוּבוֹ, בְּחֵן בְּחֶֽסֶד בְּרֶֽוַח וּבְרַחֲמִים רַבִּים, נֹתֵ֣ן לֶ֭חֶם לְכָל־בָּשָׂ֑ר כִּ֖י לְעוֹלָ֣ם חַסְדּֽוֹ. וּבְטוּבוֹ הַגָּדוֹל תָּמִיד לֹא חָֽסַר לָֽנוּ, וְאַל־יֶחְסַר לָֽנוּ מָזוֹן תָּמִיד לְעוֹלָם וָעֶד, כִּי הוּא אֵל זָן וּמְפַרְנֵס לַכֹּל וְשֻׁלְחָנוֹ עָרוּךְ לַכֹּל, וְהִתְקִין מִחְיָה וּמָזוֹן לְכָל־בְּרִיּוֹתָיו אֲשֶׁר בָּרָא בְּרַחֲמָיו וּבְרוֹב חֲסָדָיו. כָּאָמוּר, פּוֹתֵ֥חַ אֶת־יָדֶ֑ךָ וּמַשְׂבִּ֖יעַ לְכׇל־חַ֣י רָצֽוֹן. בָּרוּךְ אַתָּה יְהֹוָה, הַזָּן אֶת־הַכֹּל: \n\n" +
-						"נוֹדֶה לְךָ יְהֹוָה אֱלֹהֵֽינוּ עַל שֶׁהִנְחַֽלְתָּ לַאֲבוֹתֵֽינוּ, אֶֽרֶץ חֶמְדָּה טוֹבָה וּרְחָבָה בְּרִית וְתוֹרָה חַיִּים וּמָזוֹן, עַל שֶׁהוֹצֵאתָֽנוּ מֵאֶֽרֶץ מִצְרַֽיִם, וּפְדִיתָֽנוּ מִבֵּית עֲבָדִים, וְעַל בְּרִֽיתְךָֽ שֶׁחָתַֽמְתָּ בִּבְשָׂרֵֽנוּ, וְעַל תּוֹרָֽתְךָֽ שֶׁלִּמַּדְתָּֽנוּ, וְעַל חֻקֵּי רְצוֹנָךְ שֶׁהוֹדַעְתָּֽנוּ, וְעַל חַיִּים וּמָזוֹן שֶׁאַתָּה זָן וּמְפַרְנֵס אוֹתָֽנוּ:");
+		"נוֹדֶה לְךָ יְהֹוָה אֱלֹהֵֽינוּ עַל שֶׁהִנְחַֽלְתָּ לַאֲבוֹתֵֽינוּ, אֶֽרֶץ חֶמְדָּה טוֹבָה וּרְחָבָה בְּרִית וְתוֹרָה חַיִּים וּמָזוֹן, עַל שֶׁהוֹצֵאתָֽנוּ מֵאֶֽרֶץ מִצְרַֽיִם, וּפְדִיתָֽנוּ מִבֵּית עֲבָדִים, וְעַל בְּרִֽיתְךָֽ שֶׁחָתַֽמְתָּ בִּבְשָׂרֵֽנוּ, וְעַל תּוֹרָֽתְךָֽ שֶׁלִּמַּדְתָּֽנוּ, וְעַל חֻקֵּי רְצוֹנָךְ שֶׁהוֹדַעְתָּֽנוּ, וְעַל חַיִּים וּמָזוֹן שֶׁאַתָּה זָן וּמְפַרְנֵס אוֹתָֽנוּ:");
 
 		if (jewishDateInfo.getJewishCalendar().isChanukah() || jewishDateInfo.getJewishCalendar().isPurim()) {
 			if (jewishDateInfo.getJewishCalendar().getIsSafekMukafChoma()) {
