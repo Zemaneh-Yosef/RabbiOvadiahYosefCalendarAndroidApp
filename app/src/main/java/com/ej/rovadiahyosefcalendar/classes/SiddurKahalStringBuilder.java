@@ -8,6 +8,7 @@ import android.text.style.StyleSpan;
 
 import androidx.annotation.NonNull;
 
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,21 +21,37 @@ public class SiddurKahalStringBuilder extends SpannableStringBuilder {
 		super(kaddishText);
 	}
 
-	public SiddurKahalStringBuilder addRepeatedKahalChorusSmallText(boolean inline, String[] stanzas, String chorus, String stanzaPrefix) {
+	public SiddurKahalStringBuilder(String s) {
+		super(s);
+	}
+
+	public SiddurKahalStringBuilder addRepeatedKahalChorusSmallText(String inBetween, String[] stanzas, String chorus, String stanzaPrefix) {
 		for (String stanza: stanzas) {
 			super.append(stanzaPrefix).append(stanza);
 			this.appendSmallText(chorus);
 
-			if (!inline)
-				super.append("\n");
+			if (!Objects.equals(inBetween, ""))
+				super.append(inBetween);
 		}
 
-		if (!inline)
+		if (!Objects.equals(inBetween, ""))
 			super.delete(super.length() - 1, super.length());
 		return this;
 	}
 
-	public SiddurKahalStringBuilder addBoldFirstLetterOfStanza(boolean inline, String[] stanzas, String stanzaPrefix) {
+	public SiddurKahalStringBuilder addRepeatedKahalChorusSmallText(boolean inLine, String[] stanzas, String chorus, String stanzaPrefix) {
+		return this.addRepeatedKahalChorusSmallText(inLine ? "" : "\n", stanzas, chorus, stanzaPrefix);
+	}
+
+	public SiddurKahalStringBuilder addRepeatedKahalChorusSmallText(String[] stanzas, String chorus, String stanzaPrefix) {
+		return this.addRepeatedKahalChorusSmallText("\n", stanzas, chorus, stanzaPrefix);
+	}
+
+	public SiddurKahalStringBuilder addRepeatedKahalChorusSmallText(String[] stanzas, String chorus) {
+		return this.addRepeatedKahalChorusSmallText("\n", stanzas, chorus, "");
+	}
+
+	public SiddurKahalStringBuilder addBoldFirstLetterOfStanza(String inBetween, String[] stanzas, String stanzaPrefix) {
 		for (String stanza : stanzas) {
 			int stanzaStart = this.length(); // capture position before appending
 			super.append(stanzaPrefix).append(stanza);
@@ -49,22 +66,18 @@ public class SiddurKahalStringBuilder extends SpannableStringBuilder {
 				this.setSpan(new StyleSpan(Typeface.BOLD), start, end, SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
 			}
 
-			if (!inline)
-				super.append("\n");
+			if (!Objects.equals(inBetween, ""))
+				super.append(inBetween);
 		}
 
-		if (!inline)
+		if (!Objects.equals(inBetween, ""))
 			super.delete(super.length() - 1, super.length());
 
 		return this;
 	}
 
-	public SiddurKahalStringBuilder addRepeatedKahalChorusSmallText(String[] stanzas, String chorus, String stanzaPrefix) {
-		return this.addRepeatedKahalChorusSmallText(false, stanzas, chorus, stanzaPrefix);
-	}
-
-	public SiddurKahalStringBuilder addRepeatedKahalChorusSmallText(String[] stanzas, String chorus) {
-		return this.addRepeatedKahalChorusSmallText(stanzas, chorus, "");
+	public SiddurKahalStringBuilder addBoldFirstLetterOfStanza(boolean inLine, String[] stanzas, String stanzaPrefix) {
+		return this.addBoldFirstLetterOfStanza(inLine ? "" : "\n", stanzas, stanzaPrefix);
 	}
 
 	public SiddurKahalStringBuilder appendSmallText(String smallText) {
