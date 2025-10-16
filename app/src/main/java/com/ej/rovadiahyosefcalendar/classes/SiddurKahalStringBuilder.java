@@ -1,10 +1,15 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
+import android.graphics.Typeface;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.RelativeSizeSpan;
+import android.text.style.StyleSpan;
 
 import androidx.annotation.NonNull;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class SiddurKahalStringBuilder extends SpannableStringBuilder {
 	public SiddurKahalStringBuilder() {
@@ -26,6 +31,31 @@ public class SiddurKahalStringBuilder extends SpannableStringBuilder {
 
 		if (!inline)
 			super.delete(super.length() - 1, super.length());
+		return this;
+	}
+
+	public SiddurKahalStringBuilder addBoldFirstLetterOfStanza(boolean inline, String[] stanzas, String stanzaPrefix) {
+		for (String stanza : stanzas) {
+			int stanzaStart = this.length(); // capture position before appending
+			super.append(stanzaPrefix).append(stanza);
+
+			Pattern pattern = Pattern.compile("[\u05D0-\u05EA][\u0591-\u05C7]*");
+			Matcher matcher = pattern.matcher(stanza);
+
+			if (matcher.find()) {
+				int start = stanzaStart + stanzaPrefix.length() + matcher.start();
+				int end = stanzaStart + stanzaPrefix.length() + matcher.end();
+
+				this.setSpan(new StyleSpan(Typeface.BOLD), start, end, SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+			}
+
+			if (!inline)
+				super.append("\n");
+		}
+
+		if (!inline)
+			super.delete(super.length() - 1, super.length());
+
 		return this;
 	}
 
