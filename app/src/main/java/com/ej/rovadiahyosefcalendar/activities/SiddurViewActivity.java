@@ -5,11 +5,14 @@ import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -61,7 +64,12 @@ public class SiddurViewActivity extends AppCompatActivity {
         mJewishDateInfo.getJewishCalendar().setIsMukafChoma(sharedPreferences.getBoolean("isMukafChoma", false));
         mJewishDateInfo.getJewishCalendar().setIsSafekMukafChoma(sharedPreferences.getBoolean("isSafekMukafChoma", false));
 
-        SiddurMaker siddurMaker = new SiddurMaker(mJewishDateInfo);
+        LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
+        View textViewLayout = inflater.inflate(R.layout.text_view, null); // Don't attach to root
+        TextView otherTextView = textViewLayout.findViewById(R.id.textView);
+        int color = otherTextView.getCurrentTextColor();
+
+        SiddurMaker siddurMaker = new SiddurMaker(mJewishDateInfo, color);
         ArrayList<HighlightString> prayers = new ArrayList<>();
         if (siddurTitle != null) {
             prayers = switch (siddurTitle) {
@@ -93,7 +101,7 @@ public class SiddurViewActivity extends AppCompatActivity {
         Map<Integer, HighlightString> categories = new LinkedHashMap<>();
         int index = 0;
         for (HighlightString string: prayers) {
-            if (string.isCategory()) {
+            if (string.getType() == HighlightString.StringType.CATEGORY) {
                 if (categories.containsValue(string)) {
                     string.setString(string + "\u200E");// this unicode character is invisible. So it will always increment without showing in the UI
                 }

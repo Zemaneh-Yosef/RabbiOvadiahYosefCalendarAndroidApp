@@ -83,19 +83,24 @@ public class SiddurAdapter extends ArrayAdapter<String> implements SensorEventLi
             viewHolder.textView = convertView.findViewById(R.id.textView);
             viewHolder.imageView = convertView.findViewById(R.id.imageView);
             viewHolder.line = convertView.findViewById(R.id.line);
-            viewHolder.line.setBackgroundColor(viewHolder.textView.getCurrentTextColor());
             convertView.setTag(viewHolder);
             viewHolder.defaultTextColor = viewHolder.textView.getCurrentTextColor();
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        String itemText = siddur.get(position).toString();
-        viewHolder.textView.setText(itemText);
+        HighlightString currentText = siddur.get(position);
+        HighlightString.StringType currentTextType = currentText.getType();
+
+        if (currentText.isSpannableString())
+            viewHolder.textView.setText(currentText.getSpannableString());
+        else
+            viewHolder.textView.setText(currentText.toString());
+
         viewHolder.textView.setTextDirection(View.TEXT_DIRECTION_RTL);
         viewHolder.textView.setTextSize(textSize);
         viewHolder.textView.setJustify(isJustified);
-        if (siddur.get(position).shouldBeHighlighted()) {
+        if (currentTextType == HighlightString.StringType.HIGHLIGHT) {
             if ((context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES) {
                 convertView.setBackgroundColor(context.getColor(R.color.goldenrod));
             } else {// light mode
@@ -108,12 +113,12 @@ public class SiddurAdapter extends ArrayAdapter<String> implements SensorEventLi
         }
 
         viewHolder.textView.setOnClickListener(l -> {
-            if (siddur.get(position).toString().equals("Open Sefaria Siddur/פתח את סידור ספריה")) {
+            if (currentText.toString().equals("Open Sefaria Siddur/פתח את סידור ספריה")) {
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.sefaria.org/Siddur_Edot_HaMizrach?tab=contents"));
                 context.startActivity(browserIntent);
             }
-            if (siddur.get(position).toString().equals("Mussaf is said here, press here to go to Mussaf")
-                    || siddur.get(position).toString().equals("מוסף אומרים כאן, לחץ כאן כדי להמשיך למוסף")) {
+            if (currentText.toString().equals("Mussaf is said here, press here to go to Mussaf")
+                    || currentText.toString().equals("מוסף אומרים כאן, לחץ כאן כדי להמשיך למוסף")) {
                 context.startActivity(new Intent(context, SiddurViewActivity.class)
                         .putExtra("prayer", "מוסף")
                         .putExtra("JewishDay", jewishDateInfo.getJewishCalendar().getJewishDayOfMonth())
@@ -122,36 +127,46 @@ public class SiddurAdapter extends ArrayAdapter<String> implements SensorEventLi
                 );
             }
         });
-        switch (PreferenceManager.getDefaultSharedPreferences(context).getString("font", "Guttman Keren")) {
-            case "Guttman Keren":
-                viewHolder.textView.setTypeface(Typeface.createFromAsset(context.getAssets(), "Guttman Keren.ttf"), Typeface.NORMAL);
-                viewHolder.textView.setLineSpacing(4f, 1.2f);
-                break;
-            case "Taamey Frank":
-                viewHolder.textView.setTypeface(Typeface.createFromAsset(context.getAssets(), "Taamey_D.ttf"), Typeface.NORMAL);
-                break;
-            default:
-                break;
-        }
 
-        if (siddur.get(position).isCategory()) {
+        if (currentTextType == HighlightString.StringType.CATEGORY) {
             viewHolder.textView.setTypeface(Typeface.createFromAsset(context.getAssets(), "MANTB 2.ttf"), Typeface.NORMAL);
             viewHolder.textView.setGravity(Gravity.CENTER);
             viewHolder.textView.setTextSize(textSize + 8);
+        } else if (currentTextType == HighlightString.StringType.INSTRUCTION) {
+            viewHolder.textView.setTypeface(Typeface.createFromAsset(context.getAssets(), "Spectral-Bold.ttf"), Typeface.BOLD);
+            viewHolder.textView.setGravity(Gravity.CENTER);
+            viewHolder.textView.setTextSize(textSize - 10);
+            viewHolder.textView.setLineSpacing(1.5f, 1.05f);
         } else {
+            switch (PreferenceManager.getDefaultSharedPreferences(context).getString("font", "Guttman Keren")) {
+                case "Guttman Keren":
+                    viewHolder.textView.setTypeface(Typeface.createFromAsset(context.getAssets(), "Guttman Keren.ttf"), Typeface.NORMAL);
+                    viewHolder.textView.setLineSpacing(4f, 1.2f);
+                    break;
+                case "Taamey Frank":
+                    viewHolder.textView.setTypeface(Typeface.createFromAsset(context.getAssets(), "Taamey_D.ttf"), Typeface.NORMAL);
+                    break;
+                default:
+                    break;
+            }
             viewHolder.textView.setGravity(Gravity.NO_GRAVITY);
         }
 
-        if (siddur.get(position).toString().equals("[break here]")) {
+        if (currentText.toString().equals("[break here]")) {
             viewHolder.textView.setVisibility(View.GONE);
             viewHolder.line.setVisibility(View.VISIBLE);
-        } else if (siddur.get(position).isInfo()) {
+
+            if (currentTextType == HighlightString.StringType.HIGHLIGHT)
+                viewHolder.line.setBackgroundColor(context.getColor(R.color.black));
+            else
+                viewHolder.line.setBackgroundColor(viewHolder.textView.getCurrentTextColor());
+        } else if (currentTextType == HighlightString.StringType.INFO) {
             viewHolder.textView.setBackgroundColor(Color.DKGRAY);
             if ((context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_NO) {// light mode
                 viewHolder.textView.setTextColor(Color.BLACK);
             }
             viewHolder.textView.setVisibility(View.VISIBLE);
-            String summary = "▲ " + siddur.get(position).getSummary();
+            String summary = "▲ " + currentText.getSummary();
             viewHolder.textView.setText(summary);
             View.OnClickListener onClickListener = l -> {
                 viewHolder.textView.wasClicked = !viewHolder.textView.wasClicked;
@@ -168,7 +183,7 @@ public class SiddurAdapter extends ArrayAdapter<String> implements SensorEventLi
             viewHolder.line.setVisibility(View.GONE);
             viewHolder.textView.setBackgroundColor(Color.TRANSPARENT);
             if ((context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_NO) {// light mode
-                if (siddur.get(position).shouldBeHighlighted()) {
+                if (currentTextType == HighlightString.StringType.HIGHLIGHT) {
                     viewHolder.textView.setTextColor(Color.BLACK);
                 } else {
                     viewHolder.textView.setTextColor(viewHolder.defaultTextColor);
