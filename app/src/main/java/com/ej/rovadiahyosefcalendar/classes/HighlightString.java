@@ -19,7 +19,8 @@ public class HighlightString {
         HIGHLIGHT,
         CATEGORY,
         INFO,
-        INSTRUCTION
+        INSTRUCTION,
+        PARAGRAPH
     }
 
     public HighlightString(String s) {
