@@ -6,6 +6,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.text.SpannableString
 import android.util.TypedValue
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
@@ -299,7 +300,7 @@ private fun SiddurRow(
 
     val isNightMode = isSystemInDarkTheme()
     val currentTextType = currentText.type
-    val text = if (currentText.isSpannableString) currentText.spannableString.asAnnotatedString().annotatedString else AnnotatedString(currentText.toString())
+    val text = SpannableString(currentText.content).asAnnotatedString().annotatedString
 
     if (text.text == "[break here]") {
         val color = if (isNightMode) Color.White else Color.Black

@@ -1,18 +1,15 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
-import android.text.Spannable;
-
 import androidx.annotation.NonNull;
 
 import java.util.Objects;
 
 public class HighlightString {
 
-    private String string = "";
+    private CharSequence content = "";
     private String summary;
     private StringType type;
     private boolean needsMinyan = false;
-    private Spannable spannableString;
     private int bigWordsStart = 0;
     private ImageAttachment imageAttachment = ImageAttachment.NONE;
 
@@ -38,24 +35,12 @@ public class HighlightString {
         COMPASS
     }
 
-    public HighlightString(String s) {
-        setString(s);
-    }
-
-    public HighlightString(Spannable s) {
-        setSpannableString(s);
-    }
-
-    private void setSpannableString(Spannable s) {
-        this.spannableString = s;
-    }
-
-    public Spannable getSpannableString() {
-        return spannableString;
+    public HighlightString(CharSequence s) {
+        setContent(s);
     }
 
     public HighlightString(String s, String summary) {
-        setString(s);
+        setContent(s);
         setSummary(summary);
         setType(StringType.INFO);
     }
@@ -68,8 +53,8 @@ public class HighlightString {
         this.type = type;
     }
 
-    public void setString(String string) {
-        this.string = string;
+    public void setContent(CharSequence content) {
+        this.content = content;
     }
 
     public void setBigWordsStart(int bigWordsStart) {
@@ -101,7 +86,6 @@ public class HighlightString {
     public String getSummary() {
         return summary;
     }
-    public boolean isSpannableString() { return spannableString != null; }
 
     public StringType getType() {
         return type;
@@ -112,17 +96,21 @@ public class HighlightString {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         HighlightString that = (HighlightString) o;
-        return type == that.getType() && Objects.equals(string, that.string) && Objects.equals(spannableString, that.getSpannableString());
+        return type == that.getType() && Objects.equals(content, that.content) && Objects.equals(summary, that.summary) && Objects.equals(imageAttachment, that.imageAttachment);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(string, spannableString, summary, type);
+        return Objects.hash(content, summary, type, needsMinyan);
     }
 
     @NonNull
     @Override
     public String toString() {
-        return string;
+        return content.toString();
+    }
+
+    public CharSequence getContent() {
+        return content;
     }
 }
