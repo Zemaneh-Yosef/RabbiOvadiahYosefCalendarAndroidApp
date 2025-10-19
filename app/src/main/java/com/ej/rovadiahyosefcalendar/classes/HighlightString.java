@@ -6,40 +6,68 @@ import java.util.Objects;
 
 public class HighlightString {
 
-    private String string = "";
+    private CharSequence content = "";
     private String summary;
-    private boolean shouldBeHighlighted = false;
-    private boolean isCategory = false;
-    private boolean isInfo = false;
+    private StringType type;
     private boolean needsMinyan = false;
+    private int bigWordsStart = 0;
+    private ImageAttachment imageAttachment = ImageAttachment.NONE;
 
-    public HighlightString(String s) {
-        setString(s);
+	public ImageAttachment getImageAttachment() {
+		return imageAttachment;
+	}
+
+	public void setImageAttachment(ImageAttachment imageAttachment) {
+		this.imageAttachment = imageAttachment;
+	}
+
+	public enum StringType {
+        STANDARD,
+        HIGHLIGHT,
+        CATEGORY,
+        INFO,
+        INSTRUCTION
+    }
+
+    public enum ImageAttachment {
+        NONE,
+        MENORAH,
+        COMPASS
+    }
+
+    public HighlightString(CharSequence s) {
+        setContent(s);
     }
 
     public HighlightString(String s, String summary) {
-        setString(s);
+        setContent(s);
         setSummary(summary);
-        setInfo(true);
+        setType(StringType.INFO);
     }
 
-    public HighlightString setShouldBeHighlighted(boolean shouldBeHighlighted) {
-        this.shouldBeHighlighted = shouldBeHighlighted;
+    public HighlightString setTypeChain(StringType type) {
+        this.type = type;
+        return this;
+    }
+    public void setType(StringType type) {
+        this.type = type;
+    }
+
+    public void setContent(CharSequence content) {
+        this.content = content;
+    }
+
+    public void setBigWordsStart(int bigWordsStart) {
+        this.bigWordsStart = bigWordsStart;
+    }
+
+    public HighlightString setBigWordsStartChain(int bigWordsStart) {
+        this.bigWordsStart = bigWordsStart;
         return this;
     }
 
-    public void setString(String string) {
-        this.string = string;
-    }
-
-    public HighlightString setCategory(boolean category) {
-        this.isCategory = category;
-        return this;
-    }
-
-    public HighlightString setInfo(boolean info) {
-        this.isInfo = info;
-        return this;
+    public int getBigWordsStart() {
+        return bigWordsStart;
     }
 
     public HighlightString setSummary(String summary) {
@@ -55,17 +83,12 @@ public class HighlightString {
     public boolean isNeedsMinyan() {
         return needsMinyan;
     }
-    public boolean shouldBeHighlighted() {
-        return shouldBeHighlighted;
-    }
-    public boolean isCategory() {
-        return isCategory;
-    }
-    public boolean isInfo() {
-        return isInfo;
-    }
     public String getSummary() {
         return summary;
+    }
+
+    public StringType getType() {
+        return type;
     }
 
     @Override
@@ -73,17 +96,21 @@ public class HighlightString {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         HighlightString that = (HighlightString) o;
-        return shouldBeHighlighted == that.shouldBeHighlighted && isCategory == that.isCategory && Objects.equals(string, that.string) && isInfo == that.isInfo;
+        return type == that.getType() && Objects.equals(content, that.content) && Objects.equals(summary, that.summary) && Objects.equals(imageAttachment, that.imageAttachment);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(string, shouldBeHighlighted, isCategory, isInfo);
+        return Objects.hash(content, summary, type, needsMinyan);
     }
 
     @NonNull
     @Override
     public String toString() {
-        return string;
+        return content.toString();
+    }
+
+    public CharSequence getContent() {
+        return content;
     }
 }

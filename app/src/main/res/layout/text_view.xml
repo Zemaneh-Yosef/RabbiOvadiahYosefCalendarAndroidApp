@@ -1,26 +1,18 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:clipChildren="false"
     android:orientation="vertical">
 
-    <com.ej.rovadiahyosefcalendar.classes.JustifyTextView
-        android:id="@+id/textView"
+    <!-- The old JustifyTextView is replaced by ComposeView -->
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/compose_textView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:textSize="16sp"
-        android:enabled="true"
-        android:textIsSelectable="true"
-        android:focusable="true"
-        android:longClickable="true"
-        android:letterSpacing="0.0"
-        android:lineSpacingMultiplier="1"
-        tools:text="אַנְשֵׁי אֱמוּנָה אָבָדוּ. בָּאִים בְּכֹחַ מַעֲשֵׂיהֶם: גִּבּוֹרִים לַעֲמֹד בַּפֶּרֶץ. דּוֹחִים אֶת הַגְּזֵרוֹת: הָיוּ לָנוּ לְחוֹמָה. וּלְמַחְסֶה בְּיוֹם זַעַם: זוֹעֲכִים אַף בְּלַחֲשָׁם. חֵמָה עָצְרוּ בְּשַׁוְּעָם: טֶרֶם קְרָאוּךָ עֲנִיתָם. יוֹדְעִים לַעֲתֹר וּלְרַצּוֹת: כְּאָב רִחַמְתָּ לְמַעֲנָם. לֹא הֱשִׁיבוֹתָ פְּנֵיהֶם רֵיקָם: מֵרֹב עֲוֹנֵינוּ אֲבַדְנוּם. נֶאֶסְפוּ מֶנּוּ בַּחֲטָאֵינוּ: סָעוּ הֵמָּה לִמְנוּחוֹת. עָזְבוּ אוֹתָנוּ לַאֲנָחוֹת: פַּסּוּ גוֹדְרֵי גָדֵר. צֻמְּתוּ מְשִׁיבֵי חֵמָה: קָמִים בַּפֶּרֶץ אַיִן. רְאוּיִים לְרַצּוֹתְךָ אָפֵסוּ: שׁוֹטַטְנוּ בְּאַרְבַּע פִּנּוֹת. תְּרוּפָה לֹא מָצָאנוּ: שַׁבְנוּ אֵלֶיךָ בְּבֹשֶׁת פָּנֵינוּ. לְשַׁחֲרָךְ אֵל בְּעֵת סְלִיחָתֵנוּ:" />
+        android:layout_height="wrap_content" />
 
+    <!-- The other views can remain as they are for now -->
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="wrap_content"
@@ -36,5 +28,3 @@
         tools:visibility="visible" />
 
 </LinearLayout>
-
-

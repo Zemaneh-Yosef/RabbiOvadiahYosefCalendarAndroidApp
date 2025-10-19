@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
     id 'org.jetbrains.kotlin.android'
+    id 'org.jetbrains.kotlin.plugin.compose'
 }
 
 android {
@@ -37,25 +38,51 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_19
+        targetCompatibility JavaVersion.VERSION_19
     }
 
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = "19"
     }
 
     buildFeatures {
         viewBinding true
         buildConfig true
+        compose true
     }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.10"
+    }
+
     namespace 'com.ej.rovadiahyosefcalendar'
-    apply plugin: "org.jetbrains.kotlin.plugin.compose"
 }
 
 dependencies {
+    // USE THE LATEST COMPOSE BOM
+    // This manages the versions of your Compose libraries.
+    implementation platform('androidx.compose:compose-bom:2025.10.00')
+
+    // REMOVE VERSIONS FROM INDIVIDUAL COMPOSE DEPENDENCIES
+    // The BOM now controls these versions.
+    implementation 'androidx.activity:activity-compose'
+    implementation "androidx.compose.animation:animation"
+    implementation "androidx.compose.foundation:foundation"
+    implementation "androidx.compose.material:material"
+    implementation "androidx.compose.runtime:runtime"
+    implementation "androidx.compose.ui:ui"
+    implementation "androidx.compose.ui:ui-tooling-preview"
+    implementation 'io.github.aghajari:AnnotatedText:1.0.3'
+
+    // 1. ADD this dependency for Java-friendly state functions like remember() and mutableStateOf()
+    implementation "androidx.compose.runtime:runtime-livedata"
+    implementation "androidx.compose.foundation:foundation-layout"
+    implementation "androidx.compose.material3:material3:1.4.0"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2"
+
+    // Your other app dependencies...
     implementation 'androidx.appcompat:appcompat:1.7.1'
-    implementation "androidx.compose.runtime:runtime:1.9.2"
     implementation "androidx.core:core-splashscreen:1.0.1"
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
     implementation 'androidx.viewpager2:viewpager2:1.1.0'
@@ -67,7 +94,6 @@ dependencies {
     implementation group: 'com.kosherjava', name: 'zmanim', version: '2.5.0'
     implementation group: 'org.shredzone.commons', name: 'commons-suncalc', version: '2.14'// Do NOT upgrade, v3 changes how the full cycle works. Once min SDK is 26, we will upgrade
     implementation('net.iakovlev:timeshape:2025b.28') {
-        // Exclude standard compression library
         exclude group: 'com.github.luben', module: 'zstd-jni'
     }
     implementation 'com.github.luben:zstd-jni:1.5.7-5@aar'

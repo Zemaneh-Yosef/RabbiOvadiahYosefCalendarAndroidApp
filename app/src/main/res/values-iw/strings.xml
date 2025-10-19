@@ -704,4 +704,5 @@
     <string name="keep_screen_on_siddur">השארת המסך דלוק (סידור)</string>
     <string name="prevent_the_screen_from_turning_off_while_viewing_the_siddur">למנוע מהמסך להיכבות בזמן צפייה בסידור</string>
     <string name="makam">"מקאם: "</string>
+    <string name="justify_text">Toggle Text Justification</string>
 </resources>
