@@ -61,6 +61,11 @@ public class HighlightString {
         this.bigWordsStart = bigWordsStart;
     }
 
+    public HighlightString setBigWordsStartChain(int bigWordsStart) {
+        this.bigWordsStart = bigWordsStart;
+        return this;
+    }
+
     public int getBigWordsStart() {
         return bigWordsStart;
     }

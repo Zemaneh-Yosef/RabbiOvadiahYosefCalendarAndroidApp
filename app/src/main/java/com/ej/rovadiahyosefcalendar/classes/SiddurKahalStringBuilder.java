@@ -17,7 +17,7 @@ public class SiddurKahalStringBuilder extends SpannableStringBuilder {
 		super();
 	}
 
-	public SiddurKahalStringBuilder(SiddurKahalStringBuilder kaddishText) {
+	public SiddurKahalStringBuilder(Spannable kaddishText) {
 		super(kaddishText);
 	}
 
@@ -68,6 +68,31 @@ public class SiddurKahalStringBuilder extends SpannableStringBuilder {
 
 			if (!Objects.equals(inBetween, ""))
 				super.append(inBetween);
+		}
+
+		if (!Objects.equals(inBetween, ""))
+			super.delete(super.length() - 1, super.length());
+
+		return this;
+	}
+
+	public SiddurKahalStringBuilder addBoldFirstLetterOfStanzaForKahal(String inBetween, String[] stanzas, String stanzaPrefix) {
+		for (String stanza : stanzas) {
+			int stanzaStart = this.length(); // capture position before appending
+			super.append(stanzaPrefix).append(stanza);
+
+			Pattern pattern = Pattern.compile("[\u05D0-\u05EA][\u0591-\u05C7]*");
+			Matcher matcher = pattern.matcher(stanza);
+
+			if (matcher.find()) {
+				int start = stanzaStart + stanzaPrefix.length() + matcher.start();
+				int end = stanzaStart + stanzaPrefix.length() + matcher.end();
+
+				this.setSpan(new StyleSpan(Typeface.BOLD), start, end, SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+			}
+
+			if (!Objects.equals(inBetween, ""))
+				this.appendSmallText(inBetween);
 		}
 
 		if (!Objects.equals(inBetween, ""))
