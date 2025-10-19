@@ -13,14 +13,14 @@ public class HighlightString {
     private StringType type;
     private boolean needsMinyan = false;
     private Spannable spannableString;
+    private int bigWordsStart = 0;
 
     public enum StringType {
         STANDARD,
         HIGHLIGHT,
         CATEGORY,
         INFO,
-        INSTRUCTION,
-        PARAGRAPH
+        INSTRUCTION
     }
 
     public HighlightString(String s) {
@@ -55,6 +55,14 @@ public class HighlightString {
 
     public void setString(String string) {
         this.string = string;
+    }
+
+    public void setBigWordsStart(int bigWordsStart) {
+        this.bigWordsStart = bigWordsStart;
+    }
+
+    public int getBigWordsStart() {
+        return bigWordsStart;
     }
 
     public HighlightString setSummary(String summary) {

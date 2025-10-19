@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -28,7 +29,7 @@ fun AdvancedText(
     modifier: Modifier = Modifier,
     style: TextStyle = TextStyle.Default,
     isJustified: Boolean,
-    isLargeFirstWord: Boolean,
+    largeWordCount: Int, // Changed from isLargeFirstWord: Boolean
     onWasClickedChange: (Boolean) -> Unit
 ) {
     var wasClicked by remember { mutableStateOf(false) }
@@ -50,8 +51,11 @@ fun AdvancedText(
 
                     val words = paragraphText.trim().split(' ')
                     val finalStyle = style.copy(textAlign = if (isJustified) TextAlign.Justify else TextAlign.Right)
-                    val useComplexLayout = isLargeFirstWord && words.size > 5
 
+                    // Check if we should use the complex layout
+                    val useComplexLayout = largeWordCount > 0 && words.size > largeWordCount
+
+                    // Find the original AnnotatedString for this paragraph to preserve styles
                     val paragraphStartIndex = text.text.indexOf(paragraphText)
                     val paragraphAnnotatedString = if (paragraphStartIndex != -1) {
                         text.subSequence(paragraphStartIndex, paragraphStartIndex + paragraphText.length)
@@ -60,25 +64,26 @@ fun AdvancedText(
                     }
 
                     if (useComplexLayout) {
-                        val firstWord = words.first()
-                        val restOfText = paragraphText.substring(paragraphText.indexOf(firstWord) + firstWord.length).trimStart()
+                        // --- THIS IS THE NEW LOGIC ---
+                        // 1. Get the large words and the rest of the text.
+                        val largeWords = words.take(largeWordCount)
+                        val largeWordsString = largeWords.joinToString(" ")
+                        val restOfText = paragraphText.substring(paragraphText.indexOf(largeWordsString) + largeWordsString.length).trimStart()
 
-                        // 1. Measure the big word
+                        // 2. Measure the block of large words.
                         val largeWordStyle = style.copy(fontSize = style.fontSize * 1.7f)
-                        val firstWordLayout = textMeasurer.measure(
-                            text = firstWord,
+                        val largeWordsLayout = textMeasurer.measure(
+                            text = largeWordsString,
                             style = largeWordStyle
                         )
-                        val firstWordWidth = firstWordLayout.size.width
-                        val firstWordHeight = firstWordLayout.size.height
+                        val largeWordsWidth = largeWordsLayout.size.width
+                        val largeWordsHeight = largeWordsLayout.size.height
+                        // --- END OF NEW LOGIC ---
 
-                        // --- THIS IS THE FIX for Spacing ---
-                        // Define a spacing value and subtract it from the available width.
                         val spacing = 8.sp.toPx()
-                        val indentedConstraints = Constraints(maxWidth = (size.width - firstWordWidth - spacing).toInt().coerceAtLeast(0))
-                        // --- END OF FIX ---
+                        val indentedConstraints = Constraints(maxWidth = (size.width - largeWordsWidth - spacing).toInt().coerceAtLeast(0))
 
-                        // 2. Measure the entire rest of the text to get correct justification
+                        // Measure the entire rest of the text to get correct justification
                         val fullRestOfTextLayout = textMeasurer.measure(
                             text = restOfText,
                             style = finalStyle,
@@ -86,14 +91,14 @@ fun AdvancedText(
                             overflow = TextOverflow.Visible
                         )
 
-                        // 3. Find the line and character index where the text beside the large word should end
-                        val lineIndexBeside = fullRestOfTextLayout.getLineForVerticalPosition(firstWordHeight.toFloat() - 1)
+                        // Find the line and character index where the text beside the large words should end
+                        val lineIndexBeside = fullRestOfTextLayout.getLineForVerticalPosition(largeWordsHeight.toFloat() - 1)
                         val lastCharIndexBeside = fullRestOfTextLayout.getLineEnd(
                             lineIndex = lineIndexBeside,
                             visibleEnd = true
                         )
 
-                        // 4. Measure the text that flows BELOW
+                        // Measure the text that flows BELOW
                         val textBelowString = restOfText.substring(lastCharIndexBeside)
                         val belowTextLayout = textMeasurer.measure(
                             text = textBelowString,
@@ -104,12 +109,12 @@ fun AdvancedText(
                         val besideTextHeight = fullRestOfTextLayout.getLineBottom(lineIndexBeside)
 
                         // --- DRAWING PASS ---
-                        drawText(firstWordLayout, topLeft = Offset(size.width - firstWordWidth, currentY))
+                        drawText(largeWordsLayout, topLeft = Offset(size.width - largeWordsWidth, currentY))
 
                         clipRect(
                             left = 0f,
                             top = currentY,
-                            right = size.width - firstWordWidth - spacing,
+                            right = size.width - largeWordsWidth - spacing,
                             bottom = currentY + besideTextHeight
                         ) {
                             drawText(fullRestOfTextLayout, topLeft = Offset(0f, currentY))
@@ -117,10 +122,10 @@ fun AdvancedText(
 
                         drawText(belowTextLayout, topLeft = Offset(0f, currentY + besideTextHeight))
 
-                        currentY += max(firstWordHeight.toFloat(), besideTextHeight) + belowTextLayout.size.height
+                        currentY += max(largeWordsHeight.toFloat(), besideTextHeight) + belowTextLayout.size.height
 
                     } else {
-                        // --- SIMPLE LAYOUT ---
+                        // --- SIMPLE LAYOUT (no changes here) ---
                         val simpleLayout = textMeasurer.measure(
                             text = paragraphAnnotatedString,
                             style = finalStyle,
@@ -133,7 +138,7 @@ fun AdvancedText(
             }
         }
     ) { measurables, constraints ->
-        // --- MEASURE PASS ---
+        // --- MEASURE PASS (with the same new logic) ---
         var totalHeight = 0f
         val paragraphs = plainText.split("\n\n")
 
@@ -141,20 +146,23 @@ fun AdvancedText(
             if (paragraphText.isBlank()) return@forEach
             val words = paragraphText.trim().split(' ')
             val finalStyle = style.copy(textAlign = if (isJustified) TextAlign.Justify else TextAlign.Right)
-            val useComplexLayout = isLargeFirstWord && words.size > 5
+
+            // Check if we should use the complex layout
+            val useComplexLayout = largeWordCount > 0 && words.size > largeWordCount
 
             if (useComplexLayout) {
-                val firstWord = words.first()
+                // --- THIS IS THE NEW LOGIC (mirrored) ---
+                val largeWords = words.take(largeWordCount)
+                val largeWordsString = largeWords.joinToString(" ")
                 val largeWordStyle = style.copy(fontSize = style.fontSize * 1.7f)
-                val firstWordLayout = textMeasurer.measure(text = firstWord, style = largeWordStyle)
-                val firstWordHeight = firstWordLayout.size.height
-                val firstWordWidth = firstWordLayout.size.width
-                val restOfText = paragraphText.substring(paragraphText.indexOf(firstWord) + firstWord.length).trimStart()
+                val largeWordsLayout = textMeasurer.measure(text = largeWordsString, style = largeWordStyle)
+                val largeWordsHeight = largeWordsLayout.size.height
+                val largeWordsWidth = largeWordsLayout.size.width
+                val restOfText = paragraphText.substring(paragraphText.indexOf(largeWordsString) + largeWordsString.length).trimStart()
+                // --- END OF NEW LOGIC (mirrored) ---
 
-                // --- APPLY SAME FIX IN MEASURE PASS ---
                 val spacing = 8.sp.toPx()
-                val indentedConstraints = constraints.copy(minWidth = 0, maxWidth = (constraints.maxWidth - firstWordWidth - spacing).toInt().coerceAtLeast(0))
-                // --- END OF FIX ---
+                val indentedConstraints = constraints.copy(minWidth = 0, maxWidth = (constraints.maxWidth - largeWordsWidth - spacing).toInt().coerceAtLeast(0))
 
                 val fullRestOfTextLayout = textMeasurer.measure(
                     text = restOfText,
@@ -163,7 +171,7 @@ fun AdvancedText(
                     overflow = TextOverflow.Visible
                 )
 
-                val lineIndexBeside = fullRestOfTextLayout.getLineForVerticalPosition(firstWordHeight.toFloat() - 1)
+                val lineIndexBeside = fullRestOfTextLayout.getLineForVerticalPosition(largeWordsHeight.toFloat() - 1)
                 val lastCharIndexBeside = fullRestOfTextLayout.getLineEnd(lineIndex = lineIndexBeside, visibleEnd = true)
                 val textBelowString = restOfText.substring(lastCharIndexBeside)
 
@@ -174,7 +182,7 @@ fun AdvancedText(
                 )
 
                 val besideTextHeight = fullRestOfTextLayout.getLineBottom(lineIndexBeside)
-                totalHeight += max(firstWordHeight.toFloat(), besideTextHeight) + textBelowLayout.size.height.toFloat()
+                totalHeight += max(largeWordsHeight.toFloat(), besideTextHeight) + textBelowLayout.size.height.toFloat()
             } else {
                 val simpleLayout = textMeasurer.measure(
                     text = AnnotatedString(paragraphText),

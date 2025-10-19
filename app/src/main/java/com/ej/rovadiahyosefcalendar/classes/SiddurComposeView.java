@@ -7,19 +7,21 @@ import androidx.annotation.Nullable;
 import androidx.compose.runtime.Composable;
 import androidx.compose.runtime.Composer;
 import androidx.compose.ui.platform.AbstractComposeView;
+
 import java.util.ArrayList;
 
-//import com.google.accompanist.themeadapter.material3.Mdc3Theme; // The new adapter is also called MdcTheme
-//import kotlin.Unit;
-//import kotlin.jvm.functions.Function2;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
-// Import your correct entry function
 import static com.ej.rovadiahyosefcalendar.classes.SiddurScreenKt.SiddurScreenEntry;
 
 public class SiddurComposeView extends AbstractComposeView {
 
 	private ArrayList<HighlightString> siddurContent = new ArrayList<>();
-	private JewishDateInfo jewishDateInfo = new JewishDateInfo(false); // Default value
+	private JewishDateInfo jewishDateInfo = new JewishDateInfo(false);
+
+	// Create a field to hold the scrolling function given to us by Compose.
+	private Function1<Integer, Unit> scrollToPositionLambda = null;
 
 	public SiddurComposeView(@NonNull Context context) {
 		super(context);
@@ -33,44 +35,40 @@ public class SiddurComposeView extends AbstractComposeView {
 		super(context, attrs, defStyleAttr);
 	}
 
-	// A public method to set the data
+	// This method is called from the Activity to trigger the scroll.
+	public void scrollToPosition(int position) {
+		// If we have received the scrolling lambda from Compose, invoke it.
+		if (scrollToPositionLambda != null) {
+			scrollToPositionLambda.invoke(position);
+		}
+	}
+
+	// The Activity calls this method to provide the data.
 	public void setData(ArrayList<HighlightString> content, JewishDateInfo dateInfo) {
-		// Prevent setting null data
 		if (content == null || dateInfo == null) {
 			return;
 		}
 		this.siddurContent = content;
 		this.jewishDateInfo = dateInfo;
-		// Invalidate the view to force a recomposition with the new data
 		if (isAttachedToWindow()) {
 			createComposition();
 		}
 	}
 
-	// --- THIS IS THE FINAL, CORRECT IMPLEMENTATION ---
-	// It must be 'public' to override the parent method.
 	@Override
 	@Composable
 	public void Content(@Nullable Composer composer, int i) {
-		// --- THIS IS THE FIX ---
-		// MdcTheme reads your app's XML theme and correctly sets up
-		// MaterialTheme for its children. All colors will now be correct.
-		/* Mdc3Theme.Mdc3Theme(
-			getContext(),
-			true,
-			true,
-			true,
-			true,
-			true,
-			(Function2<Composer, Integer, Unit>) (c, i1) -> { */
-				SiddurScreenEntry(siddurContent, jewishDateInfo, composer, 0);
-				//return Unit.INSTANCE;
-			/* },
+		SiddurScreenEntry(
+			siddurContent,
+			jewishDateInfo,
+			// Update the cast to match the expected type with wildcards
+			(Function1<? super Function1<? super Integer, Unit>, Unit>) scrollLambda -> {
+				this.scrollToPositionLambda = (Function1<Integer, Unit>) scrollLambda;
+				return Unit.INSTANCE;
+			},
 			composer,
-			8,
 			0
-		); */
-		// --- END OF FIX ---
+		);
 	}
-	// --- END OF FIX ---
+
 }
