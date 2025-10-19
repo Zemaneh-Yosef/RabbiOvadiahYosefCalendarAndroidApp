@@ -5,6 +5,8 @@ import android.content.Intent
 import android.util.TypedValue
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,7 +24,6 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 // End M3 Imports
 import androidx.compose.runtime.Composable
@@ -56,6 +57,7 @@ import com.aghajari.compose.text.asAnnotatedString
 import com.ej.rovadiahyosefcalendar.R as AppR
 import com.ej.rovadiahyosefcalendar.activities.SiddurViewActivity
 import kotlinx.coroutines.launch
+
 
 // 1. Define a type for our scroll event lambda
 typealias ScrollToPosition = (Int) -> Unit
@@ -133,7 +135,9 @@ private fun SiddurScreen(
         }
     ) { innerPadding ->
         LazyColumn(
-            modifier = Modifier.padding(innerPadding),
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxWidth(),
             state = listState // Use the locally owned and managed state
         ) {
             items(siddurContent) { currentText ->
@@ -159,7 +163,7 @@ private fun SiddurBottomBar(
 ) {
     BottomAppBar(
         containerColor = getThemeColor(android.R.attr.windowBackground),
-        contentColor = MaterialTheme.colorScheme.onSurface // M3 uses contentColor
+        contentColor = getThemeColor(android.R.attr.textColorPrimary) // M3 uses contentColor
     ) {
         IconButton(onClick = onJustifyClick) {
             Icon(
@@ -172,16 +176,6 @@ private fun SiddurBottomBar(
             value = currentTextSize,
             onValueChange = onTextSizeChange,
             valueRange = 18f..45f,
-            steps = 23,
-            modifier = Modifier
-                .weight(1f)
-                .padding(horizontal = 8.dp),
-            colors = SliderDefaults.colors(
-                thumbColor = Color(0xFF673AB7),
-                activeTrackColor = Color(0xFF673AB7).copy(alpha = 0.7f),
-                inactiveTrackColor = Color.Gray.copy(alpha = 0.5f),
-                activeTickColor = Color(0xFF9C27B0).copy(alpha = 0.5f)
-            )
         )
     }
 }
@@ -234,7 +228,8 @@ private fun SiddurRow(
             isCategory -> FontFamily(Font(AppR.font.mantb_2))
             isInstruction -> FontFamily(Font(AppR.font.spectral_bold, FontWeight.Bold))
             fontPreference == "Taamey Frank" -> FontFamily(Font(AppR.font.taamey_d))
-            else -> FontFamily(Font(AppR.font.guttman_keren))
+            fontPreference == "Guttman Keren" -> FontFamily(Font(AppR.font.guttman_keren))
+            else -> FontFamily.Default
         }
 
         val finalSize = when {
@@ -243,20 +238,35 @@ private fun SiddurRow(
             else -> textSize
         }
 
-        val isRTL = if (text.isEmpty()) {
-            false
-        } else {
-            val firstChar = text.text[0]
-            val directionality = Character.getDirectionality(firstChar)
-            directionality == Character.DIRECTIONALITY_RIGHT_TO_LEFT
-                    || directionality == Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC
+        val textDirection = remember(text.text) { // Re-calculate only if the text changes
+            var isRtl = false // Default to LTR
+            for (char in text.text) {
+                when (Character.getDirectionality(char)) {
+                    Character.DIRECTIONALITY_RIGHT_TO_LEFT,
+                    Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC -> {
+                        isRtl = true
+                        break // Found a strong RTL character, our job is done.
+                    }
+                    Character.DIRECTIONALITY_LEFT_TO_RIGHT -> {
+                        isRtl = false
+                        break // Found a strong LTR character, our job is done.
+                    }
+                    // For neutral characters like spaces, emojis, numbers, etc., we continue the loop.
+                    else -> continue
+                }
+            }
+            // Set the final TextDirection based on the first strong character we found.
+            if (isRtl) {
+                androidx.compose.ui.text.style.TextDirection.Rtl
+            } else {
+                androidx.compose.ui.text.style.TextDirection.Ltr
+            }
         }
-        val textDirection = if (isRTL) { androidx.compose.ui.text.style.TextDirection.Rtl } else {androidx.compose.ui.text.style.TextDirection.Ltr}
 
         val textAlign = when {
             isCategory || isInstruction -> TextAlign.Center
             isJustified -> TextAlign.Justify
-            else -> TextAlign.Right
+            else -> TextAlign.Unspecified
         }
 
         val textStyle = TextStyle(
@@ -268,44 +278,56 @@ private fun SiddurRow(
             textDirection = textDirection
         )
 
-        if (isParagraph || isInfo) {
-            var isInfoExpanded by remember { mutableStateOf(false) }
-            val textToDisplay = when {
-                isInfo -> if (isInfoExpanded) AnnotatedString("▼ ${currentText.summary}${text}") else AnnotatedString("▲ ${currentText.summary}")
-                else -> text
-            }
-
+        if (isParagraph) {
             AdvancedText(
-                text = textToDisplay,
+                text = text,
                 style = textStyle,
                 isJustified = isJustified,
                 largeWordCount = currentText.bigWordsStart,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                onWasClickedChange = {
-                    if (isInfo) {
-                        isInfoExpanded = !isInfoExpanded
-                    } else if (text.text == "Open Sefaria Siddur/פתח את סידור ספריה") {
-                        val browserIntent = Intent(Intent.ACTION_VIEW,
-                            "https://www.sefaria.org/Siddur_Edot_HaMizrach?tab=contents".toUri())
-                        context.startActivity(browserIntent)
-                    } else if (text.text == "Mussaf is said here, press here to go to Mussaf" || text.text == "מוסף אומרים כאן, לחץ כאן כדי להמשיך למוסף") {
-                        val intent = Intent(context, SiddurViewActivity::class.java).apply {
-                            putExtra("prayer", "מוסף")
-                            putExtra("JewishDay", jewishDateInfo.jewishCalendar.jewishDayOfMonth)
-                            putExtra("JewishMonth", jewishDateInfo.jewishCalendar.jewishMonth)
-                            putExtra("JewishYear", jewishDateInfo.jewishCalendar.jewishYear)
-                        }
-                        context.startActivity(intent)
-                    }
-                }
             )
         } else {
+            var isInfoExpanded by remember { mutableStateOf(false) }
+            val textToDisplay = when {
+                isInfo -> if (isInfoExpanded) AnnotatedString("▼ ${currentText.summary}${text}") else AnnotatedString("▲ ${currentText.summary}")
+                else -> text
+            }
+
             Text(
-                text = text,
+                text = textToDisplay,
                 style = textStyle,
                 modifier = Modifier
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = {
+                            if (isInfo) {
+                                isInfoExpanded = !isInfoExpanded
+                            } else if (text.text == "Open Sefaria Siddur/פתח את סידור ספריה") {
+                                val browserIntent = Intent(
+                                    Intent.ACTION_VIEW,
+                                    "https://www.sefaria.org/Siddur_Edot_HaMizrach?tab=contents".toUri()
+                                )
+                                context.startActivity(browserIntent)
+                            } else if (text.text == "Mussaf is said here, press here to go to Mussaf" || text.text == "מוסף אומרים כאן, לחץ כאן כדי להמשיך למוסף") {
+                                val intent = Intent(context, SiddurViewActivity::class.java).apply {
+                                    putExtra("prayer", "מוסף")
+                                    putExtra(
+                                        "JewishDay",
+                                        jewishDateInfo.jewishCalendar.jewishDayOfMonth
+                                    )
+                                    putExtra(
+                                        "JewishMonth",
+                                        jewishDateInfo.jewishCalendar.jewishMonth
+                                    )
+                                    putExtra("JewishYear", jewishDateInfo.jewishCalendar.jewishYear)
+                                }
+                                context.startActivity(intent)
+                            }
+                        }
+                    )
                     .fillMaxWidth()
                     .padding(16.dp)
             )

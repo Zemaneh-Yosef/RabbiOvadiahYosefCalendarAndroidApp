@@ -30,17 +30,12 @@ fun AdvancedText(
     style: TextStyle = TextStyle.Default,
     isJustified: Boolean,
     largeWordCount: Int, // Changed from isLargeFirstWord: Boolean
-    onWasClickedChange: (Boolean) -> Unit
 ) {
-    var wasClicked by remember { mutableStateOf(false) }
     val textMeasurer = rememberTextMeasurer()
     val plainText = text.text // Work with the plain string for all logic
 
     Layout(
-        modifier = modifier.clickable {
-            wasClicked = !wasClicked
-            onWasClickedChange(wasClicked)
-        },
+        modifier = modifier,
         content = {
             Canvas(Modifier.fillMaxWidth()) {
                 val paragraphs = plainText.split("\n\n")

@@ -12,7 +12,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.core.content.ContextCompat;
-import androidx.core.view.WindowCompat;
 import androidx.preference.PreferenceManager;
 
 import com.ej.rovadiahyosefcalendar.R;
@@ -23,8 +22,6 @@ import com.ej.rovadiahyosefcalendar.classes.SiddurMaker;
 import com.google.android.material.appbar.MaterialToolbar;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Objects;
 
 public class SiddurViewActivity extends AppCompatActivity {
@@ -33,10 +30,10 @@ public class SiddurViewActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        WindowCompat.setDecorFitsSystemWindows(getWindow(), true);super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_siddur_view);
         sharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
-        EdgeToEdge.enable(this);
 
         // --- 1. SETUP THE TOOLBAR ---
         String siddurTitle = getIntent().getStringExtra("prayer");
@@ -87,7 +84,6 @@ public class SiddurViewActivity extends AppCompatActivity {
         SiddurComposeView siddurView = findViewById(R.id.siddur_compose_view);
 
         // --- 4. SETUP THE JUMP-TO MENU ---
-        // --- THIS IS THE DEFINITIVE FIX ---
         // Create a list of category names and a parallel list of their exact positions in the `prayers` list.
         ArrayList<String> categoryNames = new ArrayList<>();
         ArrayList<Integer> categoryPositions = new ArrayList<>();
@@ -127,7 +123,6 @@ public class SiddurViewActivity extends AppCompatActivity {
                 return false;
             });
         }
-        // --- END OF FIX ---
 
         // --- 5. SET THE DATA ON THE COMPOSE VIEW ---
         siddurView.setData(prayers, mJewishDateInfo);
