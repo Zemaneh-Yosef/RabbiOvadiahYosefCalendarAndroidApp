@@ -2,7 +2,12 @@ package com.ej.rovadiahyosefcalendar.classes
 
 import android.content.Context
 import android.content.Intent
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.util.TypedValue
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,6 +32,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 // End M3 Imports
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -36,6 +42,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -56,8 +63,11 @@ import androidx.preference.PreferenceManager
 import com.aghajari.compose.text.asAnnotatedString
 import com.ej.rovadiahyosefcalendar.R as AppR
 import com.ej.rovadiahyosefcalendar.activities.SiddurViewActivity
+import java.util.LinkedList
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlinx.coroutines.launch
-
 
 // 1. Define a type for our scroll event lambda
 typealias ScrollToPosition = (Int) -> Unit
@@ -181,6 +191,99 @@ private fun SiddurBottomBar(
 }
 
 @Composable
+private fun Compass(instructionalText: String) {
+    val context = LocalContext.current
+    val sensorManager = remember {
+        context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+    }
+    val accelerometer = remember {
+        sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+    }
+    val magnetometer = remember {
+        sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
+    }
+
+    var degree by remember { mutableFloatStateOf(0f) }
+
+    DisposableEffect(Unit) {
+        val accelerometerReading = FloatArray(3)
+        val magnetometerReading = FloatArray(3)
+        val rotationMatrix = FloatArray(9)
+        val orientationAngles = FloatArray(3)
+        val window = LinkedList<Double>()
+
+        fun filtrate(value: Double): Float {
+            window.add(value)
+            if (window.size > 50) {
+                window.remove()
+            }
+            var sumx = 0.0
+            var sumy = 0.0
+            for (d in window) {
+                sumx += cos(d / 360 * (2 * Math.PI))
+                sumy += sin(d / 360 * (2 * Math.PI))
+            }
+            val avgx = sumx / window.size
+            val avgy = sumy / window.size
+            val temp = atan2(avgy, avgx) / (2 * Math.PI) * 360
+            return if (temp < 0) (temp + 360).toFloat() % 360 else temp.toFloat()
+        }
+
+        val sensorListener = object : SensorEventListener {
+            override fun onSensorChanged(event: SensorEvent?) {
+                if (event == null) return
+
+                if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) {
+                    System.arraycopy(event.values, 0, accelerometerReading, 0, accelerometerReading.size)
+                } else if (event.sensor.type == Sensor.TYPE_MAGNETIC_FIELD) {
+                    System.arraycopy(event.values, 0, magnetometerReading, 0, magnetometerReading.size)
+                }
+
+                if (SensorManager.getRotationMatrix(rotationMatrix, null, accelerometerReading, magnetometerReading)) {
+                    SensorManager.getOrientation(rotationMatrix, orientationAngles)
+                    val azimuthDegrees = Math.toDegrees(orientationAngles[0].toDouble())
+                    degree = filtrate(azimuthDegrees)
+                }
+            }
+
+            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+        }
+
+        sensorManager.registerListener(sensorListener, accelerometer, SensorManager.SENSOR_DELAY_UI)
+        sensorManager.registerListener(sensorListener, magnetometer, SensorManager.SENSOR_DELAY_UI)
+
+        onDispose {
+            sensorManager.unregisterListener(sensorListener)
+        }
+    }
+
+    val animatedDegree by animateFloatAsState(targetValue = -degree, label = "Compass Rotation")
+
+    if (accelerometer != null && magnetometer != null) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.Black)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = instructionalText,
+                color = Color.Yellow,
+                textAlign = TextAlign.Center
+            )
+            Image(
+                painter = painterResource(id = AppR.drawable.compass),
+                contentDescription = "Compass",
+                modifier = Modifier
+                    .padding(16.dp)
+                    .rotate(animatedDegree)
+            )
+        }
+    }
+}
+
+@Composable
 private fun SiddurRow(
     currentText: HighlightString,
     textSize: Int,
@@ -189,6 +292,11 @@ private fun SiddurRow(
     jewishDateInfo: JewishDateInfo,
     context: Context
 ) {
+    if (currentText.imageAttachment == HighlightString.ImageAttachment.COMPASS) {
+        Compass(instructionalText = currentText.toString())
+        return
+    }
+
     val isNightMode = isSystemInDarkTheme()
     val currentTextType = currentText.type
     val text = if (currentText.isSpannableString) currentText.spannableString.asAnnotatedString().annotatedString else AnnotatedString(currentText.toString())
@@ -217,8 +325,6 @@ private fun SiddurRow(
         val isInstruction = currentTextType == HighlightString.StringType.INSTRUCTION
         val isInfo = currentTextType == HighlightString.StringType.INFO
 
-        // --- M3 THEME FIX ---
-        // Use the correct M3 color scheme property
         val textColor = when {
             currentTextType == HighlightString.StringType.HIGHLIGHT -> Color.Black
             else -> getThemeColor(android.R.attr.textColorPrimary)
@@ -238,24 +344,22 @@ private fun SiddurRow(
             else -> textSize
         }
 
-        val textDirection = remember(text.text) { // Re-calculate only if the text changes
-            var isRtl = false // Default to LTR
+        val textDirection = remember(text.text) {
+            var isRtl = false
             for (char in text.text) {
                 when (Character.getDirectionality(char)) {
                     Character.DIRECTIONALITY_RIGHT_TO_LEFT,
                     Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC -> {
                         isRtl = true
-                        break // Found a strong RTL character, our job is done.
+                        break
                     }
                     Character.DIRECTIONALITY_LEFT_TO_RIGHT -> {
                         isRtl = false
-                        break // Found a strong LTR character, our job is done.
+                        break
                     }
-                    // For neutral characters like spaces, emojis, numbers, etc., we continue the loop.
                     else -> continue
                 }
             }
-            // Set the final TextDirection based on the first strong character we found.
             if (isRtl) {
                 androidx.compose.ui.text.style.TextDirection.Rtl
             } else {
@@ -333,7 +437,7 @@ private fun SiddurRow(
             )
         }
 
-        if (text.text.endsWith("כׇּל־אַפְסֵי־אָֽרֶץ׃")) {
+        if (currentText.imageAttachment == HighlightString.ImageAttachment.MENORAH) {
             Image(
                 painter = painterResource(id = AppR.drawable.menorah),
                 contentDescription = "Menorah",

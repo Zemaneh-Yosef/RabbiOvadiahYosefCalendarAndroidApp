@@ -14,13 +14,28 @@ public class HighlightString {
     private boolean needsMinyan = false;
     private Spannable spannableString;
     private int bigWordsStart = 0;
+    private ImageAttachment imageAttachment = ImageAttachment.NONE;
 
-    public enum StringType {
+	public ImageAttachment getImageAttachment() {
+		return imageAttachment;
+	}
+
+	public void setImageAttachment(ImageAttachment imageAttachment) {
+		this.imageAttachment = imageAttachment;
+	}
+
+	public enum StringType {
         STANDARD,
         HIGHLIGHT,
         CATEGORY,
         INFO,
         INSTRUCTION
+    }
+
+    public enum ImageAttachment {
+        NONE,
+        MENORAH,
+        COMPASS
     }
 
     public HighlightString(String s) {
