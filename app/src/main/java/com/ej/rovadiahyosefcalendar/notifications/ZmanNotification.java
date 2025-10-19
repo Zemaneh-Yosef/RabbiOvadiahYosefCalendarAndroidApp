@@ -2,7 +2,6 @@ package com.ej.rovadiahyosefcalendar.notifications;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
-import static com.ej.rovadiahyosefcalendar.classes.Utils.dateFormatPattern;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -23,16 +22,12 @@ import androidx.preference.PreferenceManager;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.MainFragmentManager;
-import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.SecondTreatment;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 
 public class ZmanNotification extends BroadcastReceiver {
 
@@ -80,13 +75,13 @@ public class ZmanNotification extends BroadcastReceiver {
             String zmanName = zmanSeparated[0];
             String zmanTime = zmanSeparated[1];
 
-            if ((jewishCalendar.isAssurBemelacha() && !mSettingsSharedPreferences.getBoolean("zmanim_notifications_on_shabbat", true))) {
+            boolean notifyOnShabbatYomTov = mSettingsSharedPreferences.getBoolean("zmanim_notifications_on_shabbat", false);
+
+            if ((jewishCalendar.isAssurBemelacha() && !notifyOnShabbatYomTov)) {
                 return;//if the user does not want to be notified on shabbat/yom tov, then return
             }
-            Calendar calendar = Calendar.getInstance();
-            calendar.add(Calendar.DATE, 1);
-            jewishCalendar.setDate(calendar);
-            if ((jewishCalendar.isAssurBemelacha() && !mSettingsSharedPreferences.getBoolean("zmanim_notifications_on_shabbat", true))) {
+            jewishCalendar.forward(Calendar.DATE, 1);
+            if ((jewishCalendar.isAssurBemelacha() && !notifyOnShabbatYomTov)) {
                 //if tomorrow is shabbat/yom tov, then return if the zman is Tzait, Rabbeinu Tam, or Chatzot Layla (since they are obviously after shabbat/yom tov has started)
                 if (zmanName.equals("חצות הלילה") ||
                         zmanName.equals("Midnight") ||
@@ -100,11 +95,6 @@ public class ZmanNotification extends BroadcastReceiver {
                 }
             }
             //no need to reset the jewish calendar since we are only using it to check if tomorrow is shabbat/yom tov, but keep in mind that the date is set to tomorrow
-
-            DateFormat noSecondDateFormat = new SimpleDateFormat(dateFormatPattern(false), Locale.getDefault());
-            noSecondDateFormat.setTimeZone(new LocationResolver(context, null).getTimeZone()); //set the formatters time zone
-            DateFormat yesSecondDateFormat = new SimpleDateFormat(dateFormatPattern(true), Locale.getDefault());
-            yesSecondDateFormat.setTimeZone(new LocationResolver(context, null).getTimeZone()); //set the formatters time zone
 
             Date zmanAsDate = new Date(Long.parseLong(zmanTime));
             String time = Utils.formatZmanTime(context, zmanAsDate, SecondTreatment.values()[secondsTreatment]);

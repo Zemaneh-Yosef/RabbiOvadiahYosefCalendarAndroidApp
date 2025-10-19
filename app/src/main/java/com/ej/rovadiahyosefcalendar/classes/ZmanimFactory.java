@@ -156,10 +156,15 @@ public class ZmanimFactory {
                 mROZmanimCalendar.getTzais72ForceRegZmanis() : mROZmanimCalendar.isUseAmudehHoraah() ?
                 mROZmanimCalendar.getTzais72ZmanisAmudeiHoraahLkulah() : mROZmanimCalendar.getTzais72Zmanis();
 
-        ZmanListEntry rt = new ZmanListEntry(
-                zmanimNames.getRTString() + zmanimNames.getRTType(rtZman.equals(mROZmanimCalendar.getTzais72())) +
-                        (isForTomorrow ? zmanimNames.getMacharString() : ""), rtZman,
-                mSettingsPreferences.getBoolean("RoundUpRT", true) ? SecondTreatment.ROUND_LATER : SecondTreatment.ROUND_EARLIER,
+        boolean isFixed = true;
+        if (rtZman != null) {
+            isFixed = rtZman.equals(mROZmanimCalendar.getTzais72());
+        }
+        ZmanListEntry rt = new ZmanListEntry(zmanimNames.getRTString() +
+                zmanimNames.getRTType(isFixed) +
+                (isForTomorrow ? zmanimNames.getMacharString() : ""),
+                rtZman,
+                mSettingsPreferences.getBoolean("RoundUpRT", true) ? SecondTreatment.ALWAYS_ROUND_LATER : SecondTreatment.ROUND_EARLIER,
                 "RT");
 
         rt.setNoteworthyZman(true);

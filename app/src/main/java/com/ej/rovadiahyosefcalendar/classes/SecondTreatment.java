@@ -7,7 +7,8 @@ package com.ej.rovadiahyosefcalendar.classes;
 public enum SecondTreatment {
     ALWAYS_DISPLAY(0),
     ROUND_EARLIER(1),
-    ROUND_LATER(2);
+    ROUND_LATER(2),
+    ALWAYS_ROUND_LATER(3);
 
     private final int value;
 

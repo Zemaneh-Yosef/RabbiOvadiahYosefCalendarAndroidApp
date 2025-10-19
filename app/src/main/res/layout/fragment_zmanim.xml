@@ -110,6 +110,7 @@
                             android:layout_gravity="center"
                             android:paddingStart="8dp"
                             android:paddingEnd="8dp"
+                            android:maxLines="1"
                             android:autoSizeTextType="uniform"
                             android:autoSizeMaxTextSize="20sp"
                             android:autoSizeMinTextSize="8sp"
@@ -122,6 +123,7 @@
                             android:gravity="center"
                             android:layout_gravity="center"
                             android:textSize="26sp"
+                            android:maxLines="1"
                             android:autoSizeTextType="uniform"
                             android:autoSizeMaxTextSize="26sp"
                             android:autoSizeMinTextSize="8sp"
@@ -134,6 +136,7 @@
                             android:gravity="center"
                             android:layout_gravity="center"
                             android:textSize="20sp"
+                            android:maxLines="1"
                             android:autoSizeTextType="uniform"
                             android:autoSizeMaxTextSize="20sp"
                             android:autoSizeMinTextSize="8sp"
@@ -166,6 +169,7 @@
                             android:textStyle="bold"
                             android:paddingStart="8dp"
                             android:paddingEnd="8dp"
+                            android:maxLines="1"
                             android:autoSizeTextType="uniform"
                             android:autoSizeMaxTextSize="24sp"
                             android:autoSizeMinTextSize="8sp"
@@ -186,9 +190,6 @@
                                 android:paddingStart="8dp"
                                 android:paddingEnd="8dp"
                                 android:src="@drawable/megila_icon"
-                                android:autoSizeTextType="uniform"
-                                android:autoSizeMaxTextSize="20sp"
-                                android:autoSizeMinTextSize="8sp"
                                 android:text="@string/haftara"/>
 
                             <TextView
@@ -197,6 +198,7 @@
                                 android:layout_height="wrap_content"
                                 android:textSize="20sp"
                                 android:layout_gravity="center"
+                                android:maxLines="1"
                                 android:autoSizeTextType="uniform"
                                 android:autoSizeMaxTextSize="20sp"
                                 android:autoSizeMinTextSize="8sp"
@@ -218,9 +220,6 @@
                                 android:paddingStart="8dp"
                                 android:paddingEnd="8dp"
                                 android:src="@drawable/musical_note_svgrepo_com"
-                                android:autoSizeTextType="uniform"
-                                android:autoSizeMaxTextSize="20sp"
-                                android:autoSizeMinTextSize="8sp"
                                 android:text="@string/haftara"/>
 
                             <TextView
@@ -232,7 +231,7 @@
                                 android:autoSizeTextType="uniform"
                                 android:autoSizeMaxTextSize="20sp"
                                 android:autoSizeMinTextSize="8sp"
-                                tools:text="Makam: חזון (ישעיה א)"/>
+                                tools:text="Makam: Rast"/>
 
                         </LinearLayout>
 
