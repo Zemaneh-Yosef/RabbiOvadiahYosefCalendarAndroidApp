@@ -3428,6 +3428,10 @@ public class SiddurMaker {
 		addBarchu(true);
 		addAlenu();
 
+		if (jewishDateInfo.getJewishCalendar().isHoshanaRabba()) {
+			addChavatatAravah();
+		}
+
 		return siddur;
 	}
 
