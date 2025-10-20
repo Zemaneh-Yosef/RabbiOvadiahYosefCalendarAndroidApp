@@ -45,10 +45,10 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
             int id = item.getItemId();
             if (id == R.id.help) {
                 new MaterialAlertDialogBuilder(this)
-                        .setTitle(R.string.help_using_this_app)
-                        .setPositiveButton(R.string.ok, null)
-                        .setMessage(R.string.helper_text)
-                        .show();
+                    .setTitle(R.string.help_using_this_app)
+                    .setPositiveButton(R.string.ok, null)
+                    .setMessage(R.string.helper_text)
+                    .show();
                 return true;
             } else if (id == R.id.skipSetup) {
                 finish();

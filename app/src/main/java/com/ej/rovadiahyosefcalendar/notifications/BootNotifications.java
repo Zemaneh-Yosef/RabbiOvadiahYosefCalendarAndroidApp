@@ -33,38 +33,39 @@ public class BootNotifications extends BroadcastReceiver {
         if (Objects.equals(intent.getAction(), Intent.ACTION_BOOT_COMPLETED)) {
             SharedPreferences mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
             LocationResolver mLocationResolver = new LocationResolver(context, null);
-            if (mSharedPreferences.getBoolean("isSetup", false)) {
-                if (ActivityCompat.checkSelfPermission(context, ACCESS_BACKGROUND_LOCATION) == PERMISSION_GRANTED) {
-                    mLocationResolver.getRealtimeNotificationData(location -> {
-                        if (location != null) {
-                            setDailyNotifications(context, new ROZmanimCalendar(new GeoLocation(
-                                    "",// not needed
-                                    location.getLatitude(),
-                                    location.getLongitude(),
-                                    0,// it barely makes a difference on when the notification sends, not worth the network call IMO
-                                    mLocationResolver.getTimeZone())));
-                        } else {
-                            setDailyNotifications(context, new ROZmanimCalendar(mLocationResolver.getLastKnownGeoLocation()));
-                        }
+            if (!mSharedPreferences.getBoolean("isSetup", false))
+                return;
+
+            if (ActivityCompat.checkSelfPermission(context, ACCESS_BACKGROUND_LOCATION) == PERMISSION_GRANTED) {
+                mLocationResolver.getRealtimeNotificationData(location -> {
+                    if (location != null) {
+                        setDailyNotifications(context, new ROZmanimCalendar(new GeoLocation(
+                                "",// not needed
+                                location.getLatitude(),
+                                location.getLongitude(),
+                                0,// it barely makes a difference on when the notification sends, not worth the network call IMO
+                                mLocationResolver.getTimeZone())));
+                    } else {
+                        setDailyNotifications(context, new ROZmanimCalendar(mLocationResolver.getLastKnownGeoLocation()));
                     }
-                    , false);
-                } else {
-                    setDailyNotifications(context, new ROZmanimCalendar(mLocationResolver.getRealtimeNotificationData(null, false)));
                 }
-
-                PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(context, 0, new Intent(context, ZmanimNotifications.class), PendingIntent.FLAG_IMMUTABLE);
-                try {
-                    zmanimPendingIntent.send();
-                } catch (PendingIntent.CanceledException e) {
-                    e.printStackTrace();
-                }
-
-                Intent widgetIntent = new Intent(context, ZmanimAppWidget.class);
-                widgetIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-                int[] ids = AppWidgetManager.getInstance(context).getAppWidgetIds(new ComponentName(context, ZmanimAppWidget.class));
-                widgetIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
-                context.sendBroadcast(widgetIntent);
+                , false);
+            } else {
+                setDailyNotifications(context, new ROZmanimCalendar(mLocationResolver.getRealtimeNotificationData(null, false)));
             }
+
+            PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(context, 0, new Intent(context, ZmanimNotifications.class), PendingIntent.FLAG_IMMUTABLE);
+            try {
+                zmanimPendingIntent.send();
+            } catch (PendingIntent.CanceledException e) {
+                e.printStackTrace();
+            }
+
+            Intent widgetIntent = new Intent(context, ZmanimAppWidget.class);
+            widgetIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+            int[] ids = AppWidgetManager.getInstance(context).getAppWidgetIds(new ComponentName(context, ZmanimAppWidget.class));
+            widgetIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+            context.sendBroadcast(widgetIntent);
         }
     }
 

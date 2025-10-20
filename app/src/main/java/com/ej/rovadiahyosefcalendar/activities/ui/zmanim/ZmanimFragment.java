@@ -502,24 +502,24 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         TextView dailyLocationName = binding.dailyLocationName;
         dailyLocationName.setPaintFlags(dailyLocationName.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         dailyLocationName.setOnClickListener(v -> new MaterialAlertDialogBuilder(mContext)
-                .setTitle(mContext.getString(R.string.location_info_for) + " " + sSharedPreferences.getString("Full" + mROZmanimCalendar.getGeoLocation().getLocationName(), ""))
-                .setMessage(mContext.getString(R.string.location_name) + " " + sCurrentLocationName + "\n" +
-                        mContext.getString(R.string.latitude) + " " + sLatitude + "\n" +
-                        mContext.getString(R.string.longitude) + " " + sLongitude + "\n" +
-                        mContext.getString(R.string.elevation) + " " +
-                        (sSharedPreferences.getBoolean("useElevation", true) ?
-                                sSharedPreferences.getString("elevation" + sCurrentLocationName, "0") : "0")
-                        + " " + mContext.getString(R.string.meters) + "\n" +
-                        mContext.getString(R.string.time_zone) + sCurrentTimeZoneID)
-                .setPositiveButton(R.string.share, ((dialog, which) -> {
-                    Intent sendIntent = new Intent(Intent.ACTION_SEND);
-                    sendIntent.setType("text/plain");
-                    sendIntent.putExtra(Intent.EXTRA_TEXT, "https://royzmanim.com/calendar?locationName=" + sCurrentLocationName.replace(" ", "+").replace(",", "%2C") + "&lat=" + sLatitude + "&long=" + sLongitude + "&elevation=" + sElevation + "&timeZone=" + sCurrentTimeZoneID);
-                    mContext.startActivity(Intent.createChooser(sendIntent, mContext.getString(R.string.share)));
-                }))
-                .setNeutralButton(R.string.change_location, (dialog, which) -> mContext.startActivity(new Intent(mContext, GetUserLocationWithMapActivity.class).putExtra("loneActivity", true)))
-                .setNegativeButton(mContext.getString(R.string.setup_elevation), (dialog, which) -> mContext.startActivity(new Intent(mContext, SetupElevationActivity.class).putExtra("loneActivity", true)))
-                .show());
+            .setTitle(mContext.getString(R.string.location_info_for) + " " + sSharedPreferences.getString("Full" + mROZmanimCalendar.getGeoLocation().getLocationName(), ""))
+            .setMessage(mContext.getString(R.string.location_name) + " " + sCurrentLocationName + "\n" +
+                mContext.getString(R.string.latitude) + " " + sLatitude + "\n" +
+                mContext.getString(R.string.longitude) + " " + sLongitude + "\n" +
+                mContext.getString(R.string.elevation) + " " +
+                (sSharedPreferences.getBoolean("useElevation", true) ?
+                    sSharedPreferences.getString("elevation" + sCurrentLocationName, "0") : "0")
+                + " " + mContext.getString(R.string.meters) + "\n" +
+                mContext.getString(R.string.time_zone) + sCurrentTimeZoneID)
+            .setPositiveButton(R.string.share, ((dialog, which) -> {
+                Intent sendIntent = new Intent(Intent.ACTION_SEND);
+                sendIntent.setType("text/plain");
+                sendIntent.putExtra(Intent.EXTRA_TEXT, "https://royzmanim.com/calendar?locationName=" + sCurrentLocationName.replace(" ", "+").replace(",", "%2C") + "&lat=" + sLatitude + "&long=" + sLongitude + "&elevation=" + sElevation + "&timeZone=" + sCurrentTimeZoneID);
+                mContext.startActivity(Intent.createChooser(sendIntent, mContext.getString(R.string.share)));
+            }))
+            .setNeutralButton(R.string.change_location, (dialog, which) -> mContext.startActivity(new Intent(mContext, GetUserLocationWithMapActivity.class).putExtra("loneActivity", true)))
+            .setNegativeButton(mContext.getString(R.string.setup_elevation), (dialog, which) -> mContext.startActivity(new Intent(mContext, SetupElevationActivity.class).putExtra("loneActivity", true)))
+            .show());
         binding.dailyCard.setCardElevation(12f);
         binding.parshaCard.setCardElevation(12f);
         binding.parsha.setOnClickListener(l -> {
@@ -2132,31 +2132,31 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      * @see #startShabbatMode()
      */
     private void endShabbatMode() {
-        if (sShabbatMode) {
-            sShabbatMode = false;
-            mShabbatModeBanner.setVisibility(View.GONE);
-            if (mNavView != null && mViewPager != null && sSettingsPreferences != null && !sSettingsPreferences.getBoolean("hideBottomBar", false)) {
-                mNavView.setVisibility(View.VISIBLE);
-                mViewPager.setUserInputEnabled(true);
-            }
-            mHandler.removeCallbacksAndMessages(mZmanimUpdater);
-            mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                mActivity.getWindow().setHideOverlayWindows(false);
-            }
-            if (sSharedPreferences.getBoolean("useDefaultCalButtonColor", true)) {
-                mCalendarButton.setBackgroundColor(mContext.getColor(R.color.dark_blue));
-            } else {
-                mCalendarButton.setBackgroundColor(sSharedPreferences.getInt("CalButtonColor", 0x18267C));
-            }
-            mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mROZmanimCalendar.getCalendar()));
-            mNextDate.setVisibility(View.VISIBLE);
-            mPreviousDate.setVisibility(View.VISIBLE);
-            if (binding != null) {
-                TextClock clock = binding.clock;
-                if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-                    clock.setVisibility(View.GONE);
-                }
+        if (!sShabbatMode) return;
+
+        sShabbatMode = false;
+        mShabbatModeBanner.setVisibility(View.GONE);
+        if (mNavView != null && mViewPager != null && sSettingsPreferences != null && !sSettingsPreferences.getBoolean("hideBottomBar", false)) {
+            mNavView.setVisibility(View.VISIBLE);
+            mViewPager.setUserInputEnabled(true);
+        }
+        mHandler.removeCallbacksAndMessages(mZmanimUpdater);
+        mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            mActivity.getWindow().setHideOverlayWindows(false);
+        }
+        if (sSharedPreferences.getBoolean("useDefaultCalButtonColor", true)) {
+            mCalendarButton.setBackgroundColor(mContext.getColor(R.color.dark_blue));
+        } else {
+            mCalendarButton.setBackgroundColor(sSharedPreferences.getInt("CalButtonColor", 0x18267C));
+        }
+        mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mROZmanimCalendar.getCalendar()));
+        mNextDate.setVisibility(View.VISIBLE);
+        mPreviousDate.setVisibility(View.VISIBLE);
+        if (binding != null) {
+            TextClock clock = binding.clock;
+            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                clock.setVisibility(View.GONE);
             }
         }
     }

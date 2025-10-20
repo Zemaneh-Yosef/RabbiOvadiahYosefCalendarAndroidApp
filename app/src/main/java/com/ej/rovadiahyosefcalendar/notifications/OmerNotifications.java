@@ -183,41 +183,41 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
 
         if (Utils.isLocaleHebrew()) {
             NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "BarechAleinu")
-                    .setSmallIcon(R.drawable.winter)
-                    .setContentTitle("ברך עלינו הלילה!")
-                    .setContentText("הלילה אנחנו מתחילים לומר ברך עלינו!")
-                    .setStyle(new NotificationCompat
-                            .BigTextStyle()
-                            .setBigContentTitle("ברך עלינו הלילה!")
-                            .setSummaryText("הלילה אנחנו מתחילים לומר ברך עלינו!")
-                            .bigText("הלילה אנחנו מתחילים לומר ברך עלינו!"))
-                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                    .setCategory(NotificationCompat.CATEGORY_REMINDER)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setSound(alarmSound)
-                    .setColor(context.getColor(R.color.dark_gold))
-                    .setAutoCancel(true)
-                    .setWhen(System.currentTimeMillis())
-                    .setContentIntent(pendingIntent);
+                .setSmallIcon(R.drawable.winter)
+                .setContentTitle("ברך עלינו הלילה!")
+                .setContentText("הלילה אנחנו מתחילים לומר ברך עלינו!")
+                .setStyle(new NotificationCompat
+                        .BigTextStyle()
+                        .setBigContentTitle("ברך עלינו הלילה!")
+                        .setSummaryText("הלילה אנחנו מתחילים לומר ברך עלינו!")
+                        .bigText("הלילה אנחנו מתחילים לומר ברך עלינו!"))
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setCategory(NotificationCompat.CATEGORY_REMINDER)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setSound(alarmSound)
+                .setColor(context.getColor(R.color.dark_gold))
+                .setAutoCancel(true)
+                .setWhen(System.currentTimeMillis())
+                .setContentIntent(pendingIntent);
             notificationManager.notify(MID, mNotifyBuilder.build());
         } else {
             NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "BarechAleinu")
-                    .setSmallIcon(R.drawable.winter)
-                    .setContentTitle("Barech Aleinu tonight!")
-                    .setContentText("Tonight we start saying Barech Aleinu!")
-                    .setStyle(new NotificationCompat
-                            .BigTextStyle()
-                            .setBigContentTitle("Barech Aleinu tonight!")
-                            .setSummaryText("Tonight we start saying Barech Aleinu!")
-                            .bigText("Tonight we start saying Barech Aleinu!"))
-                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                    .setCategory(NotificationCompat.CATEGORY_REMINDER)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setSound(alarmSound)
-                    .setColor(context.getColor(R.color.dark_gold))
-                    .setAutoCancel(true)
-                    .setWhen(System.currentTimeMillis())
-                    .setContentIntent(pendingIntent);
+                .setSmallIcon(R.drawable.winter)
+                .setContentTitle("Barech Aleinu tonight!")
+                .setContentText("Tonight we start saying Barech Aleinu!")
+                .setStyle(new NotificationCompat
+                        .BigTextStyle()
+                        .setBigContentTitle("Barech Aleinu tonight!")
+                        .setSummaryText("Tonight we start saying Barech Aleinu!")
+                        .bigText("Tonight we start saying Barech Aleinu!"))
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setCategory(NotificationCompat.CATEGORY_REMINDER)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setSound(alarmSound)
+                .setColor(context.getColor(R.color.dark_gold))
+                .setAutoCancel(true)
+                .setWhen(System.currentTimeMillis())
+                .setContentIntent(pendingIntent);
             notificationManager.notify(MID, mNotifyBuilder.build());
         }
         MID++;

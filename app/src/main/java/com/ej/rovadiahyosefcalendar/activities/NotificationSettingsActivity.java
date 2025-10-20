@@ -28,9 +28,9 @@ public class NotificationSettingsActivity extends AppCompatActivity {
         materialToolbar.setNavigationOnClickListener(v -> finish());
         if (savedInstanceState == null) {
             getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.settings, new SettingsFragment())
-                    .commit();
+                .beginTransaction()
+                .replace(R.id.settings, new SettingsFragment())
+                .commit();
         }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.settings), (v, windowInsets) -> {

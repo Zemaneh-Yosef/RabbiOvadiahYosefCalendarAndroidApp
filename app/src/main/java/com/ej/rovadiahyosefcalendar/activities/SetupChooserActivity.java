@@ -36,11 +36,11 @@ public class SetupChooserActivity extends AppCompatActivity {
         }
 
         mAlertDialog = new MaterialAlertDialogBuilder(this)
-                .setTitle(R.string.Introduction)
-                .setMessage(R.string.intro)
-                .setPositiveButton(R.string.ok, (dialogInterface, i) -> dialogInterface.dismiss())
-                .setCancelable(false)
-                .create();
+            .setTitle(R.string.Introduction)
+            .setMessage(R.string.intro)
+            .setPositiveButton(R.string.ok, (dialogInterface, i) -> dialogInterface.dismiss())
+            .setCancelable(false)
+            .create();
 
         TextView showIntro = findViewById(R.id.showIntro);
         showIntro.setPaintFlags(showIntro.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
@@ -51,13 +51,13 @@ public class SetupChooserActivity extends AppCompatActivity {
 
         quickSetupButton.setOnClickListener(v -> {
             startActivity(new Intent(this, SimpleSetupActivity.class)
-                    .putExtra("fromSetup", SetupChooserActivity.this.getIntent().getBooleanExtra("fromSetup", false)));
+                .putExtra("fromSetup", SetupChooserActivity.this.getIntent().getBooleanExtra("fromSetup", false)));
             finish();
         });
 
         advancedSetupButton.setOnClickListener(v -> {
             startActivity(new Intent(this, AdvancedSetupActivity.class)
-                    .putExtra("fromSetup", SetupChooserActivity.this.getIntent().getBooleanExtra("fromSetup", false)));
+                .putExtra("fromSetup", SetupChooserActivity.this.getIntent().getBooleanExtra("fromSetup", false)));
             finish();
         });
 

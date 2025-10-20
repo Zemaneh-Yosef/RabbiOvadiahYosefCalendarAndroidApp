@@ -134,11 +134,11 @@ public class SettingsActivity extends AppCompatActivity {
                 showSecondsPref.setOnPreferenceClickListener(preference -> {
                     if (Objects.requireNonNull(preference.getSharedPreferences()).getBoolean("ShowSeconds", false)) {
                         new MaterialAlertDialogBuilder(requireContext())
-                                .setTitle(R.string.do_not_rely_on_the_seconds)
-                                .setMessage(R.string.do_not_rely_on_the_seconds_message)
-                                .setPositiveButton(R.string.ok, (dialogInterface, i) -> dialogInterface.dismiss())
-                                .create()
-                                .show();
+                            .setTitle(R.string.do_not_rely_on_the_seconds)
+                            .setMessage(R.string.do_not_rely_on_the_seconds_message)
+                            .setPositiveButton(R.string.ok, (dialogInterface, i) -> dialogInterface.dismiss())
+                            .create()
+                            .show();
                     }
                     return false;
                 });
@@ -188,40 +188,40 @@ public class SettingsActivity extends AppCompatActivity {
             if (backgroundColorPref != null) {
                 backgroundColorPref.setOnPreferenceClickListener(preference -> {
                     new ColorPickerDialog.Builder(requireContext())
-                            .setTitle(getString(R.string.set_background_color))
-                            .setPreferenceName("backgroundColor")
-                            .setPositiveButton(getString(R.string.confirm), (ColorEnvelopeListener) (envelope, fromUser) -> {
-                                if (fromUser) {
-                                    requireContext().getSharedPreferences(SHARED_PREF, MODE_PRIVATE)
-                                            .edit()
-                                            .putBoolean("useDefaultBackgroundColor", false)
-                                            .putBoolean("customBackgroundColor", true)
-                                            .putBoolean("useImage", false)
-                                            .putInt("bColor", envelope.getColor())
-                                            .apply();
-                                    PreferenceManager.getDefaultSharedPreferences(requireContext())
-                                            .edit()
-                                            .putInt("backgroundColor", envelope.getColor())
-                                            .apply();
-                                    backgroundColorPref.setColor(envelope.getColor());
-                                }
-                            })
-                            .setNeutralButton(requireContext().getString(R.string._default), (dialogInterface, i) -> {
+                        .setTitle(getString(R.string.set_background_color))
+                        .setPreferenceName("backgroundColor")
+                        .setPositiveButton(getString(R.string.confirm), (ColorEnvelopeListener) (envelope, fromUser) -> {
+                            if (fromUser) {
                                 requireContext().getSharedPreferences(SHARED_PREF, MODE_PRIVATE)
-                                        .edit()
-                                        .putBoolean("useDefaultBackgroundColor", true)
-                                        .putBoolean("customBackgroundColor", false)
-                                        .putBoolean("useImage", false)
-                                        .apply();
+                                    .edit()
+                                    .putBoolean("useDefaultBackgroundColor", false)
+                                    .putBoolean("customBackgroundColor", true)
+                                    .putBoolean("useImage", false)
+                                    .putInt("bColor", envelope.getColor())
+                                    .apply();
                                 PreferenceManager.getDefaultSharedPreferences(requireContext())
-                                        .edit()
-                                        .putInt("backgroundColor", 0x32312C)
-                                        .apply();
-                                backgroundColorPref.setColor(0x32312C);
-                            })
-                            .setNegativeButton(getString(R.string.cancel), (dialogInterface, i) -> dialogInterface.dismiss())
-                            .setBottomSpace(12) // set a bottom space between the last slidebar and buttons.
-                            .show();
+                                    .edit()
+                                    .putInt("backgroundColor", envelope.getColor())
+                                    .apply();
+                                backgroundColorPref.setColor(envelope.getColor());
+                            }
+                        })
+                        .setNeutralButton(requireContext().getString(R.string._default), (dialogInterface, i) -> {
+                            requireContext().getSharedPreferences(SHARED_PREF, MODE_PRIVATE)
+                                .edit()
+                                .putBoolean("useDefaultBackgroundColor", true)
+                                .putBoolean("customBackgroundColor", false)
+                                .putBoolean("useImage", false)
+                                .apply();
+                            PreferenceManager.getDefaultSharedPreferences(requireContext())
+                                .edit()
+                                .putInt("backgroundColor", 0x32312C)
+                                .apply();
+                            backgroundColorPref.setColor(0x32312C);
+                        })
+                        .setNegativeButton(getString(R.string.cancel), (dialogInterface, i) -> dialogInterface.dismiss())
+                        .setBottomSpace(12) // set a bottom space between the last slidebar and buttons.
+                        .show();
                     return true;
                 });
             }
@@ -239,98 +239,96 @@ public class SettingsActivity extends AppCompatActivity {
             }
 
             mResultLauncher = registerForActivityResult(
-                    new ActivityResultContracts.StartActivityForResult(),
-                    result -> {
-                        if (result.getResultCode() == RESULT_OK) {
-                            if (result.getData() != null) {
-                                Intent picture = result.getData();
-                                Uri selectedImage = picture.getData();
-                                Cursor returnCursor = null;
-                                if (selectedImage != null) {
-                                    returnCursor = requireContext().getContentResolver()
-                                            .query(selectedImage, null, null, null, null);
-                                }
-                                int nameIndex = 0;
-                                if (returnCursor != null) {
-                                    nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                                }
-                                if (returnCursor != null) {
-                                    returnCursor.moveToFirst();
-                                    String name = (returnCursor.getString(nameIndex));
-                                }
-                                File file = new File(requireContext().getFilesDir(), "background");
-                                try {
-                                    InputStream inputStream = null;
-                                    if (selectedImage != null) {
-                                        inputStream = requireContext().getContentResolver().openInputStream(selectedImage);
-                                    }
-                                    FileOutputStream outputStream = new FileOutputStream(file);
-                                    int read = 0;
-                                    int maxBufferSize = 1024 * 1024;
-                                    int bytesAvailable = 0;
-                                    if (inputStream != null) {
-                                        bytesAvailable = inputStream.available();
-                                    }
-                                    int bufferSize = Math.min(bytesAvailable, maxBufferSize);
-                                    final byte[] buffers = new byte[bufferSize];
-                                    while ((read = inputStream != null ? inputStream.read(buffers) : -1) != -1) {
-                                        outputStream.write(buffers, 0, read);
-                                    }
-                                    if (inputStream != null) {
-                                        inputStream.close();
-                                    }
-                                    outputStream.close();
-                                    if (returnCursor != null) {
-                                        returnCursor.close();
-                                    }
-                                } catch (Exception e) {
-                                    Log.e("Exception", Objects.requireNonNull(e.getMessage()));
-                                }
-
-                                requireContext().getSharedPreferences(SHARED_PREF, MODE_PRIVATE)
-                                        .edit()
-                                        .putString("imageLocation", file.getPath())
-                                        .putBoolean("useImage", true)
-                                        .apply();
-                            }
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Intent picture = result.getData();
+                        Uri selectedImage = picture.getData();
+                        Cursor returnCursor = null;
+                        if (selectedImage != null) {
+                            returnCursor = requireContext().getContentResolver()
+                                .query(selectedImage, null, null, null, null);
                         }
+                        int nameIndex = 0;
+                        if (returnCursor != null) {
+                            nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                        }
+                        if (returnCursor != null) {
+                            returnCursor.moveToFirst();
+                            String name = (returnCursor.getString(nameIndex));
+                        }
+                        File file = new File(requireContext().getFilesDir(), "background");
+                        try {
+                            InputStream inputStream = null;
+                            if (selectedImage != null) {
+                                inputStream = requireContext().getContentResolver().openInputStream(selectedImage);
+                            }
+                            FileOutputStream outputStream = new FileOutputStream(file);
+                            int read = 0;
+                            int maxBufferSize = 1024 * 1024;
+                            int bytesAvailable = 0;
+                            if (inputStream != null) {
+                                bytesAvailable = inputStream.available();
+                            }
+                            int bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                            final byte[] buffers = new byte[bufferSize];
+                            while ((read = inputStream != null ? inputStream.read(buffers) : -1) != -1) {
+                                outputStream.write(buffers, 0, read);
+                            }
+                            if (inputStream != null) {
+                                inputStream.close();
+                            }
+                            outputStream.close();
+                            if (returnCursor != null) {
+                                returnCursor.close();
+                            }
+                        } catch (Exception e) {
+                            Log.e("Exception", Objects.requireNonNull(e.getMessage()));
+                        }
+
+                        requireContext().getSharedPreferences(SHARED_PREF, MODE_PRIVATE)
+                            .edit()
+                            .putString("imageLocation", file.getPath())
+                            .putBoolean("useImage", true)
+                            .apply();
                     }
+                }
             );
 
             MaterialColorPreference textColorPref = findPreference("textColor");
             if (textColorPref != null) {
                 textColorPref.setOnPreferenceClickListener(preference -> {
                     new ColorPickerDialog.Builder(requireContext())
-                            .setTitle(getString(R.string.set_text_color))
-                            .setPreferenceName("textColor")
-                            .setPositiveButton(getString(R.string.confirm), (ColorEnvelopeListener) (envelope, fromUser) -> {
-                                if (fromUser) {
-                                    requireContext().getSharedPreferences(SHARED_PREF, MODE_PRIVATE)
-                                            .edit()
-                                            .putBoolean("customTextColor", true)
-                                            .putInt("tColor", envelope.getColor())
-                                            .apply();
-                                    PreferenceManager.getDefaultSharedPreferences(requireContext())
-                                            .edit()
-                                            .putInt("textColor", envelope.getColor())
-                                            .apply();
-                                    textColorPref.setColor(envelope.getColor());
-                                }
-                            })
-                            .setNeutralButton(requireContext().getString(R.string._default), (dialogInterface, i) -> {
+                        .setTitle(getString(R.string.set_text_color))
+                        .setPreferenceName("textColor")
+                        .setPositiveButton(getString(R.string.confirm), (ColorEnvelopeListener) (envelope, fromUser) -> {
+                            if (fromUser) {
                                 requireContext().getSharedPreferences(SHARED_PREF, MODE_PRIVATE)
-                                        .edit()
-                                        .putBoolean("customTextColor", false)
-                                        .apply();
+                                    .edit()
+                                    .putBoolean("customTextColor", true)
+                                    .putInt("tColor", envelope.getColor())
+                                    .apply();
                                 PreferenceManager.getDefaultSharedPreferences(requireContext())
-                                        .edit()
-                                        .putInt("textColor", 0xFFFFFF)
-                                        .apply();
-                                textColorPref.setColor(0xFFFFFF);
-                            })
-                            .setNegativeButton(getString(R.string.cancel), (dialogInterface, i) -> dialogInterface.dismiss())
-                            .setBottomSpace(12) // set a bottom space between the last slidebar and buttons.
-                            .show();
+                                    .edit()
+                                    .putInt("textColor", envelope.getColor())
+                                    .apply();
+                                textColorPref.setColor(envelope.getColor());
+                            }
+                        })
+                        .setNeutralButton(requireContext().getString(R.string._default), (dialogInterface, i) -> {
+                            requireContext().getSharedPreferences(SHARED_PREF, MODE_PRIVATE)
+                                .edit()
+                                .putBoolean("customTextColor", false)
+                                .apply();
+                            PreferenceManager.getDefaultSharedPreferences(requireContext())
+                                .edit()
+                                .putInt("textColor", 0xFFFFFF)
+                                .apply();
+                            textColorPref.setColor(0xFFFFFF);
+                        })
+                        .setNegativeButton(getString(R.string.cancel), (dialogInterface, i) -> dialogInterface.dismiss())
+                        .setBottomSpace(12) // set a bottom space between the last slidebar and buttons.
+                        .show();
                     return true;
                 });
             }
@@ -339,36 +337,36 @@ public class SettingsActivity extends AppCompatActivity {
             if (calendarButtonColorPref != null) {
                 calendarButtonColorPref.setOnPreferenceClickListener(preference -> {
                     new ColorPickerDialog.Builder(requireContext())
-                            .setTitle(getString(R.string.set_calendar_button_color))
-                            .setPreferenceName("calendarButtonColor")
-                            .setPositiveButton(getString(R.string.confirm), (ColorEnvelopeListener) (envelope, fromUser) -> {
-                                if (fromUser) {
-                                    requireContext().getSharedPreferences(SHARED_PREF, MODE_PRIVATE)
-                                            .edit()
-                                            .putBoolean("useDefaultCalButtonColor", false)
-                                            .putInt("CalButtonColor", envelope.getColor())
-                                            .apply();
-                                    PreferenceManager.getDefaultSharedPreferences(requireContext())
-                                            .edit()
-                                            .putInt("calendarButtonColor", envelope.getColor())
-                                            .apply();
-                                    calendarButtonColorPref.setColor(envelope.getColor());
-                                }
-                            })
-                            .setNeutralButton(requireContext().getString(R.string._default), (dialogInterface, i) -> {
+                        .setTitle(getString(R.string.set_calendar_button_color))
+                        .setPreferenceName("calendarButtonColor")
+                        .setPositiveButton(getString(R.string.confirm), (ColorEnvelopeListener) (envelope, fromUser) -> {
+                            if (fromUser) {
                                 requireContext().getSharedPreferences(SHARED_PREF, MODE_PRIVATE)
-                                        .edit()
-                                        .putBoolean("useDefaultCalButtonColor", true)
-                                        .apply();
+                                    .edit()
+                                    .putBoolean("useDefaultCalButtonColor", false)
+                                    .putInt("CalButtonColor", envelope.getColor())
+                                    .apply();
                                 PreferenceManager.getDefaultSharedPreferences(requireContext())
-                                        .edit()
-                                        .putInt("calendarButtonColor", 0xFFFFFF)
-                                        .apply();
-                                calendarButtonColorPref.setColor(0xFFFFFF);
-                            })
-                            .setNegativeButton(getString(R.string.cancel), (dialogInterface, i) -> dialogInterface.dismiss())
-                            .setBottomSpace(12) // set a bottom space between the last slidebar and buttons.
-                            .show();
+                                    .edit()
+                                    .putInt("calendarButtonColor", envelope.getColor())
+                                    .apply();
+                                calendarButtonColorPref.setColor(envelope.getColor());
+                            }
+                        })
+                        .setNeutralButton(requireContext().getString(R.string._default), (dialogInterface, i) -> {
+                            requireContext().getSharedPreferences(SHARED_PREF, MODE_PRIVATE)
+                                .edit()
+                                .putBoolean("useDefaultCalButtonColor", true)
+                                .apply();
+                            PreferenceManager.getDefaultSharedPreferences(requireContext())
+                                .edit()
+                                .putInt("calendarButtonColor", 0xFFFFFF)
+                                .apply();
+                            calendarButtonColorPref.setColor(0xFFFFFF);
+                        })
+                        .setNegativeButton(getString(R.string.cancel), (dialogInterface, i) -> dialogInterface.dismiss())
+                        .setBottomSpace(12) // set a bottom space between the last slidebar and buttons.
+                        .show();
                     return true;
                 });
             }
@@ -379,15 +377,16 @@ public class SettingsActivity extends AppCompatActivity {
                 contactUsPref.setOnPreferenceClickListener(v -> {
                     Intent email = new Intent(Intent.ACTION_SENDTO);
                     email.setData(Uri.parse("mailto:"));
+                    email.putExtra(Intent.EXTRA_CC, new String[]{"neimmaor@gmail.com"});
                     email.putExtra(Intent.EXTRA_EMAIL, new String[]{"elyahujacobi@gmail.com"}); //developer's email
-                    email.putExtra(Intent.EXTRA_SUBJECT,"Zmanei Yosef (Android)"); //Email's Subject
+                    email.putExtra(Intent.EXTRA_SUBJECT,"Zemaneh Yosef (Android)"); //Email's Subject
                     email.putExtra(Intent.EXTRA_TEXT,""); //Email's Greeting text
 
                     if (packageManager.resolveActivity(email,0) != null) { // there is an activity that can handle it
                         startActivity(email);
                     } else {
                         Toast.makeText(getContext(), R.string.No_email_app_error, Toast.LENGTH_SHORT)
-                                .show();
+                            .show();
                     }
                     return false;
                 });
@@ -397,22 +396,22 @@ public class SettingsActivity extends AppCompatActivity {
             if (haskamaPref != null) {
                 haskamaPref.setOnPreferenceClickListener(v -> {
                     new MaterialAlertDialogBuilder(requireContext())
-                            .setTitle(R.string.haskamot)
-                            .setMessage(R.string.haskamot_message)
-                            .setPositiveButton(R.string.haskama_by_rabbi_yitzhak_yosef, (dialog, which) -> {
-                                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://royzmanim.com/assets/haskamah-rishon-letzion.pdf"));
-                                startActivity(browserIntent);
-                            })
-                            .setNeutralButton(R.string.by_rav_elbaz, (dialog, which) -> {
-                                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://royzmanim.com/assets/Haskamah.pdf"));
-                                startActivity(browserIntent);
-                            })
-                            .setNegativeButton(R.string.by_rav_dahan, (dialog, which) -> {
-                                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://royzmanim.com/assets/%D7%94%D7%A1%D7%9B%D7%9E%D7%94.pdf"));
-                                startActivity(browserIntent);
-                            })
-                            .create()
-                            .show();
+                        .setTitle(R.string.haskamot)
+                        .setMessage(R.string.haskamot_message)
+                        .setPositiveButton(R.string.haskama_by_rabbi_yitzhak_yosef, (dialog, which) -> {
+                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://royzmanim.com/assets/haskamah-rishon-letzion.pdf"));
+                            startActivity(browserIntent);
+                        })
+                        .setNeutralButton(R.string.by_rav_elbaz, (dialog, which) -> {
+                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://royzmanim.com/assets/Haskamah.pdf"));
+                            startActivity(browserIntent);
+                        })
+                        .setNegativeButton(R.string.by_rav_dahan, (dialog, which) -> {
+                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://royzmanim.com/assets/%D7%94%D7%A1%D7%9B%D7%9E%D7%94.pdf"));
+                            startActivity(browserIntent);
+                        })
+                        .create()
+                        .show();
                     return false;
                 });
             }

@@ -70,9 +70,9 @@ public class AdvancedSetupActivity extends AppCompatActivity {
 
         website.setOnClickListener(v -> {
             AlertDialog alertDialog = new MaterialAlertDialogBuilder(AdvancedSetupActivity.this)
-                    .setTitle("chaitables.com")
-                    .setPositiveButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
-                    .create();
+                .setTitle("chaitables.com")
+                .setPositiveButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
+                .create();
             WebView webView = new WebView(this);
             webView.getSettings().setJavaScriptEnabled(true);
             webView.loadUrl(Utils.isLocaleHebrew() ? "https://chaitables.com/chai_heb.php" : "http://www.chaitables.com/");
@@ -87,14 +87,14 @@ public class AdvancedSetupActivity extends AppCompatActivity {
                         editor.putBoolean("showMishorSunrise" + sCurrentLocationName, false).apply();
                         alertDialog.dismiss();
                         startActivity(new Intent(getApplicationContext(), SetupElevationActivity.class)
-                                .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-                                .putExtra("downloadTable", true)
-                                .putExtra("fromSetup", AdvancedSetupActivity.this.getIntent().getBooleanExtra("fromSetup", false))
-                                .putExtra("loneActivity", getIntent().getBooleanExtra("loneActivity", false)));
+                            .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+                            .putExtra("downloadTable", true)
+                            .putExtra("fromSetup", AdvancedSetupActivity.this.getIntent().getBooleanExtra("fromSetup", false))
+                            .putExtra("loneActivity", getIntent().getBooleanExtra("loneActivity", false)));
                         finish();
-                        }
                     }
-                });
+                }
+            });
             alertDialog.setView(webView);
             alertDialog.show();
             showDialogBox();

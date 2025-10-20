@@ -85,9 +85,9 @@ public class Utils {
 
     public static String dateFormatPattern(boolean showSeconds) {
         return (Utils.isLocaleHebrew() ? "H" : "h")
-                + ":mm"
-                + (showSeconds ? ":ss" : "")
-                + (Utils.isLocaleHebrew() ? "" : " aa");
+            + ":mm"
+            + (showSeconds ? ":ss" : "")
+            + (Utils.isLocaleHebrew() ? "" : " aa");
     }
 
     public static String formatZmanTime(Context context, ZmanListEntry zmanListEntry) {

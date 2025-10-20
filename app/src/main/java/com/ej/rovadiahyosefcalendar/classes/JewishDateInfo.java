@@ -149,12 +149,12 @@ public class JewishDateInfo {
         } else {
             if (jewishCalendar.isRoshChodesh()) {
                 result = hebrewDateFormatter.formatRoshChodesh(jewishCalendar)
-                        .replace("Teves", "Tevet")
-                        .replace("Tishrei", "Tishri");
+                    .replace("Teves", "Tevet")
+                    .replace("Tishrei", "Tishri");
             } else if (jewishCalendar.isErevRoshChodesh()) {
                 String hebrewMonth = hebrewDateFormatter.formatRoshChodesh(tomorrow().getJewishCalendar())
-                        .replace("Teves", "Tevet")
-                        .replace("Tishrei", "Tishri");
+                    .replace("Teves", "Tevet")
+                    .replace("Tishrei", "Tishri");
                 result = "Erev " + hebrewMonth;
             } else {
                 result = "";

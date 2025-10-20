@@ -76,17 +76,17 @@ public class ZmanimAppWidget extends AppWidgetProvider {
             ZmanListEntry nextUpcomingZman = getNextUpcomingZman(context, appWidgetManager, appWidgetId);
             ZmanimNames zmanimNames = new ZmanimNames(mSharedPreferences.getBoolean("isZmanimInHebrew", false), mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false));
             String zman = nextUpcomingZman.getTitle()
-                            .replace(zmanimNames.getHalachaBerurahString(), zmanimNames.getAbbreviatedHalachaBerurahString()
-                            .replace(zmanimNames.getYalkutYosefString(), zmanimNames.getAbbreviatedYalkutYosefString()));
+                .replace(zmanimNames.getHalachaBerurahString(), zmanimNames.getAbbreviatedHalachaBerurahString()
+                .replace(zmanimNames.getYalkutYosefString(), zmanimNames.getAbbreviatedYalkutYosefString()));
             String time = Utils.formatZmanTime(context, nextUpcomingZman);
             String tachanun = mJewishDateInfo.getIsTachanunSaid()
-                    .replace("No Tachanun today", "No Tachanun")
-                    .replace("Tachanun only in the morning", "Tachanun morning only")
-                    .replace("There is Tachanun today", "Tachanun");
+                .replace("No Tachanun today", "No Tachanun")
+                .replace("Tachanun only in the morning", "Tachanun morning only")
+                .replace("There is Tachanun today", "Tachanun");
             HebrewDateFormatter hebrewDateFormatter = new HebrewDateFormatter();
             hebrewDateFormatter.setUseGershGershayim(false);
             String dafYomi = mJewishDateInfo.getJewishCalendar().getDafYomiBavli().getMasechta()
-                    + " " + hebrewDateFormatter.formatHebrewNumber(mJewishDateInfo.getJewishCalendar().getDafYomiBavli().getDaf());
+                + " " + hebrewDateFormatter.formatHebrewNumber(mJewishDateInfo.getJewishCalendar().getDafYomiBavli().getDaf());
             String omerCount = mJewishDateInfo.addDayOfOmer("");
 
             Map<SizeF, RemoteViews> viewMapping = getViewMapping(context, true, jewishDate, parsha, zman, time, tachanun, dafYomi, omerCount);
@@ -126,11 +126,11 @@ public class ZmanimAppWidget extends AppWidgetProvider {
                 String locationName = mLocationResolver.getLocationAsName(location.getLatitude(), location.getLongitude());
                 mLocationResolver.resolveElevation(() -> {
                     mROZmanimCalendar = new ROZmanimCalendar(new GeoLocation(
-                            locationName,
-                            location.getLatitude(),
-                            location.getLongitude(),
-                            mLocationResolver.getElevation(),
-                            mLocationResolver.getTimeZone()));
+                        locationName,
+                        location.getLatitude(),
+                        location.getLongitude(),
+                        mLocationResolver.getElevation(),
+                        mLocationResolver.getTimeZone()));
 
                     mROZmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
                     String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
@@ -152,8 +152,8 @@ public class ZmanimAppWidget extends AppWidgetProvider {
                     ZmanListEntry nextUpcomingZman = getNextUpcomingZman(context, appWidgetManager, appWidgetId);
                     ZmanimNames zmanimNames = new ZmanimNames(mSharedPreferences.getBoolean("isZmanimInHebrew", false), mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false));
                     String zman = nextUpcomingZman.getTitle()
-                                    .replace(zmanimNames.getHalachaBerurahString(), zmanimNames.getAbbreviatedHalachaBerurahString()
-                                    .replace(zmanimNames.getYalkutYosefString(), zmanimNames.getAbbreviatedYalkutYosefString()));
+                        .replace(zmanimNames.getHalachaBerurahString(), zmanimNames.getAbbreviatedHalachaBerurahString()
+                        .replace(zmanimNames.getYalkutYosefString(), zmanimNames.getAbbreviatedYalkutYosefString()));
                     String time = Utils.formatZmanTime(context, nextUpcomingZman);
                     String tachanun = mJewishDateInfo.getIsTachanunSaid()
                             .replace("No Tachanun today", "No Tachanun")
