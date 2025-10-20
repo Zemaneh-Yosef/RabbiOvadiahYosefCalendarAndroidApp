@@ -314,9 +314,9 @@ private fun SiddurRow(
         return
     }
 
-    val rowBackgroundColor = when (currentTextType) {
-        HighlightString.StringType.HIGHLIGHT -> if (isNightMode) colorResource(AppR.color.goldenrod) else colorResource(AppR.color.mainly_BLUE)
-        HighlightString.StringType.INFO -> Color.DarkGray
+    val rowBackgroundColor = when {
+        (currentTextType == HighlightString.StringType.INFO || currentTextType == HighlightString.StringType.INVERSE_INFO) -> Color.DarkGray
+        currentText.isHighlighted -> colorResource(if (isNightMode) AppR.color.goldenrod else AppR.color.mainly_BLUE)
         else -> Color.Transparent
     }
 
@@ -325,9 +325,10 @@ private fun SiddurRow(
         val isCategory = currentTextType == HighlightString.StringType.CATEGORY
         val isInstruction = currentTextType == HighlightString.StringType.INSTRUCTION
         val isInfo = currentTextType == HighlightString.StringType.INFO
+        val isInverseInfo = currentTextType == HighlightString.StringType.INVERSE_INFO
 
         val textColor = when {
-            currentTextType == HighlightString.StringType.HIGHLIGHT -> Color.Black
+            currentText.isHighlighted -> Color.Black
             else -> getThemeColor(android.R.attr.textColorPrimary)
         }
 
@@ -397,6 +398,7 @@ private fun SiddurRow(
             var isInfoExpanded by remember { mutableStateOf(false) }
             val textToDisplay = when {
                 isInfo -> if (isInfoExpanded) AnnotatedString("▼ ${currentText.summary}${text}") else AnnotatedString("▲ ${currentText.summary}")
+                isInverseInfo -> if (isInfoExpanded) AnnotatedString("▲ ${currentText.summary}") else AnnotatedString("▼ ${currentText.summary}${text}")
                 else -> text
             }
 
@@ -408,7 +410,7 @@ private fun SiddurRow(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
                         onClick = {
-                            if (isInfo) {
+                            if (isInfo || isInverseInfo) {
                                 isInfoExpanded = !isInfoExpanded
                             } else if (text.text == "Open Sefaria Siddur/פתח את סידור ספריה") {
                                 val browserIntent = Intent(

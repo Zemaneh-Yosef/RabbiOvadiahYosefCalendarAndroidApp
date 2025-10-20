@@ -10,6 +10,10 @@ public class HighlightString {
     private String summary;
     private StringType type;
     private boolean needsMinyan = false;
+    /**
+     * This isHighlighted used to be a type - however, I would like instructions to also be highlightable
+     * */
+    private boolean isHighlighted = false;
     private int bigWordsStart = 0;
     private ImageAttachment imageAttachment = ImageAttachment.NONE;
 
@@ -21,11 +25,24 @@ public class HighlightString {
 		this.imageAttachment = imageAttachment;
 	}
 
+	public boolean isHighlighted() {
+		return isHighlighted;
+	}
+
+	public void setHighlighted(boolean highlighted) {
+		isHighlighted = highlighted;
+	}
+
+    public HighlightString setHighlightedChain(boolean highlighted) {
+        isHighlighted = highlighted;
+        return this;
+    }
+
 	public enum StringType {
         STANDARD,
-        HIGHLIGHT,
         CATEGORY,
         INFO,
+        INVERSE_INFO,
         INSTRUCTION
     }
 
