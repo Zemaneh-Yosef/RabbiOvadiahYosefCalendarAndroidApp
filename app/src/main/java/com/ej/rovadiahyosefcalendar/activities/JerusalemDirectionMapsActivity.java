@@ -286,7 +286,7 @@ public class JerusalemDirectionMapsActivity extends FragmentActivity implements 
         GeoLocation current = new GeoLocation("", currentLocation.latitude, currentLocation.longitude, null);//Timezone does not matter
         GeoLocation jerusalemLocation = new GeoLocation("", jer.latitude, jer.longitude, null);
 
-        double bearing = current.getRhumbLineBearing(jerusalemLocation);// Specifically use the Rhumb Line method as instructed by Rav Elbaz
+        double bearing = current.getRhumbLineBearing(jerusalemLocation);// Specifically use the Rhumb Line method as instructed by Rav Elbaz as Rabbi Ovadia would always pray eastward when traveling
 
         double directionDifference = Math.abs((smoothedAzimuthDegrees - bearing));
 

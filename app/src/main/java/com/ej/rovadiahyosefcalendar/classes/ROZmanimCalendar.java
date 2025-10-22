@@ -585,7 +585,7 @@ public class ROZmanimCalendar extends ZmanimCalendar {
      */
     public Date getSecondAshmora() {
         ROZmanimCalendar clonedCal = (ROZmanimCalendar) clone();
-        clonedCal.getCalendar().add(Calendar.DAY_OF_MONTH, 1);
+        clonedCal.getCalendar().add(Calendar.DATE, 1);
         Date sunsetForToday = getElevationAdjustedSunset();
         Date sunriseForTomorrow = clonedCal.getElevationAdjustedSunrise();
         return getShaahZmanisBasedZman(sunsetForToday, sunriseForTomorrow, 4);
@@ -632,7 +632,7 @@ public class ROZmanimCalendar extends ZmanimCalendar {
 
     public Date getSolarMidnight() {
         ROZmanimCalendar clonedCal = (ROZmanimCalendar) clone();
-        clonedCal.getCalendar().add(Calendar.DAY_OF_MONTH, 1);
+        clonedCal.getCalendar().add(Calendar.DATE, 1);
         Date chatzotForTomorrow = clonedCal.getChatzot();
         Date chatzotForToday = getChatzot();
 

@@ -747,11 +747,13 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
         @Override
         public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
             String item = itemList.get(position);
-            if (item.isEmpty()) {
+            if (item.isEmpty() && holder.itemTextView != null) {
                 holder.itemTextView.setVisibility(View.GONE);
             }
             holder.setIsRecyclable(false);
-            holder.itemTextView.setText(item);
+            if (holder.itemTextView != null) {
+                holder.itemTextView.setText(item);
+            }
 
             holder.itemView.setOnClickListener(v -> {
                 mSharedPreferences.edit()
@@ -823,7 +825,9 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
         public ItemViewHolder(View itemView) {
             super(itemView);
             itemTextView = itemView.findViewById(R.id.textView);
-            itemTextView.setTextIsSelectable(false);
+            if (itemTextView != null) {
+                itemTextView.setTextIsSelectable(false);
+            }
         }
     }
 

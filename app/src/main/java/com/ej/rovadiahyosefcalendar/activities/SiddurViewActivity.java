@@ -62,7 +62,7 @@ public class SiddurViewActivity extends AppCompatActivity {
         SiddurMaker siddurMaker = new SiddurMaker(mJewishDateInfo, textColor);
         assert siddurTitle != null;
         ArrayList<HighlightString> prayers = switch (siddurTitle) {
-            case "סליחות" -> siddurMaker.getSelichotPrayers(getIntent().getBooleanExtra("isAfterChatzot", false));
+            case "סליחות" -> siddurMaker.getSelichotPrayers(getIntent().getBooleanExtra("isAfterChatzot", false), getIntent().getBooleanExtra("isAfterSunrise", false));
             case "שחרית" -> siddurMaker.getShacharitPrayers();
             case "מוסף" -> siddurMaker.getMusafPrayers();
             case "מנחה" -> siddurMaker.getMinchaPrayers();
@@ -75,7 +75,7 @@ public class SiddurViewActivity extends AppCompatActivity {
             case "תפלת הדרך" -> siddurMaker.getTefilatHaderechPrayer();
             case "ברכת הלבנה" -> siddurMaker.getBirchatHalevanaPrayers();
             case "תיקון חצות" -> siddurMaker.getTikkunChatzotPrayers(getIntent().getBooleanExtra("isNightTikkunChatzot", true));
-            case "ק״ש שעל המיטה" -> siddurMaker.getKriatShemaShealHamitaPrayers(getIntent().getBooleanExtra("isBeforeChatzot", false));
+            case "ק״ש שעל המיטה" -> siddurMaker.getKriatShemaShealHamitaPrayers(!getIntent().getBooleanExtra("isAfterChatzot", false));
             case "ברכת מעין שלוש" -> siddurMaker.getBirchatMeeyinShaloshPrayers(Objects.requireNonNull(getIntent().getStringArrayExtra("itemsForMeyinShalosh")));
             default -> new ArrayList<>();
         };

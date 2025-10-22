@@ -357,7 +357,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             mPreviousDate = dateBind;
         } else {
             mNextDate = dateBind;
-            }
+        }
     }
 
     /**
@@ -585,12 +585,17 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                             sSharedPreferences.edit().putBoolean("useElevation", true).apply();
                             sSettingsPreferences.edit().putBoolean("LuachAmudeiHoraah", false).apply();
                             Toast.makeText(mContext, R.string.settings_updated, Toast.LENGTH_SHORT).show();
-                            instantiateZmanimCalendar();
-                            if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                                updateWeeklyZmanim();
-                            } else {
-                                updateDailyZmanim();
-                            }
+                            resolveElevationAndVisibleSunrise(() -> {
+                                instantiateZmanimCalendar();
+                                setNextUpcomingZman();
+                                if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                                    updateWeeklyZmanim();
+                                } else {
+                                    updateDailyZmanim();
+                                }
+                                createBackgroundThreadForNextUpcomingZman();
+                            });
+                            initMenu();
                         })
                         .setNegativeButton(R.string.no_i_am_not_in_israel, (dialog, which) -> dialog.dismiss())
                         .setNeutralButton(R.string.do_not_ask_me_again, (dialog, which) -> {
@@ -610,12 +615,16 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                             sSharedPreferences.edit().putBoolean("useElevation", false).apply();
                             sSettingsPreferences.edit().putBoolean("LuachAmudeiHoraah", true).apply();
                             Toast.makeText(mContext, R.string.settings_updated, Toast.LENGTH_SHORT).show();
+                            sElevation = 0;
                             instantiateZmanimCalendar();
+                            setNextUpcomingZman();
                             if (sSharedPreferences.getBoolean("weeklyMode", false)) {
                                 updateWeeklyZmanim();
                             } else {
                                 updateDailyZmanim();
                             }
+                            createBackgroundThreadForNextUpcomingZman();
+                            initMenu();
                         })
                         .setNegativeButton(R.string.no_i_have_not_left_israel, (dialog, which) -> dialog.dismiss())
                         .setNeutralButton(R.string.do_not_ask_me_again, (dialog, which) -> {

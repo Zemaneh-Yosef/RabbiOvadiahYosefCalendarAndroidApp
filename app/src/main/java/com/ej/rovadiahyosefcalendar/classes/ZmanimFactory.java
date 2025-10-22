@@ -164,7 +164,7 @@ public class ZmanimFactory {
                 zmanimNames.getRTType(isFixed) +
                 (isForTomorrow ? zmanimNames.getMacharString() : ""),
                 rtZman,
-                mSettingsPreferences.getBoolean("RoundUpRT", true) ? SecondTreatment.ALWAYS_ROUND_LATER : SecondTreatment.ROUND_EARLIER,
+                SecondTreatment.ROUND_LATER,
                 "RT");
 
         rt.setNoteworthyZman(true);

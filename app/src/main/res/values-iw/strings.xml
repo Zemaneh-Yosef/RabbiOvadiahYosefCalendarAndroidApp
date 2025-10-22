@@ -323,10 +323,6 @@
 
     <string name="show_rabbeinu_tam_everyday">הצגת את רבנו תם כל יום</string>
 
-    <string name="choose_whether_or_not_to_round_up_the_zman_of_rabbeinu_tam_up_to_the_nearest_minute">בחר אם לעגל את זמן רבנו תם לדקה הקרובה</string>
-
-    <string name="round_up_rabbeinu_tam">זמן רבנו תם מעוגל</string>
-
     <string name="choose_whether_or_not_to_display_sea_level_sunrise_even_if_visible_sunrise_is_setup_as_well">בחר אם להציג את זמן הזריחה בגובה פני הים גם כשהוגדר להציג את זמן הזריחה הנראית</string>
 
     <string name="always_show_mishor_sunrise">הצגה קבועה של זמן הנץ במישור</string>
@@ -702,5 +698,5 @@
     <string name="keep_screen_on_siddur">השארת המסך דלוק (סידור)</string>
     <string name="prevent_the_screen_from_turning_off_while_viewing_the_siddur">למנוע מהמסך להיכבות בזמן צפייה בסידור</string>
     <string name="makam">"מקאם: "</string>
-    <string name="justify_text">Toggle Text Justification</string>
+    <string name="justify_text">החלף יישור טקסט</string>
 </resources>

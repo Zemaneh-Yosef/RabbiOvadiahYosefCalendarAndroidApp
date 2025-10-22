@@ -97,7 +97,8 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
 
         AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
 
-        for (int i = 0; i < 5; i++) {// since we only set a max of 5 zmanim every half an hour, we only need to cancel 5 intents every time
+        int max = 5;
+        for (int i = 0; i < max; i++) {// since we only set a max of 5 zmanim every half an hour, we only need to cancel 5 intents every time
             PendingIntent zmanPendingIntent = PendingIntent.getBroadcast(
                     context.getApplicationContext(),
                     i,
@@ -106,8 +107,7 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
             am.cancel(zmanPendingIntent);
         }
 
-        int max = 5;
-        int set = 0;//only set 5 zmanim an hour
+        int set = 0;// only set 5 zmanim an hour
         for (int i = 0; i < zmanimOver3Days.size(); i++) {
             if (set < max) {
                 if (zmanimOver3Days.get(i).getZman() != null &&
@@ -124,7 +124,7 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
 
                     if (zmanimOver3Days.get(i).getNotificationDelay(mSettingsPreferences) != -1) {// only notify if the user wants to be notified i.e. anything greater than -1
                         setExactAndAllowWhileIdle(am, zmanimOver3Days.get(i).getZman().getTime() - (60_000L * zmanimOver3Days.get(i).getNotificationDelay(mSettingsPreferences)), zmanPendingIntent);
-                        set += 1;
+                        set++;
                     }
                 }
             }

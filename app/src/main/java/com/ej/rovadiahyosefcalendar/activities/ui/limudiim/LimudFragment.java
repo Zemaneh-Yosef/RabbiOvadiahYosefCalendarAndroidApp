@@ -328,7 +328,6 @@ public class LimudFragment extends Fragment {
         if (binding != null) {
             Button previousDate = binding.prevDay;
             previousDate.setOnClickListener(v -> {
-                mCurrentDateShown = (Calendar) mROZmanimCalendar.getCalendar().clone();//just get a calendar object with the same date as the current one
                 mCurrentDateShown.add(Calendar.DATE, -1);//subtract one day
                 mROZmanimCalendar.setCalendar(mCurrentDateShown);
                 mJewishDateInfo.setCalendar(mCurrentDateShown);

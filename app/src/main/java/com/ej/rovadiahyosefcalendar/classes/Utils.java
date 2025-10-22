@@ -103,14 +103,14 @@ public class Utils {
         yesSecondDateFormat.setTimeZone(timezone);
 
         String zmanTime;
-        if (secondTreatment != SecondTreatment.ALWAYS_ROUND_LATER && (secondTreatment == SecondTreatment.ALWAYS_DISPLAY || showSeconds)) {
+        if (secondTreatment == SecondTreatment.ALWAYS_DISPLAY || showSeconds) {
             zmanTime = yesSecondDateFormat.format(zman);
         } else {
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(zman);
 
             Date zmanDate = zman;
-            if ((calendar.get(Calendar.SECOND) > 40) || (calendar.get(Calendar.SECOND) > 20 && secondTreatment == SecondTreatment.ROUND_LATER || secondTreatment == SecondTreatment.ALWAYS_ROUND_LATER)) {
+            if ((calendar.get(Calendar.SECOND) > 40) || (calendar.get(Calendar.SECOND) > 20 && secondTreatment == SecondTreatment.ROUND_LATER)) {
                 zmanDate = Utils.addMinuteToZman(zman);
             }
 

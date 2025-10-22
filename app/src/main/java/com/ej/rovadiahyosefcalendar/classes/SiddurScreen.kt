@@ -1,5 +1,7 @@
 package com.ej.rovadiahyosefcalendar.classes
 
+// M3 Imports
+// End M3 Imports
 import android.content.Context
 import android.content.Intent
 import android.hardware.Sensor
@@ -7,8 +9,12 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.text.SpannableString
+import android.util.Log
 import android.util.TypedValue
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,13 +22,13 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-// M3 Imports
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,7 +37,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
-// End M3 Imports
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -62,13 +67,13 @@ import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.preference.PreferenceManager
 import com.aghajari.compose.text.asAnnotatedString
-import com.ej.rovadiahyosefcalendar.R as AppR
 import com.ej.rovadiahyosefcalendar.activities.SiddurViewActivity
+import kotlinx.coroutines.launch
 import java.util.LinkedList
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
-import kotlinx.coroutines.launch
+import com.ej.rovadiahyosefcalendar.R as AppR
 
 // 1. Define a type for our scroll event lambda
 typealias ScrollToPosition = (Int) -> Unit
@@ -109,7 +114,7 @@ private fun SiddurScreen(
     val context = LocalContext.current
     val sharedPreferences = remember { PreferenceManager.getDefaultSharedPreferences(context) }
 
-    var textSize by remember { mutableFloatStateOf(sharedPreferences.getInt("TextSize", 18).toFloat()) }
+    var textSize by remember { mutableFloatStateOf(sharedPreferences.getInt("TextSize", 24).toFloat()) }
     var isJustified by remember { mutableStateOf(sharedPreferences.getBoolean("isJustified", false)) }
     val fontPreference = remember { sharedPreferences.getString("font", "Guttman Keren") ?: "Guttman Keren" }
 
@@ -206,6 +211,10 @@ private fun Compass(instructionalText: String) {
 
     var degree by remember { mutableFloatStateOf(0f) }
 
+    // --- Track smoothed rotation between readings ---
+    var previousDegree by remember { mutableFloatStateOf(0f) }
+    var smoothDegree by remember { mutableFloatStateOf(0f) }
+
     DisposableEffect(Unit) {
         val accelerometerReading = FloatArray(3)
         val magnetometerReading = FloatArray(3)
@@ -258,9 +267,26 @@ private fun Compass(instructionalText: String) {
         }
     }
 
-    val animatedDegree by animateFloatAsState(targetValue = -degree, label = "Compass Rotation")
+    // --- Handle wraparound smoothing ---
+    val displayDegree = remember(degree) {
+        var delta = degree - previousDegree
+        if (delta > 180f) delta -= 360f
+        if (delta < -180f) delta += 360f
+        smoothDegree += delta
+        previousDegree = degree
+        smoothDegree
+    }
 
-    if (accelerometer != null && magnetometer != null) {
+    val animatedDegree by animateFloatAsState(
+        targetValue = -displayDegree,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow // try StiffnessMedium for snappier movement
+        ),
+        label = "CompassRotation"
+    )
+
+    if (accelerometer != null || magnetometer != null) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -277,7 +303,8 @@ private fun Compass(instructionalText: String) {
                 painter = painterResource(id = AppR.drawable.compass),
                 contentDescription = "Compass",
                 modifier = Modifier
-                    .padding(16.dp)
+                    .fillMaxWidth(0.8f) // take 80% of screen width
+                    .aspectRatio(1f)
                     .rotate(animatedDegree)
             )
         }
@@ -342,7 +369,7 @@ private fun SiddurRow(
 
         val finalSize = when {
             isCategory -> textSize + 8
-            isInstruction -> textSize - 10
+            isInstruction -> textSize - 6
             else -> textSize
         }
 
@@ -372,7 +399,7 @@ private fun SiddurRow(
         val textAlign = when {
             isCategory || isInstruction -> TextAlign.Center
             isJustified -> TextAlign.Justify
-            else -> TextAlign.Unspecified
+            else -> TextAlign.Right
         }
 
         val textStyle = TextStyle(

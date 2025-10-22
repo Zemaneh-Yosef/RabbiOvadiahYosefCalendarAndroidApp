@@ -195,8 +195,6 @@
     <string name="show_seconds">Show seconds?</string>
     <string name="choose_whether_or_not_to_display_rabbeinu_tam_s_nightfall_everyday">Choose whether or not to display Rabbeinu Tam\'s nightfall everyday</string>
     <string name="show_rabbeinu_tam_everyday">Show Rabbeinu Tam everyday?</string>
-    <string name="choose_whether_or_not_to_round_up_the_zman_of_rabbeinu_tam_up_to_the_nearest_minute">Choose whether or not to round up the zman of Rabbeinu Tam up to the nearest minute</string>
-    <string name="round_up_rabbeinu_tam">Round up Rabbeinu Tam?</string>
     <string name="choose_whether_or_not_the_app_will_notify_you_of_the_day_of_the_omer_during_the_day">Choose whether or not the app will notify you of the day of the omer during the day</string>
     <string name="notify_day_of_omer_as_well">Notify day of omer as well?</string>
     <string name="choose_whether_or_not_to_display_sea_level_sunrise_even_if_visible_sunrise_is_setup_as_well">Choose whether or not to display sea level sunrise even if visible sunrise is setup as well</string>

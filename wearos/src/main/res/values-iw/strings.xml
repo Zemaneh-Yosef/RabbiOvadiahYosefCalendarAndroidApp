@@ -322,10 +322,6 @@
 
     <string name="show_rabbeinu_tam_everyday">הצגת את רבנו תם כל יום</string>
 
-    <string name="choose_whether_or_not_to_round_up_the_zman_of_rabbeinu_tam_up_to_the_nearest_minute">בחר אם לעגל את זמן רבנו תם לדקה הקרובה</string>
-
-    <string name="round_up_rabbeinu_tam">זמן רבנו תם מעוגל</string>
-
     <string name="choose_whether_or_not_the_app_will_notify_you_of_the_day_of_the_omer_during_the_day">בחר אם האפליקציה תודיע לך על יום העומר במהלך היום</string>
 
     <string name="notify_day_of_omer_as_well">להודיע על יום העומר גם</string>

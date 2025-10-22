@@ -184,8 +184,6 @@
     <string name="show_seconds">Show seconds</string>
     <string name="choose_whether_or_not_to_display_rabbeinu_tam_s_nightfall_everyday">Display Rabbenu Tam\'s nightfall everyday</string>
     <string name="show_rabbeinu_tam_everyday">Always show Rabbenu Tam</string>
-    <string name="choose_whether_or_not_to_round_up_the_zman_of_rabbeinu_tam_up_to_the_nearest_minute">Round up the zeman of Rabbenu Tam up to the nearest minute (if seconds are not shown)</string>
-    <string name="round_up_rabbeinu_tam">Round up Rabbenu Tam?</string>
     <string name="choose_whether_or_not_to_display_sea_level_sunrise_even_if_visible_sunrise_is_setup_as_well">Display sea level sunrise even if visible sunrise is setup as well</string>
     <string name="always_show_mishor_sunrise">Always show mishor sunrise</string>
     <string name="choose_whether_or_not_to_display_the_zman_dialogs_when_you_press_on_a_zman">Display the dialogs when you press on a zeman</string>

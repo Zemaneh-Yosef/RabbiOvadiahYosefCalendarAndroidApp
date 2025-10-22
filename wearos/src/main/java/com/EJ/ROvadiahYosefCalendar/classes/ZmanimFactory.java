@@ -150,7 +150,7 @@ public class ZmanimFactory {
         ZmanListEntry rt = new ZmanListEntry(
                 zmanimNames.getRTString() + (isForTomorrow ? zmanimNames.getMacharString() : ""),
                 useAHZmanim && !mSettingsPreferences.getBoolean("overrideRTZman", false) ? mROZmanimCalendar.getTzais72ZmanisAmudeiHoraahLkulah() : mROZmanimCalendar.getTzais72Zmanis(),
-                mSettingsPreferences.getBoolean("RoundUpRT", true) ? SecondTreatment.ROUND_LATER : SecondTreatment.ROUND_EARLIER
+                SecondTreatment.ROUND_LATER
         );
 
         rt.setNoteworthyZman(true);
