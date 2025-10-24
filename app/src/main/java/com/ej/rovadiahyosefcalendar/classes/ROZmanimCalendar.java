@@ -751,7 +751,7 @@ public class ROZmanimCalendar extends ZmanimCalendar {
         copy.setCandleLightingOffset(getCandleLightingOffset());
         copy.setAteretTorahSunsetOffset(getAteretTorahSunsetOffset());
         copy.setAmudehHoraah(isUseAmudehHoraah());
-        copy.setCalendar(getCalendar());
+        copy.setCalendar((Calendar) getCalendar().clone());
         return copy;
     }
 }
