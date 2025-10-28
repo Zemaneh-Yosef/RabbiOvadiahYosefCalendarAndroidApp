@@ -172,23 +172,16 @@ public class ZmanimFactory {
     }
 
     private static void addShabbatEndsZman(List<ZmanListEntry> zmanim, SharedPreferences mSettingsPreferences, ROZmanimCalendar mROZmanimCalendar, JewishDateInfo mJewishDateInfo, boolean mIsZmanimInHebrew, ZmanimNames zmanimNames, boolean isForCandleLigthting, boolean isForTomorrow) {
-        ZmanListEntry endShabbat;
-        if (mROZmanimCalendar.isUseAmudehHoraah()) {
-            endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString() + " (7.165°)", mROZmanimCalendar.getTzaitShabbatAmudeiHoraah(), SecondTreatment.ROUND_LATER, "ShabbatEnd");
-        } else {
-            endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString()
-                    + " (" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")", mROZmanimCalendar.getTzaisAteretTorah(), SecondTreatment.ROUND_LATER,
-                    "ShabbatEnd");
-        }
+        ZmanListEntry endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString(),
+                mROZmanimCalendar.isUseAmudehHoraah() ? mROZmanimCalendar.getTzaitShabbatAmudeiHoraah() : mROZmanimCalendar.getTzaisAteretTorah(),
+                SecondTreatment.ROUND_LATER,
+                "ShabbatEnd");
         if (mSettingsPreferences.getBoolean("overrideAHEndShabbatTime", false)) {
-            if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("1")) {
-                endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString()
-                        + " (" + (int) mROZmanimCalendar.getAteretTorahSunsetOffset() + ")", mROZmanimCalendar.getTzaisAteretTorah(), SecondTreatment.ROUND_LATER,
-                        "ShabbatEnd");
-            } else if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("2")) {
-                endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString() + " (7.165°)", mROZmanimCalendar.getTzaitShabbatAmudeiHoraah(), SecondTreatment.ROUND_LATER, "ShabbatEnd");
-            } else if (mSettingsPreferences.getString("EndOfShabbatOpinion", "1").equals("3")) {
-                endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString(), mROZmanimCalendar.getTzaitShabbatAmudeiHoraahLesserThan40(), SecondTreatment.ROUND_LATER, "ShabbatEnd");
+            String setting = mSettingsPreferences.getString("EndOfShabbatOpinion", "1");
+            switch (setting) {
+                case "1" -> endShabbat.setZman(mROZmanimCalendar.getTzaisAteretTorah());
+                case "2" -> endShabbat.setZman(mROZmanimCalendar.getTzaitShabbatAmudeiHoraah());
+                case "3" -> endShabbat.setZman(mROZmanimCalendar.getTzaitShabbatAmudeiHoraahLesserThan40());
             }
         }
         if (isForTomorrow) {
@@ -206,24 +199,13 @@ public class ZmanimFactory {
      * @return a string that says whether it is shabbat and chag or just shabbat or just chag (in Hebrew or English)
      */
     private static String getShabbatAndOrChag(boolean mIsZmanimInHebrew, JewishDateInfo mJewishDateInfo) {
-        if (mIsZmanimInHebrew) {
-            if (mJewishDateInfo.getJewishCalendar().isYomTovAssurBemelacha()
-                    && mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY) {
-                return "שבת/חג";
-            } else if (mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY) {
-                return "שבת";
-            } else {
-                return "חג";
-            }
+        if (mJewishDateInfo.getJewishCalendar().isYomTovAssurBemelacha()
+                && mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY) {
+            return mIsZmanimInHebrew ? "שבת/חג" : "Shabbat/Chag";
+        } else if (mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY) {
+            return mIsZmanimInHebrew ? "שבת" : "Shabbat";
         } else {
-            if (mJewishDateInfo.getJewishCalendar().isYomTovAssurBemelacha()
-                    && mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY) {
-                return "Shabbat/Chag";
-            } else if (mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY) {
-                return "Shabbat";
-            } else {
-                return "Chag";
-            }
+            return mIsZmanimInHebrew ? "חג" : "Chag";
         }
     }
 

@@ -3,6 +3,7 @@ package com.ej.rovadiahyosefcalendar.classes;
 import static android.content.Context.MODE_PRIVATE;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mJewishDateInfo;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mROZmanimCalendar;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentLocationName;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSetupLauncher;
 import static com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment.sNextUpcomingZman;
@@ -474,7 +475,24 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void showTzaitShabbatDialog() {
-        AlertDialog alertDialog = dialogBuilder.setTitle("Shabbat/Chag Ends - צאת שבת/חג")
+        String shabbatSetting = "7.165°";
+        if (mROZmanimCalendar != null && !mROZmanimCalendar.isUseAmudehHoraah()) {
+            shabbatSetting = String.valueOf((int) mROZmanimCalendar.getAteretTorahSunsetOffset());
+        }
+        SharedPreferences mSettingsPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        if (mSettingsPreferences.getBoolean("overrideAHEndShabbatTime", false)) {
+            String setting = mSettingsPreferences.getString("EndOfShabbatOpinion", "1");
+            switch (setting) {
+                case "1" -> {
+                    if (mROZmanimCalendar != null) {
+                        shabbatSetting = String.valueOf((int) mROZmanimCalendar.getAteretTorahSunsetOffset());
+                    }
+                }
+                // do nothing for 2 because it's the same
+                case "3" -> shabbatSetting = "";// don't show anything if we're using the lesser than the 2 options
+            }
+        }
+        AlertDialog alertDialog = dialogBuilder.setTitle("Shabbat/Chag Ends (%) - (%) צאת שבת/חג".replace("%", shabbatSetting))
                 .setMessage(Utils.isLocaleHebrew() ? loadContentFromFile("tzetShabbatHB.md") : loadContentFromFile("tzetShabbat.md"))
                 .create();
         alertDialog.show();

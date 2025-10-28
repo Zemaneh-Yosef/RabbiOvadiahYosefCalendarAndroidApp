@@ -190,24 +190,13 @@ public class ZmanimFactory {
      * @return a string that says whether it is shabbat and chag or just shabbat or just chag (in Hebrew or English)
      */
     private static String getShabbatAndOrChag(boolean mIsZmanimInHebrew, JewishDateInfo mJewishDateInfo) {
-        if (mIsZmanimInHebrew) {
-            if (mJewishDateInfo.getJewishCalendar().isYomTovAssurBemelacha()
-                    && mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
-                return "שבת/חג";
-            } else if (mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
-                return "שבת";
-            } else {
-                return "חג";
-            }
+        if (mJewishDateInfo.getJewishCalendar().isYomTovAssurBemelacha()
+                && mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY) {
+            return mIsZmanimInHebrew ? "שבת/חג" : "Shabbat/Chag";
+        } else if (mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY) {
+            return mIsZmanimInHebrew ? "שבת" : "Shabbat";
         } else {
-            if (mJewishDateInfo.getJewishCalendar().isYomTovAssurBemelacha()
-                    && mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
-                return "Shabbat/Chag";
-            } else if (mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
-                return "Shabbat";
-            } else {
-                return "Chag";
-            }
+            return mIsZmanimInHebrew ? "חג" : "Chag";
         }
     }
 

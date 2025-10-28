@@ -371,6 +371,7 @@ public class LocationResolver {
             sLatitude = first.getLatitude();
             sLongitude = first.getLongitude();
             sCurrentLocationName = getLocationAsName();
+            mLocationName = sCurrentLocationName;
             mSharedPreferences.edit()
                     .putString("oldZipcode", zipcode)
                     .putString("oldLocationName", sCurrentLocationName)
@@ -432,12 +433,12 @@ public class LocationResolver {
             if (mSharedPreferences.getBoolean("useZipcode", false)) {
                 String savedZipcodeLocation = "location";
                 for (int i = 1; i <= 5; i++) {
-                    if (mSharedPreferences.getString("location" + i, "").equals(sCurrentLocationName)) {
+                    if (mSharedPreferences.getString("location" + i, "").equals(mLocationName)) {
                         savedZipcodeLocation = "location" + i;
                         break;
                     }
                 }
-                if (mSharedPreferences.getString(savedZipcodeLocation, "").equals(sCurrentLocationName)) {
+                if (mSharedPreferences.getString(savedZipcodeLocation, "").equals(mLocationName)) {
                     mTimeZone = TimeZone.getTimeZone(mSharedPreferences.getString(savedZipcodeLocation + "Timezone", TimeZone.getDefault().getID()));
                     sCurrentTimeZoneID = mTimeZone.getID();
                     return; // basically, avoid making the engine if we already got the timezone last time
