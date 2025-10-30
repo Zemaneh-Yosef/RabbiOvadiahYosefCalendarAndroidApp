@@ -37,6 +37,10 @@
             android:layout_height="wrap_content"
             android:padding="12dp"
             android:gravity="center"
+            android:autoSizeMaxTextSize="22sp"
+            android:autoSizeMinTextSize="8sp"
+            android:autoSizeTextType="uniform"
+            android:maxLines="3"
             android:text="@string/what_language_would_you_like_the_zmanim_to_be_in"
             android:textColor="?android:attr/textColorPrimary"
             android:textSize="28sp"
@@ -44,12 +48,10 @@
             android:layout_gravity="center"
             android:layout_margin="28dp"/>
 
-        <ImageView
-            android:id="@+id/langImageView"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/zmanim_demo_list"
             android:layout_width="match_parent"
-            android:layout_height="260dp"
-            android:src="@drawable/english"
-            android:contentDescription="@string/what_language_would_you_like_the_zmanim_to_be_in" />
+            android:layout_height="300dp" />
 
             <RadioGroup
                 android:id="@+id/radioGroup"

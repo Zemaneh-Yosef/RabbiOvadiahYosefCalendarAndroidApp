@@ -740,11 +740,16 @@ public class LocationResolver {
     }
 
     public @NonNull GeoLocation getLastKnownGeoLocation() {
+        if (!mSharedPreferences.getBoolean("useElevation", true)) {//if the user has disabled the elevation setting, set the elevation to 0
+            mElevation = 0;
+        } else {
+            mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mSharedPreferences.getString("name", ""), "0"));//lastKnownLocation
+        }
         return new GeoLocation(
                 mSharedPreferences.getString("name", ""),
                 Double.longBitsToDouble(mSharedPreferences.getLong("Lat", 0)),
                 Double.longBitsToDouble(mSharedPreferences.getLong("Long", 0)),
-                Double.parseDouble(mSharedPreferences.getString("elevation" + mSharedPreferences.getString("name", ""), "0")),
+                mElevation,
                 TimeZone.getDefault()
         );
     }

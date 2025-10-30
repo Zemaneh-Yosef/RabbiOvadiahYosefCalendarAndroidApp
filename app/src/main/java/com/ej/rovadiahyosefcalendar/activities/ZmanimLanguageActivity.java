@@ -1,17 +1,17 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
+import static android.view.View.LAYOUT_DIRECTION_LTR;
+import static android.view.View.LAYOUT_DIRECTION_RTL;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLatitude;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLongitude;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
@@ -21,16 +21,22 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
+import com.ej.rovadiahyosefcalendar.classes.ZmanAdapter;
+import com.ej.rovadiahyosefcalendar.classes.ZmanimFactory;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 public class ZmanimLanguageActivity extends AppCompatActivity {
 
     SharedPreferences mSharedPreferences;
-    boolean translated;
+    boolean isHebrew = false;
+    boolean translated = false;
+    private RecyclerView mRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,77 +69,49 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
 
         mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
 
-        ImageView imageView = findViewById(R.id.langImageView);
+        mRecyclerView = findViewById(R.id.zmanim_demo_list);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         RadioGroup group = findViewById(R.id.radioGroup);
         RadioButton hebrew = findViewById(R.id.hebrew);
         RadioButton english = findViewById(R.id.english);
         CheckBox englishTranslated = findViewById(R.id.englishTranslated);
 
         if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
+            isHebrew = true;
             group.check(R.id.hebrew);
             englishTranslated.setEnabled(false);
-            if ((getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES) {
-                imageView.setImageResource(R.drawable.hebrew_dark);
-            } else {
-                imageView.setImageResource(R.drawable.hebrew);
-            }
         } else if (mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false)) {
             translated = true;
             group.check(R.id.english);
             englishTranslated.setEnabled(true);
-            if ((getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES) {
-                imageView.setImageResource(R.drawable.translated_dark);
-            } else {
-                imageView.setImageResource(R.drawable.translated);
-            }
         } else {
             group.check(R.id.english);
             englishTranslated.setEnabled(true);
-            if ((getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES) {
-                imageView.setImageResource(R.drawable.english_dark);
-            } else {
-                imageView.setImageResource(R.drawable.english);
-            }
         }
         englishTranslated.setChecked(translated);
+        updateRecyclerView();
 
         hebrew.setOnClickListener(v -> {
+            isHebrew = true;
+            translated = false;
             englishTranslated.setChecked(false);
             englishTranslated.setEnabled(false);
-            if ((getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES) {
-                imageView.setImageResource(R.drawable.hebrew_dark);
-            } else {
-                imageView.setImageResource(R.drawable.hebrew);
-            }
+            updateRecyclerView();
         });
         english.setOnClickListener(v -> {
+            isHebrew = false;
+            translated = false;
             englishTranslated.setChecked(false);
             englishTranslated.setEnabled(true);
-            if ((getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES) {
-                imageView.setImageResource(R.drawable.english_dark);
-            } else {
-                imageView.setImageResource(R.drawable.english);
-            }
+            updateRecyclerView();
         });
         englishTranslated.setOnCheckedChangeListener((buttonView, isChecked) -> {
             translated = isChecked;
-            if (isChecked) {
-                if ((getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES) {
-                    imageView.setImageResource(R.drawable.translated_dark);
-                } else {
-                    imageView.setImageResource(R.drawable.translated);
-                }
-            } else {
-                if ((getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES) {
-                    imageView.setImageResource(R.drawable.english_dark);
-                } else {
-                    imageView.setImageResource(R.drawable.english);
-                }
-            }
+            updateRecyclerView();
         });
 
         Button confirm = findViewById(R.id.confirm);
-        confirm.setOnClickListener(v -> saveInfoAndFinish(group.getCheckedRadioButtonId() == R.id.hebrew, translated));
+        confirm.setOnClickListener(v -> saveInfoAndFinish(isHebrew, translated));
 
         ViewCompat.setOnApplyWindowInsetsListener(englishTranslated, (v, windowInsets) -> {
             Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -170,5 +148,14 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
             mSharedPreferences.edit().putBoolean("hasNotShownTipScreen", false).apply();
         }
         finish();
+    }
+
+    private void updateRecyclerView() {
+        if (isHebrew) {
+            mRecyclerView.setLayoutDirection(LAYOUT_DIRECTION_RTL);
+        } else {
+            mRecyclerView.setLayoutDirection(LAYOUT_DIRECTION_LTR);
+        }
+        mRecyclerView.setAdapter(new ZmanAdapter(this, ZmanimFactory.getDemoZmanim(isHebrew, translated), null));
     }
 }

@@ -260,7 +260,9 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                 showEarliestTalitTefilinDialog();
             } else {
                 wasTalitTefilinZmanClicked = true;
-                onZmanClickListener.onItemClick();// request a new set of data
+                if (onZmanClickListener != null) {
+                    onZmanClickListener.onItemClick();// request a new set of data
+                }
             }
         } else if (zmanim.get(position).getTitle().contains(zmanimNames.getHaNetzString())) {
             showSunriseDialog();
