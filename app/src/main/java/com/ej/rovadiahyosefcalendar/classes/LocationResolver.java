@@ -612,20 +612,21 @@ public class LocationResolver {
         mSharedPreferences.edit().putString("elevation" + sCurrentLocationName, String.valueOf(sum / size)).apply();
 
         if (codeToRunInBackground != null) {
-            ExecutorService executor = Executors.newSingleThreadExecutor();
-            Future<?> future = executor.submit(codeToRunInBackground);  // Submit codeToRunInBackground and get a Future
-            // Wait for codeToRunInBackground to complete
-            executor.execute(() -> {
-                try {
-                    future.get();  // This will block until codeToRunInBackground finishes
+            try (ExecutorService executor = Executors.newSingleThreadExecutor()) {
+                Future<?> future = executor.submit(codeToRunInBackground);  // Submit codeToRunInBackground and get a Future
+                // Wait for codeToRunInBackground to complete
+                executor.execute(() -> {
+                    try {
+                        future.get();  // This will block until codeToRunInBackground finishes
 
-                    // Now post codeToRunOnMainThread to the main thread
-                    handler.post(codeToRunOnMainThread);
+                        // Now post codeToRunOnMainThread to the main thread
+                        handler.post(codeToRunOnMainThread);
 
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
         } else {
             // If codeToRunInBackground is null, just run codeToRunOnMainThread on the main thread
             handler.post(codeToRunOnMainThread);
