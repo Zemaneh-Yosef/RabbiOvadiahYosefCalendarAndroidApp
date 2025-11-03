@@ -614,20 +614,25 @@ public class ROZmanimCalendar extends ZmanimCalendar {
 
     public boolean isNowAfterHalachicSolarMidnight() {
         Date now = new Date();
+        Date alotHashachar = getAlotHashachar();
         Date solarMidnight = getSolarMidnight();
-        // Handle possible edge case when solarMidnight is "tomorrow"
-        Calendar midnightCal = Calendar.getInstance();
-        if (solarMidnight != null) {
-            midnightCal.setTime(solarMidnight);
+        if (alotHashachar == null) {
+            alotHashachar = new Date();
         }
-        // The calendar changes at 12 AM. If solarMidnight occurs between 12 AM–3 AM and now is after 12 AM, we need to go back to yesterday to get the correct solarMidnight.
-        // However, if solarMidnight occurs before 12 AM, there is no need to go back to yesterday because we are already checking for the correct solarMidnight.
-        if (midnightCal.get(Calendar.HOUR_OF_DAY) < 3) {
+        if (solarMidnight == null) {
+            solarMidnight = new Date();
+        }
+        // V2: figure out if it is after solar midnight based on alot hashachar
+        if (now.after(alotHashachar) && now.before(solarMidnight)) {// this takes care of majority of cases except for when now is after 12 AM and solar midnight is after 12 AM
+            return false;
+        } else if (now.before(alotHashachar)) {// if it is before alot hashachar, the date has changed, solar midnight will be shown yesterday and now could still be before solar midnight
             getCalendar().add(Calendar.DATE, -1);
             solarMidnight = getSolarMidnight();
             getCalendar().add(Calendar.DATE, 1);
+            return now.after(solarMidnight);
+        } else {// now is after alot hashachar and solar midnight, it is definitely after solar midnight
+            return true;
         }
-        return now.after(solarMidnight == null ? new Date() : solarMidnight);
     }
 
     public Date getSolarMidnight() {

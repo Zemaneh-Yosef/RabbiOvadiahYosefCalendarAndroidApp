@@ -4566,6 +4566,10 @@ public class SiddurMaker {
 					|| jewishDateInfo.getIsTachanunSaid().equals("Some skip Tachanun by mincha");
 		}
 
+		if (jewishDateInfo.getJewishCalendar().isYomKippur()) {// edge case for Yom Kippur night. Hopefully, this will just be researched and not actually used on Yom Kippur
+			isTachanunSaid = true;
+		}
+
 		if (jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun today")
 				|| jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון")
 				|| jewishDateInfo.getIsTachanunSaid().equals("יש מדלגים תחנון במנחה")
