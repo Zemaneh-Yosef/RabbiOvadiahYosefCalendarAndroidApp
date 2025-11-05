@@ -1,6 +1,6 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSharedPreferences;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
 
 import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
@@ -76,7 +76,7 @@ public class WelcomeScreenActivity extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (sSharedPreferences.getBoolean("isSetup", false)) {
+                if (getSharedPreferences(SHARED_PREF, MODE_PRIVATE).getBoolean("isSetup", false)) {
                     finish();
                 } else {
                     finishAffinity();

@@ -4,7 +4,6 @@ import static android.content.Context.MODE_PRIVATE;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mJewishDateInfo;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mROZmanimCalendar;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentLocationName;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSetupLauncher;
 import static com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment.sNextUpcomingZman;
 import static com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment.sShabbatMode;
@@ -220,14 +219,6 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     @Override
     public int getItemCount() {
         return zmanim.size();
-    }
-
-    private String getElevation() {
-        if (!mSharedPreferences.getBoolean("useElevation", true)) {//if the user has disabled the elevation setting, set the elevation to 0
-            return "0";
-        } else {
-            return mSharedPreferences.getString("elevation" + sCurrentLocationName, "0");
-        }
     }
 
     public static class ZmanViewHolder extends RecyclerView.ViewHolder {
