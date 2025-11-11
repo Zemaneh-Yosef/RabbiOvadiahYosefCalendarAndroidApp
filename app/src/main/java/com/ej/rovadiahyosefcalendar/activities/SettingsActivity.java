@@ -395,23 +395,30 @@ public class SettingsActivity extends AppCompatActivity {
             Preference haskamaPref = findPreference("haskamot");
             if (haskamaPref != null) {
                 haskamaPref.setOnPreferenceClickListener(v -> {
+                    String[] options = {
+                            getString(R.string.haskama_by_rabbi_yitzhak_yosef),
+                            getString(R.string.by_rav_ben_chaim),
+                            getString(R.string.by_rav_elbaz),
+                            getString(R.string.by_rav_dahan)
+                    };
+
                     new MaterialAlertDialogBuilder(requireContext())
-                        .setTitle(R.string.haskamot)
-                        .setMessage(R.string.haskamot_message)
-                        .setPositiveButton(R.string.haskama_by_rabbi_yitzhak_yosef, (dialog, which) -> {
-                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://royzmanim.com/assets/haskamah-rishon-letzion.pdf"));
-                            startActivity(browserIntent);
-                        })
-                        .setNeutralButton(R.string.by_rav_elbaz, (dialog, which) -> {
-                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://royzmanim.com/assets/Haskamah.pdf"));
-                            startActivity(browserIntent);
-                        })
-                        .setNegativeButton(R.string.by_rav_dahan, (dialog, which) -> {
-                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://royzmanim.com/assets/%D7%94%D7%A1%D7%9B%D7%9E%D7%94.pdf"));
-                            startActivity(browserIntent);
-                        })
-                        .create()
-                        .show();
+                            .setTitle(R.string.haskamot)
+                            .setItems(options, (dialog, which) -> {
+                                String url = switch (which) {
+                                    case 0 -> "https://royzmanim.com/assets/haskamah-rishon-letzion.pdf";
+                                    case 1 -> "https://royzmanim.com/assets/RBH_Recommendation_Final.pdf";
+                                    case 2 -> "https://royzmanim.com/assets/Haskamah.pdf";
+                                    case 3 -> "https://royzmanim.com/assets/%D7%94%D7%A1%D7%9B%D7%9E%D7%94.pdf";
+                                    default -> null;
+                                };
+                                if (url != null) {
+                                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                                    startActivity(browserIntent);
+                                }
+                            })
+                            .setNegativeButton(android.R.string.cancel, null)
+                            .show();
                     return false;
                 });
             }
