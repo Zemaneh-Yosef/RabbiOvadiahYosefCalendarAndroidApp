@@ -59,6 +59,7 @@ public class JewishDateInfo {
         this.jewishCalendar.setUseModernHolidays(true);
         this.hebrewDateFormatter = new HebrewDateFormatter();
         this.hebrewDateFormatter.setUseGershGershayim(false);
+        this.hebrewDateFormatter.setTransliteratedMonthList(new String[]{ "Nissan", "Iyar", "Sivan", "Tammuz", "Av", "Elul", "Tishri", "Ḥeshvan", "Kislev", "Tevet", "Shevat", "Adar", "Adar II", "Adar I" });
         if (Utils.isLocaleHebrew()) {
             this.hebrewDateFormatter.setHebrewFormat(true);
             this.isLocaleHebrew = true;
@@ -148,13 +149,9 @@ public class JewishDateInfo {
             }
         } else {
             if (this.jewishCalendar.isRoshChodesh()) {
-                result = hebrewDateFormatter.formatRoshChodesh(this.jewishCalendar)
-                    .replace("Teves", "Tevet")
-                    .replace("Tishrei", "Tishri");
+                result = hebrewDateFormatter.formatRoshChodesh(this.jewishCalendar);
             } else if (this.jewishCalendar.isErevRoshChodesh()) {
-                String hebrewMonth = hebrewDateFormatter.formatRoshChodesh(tomorrow().getJewishCalendar())
-                    .replace("Teves", "Tevet")
-                    .replace("Tishrei", "Tishri");
+                String hebrewMonth = hebrewDateFormatter.formatRoshChodesh(tomorrow().getJewishCalendar());
                 result = "Erev " + hebrewMonth;
             } else {
                 result = "";
@@ -175,30 +172,29 @@ public class JewishDateInfo {
         String yomTovOfToday = getYomTov();
         String yomTovOfNextDay = getYomTovForNextDay();
 
-        if (yomTovOfToday.isEmpty() && yomTovOfNextDay.isEmpty()) {//NEEDED if both empty
-            //do nothing
-        } else if (yomTovOfToday.isEmpty() && !yomTovOfNextDay.startsWith("Erev")) {//if next day has yom tov
-            if (isLocaleHebrew) {
-                if (!yomTovOfNextDay.startsWith("ערב")) {
-                    result = "ערב " + yomTovOfNextDay;
-                }
-            } else {
-                result = "Erev " + yomTovOfNextDay;
-            }
-        } else if (!yomTovOfNextDay.isEmpty()
-                && !yomTovOfNextDay.startsWith("Erev")
-                && !yomTovOfToday.endsWith(yomTovOfNextDay)) {//if today and the next day have yom tov
-            if (isLocaleHebrew) {
-                if (!yomTovOfNextDay.startsWith("ערב")) {
-                    result = yomTovOfToday + " / ערב " + yomTovOfNextDay;
+        if (!yomTovOfToday.isEmpty() || !yomTovOfNextDay.isEmpty()) {
+            if (yomTovOfToday.isEmpty() && !yomTovOfNextDay.startsWith("Erev")) {//if next day has yom tov
+                if (isLocaleHebrew) {
+                    if (!yomTovOfNextDay.startsWith("ערב")) {
+                        result = "ערב " + yomTovOfNextDay;
+                    }
                 } else {
-                    result = yomTovOfToday;
+                    result = "Erev " + yomTovOfNextDay;
+                }
+            } else if (!yomTovOfNextDay.startsWith("Erev")
+                    && !yomTovOfToday.endsWith(yomTovOfNextDay)) {//if today and the next day have yom tov
+                if (isLocaleHebrew) {
+                    if (!yomTovOfNextDay.startsWith("ערב")) {
+                        result = yomTovOfToday + " / ערב " + yomTovOfNextDay;
+                    } else {
+                        result = yomTovOfToday;
+                    }
+                } else {
+                    result = yomTovOfToday + " / Erev " + yomTovOfNextDay;
                 }
             } else {
-                result = yomTovOfToday + " / Erev " + yomTovOfNextDay;
+                result = yomTovOfToday;
             }
-        } else {
-            result = yomTovOfToday;
         }
 
         result = addTaanitBechorot(result);
