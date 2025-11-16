@@ -1,5 +1,7 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
+import android.text.SpannableStringBuilder;
+
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
@@ -591,11 +593,10 @@ public class JewishDateInfo {
 
     /**
      * This method will return the haftarah or haftorah of the current week by rolling the calendar to saturday.
-     * @see WeeklyHaftarahReading
+     * @see WeeklySephardicHaftarot
      * @return a string containing the haftarah or haftorah of the current week
      */
-    public String getThisWeeksHaftarah() {
-
+    public CharSequence getThisWeeksHaftarah() {
         this.currentDate = this.jewishCalendar.getGregorianCalendar();
         Calendar parshaCalendar = this.jewishCalendar.getGregorianCalendar();
 
@@ -604,8 +605,12 @@ public class JewishDateInfo {
         }
 
         this.jewishCalendar.setDate(parshaCalendar);
-        String haftarah = WeeklyHaftarahReading.getThisWeeksHaftarah(this.jewishCalendar)
-                .replace("מפטירין", Utils.isLocaleHebrew() ? "מפטירין" : "Haftarah: \u202B");
+
+        CharSequence thisWeekHaftara = WeeklySephardicHaftarot.Companion.formatWeeklyHaftara(this.jewishCalendar);
+		SpannableStringBuilder haftarah = new SpannableStringBuilder();
+        haftarah.append(Utils.isLocaleHebrew() ? "מפטירין" : "Haftara: \u202B");
+        haftarah.append(thisWeekHaftara);
+
         this.jewishCalendar.setDate(this.currentDate);
         return haftarah;
     }

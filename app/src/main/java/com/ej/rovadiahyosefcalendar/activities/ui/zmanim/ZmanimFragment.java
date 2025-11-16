@@ -1064,8 +1064,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                             + " / " +
                             mROZmanimCalendar.getCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, new Locale("he", "IL")));
             binding.parsha.setText(mJewishDateInfo.getThisWeeksParsha());
-            String haftara = mJewishDateInfo.getThisWeeksHaftarah();
-            if (haftara.isEmpty()) {
+            CharSequence haftara = mJewishDateInfo.getThisWeeksHaftarah();
+            if (haftara.length() == 0) {
                 binding.haftaraLayout.setVisibility(View.GONE);
                 binding.makamLayout.setVisibility(View.GONE);
             } else {
@@ -1541,7 +1541,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         mHebrewMonthYear.setText(hebrewMonthYear);
         mWeeklyParsha.setText(mJewishDateInfo.getThisWeeksParsha());
         mWeeklyParsha.setVisibility(View.VISIBLE);
-        if (mJewishDateInfo.getThisWeeksHaftarah().isEmpty()) {
+        if (mJewishDateInfo.getThisWeeksHaftarah().length() == 0) {
             mWeeklyHaftorah.setVisibility(View.GONE);
         } else {
             mWeeklyHaftorah.setVisibility(View.VISIBLE);

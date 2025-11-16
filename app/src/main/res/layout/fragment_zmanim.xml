@@ -166,14 +166,14 @@
                             android:gravity="center"
                             android:layout_gravity="center"
                             android:textSize="24sp"
-                            android:textStyle="bold"
                             android:paddingStart="8dp"
                             android:paddingEnd="8dp"
                             android:maxLines="1"
                             android:autoSizeTextType="uniform"
                             android:autoSizeMaxTextSize="24sp"
                             android:autoSizeMinTextSize="8sp"
-                            tools:text="דברים / חזון"/>
+                            tools:text="דברים / חזון"
+                            android:fontFamily="@font/vilna"/>
 
                         <LinearLayout
                             android:id="@+id/haftara_layout"
@@ -183,12 +183,10 @@
                             android:orientation="horizontal">
 
                             <ImageView
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
+                                android:layout_width="20dp"
+                                android:layout_height="match_parent"
                                 android:contentDescription="@string/haftara"
                                 android:textSize="20sp"
-                                android:paddingStart="8dp"
-                                android:paddingEnd="8dp"
                                 android:src="@drawable/megila_icon"
                                 android:text="@string/haftara"/>
 
@@ -197,6 +195,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textSize="20sp"
+                                android:paddingStart="5dp"
                                 android:layout_gravity="center"
                                 android:maxLines="1"
                                 android:autoSizeTextType="uniform"
@@ -211,19 +210,19 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center"
-                            android:orientation="horizontal">
+                            android:orientation="horizontal"
+                            android:baselineAligned="true">
 
                             <ImageView
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
-                                android:textSize="20sp"
-                                android:paddingStart="8dp"
-                                android:paddingEnd="8dp"
-                                android:src="@drawable/musical_note_svgrepo_com"
-                                android:text="@string/haftara"/>
+                                android:layout_width="20dp"
+                                android:layout_height="match_parent"
+                                android:src="@drawable/u1f3bc__1_"
+                                android:text="@string/haftara"
+                                android:textSize="20sp" />
 
                             <TextView
                                 android:id="@+id/makam"
+                                android:paddingStart="5dp"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textSize="20sp"
