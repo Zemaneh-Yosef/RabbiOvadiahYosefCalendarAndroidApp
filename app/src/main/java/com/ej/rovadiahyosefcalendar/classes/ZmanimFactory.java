@@ -114,7 +114,7 @@ public class ZmanimFactory {
 
         ZmanListEntry[] nightfallTimes = new ZmanListEntry[2];
         nightfallTimes[0] = new ZmanListEntry(zmanimNames.getTzaitHacochavimString(), mROZmanimCalendar.getTzeit(), SecondTreatment.ROUND_LATER, "TzeitHacochavim");
-        nightfallTimes[1] = new ZmanListEntry(zmanimNames.getTzaitHacochavimString() + " " + zmanimNames.getLChumraString(), mROZmanimCalendar.isUseAmudehHoraah() ? mROZmanimCalendar.getTzeitAmudeiHoraahLChumra() : mROZmanimCalendar.getTzaitTaanit(), SecondTreatment.ROUND_LATER, "TzeitHacochavimLChumra");
+        nightfallTimes[1] = new ZmanListEntry(zmanimNames.getTzaitHacochavimString() + " " + zmanimNames.getLChumraString(), mROZmanimCalendar.getTzeitLChumra(), SecondTreatment.ROUND_LATER, "TzeitHacochavimLChumra");
 
         for (ZmanListEntry nightfallTime : nightfallTimes) {
             if (mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting())
@@ -129,12 +129,12 @@ public class ZmanimFactory {
                 if (mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {// Shabbat going into Yom Tov
                     addShabbatEndsZman(zmanim, mSettingsPreferences, mROZmanimCalendar, mJewishDateInfo, mSharedPreferences.getBoolean("isZmanimInHebrew", false), zmanimNames, true, false);
                 } else {// Yom Tov going into Yom Tov
-                    zmanim.add(new ZmanListEntry(zmanimNames.getCandleLightingString(), mROZmanimCalendar.isUseAmudehHoraah() ? mROZmanimCalendar.getTzeitAmudeiHoraahLChumra() : mROZmanimCalendar.getTzaitTaanit(), SecondTreatment.ROUND_LATER, "TzeitHacochavimLChumra"));
+                    zmanim.add(new ZmanListEntry(zmanimNames.getCandleLightingString(), mROZmanimCalendar.getTzeitLChumra(), SecondTreatment.ROUND_LATER, "TzeitHacochavimLChumra"));
                 }
             }
         }
         if (mJewishDateInfo.getJewishCalendar().isTaanis() && !mJewishDateInfo.getJewishCalendar().isYomKippur()) {
-            ZmanListEntry fastEnds = new ZmanListEntry(zmanimNames.getTzaitString() + zmanimNames.getTaanitString() + zmanimNames.getEndsString(), mROZmanimCalendar.isUseAmudehHoraah() ? mROZmanimCalendar.getTzeitAmudeiHoraahLChumra() : mROZmanimCalendar.getTzaitTaanit(), SecondTreatment.ROUND_LATER, "FastEnd");
+            ZmanListEntry fastEnds = new ZmanListEntry(zmanimNames.getTzaitString() + zmanimNames.getTaanitString() + zmanimNames.getEndsString(), mROZmanimCalendar.getTzeitLChumra(), SecondTreatment.ROUND_LATER, "FastEnd");
             fastEnds.setNoteworthyZman(true);
             zmanim.add(fastEnds);
         }
@@ -173,15 +173,15 @@ public class ZmanimFactory {
 
     private static void addShabbatEndsZman(List<ZmanListEntry> zmanim, SharedPreferences mSettingsPreferences, ROZmanimCalendar mROZmanimCalendar, JewishDateInfo mJewishDateInfo, boolean mIsZmanimInHebrew, ZmanimNames zmanimNames, boolean isForCandleLigthting, boolean isForTomorrow) {
         ZmanListEntry endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString(),
-                mROZmanimCalendar.isUseAmudehHoraah() ? mROZmanimCalendar.getTzaitShabbatAmudeiHoraah() : mROZmanimCalendar.getTzaisAteretTorah(),
+                mROZmanimCalendar.isUseAmudehHoraah() ? mROZmanimCalendar.getTzeitShabbatAmudeiHoraah() : mROZmanimCalendar.getTzaisAteretTorah(),
                 SecondTreatment.ROUND_LATER,
                 "ShabbatEnd");
         if (mSettingsPreferences.getBoolean("overrideAHEndShabbatTime", false)) {
             String setting = mSettingsPreferences.getString("EndOfShabbatOpinion", "1");
             switch (setting) {
                 case "1" -> endShabbat.setZman(mROZmanimCalendar.getTzaisAteretTorah());
-                case "2" -> endShabbat.setZman(mROZmanimCalendar.getTzaitShabbatAmudeiHoraah());
-                case "3" -> endShabbat.setZman(mROZmanimCalendar.getTzaitShabbatAmudeiHoraahLesserThan40());
+                case "2" -> endShabbat.setZman(mROZmanimCalendar.getTzeitShabbatAmudeiHoraah());
+                case "3" -> endShabbat.setZman(mROZmanimCalendar.getTzeitShabbatAmudeiHoraahLesserThan40());
             }
         }
         if (isForTomorrow) {

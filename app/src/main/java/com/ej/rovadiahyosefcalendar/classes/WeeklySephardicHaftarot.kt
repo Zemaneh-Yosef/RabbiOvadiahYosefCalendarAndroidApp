@@ -38,8 +38,13 @@ class WeeklySephardicHaftarot {
                 }
             }
 
-            // Yom Tov cases
-            if (jCal.isYomTov()) {
+            // Yom Tov cases that should be specifically on those days
+            if (jCal.isRoshHashana
+                || jCal.isYomKippur
+                || (jCal.isSuccos && (!jCal.isHoshanaRabba)) // Chol HaMoed is included, but exclude Hoshana Rabba
+                || jCal.isShminiAtzeres
+                || jCal.isPesach // Chol HaMoed is included
+                || jCal.isShavuos) {
                 return when (jCal.yomTovIndex) {
                     JewishCalendar.ROSH_HASHANA -> HaftarahReading("ויהי איש", "שמואל א א")
                     JewishCalendar.YOM_KIPPUR -> HaftarahReading("סלו סלו", "ישעיה נ\"ז")
@@ -85,7 +90,7 @@ class WeeklySephardicHaftarot {
                 if (jCal.isErevRoshChodesh) {
                     return HaftarahReading("מחר חודש", "שמואל א כ")
                 } else if (jCal.isRoshChodesh) {
-                    return HaftarahReading("כה אמר", "ישעיה ס\"ו")
+                    return HaftarahReading("כה אמר", "ישעיה ס\"ו" + " [הפטרת ר\"ח]")
                 }
             }
 
