@@ -103,18 +103,16 @@ import java.util.GregorianCalendar;
  * {@link #getSolarMidnight()} is used for the zman of Chatzot Layla
  * <br><br>
  * The Amudei Horaah calendar uses all the methods above, however, the Alot Hashachar and
- * Tzeit Hacochavim methods are changed to include a slight adjustment based on degrees, and two
+ * Tzeit Hacochavim methods are changed to include a slight adjustment based on degrees and the distance from the equator, and two
  * additional zmanim are added in that calendar. The two additional zmanim are for Plag HaMincha
  * according to the Halacha Berurah (also known as the GRA's Plag HaMincha) and Tzeit HaCochavim
  * L'Chumra which is a zman that is only used for ending fasts and determining which day a baby is
- * born on for a brit milah. The Ohr Hachaim calendar did not include these two times because (assumingly) the
- * Halacha Berurah was not well known by the time the calendar was made and according to Rav Benizri
- * the zman for Tzeit HaCochavim L'Chumra is merely 20 minutes after sunset which is easy to calculate.
+ * born on for a brit milah.
  * <br><br>
  * See these methods for more information on the Amudei Horaah's zmanim:
  * <br>
- * {@link #getTzeitAmudeiHoraahLChumra()},
- * {@link #getTzaitShabbatAmudeiHoraah()},
+ * {@link #getTzeitLChumra()},
+ * {@link #getTzeitShabbatAmudeiHoraah()},
  * {@link #getTzais72ZmanisAmudeiHoraahLkulah()}
  * <br>
  * Created by EJ on 9/13/2021.
@@ -228,6 +226,8 @@ public class ROZmanimCalendar extends ZmanimCalendar {
      * The actual calculation is {@link #getSeaLevelSunrise()} - ({@link #getShaahZmanisGra()} * 1.2). This calculation
      * is used in the calendars published by the <a href=
      * "https://en.wikipedia.org/wiki/Central_Rabbinical_Congress">Hisachdus Harabanim D'Artzos Habris Ve'Canada</a>.
+     * If {@link #isUseAmudehHoraah()} is true, the calculation will take into account the distance from the equator by
+     * checking the time difference between sunrise and when the sun is 16.04° below the horizon on the equinox.
      *
      * @return the <code>Date</code> representing the time. If the calculation can't be computed such as in the Arctic
      *         Circle where there is at least one day a year where the sun does not rise, and one where it does not set,
@@ -253,9 +253,12 @@ public class ROZmanimCalendar extends ZmanimCalendar {
     }
 
     /**
-     * This method returns the earliest time that your are allowed to put on your Talit and Tefilin, otherwise known as Misheyakir. This is calculated by taking the
-     * {@link #getAlotHashachar()} method and adding 6 Dakot Zmaniyot to it. This is the same calculation that is used in the Ohr HaChaim calendar.
-     * @return the earliest time that your are allowed to put on your Talit and Tefilin based on the Ohr HaChaim calendar. 66 minutes before sunrise.
+     * This method returns the earliest time that your are allowed to put on your Talit and Tefilin according to the Pri Chadash,
+     * otherwise known as Misheyakir. THIS TIME SHOULD ONLY BE USED FOR PEOPLE IN GREAT NEED. This is calculated by taking
+     * 1.1 zmaniyot hours and subtracting it from sunrise.
+     * If {@link #isUseAmudehHoraah()} is true, the calculation will take into account the distance from the equator by
+     * checking the time difference between sunrise and when the sun is 16.04° below the horizon on the equinox.
+     * @return the earliest time that your are allowed to put on your Talit and Tefilin IN GREAT NEED. 66 zmaniyot minutes before sunrise.
      */
     public Date getMisheyakir66ZmaniyotMinutes() {
         if (!amudehHoraah)
@@ -271,13 +274,15 @@ public class ROZmanimCalendar extends ZmanimCalendar {
         setCalendar(tempCal);//reset the calendar to the current day
 
         long shaahZmanit = getTemporalHour(getElevationAdjustedSunrise(), getElevationAdjustedSunset());
-        return getTimeOffset(getElevationAdjustedSunrise(), -(percentage * shaahZmanit) * 11 / 12);
+        return getTimeOffset(getElevationAdjustedSunrise(), -(percentage * shaahZmanit) * 11 / 12);// 11 / 12 == 66 / 72
     }
 
     /**
-     * This method returns the earliest time that your are allowed to put on your Talit and Tefilin, otherwise known as Misheyakir. This is calculated by taking the
-     * {@link #getElevationAdjustedSunrise()} method and subtracting 1 zmaniyot hour from it.
-     * @return the earliest time that your are allowed to put on your Talit and Tefilin. 60 seasonal minutes before sunrise.
+     * This method returns the earliest time that your are allowed to put on your Talit and Tefilin L'chatchila, otherwise known as Misheyakir.
+     * This is calculated by taking one zmaniyot hour and subtracting it from sunrise.
+     * If {@link #isUseAmudehHoraah()} is true, the calculation will take into account the distance from the equator by
+     * checking the time difference between sunrise and when the sun is 16.04° below the horizon on the equinox.
+     * @return the earliest time that your are allowed to put on your Talit and Tefilin. 60 zmaniyot minutes before sunrise.
      */
     public Date getMisheyakir60ZmaniyotMinutes() {
         if (!amudehHoraah)
@@ -293,7 +298,7 @@ public class ROZmanimCalendar extends ZmanimCalendar {
         setCalendar(tempCal);//reset the calendar to the current day
 
         long shaahZmanit = getTemporalHour(getElevationAdjustedSunrise(), getElevationAdjustedSunset());
-        return getTimeOffset(getElevationAdjustedSunrise(), -(percentage * shaahZmanit) * 5 / 6);
+        return getTimeOffset(getElevationAdjustedSunrise(), -(percentage * shaahZmanit) * 5 / 6);// 5 / 6 == 60 / 72
     }
 
     /**
@@ -374,7 +379,9 @@ public class ROZmanimCalendar extends ZmanimCalendar {
     /**
      * This method returns the time for the latest time to do Biur Chametz (Burning Chametz). The calculation is based on the Ohr HaChaim calendar
      * which uses 5 zmaniyot hours into the day based on the MG"A.
-     * @return the time for the latest time to do Biur Chametz (Burning Chametz) based on the Ohr HaChaim calendar.
+     * If {@link #isUseAmudehHoraah()} is true, the calculation will take into account the distance from the equator by
+     * checking the time difference between sunrise and when the sun is 16.04° below (and above) the horizon on the equinox.
+     * @return the time for the latest time to do Biur Chametz (Burning Chametz).
      */
     public Date getSofZmanBiurChametzMGA() {
         long shaahZmanit = getTemporalHour(getAlotHashachar(), getTzais72Zmanis());
@@ -383,7 +390,7 @@ public class ROZmanimCalendar extends ZmanimCalendar {
 
     /**
      * Returns mid-day but with elevation included if set to true. The {@link #getSunTransit()} method uses sea level sunrise and sunset. Whereas, all
-     * of the zmanim in the Ohr HaChaim use the sunrise and sunset adjusted for elevation. This method allows the option of using elevation.
+     * of the zmanim in the Ohr HaChaim use sunrise and sunset adjusted for elevation. This method allows the option of using elevation.
      * This has almost no effect on the time for mid-day.
      * @return mid-day but with elevation included if set, and setUseElevation() was set to true.
      */
@@ -399,18 +406,17 @@ public class ROZmanimCalendar extends ZmanimCalendar {
         Date minchaGedola30 = getTimeOffset(getChatzot(), MILLISECONDS_PER_MINUTE * 30);
         Date minchaGedola = getMinchaGedola();
 
-        if (minchaGedola30 == null || minchaGedola == null) {
-            return null; // no point in returning super.getMinchaGedolaGreaterThan30 because it is already checked above
-        } else {
-            return minchaGedola30.compareTo(minchaGedola) > 0 ? minchaGedola30
-                    : minchaGedola;
-        }
+        if (minchaGedola != null && minchaGedola30 != null) {
+            return minchaGedola30.compareTo(minchaGedola) > 0 ? minchaGedola30 : minchaGedola;
+        } else return minchaGedola30;// should never be null, but even if it is, return it.
     }
 
     /**
-     * Yalkut Yosef holds that the time for Plag Hamincha is calculated by taking 1.25 "seasonal hours" (Sha'ot Zmaniot) from tzait hacochavim.
-     * This is how the Ohr HaChaim calculates Plag Hamincha as well.
-     * @return the time for Plag Hamincha as calculated by the Ohr HaChaim and Yalkut Yosef.
+     * The Yalkut Yosef holds that the time for Plag Hamincha is calculated by taking 1.25 seasonal hours (based on sunrise to sunset) from tzait hacochavim.
+     * This is how the Ohr HaChaim calendar calculates Plag HaMincha as well.
+     * If {@link #isUseAmudehHoraah()} is true, the calculation will take into account the distance from the equator by
+     * checking the time difference between sunset and when the sun is 3.7° below the horizon on the equinox.
+     * @return the time for Plag HaMincha as calculated by the Yalkut Yosef.
      */
     public Date getPlagHaminchaYalkutYosef() {
         long shaahZmanit = getTemporalHour(getElevationAdjustedSunrise(), getElevationAdjustedSunset());
@@ -439,14 +445,16 @@ public class ROZmanimCalendar extends ZmanimCalendar {
     }
 
     /**
-     * This method returns the time for tzait hacochavim (nightfall) calculated by the Ohr HaChaim calendar according to the opinion of the
-     * Geonim. This is calculated as 13.5 zmaniyot minutes after elevated sunset. If AmudehHoraah is true, then this time is calculated
-     * using the getPercentOfShaahZmanisFromDegrees method.
-     * @return the time for tzait hacochavim (nightfall) calculated by the Ohr HaChaim calendar according to the opinion of the Geonim.
+     * This method returns the time for tzeit hacochavim (nightfall) calculated by the Ohr HaChaim calendar according to the opinion of the
+     * Geonim. This is calculated as 13.5 zmaniyot minutes after elevated sunset.
+     * If {@link #isUseAmudehHoraah()} is true, the calculation will take into account the distance from the equator by
+     * checking the time difference between sunset and when the sun is 3.7° below the horizon on the equinox.
+     * @return the time for tzeit hacochavim (nightfall) according to the opinion of the Geonim.
      */
     public Date getTzeit() {
-        if (!amudehHoraah)
+        if (!amudehHoraah) {
             return getZmanisBasedOffset(0.225); // 13.5 / 60
+        }
 
         Calendar tempCal = (Calendar) getCalendar().clone();
         setCalendar(new GregorianCalendar(getCalendar().get(Calendar.YEAR), Calendar.MARCH, 17));//set the calendar to the equinox
@@ -462,25 +470,17 @@ public class ROZmanimCalendar extends ZmanimCalendar {
     }
 
     /**
-     * This method returns the time for tzait hacochavim (nightfall) l'chumra calculated by the Ohr HaChaim calendar according to the opinion of Rabbi
-     * Ovadiah Yosef. This is calculated as 20 regular minutes after elevated sunset.
-     * Rabbi Ovadiah Yosef writes that the average fast ends around 20 minutes after sunset. Rabbi Shlomo Benizri is of the opinion that this time is
-     * calculated as 20 regular minutes after sunset. This is what the Ohr HaChaim refers to when it just writes that the fast ends at Tzait Hacochavim.
-     * It could mean 13.5 zmaniyot minutes after sunset, or 20 regular minutes after sunset.
-     * @return the time when the average fast ends based on the opinion of Rabbi Shlomo Benizri who holds that it is 20 regular minutes after sunset L'Chumra.
+     * This method returns a time for tzeit l'chumra (stringent) as shown on the Amudei Horaah Calendar. This time is calculated as 20
+     * zmaniyot minutes after sunset.
+     * If {@link #isUseAmudehHoraah()} is true, the calculation will take into account the distance from the equator by
+     * checking the time difference between sunset and when the sun is 5.075° below the horizon on the equinox.
+     * @return the Date representing 20 zmaniyot minutes after sunset. Adjusted to the users location using degrees if {@link #isUseAmudehHoraah()} is true.
      */
-    public Date getTzaitTaanit() {
-        return getTimeOffset(getElevationAdjustedSunset(), (20 * MILLISECONDS_PER_MINUTE));
-    }
+    public Date getTzeitLChumra() {
+        if (!amudehHoraah) {
+            return getTimeOffset(getElevationAdjustedSunset(), 20 * (getShaahZmanisGra() / MINUTES_PER_HOUR));// avoid using getZmanisOffset because of the trailing 33333
+        }
 
-    /**
-     * This method returns another time for tzeit (l'chumra) according to the opinion of the Amudei Horaah Calendar. This time is calculated as 20
-     * zmaniyot minutes after sunset adjusted to the users location using degrees. 5.075 degrees is 20 minutes after sunset in Netanya on the equinox.
-     * We then calculate the number of minutes between sunset and this time on the equinox and multiply it by the zmaniyot minutes.
-     * @return the Date representing 20 minutes zmaniyot after sunset adjusted to the users location using degrees. This zman
-     * should NOT be used in Israel.
-     */
-    public Date getTzeitAmudeiHoraahLChumra() {
         Calendar tempCal = (Calendar) getCalendar().clone();
         setCalendar(new GregorianCalendar(getCalendar().get(Calendar.YEAR), Calendar.MARCH, 17));//set the calendar to the equinox
 
@@ -549,6 +549,8 @@ public class ROZmanimCalendar extends ZmanimCalendar {
      * equinox. This does not match reality, since there is no direct relationship between the length of the day and
      * twilight. The shortest twilight is during the equinox, the longest is during the the summer solstice, and in the
      * winter with the shortest daylight, the twilight period is longer than during the equinoxes.
+     * If {@link #isUseAmudehHoraah()} is true, the calculation will take into account the distance from the equator by
+     * checking the time difference between sunset and when the sun is 16.04° below the horizon on the equinox.
      *
      * @return the <code>Date</code> representing the time. If the calculation can't be computed such as in the Arctic
      *         Circle where there is at least one day a year where the sun does not rise, and one where it does not set,
@@ -661,19 +663,22 @@ public class ROZmanimCalendar extends ZmanimCalendar {
     }
 
     /**
-     * This time is when the sun is 7.165° below {@link #GEOMETRIC_ZENITH geometric zenith} (90°). This calculation was provided by Rabbi Dahan himself.
-     * The way Rabbi Dahan calculated this time for motzei shabbat was to find out at what degree would the sun be always 30 minutes or more after sunset
-     * throughout the entire year. As Rabbi Ovadiah Yosef held that Shabbat ends after 30 minutes after sunset. Rabbi Dahan used degrees to calculate
-     * when the sun is 30 minutes after sunset all year round.
+     * This time is when the sun is 7.165° below {@link #GEOMETRIC_ZENITH geometric zenith} (90°). The method for this calculation was taught to us
+     * by Rabbi Dahan himself. The way Rabbi Dahan calculated this time for motzei shabbat was to find out at what degree would the sun always be
+     * 30 minutes or more after sunset throughout the entire year. As Rabbi Ovadiah Yosef held that Shabbat ends 30 minutes after sunset in Israel.
+     * Rabbi Dahan used degrees to calculate when the sun is 30 minutes after sunset all year round in the northern most point of Israel.
+     * There is a hard bottom limit of 20 regular minutes after sunset as instructed by Rabbi Dahan. If halachic midnight occurs before the sun
+     * reaches 7.165°, this method wil return halachic midnight as it does not make sense to go past that point.
      * @return the <code>Date</code> of 7.165° below {@link #GEOMETRIC_ZENITH geometric zenith} (90°). If the calculation can't be computed such as in the Arctic
      * Circle where there is at least one day a year where the sun does not rise, and one where it does not set, a null will be returned. See detailed
      * explanation on top of the {@link AstronomicalCalendar} documentation.
      */
-    public Date getTzaitShabbatAmudeiHoraah() {
+    public Date getTzeitShabbatAmudeiHoraah() {
         Date tzait = getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 7.165);
         if (tzait != null) {
-            if (getTzaitTaanit() != null && getTzaitTaanit().after(tzait)) { // if shabbat ends before 20 minutes after sunset, use 20 minutes
-                return getTzaitTaanit();
+            Date tzait20 = getTimeOffset(getElevationAdjustedSunset(), (20 * MILLISECONDS_PER_MINUTE));
+            if (tzait20 != null && tzait20.after(tzait)) { // if shabbat ends before 20 minutes after sunset, use 20 minutes
+                return tzait20;
             }
             if (getSolarMidnight().before(tzait)) { // if chatzot is before when shabbat ends, just use chatzot
                 return getSolarMidnight();
@@ -683,25 +688,25 @@ public class ROZmanimCalendar extends ZmanimCalendar {
     }
 
     /**
-     * Convenience method that returns the earlier of {@link #getTzaisAteretTorah()} and {@link #getTzaitShabbatAmudeiHoraah()}.
+     * Convenience method that returns the earlier of {@link #getTzaisAteretTorah()} and {@link #getTzeitShabbatAmudeiHoraah()}.
      * I created this method myself and it is not part of Rabbi Dahan's calendar. I created it because I believe that we do not need to follow the
-     * degree based zman for Motzei Shabbat L'chumra. I believe that we can use the {@link #getTzaitShabbatAmudeiHoraah()} for Motzei Shabbat L'kulah,
-     * however, we don't need to be so stringent to follow it L'chumra as well. 40 minutes is a good time for Motzei Shabbat all around the world,
-     * and that is the default time used in {@link #getTzaisAteretTorah()}.
-     * @return the earlier of {@link #getTzaisAteretTorah()} and {@link #getTzaitShabbatAmudeiHoraah()}.
+     * degree based zman for Motzei Shabbat L'chumra. I believe that we can use the {@link #getTzeitShabbatAmudeiHoraah()} for Motzei Shabbat L'kulah,
+     * however, we don't need to be so stringent to follow it L'chumra as well. 40 minutes is good enough for Motzei Shabbat all around the world,
+     * as instructed to me by Rabbi Meir Gavriel Elbaz, and that is the default time used in {@link #getTzaisAteretTorah()}.
+     * @return the earlier of {@link #getTzaisAteretTorah()} and {@link #getTzeitShabbatAmudeiHoraah()}.
      */
-    public Date getTzaitShabbatAmudeiHoraahLesserThan40() {
-        if (getTzaisAteretTorah() != null && getTzaitShabbatAmudeiHoraah() != null) {
-            if (getTzaisAteretTorah().before(getTzaitShabbatAmudeiHoraah())) {//return the earlier of the two times
+    public Date getTzeitShabbatAmudeiHoraahLesserThan40() {
+        if (getTzaisAteretTorah() != null && getTzeitShabbatAmudeiHoraah() != null) {
+            if (getTzaisAteretTorah().before(getTzeitShabbatAmudeiHoraah())) {//return the earlier of the two times
                 return getTzaisAteretTorah();
             } else {
-                return getTzaitShabbatAmudeiHoraah();
+                return getTzeitShabbatAmudeiHoraah();
             }
         } else {
             if (getTzaisAteretTorah() != null) {
                 return getTzaisAteretTorah();
             } else {
-                return getTzaitShabbatAmudeiHoraah();
+                return getTzeitShabbatAmudeiHoraah();
             }
         }
     }
@@ -710,9 +715,8 @@ public class ROZmanimCalendar extends ZmanimCalendar {
      * Convenience method that returns the earlier of {@link #getTzais72()} and {@link #getTzais72Zmanis()}.
      * This is the time printed for Rabbeinu Tam in the Amudei Horaah for Motzei Shabbat every week.
      * Note: Rabbi Ovadiah ZT"L himself was machmir to follow Rabbeinu Tam for Motzei Shabbat/Chag bein lehakel bein lehachmir. No matter what the
-     * time was he followed Rabbeinu tam and never used 72 regular minutes. Rabbi Dahan told me that many poskim argue on him and that we do not
-     * need to be machmir for that extra time. I personally disagree with this decision, but I am not a posek. Just beware that this time is not
-     * the time that Rabbi Ovadiah ZT"L himself followed, but his sons and many other poskim do follow this time.
+     * time was he followed Rabbeinu tam and never used 72 regular minutes. Rabbi Dahan told me that many poskim (including his sons) argue on him
+     * and that we do not need to be machmir for that extra time especially when it will take so long in more northern locations.
      * @return the earlier of {@link #getTzais72()} and {@link #getTzais72Zmanis()}.
      */
     public Date getTzais72ZmanisAmudeiHoraahLkulah() {
@@ -747,8 +751,8 @@ public class ROZmanimCalendar extends ZmanimCalendar {
     }
 
     /**
-     * This method creates a copy of the roZmanimCalendar object in order for date changes to not affect the original object.
-     * @return a copy of the roZmanimCalendar object
+     * This method creates a copy of the ROZmanimCalendar object in order for date changes to not affect the original object.
+     * @return a copy of this ROZmanimCalendar object
      */
     public ROZmanimCalendar getCopy() {
         ROZmanimCalendar copy = new ROZmanimCalendar(getGeoLocation());
