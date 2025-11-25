@@ -170,11 +170,7 @@ public class LocationResolver {
         StringBuilder result = new StringBuilder();
         List<Address> addresses = null;
         try {
-            if (Utils.isLocaleHebrew()) {
-                addresses = mGeocoder.getFromLocation(sLatitude, sLongitude, 5);
-            } else {
-                addresses = mGeocoder.getFromLocation(sLatitude, sLongitude, 1);
-            }
+            addresses = mGeocoder.getFromLocation(sLatitude, sLongitude, (Utils.isLocaleHebrew() ? 5 : 1));
         } catch (IOException e) {
             e.printStackTrace();
         }

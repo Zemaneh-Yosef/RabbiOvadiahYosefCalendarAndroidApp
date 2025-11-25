@@ -14,7 +14,6 @@ import android.util.TypedValue
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -151,10 +150,9 @@ private fun SiddurScreen(
         }
     ) { innerPadding ->
         LazyColumn(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxWidth(),
-            state = listState // Use the locally owned and managed state
+            modifier = Modifier.fillMaxWidth(),
+            state = listState,
+            contentPadding = innerPadding
         ) {
             items(siddurContent) { currentText ->
                 SiddurRow(
