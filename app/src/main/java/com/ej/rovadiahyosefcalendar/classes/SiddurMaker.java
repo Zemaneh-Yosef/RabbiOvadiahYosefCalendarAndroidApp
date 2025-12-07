@@ -2947,11 +2947,9 @@ public class SiddurMaker {
 		addTwoWordToSiddur("אַתָּה גִּבּוֹר לְעוֹלָם אֲדֹנָי, מְחַיֶּה מֵתִים אַתָּה, רַב לְהוֹשִֽׁיעַ.");
 
 		if (jewishDateInfo.getIsMashivHaruchOrMoridHatalSaid().equals("משיב הרוח")) {
-			addToSiddurHighlighted(
-					"מַשִּׁיב הָרֽוּחַ וּמוֹרִיד הַגֶּֽשֶׁם.");
+			addToSiddurHighlighted("מַשִּׁיב הָרֽוּחַ וּמוֹרִיד הַגֶּֽשֶׁם.");
 		} else {
-			addToSiddurHighlighted(
-					"מוֹרִיד הַטָּל.");
+			addToSiddurHighlighted("מוֹרִיד הַטָּל.");
 		}
 
 		addToSiddur(
@@ -4537,6 +4535,7 @@ public class SiddurMaker {
 		addToSiddur("שְׁמַ֖ע יִשְׂרָאֵ֑ל יְהֹוָ֥ה אֱלֹהֵ֖ינוּ יְהֹוָ֥ה ׀ אֶחָֽד׃ \n" +
 			"בלחש/quietly: בָּרוּךְ, שֵׁם כְּבוֹד מַלְכוּתוֹ, לְעוֹלָם וָעֶד:");
 		addShema();
+		siddur.get(6).setContent(siddur.get(6).getContent().toString().replace(" אֱמֶת.", "")); // last emet not needed
 		addToSiddur(
 			"יְהֹוָה אֱלֹהֵיכֶם אֱמֶת. \n\n" +
 			"יַעְלְז֣וּ חֲסִידִ֣ים בְּכָב֑וֹד יְ֝רַנְּנ֗וּ עַל־מִשְׁכְּבוֹתָֽם׃ רוֹמְמ֣וֹת אֵ֭ל בִּגְרוֹנָ֑ם וְחֶ֖רֶב פִּיפִיּ֣וֹת בְּיָדָֽם׃ \n\n" +

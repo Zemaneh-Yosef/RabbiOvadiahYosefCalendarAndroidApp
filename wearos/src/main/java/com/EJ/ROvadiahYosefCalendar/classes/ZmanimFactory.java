@@ -192,11 +192,11 @@ public class ZmanimFactory {
     private static String getShabbatAndOrChag(boolean mIsZmanimInHebrew, JewishDateInfo mJewishDateInfo) {
         if (mJewishDateInfo.getJewishCalendar().isYomTovAssurBemelacha()
                 && mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY) {
-            return mIsZmanimInHebrew ? "שבת/חג" : "Shabbat/Chag";
+            return mIsZmanimInHebrew ? "שבת/חג" : "Shabbat/Ḥag";
         } else if (mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY) {
             return mIsZmanimInHebrew ? "שבת" : "Shabbat";
         } else {
-            return mIsZmanimInHebrew ? "חג" : "Chag";
+            return mIsZmanimInHebrew ? "חג" : "Ḥag";
         }
     }
 

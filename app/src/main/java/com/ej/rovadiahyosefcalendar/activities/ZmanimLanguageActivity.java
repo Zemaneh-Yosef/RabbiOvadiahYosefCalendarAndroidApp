@@ -9,11 +9,14 @@ import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLongi
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
@@ -36,6 +39,7 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
     SharedPreferences mSharedPreferences;
     boolean isHebrew = false;
     boolean translated = false;
+    boolean americanized = false;
     private RecyclerView mRecyclerView;
 
     @Override
@@ -74,46 +78,68 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
         RadioGroup group = findViewById(R.id.radioGroup);
         RadioButton hebrew = findViewById(R.id.hebrew);
         RadioButton english = findViewById(R.id.english);
-        CheckBox englishTranslated = findViewById(R.id.englishTranslated);
+        Spinner spinner = findViewById(R.id.englishLangSelector);
+
+        spinner.setAdapter(new ArrayAdapter<>(this, R.layout.custom_spinner_item, new String[] {"Translation", "Transliteration (Sepharadic Articulation)", "Transliteration (American Articulation)"}));
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position == 0) {
+                    translated = true;
+                    americanized = false;
+                } else if (position == 1) {
+                    translated = false;
+                    americanized = false;
+                } else {
+                    translated = false;
+                    americanized = true;
+                }
+                updateRecyclerView();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
 
         if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
             isHebrew = true;
             group.check(R.id.hebrew);
-            englishTranslated.setEnabled(false);
         } else if (mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false)) {
             translated = true;
             group.check(R.id.english);
-            englishTranslated.setEnabled(true);
+            spinner.setVisibility(View.VISIBLE);
+        } else if (mSharedPreferences.getBoolean("isZmanimAmericanized", false)) {
+            americanized = true;
+            group.check(R.id.english);
+            spinner.setVisibility(View.VISIBLE);
         } else {
             group.check(R.id.english);
-            englishTranslated.setEnabled(true);
+            spinner.setVisibility(View.VISIBLE);
         }
-        englishTranslated.setChecked(translated);
         updateRecyclerView();
 
         hebrew.setOnClickListener(v -> {
             isHebrew = true;
             translated = false;
-            englishTranslated.setChecked(false);
-            englishTranslated.setEnabled(false);
+            americanized = false;
+            group.clearCheck();
+            group.check(R.id.hebrew);
+            spinner.setVisibility(View.GONE);
             updateRecyclerView();
         });
         english.setOnClickListener(v -> {
             isHebrew = false;
-            translated = false;
-            englishTranslated.setChecked(false);
-            englishTranslated.setEnabled(true);
-            updateRecyclerView();
-        });
-        englishTranslated.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            translated = isChecked;
+            group.clearCheck();
+            group.check(R.id.english);
+            spinner.setVisibility(View.VISIBLE);
             updateRecyclerView();
         });
 
         Button confirm = findViewById(R.id.confirm);
-        confirm.setOnClickListener(v -> saveInfoAndFinish(isHebrew, translated));
+        confirm.setOnClickListener(v -> saveInfoAndFinish(isHebrew, translated, americanized));
 
-        ViewCompat.setOnApplyWindowInsetsListener(englishTranslated, (v, windowInsets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(confirm, (v, windowInsets) -> {
             Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
             ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
             mlp.leftMargin = insets.left;
@@ -139,9 +165,10 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
         });
     }
 
-    private void saveInfoAndFinish(boolean isHebrew, boolean isTranslated) {
+    private void saveInfoAndFinish(boolean isHebrew, boolean isTranslated, boolean isAmericanized) {
         mSharedPreferences.edit().putBoolean("isZmanimInHebrew", isHebrew).apply();
         mSharedPreferences.edit().putBoolean("isZmanimEnglishTranslated", isTranslated).apply();
+        mSharedPreferences.edit().putBoolean("isZmanimAmericanized", isAmericanized).apply();
         mSharedPreferences.edit().putBoolean("isSetup", true).apply();
         if (mSharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
             startActivity(new Intent(getBaseContext(), TipScreenActivity.class));
@@ -156,6 +183,6 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
         } else {
             mRecyclerView.setLayoutDirection(LAYOUT_DIRECTION_LTR);
         }
-        mRecyclerView.setAdapter(new ZmanAdapter(this, ZmanimFactory.getDemoZmanim(isHebrew, translated), null));
+        mRecyclerView.setAdapter(new ZmanAdapter(this, ZmanimFactory.getDemoZmanim(isHebrew, translated, americanized), null));
     }
 }

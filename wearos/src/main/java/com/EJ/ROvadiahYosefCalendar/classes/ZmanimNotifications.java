@@ -451,11 +451,11 @@ public class ZmanimNotifications extends BroadcastReceiver {
         } else {
             if (jewishCalendar.isYomTovAssurBemelacha() &&
                     jewishCalendar.getDayOfWeek() == Calendar.SATURDAY) {
-                return "Shabbat/Chag";
+                return "Shabbat/Ḥag";
             } else if (jewishCalendar.getDayOfWeek() == Calendar.SATURDAY) {
                 return "Shabbat";
             } else {
-                return "Chag";
+                return "Ḥag";
             }
         }
     }

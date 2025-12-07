@@ -51,11 +51,13 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/zmanim_demo_list"
             android:layout_width="match_parent"
-            android:layout_height="300dp" />
+            android:layout_height="200dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp" />
 
             <RadioGroup
                 android:id="@+id/radioGroup"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
                 <RadioButton
@@ -70,29 +72,32 @@
                     android:textStyle="bold"
                     android:textSize="18sp" />
 
-                <RadioButton
-                    android:id="@+id/english"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="4dp"
-                    android:padding="8dp"
-                    android:text="@string/english"
-                    android:textAlignment="center"
-                    android:textAllCaps="false"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/english"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="4dp"
+                        android:padding="8dp"
+                        android:text="@string/english"
+                        android:textAlignment="center"
+                        android:textAllCaps="false"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <Spinner
+                        android:id="@+id/englishLangSelector"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:visibility="gone"/>
+
+                </LinearLayout>
 
             </RadioGroup>
-
-        <CheckBox
-            android:id="@+id/englishTranslated"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/translated_english"
-            android:textSize="18sp"
-            android:padding="8dp"
-            android:checked="true"
-            android:layout_marginStart="26dp"/>
 
         <Button
             android:id="@+id/confirm"

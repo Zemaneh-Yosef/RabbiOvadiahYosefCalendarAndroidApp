@@ -74,7 +74,7 @@ public class ZmanimAppWidget extends AppWidgetProvider {
             String jewishDate = mJewishDateInfo.getJewishCalendar().toString();
             String parsha = mJewishDateInfo.getThisWeeksParsha();
             ZmanListEntry nextUpcomingZman = getNextUpcomingZman(context, appWidgetManager, appWidgetId);
-            ZmanimNames zmanimNames = new ZmanimNames(mSharedPreferences.getBoolean("isZmanimInHebrew", false), mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false));
+            ZmanimNames zmanimNames = new ZmanimNames(mSharedPreferences.getBoolean("isZmanimInHebrew", false), mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false), mSharedPreferences.getBoolean("isZmanimAmericanized", false));
             String zman = nextUpcomingZman.getTitle()
                 .replace(zmanimNames.getHalachaBerurahString(), zmanimNames.getAbbreviatedHalachaBerurahString()
                 .replace(zmanimNames.getYalkutYosefString(), zmanimNames.getAbbreviatedYalkutYosefString()));

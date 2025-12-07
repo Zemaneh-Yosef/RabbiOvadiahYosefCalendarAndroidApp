@@ -124,6 +124,7 @@ public class NetzActivity extends AppCompatActivity {
     private static ROZmanimCalendar mROZmanimCalendar;
     private static boolean mIsZmanimInHebrew;
     private static boolean mIsZmanimEnglishTranslated;
+    private static boolean mIsZmanimAmericanized;
     private Runnable mCountDownRunnable;
     private Runnable mCountDownTillSunsetRunnable;
 
@@ -191,7 +192,7 @@ public class NetzActivity extends AppCompatActivity {
             mROZmanimCalendar.setCalendar(calendar);
         }
 
-        ZmanimNames netzName = new ZmanimNames(mIsZmanimInHebrew, mIsZmanimEnglishTranslated);
+        ZmanimNames netzName = new ZmanimNames(mIsZmanimInHebrew, mIsZmanimEnglishTranslated, mIsZmanimAmericanized);
 
         boolean finalIsMishor = isMishor;
         Date finalNetz = netz;
@@ -263,12 +264,19 @@ public class NetzActivity extends AppCompatActivity {
         if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
             mIsZmanimInHebrew = true;
             mIsZmanimEnglishTranslated = false;
+            mIsZmanimAmericanized = false;
         } else if (mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false)) {
             mIsZmanimInHebrew = false;
             mIsZmanimEnglishTranslated = true;
+            mIsZmanimAmericanized = false;
+        } else if (mSharedPreferences.getBoolean("isZmanimAmericanized", false)) {
+            mIsZmanimInHebrew = false;
+            mIsZmanimEnglishTranslated = false;
+            mIsZmanimAmericanized = true;
         } else {
             mIsZmanimInHebrew = false;
             mIsZmanimEnglishTranslated = false;
+            mIsZmanimAmericanized = false;
         }
     }
     private static @NonNull PaintDrawable getDawnBackground() {

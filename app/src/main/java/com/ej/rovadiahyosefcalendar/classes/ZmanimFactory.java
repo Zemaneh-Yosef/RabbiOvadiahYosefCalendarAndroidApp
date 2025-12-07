@@ -22,7 +22,10 @@ public class ZmanimFactory {
         ROZmanimCalendar mROZmanimCalendar = roZmanimCalendar.getCopy();
         mROZmanimCalendar.setAmudehHoraah(mSettingsPreferences.getBoolean("LuachAmudeiHoraah", false));
 
-        ZmanimNames zmanimNames = new ZmanimNames(mSharedPreferences.getBoolean("isZmanimInHebrew", false), mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false));
+        ZmanimNames zmanimNames = new ZmanimNames(
+                mSharedPreferences.getBoolean("isZmanimInHebrew", false),
+                mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false),
+                mSharedPreferences.getBoolean("isZmanimAmericanized", false));
         if (mJewishDateInfo.getJewishCalendar().isTaanis()
                 && mJewishDateInfo.getJewishCalendar().getYomTovIndex() != JewishCalendar.TISHA_BEAV
                 && mJewishDateInfo.getJewishCalendar().getYomTovIndex() != JewishCalendar.YOM_KIPPUR) {
@@ -96,7 +99,7 @@ public class ZmanimFactory {
                     Set<String> stringSet = mSettingsPreferences.getStringSet("displayRTOrShabbatRegTime", null);
                     if (stringSet != null) {
                         if (stringSet.contains("Show Regular Minutes")) {
-                            addShabbatEndsZman(zmanim, mSettingsPreferences, mROZmanimCalendar, mJewishDateInfo, mSharedPreferences.getBoolean("isZmanimInHebrew", false), zmanimNames, false, true);
+                            addShabbatEndsZman(zmanim, mSettingsPreferences, mROZmanimCalendar, mJewishDateInfo, zmanimNames, false, true);
                         }
                         if (stringSet.contains("Show Rabbeinu Tam")) {
                             addRTZman(zmanim, mSettingsPreferences, mROZmanimCalendar, zmanimNames ,true);
@@ -127,7 +130,7 @@ public class ZmanimFactory {
                 mJewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
             if (mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) != Calendar.FRIDAY) {// we already added Candles
                 if (mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {// Shabbat going into Yom Tov
-                    addShabbatEndsZman(zmanim, mSettingsPreferences, mROZmanimCalendar, mJewishDateInfo, mSharedPreferences.getBoolean("isZmanimInHebrew", false), zmanimNames, true, false);
+                    addShabbatEndsZman(zmanim, mSettingsPreferences, mROZmanimCalendar, mJewishDateInfo, zmanimNames, true, false);
                 } else {// Yom Tov going into Yom Tov
                     zmanim.add(new ZmanListEntry(zmanimNames.getCandleLightingString(), mROZmanimCalendar.getTzeitLChumra(), SecondTreatment.ROUND_LATER, "TzeitHacochavimLChumra"));
                 }
@@ -139,7 +142,7 @@ public class ZmanimFactory {
             zmanim.add(fastEnds);
         }
         if (mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting()) {
-            addShabbatEndsZman(zmanim, mSettingsPreferences, mROZmanimCalendar, mJewishDateInfo, mSharedPreferences.getBoolean("isZmanimInHebrew", false), zmanimNames, false, false);
+            addShabbatEndsZman(zmanim, mSettingsPreferences, mROZmanimCalendar, mJewishDateInfo, zmanimNames, false, false);
             addRTZman(zmanim, mSettingsPreferences, mROZmanimCalendar, zmanimNames, false);
         } else if (mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY) {// always add RT for shabbat
             addRTZman(zmanim, mSettingsPreferences, mROZmanimCalendar, zmanimNames, false);
@@ -171,8 +174,8 @@ public class ZmanimFactory {
         zmanim.add(rt);
     }
 
-    private static void addShabbatEndsZman(List<ZmanListEntry> zmanim, SharedPreferences mSettingsPreferences, ROZmanimCalendar mROZmanimCalendar, JewishDateInfo mJewishDateInfo, boolean mIsZmanimInHebrew, ZmanimNames zmanimNames, boolean isForCandleLigthting, boolean isForTomorrow) {
-        ZmanListEntry endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(mIsZmanimInHebrew, mJewishDateInfo) + zmanimNames.getEndsString(),
+    private static void addShabbatEndsZman(List<ZmanListEntry> zmanim, SharedPreferences mSettingsPreferences, ROZmanimCalendar mROZmanimCalendar, JewishDateInfo mJewishDateInfo, ZmanimNames zmanimNames, boolean isForCandleLigthting, boolean isForTomorrow) {
+        ZmanListEntry endShabbat = new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(zmanimNames.isZmanimInHebrew(), zmanimNames.isZmanimAmericanized(), mJewishDateInfo) + zmanimNames.getEndsString(),
                 mROZmanimCalendar.isUseAmudehHoraah() ? mROZmanimCalendar.getTzeitShabbatAmudeiHoraah() : mROZmanimCalendar.getTzaisAteretTorah(),
                 SecondTreatment.ROUND_LATER,
                 "ShabbatEnd");
@@ -198,14 +201,15 @@ public class ZmanimFactory {
      * This is a simple convenience method to check if the current date is on shabbat or yom tov or both and return the correct string.
      * @return a string that says whether it is shabbat and chag or just shabbat or just chag (in Hebrew or English)
      */
-    private static String getShabbatAndOrChag(boolean mIsZmanimInHebrew, JewishDateInfo mJewishDateInfo) {
+    private static String getShabbatAndOrChag(boolean mIsZmanimInHebrew, boolean mIsZmanimAmericanized, JewishDateInfo mJewishDateInfo) {
         if (mJewishDateInfo.getJewishCalendar().isYomTovAssurBemelacha()
                 && mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY) {
-            return mIsZmanimInHebrew ? "שבת/חג" : "Shabbat/Chag";
+            return mIsZmanimInHebrew ? "שבת/חג" : "Shabbat/Ḥag";
         } else if (mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY) {
             return mIsZmanimInHebrew ? "שבת" : "Shabbat";
         } else {
-            return mIsZmanimInHebrew ? "חג" : "Chag";
+            return mIsZmanimInHebrew ? "חג" :
+                    mIsZmanimAmericanized ? "Chag" : "Ḥag";
         }
     }
 
@@ -242,9 +246,9 @@ public class ZmanimFactory {
         return theZman;
     }
 
-    public static List<ZmanListEntry> getDemoZmanim(boolean isZmanimInHebrew, boolean isZmanimEnglishTranslated) {
+    public static List<ZmanListEntry> getDemoZmanim(boolean isZmanimInHebrew, boolean isZmanimEnglishTranslated, boolean isZmanimAmericanized) {
         List<ZmanListEntry> zmanim = new ArrayList<>();
-        ZmanimNames zmanimNames = new ZmanimNames(isZmanimInHebrew, isZmanimEnglishTranslated);
+        ZmanimNames zmanimNames = new ZmanimNames(isZmanimInHebrew, isZmanimEnglishTranslated, isZmanimAmericanized);
         zmanim.add(new ZmanListEntry(zmanimNames.getAlotString(), null, SecondTreatment.ROUND_EARLIER, "Alot"));
         zmanim.add(new ZmanListEntry(zmanimNames.getTalitTefilinString(), null, SecondTreatment.ROUND_LATER, "TalitTefilin"));
         zmanim.add(new ZmanListEntry(zmanimNames.getHaNetzString() + " (" + zmanimNames.getMishorString() + ")", null, SecondTreatment.ROUND_LATER, "HaNetz"));
@@ -260,7 +264,7 @@ public class ZmanimFactory {
         zmanim.add(new ZmanListEntry(zmanimNames.getSunsetString(), null, SecondTreatment.ROUND_EARLIER, "Shkia"));
         zmanim.add(new ZmanListEntry(zmanimNames.getTzaitHacochavimString(), null, SecondTreatment.ROUND_LATER, "TzeitHacochavim"));
         zmanim.add(new ZmanListEntry(zmanimNames.getTzaitHacochavimString() + " " + zmanimNames.getLChumraString(), null, SecondTreatment.ROUND_LATER, "TzeitHacochavimLChumra"));
-        zmanim.add(new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(isZmanimInHebrew, new JewishDateInfo(false)) + zmanimNames.getEndsString(), null, SecondTreatment.ROUND_LATER, "ShabbatEnd"));
+        zmanim.add(new ZmanListEntry(zmanimNames.getTzaitString() + getShabbatAndOrChag(isZmanimInHebrew, isZmanimAmericanized, new JewishDateInfo(false)) + zmanimNames.getEndsString(), null, SecondTreatment.ROUND_LATER, "ShabbatEnd"));
         zmanim.add(new ZmanListEntry(zmanimNames.getRTString() + zmanimNames.getRTType(false), null, SecondTreatment.ROUND_LATER, "RT"));
         zmanim.add(new ZmanListEntry(zmanimNames.getChatzotLaylaString(), null, SecondTreatment.ROUND_LATER, "NightChatzot"));
         return zmanim;

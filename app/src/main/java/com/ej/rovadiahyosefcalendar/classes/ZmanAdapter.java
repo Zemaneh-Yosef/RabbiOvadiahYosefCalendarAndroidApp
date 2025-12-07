@@ -57,6 +57,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     private MaterialAlertDialogBuilder dialogBuilder;
     private final boolean isZmanimInHebrew;
     private final boolean isZmanimEnglishTranslated;
+    private final boolean isZmanimAmericanized;
     private boolean wasTalitTefilinZmanClicked;
 
     public ZmanAdapter(Context context, List<ZmanListEntry> zmanim,
@@ -67,6 +68,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         mSharedPreferences = this.context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         isZmanimInHebrew = mSharedPreferences.getBoolean("isZmanimInHebrew", false);
         isZmanimEnglishTranslated = mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false);
+        isZmanimAmericanized = mSharedPreferences.getBoolean("isZmanimAmericanized", false);
         dialogBuilder = new MaterialAlertDialogBuilder(context);
         dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
         dialogBuilder.create();
@@ -135,7 +137,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     holder.mRightTextView.setTextSize(18);
                     holder.mLeftTextView.setTextSize(18);
                 }
-                if (title.contains(new ZmanimNames(isZmanimInHebrew, isZmanimEnglishTranslated).getPlagHaminchaString())) {
+                if (title.contains(new ZmanimNames(isZmanimInHebrew, isZmanimEnglishTranslated, isZmanimAmericanized).getPlagHaminchaString())) {
                     SpannableStringBuilder spannable = new SpannableStringBuilder(title);
                     int startIndex = title.indexOf("(");
                     if (startIndex != -1) {// Set smaller font size for the text inside parenthesis
@@ -243,7 +245,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void checkZmanimForDialog(int position) {
-        ZmanimNames zmanimNames = new ZmanimNames(isZmanimInHebrew, isZmanimEnglishTranslated);
+        ZmanimNames zmanimNames = new ZmanimNames(isZmanimInHebrew, isZmanimEnglishTranslated, isZmanimAmericanized);
         if (zmanim.get(position).getTitle().contains(zmanimNames.getAlotString())) {
             showDawnDialog();
         } else if (zmanim.get(position).getTitle().contains(zmanimNames.getTalitTefilinString())) {
