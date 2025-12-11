@@ -1,7 +1,5 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
-import static android.view.View.LAYOUT_DIRECTION_LTR;
-import static android.view.View.LAYOUT_DIRECTION_RTL;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLatitude;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLongitude;
@@ -24,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -75,12 +74,17 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
 
         mRecyclerView = findViewById(R.id.zmanim_demo_list);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+
         RadioGroup group = findViewById(R.id.radioGroup);
         RadioButton hebrew = findViewById(R.id.hebrew);
         RadioButton english = findViewById(R.id.english);
         Spinner spinner = findViewById(R.id.englishLangSelector);
 
-        spinner.setAdapter(new ArrayAdapter<>(this, R.layout.custom_spinner_item, new String[] {"Translation", "Transliteration (Sepharadic Articulation)", "Transliteration (American Articulation)"}));
+        spinner.setAdapter(new ArrayAdapter<>(this, R.layout.custom_spinner_item, new String[] {
+                "Translation",
+                "Transliteration (Sepharadic Articulation)",
+                "Transliteration (American Articulation)"}));
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -116,6 +120,13 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
         } else {
             group.check(R.id.english);
             spinner.setVisibility(View.VISIBLE);
+        }
+        if (translated) {
+            spinner.setSelection(0);
+        } else if (americanized) {
+            spinner.setSelection(2);
+        } else {
+            spinner.setSelection(1);
         }
         updateRecyclerView();
 
@@ -178,11 +189,10 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
     }
 
     private void updateRecyclerView() {
-        if (isHebrew) {
-            mRecyclerView.setLayoutDirection(LAYOUT_DIRECTION_RTL);
-        } else {
-            mRecyclerView.setLayoutDirection(LAYOUT_DIRECTION_LTR);
-        }
-        mRecyclerView.setAdapter(new ZmanAdapter(this, ZmanimFactory.getDemoZmanim(isHebrew, translated, americanized), null));
+        ZmanAdapter adapter = new ZmanAdapter(this, ZmanimFactory.getDemoZmanim(isHebrew, translated, americanized), null);
+        adapter.isZmanimInHebrew = isHebrew;
+        adapter.isZmanimEnglishTranslated = translated;
+        adapter.isZmanimAmericanized = americanized;
+        mRecyclerView.setAdapter(adapter);
     }
 }

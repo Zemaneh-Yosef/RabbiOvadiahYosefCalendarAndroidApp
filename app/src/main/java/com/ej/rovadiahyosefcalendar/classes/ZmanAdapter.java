@@ -55,9 +55,9 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     private final SharedPreferences mSharedPreferences;
     private final Context context;
     private MaterialAlertDialogBuilder dialogBuilder;
-    private final boolean isZmanimInHebrew;
-    private final boolean isZmanimEnglishTranslated;
-    private final boolean isZmanimAmericanized;
+    public boolean isZmanimInHebrew;
+    public boolean isZmanimEnglishTranslated;
+    public boolean isZmanimAmericanized;
     private boolean wasTalitTefilinZmanClicked;
 
     public ZmanAdapter(Context context, List<ZmanListEntry> zmanim,

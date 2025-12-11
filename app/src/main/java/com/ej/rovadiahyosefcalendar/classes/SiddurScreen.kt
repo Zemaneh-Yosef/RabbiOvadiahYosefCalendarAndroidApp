@@ -179,6 +179,12 @@ private fun SiddurBottomBar(
         containerColor = getThemeColor(android.R.attr.windowBackground),
         contentColor = getThemeColor(android.R.attr.textColorPrimary) // M3 uses contentColor
     ) {
+        Slider(
+            value = currentTextSize,
+            onValueChange = onTextSizeChange,
+            valueRange = 18f..45f,
+            modifier = Modifier.weight(1f)
+        )
         IconButton(onClick = onJustifyClick) {
             Icon(
                 painter = painterResource(id = AppR.drawable.baseline_format_align_justify_24),
@@ -186,11 +192,6 @@ private fun SiddurBottomBar(
                 tint = if (isJustified) MaterialTheme.colorScheme.primary else LocalContentColor.current
             )
         }
-        Slider(
-            value = currentTextSize,
-            onValueChange = onTextSizeChange,
-            valueRange = 18f..45f,
-        )
     }
 }
 

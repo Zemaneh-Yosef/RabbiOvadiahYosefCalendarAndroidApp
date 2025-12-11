@@ -57,7 +57,7 @@
     <string name="do_not_setup_either_uses_mishor_sea_level_sunrise_sunset_for_both_zmanim_and_sunrise">Do Not setup anything\n\n(Uses Mishor/Sea Level Sunrise and Sunset for both zmanim and Sunrise)</string>
     <string name="alternate_download_request">Press this button to download the visible sunrise table from the Chai Tables website:</string>
     <string name="intro">There are 2 options in order to setup the zmanim for your location.\n\nThe \"Setup your city!\" option will setup the calendar according to the way that the Ohr HaChaim calendar, in Israel, sets it\'s zmanim. Pressing the "Setup your city!" button will take you to a page that will ask you to choose your city/area. Once you choose your city, it will download a table that lists the times for VISIBLE sunrise throughout the next 2 years from a website called ChaiTables.com. This table will automatically be updated each year if possible.\n\nThe \"Advanced Setup\" option allows you to choose whether you want to set the elevation data for your city, or download the visible sunrise tables, or to do neither one and use Mishor (Sea Level) sunrise.\n\nKnow that the elevation data changes for each and every city and you will need to set the elevation data of your city every time you change cities.</string>
-    <string name="what_language_would_you_like_the_zmanim_to_be_in">What language would you like the zmanim to be in?</string>
+    <string name="what_language_would_you_like_the_zmanim_to_be_in">What language would you like the zemanim to be in?</string>
     <string name="hebrew">Hebrew</string>
     <string name="english">English</string>
     <string name="setup">Setup</string>
