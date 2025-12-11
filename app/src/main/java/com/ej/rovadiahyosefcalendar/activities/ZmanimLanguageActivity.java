@@ -144,6 +144,7 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
             group.clearCheck();
             group.check(R.id.english);
             spinner.setVisibility(View.VISIBLE);
+            spinner.setSelection(1);
             updateRecyclerView();
         });
 
