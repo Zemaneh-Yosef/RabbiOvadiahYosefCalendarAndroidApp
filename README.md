@@ -74,6 +74,13 @@ Rabbi Meir Gavriel Elbaz and Rabbi Leeor Dahan themselves have given [haskamot](
 | <img src="https://play-lh.googleusercontent.com/x9-dPIKcVofd0Bzd1Pncp7YTKItC9dPtP0ZU8swd3Q-ee2ySTkyiscXTssF_eNPfgnk"> | <img src="https://play-lh.googleusercontent.com/4_ieNYmeCYv75lGsuOg95fT5-1v7vK8zuvSbOV78MtMWWKLS-PIDS2dTT9MCTz4vX4FP"> | <img src="https://play-lh.googleusercontent.com/ZiT9dliscrbOqqwxdpzivXE77Hpt-CMpgUcT-8x1MVnDPZp6jVOTpdes5Dgg9l4Okg"> | <img src="https://play-lh.googleusercontent.com/goFEBByE3neELxuURq_G7LtO_QkuQCs8WPnu5Ltx57Elx62k5FgCWqWDuIfobqagMs2u"> |
 | ---------------------------------------------- | -------------------------------------------- | ------------------------------------------ | ------------------------------------------- |
 
+# WearOS Screenshots:
+| <img src="https://play-lh.googleusercontent.com/vMzSm9w5hfmr4ObCemKkU99tePQqzgtBFGPU_Iz5AxbWwHJUcd9lxP7AGvnYiVlaLuyGKJapYzSB-66GUlQZlw=w526-h296-rw"> | <img src="https://play-lh.googleusercontent.com/2foqoiwrJHKCZm0Kl_ENFjkiTgeyVIzB56EhkBn1SQWBBsW-_J1g-TkzWbR-AtZuNXGifOscQbqaRZcIDBAAaDg=w526-h296-rw"> | <img src="https://play-lh.googleusercontent.com/IhrLgqYireND5Cfu8JRu-b-t_JlQCEMrCf6Xswc_k6RtT2qvt_AQrGoZp1SJe-SawD-7Vnzvar-_CQT6EVKmG_c=w526-h296-rw"> | <img src="https://play-lh.googleusercontent.com/yYKAwh3jAW7W6xGv34-s20p3J6SLuLk223yqb7AIAx6qo2wN3zBwWW00OHqqJQboQkTaG06zn9tmVYvKLdIr2n8=w526-h296-rw"> |
+| ---------------------------------------------- | -------------------------------------------- | ------------------------------------------ | ------------------------------------------- |
+
+| <img src="https://play-lh.googleusercontent.com/nFK8Uaw4TeQt3ICxnCt0LDN52GtVSo9mJmtY3_uL_JRFq2PmrFlDDmyD_iITMzu0mwOPIxEmDdQoviH44c_QwOY=w526-h296-rw"> | <img src="https://play-lh.googleusercontent.com/rTXIe0loU0v6-Fb3J7HJnN4keRrgYIyAGfJB-YEo316AW0osgKASi6xCQifENnQPSneHK7gsPemLPgWf3Uzg=w526-h296-rw"> | <img src="https://play-lh.googleusercontent.com/vLcROLwyviwIaOoGbAH2rQpBBOls--UBhwctCI1QoEMIPH_0hROE6RZCVQwE1vPJoXtpBl7l-SqPkziQOU2HN90=w526-h296-rw"> | <img src="https://play-lh.googleusercontent.com/UHEI5egChtT5Zqe_-Wgg-5xCQz-4D4ieoSPeX4L0Ja90Y2HuUm5M1tFE36UgcjEIgGt2Dl05W5_cBdlAWchb=w526-h296-rw"> |
+| ---------------------------------------------- | -------------------------------------------- | ------------------------------------------ | ------------------------------------------- |
+
 # Explanation of how the zemanim are calculated:
 - For an in-depth explanation on each specific time, please look at the descriptions for each individual time, found in the app-itself.
 - For an overall explanation, please visit our organization's ReadME on GitHub.
