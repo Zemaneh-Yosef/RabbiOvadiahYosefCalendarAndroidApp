@@ -14,7 +14,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -308,7 +307,7 @@ class MainActivity : ComponentActivity() {
                 editor.putBoolean("Show Regular Minutes", jsonPreferences.getBoolean("Show Regular Minutes"))
                     .putBoolean("Show Rabbeinu Tam", jsonPreferences.getBoolean("Show Rabbeinu Tam")).apply()
             }
-        } catch (e:JSONException) {
+        } catch (_:JSONException) {
             val builder = AlertDialog.Builder(this)
             builder.setTitle(R.string.error)
             builder.setMessage(getString(R.string.json_error))
@@ -1063,30 +1062,6 @@ class MainActivity : ComponentActivity() {
         for ((index, entry) in zmanim.asSequence().withIndex()) {
             if (entry.zman == sNextUpcomingZman) {
                 nextUpcomingZmanIndex = index
-            }
-        }
-    }
-
-    private fun getShabbatAndOrChag(): String {
-        return if (sharedPref.getBoolean("isZmanimInHebrew", false)) {
-            if (mJewishDateInfo.jewishCalendar.isYomTovAssurBemelacha
-                && mJewishDateInfo.jewishCalendar.gregorianCalendar[Calendar.DAY_OF_WEEK] == Calendar.SATURDAY
-            ) {
-                "שבת/חג"
-            } else if (mJewishDateInfo.jewishCalendar.gregorianCalendar[Calendar.DAY_OF_WEEK] == Calendar.SATURDAY) {
-                "שבת"
-            } else {
-                "חג"
-            }
-        } else {
-            if (mJewishDateInfo.jewishCalendar.isYomTovAssurBemelacha
-                && mJewishDateInfo.jewishCalendar.gregorianCalendar[Calendar.DAY_OF_WEEK] == Calendar.SATURDAY
-            ) {
-                "Shabbat/Chag"
-            } else if (mJewishDateInfo.jewishCalendar.gregorianCalendar[Calendar.DAY_OF_WEEK] == Calendar.SATURDAY) {
-                "Shabbat"
-            } else {
-                "Chag"
             }
         }
     }
