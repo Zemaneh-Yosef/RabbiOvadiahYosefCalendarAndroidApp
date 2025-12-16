@@ -1,10 +1,10 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
 import static android.content.Context.MODE_PRIVATE;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mJewishDateInfo;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mROZmanimCalendar;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSetupLauncher;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sJewishDateInfo;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sROZmanimCalendar;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sSetupLauncher;
 import static com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment.sNextUpcomingZman;
 import static com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment.sShabbatMode;
 
@@ -341,8 +341,11 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     private void showSunriseDialog() {
         dialogBuilder.setTitle("Sunrise - הנץ - HaNetz")
                 .setMessage(Utils.isLocaleHebrew() ? loadContentFromFile("hanetzHB.md") : loadContentFromFile("hanetz.md"))
-                .setPositiveButton(R.string.setup_visible_sunrise, (dialog, which) ->
-                        sSetupLauncher.launch(new Intent(context, SetupChooserActivity.class)))
+                .setPositiveButton(R.string.setup_visible_sunrise, (dialog, which) -> {
+                    if (sSetupLauncher != null) {
+                        sSetupLauncher.launch(new Intent(context, SetupChooserActivity.class));
+                    }
+                })
                 .setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
         AlertDialog dialog = dialogBuilder.create();
         dialog.setOnShowListener(dialogInterface -> {//Make the button stick out for people to see it
@@ -471,16 +474,16 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
     private void showTzaitShabbatDialog() {
         String shabbatSetting = "7.165°";
-        if (mROZmanimCalendar != null && !mROZmanimCalendar.isUseAmudehHoraah()) {
-            shabbatSetting = String.valueOf((int) mROZmanimCalendar.getAteretTorahSunsetOffset());
+        if (sROZmanimCalendar != null && !sROZmanimCalendar.isUseAmudehHoraah()) {
+            shabbatSetting = String.valueOf((int) sROZmanimCalendar.getAteretTorahSunsetOffset());
         }
         SharedPreferences mSettingsPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         if (mSettingsPreferences.getBoolean("overrideAHEndShabbatTime", false)) {
             String setting = mSettingsPreferences.getString("EndOfShabbatOpinion", "1");
             switch (setting) {
                 case "1" -> {
-                    if (mROZmanimCalendar != null) {
-                        shabbatSetting = String.valueOf((int) mROZmanimCalendar.getAteretTorahSunsetOffset());
+                    if (sROZmanimCalendar != null) {
+                        shabbatSetting = String.valueOf((int) sROZmanimCalendar.getAteretTorahSunsetOffset());
                     }
                 }
                 // do nothing for 2 because it's the same
@@ -564,13 +567,11 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     private void showOmerDialog() {
         AlertDialog alertDialog = dialogBuilder.setTitle("Sefirat HaOmer - ספירת העומר")
                 .setMessage(R.string.omer_dialog)
-                .setPositiveButton(context.getString(R.string.see_full_text), (dialog, which) -> {
-                    context.startActivity(new Intent(context, SiddurViewActivity.class)
-                            .putExtra("prayer", context.getString(R.string.sefirat_haomer))
-                            .putExtra("JewishDay", mJewishDateInfo.getJewishCalendar().getJewishDayOfMonth())
-                            .putExtra("JewishMonth", mJewishDateInfo.getJewishCalendar().getJewishMonth())
-                            .putExtra("JewishYear", mJewishDateInfo.getJewishCalendar().getJewishYear()));
-                })
+                .setPositiveButton(context.getString(R.string.see_full_text), (dialog, which) -> context.startActivity(new Intent(context, SiddurViewActivity.class)
+                        .putExtra("prayer", context.getString(R.string.sefirat_haomer))
+                        .putExtra("JewishDay", sJewishDateInfo.getJewishCalendar().getJewishDayOfMonth())
+                        .putExtra("JewishMonth", sJewishDateInfo.getJewishCalendar().getJewishMonth())
+                        .putExtra("JewishYear", sJewishDateInfo.getJewishCalendar().getJewishYear())))
                 .create();
         alertDialog.show();
     }

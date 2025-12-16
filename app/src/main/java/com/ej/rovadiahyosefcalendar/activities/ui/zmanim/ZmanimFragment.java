@@ -6,22 +6,22 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.Context.ALARM_SERVICE;
 import static android.content.Context.POWER_SERVICE;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mCurrentDateShown;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mHebrewDateFormatter;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mJewishDateInfo;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mNavView;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mROZmanimCalendar;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mViewPager;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.materialToolbar;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentLocationName;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentTimeZoneID;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sElevation;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLastTimeUserWasInApp;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLatitude;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLongitude;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSettingsPreferences;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSetupLauncher;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSharedPreferences;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.mCurrentDateShown;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sHebrewDateFormatter;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sJewishDateInfo;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sNavView;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sROZmanimCalendar;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sViewPager;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.materialToolbar;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentLocationName;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentTimeZoneID;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sElevation;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sLastTimeUserWasInApp;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sLatitude;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sLongitude;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sSettingsPreferences;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sSetupLauncher;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sSharedPreferences;
 import static com.ej.rovadiahyosefcalendar.classes.Utils.getCurrentCalendarDrawableDark;
 import static com.ej.rovadiahyosefcalendar.classes.Utils.getCurrentCalendarDrawableLight;
 import static com.ej.rovadiahyosefcalendar.classes.Utils.inputStreamToString;
@@ -336,13 +336,13 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         Button dateBind = (previous ? binding.prevDay : binding.nextDay);
         dateBind.setOnClickListener(v -> {
             if (!sShabbatMode) {
-                mCurrentDateShown = (Calendar) mROZmanimCalendar.getCalendar().clone();//just get a calendar object with the same date as the current one
+                mCurrentDateShown = (Calendar) sROZmanimCalendar.getCalendar().clone();//just get a calendar object with the same date as the current one
 
                 int dateChange = (sSharedPreferences.getBoolean("weeklyMode", false) ? 7 : 1) * (previous ? -1 : 1);
                 mCurrentDateShown.add(Calendar.DATE, dateChange);
 
-                mROZmanimCalendar.setCalendar(mCurrentDateShown);
-                mJewishDateInfo.setCalendar(mCurrentDateShown);
+                sROZmanimCalendar.setCalendar(mCurrentDateShown);
+                sJewishDateInfo.setCalendar(mCurrentDateShown);
                 if (sSharedPreferences.getBoolean("weeklyMode", false)) {
                     updateWeeklyZmanim();
                 } else {
@@ -384,8 +384,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                                 epoch.get(Calendar.HOUR_OF_DAY),
                                 epoch.get(Calendar.MINUTE)
                         );
-                        mROZmanimCalendar.setCalendar(mCurrentDateShown);
-                        mJewishDateInfo.setCalendar(mCurrentDateShown);
+                        sROZmanimCalendar.setCalendar(mCurrentDateShown);
+                        sJewishDateInfo.setCalendar(mCurrentDateShown);
                         if (sSharedPreferences.getBoolean("weeklyMode", false)) {
                             updateWeeklyZmanim();
                         } else {
@@ -397,9 +397,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     DatePickerDialog.OnDateSetListener onDateSetListener = (view, year, month, day) -> {
                         Calendar mUserChosenDate = Calendar.getInstance();
                         mUserChosenDate.set(year, month, day);
-                        mROZmanimCalendar.setCalendar(mUserChosenDate);
-                        mJewishDateInfo.setCalendar(mUserChosenDate);
-                        mCurrentDateShown = (Calendar) mROZmanimCalendar.getCalendar().clone();
+                        sROZmanimCalendar.setCalendar(mUserChosenDate);
+                        sJewishDateInfo.setCalendar(mUserChosenDate);
+                        mCurrentDateShown = (Calendar) sROZmanimCalendar.getCalendar().clone();
                         if (sSharedPreferences.getBoolean("weeklyMode", false)) {
                             updateWeeklyZmanim();
                         } else {
@@ -409,10 +409,10 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         seeIfTablesNeedToBeUpdated(true);
                     };
                     materialDatePicker.addOnNegativeButtonClickListener(selection -> {
-                        HebrewDayMonthYearPickerDialog hdmypd = new HebrewDayMonthYearPickerDialog(materialDatePicker, mActivity.getSupportFragmentManager(), mJewishDateInfo.getJewishCalendar());
-                        hdmypd.updateDate(mJewishDateInfo.getJewishCalendar().getGregorianYear(),
-                                mJewishDateInfo.getJewishCalendar().getGregorianMonth(),
-                                mJewishDateInfo.getJewishCalendar().getGregorianDayOfMonth());
+                        HebrewDayMonthYearPickerDialog hdmypd = new HebrewDayMonthYearPickerDialog(materialDatePicker, mActivity.getSupportFragmentManager(), sJewishDateInfo.getJewishCalendar());
+                        hdmypd.updateDate(sJewishDateInfo.getJewishCalendar().getGregorianYear(),
+                                sJewishDateInfo.getJewishCalendar().getGregorianMonth(),
+                                sJewishDateInfo.getJewishCalendar().getGregorianDayOfMonth());
                         hdmypd.setListener(onDateSetListener);
                         hdmypd.show(mActivity.getSupportFragmentManager(), null);
                     });
@@ -439,7 +439,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (sSharedPreferences.getBoolean("isSetup", false) //only check after the app has been setup before
                 && sSharedPreferences.getBoolean("UseTable" + sCurrentLocationName, false)) { //and only if the tables are being used
 
-            if (ChaiTables.visibleSunriseFileDoesNotExist(mActivity.getExternalFilesDir(null), sCurrentLocationName, mJewishDateInfo.getJewishCalendar())) {
+            if (ChaiTables.visibleSunriseFileDoesNotExist(mActivity.getExternalFilesDir(null), sCurrentLocationName, sJewishDateInfo.getJewishCalendar())) {
                 if (!mUpdateTablesDialogShown) {
                     MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext);
                     builder.setTitle(R.string.update_tables);
@@ -447,14 +447,14 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     builder.setPositiveButton(R.string.yes, (dialog, which) -> {
                         String chaitablesURL = sSharedPreferences.getString("chaitablesLink" + sCurrentLocationName, "");
                         if (!chaitablesURL.isEmpty()) {//it should not be empty if the user has set up the app, but it is good to check
-                            String hebrewYear = String.valueOf(mJewishDateInfo.getJewishCalendar().getJewishYear());
+                            String hebrewYear = String.valueOf(sJewishDateInfo.getJewishCalendar().getJewishYear());
                             Pattern pattern = Pattern.compile("&cgi_yrheb=\\d{4}");
                             Matcher matcher = pattern.matcher(chaitablesURL);
                             if (matcher.find()) {
                                 chaitablesURL = chaitablesURL.replace(matcher.group(), "&cgi_yrheb=" + hebrewYear);//replace the year in the URL with the current year
                             }
-                            ChaiTablesScraper scraper = new ChaiTablesScraper();
-                            scraper.setDownloadSettings(chaitablesURL, mActivity.getExternalFilesDir(null), mJewishDateInfo.getJewishCalendar());
+                            ChaiTablesScraper scraper = new ChaiTablesScraper(sCurrentLocationName);
+                            scraper.setDownloadSettings(chaitablesURL, mActivity.getExternalFilesDir(null), sJewishDateInfo.getJewishCalendar());
                             scraper.setCallback(() -> {
                                 if (sSharedPreferences.getBoolean("weeklyMode", false)) {
                                     updateWeeklyZmanim();
@@ -484,13 +484,13 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             }
             mLocationResolver.acquireLatitudeAndLongitude(this);
             mLocationResolver.setTimeZoneID();
-            if (mCurrentDateShown != null && mROZmanimCalendar != null && mMainRecyclerView != null) {
+            if (mCurrentDateShown != null && sROZmanimCalendar != null && mMainRecyclerView != null) {
                 mCurrentDateShown.setTime(new Date());
-                mJewishDateInfo.setCalendar(new GregorianCalendar());
+                sJewishDateInfo.setCalendar(new GregorianCalendar());
                 resolveElevationAndVisibleSunrise(() -> {
                     instantiateZmanimCalendar();
                     setNextUpcomingZman();
-                    sSharedPreferences.edit().putString("Full" + mROZmanimCalendar.getGeoLocation().getLocationName(), "").apply();
+                    sSharedPreferences.edit().putString("Full" + sROZmanimCalendar.getGeoLocation().getLocationName(), "").apply();
                     updateDailyZmanim();
                     mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
                 });
@@ -502,7 +502,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         TextView dailyLocationName = binding.dailyLocationName;
         dailyLocationName.setPaintFlags(dailyLocationName.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         dailyLocationName.setOnClickListener(v -> new MaterialAlertDialogBuilder(mContext)
-            .setTitle(mContext.getString(R.string.location_info_for) + " " + sSharedPreferences.getString("Full" + mROZmanimCalendar.getGeoLocation().getLocationName(), ""))
+            .setTitle(mContext.getString(R.string.location_info_for) + " " + sSharedPreferences.getString("Full" + sROZmanimCalendar.getGeoLocation().getLocationName(), ""))
             .setMessage(mContext.getString(R.string.location_name) + " " + sCurrentLocationName + "\n" +
                 mContext.getString(R.string.latitude) + " " + sLatitude + "\n" +
                 mContext.getString(R.string.longitude) + " " + sLongitude + "\n" +
@@ -580,7 +580,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         .setTitle(R.string.are_u_in_israel)
                         .setMessage(R.string.if_you_are_in_israel_now_please_confirm_below)
                         .setPositiveButton(R.string.yes_i_am_in_israel, (dialog, which) -> {
-                            mJewishDateInfo.getJewishCalendar().setInIsrael(true);
+                            sJewishDateInfo.getJewishCalendar().setInIsrael(true);
                             sSharedPreferences.edit().putBoolean("inIsrael", true).apply();
                             sSharedPreferences.edit().putBoolean("useElevation", true).apply();
                             sSettingsPreferences.edit().putBoolean("LuachAmudeiHoraah", false).apply();
@@ -610,7 +610,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         .setTitle(R.string.have_you_left_israel)
                         .setMessage(R.string.if_you_are_not_in_israel_now_please_confirm_below_otherwise_ignore_this_message)
                         .setPositiveButton(R.string.yes_i_have_left_israel, (dialog, which) -> {
-                            mJewishDateInfo.getJewishCalendar().setInIsrael(false);
+                            sJewishDateInfo.getJewishCalendar().setInIsrael(false);
                             sSharedPreferences.edit().putBoolean("inIsrael", false).apply();
                             sSharedPreferences.edit().putBoolean("useElevation", false).apply();
                             sSettingsPreferences.edit().putBoolean("LuachAmudeiHoraah", true).apply();
@@ -746,28 +746,28 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     }
 
     private void instantiateZmanimCalendar() {
-        mROZmanimCalendar = new ROZmanimCalendar(new GeoLocation(
+        sROZmanimCalendar = new ROZmanimCalendar(new GeoLocation(
                 sCurrentLocationName,
                 sLatitude,
                 sLongitude,
                 sElevation,
                 TimeZone.getTimeZone(sCurrentTimeZoneID == null ? TimeZone.getDefault().getID() : sCurrentTimeZoneID)));
-        mROZmanimCalendar.setExternalFilesDir(mActivity.getExternalFilesDir(null));
+        sROZmanimCalendar.setExternalFilesDir(mActivity.getExternalFilesDir(null));
         String candles = sSettingsPreferences.getString("CandleLightingOffset", "20");
         if (candles.isEmpty()) {
             candles = "20";
         }
-        mROZmanimCalendar.setCandleLightingOffset(Double.parseDouble(candles));
+        sROZmanimCalendar.setCandleLightingOffset(Double.parseDouble(candles));
         String shabbat = sSettingsPreferences.getString("EndOfShabbatOffset", sSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40");
         if (shabbat.isEmpty()) {// for some reason this is happening
-            mROZmanimCalendar.setAteretTorahSunsetOffset(sSharedPreferences.getBoolean("inIsrael", false) ? 30 : 40);
+            sROZmanimCalendar.setAteretTorahSunsetOffset(sSharedPreferences.getBoolean("inIsrael", false) ? 30 : 40);
         } else {
-            mROZmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(shabbat));
+            sROZmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(shabbat));
         }
         if (sSharedPreferences.getBoolean("inIsrael", false) && shabbat.equals("40")) {
-            mROZmanimCalendar.setAteretTorahSunsetOffset(30);
+            sROZmanimCalendar.setAteretTorahSunsetOffset(30);
         }
-        mROZmanimCalendar.setAmudehHoraah(sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false));
+        sROZmanimCalendar.setAmudehHoraah(sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false));
     }
 
     private void askForRealTimeNotificationPermissions() {
@@ -848,14 +848,14 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     }
 
     private void setAllNotifications() {
-        if (mROZmanimCalendar.getGeoLocation().equals(new GeoLocation())) {
+        if (sROZmanimCalendar.getGeoLocation().equals(new GeoLocation())) {
             return; // DO NOT SET ANY NOTIFICATIONS WITH A DEFAULT LOCATION
         }
         if (BuildConfig.DEBUG) {
-            sSharedPreferences.edit().putString("debugNotifs", sSharedPreferences.getString("debugNotifs", "") + "Geolocation for notifications = " + mROZmanimCalendar.getGeoLocation().toString() + "\n\n").apply();
+            sSharedPreferences.edit().putString("debugNotifs", sSharedPreferences.getString("debugNotifs", "") + "Geolocation for notifications = " + sROZmanimCalendar.getGeoLocation().toString() + "\n\n").apply();
         }
         Calendar calendar = Calendar.getInstance();
-        ROZmanimCalendar roZmanimCalendar = mROZmanimCalendar.getCopy();
+        ROZmanimCalendar roZmanimCalendar = sROZmanimCalendar.getCopy();
         roZmanimCalendar.setCalendar(Calendar.getInstance()); // do this in order to always set the notifications on the current date
         Date sunrise = roZmanimCalendar.getSunrise();
         if (sunrise == null) {
@@ -938,10 +938,10 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 startActivity(new Intent(mContext, GetUserLocationWithMapActivity.class).putExtra("loneActivity", true));
                 return true;
             } else if (itemId == R.id.shabbat_mode) {
-                if (!sShabbatMode && mROZmanimCalendar != null && mMainRecyclerView != null) {
+                if (!sShabbatMode && sROZmanimCalendar != null && mMainRecyclerView != null) {
                     mCurrentDateShown.setTime(new Date());
-                    mJewishDateInfo.setCalendar(new GregorianCalendar());
-                    mROZmanimCalendar.setCalendar(new GregorianCalendar());
+                    sJewishDateInfo.setCalendar(new GregorianCalendar());
+                    sROZmanimCalendar.setCalendar(new GregorianCalendar());
                     startShabbatMode();
                     if (sSharedPreferences.getBoolean("weeklyMode", false)) {
                         updateWeeklyZmanim();
@@ -1019,52 +1019,52 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private List<ZmanListEntry> getZmanimList(boolean add66MisheyakirZman) {
         List<ZmanListEntry> zmanim = new ArrayList<>();
 
-        String locationName = sSharedPreferences.getString("Full" + mROZmanimCalendar.getGeoLocation().getLocationName(), "");
+        String locationName = sSharedPreferences.getString("Full" + sROZmanimCalendar.getGeoLocation().getLocationName(), "");
         if (locationName.isEmpty()) {
             locationName = mLocationResolver.getFullLocationName();
-            sSharedPreferences.edit().putString("Full" + mROZmanimCalendar.getGeoLocation().getLocationName(), locationName).apply();
+            sSharedPreferences.edit().putString("Full" + sROZmanimCalendar.getGeoLocation().getLocationName(), locationName).apply();
         }
         if (locationName != null && locationName.isEmpty()) {//if it's still empty, use backup. NPE was thrown here for some reason
-            locationName = mROZmanimCalendar.getGeoLocation().getLocationName();
+            locationName = sROZmanimCalendar.getGeoLocation().getLocationName();
         }
 
-        String engDate = mROZmanimCalendar.getCalendar().get(Calendar.DATE) +
+        String engDate = sROZmanimCalendar.getCalendar().get(Calendar.DATE) +
                 " " +
-                mROZmanimCalendar.getCalendar().getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()) +
+                sROZmanimCalendar.getCalendar().getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()) +
                 ", " +
-                mROZmanimCalendar.getCalendar().get(Calendar.YEAR);
+                sROZmanimCalendar.getCalendar().get(Calendar.YEAR);
 
         if (binding != null) {
             binding.dailyLocationName.setText(locationName);
-            if (DateUtils.isSameDay(mROZmanimCalendar.getCalendar().getTime(), new Date())) {
+            if (DateUtils.isSameDay(sROZmanimCalendar.getCalendar().getTime(), new Date())) {
                 binding.dailyCard.setStrokeColor(ContextCompat.getColor(mContext, R.color.sunset_orange));
                 binding.dailyCard.setStrokeWidth(6);
 
                 engDate = mContext.getString(R.string.today) + " — " + engDate;
                 String hebDate;
-                if (mROZmanimCalendar.getSunset() != null && new Date().after(mROZmanimCalendar.getSunset())) {
+                if (sROZmanimCalendar.getSunset() != null && new Date().after(sROZmanimCalendar.getSunset())) {
                     hebDate = mContext.getString(R.string.post_sunset_date);
                 } else {
                     hebDate = mContext.getString(R.string.pre_sunset_date);
                 }
-                hebDate += " " + mJewishDateInfo.getJewishCalendar().currentToString(mROZmanimCalendar);
+                hebDate += " " + sJewishDateInfo.getJewishCalendar().currentToString(sROZmanimCalendar);
                 binding.gregDate.setText(engDate);
                 binding.hebDate.setText(hebDate);
             } else {
                 binding.dailyCard.setStrokeColor(ContextCompat.getColor(mContext, R.color.cardview_border));
                 binding.dailyCard.setStrokeWidth(3);
                 binding.gregDate.setText(engDate);
-                binding.hebDate.setText(mJewishDateInfo.getJewishCalendar().toString());
+                binding.hebDate.setText(sJewishDateInfo.getJewishCalendar().toString());
             }
             binding.weekday.setText(Utils.isLocaleHebrew() ?
-                    mROZmanimCalendar.getCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault())
+                    sROZmanimCalendar.getCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault())
                     :
-                    mROZmanimCalendar.getCalendar()
+                    sROZmanimCalendar.getCalendar()
                             .getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault())
                             + " / " +
-                            mROZmanimCalendar.getCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, new Locale("he", "IL")));
-            binding.parsha.setText(mJewishDateInfo.getThisWeeksParsha());
-            CharSequence haftara = mJewishDateInfo.getThisWeeksHaftarah();
+                            sROZmanimCalendar.getCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, new Locale("he", "IL")));
+            binding.parsha.setText(sJewishDateInfo.getThisWeeksParsha());
+            CharSequence haftara = sJewishDateInfo.getThisWeeksHaftarah();
             if (haftara.length() == 0) {
                 binding.haftaraLayout.setVisibility(View.GONE);
                 binding.makamLayout.setVisibility(View.GONE);
@@ -1075,7 +1075,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             }
 
             try {
-                Map<String, List<MakamJCal.Makam>> shabbatMakam = mJewishDateInfo.getThisWeeksMakam();
+                Map<String, List<MakamJCal.Makam>> shabbatMakam = sJewishDateInfo.getThisWeeksMakam();
                 if (shabbatMakam.containsKey("GABRIEL A SHREM 1964 SUHV")) {
                     List<MakamJCal.Makam> makamObj = shabbatMakam.get("GABRIEL A SHREM 1964 SUHV");
                     StringBuilder makamText = new StringBuilder(mContext.getString(R.string.makam));
@@ -1108,27 +1108,27 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
 
         if (sSettingsPreferences.getBoolean("showShabbatMevarchim", false)) {
-            if (mJewishDateInfo.getJewishCalendar().isShabbosMevorchim()) {
+            if (sJewishDateInfo.getJewishCalendar().isShabbosMevorchim()) {
                 zmanim.add(new ZmanListEntry("שבת מברכים"));
             }
         }
 
-        String day = mJewishDateInfo.getSpecialDay(false);
+        String day = sJewishDateInfo.getSpecialDay(false);
         if (!day.isEmpty()) {
             zmanim.add(new ZmanListEntry(day));
         }
-        String dayOfOmer = mJewishDateInfo.addDayOfOmer("");
+        String dayOfOmer = sJewishDateInfo.addDayOfOmer("");
         if (!dayOfOmer.isEmpty()) {
             zmanim.add(new ZmanListEntry(dayOfOmer));
         }
 
-        if (mJewishDateInfo.getJewishCalendar().isRoshHashana() && mJewishDateInfo.isShmitaYear()) {
+        if (sJewishDateInfo.getJewishCalendar().isRoshHashana() && sJewishDateInfo.isShmitaYear()) {
             zmanim.add(new ZmanListEntry(mContext.getString(R.string.this_year_is_a_shmita_year)));
         }
 
-        if (mJewishDateInfo.is3Weeks()) {
-            if (mJewishDateInfo.is9Days()) {
-                if (mJewishDateInfo.isShevuahShechalBo()) {
+        if (sJewishDateInfo.is3Weeks()) {
+            if (sJewishDateInfo.is9Days()) {
+                if (sJewishDateInfo.isShevuahShechalBo()) {
                     zmanim.add(new ZmanListEntry(mContext.getString(R.string.shevuah_shechal_bo)));
                 } else {
                     zmanim.add(new ZmanListEntry(mContext.getString(R.string.nine_days)));
@@ -1138,28 +1138,28 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             }
         }
 
-        String isOKToListenToMusic = mJewishDateInfo.isOKToListenToMusic();
+        String isOKToListenToMusic = sJewishDateInfo.isOKToListenToMusic();
         if (!isOKToListenToMusic.isEmpty()) {
             zmanim.add(new ZmanListEntry(isOKToListenToMusic));
         }
 
-        String hallel = mJewishDateInfo.getHallelOrChatziHallel();
+        String hallel = sJewishDateInfo.getHallelOrChatziHallel();
         if (!hallel.isEmpty()) {
             zmanim.add(new ZmanListEntry(hallel));
         }
 
-        String ulChaparatPesha = mJewishDateInfo.getIsUlChaparatPeshaSaid();
+        String ulChaparatPesha = sJewishDateInfo.getIsUlChaparatPeshaSaid();
         if (!ulChaparatPesha.isEmpty()) {
             zmanim.add(new ZmanListEntry(ulChaparatPesha));
         }
 
-        zmanim.add(new ZmanListEntry(mJewishDateInfo.getIsTachanunSaid()));
+        zmanim.add(new ZmanListEntry(sJewishDateInfo.getIsTachanunSaid()));
 
-        if (mJewishDateInfo.isPurimMeshulash()) {
+        if (sJewishDateInfo.isPurimMeshulash()) {
             zmanim.add(new ZmanListEntry(mContext.getString(R.string.no_tachanun_in_yerushalayim)));
         }
 
-        String birchatLevana = mJewishDateInfo.getBirchatLevana();
+        String birchatLevana = sJewishDateInfo.getBirchatLevana();
         if (!birchatLevana.isEmpty()) {
             zmanim.add(new ZmanListEntry(birchatLevana));
             MoonTimes moonTimes = MoonTimes.compute()
@@ -1195,12 +1195,12 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             }
         }
 
-        if (mJewishDateInfo.getJewishCalendar().isBirkasHachamah()) {
+        if (sJewishDateInfo.getJewishCalendar().isBirkasHachamah()) {
             zmanim.add(new ZmanListEntry(mContext.getString(R.string.birchat_hachamah_is_said_today)));
         }
 
-        if (mJewishDateInfo.tomorrow().getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY
-                && mJewishDateInfo.tomorrow().getJewishCalendar().getYomTovIndex() == JewishCalendar.EREV_PESACH) {
+        if (sJewishDateInfo.tomorrow().getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY
+                && sJewishDateInfo.tomorrow().getJewishCalendar().getYomTovIndex() == JewishCalendar.EREV_PESACH) {
             zmanim.add(new ZmanListEntry(mContext.getString(R.string.burn_your_ametz_today)));
         }
 
@@ -1226,23 +1226,23 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
         addTekufaLength(zmanim, tekufaOpinions);
 
-        addZmanim(zmanim, false, sSettingsPreferences, sSharedPreferences, mROZmanimCalendar, mJewishDateInfo, add66MisheyakirZman);
+        addZmanim(zmanim, false, sSettingsPreferences, sSharedPreferences, sROZmanimCalendar, sJewishDateInfo, add66MisheyakirZman);
 
-        zmanim.add(new ZmanListEntry(mJewishDateInfo.getIsMashivHaruchOrMoridHatalSaid()
+        zmanim.add(new ZmanListEntry(sJewishDateInfo.getIsMashivHaruchOrMoridHatalSaid()
                 + " / "
-                + mJewishDateInfo.getIsBarcheinuOrBarechAleinuSaid()));
+                + sJewishDateInfo.getIsBarcheinuOrBarechAleinuSaid()));
 
-        zmanim.add(new ZmanListEntry(mContext.getString(R.string.shaah_zmanit_gr_a) + " " + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanisGra())));
+        zmanim.add(new ZmanListEntry(mContext.getString(R.string.shaah_zmanit_gr_a) + " " + mZmanimFormatter.format(sROZmanimCalendar.getShaahZmanisGra())));
         zmanim.add(new ZmanListEntry(mContext.getString(R.string.mg_a)
-                + " (" + mContext.getString(mROZmanimCalendar.isUseAmudehHoraah() ? R.string.amudei_horaah : R.string.ohr_hachaim) + ") "
-                + mZmanimFormatter.format(mROZmanimCalendar.getShaahZmanis72MinutesZmanis())));
+                + " (" + mContext.getString(sROZmanimCalendar.isUseAmudehHoraah() ? R.string.amudei_horaah : R.string.ohr_hachaim) + ") "
+                + mZmanimFormatter.format(sROZmanimCalendar.getShaahZmanis72MinutesZmanis())));
 
         if (sSettingsPreferences.getBoolean("ShowLeapYear", false)) {
-            zmanim.add(new ZmanListEntry(mJewishDateInfo.isJewishLeapYear()));
+            zmanim.add(new ZmanListEntry(sJewishDateInfo.isJewishLeapYear()));
         }
 
         if (sSettingsPreferences.getBoolean("ShowDST", false)) {
-            if (mROZmanimCalendar.getGeoLocation().getTimeZone().inDaylightTime(mROZmanimCalendar.getSeaLevelSunrise())) {
+            if (sROZmanimCalendar.getGeoLocation().getTimeZone().inDaylightTime(sROZmanimCalendar.getSeaLevelSunrise())) {
                 zmanim.add(new ZmanListEntry(mContext.getString(R.string.daylight_savings_time_is_on)));
             } else {
                 zmanim.add(new ZmanListEntry(mContext.getString(R.string.daylight_savings_time_is_off)));
@@ -1250,7 +1250,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
 
         if (sSettingsPreferences.getBoolean("ShowShmitaYear", false)) {
-            switch (mJewishDateInfo.getYearOfShmitaCycle()) {
+            switch (sJewishDateInfo.getYearOfShmitaCycle()) {
                 case 1:
                     zmanim.add(new ZmanListEntry(mContext.getString(R.string.first_year_of_shmita)));
                     break;
@@ -1302,7 +1302,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     }
 
     public void setNextUpcomingZman() {
-        ZmanListEntry nextZman = ZmanimFactory.getNextUpcomingZman(mCurrentDateShown, mROZmanimCalendar, mJewishDateInfo, sSettingsPreferences, sSharedPreferences);
+        ZmanListEntry nextZman = ZmanimFactory.getNextUpcomingZman(mCurrentDateShown, sROZmanimCalendar, sJewishDateInfo, sSettingsPreferences, sSharedPreferences);
         if (nextZman == null || nextZman.getZman() == null) {
             nextZman = new ZmanListEntry("", new Date(System.currentTimeMillis() + 30_000), SecondTreatment.ROUND_EARLIER, "");// try again in 30 seconds
         }
@@ -1312,66 +1312,66 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private String getAnnouncements() {
         StringBuilder announcements = new StringBuilder();
 
-        String day = mJewishDateInfo.getSpecialDay(true);
+        String day = sJewishDateInfo.getSpecialDay(true);
         if (!day.isEmpty()) {
             announcements.append(day.replace("/ ", "\n")).append("\n");
         }
 
-        if (mJewishDateInfo.isPurimMeshulash()) {
+        if (sJewishDateInfo.isPurimMeshulash()) {
             announcements.append(mContext.getString(R.string.no_tachanun_in_yerushalayim));
         }
 
         if (sSettingsPreferences.getBoolean("showShabbatMevarchim", true)) {
-            if (mJewishDateInfo.getJewishCalendar().isShabbosMevorchim()) {
+            if (sJewishDateInfo.getJewishCalendar().isShabbosMevorchim()) {
                 announcements.append("שבת מברכים").append("\n");
             }
         }
 
-        String isOKToListenToMusic = mJewishDateInfo.isOKToListenToMusic();
+        String isOKToListenToMusic = sJewishDateInfo.isOKToListenToMusic();
         if (!isOKToListenToMusic.isEmpty()) {
             announcements.append(isOKToListenToMusic).append("\n");
         }
 
-        String ulChaparatPesha = mJewishDateInfo.getIsUlChaparatPeshaSaid();
+        String ulChaparatPesha = sJewishDateInfo.getIsUlChaparatPeshaSaid();
         if (!ulChaparatPesha.isEmpty()) {
             announcements.append(ulChaparatPesha).append("\n");
         }
 
-        String hallel = mJewishDateInfo.getHallelOrChatziHallel();
+        String hallel = sJewishDateInfo.getHallelOrChatziHallel();
         if (!hallel.isEmpty()) {
             announcements.append(hallel).append("\n");
         }
 
         TefilaRules tefilaRules = new TefilaRules();
 
-        if (tefilaRules.isMashivHaruachEndDate(mJewishDateInfo.getJewishCalendar())) {
+        if (tefilaRules.isMashivHaruachEndDate(sJewishDateInfo.getJewishCalendar())) {
             announcements.append("מוריד הטל/ברכנו").append("\n");
         }
 
-        if (tefilaRules.isMashivHaruachStartDate(mJewishDateInfo.getJewishCalendar())) {
+        if (tefilaRules.isMashivHaruachStartDate(sJewishDateInfo.getJewishCalendar())) {
             announcements.append("משיב הרוח").append("\n");
         }
 
-        if (tefilaRules.isVeseinTalUmatarStartDate(mJewishDateInfo.getJewishCalendar())) {
+        if (tefilaRules.isVeseinTalUmatarStartDate(sJewishDateInfo.getJewishCalendar())) {
             announcements.append("ברך עלינו").append("\n");
         }
 
-        String tachanun = mJewishDateInfo.getIsTachanunSaid();
+        String tachanun = sJewishDateInfo.getIsTachanunSaid();
         if (!tachanun.equals(mContext.getString(R.string.there_is_tachanun_today))) {
             announcements.append(tachanun).append("\n");
         }
 
-        String birchatLevana = mJewishDateInfo.getBirchatLevana();
+        String birchatLevana = sJewishDateInfo.getBirchatLevana();
         if (!birchatLevana.isEmpty() && !birchatLevana.contains("until") && !birchatLevana.contains("עד")) {
             announcements.append(birchatLevana).append("\n");
         }
 
-        if (mJewishDateInfo.getJewishCalendar().isBirkasHachamah()) {
+        if (sJewishDateInfo.getJewishCalendar().isBirkasHachamah()) {
             announcements.append(mContext.getString(R.string.birchat_hachamah_is_said_today)).append("\n");
         }
 
-        if (mJewishDateInfo.tomorrow().getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY
-                && mJewishDateInfo.tomorrow().getJewishCalendar().getYomTovIndex() == JewishCalendar.EREV_PESACH) {
+        if (sJewishDateInfo.tomorrow().getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY
+                && sJewishDateInfo.tomorrow().getJewishCalendar().getYomTovIndex() == JewishCalendar.EREV_PESACH) {
             announcements.append(mContext.getString(R.string.burn_your_ametz_today));
         }
 
@@ -1403,7 +1403,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
 
         try {
-            Map<String, List<MakamJCal.Makam>> makamData = MakamJCal.Companion.getMakamData(mJewishDateInfo.getJewishCalendar());
+            Map<String, List<MakamJCal.Makam>> makamData = MakamJCal.Companion.getMakamData(sJewishDateInfo.getJewishCalendar());
             if (makamData.containsKey("GABRIEL A SHREM 1964 SUHV")) {
                 List<MakamJCal.Makam> makamObj = makamData.get("GABRIEL A SHREM 1964 SUHV");
                 StringBuilder makamText = new StringBuilder(mContext.getString(R.string.makam));
@@ -1439,8 +1439,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         while (mCurrentDateShown.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
             mCurrentDateShown.add(Calendar.DATE, -1);
         }
-        mROZmanimCalendar.setCalendar(mCurrentDateShown);//set the calendar to the sunday of that week
-        mJewishDateInfo.setCalendar(mCurrentDateShown);
+        sROZmanimCalendar.setCalendar(mCurrentDateShown);//set the calendar to the sunday of that week
+        sJewishDateInfo.setCalendar(mCurrentDateShown);
 
         HebrewDateFormatter hebrewDateFormatter = new HebrewDateFormatter();
         if (Utils.isLocaleHebrew()) {
@@ -1451,16 +1451,16 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         String month = mCurrentDateShown.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
         String year = String.valueOf(mCurrentDateShown.get(Calendar.YEAR));
 
-        String hebrewMonth = hebrewDateFormatter.formatMonth(mJewishDateInfo.getJewishCalendar())
+        String hebrewMonth = hebrewDateFormatter.formatMonth(sJewishDateInfo.getJewishCalendar())
                 .replace("Tishrei", "Tishri")
                 .replace("Teves", "Tevet");
-        String hebrewYear = String.valueOf(mJewishDateInfo.getJewishCalendar().getJewishYear());
+        String hebrewYear = String.valueOf(sJewishDateInfo.getJewishCalendar().getJewishYear());
         if (Utils.isLocaleHebrew()) {
-            hebrewYear = hebrewDateFormatter.formatHebrewNumber(mJewishDateInfo.getJewishCalendar().getJewishYear());
+            hebrewYear = hebrewDateFormatter.formatHebrewNumber(sJewishDateInfo.getJewishCalendar().getJewishYear());
         }
 
         for (int i = 0; i < 7; i++) {
-            if (DateUtils.isSameDay(mROZmanimCalendar.getCalendar().getTime(), new Date())) {
+            if (DateUtils.isSameDay(sROZmanimCalendar.getCalendar().getTime(), new Date())) {
                 weeklyInfo.get(i)[4].setBackgroundColor(mContext.getColor(R.color.dark_gold));
             } else {
                 weeklyInfo.get(i)[4].setBackground(null);
@@ -1499,35 +1499,35 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             } else {
                 weeklyInfo.get(i)[1].setVisibility(View.VISIBLE);
             }
-            weeklyInfo.get(i)[2].setText(mJewishDateInfo.getJewishDayOfWeek());//E.G. "יום ראשון"
-            weeklyInfo.get(i)[3].setText(mHebrewDateFormatter.formatHebrewNumber(mJewishDateInfo.getJewishCalendar().getJewishDayOfMonth()));//E.G. "א"
-            weeklyInfo.get(i)[4].setText(mROZmanimCalendar.getCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, Locale.getDefault()));//E.G. "Sun"
-            weeklyInfo.get(i)[5].setText(String.valueOf(mROZmanimCalendar.getCalendar().get(Calendar.DAY_OF_MONTH)));//E.G. "6"
+            weeklyInfo.get(i)[2].setText(sJewishDateInfo.getJewishDayOfWeek());//E.G. "יום ראשון"
+            weeklyInfo.get(i)[3].setText(sHebrewDateFormatter.formatHebrewNumber(sJewishDateInfo.getJewishCalendar().getJewishDayOfMonth()));//E.G. "א"
+            weeklyInfo.get(i)[4].setText(sROZmanimCalendar.getCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, Locale.getDefault()));//E.G. "Sun"
+            weeklyInfo.get(i)[5].setText(String.valueOf(sROZmanimCalendar.getCalendar().get(Calendar.DAY_OF_MONTH)));//E.G. "6"
             if (i != 6) {
-                mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
-                mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
+                sROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
+                sJewishDateInfo.setCalendar(sROZmanimCalendar.getCalendar());
             }
         }
-        if (month != null && !month.equals(mROZmanimCalendar.getCalendar().getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()))) {
-            month += " - " + mROZmanimCalendar.getCalendar().getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
+        if (month != null && !month.equals(sROZmanimCalendar.getCalendar().getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()))) {
+            month += " - " + sROZmanimCalendar.getCalendar().getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
         }
-        if (!year.equals(String.valueOf(mROZmanimCalendar.getCalendar().get(Calendar.YEAR)))) {
-            year += " / " + mROZmanimCalendar.getCalendar().get(Calendar.YEAR);
+        if (!year.equals(String.valueOf(sROZmanimCalendar.getCalendar().get(Calendar.YEAR)))) {
+            year += " / " + sROZmanimCalendar.getCalendar().get(Calendar.YEAR);
         }
-        if (!hebrewMonth.equals(hebrewDateFormatter.formatMonth(mJewishDateInfo.getJewishCalendar())
+        if (!hebrewMonth.equals(hebrewDateFormatter.formatMonth(sJewishDateInfo.getJewishCalendar())
                 .replace("Tishrei", "Tishri")
                 .replace("Teves", "Tevet"))) {
-            hebrewMonth += " - " + hebrewDateFormatter.formatMonth(mJewishDateInfo.getJewishCalendar())
+            hebrewMonth += " - " + hebrewDateFormatter.formatMonth(sJewishDateInfo.getJewishCalendar())
                     .replace("Tishrei", "Tishri")
                     .replace("Teves", "Tevet");
         }
         if (Utils.isLocaleHebrew()) {
-            if (!hebrewYear.equals(hebrewDateFormatter.formatHebrewNumber(mJewishDateInfo.getJewishCalendar().getJewishYear()))) {
-                hebrewYear += " / " + hebrewDateFormatter.formatHebrewNumber(mJewishDateInfo.getJewishCalendar().getJewishYear());
+            if (!hebrewYear.equals(hebrewDateFormatter.formatHebrewNumber(sJewishDateInfo.getJewishCalendar().getJewishYear()))) {
+                hebrewYear += " / " + hebrewDateFormatter.formatHebrewNumber(sJewishDateInfo.getJewishCalendar().getJewishYear());
             }
         } else {
-            if (!hebrewYear.equals(String.valueOf(mJewishDateInfo.getJewishCalendar().getJewishYear()))) {
-                hebrewYear += " / " + mJewishDateInfo.getJewishCalendar().getJewishYear();
+            if (!hebrewYear.equals(String.valueOf(sJewishDateInfo.getJewishCalendar().getJewishYear()))) {
+                hebrewYear += " / " + sJewishDateInfo.getJewishCalendar().getJewishYear();
             }
         }
         String monthYear = month + " " + year;
@@ -1539,22 +1539,22 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         mLocationName.setText(mLocationResolver.getFullLocationName());
         String hebrewMonthYear = hebrewMonth + " " + hebrewYear;
         mHebrewMonthYear.setText(hebrewMonthYear);
-        mWeeklyParsha.setText(mJewishDateInfo.getThisWeeksParsha());
+        mWeeklyParsha.setText(sJewishDateInfo.getThisWeeksParsha());
         mWeeklyParsha.setVisibility(View.VISIBLE);
-        if (mJewishDateInfo.getThisWeeksHaftarah().length() == 0) {
+        if (sJewishDateInfo.getThisWeeksHaftarah().length() == 0) {
             mWeeklyHaftorah.setVisibility(View.GONE);
         } else {
             mWeeklyHaftorah.setVisibility(View.VISIBLE);
-            mWeeklyHaftorah.setText(mJewishDateInfo.getThisWeeksHaftarah());
+            mWeeklyHaftorah.setText(sJewishDateInfo.getThisWeeksHaftarah());
         }
-        mROZmanimCalendar.getCalendar().setTimeInMillis(backupCal.getTimeInMillis());
-        mJewishDateInfo.setCalendar(backupCal);
+        sROZmanimCalendar.getCalendar().setTimeInMillis(backupCal.getTimeInMillis());
+        sJewishDateInfo.setCalendar(backupCal);
         mCurrentDateShown = backupCal;
     }
 
     private String[] getShortZmanim() {
         List<ZmanListEntry> zmanim = new ArrayList<>();
-        addZmanim(zmanim, true, sSettingsPreferences, sSharedPreferences, mROZmanimCalendar, mJewishDateInfo, true);
+        addZmanim(zmanim, true, sSettingsPreferences, sSharedPreferences, sROZmanimCalendar, sJewishDateInfo, true);
 
         //filter out important zmanim
         List<ZmanListEntry> zmansToRemove = new ArrayList<>();
@@ -1628,8 +1628,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private void addTekufaTime(List<ZmanListEntry> zmanim, boolean shortStyle) {
         DateFormat zmanimFormat = new SimpleDateFormat(Utils.dateFormatPattern(false), Locale.getDefault());
         zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
-        ROZmanimCalendar zmanimCalendarCopy = mROZmanimCalendar.getCopy();
-        JewishDateInfo jewishDateInfoCopy = mJewishDateInfo.getCopy();
+        ROZmanimCalendar zmanimCalendarCopy = sROZmanimCalendar.getCopy();
+        JewishDateInfo jewishDateInfoCopy = sJewishDateInfo.getCopy();
         zmanimCalendarCopy.getCalendar().add(Calendar.DATE, 1);//check next day for tekufa, because the tekufa time can go back a day
         jewishDateInfoCopy.setCalendar(zmanimCalendarCopy.getCalendar());
         zmanimCalendarCopy.getCalendar().add(Calendar.DATE, -1);//reset the calendar to check for the current date
@@ -1690,8 +1690,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private void addAmudeiHoraahTekufaTime(List<ZmanListEntry> zmanim, boolean shortStyle) {
         DateFormat zmanimFormat = new SimpleDateFormat(Utils.dateFormatPattern(false), Locale.getDefault());
         zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
-        ROZmanimCalendar zmanimCalendarCopy = mROZmanimCalendar.getCopy();
-        JewishDateInfo jewishDateInfoCopy = mJewishDateInfo.getCopy();
+        ROZmanimCalendar zmanimCalendarCopy = sROZmanimCalendar.getCopy();
+        JewishDateInfo jewishDateInfoCopy = sJewishDateInfo.getCopy();
         zmanimCalendarCopy.getCalendar().add(Calendar.DATE, 1);//check next day for tekufa, because the tekufa time can go back a day
         jewishDateInfoCopy.setCalendar(zmanimCalendarCopy.getCalendar());
         zmanimCalendarCopy.getCalendar().add(Calendar.DATE, -1);//reset the calendar to check for the current date
@@ -1750,8 +1750,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         Date tekufa = null;
         Date aHTekufa = null;
 
-        ROZmanimCalendar zmanimCalendarCopy = mROZmanimCalendar.getCopy();
-        JewishDateInfo jewishDateInfoCopy = mJewishDateInfo.getCopy();
+        ROZmanimCalendar zmanimCalendarCopy = sROZmanimCalendar.getCopy();
+        JewishDateInfo jewishDateInfoCopy = sJewishDateInfo.getCopy();
 
         zmanimCalendarCopy.getCalendar().add(Calendar.DATE, 1);//check next day for tekufa, because the tekufa time can go back a day
         jewishDateInfoCopy.setCalendar(zmanimCalendarCopy.getCalendar());
@@ -1901,9 +1901,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             sShabbatMode = true;
             setShabbatBannerColors(true);
             mShabbatModeBanner.setVisibility(View.VISIBLE);
-            if (mNavView != null && mViewPager != null) {
-                mNavView.setVisibility(View.GONE);
-                mViewPager.setUserInputEnabled(false);
+            if (sNavView != null && sViewPager != null) {
+                sNavView.setVisibility(View.GONE);
+                sViewPager.setUserInputEnabled(false);
             }
             mActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -1926,8 +1926,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             mZmanimUpdater = () -> {
                 calendar.setTimeInMillis(new Date().getTime());
                 mCurrentDateShown.setTimeInMillis(calendar.getTime().getTime());
-                mROZmanimCalendar.setCalendar(calendar);
-                mJewishDateInfo.setCalendar(calendar);
+                sROZmanimCalendar.setCalendar(calendar);
+                sJewishDateInfo.setCalendar(calendar);
                 mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
                 setShabbatBannerColors(false);
                 if (sSharedPreferences.getBoolean("weeklyMode", false)) {
@@ -1956,14 +1956,14 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private void setShabbatBannerColors(boolean isFirstTime) {
         if (isFirstTime) {
             mCurrentDateShown.add(Calendar.DATE, 1);
-            mJewishDateInfo.setCalendar(mCurrentDateShown);
+            sJewishDateInfo.setCalendar(mCurrentDateShown);
         }
 
         boolean isShabbat = mCurrentDateShown.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY;
 
         StringBuilder sb = new StringBuilder();
 
-        switch (mJewishDateInfo.getJewishCalendar().getYomTovIndex()) {
+        switch (sJewishDateInfo.getJewishCalendar().getYomTovIndex()) {
             case JewishCalendar.PESACH:
                 for (int i = 0; i < 4; i++) {
                     sb.append(mContext.getString(R.string.PESACH));
@@ -2081,7 +2081,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
         if (isFirstTime) {
             mCurrentDateShown.add(Calendar.DATE, -1);
-            mJewishDateInfo.setCalendar(mCurrentDateShown);
+            sJewishDateInfo.setCalendar(mCurrentDateShown);
         }
     }
 
@@ -2145,9 +2145,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
         sShabbatMode = false;
         mShabbatModeBanner.setVisibility(View.GONE);
-        if (mNavView != null && mViewPager != null && sSettingsPreferences != null && !sSettingsPreferences.getBoolean("hideBottomBar", false)) {
-            mNavView.setVisibility(View.VISIBLE);
-            mViewPager.setUserInputEnabled(true);
+        if (sNavView != null && sViewPager != null && sSettingsPreferences != null && !sSettingsPreferences.getBoolean("hideBottomBar", false)) {
+            sNavView.setVisibility(View.VISIBLE);
+            sViewPager.setUserInputEnabled(true);
         }
         mHandler.removeCallbacksAndMessages(mZmanimUpdater);
         mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
@@ -2159,7 +2159,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         } else {
             mCalendarButton.setBackgroundColor(sSharedPreferences.getInt("CalButtonColor", 0x18267C));
         }
-        mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mROZmanimCalendar.getCalendar()));
+        mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sROZmanimCalendar.getCalendar()));
         mNextDate.setVisibility(View.VISIBLE);
         mPreviousDate.setVisibility(View.VISIBLE);
         if (binding != null) {
@@ -2204,8 +2204,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             super.onResume();
             return;
         }
-        mJewishDateInfo.getJewishCalendar().setInIsrael(sSharedPreferences.getBoolean("inIsrael", false));// check if the user changed the inIsrael setting
-        mJewishDateInfo.resetLocale();
+        sJewishDateInfo.getJewishCalendar().setInIsrael(sSharedPreferences.getBoolean("inIsrael", false));// check if the user changed the inIsrael setting
+        sJewishDateInfo.resetLocale();
         try {
             makamNames = new JSONArray(inputStreamToString(mActivity.getResources().openRawResource(Utils.isLocaleHebrew() ? R.raw.makam_names_he : R.raw.makam_names)));
         } catch (JSONException e) {
@@ -2214,7 +2214,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (sLastTimeUserWasInApp != null) {
             resolveElevationAndVisibleSunrise(() -> {// recreate the zmanim calendar object because it might have changed. Lat, Long, Elevation, or settings might have changed
                 instantiateZmanimCalendar();
-                mROZmanimCalendar.setCalendar(mCurrentDateShown);// make sure date doesn't change
+                sROZmanimCalendar.setCalendar(mCurrentDateShown);// make sure date doesn't change
                 setNextUpcomingZman();
                 if (sSharedPreferences.getBoolean("weeklyMode", false)) {
                     updateWeeklyTextViewTextColor();
@@ -2244,8 +2244,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (!DateUtils.isSameDay(mCurrentDateShown.getTime(), new Date())
                 && (new Date().getTime() - sLastTimeUserWasInApp.getTime()) > 7_200_000) {//two hours
             mCurrentDateShown.setTime(new Date());
-            mROZmanimCalendar.setCalendar(mCurrentDateShown); // no need to check for null pointers
-            mJewishDateInfo.setCalendar(mCurrentDateShown);
+            sROZmanimCalendar.setCalendar(mCurrentDateShown); // no need to check for null pointers
+            sJewishDateInfo.setCalendar(mCurrentDateShown);
             if (sSharedPreferences.getBoolean("weeklyMode", false)) {
                 updateWeeklyZmanim();
             } else {
@@ -2367,7 +2367,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     }
 
     private void showViewAfterLocationCall() {
-        synchronized (mJewishDateInfo) {
+        synchronized (sJewishDateInfo) {
             mActivity.runOnUiThread(() -> {
                 if (mMainRecyclerView != null && mMainRecyclerView.isFocusable()) {
                     if (sSharedPreferences.getBoolean("weeklyMode", false)) {
@@ -2382,10 +2382,10 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     resolveElevationAndVisibleSunrise(() -> {
                         if (mCurrentDateShown != null) {
                             instantiateZmanimCalendar();
-                            mROZmanimCalendar.setCalendar(mCurrentDateShown);
+                            sROZmanimCalendar.setCalendar(mCurrentDateShown);
                             setNextUpcomingZman();
                             createBackgroundThreadForNextUpcomingZman();
-                            mJewishDateInfo.setCalendar(mCurrentDateShown);
+                            sJewishDateInfo.setCalendar(mCurrentDateShown);
                             if (sSharedPreferences.getBoolean("weeklyMode", false)) {
                                 updateWeeklyTextViewTextColor();
                                 updateWeeklyZmanim();

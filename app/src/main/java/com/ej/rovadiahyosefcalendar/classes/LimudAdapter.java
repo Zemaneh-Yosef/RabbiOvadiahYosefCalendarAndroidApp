@@ -1,7 +1,5 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mJewishDateInfo;
-
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -29,16 +27,18 @@ public class LimudAdapter extends RecyclerView.Adapter<LimudAdapter.ZmanViewHold
     private List<LimudListEntry> limudim;
     private final Context context;
     private MaterialAlertDialogBuilder dialogBuilder;
+    private final JewishDateInfo mJewishDateInfo;
     private static final String[] masechtotYerushalmiTransliterated = { "Berakhot", "Peah", "Demai", "Kilayim", "Sheviit",
             "Terumot", "Maasrot", "Maaser Sheni", "Challah", "Orlah", "Bikkurim", "Shabbat", "Eruvin", "Pesachim",
             "Beitzah", "Rosh Hashanah", "Yoma", "Sukkah", "Taanit", "Shekalim", "Megillah", "Chagigah", "Moed Katan",
             "Yevamot", "Ketubot", "Sotah", "Nedarim", "Nazir", "Gittin", "Kiddushin", "Bava Kamma", "Bava Metzia",
             "Bava Batra", "Shevuot", "Makkot", "Sanhedrin", "Avodah Zarah", "Horayot", "Niddah", "No Daf Today" };
 
-    public LimudAdapter(Context context, List<LimudListEntry> limudim) {
+    public LimudAdapter(Context context, List<LimudListEntry> limudim, JewishDateInfo jewishDateInfo) {
         this.limudim = limudim;
         this.context = context;
         dialogBuilder = new MaterialAlertDialogBuilder(context);
+        mJewishDateInfo = jewishDateInfo;
         dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
         dialogBuilder.create();
     }

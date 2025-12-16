@@ -1,12 +1,12 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mJewishDateInfo;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentLocationName;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentTimeZoneID;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLatitude;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLongitude;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSettingsPreferences;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSharedPreferences;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sJewishDateInfo;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentLocationName;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentTimeZoneID;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sLatitude;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sLongitude;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sSettingsPreferences;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sSharedPreferences;
 
 import android.Manifest;
 import android.app.NotificationChannel;
@@ -282,7 +282,7 @@ public class Utils {
                                 });
 
                                 try {
-                                    ChaiTables chaiTables = new ChaiTables(context.getExternalFilesDir(null), sCurrentLocationName, mJewishDateInfo.getJewishCalendar());
+                                    ChaiTables chaiTables = new ChaiTables(context.getExternalFilesDir(null), sCurrentLocationName, sJewishDateInfo.getJewishCalendar());
                                     String chaiTableForThisYear = chaiTables.getFullChaiTable();
                                     byte[] chaiTablePayload = chaiTableForThisYear.getBytes(StandardCharsets.UTF_8); // use UTF-8 since each ASCII character will be 1 byte
 

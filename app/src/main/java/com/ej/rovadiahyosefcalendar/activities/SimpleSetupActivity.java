@@ -1,9 +1,9 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentLocationName;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLatitude;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLongitude;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentLocationName;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sLatitude;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sLongitude;
 
 import android.app.Activity;
 import android.content.Context;
@@ -161,7 +161,7 @@ public class SimpleSetupActivity extends AppCompatActivity {
             ProgressBar progressBar = findViewById(R.id.progress_bar);
             progressBar.setVisibility(View.VISIBLE);
             AtomicInteger userID = new AtomicInteger(getSharedPreferences(SHARED_PREF, MODE_PRIVATE).getInt("USER_ID", 10000));
-            ChaiTablesScraper scraper = new ChaiTablesScraper();
+            ChaiTablesScraper scraper = new ChaiTablesScraper(sCurrentLocationName);
             String link = ChaiTablesOptionsList.getChaiTablesLink(sLatitude, sLongitude, -5, 8, 0, jewishDate.getJewishYear(), userID.get());
             scraper.setUrl(link);
             scraper.setExternalFilesDir(getExternalFilesDir(null));

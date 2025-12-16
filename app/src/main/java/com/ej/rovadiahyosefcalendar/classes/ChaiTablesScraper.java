@@ -1,7 +1,5 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentLocationName;
-
 import android.os.Environment;
 
 import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
@@ -16,6 +14,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class ChaiTablesScraper extends Thread {
+
+    /**
+     * The name of the location to add to the file name.
+     */
+    private final String locationName;
 
     /**
      * The result of the highest point of elevation from the chai tables website.
@@ -44,7 +47,8 @@ public class ChaiTablesScraper extends Thread {
     /**
      * Boolean that you can set to only download the tables and not the elevation data
      * @see #writeZmanimTableToFile()
-     * @apiNote This is no longer used because the chai tables website did not provide the highest point of elevation.
+     * @apiNote This is no longer used because the chai tables website did not provide the highest point of elevation, just some random number chosen off of Google maps
+     * @see #getElevationData()
      */
     private boolean mOnlyDownloadTable;
 
@@ -56,6 +60,10 @@ public class ChaiTablesScraper extends Thread {
     private boolean mWebsiteError;
 
     private OnClickListeners.ScraperCallback callback;
+
+    public ChaiTablesScraper(String locationName) {
+        this.locationName = locationName;
+    }
 
     public void setCallback(OnClickListeners.ScraperCallback callback) {
         this.callback = callback;
@@ -236,7 +244,6 @@ public class ChaiTablesScraper extends Thread {
 
     /**
      * This method uses the Jsoup API to download the whole page into a csv file.
-     *
      * @throws IOException because of the Jsoup API if an error occurs
      */
     public void writeZmanimTableToFile() throws IOException {
@@ -245,7 +252,7 @@ public class ChaiTablesScraper extends Thread {
         if (!Environment.MEDIA_MOUNTED.equals(state)) {
             throw new IOException("Something went wrong writing to disk");
         }
-        String filename = "visibleSunriseTable" + sCurrentLocationName + jewishDate.getJewishYear() + ".csv";
+        String filename = "visibleSunriseTable" + locationName + jewishDate.getJewishYear() + ".csv";
         File file = new File(mExt, filename);
         FileOutputStream outputStream;
         try {

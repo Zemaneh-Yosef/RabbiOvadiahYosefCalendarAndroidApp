@@ -4,7 +4,7 @@ import static android.Manifest.permission.ACCESS_BACKGROUND_LOCATION;
 import static android.content.Context.ALARM_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.SHARED_PREF;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;

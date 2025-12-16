@@ -72,7 +72,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
 
-public class MainFragmentManager extends AppCompatActivity {
+public class MainFragmentManagerActivity extends AppCompatActivity {
 
     private boolean mBackHasBeenPressed = false;
     /**
@@ -86,9 +86,9 @@ public class MainFragmentManager extends AppCompatActivity {
     public static String sCurrentTimeZoneID = TimeZone.getDefault().getID();//e.g. "America/New_York"
 
     // KosherJava classes
-    public static ROZmanimCalendar mROZmanimCalendar = new ROZmanimCalendar(new GeoLocation());// avoid NPE
-    public final static JewishDateInfo mJewishDateInfo = new JewishDateInfo(false);
-    public static HebrewDateFormatter mHebrewDateFormatter = new HebrewDateFormatter();
+    public static ROZmanimCalendar sROZmanimCalendar = new ROZmanimCalendar(new GeoLocation());// avoid NPE
+    public final static JewishDateInfo sJewishDateInfo = new JewishDateInfo(false);
+    public static HebrewDateFormatter sHebrewDateFormatter = new HebrewDateFormatter();
 
     // Android classes:
     public static SharedPreferences sSharedPreferences;
@@ -102,8 +102,8 @@ public class MainFragmentManager extends AppCompatActivity {
      */
     public static Calendar mCurrentDateShown = Calendar.getInstance();
     public static Date sLastTimeUserWasInApp;
-    public static BottomNavigationView mNavView;
-    public static ViewPager2 mViewPager;
+    public static BottomNavigationView sNavView;
+    public static ViewPager2 sViewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,7 +124,7 @@ public class MainFragmentManager extends AppCompatActivity {
         appBarLayout.setStatusBarForeground(MaterialShapeDrawable.createWithElevationOverlay(this));
         getWindow().getDecorView().setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
 
-        mHebrewDateFormatter.setUseGershGershayim(false);
+        sHebrewDateFormatter.setUseGershGershayim(false);
         sSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         sSettingsPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -162,7 +162,7 @@ public class MainFragmentManager extends AppCompatActivity {
                         Locale helocale = new Locale("he", "IL");
                         Locale.setDefault(helocale);
                         setLocale(helocale);
-                        mJewishDateInfo.resetLocale();
+                        sJewishDateInfo.resetLocale();
                         sSharedPreferences.edit()
                                 .putBoolean("isZmanimInHebrew", true)
                                 .putBoolean("isZmanimEnglishTranslated", false)
@@ -173,9 +173,9 @@ public class MainFragmentManager extends AppCompatActivity {
                 }
             }
         }
-        mJewishDateInfo.getJewishCalendar().setInIsrael(sSharedPreferences.getBoolean("inIsrael", false));
+        sJewishDateInfo.getJewishCalendar().setInIsrael(sSharedPreferences.getBoolean("inIsrael", false));
         initSetupResult();
-        if (ChaiTables.visibleSunriseFileDoesNotExist(getExternalFilesDir(null), sCurrentLocationName, mJewishDateInfo.getJewishCalendar())
+        if (ChaiTables.visibleSunriseFileDoesNotExist(getExternalFilesDir(null), sCurrentLocationName, sJewishDateInfo.getJewishCalendar())
                 && sSharedPreferences.getBoolean("UseTable" + sCurrentLocationName, true)
                 && !sSharedPreferences.getBoolean("isSetup", false)
                 && savedInstanceState == null) {// it should only run if the user has not set up the app
@@ -185,24 +185,24 @@ public class MainFragmentManager extends AppCompatActivity {
         updateWidget();
 
         setSupportActionBar(new MaterialToolbar(this));
-        mViewPager = findViewById(R.id.viewPager);
+        sViewPager = findViewById(R.id.viewPager);
         ViewPagerAdapter adapter = new ViewPagerAdapter(this);
-        mViewPager.setAdapter(adapter);
-        mNavView = findViewById(R.id.nav_view);
+        sViewPager.setAdapter(adapter);
+        sNavView = findViewById(R.id.nav_view);
         // Set initial page to ZmanimFragment (index 1)
-        mViewPager.setCurrentItem(1, false);  // Set to page 1 without smooth scroll
+        sViewPager.setCurrentItem(1, false);  // Set to page 1 without smooth scroll
 
         // Set initial selection on BottomNavigationView to the corresponding menu item
-        mNavView.setSelectedItemId(R.id.navigation_zmanim);
+        sNavView.setSelectedItemId(R.id.navigation_zmanim);
 
-        if (mJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.TU_BESHVAT ||
-                (mJewishDateInfo.getJewishCalendar().getUpcomingParshah() == JewishCalendar.Parsha.BESHALACH &&
-                mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.TUESDAY)) {
-           mNavView.getOrCreateBadge(R.id.navigation_siddur).setNumber(1);
+        if (sJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.TU_BESHVAT ||
+                (sJewishDateInfo.getJewishCalendar().getUpcomingParshah() == JewishCalendar.Parsha.BESHALACH &&
+                sJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.TUESDAY)) {
+           sNavView.getOrCreateBadge(R.id.navigation_siddur).setNumber(1);
         }
 
         // Synchronize BottomNavigationView with ViewPager2
-        mViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+        sViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
@@ -226,21 +226,21 @@ public class MainFragmentManager extends AppCompatActivity {
                         materialToolbar.setSubtitle(getString(R.string.short_app_name));
                     }
                 }
-                mNavView.getMenu().getItem(position).setChecked(true);
+                sNavView.getMenu().getItem(position).setChecked(true);
             }
         });
 
         // Set up the BottomNavigationView to change ViewPager2 page on item click
-        mNavView.setOnItemSelectedListener(item -> {
+        sNavView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.navigation_limud) {
-                mViewPager.setCurrentItem(0, false);
+                sViewPager.setCurrentItem(0, false);
                 return true;
             } else if (itemId == R.id.navigation_zmanim) {
-                mViewPager.setCurrentItem(1, false);
+                sViewPager.setCurrentItem(1, false);
                 return true;
             } else if (itemId == R.id.navigation_siddur) {
-                mViewPager.setCurrentItem(2, false);
+                sViewPager.setCurrentItem(2, false);
                 return true;
             }
             return false;
@@ -251,13 +251,13 @@ public class MainFragmentManager extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (mViewPager.getCurrentItem() == 0 || mViewPager.getCurrentItem() == 2) {
-                    mViewPager.setCurrentItem(1);
+                if (sViewPager.getCurrentItem() == 0 || sViewPager.getCurrentItem() == 2) {
+                    sViewPager.setCurrentItem(1);
                     return;
                 }
                 if (!mBackHasBeenPressed) {
                     mBackHasBeenPressed = true;
-                    Toast.makeText(MainFragmentManager.this, R.string.press_back_again_to_close_the_app, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainFragmentManagerActivity.this, R.string.press_back_again_to_close_the_app, Toast.LENGTH_SHORT).show();
                     return;
                 }
                 finish();
@@ -285,7 +285,7 @@ public class MainFragmentManager extends AppCompatActivity {
         sSetupLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
-                    mJewishDateInfo.getJewishCalendar().setInIsrael(sSharedPreferences.getBoolean("inIsrael", false));
+                    sJewishDateInfo.getJewishCalendar().setInIsrael(sSharedPreferences.getBoolean("inIsrael", false));
                     sElevation = Double.parseDouble(sSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));
                 }
         );
@@ -321,10 +321,10 @@ public class MainFragmentManager extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        if (mNavView != null && mViewPager != null) {
+        if (sNavView != null && sViewPager != null) {
             if (sSettingsPreferences != null && sSettingsPreferences.getBoolean("hideBottomBar", false)) {
-                mNavView.setVisibility(View.GONE);
-                ViewCompat.setOnApplyWindowInsetsListener(mViewPager, (v, windowInsets) -> {
+                sNavView.setVisibility(View.GONE);
+                ViewCompat.setOnApplyWindowInsetsListener(sViewPager, (v, windowInsets) -> {
                     Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
                     ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
                     mlp.leftMargin = insets.left;
@@ -337,12 +337,12 @@ public class MainFragmentManager extends AppCompatActivity {
                 });
             } else {
                 if (!sShabbatMode) {
-                    mNavView.setVisibility(View.VISIBLE);
-                    ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) mViewPager.getLayoutParams();
+                    sNavView.setVisibility(View.VISIBLE);
+                    ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) sViewPager.getLayoutParams();
                     mlp.leftMargin = 0;
                     mlp.rightMargin = 0;
                     mlp.bottomMargin = 0;
-                    mViewPager.setLayoutParams(mlp);
+                    sViewPager.setLayoutParams(mlp);
                 }
             }
         }

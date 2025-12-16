@@ -1,6 +1,6 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.SHARED_PREF;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;

@@ -1,12 +1,12 @@
 package com.ej.rovadiahyosefcalendar.activities.ui.siddur;
 
 import static android.content.Context.MODE_PRIVATE;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mCurrentDateShown;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mJewishDateInfo;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.mROZmanimCalendar;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.materialToolbar;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sSettingsPreferences;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.mCurrentDateShown;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sJewishDateInfo;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sROZmanimCalendar;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.materialToolbar;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sSettingsPreferences;
 
 import android.app.DatePickerDialog;
 import android.content.Context;
@@ -181,7 +181,7 @@ public class SiddurFragment extends Fragment {
                 currentZmanimCalendar = new ROZmanimCalendar(new LocationResolver(requireContext(), requireActivity()).getRealtimeNotificationData(null, true));// the logic here is that because isForWidget returns right away. It is better than getting a callback for the current location and therefore causing the UI to delay. Besides, the location was already gotten by the Zmanim Fragment and saved when the user started the app, so there is no need to get it again.
             }
             currentZmanimCalendar.setCalendar(Calendar.getInstance());// make sure the date is for right now when the user gets back to the page
-            currentJewishDateInfo = new JewishDateInfo(mJewishDateInfo.getJewishCalendar().getInIsrael());
+            currentJewishDateInfo = new JewishDateInfo(sJewishDateInfo.getJewishCalendar().getInIsrael());
             if (currentZmanimCalendar.getSunset() != null && new Date().after(currentZmanimCalendar.getSunset())) {
                 isAfterSunset = true;
             }
@@ -191,8 +191,8 @@ public class SiddurFragment extends Fragment {
                 seeMore.setOnPreferenceClickListener(v -> {
                     showAllPrayers = !showAllPrayers;
                     mCurrentDateShown.setTime(new Date());
-                    mROZmanimCalendar.setCalendar(mCurrentDateShown);
-                    mJewishDateInfo.setCalendar(mCurrentDateShown);
+                    sROZmanimCalendar.setCalendar(mCurrentDateShown);
+                    sJewishDateInfo.setCalendar(mCurrentDateShown);
                     initView();
                     return true;
                 });
@@ -206,12 +206,12 @@ public class SiddurFragment extends Fragment {
             }
 
             Preference specialDay = findPreference("siddur_day_text");
-            String dateAndSpecialDay = mJewishDateInfo.getJewishCalendar().getGregorianCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault());
-            if (DateUtils.isSameDay(new Date(), mJewishDateInfo.getJewishCalendar().getGregorianCalendar().getTime())) {
+            String dateAndSpecialDay = sJewishDateInfo.getJewishCalendar().getGregorianCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault());
+            if (DateUtils.isSameDay(new Date(), sJewishDateInfo.getJewishCalendar().getGregorianCalendar().getTime())) {
                 dateAndSpecialDay += " (" + getString(R.string.today) + ")";
             }
-            dateAndSpecialDay += "\n" + mJewishDateInfo.getJewishCalendar().toString();
-            String specialDayString = mJewishDateInfo.getSpecialDay(false);
+            dateAndSpecialDay += "\n" + sJewishDateInfo.getJewishCalendar().toString();
+            String specialDayString = sJewishDateInfo.getSpecialDay(false);
             if (!specialDayString.isEmpty()) {
                 dateAndSpecialDay += "\n" + specialDayString;
             }
@@ -226,7 +226,7 @@ public class SiddurFragment extends Fragment {
 
             CustomPreferenceView selichot = findPreference("siddur_selichot");
             if (selichot != null) {
-                selichot.setVisible(showAllPrayers ? mJewishDateInfo.isSelichotSaid() : getSunsetBasedJewishDateInfo().isSelichotSaid() && isPrayerCurrentlySaid(selichot.getKey()));
+                selichot.setVisible(showAllPrayers ? sJewishDateInfo.isSelichotSaid() : getSunsetBasedJewishDateInfo().isSelichotSaid() && isPrayerCurrentlySaid(selichot.getKey()));
                 Date tzeit = currentZmanimCalendar.getTzeit();
                 Date solarMidnight = currentZmanimCalendar.getSolarMidnight();
                 Calendar midnightCal = Calendar.getInstance();
@@ -304,13 +304,13 @@ public class SiddurFragment extends Fragment {
             }
 
             Preference nightDayOfWeek = findPreference("siddur_night_text");
-            String nextDateAndSpecialDay = mJewishDateInfo.getJewishCalendar().getGregorianCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault());
-            if (DateUtils.isSameDay(new Date(), mJewishDateInfo.getJewishCalendar().getGregorianCalendar().getTime())) {
+            String nextDateAndSpecialDay = sJewishDateInfo.getJewishCalendar().getGregorianCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault());
+            if (DateUtils.isSameDay(new Date(), sJewishDateInfo.getJewishCalendar().getGregorianCalendar().getTime())) {
                 nextDateAndSpecialDay += " (" + getString(R.string.today) + ")";
             }
-            nextDateAndSpecialDay += "\n" + getString(R.string.after_sunset) + "\n" + mJewishDateInfo.tomorrow().getJewishCalendar().toString();
+            nextDateAndSpecialDay += "\n" + getString(R.string.after_sunset) + "\n" + sJewishDateInfo.tomorrow().getJewishCalendar().toString();
 
-            String nextSpecialDayString = mJewishDateInfo.tomorrow().getSpecialDay(false);
+            String nextSpecialDayString = sJewishDateInfo.tomorrow().getSpecialDay(false);
             if (!nextSpecialDayString.isEmpty()) {
                 nextDateAndSpecialDay += "\n" + nextSpecialDayString;
             }
@@ -781,7 +781,7 @@ public class SiddurFragment extends Fragment {
             if (isAfterSunset && adjust) {
                 currentJewishDateInfo.forward();
             }
-            JewishDateInfo jdi = showAllPrayers ? mJewishDateInfo.getCopy() : currentJewishDateInfo.getCopy();
+            JewishDateInfo jdi = showAllPrayers ? sJewishDateInfo.getCopy() : currentJewishDateInfo.getCopy();
             currentJewishDateInfo.setCalendar(Calendar.getInstance());
             return jdi;
         }
@@ -1006,7 +1006,7 @@ public class SiddurFragment extends Fragment {
          */
         private void startSiddurActivity(String prayer, boolean forNextDay) {
             if (forNextDay) {
-                mJewishDateInfo.forward();// forNextDay is only for the editable date. We will adjust the date for the current jdi object in the get method
+                sJewishDateInfo.forward();// forNextDay is only for the editable date. We will adjust the date for the current jdi object in the get method
             }
             if (prayer.equals(getString(R.string.mincha)) && isMinchaAfterSunsetBeforeTzeit) {
                 currentJewishDateInfo.back();// edge case for mincha after sunset but before tzeit so date has changed
@@ -1025,7 +1025,7 @@ public class SiddurFragment extends Fragment {
                     .putExtra("isAfterSunrise", new Date().after(currentZmanimCalendar.getSunrise()))// only used for selichot
                     .putExtra("isAfterChatzot", currentZmanimCalendar.isNowAfterHalachicSolarMidnight());// used for kriat shema she'al hamita and selichot
             if (forNextDay) {
-                mJewishDateInfo.back();
+                sJewishDateInfo.back();
             }
             if (prayer.equals(getString(R.string.mincha)) && isMinchaAfterSunsetBeforeTzeit) {
                 currentJewishDateInfo.forward();
@@ -1117,8 +1117,8 @@ public class SiddurFragment extends Fragment {
             Button previousDate = binding.prevDay;
             previousDate.setOnClickListener(v -> {
                 mCurrentDateShown.add(Calendar.DATE, -1);//subtract one day
-                mROZmanimCalendar.setCalendar(mCurrentDateShown);
-                mJewishDateInfo.setCalendar(mCurrentDateShown);
+                sROZmanimCalendar.setCalendar(mCurrentDateShown);
+                sJewishDateInfo.setCalendar(mCurrentDateShown);
                 updateView();
                 mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
             });
@@ -1133,8 +1133,8 @@ public class SiddurFragment extends Fragment {
             Button nextDate = binding.nextDay;
             nextDate.setOnClickListener(v -> {
                 mCurrentDateShown.add(Calendar.DATE, 1);//add one day
-                mROZmanimCalendar.setCalendar(mCurrentDateShown);
-                mJewishDateInfo.setCalendar(mCurrentDateShown);
+                sROZmanimCalendar.setCalendar(mCurrentDateShown);
+                sJewishDateInfo.setCalendar(mCurrentDateShown);
                 updateView();
                 mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
             });
@@ -1165,25 +1165,25 @@ public class SiddurFragment extends Fragment {
                         epoch.get(Calendar.HOUR_OF_DAY),
                         epoch.get(Calendar.MINUTE)
                     );
-                    mROZmanimCalendar.setCalendar(mCurrentDateShown);
-                    mJewishDateInfo.setCalendar(mCurrentDateShown);
+                    sROZmanimCalendar.setCalendar(mCurrentDateShown);
+                    sJewishDateInfo.setCalendar(mCurrentDateShown);
                     updateView();
                     mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
                 });
                 DatePickerDialog.OnDateSetListener onDateSetListener = (view, year, month, day) -> {
                     Calendar mUserChosenDate = Calendar.getInstance();
                     mUserChosenDate.set(year, month, day);
-                    mROZmanimCalendar.setCalendar(mUserChosenDate);
-                    mJewishDateInfo.setCalendar(mUserChosenDate);
-                    mCurrentDateShown = (Calendar) mROZmanimCalendar.getCalendar().clone();
+                    sROZmanimCalendar.setCalendar(mUserChosenDate);
+                    sJewishDateInfo.setCalendar(mUserChosenDate);
+                    mCurrentDateShown = (Calendar) sROZmanimCalendar.getCalendar().clone();
                     updateView();
                     mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
                 };
                 materialDatePicker.addOnNegativeButtonClickListener(selection -> {
-                    HebrewDayMonthYearPickerDialog hdmypd = new HebrewDayMonthYearPickerDialog(materialDatePicker, mActivity.getSupportFragmentManager(), mJewishDateInfo.getJewishCalendar());
-                    hdmypd.updateDate(mJewishDateInfo.getJewishCalendar().getGregorianYear(),
-                        mJewishDateInfo.getJewishCalendar().getGregorianMonth(),
-                        mJewishDateInfo.getJewishCalendar().getGregorianDayOfMonth());
+                    HebrewDayMonthYearPickerDialog hdmypd = new HebrewDayMonthYearPickerDialog(materialDatePicker, mActivity.getSupportFragmentManager(), sJewishDateInfo.getJewishCalendar());
+                    hdmypd.updateDate(sJewishDateInfo.getJewishCalendar().getGregorianYear(),
+                        sJewishDateInfo.getJewishCalendar().getGregorianMonth(),
+                        sJewishDateInfo.getJewishCalendar().getGregorianDayOfMonth());
                     hdmypd.setListener(onDateSetListener);
                     hdmypd.show(mActivity.getSupportFragmentManager(), null);
                 });

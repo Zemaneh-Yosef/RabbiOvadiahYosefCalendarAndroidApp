@@ -2,7 +2,7 @@ package com.ej.rovadiahyosefcalendar.notifications;
 
 import static android.content.Context.ALARM_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.SHARED_PREF;
 import static com.ej.rovadiahyosefcalendar.activities.OmerActivity.omerList;
 
 import android.app.AlarmManager;
@@ -26,7 +26,7 @@ import androidx.preference.PreferenceManager;
 
 import com.ej.rovadiahyosefcalendar.BuildConfig;
 import com.ej.rovadiahyosefcalendar.R;
-import com.ej.rovadiahyosefcalendar.activities.MainFragmentManager;
+import com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity;
 import com.ej.rovadiahyosefcalendar.activities.SiddurViewActivity;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
@@ -173,7 +173,7 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
             notificationManager.createNotificationChannel(channel);
         }
 
-        Intent notificationIntent = new Intent(context, MainFragmentManager.class);
+        Intent notificationIntent = new Intent(context, MainFragmentManagerActivity.class);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,

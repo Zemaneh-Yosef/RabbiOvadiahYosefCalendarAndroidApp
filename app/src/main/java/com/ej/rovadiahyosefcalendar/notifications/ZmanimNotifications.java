@@ -2,7 +2,7 @@ package com.ej.rovadiahyosefcalendar.notifications;
 
 import static android.content.Context.ALARM_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.SHARED_PREF;
 import static com.ej.rovadiahyosefcalendar.classes.ZmanimFactory.addZmanim;
 import static com.ej.rovadiahyosefcalendar.notifications.NotificationUtils.setExactAndAllowWhileIdle;
 

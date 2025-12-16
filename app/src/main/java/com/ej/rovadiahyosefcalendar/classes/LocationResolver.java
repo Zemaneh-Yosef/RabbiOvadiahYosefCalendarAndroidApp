@@ -4,11 +4,11 @@ import static android.Manifest.permission.ACCESS_BACKGROUND_LOCATION;
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentLocationName;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentTimeZoneID;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLatitude;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sLongitude;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentLocationName;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentTimeZoneID;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sLatitude;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sLongitude;
 
 import android.app.Activity;
 import android.content.Context;
@@ -28,7 +28,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.preference.PreferenceManager;
 
 import com.ej.rovadiahyosefcalendar.R;
-import com.ej.rovadiahyosefcalendar.activities.MainFragmentManager;
+import com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity;
 import com.kosherjava.zmanim.util.GeoLocation;
 
 import net.iakovlev.timeshape.TimeZoneEngine;
@@ -153,7 +153,7 @@ public class LocationResolver {
 
     /**
      * Resolves the current location name to be a latitude and longitude if the current location name is empty
-     * @see MainFragmentManager#sCurrentLocationName
+     * @see MainFragmentManagerActivity#sCurrentLocationName
      */
     public void resolveCurrentLocationName() {
         sCurrentLocationName = getLocationAsName();

@@ -1,7 +1,7 @@
 package com.ej.rovadiahyosefcalendar.notifications;
 
 import static android.content.Context.MODE_PRIVATE;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.SHARED_PREF;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -21,7 +21,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
 
 import com.ej.rovadiahyosefcalendar.R;
-import com.ej.rovadiahyosefcalendar.activities.MainFragmentManager;
+import com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity;
 import com.ej.rovadiahyosefcalendar.classes.SecondTreatment;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
@@ -62,7 +62,7 @@ public class ZmanNotification extends BroadcastReceiver {
             notificationManager.createNotificationChannel(channel);
         }
 
-        Intent notificationIntent = new Intent(context, MainFragmentManager.class);
+        Intent notificationIntent = new Intent(context, MainFragmentManagerActivity.class);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,

@@ -3,7 +3,7 @@ package com.ej.rovadiahyosefcalendar.notifications;
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.SHARED_PREF;
 
 import android.app.Activity;
 import android.app.ForegroundServiceStartNotAllowedException;
@@ -26,7 +26,7 @@ import androidx.core.app.ServiceCompat;
 import androidx.preference.PreferenceManager;
 
 import com.ej.rovadiahyosefcalendar.R;
-import com.ej.rovadiahyosefcalendar.activities.MainFragmentManager;
+import com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
@@ -66,6 +66,7 @@ public class NextZmanCountdownNotification extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        createNotificationChannel();// Always make the channel first!
         updateNotificationWithSkeleton();
         handler = new Handler();
         mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
@@ -118,7 +119,6 @@ public class NextZmanCountdownNotification extends Service {
             mROZmanimCalendar.setAteretTorahSunsetOffset(30);
         }
         mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false));
-        createNotificationChannel();
     }
 
     private void updateNotificationWithSkeleton() {
@@ -133,7 +133,7 @@ public class NextZmanCountdownNotification extends Service {
                 .setProgress(100, 0, false)
                 .setOngoing(true);
 
-        Intent notificationIntent = new Intent(this, MainFragmentManager.class);
+        Intent notificationIntent = new Intent(this, MainFragmentManagerActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
         builder.setContentIntent(pendingIntent);
 
@@ -267,7 +267,7 @@ public class NextZmanCountdownNotification extends Service {
                 .setProgress((int) timeTillNextZman, (int) remainingTime, false)
                 .setOngoing(true);
 
-        Intent notificationIntent = new Intent(this, MainFragmentManager.class);
+        Intent notificationIntent = new Intent(this, MainFragmentManagerActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
         builder.setContentIntent(pendingIntent);
 

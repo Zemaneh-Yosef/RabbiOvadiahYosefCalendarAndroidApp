@@ -1,7 +1,7 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.SHARED_PREF;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManager.sCurrentLocationName;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentLocationName;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -179,7 +179,7 @@ public class SetupElevationActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
         if (sharedPreferences.getBoolean("UseTable" + sCurrentLocationName, true)) {
             AtomicInteger userID = new AtomicInteger(sharedPreferences.getInt("USER_ID", 10000));
-            ChaiTablesScraper scraper = new ChaiTablesScraper();
+            ChaiTablesScraper scraper = new ChaiTablesScraper(sCurrentLocationName);
             String link = getSharedPreferences(SHARED_PREF, MODE_PRIVATE).getString("chaitablesLink" + sCurrentLocationName, "");
             scraper.setUrl(link);
             scraper.setExternalFilesDir(getExternalFilesDir(null));
