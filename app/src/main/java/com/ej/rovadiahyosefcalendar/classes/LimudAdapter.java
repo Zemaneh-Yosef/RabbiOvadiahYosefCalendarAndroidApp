@@ -65,6 +65,11 @@ public class LimudAdapter extends RecyclerView.Adapter<LimudAdapter.ZmanViewHold
         });
 
         holder.setIsRecyclable(false);
+        if (limudim.get(position).getLimudTitle().contains(context.getString(R.string.rambam_yomi_3_chapters))) {// special case because the string gets too long
+            holder.mMiddleTextView.setMaxLines(4);
+        } else {
+            holder.mMiddleTextView.setMaxLines(1);// set to 1, otherwise it won't shrink the text
+        }
 
         if (limudim.get(position) != null) {
             if (limudim.get(position).hasSource()) {// make name text bold

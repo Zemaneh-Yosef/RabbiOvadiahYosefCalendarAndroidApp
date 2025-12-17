@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId "com.EJ.ROvadiahYosefCalendar"
-        minSdk 25
+        minSdk 26
         compileSdk 36
         targetSdk 36
         versionCode 239

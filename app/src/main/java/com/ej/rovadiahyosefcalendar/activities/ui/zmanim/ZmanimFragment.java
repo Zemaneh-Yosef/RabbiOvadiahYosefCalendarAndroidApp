@@ -6,7 +6,7 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.Context.ALARM_SERVICE;
 import static android.content.Context.POWER_SERVICE;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.mCurrentDateShown;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentDateShown;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sHebrewDateFormatter;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sJewishDateInfo;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sNavView;
@@ -336,19 +336,19 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         Button dateBind = (previous ? binding.prevDay : binding.nextDay);
         dateBind.setOnClickListener(v -> {
             if (!sShabbatMode) {
-                mCurrentDateShown = (Calendar) sROZmanimCalendar.getCalendar().clone();//just get a calendar object with the same date as the current one
+                sCurrentDateShown = (Calendar) sROZmanimCalendar.getCalendar().clone();//just get a calendar object with the same date as the current one
 
                 int dateChange = (sSharedPreferences.getBoolean("weeklyMode", false) ? 7 : 1) * (previous ? -1 : 1);
-                mCurrentDateShown.add(Calendar.DATE, dateChange);
+                sCurrentDateShown.add(Calendar.DATE, dateChange);
 
-                sROZmanimCalendar.setCalendar(mCurrentDateShown);
-                sJewishDateInfo.setCalendar(mCurrentDateShown);
+                sROZmanimCalendar.setCalendar(sCurrentDateShown);
+                sJewishDateInfo.setCalendar(sCurrentDateShown);
                 if (sSharedPreferences.getBoolean("weeklyMode", false)) {
                     updateWeeklyZmanim();
                 } else {
                     updateDailyZmanim();
                 }
-                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
                 seeIfTablesNeedToBeUpdated(true);
             }
         });
@@ -372,26 +372,26 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     MaterialDatePicker<Long> materialDatePicker = builder
                             .setPositiveButtonText(R.string.ok)
                             .setNegativeButtonText(R.string.switch_calendar)
-                            .setSelection(mCurrentDateShown.getTimeInMillis())// can be in local timezone
+                            .setSelection(sCurrentDateShown.getTimeInMillis())// can be in local timezone
                             .build();
                     materialDatePicker.addOnPositiveButtonClickListener(selection -> {
                         Calendar epoch = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
                         epoch.setTimeInMillis(selection);
-                        mCurrentDateShown.set(
+                        sCurrentDateShown.set(
                                 epoch.get(Calendar.YEAR),
                                 epoch.get(Calendar.MONTH),
                                 epoch.get(Calendar.DATE),
                                 epoch.get(Calendar.HOUR_OF_DAY),
                                 epoch.get(Calendar.MINUTE)
                         );
-                        sROZmanimCalendar.setCalendar(mCurrentDateShown);
-                        sJewishDateInfo.setCalendar(mCurrentDateShown);
+                        sROZmanimCalendar.setCalendar(sCurrentDateShown);
+                        sJewishDateInfo.setCalendar(sCurrentDateShown);
                         if (sSharedPreferences.getBoolean("weeklyMode", false)) {
                             updateWeeklyZmanim();
                         } else {
                             updateDailyZmanim();
                         }
-                        mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+                        mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
                         seeIfTablesNeedToBeUpdated(true);
                     });
                     DatePickerDialog.OnDateSetListener onDateSetListener = (view, year, month, day) -> {
@@ -399,13 +399,13 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         mUserChosenDate.set(year, month, day);
                         sROZmanimCalendar.setCalendar(mUserChosenDate);
                         sJewishDateInfo.setCalendar(mUserChosenDate);
-                        mCurrentDateShown = (Calendar) sROZmanimCalendar.getCalendar().clone();
+                        sCurrentDateShown = (Calendar) sROZmanimCalendar.getCalendar().clone();
                         if (sSharedPreferences.getBoolean("weeklyMode", false)) {
                             updateWeeklyZmanim();
                         } else {
                             updateDailyZmanim();
                         }
-                        mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+                        mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
                         seeIfTablesNeedToBeUpdated(true);
                     };
                     materialDatePicker.addOnNegativeButtonClickListener(selection -> {
@@ -426,7 +426,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 }
             });
 
-            mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+            mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
         }
     }
 
@@ -484,15 +484,15 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             }
             mLocationResolver.acquireLatitudeAndLongitude(this);
             mLocationResolver.setTimeZoneID();
-            if (mCurrentDateShown != null && sROZmanimCalendar != null && mMainRecyclerView != null) {
-                mCurrentDateShown.setTime(new Date());
+            if (sCurrentDateShown != null && sROZmanimCalendar != null && mMainRecyclerView != null) {
+                sCurrentDateShown.setTime(new Date());
                 sJewishDateInfo.setCalendar(new GregorianCalendar());
                 resolveElevationAndVisibleSunrise(() -> {
                     instantiateZmanimCalendar();
                     setNextUpcomingZman();
                     sSharedPreferences.edit().putString("Full" + sROZmanimCalendar.getGeoLocation().getLocationName(), "").apply();
                     updateDailyZmanim();
-                    mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+                    mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
                 });
             }
             swipeRefreshLayout.setRefreshing(false);
@@ -939,7 +939,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 return true;
             } else if (itemId == R.id.shabbat_mode) {
                 if (!sShabbatMode && sROZmanimCalendar != null && mMainRecyclerView != null) {
-                    mCurrentDateShown.setTime(new Date());
+                    sCurrentDateShown.setTime(new Date());
                     sJewishDateInfo.setCalendar(new GregorianCalendar());
                     sROZmanimCalendar.setCalendar(new GregorianCalendar());
                     startShabbatMode();
@@ -1163,7 +1163,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (!birchatLevana.isEmpty()) {
             zmanim.add(new ZmanListEntry(birchatLevana));
             MoonTimes moonTimes = MoonTimes.compute()
-                    .on(mCurrentDateShown.getTime())
+                    .on(sCurrentDateShown.getTime())
                     .at(sLatitude, sLongitude)
                     .timezone(sCurrentTimeZoneID == null ? TimeZone.getDefault().getID() : sCurrentTimeZoneID)
                     .midnight()
@@ -1302,7 +1302,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     }
 
     public void setNextUpcomingZman() {
-        ZmanListEntry nextZman = ZmanimFactory.getNextUpcomingZman(mCurrentDateShown, sROZmanimCalendar, sJewishDateInfo, sSettingsPreferences, sSharedPreferences);
+        ZmanListEntry nextZman = ZmanimFactory.getNextUpcomingZman(sCurrentDateShown, sROZmanimCalendar, sJewishDateInfo, sSettingsPreferences, sSharedPreferences);
         if (nextZman == null || nextZman.getZman() == null) {
             nextZman = new ZmanListEntry("", new Date(System.currentTimeMillis() + 30_000), SecondTreatment.ROUND_EARLIER, "");// try again in 30 seconds
         }
@@ -1435,12 +1435,12 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     }
 
     private void updateWeeklyZmanim() {
-        Calendar backupCal = (Calendar) mCurrentDateShown.clone();
-        while (mCurrentDateShown.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
-            mCurrentDateShown.add(Calendar.DATE, -1);
+        Calendar backupCal = (Calendar) sCurrentDateShown.clone();
+        while (sCurrentDateShown.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
+            sCurrentDateShown.add(Calendar.DATE, -1);
         }
-        sROZmanimCalendar.setCalendar(mCurrentDateShown);//set the calendar to the sunday of that week
-        sJewishDateInfo.setCalendar(mCurrentDateShown);
+        sROZmanimCalendar.setCalendar(sCurrentDateShown);//set the calendar to the sunday of that week
+        sJewishDateInfo.setCalendar(sCurrentDateShown);
 
         HebrewDateFormatter hebrewDateFormatter = new HebrewDateFormatter();
         if (Utils.isLocaleHebrew()) {
@@ -1448,8 +1448,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
         List<TextView[]> weeklyInfo = Arrays.asList(mSunday, mMonday, mTuesday, mWednesday, mThursday, mFriday, mSaturday);
 
-        String month = mCurrentDateShown.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
-        String year = String.valueOf(mCurrentDateShown.get(Calendar.YEAR));
+        String month = sCurrentDateShown.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
+        String year = String.valueOf(sCurrentDateShown.get(Calendar.YEAR));
 
         String hebrewMonth = hebrewDateFormatter.formatMonth(sJewishDateInfo.getJewishCalendar())
                 .replace("Tishrei", "Tishri")
@@ -1549,7 +1549,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
         sROZmanimCalendar.getCalendar().setTimeInMillis(backupCal.getTimeInMillis());
         sJewishDateInfo.setCalendar(backupCal);
-        mCurrentDateShown = backupCal;
+        sCurrentDateShown = backupCal;
     }
 
     private String[] getShortZmanim() {
@@ -1925,10 +1925,10 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             Calendar calendar2 = (Calendar) calendar.clone();
             mZmanimUpdater = () -> {
                 calendar.setTimeInMillis(new Date().getTime());
-                mCurrentDateShown.setTimeInMillis(calendar.getTime().getTime());
+                sCurrentDateShown.setTimeInMillis(calendar.getTime().getTime());
                 sROZmanimCalendar.setCalendar(calendar);
                 sJewishDateInfo.setCalendar(calendar);
-                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
                 setShabbatBannerColors(false);
                 if (sSharedPreferences.getBoolean("weeklyMode", false)) {
                     updateWeeklyZmanim();
@@ -1955,11 +1955,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      */
     private void setShabbatBannerColors(boolean isFirstTime) {
         if (isFirstTime) {
-            mCurrentDateShown.add(Calendar.DATE, 1);
-            sJewishDateInfo.setCalendar(mCurrentDateShown);
+            sCurrentDateShown.add(Calendar.DATE, 1);
+            sJewishDateInfo.setCalendar(sCurrentDateShown);
         }
 
-        boolean isShabbat = mCurrentDateShown.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY;
+        boolean isShabbat = sCurrentDateShown.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY;
 
         StringBuilder sb = new StringBuilder();
 
@@ -1976,7 +1976,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 mShabbatModeBanner.setBackgroundColor(mContext.getColor(R.color.lightYellow));
                 mShabbatModeBanner.setTextColor(mContext.getColor(R.color.black));
                 mCalendarButton.setBackgroundColor(mContext.getColor(R.color.lightYellow));
-                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawableDark(mCurrentDateShown));
+                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawableDark(sCurrentDateShown));
                 break;
             case JewishCalendar.SHAVUOS:
                 for (int i = 0; i < 4; i++) {
@@ -1990,7 +1990,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 mShabbatModeBanner.setBackgroundColor(mContext.getColor(R.color.light_blue));
                 mShabbatModeBanner.setTextColor(mContext.getColor(R.color.white));
                 mCalendarButton.setBackgroundColor(mContext.getColor(R.color.light_blue));
-                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawableLight(mCurrentDateShown));
+                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawableLight(sCurrentDateShown));
                 break;
             case JewishCalendar.SUCCOS:
                 for (int i = 0; i < 4; i++) {
@@ -2004,7 +2004,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 mShabbatModeBanner.setBackgroundColor(mContext.getColor(R.color.light_green));
                 mShabbatModeBanner.setTextColor(mContext.getColor(R.color.black));
                 mCalendarButton.setBackgroundColor(mContext.getColor(R.color.light_green));
-                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawableDark(mCurrentDateShown));
+                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawableDark(sCurrentDateShown));
                 break;
             case JewishCalendar.SHEMINI_ATZERES:
                 for (int i = 0; i < 4; i++) {
@@ -2018,7 +2018,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 mShabbatModeBanner.setBackgroundColor(mContext.getColor(R.color.light_green));
                 mShabbatModeBanner.setTextColor(mContext.getColor(R.color.black));
                 mCalendarButton.setBackgroundColor(mContext.getColor(R.color.light_green));
-                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawableDark(mCurrentDateShown));
+                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawableDark(sCurrentDateShown));
                 break;
             case JewishCalendar.SIMCHAS_TORAH:
                 for (int i = 0; i < 4; i++) {
@@ -2032,7 +2032,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 mShabbatModeBanner.setBackgroundColor(mContext.getColor(R.color.green));
                 mShabbatModeBanner.setTextColor(mContext.getColor(R.color.black));
                 mCalendarButton.setBackgroundColor(mContext.getColor(R.color.green));
-                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawableDark(mCurrentDateShown));
+                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawableDark(sCurrentDateShown));
                 break;
             case JewishCalendar.ROSH_HASHANA:
                 for (int i = 0; i < 4; i++) {
@@ -2046,7 +2046,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 mShabbatModeBanner.setBackgroundColor(mContext.getColor(R.color.dark_red));
                 mShabbatModeBanner.setTextColor(mContext.getColor(R.color.white));
                 mCalendarButton.setBackgroundColor(mContext.getColor(R.color.dark_red));
-                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawableLight(mCurrentDateShown));
+                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawableLight(sCurrentDateShown));
                 break;
             case JewishCalendar.YOM_KIPPUR:
                 for (int i = 0; i < 4; i++) {
@@ -2060,7 +2060,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 mShabbatModeBanner.setBackgroundColor(mContext.getColor(R.color.white));
                 mShabbatModeBanner.setTextColor(mContext.getColor(R.color.black));
                 mCalendarButton.setBackgroundColor(mContext.getColor(R.color.white));
-                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawableDark(mCurrentDateShown));
+                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawableDark(sCurrentDateShown));
                 break;
             default:
                 String def = mContext.getString(R.string.SHABBAT_MODE) +
@@ -2076,12 +2076,12 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 mShabbatModeBanner.setBackgroundColor(mContext.getColor(R.color.dark_blue));
                 mShabbatModeBanner.setTextColor(mContext.getColor(R.color.white));
                 mCalendarButton.setBackgroundColor(mContext.getColor(R.color.dark_blue));
-                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawableLight(mCurrentDateShown));
+                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, getCurrentCalendarDrawableLight(sCurrentDateShown));
         }
 
         if (isFirstTime) {
-            mCurrentDateShown.add(Calendar.DATE, -1);
-            sJewishDateInfo.setCalendar(mCurrentDateShown);
+            sCurrentDateShown.add(Calendar.DATE, -1);
+            sJewishDateInfo.setCalendar(sCurrentDateShown);
         }
     }
 
@@ -2214,7 +2214,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (sLastTimeUserWasInApp != null) {
             resolveElevationAndVisibleSunrise(() -> {// recreate the zmanim calendar object because it might have changed. Lat, Long, Elevation, or settings might have changed
                 instantiateZmanimCalendar();
-                sROZmanimCalendar.setCalendar(mCurrentDateShown);// make sure date doesn't change
+                sROZmanimCalendar.setCalendar(sCurrentDateShown);// make sure date doesn't change
                 setNextUpcomingZman();
                 if (sSharedPreferences.getBoolean("weeklyMode", false)) {
                     updateWeeklyTextViewTextColor();
@@ -2241,11 +2241,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (sLastTimeUserWasInApp == null) {
             sLastTimeUserWasInApp = new Date();
         }
-        if (!DateUtils.isSameDay(mCurrentDateShown.getTime(), new Date())
+        if (!DateUtils.isSameDay(sCurrentDateShown.getTime(), new Date())
                 && (new Date().getTime() - sLastTimeUserWasInApp.getTime()) > 7_200_000) {//two hours
-            mCurrentDateShown.setTime(new Date());
-            sROZmanimCalendar.setCalendar(mCurrentDateShown); // no need to check for null pointers
-            sJewishDateInfo.setCalendar(mCurrentDateShown);
+            sCurrentDateShown.setTime(new Date());
+            sROZmanimCalendar.setCalendar(sCurrentDateShown); // no need to check for null pointers
+            sJewishDateInfo.setCalendar(sCurrentDateShown);
             if (sSharedPreferences.getBoolean("weeklyMode", false)) {
                 updateWeeklyZmanim();
             } else {
@@ -2292,7 +2292,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             if (!sShabbatMode) {
                 mCalendarButton.setBackgroundColor(sSharedPreferences.getBoolean("useDefaultCalButtonColor", true) ? mContext.getColor(R.color.dark_blue) : sSharedPreferences.getInt("CalButtonColor", 0x18267C));
             }
-            mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+            mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
         }
     }
 
@@ -2380,12 +2380,12 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         }
                     }
                     resolveElevationAndVisibleSunrise(() -> {
-                        if (mCurrentDateShown != null) {
+                        if (sCurrentDateShown != null) {
                             instantiateZmanimCalendar();
-                            sROZmanimCalendar.setCalendar(mCurrentDateShown);
+                            sROZmanimCalendar.setCalendar(sCurrentDateShown);
                             setNextUpcomingZman();
                             createBackgroundThreadForNextUpcomingZman();
-                            sJewishDateInfo.setCalendar(mCurrentDateShown);
+                            sJewishDateInfo.setCalendar(sCurrentDateShown);
                             if (sSharedPreferences.getBoolean("weeklyMode", false)) {
                                 updateWeeklyTextViewTextColor();
                                 updateWeeklyZmanim();
@@ -2397,7 +2397,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                                 binding.shimmerLayout.setVisibility(View.GONE);
                             }
                             if (mCalendarButton != null) {
-                                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, mCurrentDateShown));
+                                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
                             }
                             setAllNotifications();
                         }

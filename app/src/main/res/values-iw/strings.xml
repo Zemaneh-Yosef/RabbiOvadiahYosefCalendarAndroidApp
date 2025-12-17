@@ -675,4 +675,6 @@
     <string name="makam">"מקאם: "</string>
     <string name="justify_text">החלף יישור טקסט</string>
     <string name="by_rav_ben_chaim">הסכמת הרב אליהו בן חיים</string>
+    <string name="rambam_yomi_3_chapters">"רמב״ם יומי ג פרקים: "</string>
+    <string name="rambam_yomi">"רמב״ם יומי: "</string>
 </resources>

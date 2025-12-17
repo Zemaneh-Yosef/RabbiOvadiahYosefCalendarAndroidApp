@@ -100,7 +100,7 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
     /**
      * The current date shown in all activities.
      */
-    public static Calendar mCurrentDateShown = Calendar.getInstance();
+    public static Calendar sCurrentDateShown = Calendar.getInstance();
     public static Date sLastTimeUserWasInApp;
     public static BottomNavigationView sNavView;
     public static ViewPager2 sViewPager;

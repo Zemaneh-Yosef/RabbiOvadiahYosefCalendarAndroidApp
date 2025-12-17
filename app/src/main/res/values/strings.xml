@@ -108,7 +108,7 @@
     <string name="use_elevation">Use Elevation?</string>
     <string name="add_widget">Add widget</string>
     <string name="app_widget_description">This widget will show the current days most important zmanim</string>
-    <string name="zmanim">Zmanim</string>
+    <string name="zmanim">Zemanim</string>
     <string name="are_u_in_israel">Are you in Israel now?</string>
     <string name="if_you_are_in_israel_now_please_confirm_below">If you are in Israel now, please confirm below.</string>
     <string name="yes_i_am_in_israel">Yes, I am in Israel</string>
@@ -463,4 +463,6 @@
     <string name="makam">"Makam: "</string>
    <string name="justify_text">Toggle Text Justification</string>
    <string name="by_rav_ben_chaim">Haskama by Rabbi Eliyahu Ben Chaim</string>
+    <string name="rambam_yomi_3_chapters">"Rambam Yomi 3 Chapters: "</string>
+   <string name="rambam_yomi">"Rambam Yomi: "</string>
 </resources>
