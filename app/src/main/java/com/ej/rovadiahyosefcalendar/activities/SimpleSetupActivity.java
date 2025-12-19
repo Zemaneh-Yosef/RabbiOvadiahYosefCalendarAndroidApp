@@ -14,7 +14,6 @@ import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -184,12 +183,10 @@ public class SimpleSetupActivity extends AppCompatActivity {
 
                     for (ChaiTablesWebJava.ChaiTablesResult r : result) {
 
-                        Log.i("ChaiTablesElyahuImTired", r.getUrl());
-
                         File file = new File(baseDir, "visibleSunriseTable" + sCurrentLocationName + jewishYear + ".dat");
 
                         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
-                            oos.writeObject(r.getTimes());   // List<Long>
+                            oos.writeObject(r.times());   // List<Long>
                         }
 
                         jewishYear++;
@@ -197,7 +194,7 @@ public class SimpleSetupActivity extends AppCompatActivity {
 
                     Looper.prepare();
                     Toast.makeText(getApplicationContext(), getString(R.string.success), Toast.LENGTH_SHORT).show();
-                    mSharedPreferences.edit().putString("chaitablesLink" + sCurrentLocationName, result[0].getUrl()).apply(); //save the link for this location to automatically download again next time
+                    mSharedPreferences.edit().putString("chaitablesLink" + sCurrentLocationName, result[0].url()).apply(); //save the link for this location to automatically download again next time
 
                     mSharedPreferences.edit().putBoolean("UseTable" + sCurrentLocationName, true).apply();
                     mSharedPreferences.edit().putBoolean("showMishorSunrise" + sCurrentLocationName, false).apply();

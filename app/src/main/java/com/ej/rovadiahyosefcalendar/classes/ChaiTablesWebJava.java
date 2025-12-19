@@ -1,7 +1,5 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
-import android.util.Log;
-
 import java.io.IOException;
 import java.net.URL;
 import java.time.DayOfWeek;
@@ -10,7 +8,6 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -339,55 +336,7 @@ public final class ChaiTablesWebJava {
 		}
 	}
 
-	/**
-	 * Converts a Hebrew month index from KosherJava format (Nissan=1) to ChaiTables format (Tishrei=1).
-	 *
-	 * Mapping:
-	 * KosherJava -> ChaiTables
-	 * 1 (Nissan)   -> 7 (non-leap) or 8 (leap)
-	 * 2 (Iyar)     -> 8 (non-leap) or 9 (leap)
-	 * 3 (Sivan)    -> 9 (non-leap) or 10 (leap)
-	 * 4 (Tammuz)   -> 10 (non-leap) or 11 (leap)
-	 * 5 (Av)       -> 11 (non-leap) or 12 (leap)
-	 * 6 (Elul)     -> 12 (non-leap) or 13 (leap)
-	 * 7 (Tishrei)  -> 1
-	 * 8 (Cheshvan) -> 2
-	 * 9 (Kislev)   -> 3
-	 * 10 (Tevet)   -> 4
-	 * 11 (Shevat)  -> 5
-	 * 12 (Adar/Adar I) -> 6
-	 * 13 (Adar II, leap only) -> 7
-	 *
-	 * @param kosherjavaMonth month in KosherJava format (1-12 or 1-13 in leap years)
-	 * @param isLeapYear whether the year is a Hebrew leap year
-	 * @return month in ChaiTables format (1-12 or 1-13 in leap years)
-	 */
-	private static int convertMonthToChaiTablesIndex(int kosherjavaMonth, boolean isLeapYear) {
-		if (kosherjavaMonth <= 6) {
-			// Nissan through Elul (KosherJava 1-6)
-			// Non-leap: shift by 6 to get ChaiTables 7-12
-			// Leap: shift by 7 to get ChaiTables 8-13
-			return isLeapYear ? kosherjavaMonth + 7 : kosherjavaMonth + 6;
-		} else {
-			return kosherjavaMonth - 6;
-		}
-	}
+	public record ChaiTablesResult(String url, List<Long> times) {
 
-	public static final class ChaiTablesResult {
-		private final String url;
-		private final List<Long> times;
-
-		public ChaiTablesResult(String url, List<Long> times) {
-			this.url = url;
-			this.times = times;
-		}
-
-		public String getUrl() {
-			return url;
-		}
-
-		public List<Long> getTimes() {
-			return times;
-		}
 	}
 }
