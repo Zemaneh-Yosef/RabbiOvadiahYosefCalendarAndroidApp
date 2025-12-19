@@ -138,6 +138,9 @@ public class JewishCalendarWithExtraMethods extends JewishCalendar {
     public String toString() {
         HebrewDateFormatter hebrewDateFormatter = new HebrewDateFormatter();
         hebrewDateFormatter.setHebrewFormat(Utils.isLocaleHebrew());
-        return hebrewDateFormatter.format(this).replace("Teves", "Tevet").replace("Tishrei", "Tishri");
+        return hebrewDateFormatter.format(this)
+                .replace("Teves", "Tevet")
+                .replace("Tishrei", "Tishri")
+                .replace("Cheshvan", "Ḥeshvan");
     }
 }

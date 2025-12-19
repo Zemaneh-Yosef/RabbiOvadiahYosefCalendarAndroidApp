@@ -28,6 +28,7 @@ public class LimudAdapter extends RecyclerView.Adapter<LimudAdapter.ZmanViewHold
     private final Context context;
     private MaterialAlertDialogBuilder dialogBuilder;
     private final JewishDateInfo mJewishDateInfo;
+    private View.OnClickListener onSeeMoreClickListener = null;
     private static final String[] masechtotYerushalmiTransliterated = { "Berakhot", "Peah", "Demai", "Kilayim", "Sheviit",
             "Terumot", "Maasrot", "Maaser Sheni", "Challah", "Orlah", "Bikkurim", "Shabbat", "Eruvin", "Pesachim",
             "Beitzah", "Rosh Hashanah", "Yoma", "Sukkah", "Taanit", "Shekalim", "Megillah", "Chagigah", "Moed Katan",
@@ -37,6 +38,16 @@ public class LimudAdapter extends RecyclerView.Adapter<LimudAdapter.ZmanViewHold
     public LimudAdapter(Context context, List<LimudListEntry> limudim, JewishDateInfo jewishDateInfo) {
         this.limudim = limudim;
         this.context = context;
+        dialogBuilder = new MaterialAlertDialogBuilder(context);
+        mJewishDateInfo = jewishDateInfo;
+        dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
+        dialogBuilder.create();
+    }
+
+    public LimudAdapter(Context context, List<LimudListEntry> limudim, JewishDateInfo jewishDateInfo, View.OnClickListener onSeeMoreClickListener) {
+        this.limudim = limudim;
+        this.context = context;
+        this.onSeeMoreClickListener = onSeeMoreClickListener;
         dialogBuilder = new MaterialAlertDialogBuilder(context);
         mJewishDateInfo = jewishDateInfo;
         dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
@@ -85,6 +96,10 @@ public class LimudAdapter extends RecyclerView.Adapter<LimudAdapter.ZmanViewHold
             }
 
             holder.itemView.setOnClickListener(v -> {
+                if (limudim.get(position).getLimudTitle().equals(context.getString(R.string.see_more)) && onSeeMoreClickListener != null) {
+                    onSeeMoreClickListener.onClick(holder.itemView);
+                    return;
+                }
                 dialogBuilder = new MaterialAlertDialogBuilder(context);
                 if (limudim.get(position).getLimudTitle().contains(context.getString(R.string.daf_yomi))) {
                         String masechta = YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getMasechtaTransliterated();

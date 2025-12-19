@@ -19,7 +19,7 @@ public class MishnaYomi {
     private static final int NUM_MISHNAS = 4192;
     private static final int CYCLE_LENGTH = NUM_MISHNAS / 2;  // 2075 mishnas
 
-    private static final Map<String, int[]> UNITS = new LinkedHashMap<String, int[]>() {{
+    private static final Map<String, int[]> UNITS = new LinkedHashMap<>() {{
         put("Berachot", new int[]{5, 8, 6, 7, 5, 8, 5, 8, 5});
         put("Peah", new int[]{6, 8, 8, 11, 8, 11, 8, 9});
         put("Demai", new int[]{4, 5, 6, 7, 11, 12, 8});
@@ -219,71 +219,71 @@ public class MishnaYomi {
     }
 
     private static String replaceEnglishWithHebrew(String input) {
-        switch (input) {
-            case "Berachot": return "ברכות";
-            case "Peah": return "פאה";
-            case "Demai": return "דמאי";
-            case "Kilayim": return "כלאים";
-            case "Sheviit": return "שביעית";
-            case "Terumot": return "תרומות";
-            case "Maasrot": return "מעשרות";
-            case "Maaser Sheni": return "מעשר שני";
-            case "Challah": return "חלה";
-            case "Orlah": return "ערלה";
-            case "Bikurim": return "ביכורים";
-            case "Shabbat": return "שבת";
-            case "Eruvin": return "ערובין";
-            case "Pesachim": return "פסחים";
-            case "Shekalim": return "שקלים";
-            case "Yoma": return "יומא";
-            case "Sukkah": return "סוכה";
-            case "Beitzah": return "ביצה";
-            case "Rosh Hashanah": return "ראש השנה";
-            case "Taanit": return "תענית";
-            case "Megillah": return "מגילה";
-            case "Moed Katan": return "מועד קטן";
-            case "Chagigah": return "חגיגה";
-            case "Yevamot": return "יבמות";
-            case "Ketubot": return "כתובות";
-            case "Nedarim": return "נדרים";
-            case "Nazir": return "נזיר";
-            case "Sotah": return "סוטה";
-            case "Gittin": return "גיטין";
-            case "Kiddushin": return "קידושין";
-            case "Bava Kamma": return "בבא קמא";
-            case "Bava Metzia": return "בבא מציעא";
-            case "Bava Batra": return "בבא בתרא";
-            case "Sanhedrin": return "סנהדרין";
-            case "Makkot": return "מכות";
-            case "Shevuot": return "שבועות";
-            case "Eduyot": return "עדויות";
-            case "Avodah Zarah": return "עבודה זרה";
-            case "Avot": return "אבות";
-            case "Horiyot": return "הוריות";
-            case "Zevachim": return "זבחים";
-            case "Menachot": return "מנחות";
-            case "Chullin": return "חולין";
-            case "Bechorot": return "בכורות";
-            case "Arachin": return "ערכין";
-            case "Temurah": return "תמורה";
-            case "Keritot": return "כריתות";
-            case "Meilah": return "מעילה";
-            case "Tamid": return "תמיד";
-            case "Midot": return "מדות";
-            case "Kinnim": return "קינים";
-            case "Keilim": return "כלים";
-            case "Ohalot": return "אהלות";
-            case "Negaim": return "נגעים";
-            case "Parah": return "פרה";
-            case "Tahorot": return "טהרות";
-            case "Mikvaot": return "מקואות";
-            case "Niddah": return "נדה";
-            case "Machshirin": return "מכשירין";
-            case "Zavim": return "זבים";
-            case "Tevul Yom": return "טבול יום";
-            case "Yadayim": return "ידים";
-            case "Uktzin": return "עוקצין";
-            default: return input; // If no match is found, return the original string
-        }
+        return switch (input) {
+            case "Berachot" -> "ברכות";
+            case "Peah" -> "פאה";
+            case "Demai" -> "דמאי";
+            case "Kilayim" -> "כלאים";
+            case "Sheviit" -> "שביעית";
+            case "Terumot" -> "תרומות";
+            case "Maasrot" -> "מעשרות";
+            case "Maaser Sheni" -> "מעשר שני";
+            case "Challah" -> "חלה";
+            case "Orlah" -> "ערלה";
+            case "Bikurim" -> "ביכורים";
+            case "Shabbat" -> "שבת";
+            case "Eruvin" -> "ערובין";
+            case "Pesachim" -> "פסחים";
+            case "Shekalim" -> "שקלים";
+            case "Yoma" -> "יומא";
+            case "Sukkah" -> "סוכה";
+            case "Beitzah" -> "ביצה";
+            case "Rosh Hashanah" -> "ראש השנה";
+            case "Taanit" -> "תענית";
+            case "Megillah" -> "מגילה";
+            case "Moed Katan" -> "מועד קטן";
+            case "Chagigah" -> "חגיגה";
+            case "Yevamot" -> "יבמות";
+            case "Ketubot" -> "כתובות";
+            case "Nedarim" -> "נדרים";
+            case "Nazir" -> "נזיר";
+            case "Sotah" -> "סוטה";
+            case "Gittin" -> "גיטין";
+            case "Kiddushin" -> "קידושין";
+            case "Bava Kamma" -> "בבא קמא";
+            case "Bava Metzia" -> "בבא מציעא";
+            case "Bava Batra" -> "בבא בתרא";
+            case "Sanhedrin" -> "סנהדרין";
+            case "Makkot" -> "מכות";
+            case "Shevuot" -> "שבועות";
+            case "Eduyot" -> "עדויות";
+            case "Avodah Zarah" -> "עבודה זרה";
+            case "Avot" -> "אבות";
+            case "Horiyot" -> "הוריות";
+            case "Zevachim" -> "זבחים";
+            case "Menachot" -> "מנחות";
+            case "Chullin" -> "חולין";
+            case "Bechorot" -> "בכורות";
+            case "Arachin" -> "ערכין";
+            case "Temurah" -> "תמורה";
+            case "Keritot" -> "כריתות";
+            case "Meilah" -> "מעילה";
+            case "Tamid" -> "תמיד";
+            case "Midot" -> "מדות";
+            case "Kinnim" -> "קינים";
+            case "Keilim" -> "כלים";
+            case "Ohalot" -> "אהלות";
+            case "Negaim" -> "נגעים";
+            case "Parah" -> "פרה";
+            case "Tahorot" -> "טהרות";
+            case "Mikvaot" -> "מקואות";
+            case "Niddah" -> "נדה";
+            case "Machshirin" -> "מכשירין";
+            case "Zavim" -> "זבים";
+            case "Tevul Yom" -> "טבול יום";
+            case "Yadayim" -> "ידים";
+            case "Uktzin" -> "עוקצין";
+            default -> input; // If no match is found, return the original string
+        };
     }
 }
