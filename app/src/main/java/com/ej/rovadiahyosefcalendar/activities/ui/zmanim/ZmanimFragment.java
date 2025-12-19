@@ -1537,7 +1537,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         mHebrewMonthYear.setText(hebrewMonthYear);
         mWeeklyParsha.setText(sJewishDateInfo.getThisWeeksParsha());
         mWeeklyParsha.setVisibility(View.VISIBLE);
-        if (sJewishDateInfo.getThisWeeksHaftarah().isEmpty()) {
+        if (sJewishDateInfo.getThisWeeksHaftarah().length() == 0) {
             mWeeklyHaftorah.setVisibility(View.GONE);
         } else {
             mWeeklyHaftorah.setVisibility(View.VISIBLE);

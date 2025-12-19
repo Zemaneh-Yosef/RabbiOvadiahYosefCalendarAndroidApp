@@ -25,7 +25,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.classes.ChafetzChayimYomiCalculator;
+import com.ej.rovadiahyosefcalendar.classes.HalachaYomi;
 import com.ej.rovadiahyosefcalendar.classes.DailyMishnehTorah;
+import com.ej.rovadiahyosefcalendar.classes.HalachaSegment;
 import com.ej.rovadiahyosefcalendar.classes.HebrewDayMonthYearPickerDialog;
 import com.ej.rovadiahyosefcalendar.classes.LimudAdapter;
 import com.ej.rovadiahyosefcalendar.classes.LimudListEntry;
@@ -104,9 +106,7 @@ public class LimudFragment extends Fragment {
         } else {
             sb.append("      ");
         }
-        sb.append(sJewishDateInfo.getJewishCalendar().toString()
-                .replace("Teves", "Tevet")
-                .replace("Tishrei", "Tishri"));
+        sb.append(sJewishDateInfo.getJewishCalendar().toString());
         if (binding != null) {
             binding.hillulotDate.setText(sb.toString());
         }
@@ -142,7 +142,13 @@ public class LimudFragment extends Fragment {
 
     private void updateLists() {
         limudRV.setAdapter(new LimudAdapter(mContext, getLimudList(), sJewishDateInfo));
-        hillulotRV.setAdapter(new LimudAdapter(mContext, getHillulotList(), sJewishDateInfo));
+        List<LimudListEntry> list = getHillulotList();
+        hillulotRV.setAdapter(new LimudAdapter(mContext, list, sJewishDateInfo));
+        if (list.isEmpty()) {
+            hillulotRV.setVisibility(View.GONE);
+        } else {
+            hillulotRV.setVisibility(View.VISIBLE);
+        }
     }
 
     private List<LimudListEntry> getLimudList() {
@@ -269,6 +275,20 @@ public class LimudFragment extends Fragment {
                 sCurrentDateShown.get(Calendar.YEAR),
                 sCurrentDateShown.get(Calendar.MONTH) + 1,
                 sCurrentDateShown.get(Calendar.DATE));
+
+        HalachaYomi halachaYomi = HalachaYomi.INSTANCE;
+        List<HalachaSegment> halachaSegments = halachaYomi.getDailyLearning(currentDate);
+        if (halachaSegments != null) {
+            StringBuilder halacha = new StringBuilder();
+            halacha.append(halachaSegments.get(0).getBookName()).append(" ");// book name shouldn't change on the same day
+            sHebrewDateFormatter.setHebrewFormat(true);
+            for (HalachaSegment segment : halachaSegments) {
+                halacha.append(sHebrewDateFormatter.formatHebrewNumber(segment.getSiman())).append(" ").append(segment.getSeifim()).append(", ");
+            }
+            sHebrewDateFormatter.setHebrewFormat(false);
+            halacha.delete(halacha.length() - 2, halacha.length());// remove the last comma and space
+            limudim.add(new LimudListEntry(getString(R.string.daily_halacha) + " " + halacha));
+        }
 
         DailyMishnehTorah dailyMishnehTorah = DailyMishnehTorah.INSTANCE;
 
