@@ -97,7 +97,7 @@ public class ChaiTables {
      * @return True if the visible sunrise file exists in the external files directory, false otherwise.
      */
     public boolean visibleSunriseFileExists() {
-        File sunriseCSV = new File(externalFilesDir, "visibleSunriseTable" + currentLocation + jewishCalendar.getJewishYear() + ".csv");
+        File sunriseCSV = new File(externalFilesDir, "visibleSunriseTable" + currentLocation + jewishCalendar.getJewishYear() + ".dat");
         return sunriseCSV.isFile();
     }
 

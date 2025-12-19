@@ -156,7 +156,7 @@ public class LocationResolver {
      * @see MainFragmentManagerActivity#sCurrentLocationName
      */
     public void resolveCurrentLocationName() {
-        sCurrentLocationName = getLocationAsName();
+        sCurrentLocationName = getFullLocationName(true);
         if (sCurrentLocationName.isEmpty()) {
             String lat = String.format(Locale.getDefault(), "%.3f", sLatitude);
             String longitude = String.format(Locale.getDefault(), "%.3f", sLongitude);
@@ -166,7 +166,7 @@ public class LocationResolver {
         mSharedPreferences.edit().putString("name", sCurrentLocationName).apply();
     }
 
-    public String getFullLocationName() {
+    public String getFullLocationName(boolean postalCode) {
         StringBuilder result = new StringBuilder();
         List<Address> addresses = null;
         try {
@@ -254,90 +254,11 @@ public class LocationResolver {
                     result.deleteCharAt(result.length() - 2);
                 }
 
-                String postalCode = addresses.get(0).getPostalCode();
-                if (postalCode != null) {
-                    result.append(" (").append(postalCode).append(")");
-                }
-            }
-        }
-        return result.toString().trim();
-    }
-
-    /**
-     * This method uses the Geocoder class to try and get the current location's name. I have
-     * tried to make my results similar to the zmanim app by JGindin on the Play Store. In america,
-     * it will get the current location by state and city. Whereas, in other areas of the world, it
-     * will get the country and the city.
-     *
-     * @return a string containing the name of the current city and state/country that the user is located in.
-     * @see Geocoder
-     */
-    public String getLocationAsName() {
-        StringBuilder result = new StringBuilder();
-        List<Address> addresses = null;
-        try {
-            if (Utils.isLocaleHebrew()) {
-                addresses = mGeocoder.getFromLocation(sLatitude, sLongitude, 5);
-            } else {
-                addresses = mGeocoder.getFromLocation(sLatitude, sLongitude, 1);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (addresses != null && !addresses.isEmpty()) {
-
-            if (Utils.isLocaleHebrew()) {
-                Address address = null;
-                for (Address add : addresses) {
-                    if (add.getLocale().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
-                        address = add;
+                if (postalCode) {
+                    String postalCodeNum = addresses.get(0).getPostalCode();
+                    if (postalCodeNum != null) {
+                        result.append(" (").append(postalCodeNum).append(")");
                     }
-                }
-                String city = null;
-                if (address != null) {
-                    city = address.getLocality();
-                }
-                if (city != null) {
-                    result.append(city).append(", ");
-                }
-
-                String state = null;
-                if (address != null) {
-                    state = address.getAdminArea();
-                }
-                if (state != null) {
-                    result.append(state);
-                }
-
-                if (result.toString().endsWith(", ")) {
-                    result.deleteCharAt(result.length() - 2);
-                }
-
-                if (city == null && state == null) {
-                    String country = null;
-                    if (address != null) {
-                        country = address.getCountryName();
-                    }
-                    result.append(country);
-                }
-            } else {
-                String city = addresses.get(0).getLocality();
-                if (city != null) {
-                    result.append(city).append(", ");
-                }
-
-                String state = addresses.get(0).getAdminArea();
-                if (state != null) {
-                    result.append(state);
-                }
-
-                if (result.toString().endsWith(", ")) {
-                    result.deleteCharAt(result.length() - 2);
-                }
-
-                if (city == null && state == null) {
-                    String country = addresses.get(0).getCountryName();
-                    result.append(country);
                 }
             }
         }
@@ -366,7 +287,7 @@ public class LocationResolver {
             Address first = address.get(0);
             sLatitude = first.getLatitude();
             sLongitude = first.getLongitude();
-            sCurrentLocationName = getLocationAsName();
+            sCurrentLocationName = getFullLocationName(true);
             mLocationName = sCurrentLocationName;
             mSharedPreferences.edit()
                     .putString("oldZipcode", zipcode)

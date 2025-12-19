@@ -52,7 +52,7 @@ public class ChaiTablesOptionsList {
      * This is the index for the selected value of the metropolitan area in the String array.
      * This is needed for the parameter of the chaitables link called: cgi_USAcities1
      */
-    private static int indexOfMetroArea = 0;
+    public static int indexOfMetroArea = 0;
 
     /**
      * STEP 1

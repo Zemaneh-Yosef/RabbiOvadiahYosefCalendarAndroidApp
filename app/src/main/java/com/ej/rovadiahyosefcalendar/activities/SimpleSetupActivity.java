@@ -2,6 +2,7 @@ package com.ej.rovadiahyosefcalendar.activities;
 
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.SHARED_PREF;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentLocationName;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentTimeZoneID;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sLatitude;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sLongitude;
 
@@ -12,6 +13,8 @@ import android.content.SharedPreferences;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -33,16 +36,21 @@ import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesCountries;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesOptionsList;
-import com.ej.rovadiahyosefcalendar.classes.ChaiTablesScraper;
+import com.ej.rovadiahyosefcalendar.classes.ChaiTablesWebJava;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
+import com.kosherjava.zmanim.util.GeoLocation;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.TimeZone;
 
 public class SimpleSetupActivity extends AppCompatActivity {
 
@@ -63,7 +71,6 @@ public class SimpleSetupActivity extends AppCompatActivity {
             materialToolbar.setSubtitle("");
         }
 
-        JewishDate jewishDate = new JewishDate();
         LocationResolver locationResolver = new LocationResolver(this, this);
         locationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
         TextView locationTextView = findViewById(R.id.location);
@@ -158,41 +165,54 @@ public class SimpleSetupActivity extends AppCompatActivity {
         });
 
         downloadButton.setOnClickListener(v -> {
+            downloadButton.setEnabled(false);
+
             ProgressBar progressBar = findViewById(R.id.progress_bar);
             progressBar.setVisibility(View.VISIBLE);
-            AtomicInteger userID = new AtomicInteger(getSharedPreferences(SHARED_PREF, MODE_PRIVATE).getInt("USER_ID", 10000));
-            ChaiTablesScraper scraper = new ChaiTablesScraper(sCurrentLocationName);
-            String link = ChaiTablesOptionsList.getChaiTablesLink(sLatitude, sLongitude, -5, 8, 0, jewishDate.getJewishYear(), userID.get());
-            scraper.setUrl(link);
-            scraper.setExternalFilesDir(getExternalFilesDir(null));
-            scraper.setJewishDate(jewishDate);
-            downloadButton.setEnabled(false);
-            Thread thread = new Thread(() -> locationResolver.getElevationFromWebService(new Handler(getMainLooper()), scraper, () -> {
-                if (scraper.isSearchRadiusTooSmall()) {
-                    Toast.makeText(getApplicationContext(), R.string.something_went_wrong_did_you_choose_the_right_area, Toast.LENGTH_SHORT).show();
-                    recreate();
-                } else if (scraper.isWebsiteError()) {
-                    Toast.makeText(getApplicationContext(), R.string.something_went_wrong_connecting_to_the_website_please_try_again_later, Toast.LENGTH_SHORT).show();
-                    recreate();
-                } else {
+
+            JewishDate jDate = new JewishDate();
+            GeoLocation geoLocation = new GeoLocation("", sLatitude, sLongitude, TimeZone.getTimeZone(sCurrentTimeZoneID));
+            ChaiTablesWebJava betterScraper = new ChaiTablesWebJava(geoLocation, jDate);
+            betterScraper.setOtherData(mCountry.label, ChaiTablesOptionsList.indexOfMetroArea);
+
+            Thread thread = new Thread(() -> {
+                try {
+                    ChaiTablesWebJava.ChaiTablesResult[] result = betterScraper.formatInterfacer();
+
+                    File baseDir = context.getExternalFilesDir(null);  // Only Android-specific call
+                    int jewishYear = jDate.getJewishYear();
+
+                    for (ChaiTablesWebJava.ChaiTablesResult r : result) {
+
+                        Log.i("ChaiTablesElyahuImTired", r.getUrl());
+
+                        File file = new File(baseDir, "visibleSunriseTable" + sCurrentLocationName + jewishYear + ".dat");
+
+                        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
+                            oos.writeObject(r.getTimes());   // List<Long>
+                        }
+
+                        jewishYear++;
+                    }
+
+                    Looper.prepare();
                     Toast.makeText(getApplicationContext(), getString(R.string.success), Toast.LENGTH_SHORT).show();
-                    userID.getAndIncrement();
-                    mSharedPreferences.edit().putInt("USER_ID", userID.get()).apply();
-                    mSharedPreferences.edit().putString("chaitablesLink" + sCurrentLocationName, link).apply();//save the link for this location to automatically download again next time
+                    mSharedPreferences.edit().putString("chaitablesLink" + sCurrentLocationName, result[0].getUrl()).apply(); //save the link for this location to automatically download again next time
+
+                    mSharedPreferences.edit().putBoolean("UseTable" + sCurrentLocationName, true).apply();
+                    mSharedPreferences.edit().putBoolean("showMishorSunrise" + sCurrentLocationName, false).apply();
+                    mSharedPreferences.edit().putBoolean("isSetup", true).apply();
+                    mSharedPreferences.edit().putBoolean("useElevation", true).apply();
+                    Intent returnIntent = new Intent();
+                    returnIntent.putExtra("elevation", mSharedPreferences.getString("elevation" + sCurrentLocationName, ""));
+                    setResult(Activity.RESULT_OK, returnIntent);
+
+                    finish();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
-                mSharedPreferences.edit().putBoolean("UseTable" + sCurrentLocationName, true).apply();
-                mSharedPreferences.edit().putBoolean("showMishorSunrise" + sCurrentLocationName, false).apply();
-                mSharedPreferences.edit().putBoolean("isSetup", true).apply();
-                mSharedPreferences.edit().putBoolean("useElevation", true).apply();
-                Intent returnIntent = new Intent();
-                returnIntent.putExtra("elevation", mSharedPreferences.getString("elevation" + sCurrentLocationName, ""));
-                setResult(Activity.RESULT_OK, returnIntent);
-//                if (mSharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
-//                    startActivity(new Intent(getBaseContext(), TipScreenActivity.class));
-//                    mSharedPreferences.edit().putBoolean("hasNotShownTipScreen", false).apply();
-//                }
-                finish();
-            }));
+            });
+
             thread.start();
         });
 
@@ -211,10 +231,6 @@ public class SimpleSetupActivity extends AppCompatActivity {
                         Intent returnIntent = new Intent();
                         returnIntent.putExtra("elevation", mSharedPreferences.getString("elevation" + sCurrentLocationName, ""));
                         setResult(Activity.RESULT_OK, returnIntent);
-//                        if (mSharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
-//                            startActivity(new Intent(getBaseContext(), TipScreenActivity.class));
-//                            mSharedPreferences.edit().putBoolean("hasNotShownTipScreen", false).apply();
-//                        }
                         finish();
                     }));
             thread.start();

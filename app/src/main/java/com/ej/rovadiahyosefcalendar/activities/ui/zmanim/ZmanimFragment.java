@@ -1019,11 +1019,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private List<ZmanListEntry> getZmanimList(boolean add66MisheyakirZman) {
         List<ZmanListEntry> zmanim = new ArrayList<>();
 
-        String locationName = sSharedPreferences.getString("Full" + sROZmanimCalendar.getGeoLocation().getLocationName(), "");
-        if (locationName.isEmpty()) {
-            locationName = mLocationResolver.getFullLocationName();
-            sSharedPreferences.edit().putString("Full" + sROZmanimCalendar.getGeoLocation().getLocationName(), locationName).apply();
-        }
+        String locationName = mLocationResolver.getFullLocationName(true);
         if (locationName != null && locationName.isEmpty()) {//if it's still empty, use backup. NPE was thrown here for some reason
             locationName = sROZmanimCalendar.getGeoLocation().getLocationName();
         }
@@ -1536,12 +1532,12 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             mEnglishMonthYear.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_END);
             mHebrewMonthYear.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
         }
-        mLocationName.setText(mLocationResolver.getFullLocationName());
+        mLocationName.setText(mLocationResolver.getFullLocationName(true));
         String hebrewMonthYear = hebrewMonth + " " + hebrewYear;
         mHebrewMonthYear.setText(hebrewMonthYear);
         mWeeklyParsha.setText(sJewishDateInfo.getThisWeeksParsha());
         mWeeklyParsha.setVisibility(View.VISIBLE);
-        if (sJewishDateInfo.getThisWeeksHaftarah().length() == 0) {
+        if (sJewishDateInfo.getThisWeeksHaftarah().isEmpty()) {
             mWeeklyHaftorah.setVisibility(View.GONE);
         } else {
             mWeeklyHaftorah.setVisibility(View.VISIBLE);

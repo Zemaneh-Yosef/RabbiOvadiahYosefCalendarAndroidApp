@@ -1,14 +1,24 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentLocationName;
+
+import android.content.Context;
+
 import com.kosherjava.zmanim.AstronomicalCalendar;
 import com.kosherjava.zmanim.ZmanimCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.util.GeoLocation;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 /**
  * This class extends the ZmanimCalendar class to add a few methods that are specific to the opinion of the Rabbi Ovadiah Yosef ZT"L.
@@ -122,8 +132,8 @@ public class ROZmanimCalendar extends ZmanimCalendar {
     private final JewishCalendar jewishCalendar;
     private static final int MINUTES_PER_HOUR = 60;
     private static final int MILLISECONDS_PER_MINUTE = 60_000;
+    public List<Calendar> vSunriseDates = new ArrayList<>();
     private File externalFilesDir;
-    private Date visibleSunriseDate;
 
     /**
      * Enable the calculations of the Amudeh Horaah calendar where applicable.
@@ -143,6 +153,31 @@ public class ROZmanimCalendar extends ZmanimCalendar {
         super(location);
         jewishCalendar = new JewishCalendar();
         setUseElevation(true);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void loadVSunriseFile() {
+        if (sCurrentLocationName != null && sCurrentLocationName.isEmpty()) {
+            return;
+        }
+
+        File vsFile = new File(externalFilesDir, "visibleSunriseTable" + sCurrentLocationName + jewishCalendar.getJewishYear() + ".dat");
+        if (!vsFile.isFile())
+            return;
+
+        List<Long> vSunriseTimes;
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(vsFile))) {
+            vSunriseTimes = (List<Long>) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+
+		// Convert each seconds-since-midnight long into a Calendar
+        for (Long seconds : vSunriseTimes) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(new Date(seconds * 1000));  // convert seconds → millis
+            vSunriseDates.add(cal);
+        }
     }
 
     public boolean isUseAmudehHoraah() {
@@ -307,35 +342,15 @@ public class ROZmanimCalendar extends ZmanimCalendar {
      * @return the time for Visible Sunrise calculated by the Chai Tables website, otherwise null.
      */
     public Date getHaNetz() {
-        try {
-            jewishCalendar.setDate(getCalendar());
-            ChaiTables chaiTables = new ChaiTables(externalFilesDir, getGeoLocation().getLocationName(), jewishCalendar);
-
-            if (chaiTables.visibleSunriseFileExists()) {
-                String currentVisibleSunrise = chaiTables.getVisibleSunrise();
-
-                int visibleSunriseHour = Integer.parseInt(currentVisibleSunrise.substring(0, 1));
-                int visibleSunriseMinutes = Integer.parseInt(currentVisibleSunrise.substring(2, 4));
-
-                Calendar tempCal = (Calendar) getCalendar().clone();
-                tempCal.set(Calendar.HOUR_OF_DAY, visibleSunriseHour);
-                tempCal.set(Calendar.MINUTE, visibleSunriseMinutes);
-
-                if (currentVisibleSunrise.length() == 7) {
-                    int visibleSunriseSeconds = Integer.parseInt(currentVisibleSunrise.substring(5, 7));
-                    tempCal.set(Calendar.SECOND, visibleSunriseSeconds);
-                } else {
-                    tempCal.set(Calendar.SECOND, 0);
-                }
-                tempCal.set(Calendar.MILLISECOND, 0);
-                visibleSunriseDate = tempCal.getTime();
-            } else {
-                visibleSunriseDate = null;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        jewishCalendar.setDate(getCalendar());
+        for (Calendar vSunriseDate : vSunriseDates) {
+            if (vSunriseDate.get(Calendar.ERA) == jewishCalendar.getGregorianCalendar().get(Calendar.ERA) &&
+                vSunriseDate.get(Calendar.YEAR) == jewishCalendar.getGregorianCalendar().get(Calendar.YEAR) &&
+                vSunriseDate.get(Calendar.DAY_OF_YEAR) == jewishCalendar.getGregorianCalendar().get(Calendar.DAY_OF_YEAR))
+                return vSunriseDate.getTime();
         }
-        return visibleSunriseDate;
+
+        return null;
     }
 
     /**
@@ -648,6 +663,7 @@ public class ROZmanimCalendar extends ZmanimCalendar {
 
     public void setExternalFilesDir(File externalFilesDir) {
         this.externalFilesDir = externalFilesDir;
+        loadVSunriseFile();
     }
 
     public File getExternalFilesDir() {
@@ -656,10 +672,18 @@ public class ROZmanimCalendar extends ZmanimCalendar {
 
     @Override
     public void setCalendar(Calendar calendar) {
+        int curYear = 0;
+        if (jewishCalendar != null) {
+            curYear = jewishCalendar.getJewishYear();
+        }
+
         super.setCalendar(calendar);
         if (getCalendar() != null && jewishCalendar != null) {
             jewishCalendar.setDate(getCalendar());
         }
+
+        if (this.externalFilesDir != null && curYear != 0 && jewishCalendar != null && curYear != jewishCalendar.getJewishYear())
+            loadVSunriseFile();
     }
 
     /**
@@ -756,7 +780,7 @@ public class ROZmanimCalendar extends ZmanimCalendar {
      */
     public ROZmanimCalendar getCopy() {
         ROZmanimCalendar copy = new ROZmanimCalendar(getGeoLocation());
-        copy.setExternalFilesDir(getExternalFilesDir());
+        copy.vSunriseDates = this.vSunriseDates;
         copy.setCandleLightingOffset(getCandleLightingOffset());
         copy.setAteretTorahSunsetOffset(getAteretTorahSunsetOffset());
         copy.setAmudehHoraah(isUseAmudehHoraah());
