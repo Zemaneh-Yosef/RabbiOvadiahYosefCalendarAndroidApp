@@ -26,6 +26,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.classes.ChafetzChayimYomiCalculator;
 import com.ej.rovadiahyosefcalendar.classes.DailyMishnehTorah;
+import com.ej.rovadiahyosefcalendar.classes.HalachaSegment;
+import com.ej.rovadiahyosefcalendar.classes.HalachaYomi;
 import com.ej.rovadiahyosefcalendar.classes.HebrewDayMonthYearPickerDialog;
 import com.ej.rovadiahyosefcalendar.classes.LimudAdapter;
 import com.ej.rovadiahyosefcalendar.classes.LimudListEntry;
