@@ -6,22 +6,22 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.Context.ALARM_SERVICE;
 import static android.content.Context.POWER_SERVICE;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentDateShown;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sHebrewDateFormatter;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sJewishDateInfo;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sNavView;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sROZmanimCalendar;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sViewPager;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.materialToolbar;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentDateShown;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentLocationName;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentTimeZoneID;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sElevation;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sHebrewDateFormatter;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sJewishDateInfo;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sLastTimeUserWasInApp;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sLatitude;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sLongitude;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sNavView;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sROZmanimCalendar;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sSettingsPreferences;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sSetupLauncher;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sSharedPreferences;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sViewPager;
 import static com.ej.rovadiahyosefcalendar.classes.Utils.getCurrentCalendarDrawableDark;
 import static com.ej.rovadiahyosefcalendar.classes.Utils.getCurrentCalendarDrawableLight;
 import static com.ej.rovadiahyosefcalendar.classes.Utils.inputStreamToString;
@@ -88,8 +88,7 @@ import com.ej.rovadiahyosefcalendar.activities.NetzActivity;
 import com.ej.rovadiahyosefcalendar.activities.SettingsActivity;
 import com.ej.rovadiahyosefcalendar.activities.SetupElevationActivity;
 import com.ej.rovadiahyosefcalendar.activities.WelcomeScreenActivity;
-import com.ej.rovadiahyosefcalendar.classes.ChaiTables;
-import com.ej.rovadiahyosefcalendar.classes.ChaiTablesScraper;
+import com.ej.rovadiahyosefcalendar.classes.ChaiTablesWebJava;
 import com.ej.rovadiahyosefcalendar.classes.DummyZmanAdapter;
 import com.ej.rovadiahyosefcalendar.classes.HebrewDayMonthYearPickerDialog;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
@@ -259,7 +258,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         }
                         checkIfUserIsInIsraelOrNot();
                         setNotifications();
-                        Utils.PrefToWatchSender.send(mContext);
                     });
                 }
             }
@@ -439,7 +437,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (sSharedPreferences.getBoolean("isSetup", false) //only check after the app has been setup before
                 && sSharedPreferences.getBoolean("UseTable" + sCurrentLocationName, false)) { //and only if the tables are being used
 
-            if (ChaiTables.visibleSunriseFileDoesNotExist(mActivity.getExternalFilesDir(null), sCurrentLocationName, sJewishDateInfo.getJewishCalendar())) {
+            if (!ChaiTablesWebJava.checkIfFileExists(mActivity.getExternalFilesDir(null), sCurrentLocationName, sJewishDateInfo.getJewishCalendar().getJewishYear())) {
                 if (!mUpdateTablesDialogShown) {
                     MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext);
                     builder.setTitle(R.string.update_tables);
@@ -453,16 +451,30 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                             if (matcher.find()) {
                                 chaitablesURL = chaitablesURL.replace(matcher.group(), "&cgi_yrheb=" + hebrewYear);//replace the year in the URL with the current year
                             }
-                            ChaiTablesScraper scraper = new ChaiTablesScraper(sCurrentLocationName);
-                            scraper.setDownloadSettings(chaitablesURL, mActivity.getExternalFilesDir(null), sJewishDateInfo.getJewishCalendar());
-                            scraper.setCallback(() -> {
-                                if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                                    updateWeeklyZmanim();
-                                } else {
-                                    updateDailyZmanim();
+                            ChaiTablesWebJava scraper = new ChaiTablesWebJava(sROZmanimCalendar.getGeoLocation(), sJewishDateInfo.getJewishCalendar());
+                            String finalChaitablesURL = chaitablesURL;
+                            Thread thread = new Thread(() -> {
+                                try {
+                                    ChaiTablesWebJava.ChaiTablesResult[] result = scraper.formatInterfacer(finalChaitablesURL); // will download 2 more years
+                                    int jewishYear = sJewishDateInfo.getJewishCalendar().getJewishYear();
+                                    if (result != null) {
+                                        for (ChaiTablesWebJava.ChaiTablesResult r : result) {
+                                            ChaiTablesWebJava.saveResultsToFile(r, mContext.getExternalFilesDir(null), sCurrentLocationName, jewishYear);
+                                            jewishYear++;
+                                        }
+                                    }
+                                    mActivity.runOnUiThread(() -> {
+                                        if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                                            updateWeeklyZmanim();
+                                        } else {
+                                            updateDailyZmanim();
+                                        }
+                                    });
+                                } catch (Exception e) {
+                                    e.printStackTrace();
                                 }
                             });
-                            scraper.start();
+                            thread.start();
                         }
                     });
                     builder.setNegativeButton(R.string.no, (dialog, which) -> dialog.dismiss());
@@ -1058,7 +1070,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     sROZmanimCalendar.getCalendar()
                             .getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault())
                             + " / " +
-                            sROZmanimCalendar.getCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, new Locale("he", "IL")));
+                            sROZmanimCalendar.getCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, new Locale.Builder().setLanguage("he").setRegion("IL").build()));
             binding.parsha.setText(sJewishDateInfo.getThisWeeksParsha());
             CharSequence haftara = sJewishDateInfo.getThisWeeksHaftarah();
             if (haftara.length() == 0) {
@@ -1837,8 +1849,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      * and getting the elevation for the current location via the LocationResolver class. It will then set the elevation in the shared preferences
      * for the current location. If the user is offline, it will not do anything. The only time it will not set the elevation is if the user has
      * disabled the elevation setting in the settings menu.
-     *
-     * @see LocationResolver#getLocationAsName()
      */
     private void resolveElevationAndVisibleSunrise(Runnable codeToRunOnMainThread) {
         boolean sUserIsOffline = false;

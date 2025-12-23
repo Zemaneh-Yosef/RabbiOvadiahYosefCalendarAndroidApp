@@ -43,11 +43,11 @@ public class JSONTest {
                 .put("oldLocationName", sSharedPreferences.getString("oldLocationName", ""))
                 .put("oldLat", sSharedPreferences.getLong("oldLat", 0))
                 .put("oldLong", sSharedPreferences.getLong("oldLong", 0))
-                .put("locationName", "sCurrentLocationName") // needed because we are not sure if the watches current location is the same as the app's
-                .put("elevation" + "sCurrentLocationName", sSharedPreferences.getString("elevation" + "sCurrentLocationName", "0"))
+                .put("locationName", "TestLocationName (TestPostalCode)") // needed because we are not sure if the watches current location is the same as the app's
+                .put("elevation" + "TestLocationName (TestPostalCode)", sSharedPreferences.getString("elevation" + "TestLocationName (TestPostalCode)", "0"))
                 .put("SetElevationToLastKnownLocation", sSettingsPreferences.getBoolean("SetElevationToLastKnownLocation", false))
 
-                .put("currentLN", "NY")
+                .put("currentLN", "TestLocationName (TestPostalCode)")
                 .put("currentLat", "40.8")
                 .put("currentLong", "-73.7")
                 .put("currentTimezone", "America/New_York")

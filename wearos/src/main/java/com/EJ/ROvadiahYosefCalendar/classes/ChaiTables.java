@@ -2,8 +2,6 @@ package com.EJ.ROvadiahYosefCalendar.classes;
 
 import android.content.SharedPreferences;
 
-import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +10,6 @@ import java.util.List;
  * @author Elyahu Jacobi
  */
 public class ChaiTables {
-    private final JewishCalendar jewishCalendar;
     private final String currentLocation;
     private final SharedPreferences sharedPreferences;
 
@@ -20,12 +17,10 @@ public class ChaiTables {
      * Constructor for the ChaiTables class.
      *
      * @param currentLocation   The current location of the user/table.
-     * @param jewishCalendar    The JewishCalendar object that is used to get the current year.
      * @param sharedPreferences The SharedPreferences object to get the chai tables from.
      */
-    public ChaiTables(String currentLocation, JewishCalendar jewishCalendar, SharedPreferences sharedPreferences) {
+    public ChaiTables(String currentLocation, SharedPreferences sharedPreferences) {
         this.currentLocation = currentLocation;
-        this.jewishCalendar = jewishCalendar;
         this.sharedPreferences = sharedPreferences;
     }
 
@@ -33,43 +28,27 @@ public class ChaiTables {
      * This method gets the time of the visible sunrise for the current day that was set in the constructor.
      * @return The time of the visible sunrise for the current day as a string.
      */
-    public String getVisibleSunrise() {
+    public List<Long> getVisibleSunrise() {
         if (sharedPreferences == null) {
-            return "";
+            return null;
         }
-        String visibleSunriseTable = sharedPreferences.getString("chaiTable" + currentLocation, "");
-        if (visibleSunriseTable.isEmpty()) {
-            return visibleSunriseTable; // string is empty; return an empty string
+        String visibleSunriseTable = sharedPreferences.getString("chaiTable" + Utils.removePostalCode(currentLocation), "");
+        if (visibleSunriseTable.isEmpty() || visibleSunriseTable.contains("\t") || visibleSunriseTable.contains("\n")) {
+            return null; // string is empty, or uses a \n or \t which is old code; return null
         }
-
-        int currentHebrewMonth = jewishCalendar.getJewishMonth();
-
-        currentHebrewMonth -= 6;
-        if (currentHebrewMonth < 1) {
-            if (jewishCalendar.isJewishLeapYear()){
-                currentHebrewMonth += 13;
-            } else {
-                currentHebrewMonth += 12;
-            }
-        }
-        List<String[]> actualVSunriseTable = parseTableString(visibleSunriseTable);
-        return actualVSunriseTable.get(jewishCalendar.getJewishDayOfMonth())[currentHebrewMonth];
+        return parseColonList(visibleSunriseTable);
     }
 
-    public static List<String[]> parseTableString(String tableString) {
-        List<String[]> parsedTable = new ArrayList<>();
-
-        // Split the input string into rows
-        String[] rows = tableString.split("\n");
-
-        for (String row : rows) {
-            // Split each row into cells
-            String[] cells = row.split("\t");
-
-            // Add the array of cells to the parsed table
-            parsedTable.add(cells);
+    public List<Long> parseColonList(String str) {
+        List<Long> out = new ArrayList<>();
+        for (String s : str.split(":")) {
+            if (s.length() == 1 || s.length() == 2) {
+                return null;// invalid string, probably from old code; return null.
+            }
+            if (!s.isEmpty()) {
+                out.add(Long.parseLong(s));
+            }
         }
-
-        return parsedTable;
+        return out;
     }
 }

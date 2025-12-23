@@ -97,7 +97,7 @@ public class LocationResolver {
      * @see MainActivity#sCurrentLocationName
      */
     public void resolveCurrentLocationName() {
-        sCurrentLocationName = getLocationAsName();
+        //sCurrentLocationName = getLocationAsName();
         if (sCurrentLocationName.isEmpty()) {
             String lat = String.format(Locale.getDefault(), "%.3f", sLatitude);
             String longitude = String.format(Locale.getDefault(), "%.3f", sLongitude);
@@ -119,7 +119,7 @@ public class LocationResolver {
         StringBuilder result = new StringBuilder();
         List<Address> addresses = null;
         try {
-            if (LocaleChecker.isLocaleHebrew()) {
+            if (Utils.isLocaleHebrew()) {
                 addresses = mGeocoder.getFromLocation(sLatitude, sLongitude, 5);
             } else {
                 addresses = mGeocoder.getFromLocation(sLatitude, sLongitude, 1);
@@ -129,10 +129,10 @@ public class LocationResolver {
         }
         if (addresses != null && !addresses.isEmpty()) {
 
-            if (LocaleChecker.isLocaleHebrew()) {
+            if (Utils.isLocaleHebrew()) {
                 Address address = null;
                 for (Address add:addresses) {
-                    if (add.getLocale().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                    if (add.getLocale().getDisplayLanguage(new Locale.Builder().setLanguage("en").setRegion("US").build()).equals("Hebrew")) {
                         address = add;
                     }
                 }

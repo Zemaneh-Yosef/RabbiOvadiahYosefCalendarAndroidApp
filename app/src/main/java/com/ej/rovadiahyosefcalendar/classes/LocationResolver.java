@@ -178,7 +178,7 @@ public class LocationResolver {
             if (Utils.isLocaleHebrew()) {
                 Address address = null;
                 for (Address add : addresses) {
-                    if (add.getLocale().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                    if (add.getLocale().getDisplayLanguage(new Locale.Builder().setLanguage("en").setRegion("US").build()).equals("Hebrew")) {
                         address = add;
                     }
                 }
@@ -716,7 +716,7 @@ public class LocationResolver {
             if (Utils.isLocaleHebrew()) {
                 Address address = null;
                 for (Address add:addresses) {
-                    if (add.getLocale().getDisplayLanguage(new Locale("en","US")).equals("Hebrew")) {
+                    if (add.getLocale().getDisplayLanguage(new Locale.Builder().setLanguage("en").setRegion("US").build()).equals("Hebrew")) {
                         address = add;
                     }
                 }

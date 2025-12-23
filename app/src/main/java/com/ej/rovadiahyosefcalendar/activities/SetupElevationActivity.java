@@ -2,6 +2,9 @@ package com.ej.rovadiahyosefcalendar.activities;
 
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.SHARED_PREF;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentLocationName;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentTimeZoneID;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sLatitude;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sLongitude;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -9,6 +12,7 @@ import android.content.SharedPreferences;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,19 +25,21 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
-import com.ej.rovadiahyosefcalendar.classes.ChaiTablesScraper;
+import com.ej.rovadiahyosefcalendar.classes.ChaiTablesWebJava;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
+import com.kosherjava.zmanim.util.GeoLocation;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.TimeZone;
 
 public class SetupElevationActivity extends AppCompatActivity {
 
@@ -46,6 +52,8 @@ public class SetupElevationActivity extends AppCompatActivity {
         setContentView(R.layout.activity_setup_elevation);
 
         MaterialToolbar materialToolbar = findViewById(R.id.topAppBar);
+        materialToolbar.setNavigationIcon(AppCompatResources.getDrawable(this, R.drawable.baseline_arrow_back_24));
+        materialToolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
         if (Utils.isLocaleHebrew()) {
             materialToolbar.setSubtitle("");
         }
@@ -70,18 +78,14 @@ public class SetupElevationActivity extends AppCompatActivity {
         Button mishorButton = findViewById(R.id.mishor);
         mishorButton.setOnClickListener(v -> {
             mishorButton.setEnabled(false);
-            editor.putString("elevation" + sCurrentLocationName, mElevation).apply();
-            editor.putBoolean("useElevation", false).apply();
-            editor.putBoolean("isSetup", true).apply();
+            editor.putString("elevation" + sCurrentLocationName, mElevation)
+                    .putBoolean("useElevation", false)
+                    .putBoolean("isSetup", true).apply();
             Intent returnIntent = new Intent();
             setResult(Activity.RESULT_CANCELED, returnIntent);
             if (getIntent().getBooleanExtra("downloadTable",false)) {
                 downloadTablesAndFinish(sharedPreferences);
             } else {
-//                if (sharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
-//                    startActivity(new Intent(getBaseContext(), TipScreenActivity.class));
-//                    sharedPreferences.edit().putBoolean("hasNotShownTipScreen", false).apply();
-//                }
                 finish();
             }
         });
@@ -103,19 +107,15 @@ public class SetupElevationActivity extends AppCompatActivity {
                             .show();
                 } else {
                     mElevation = input.getText().toString();
-                    editor.putString("elevation" + sCurrentLocationName, mElevation).apply();
-                    editor.putBoolean("isSetup", true).apply();
-                    editor.putBoolean("useElevation", true).apply();
+                    editor.putString("elevation" + sCurrentLocationName, mElevation)
+                            .putBoolean("isSetup", true)
+                            .putBoolean("useElevation", true).apply();
                     Intent returnIntent = new Intent();
                     returnIntent.putExtra("elevation" + sCurrentLocationName, mElevation);
                     setResult(Activity.RESULT_OK, returnIntent);
                     if (getIntent().getBooleanExtra("downloadTable",false)) {
                         downloadTablesAndFinish(sharedPreferences);
                     } else {
-//                        if (sharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
-//                            startActivity(new Intent(getBaseContext(), TipScreenActivity.class));
-//                            sharedPreferences.edit().putBoolean("hasNotShownTipScreen", false).apply();
-//                        }
                         finish();
                     }
                 }
@@ -128,8 +128,8 @@ public class SetupElevationActivity extends AppCompatActivity {
         Button geoNamesButton = findViewById(R.id.geonamesButton);
         geoNamesButton.setOnClickListener(view -> {
             geoNamesButton.setEnabled(false);
-            editor.putBoolean("useElevation", true).apply();
-            editor.putBoolean("isSetup", true).apply();
+            editor.putBoolean("useElevation", true)
+                    .putBoolean("isSetup", true).apply();
             Thread thread = new Thread(() -> {
                 LocationResolver locationResolver = new LocationResolver(this, this);
                 locationResolver.getElevationFromWebService(new Handler(getMainLooper()), null, () -> {
@@ -139,10 +139,6 @@ public class SetupElevationActivity extends AppCompatActivity {
                     if (getIntent().getBooleanExtra("downloadTable", false)) {
                         downloadTablesAndFinish(sharedPreferences);
                     } else {
-//                        if (sharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
-//                            startActivity(new Intent(getBaseContext(), TipScreenActivity.class));
-//                            sharedPreferences.edit().putBoolean("hasNotShownTipScreen", false).apply();
-//                        }
                         finish();
                     }
                 });
@@ -177,28 +173,41 @@ public class SetupElevationActivity extends AppCompatActivity {
     private void downloadTablesAndFinish(SharedPreferences sharedPreferences) {
         ProgressBar progressBar = findViewById(R.id.progressBarElevation);
         progressBar.setVisibility(View.VISIBLE);
+
         if (sharedPreferences.getBoolean("UseTable" + sCurrentLocationName, true)) {
-            AtomicInteger userID = new AtomicInteger(sharedPreferences.getInt("USER_ID", 10000));
-            ChaiTablesScraper scraper = new ChaiTablesScraper(sCurrentLocationName);
-            String link = getSharedPreferences(SHARED_PREF, MODE_PRIVATE).getString("chaitablesLink" + sCurrentLocationName, "");
-            scraper.setUrl(link);
-            scraper.setExternalFilesDir(getExternalFilesDir(null));
-            scraper.setJewishDate(new JewishDate());
-            scraper.setCallback(() -> {
-                if (scraper.isSearchRadiusTooSmall()) {
+            String link = sharedPreferences.getString("chaitablesLink" + sCurrentLocationName, "");
+            JewishDate jDate = new JewishDate();
+            GeoLocation geoLocation = new GeoLocation("", sLatitude, sLongitude, TimeZone.getTimeZone(sCurrentTimeZoneID));
+            ChaiTablesWebJava scraper = new ChaiTablesWebJava(geoLocation, jDate);
+
+            Thread thread = new Thread(() -> {
+                try {
+                    ChaiTablesWebJava.ChaiTablesResult[] result = scraper.formatInterfacer(link);
+                    int jewishYear = jDate.getJewishYear();
+                    if (result != null) {
+                        for (ChaiTablesWebJava.ChaiTablesResult r : result) {
+                            ChaiTablesWebJava.saveResultsToFile(r, getExternalFilesDir(null), sCurrentLocationName, jewishYear);
+                            jewishYear++;
+                        }
+                    } else {
+                        Toast.makeText(getApplicationContext(), getString(R.string.something_went_wrong_is_the_link_correct), Toast.LENGTH_SHORT).show();
+                        recreate();
+                    }
+
+                    Looper.prepare();
+                    Toast.makeText(getApplicationContext(), getString(R.string.success), Toast.LENGTH_SHORT).show();
+                    sharedPreferences.edit().putString("chaitablesLink" + sCurrentLocationName, result != null ? result[0].url() : null).apply(); //save the link for this location to automatically download again next time
+
+                } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), R.string.something_went_wrong_is_the_link_correct, Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(this, AdvancedSetupActivity.class));
-                } else if (scraper.isWebsiteError()) {
-                    Toast.makeText(getApplicationContext(), R.string.something_went_wrong_connecting_to_the_website, Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(this, AdvancedSetupActivity.class));
-                } else {
-                    Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_SHORT).show();
-                    userID.getAndIncrement();
-                    sharedPreferences.edit().putInt("USER_ID", userID.get()).apply();
+                    new RuntimeException(e).printStackTrace();
+                } finally {
+                    finish();
                 }
-                finish();
             });
-            scraper.start();
+            thread.start();
+        } else {
+            finish();
         }
     }
 }

@@ -17,9 +17,9 @@ import com.EJ.ROvadiahYosefCalendar.classes.JewishDateInfo
 import com.EJ.ROvadiahYosefCalendar.classes.LocationResolver
 import com.EJ.ROvadiahYosefCalendar.classes.ROZmanimCalendar
 import com.EJ.ROvadiahYosefCalendar.classes.ZmanListEntry
-import com.EJ.ROvadiahYosefCalendar.classes.ZmanimFactory.addZmanim
 import com.EJ.ROvadiahYosefCalendar.classes.SecondTreatment
 import com.EJ.ROvadiahYosefCalendar.classes.Utils
+import com.EJ.ROvadiahYosefCalendar.classes.ZmanimFactory
 import com.EJ.ROvadiahYosefCalendar.presentation.MainActivity
 import com.kosherjava.zmanim.util.GeoLocation
 import java.text.SimpleDateFormat
@@ -31,7 +31,6 @@ import java.util.Locale
 class NextZmanComplicationService : SuspendingComplicationDataSourceService() {
 
     private lateinit var sharedPref: SharedPreferences
-    private var mCurrentDateShown = Calendar.getInstance()
     private var mROZmanimCalendar = ROZmanimCalendar(GeoLocation(), null)
     private var mJewishDateInfo = JewishDateInfo(false)
     private lateinit var noSecondFormat: SimpleDateFormat
@@ -192,30 +191,6 @@ class NextZmanComplicationService : SuspendingComplicationDataSourceService() {
         noSecondFormat = SimpleDateFormat(noSecondFormatPattern, Locale.getDefault())
         noSecondFormat.timeZone = mROZmanimCalendar.geoLocation.timeZone
 
-        var theZman: ZmanListEntry? = null
-        val zmanim: MutableList<ZmanListEntry> = java.util.ArrayList()
-        val today = Calendar.getInstance()
-        today.add(Calendar.DATE, -1)
-        mROZmanimCalendar.calendar = today
-        mJewishDateInfo.setCalendar(today)
-        addZmanim(zmanim, false, sharedPref, sharedPref, mROZmanimCalendar, mJewishDateInfo, sharedPref.getBoolean("isZmanimInHebrew", false), sharedPref.getBoolean("isZmanimEnglishTranslated", false), true) //for the previous day
-        today.add(Calendar.DATE, 1)
-        mROZmanimCalendar.calendar = today
-        mJewishDateInfo.setCalendar(today)
-        addZmanim(zmanim, false, sharedPref, sharedPref, mROZmanimCalendar, mJewishDateInfo, sharedPref.getBoolean("isZmanimInHebrew", false), sharedPref.getBoolean("isZmanimEnglishTranslated", false), true) //for the current day
-        today.add(Calendar.DATE, 1)
-        mROZmanimCalendar.calendar = today
-        mJewishDateInfo.setCalendar(today)
-        addZmanim(zmanim, false, sharedPref, sharedPref, mROZmanimCalendar, mJewishDateInfo, sharedPref.getBoolean("isZmanimInHebrew", false), sharedPref.getBoolean("isZmanimEnglishTranslated", false), true) //for the next day
-        mROZmanimCalendar.calendar = mCurrentDateShown
-        mJewishDateInfo.setCalendar(mCurrentDateShown) //reset
-        //find the next upcoming zman that is after the current time and before all the other zmanim
-        for (zmanEntry in zmanim) {
-            val zman: Date? = zmanEntry.zman
-            if (zman != null && zman.after(Date()) && (theZman == null || zman.before(theZman.zman))) {
-                theZman = zmanEntry
-            }
-        }
-        return theZman
+        return ZmanimFactory.getNextUpcomingZman(Calendar.getInstance(), mROZmanimCalendar, mJewishDateInfo, sharedPref)
     }
 }

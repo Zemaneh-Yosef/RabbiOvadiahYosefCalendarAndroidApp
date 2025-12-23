@@ -80,20 +80,18 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
             }
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                NotificationChannel channel = new NotificationChannel("Omer",
-                        "Omer Notifications",
-                        NotificationManager.IMPORTANCE_HIGH);
-                channel.setDescription("This notification will check daily if it is the omer and it will display which day it is at sunset.");
-                channel.enableLights(true);
-                channel.enableVibration(true);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    channel.setAllowBubbles(true);
-                }
-                channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
-                channel.setLightColor(Color.BLUE);
-                notificationManager.createNotificationChannel(channel);
+            NotificationChannel channel = new NotificationChannel("Omer",
+                    "Omer Notifications",
+                    NotificationManager.IMPORTANCE_HIGH);
+            channel.setDescription("This notification will check daily if it is the omer and it will display which day it is at sunset.");
+            channel.enableLights(true);
+            channel.enableVibration(true);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                channel.setAllowBubbles(true);
             }
+            channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+            channel.setLightColor(Color.BLUE);
+            notificationManager.createNotificationChannel(channel);
 
             Intent notificationIntent = new Intent(context, SiddurViewActivity.class)
                     .putExtra("prayer", context.getString(R.string.sefirat_haomer))
@@ -120,12 +118,12 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
                 NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "Omer")
                         .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
                         .setSmallIcon(R.drawable.omer_wheat)
-                        .setContentTitle(Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew") ? "יום בעומר" : "Day of Omer")
+                        .setContentTitle(Locale.getDefault().getDisplayLanguage(new Locale.Builder().setLanguage("en").setRegion("US").build()).equals("Hebrew") ? "יום בעומר" : "Day of Omer")
                         .setContentText(omerList.get(day))
                         .setStyle(new NotificationCompat
                                 .BigTextStyle()
                                 .setBigContentTitle(nextJewishDay)
-                                .setSummaryText(Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew") ? "אל תשכח לספור!" : "Don't forget to count!")
+                                .setSummaryText(Locale.getDefault().getDisplayLanguage(new Locale.Builder().setLanguage("en").setRegion("US").build()).equals("Hebrew") ? "אל תשכח לספור!" : "Don't forget to count!")
                                 .bigText("בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם, אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ עַל סְפִירַת הָעֹמֶר:" + "\n\n" + omerList.get(day) + "\n\nהָרַחֲמָן הוּא יַחֲזִיר עֲבוֹדַת בֵּית הַמִּקְדָּשׁ לִמְקוֹמָהּ בִּמְהֵרָה בְיָמֵינוּ אָמֵן:"))
                         .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                         .setCategory(NotificationCompat.CATEGORY_REMINDER)
@@ -158,20 +156,18 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
     private void notifyBarechAleinu(Context context) {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel("BarechAleinu",
-                    "Barech Aleinu Notifications",
-                    NotificationManager.IMPORTANCE_HIGH);
-            channel.setDescription("This notification will check daily if tonight is the start date for Barech Aleinu and it will notify you at sunset.");
-            channel.enableLights(true);
-            channel.enableVibration(true);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                channel.setAllowBubbles(true);
-            }
-            channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
-            channel.setLightColor(Color.BLUE);
-            notificationManager.createNotificationChannel(channel);
+        NotificationChannel channel = new NotificationChannel("BarechAleinu",
+                "Barech Aleinu Notifications",
+                NotificationManager.IMPORTANCE_HIGH);
+        channel.setDescription("This notification will check daily if tonight is the start date for Barech Aleinu and it will notify you at sunset.");
+        channel.enableLights(true);
+        channel.enableVibration(true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            channel.setAllowBubbles(true);
         }
+        channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+        channel.setLightColor(Color.BLUE);
+        notificationManager.createNotificationChannel(channel);
 
         Intent notificationIntent = new Intent(context, MainFragmentManagerActivity.class);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

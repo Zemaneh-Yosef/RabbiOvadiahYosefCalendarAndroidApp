@@ -13,7 +13,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
-import android.os.Build;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -131,9 +130,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     } else {
                         holder.mLeftTextView.setTypeface(Typeface.DEFAULT);
                     }
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        holder.mLeftTextView.setAutoSizeTextTypeWithDefaults(TextView.AUTO_SIZE_TEXT_TYPE_NONE);
-                    }
+                    holder.mLeftTextView.setAutoSizeTextTypeWithDefaults(TextView.AUTO_SIZE_TEXT_TYPE_NONE);
                     holder.mRightTextView.setTextSize(18);
                     holder.mLeftTextView.setTextSize(18);
                 }

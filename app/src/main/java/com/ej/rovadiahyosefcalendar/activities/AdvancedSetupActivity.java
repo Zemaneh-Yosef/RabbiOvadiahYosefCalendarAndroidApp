@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.ViewGroup;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
@@ -19,6 +20,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -37,6 +39,8 @@ public class AdvancedSetupActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_advanced_setup);
         MaterialToolbar materialToolbar = findViewById(R.id.topAppBar);
+        materialToolbar.setNavigationIcon(AppCompatResources.getDrawable(this, R.drawable.baseline_arrow_back_24));
+        materialToolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
         if (Utils.isLocaleHebrew()) {
             materialToolbar.setSubtitle("");
         }
@@ -56,9 +60,10 @@ public class AdvancedSetupActivity extends AppCompatActivity {
                         .show();
             } else {
                 String link = tableLink.getText().toString();
-                editor.putString("chaitablesLink" + sCurrentLocationName, link);
-                editor.putBoolean("UseTable" + sCurrentLocationName, true).apply();
-                editor.putBoolean("showMishorSunrise" + sCurrentLocationName, false).apply();
+                editor.putString("chaitablesLink" + sCurrentLocationName, link)
+                        .putBoolean("UseTable" + sCurrentLocationName, true)
+                        .putBoolean("showMishorSunrise" + sCurrentLocationName, false)
+                        .apply();
                 startActivity(new Intent(this, SetupElevationActivity.class)
                         .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
                         .putExtra("downloadTable", true)
@@ -77,14 +82,23 @@ public class AdvancedSetupActivity extends AppCompatActivity {
             webView.getSettings().setJavaScriptEnabled(true);
             webView.loadUrl(Utils.isLocaleHebrew() ? "https://chaitables.com/chai_heb.php" : "http://www.chaitables.com/");
             webView.setWebViewClient(new WebViewClient() {
+
+                @Override
+                public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                    String url = request.getUrl().toString();
+                    String allowedDomain = "chaitables.com";// block ANY external site
+                    return !url.contains(allowedDomain) && !url.contains("162.253.153.219/");// this is some times the domain
+                }
+
                 @Override
                 public void onPageStarted(WebView view, String url, Bitmap favicon) {
                     super.onPageStarted(view, url, favicon);
                     if (url.startsWith("http://www.chaitables.com/cgi-bin/")) {
                         String visibleURL = getVisibleURL(url);
-                        editor.putString("chaitablesLink" + sCurrentLocationName, visibleURL);
-                        editor.putBoolean("UseTable" + sCurrentLocationName, true).apply();
-                        editor.putBoolean("showMishorSunrise" + sCurrentLocationName, false).apply();
+                        editor.putString("chaitablesLink" + sCurrentLocationName, visibleURL)
+                                .putBoolean("UseTable" + sCurrentLocationName, true)
+                                .putBoolean("showMishorSunrise" + sCurrentLocationName, false)
+                                .apply();
                         alertDialog.dismiss();
                         startActivity(new Intent(getApplicationContext(), SetupElevationActivity.class)
                             .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
@@ -102,8 +116,9 @@ public class AdvancedSetupActivity extends AppCompatActivity {
 
         skip.setTypeface(Typeface.DEFAULT_BOLD);
         skip.setOnClickListener(v -> {
-            editor.putBoolean("UseTable" + sCurrentLocationName, false).apply();
-            editor.putBoolean("showMishorSunrise" + sCurrentLocationName, true).apply();
+            editor.putBoolean("UseTable" + sCurrentLocationName, false)
+                    .putBoolean("showMishorSunrise" + sCurrentLocationName, true)
+                    .apply();
             startActivity(new Intent(this, SetupElevationActivity.class)
                     .setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
                     .putExtra("downloadTable", false)

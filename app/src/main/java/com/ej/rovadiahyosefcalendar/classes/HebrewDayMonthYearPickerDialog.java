@@ -53,7 +53,7 @@ public class HebrewDayMonthYearPickerDialog extends DialogFragment {
         mJewishCalendar = jewishCalendar;
         MIN_YEAR = jewishCalendar.getJewishYear() - 100;
         MAX_YEAR = jewishCalendar.getJewishYear() + 100;
-        if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+        if (Locale.getDefault().getDisplayLanguage(new Locale.Builder().setLanguage("en").setRegion("US").build()).equals("Hebrew")) {
             mHebrewMonths = new String[]{"ניסן", "אייר", "סיון", "תמוז", "אב", "אלול", "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר"};
             mHebrewMonthsLeap = new String[]{"ניסן", "אייר", "סיון", "תמוז", "אב", "אלול", "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר א׳", "אדר ב׳"};
         }

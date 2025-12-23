@@ -27,6 +27,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -42,10 +43,7 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
 import com.kosherjava.zmanim.util.GeoLocation;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -66,6 +64,8 @@ public class SimpleSetupActivity extends AppCompatActivity {
         setContentView(R.layout.activity_simple_setup);
 
         MaterialToolbar materialToolbar = findViewById(R.id.topAppBar);
+        materialToolbar.setNavigationIcon(AppCompatResources.getDrawable(this, R.drawable.baseline_arrow_back_24));
+        materialToolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
         if (Utils.isLocaleHebrew()) {
             materialToolbar.setSubtitle("");
         }
@@ -113,6 +113,11 @@ public class SimpleSetupActivity extends AppCompatActivity {
                     String[] stateArray = stateSet.toArray(new String[0]);//create an array from the set
                     Arrays.sort(stateArray);
                     mStateSpinner.setAdapter(new ArrayAdapter<>(context, R.layout.custom_spinner_item, stateArray));
+                    int selectedState = mSharedPreferences.getInt("selectedState", 0);
+                    if (selectedState >= mStateSpinner.getAdapter().getCount()) {
+                        selectedState = 0;
+                    }
+                    mStateSpinner.setSelection(selectedState);
                     metroArea.setVisibility(View.GONE);
                 } else {
                     mStateSpinner.setVisibility(View.GONE);
@@ -120,6 +125,11 @@ public class SimpleSetupActivity extends AppCompatActivity {
                     metroArea.setVisibility(View.VISIBLE);
                     mMetroAreaSpinner.setVisibility(View.VISIBLE);
                     mMetroAreaSpinner.setAdapter(new ArrayAdapter<>(context, R.layout.custom_spinner_item, ChaiTablesOptionsList.selectCountry(mCountry)));
+                    int selectedMetroArea = mSharedPreferences.getInt("selectedMetroArea", 0);
+                    if (selectedMetroArea >= mMetroAreaSpinner.getAdapter().getCount()) {
+                        selectedMetroArea = 0;
+                    }
+                    mMetroAreaSpinner.setSelection(selectedMetroArea);
                 }
                 downloadButton.setEnabled(false);
             }
@@ -145,6 +155,11 @@ public class SimpleSetupActivity extends AppCompatActivity {
                 metroArea.setVisibility(View.VISIBLE);
                 mMetroAreaSpinner.setVisibility(View.VISIBLE);
                 mMetroAreaSpinner.setAdapter(new ArrayAdapter<>(context, R.layout.custom_spinner_item, metroAreaArray));
+                int selectedMetroArea = mSharedPreferences.getInt("selectedMetroArea", 0);
+                if (selectedMetroArea >= mMetroAreaSpinner.getAdapter().getCount()) {
+                    selectedMetroArea = 0;
+                }
+                mMetroAreaSpinner.setSelection(selectedMetroArea);
             }
 
             @Override
@@ -171,30 +186,23 @@ public class SimpleSetupActivity extends AppCompatActivity {
 
             JewishDate jDate = new JewishDate();
             GeoLocation geoLocation = new GeoLocation("", sLatitude, sLongitude, TimeZone.getTimeZone(sCurrentTimeZoneID));
-            ChaiTablesWebJava betterScraper = new ChaiTablesWebJava(geoLocation, jDate);
-            betterScraper.setOtherData(mCountry.label, ChaiTablesOptionsList.indexOfMetroArea);
+            ChaiTablesWebJava scraper = new ChaiTablesWebJava(geoLocation, jDate);
+            scraper.setOtherData(mCountry.label, ChaiTablesOptionsList.indexOfMetroArea);
 
             Thread thread = new Thread(() -> {
                 try {
-                    ChaiTablesWebJava.ChaiTablesResult[] result = betterScraper.formatInterfacer();
-
-                    File baseDir = context.getExternalFilesDir(null);  // Only Android-specific call
+                    ChaiTablesWebJava.ChaiTablesResult[] result = scraper.formatInterfacer(null);
                     int jewishYear = jDate.getJewishYear();
-
-                    for (ChaiTablesWebJava.ChaiTablesResult r : result) {
-
-                        File file = new File(baseDir, "visibleSunriseTable" + sCurrentLocationName + jewishYear + ".dat");
-
-                        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
-                            oos.writeObject(r.times());   // List<Long>
+                    if (result != null) {
+                        for (ChaiTablesWebJava.ChaiTablesResult r : result) {
+                            ChaiTablesWebJava.saveResultsToFile(r, context.getExternalFilesDir(null), sCurrentLocationName, jewishYear);
+                            jewishYear++;
                         }
-
-                        jewishYear++;
                     }
 
                     Looper.prepare();
                     Toast.makeText(getApplicationContext(), getString(R.string.success), Toast.LENGTH_SHORT).show();
-                    mSharedPreferences.edit().putString("chaitablesLink" + sCurrentLocationName, result[0].url()).apply(); //save the link for this location to automatically download again next time
+                    mSharedPreferences.edit().putString("chaitablesLink" + sCurrentLocationName, result != null ? result[0].url() : null).apply(); //save the link for this location to automatically download again next time
 
                     mSharedPreferences.edit().putBoolean("UseTable" + sCurrentLocationName, true).apply();
                     mSharedPreferences.edit().putBoolean("showMishorSunrise" + sCurrentLocationName, false).apply();
@@ -206,7 +214,8 @@ public class SimpleSetupActivity extends AppCompatActivity {
 
                     finish();
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    recreate();
+                    e.printStackTrace();
                 }
             });
 

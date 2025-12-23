@@ -9,9 +9,11 @@ import com.kosherjava.zmanim.ComplexZmanimCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.util.GeoLocation;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 /**
  * This class extends the ZmanimCalendar class to add a few methods that are specific to the opinion of the Rabbi Ovadiah Yosef ZT"L.
@@ -24,7 +26,7 @@ import java.util.GregorianCalendar;
  * Thankfully, KosherJava's ZmanimCalendar class has all the zmanim and tools that are needed to calculate the zmanim in the
  * "Luach Hamaor, Ohr HaChaim" except for the zmanim that are based on visible sunrise. Visible sunrise is the exact time that the sun is visible
  * above the horizon. This time needs to take into account the horizon around the city. The {@link #getHaNetz()} method gets the visible sunrise
- * from a file that is used by the {@link ChaiTables} class. The {@link ChaiTablesScraper} class downloads the sunrise times from the ChaiTables website
+ * from a file that is used by the {@link ChaiTables} class. The class downloads the sunrise times from the ChaiTables website
  * and creates a file that contains the sunrise times for the current location.
  * <br><br>
  * All the other zmanim that were not included in KosherJava's zmanim calculator are calculated in this class.
@@ -128,12 +130,29 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     private static final int MINUTES_PER_HOUR = 60;
     private static final int MILLISECONDS_PER_MINUTE = 60_000;
     private final SharedPreferences sharedPreferences;
+    public List<Calendar> vSunriseDates = new ArrayList<>();
 
     public ROZmanimCalendar(GeoLocation location, SharedPreferences sharedPreferences) {
         super(location);
         jewishCalendar = new JewishCalendar();
         setUseElevation(true);
         this.sharedPreferences = sharedPreferences;
+        loadVSunriseFile();
+    }
+
+    private void loadVSunriseFile() {
+        ChaiTables chaiTables = new ChaiTables(getGeoLocation().getLocationName(), sharedPreferences);
+        List<Long> currentVisibleSunrise = chaiTables.getVisibleSunrise();
+        if (currentVisibleSunrise == null) {
+            return;
+        }
+
+        // Convert each seconds-since-midnight long into a Calendar
+        for (Long seconds : currentVisibleSunrise) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(new Date(seconds * 1000));  // convert seconds → millis
+            vSunriseDates.add(cal);
+        }
     }
 
     /**
@@ -163,27 +182,14 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
      */
     public Date getHaNetz() {
         jewishCalendar.setDate(getCalendar());
-        ChaiTables chaiTables = new ChaiTables(getGeoLocation().getLocationName(), jewishCalendar, sharedPreferences);
-        String currentVisibleSunrise = chaiTables.getVisibleSunrise();
-        if (currentVisibleSunrise.isEmpty()) {
-            return null;
+        for (Calendar vSunriseDate : vSunriseDates) {
+            if (vSunriseDate.get(Calendar.ERA) == jewishCalendar.getGregorianCalendar().get(Calendar.ERA) &&
+                    vSunriseDate.get(Calendar.YEAR) == jewishCalendar.getGregorianCalendar().get(Calendar.YEAR) &&
+                    vSunriseDate.get(Calendar.DAY_OF_YEAR) == jewishCalendar.getGregorianCalendar().get(Calendar.DAY_OF_YEAR))
+                return vSunriseDate.getTime();
         }
-        int visibleSunriseHour = Integer.parseInt(currentVisibleSunrise.substring(0, 1));
-        int visibleSunriseMinutes = Integer.parseInt(currentVisibleSunrise.substring(2, 4));
 
-        Calendar tempCal = (Calendar) getCalendar().clone();
-        tempCal.set(Calendar.HOUR_OF_DAY, visibleSunriseHour);
-        tempCal.set(Calendar.MINUTE, visibleSunriseMinutes);
-
-        if (currentVisibleSunrise.length() == 7) {
-            int visibleSunriseSeconds = Integer.parseInt(currentVisibleSunrise.substring(5, 7));
-            tempCal.set(Calendar.SECOND, visibleSunriseSeconds);
-        } else {
-            tempCal.set(Calendar.SECOND, 0);
-        }
-        tempCal.set(Calendar.MILLISECOND, 0);
-
-        return tempCal.getTime();
+        return null;
     }
 
     /**
@@ -299,9 +305,18 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
 
     @Override
     public void setCalendar(Calendar calendar) {
+        int curYear = 0;
+        if (jewishCalendar != null) {
+            curYear = jewishCalendar.getJewishYear();
+        }
+
         super.setCalendar(calendar);
         if (getCalendar() != null && jewishCalendar != null) {
             jewishCalendar.setDate(getCalendar());
+        }
+
+        if (curYear != 0 && curYear != jewishCalendar.getJewishYear()) {
+            loadVSunriseFile();
         }
     }
 

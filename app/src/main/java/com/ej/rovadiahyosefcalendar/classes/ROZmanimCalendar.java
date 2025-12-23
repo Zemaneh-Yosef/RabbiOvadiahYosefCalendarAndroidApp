@@ -2,8 +2,6 @@ package com.ej.rovadiahyosefcalendar.classes;
 
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentLocationName;
 
-import android.content.Context;
-
 import com.kosherjava.zmanim.AstronomicalCalendar;
 import com.kosherjava.zmanim.ZmanimCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
@@ -11,11 +9,11 @@ import com.kosherjava.zmanim.util.GeoLocation;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -31,7 +29,7 @@ import java.util.List;
  * Thankfully, KosherJava's ZmanimCalendar class has all the zmanim and tools that are needed to calculate the zmanim in the
  * "Luach Hamaor, Ohr HaChaim" except for the zmanim that are based on visible sunrise. Visible sunrise is the exact time that the sun is visible
  * above the horizon. This time needs to take into account the horizon around the city. The {@link #getHaNetz()} method gets the visible sunrise
- * from a file that is used by the {@link ChaiTables} class. The {@link ChaiTablesScraper} class downloads the sunrise times from the ChaiTables website
+ * from a file that is gotten by the {@link ChaiTablesWebJava} class. The {@link ChaiTablesWebJava} class downloads the sunrise times from the ChaiTables website
  * and creates a file that contains the sunrise times for the current location.
  * <br><br>
  * All the other zmanim that were not included in KosherJava's zmanim calculator are calculated in this class.
@@ -161,18 +159,19 @@ public class ROZmanimCalendar extends ZmanimCalendar {
             return;
         }
 
-        File vsFile = new File(externalFilesDir, "visibleSunriseTable" + sCurrentLocationName + jewishCalendar.getJewishYear() + ".dat");
-        if (!vsFile.isFile())
+        File vsFile = ChaiTablesWebJava.getVisibleSunriseFile(externalFilesDir, sCurrentLocationName, jewishCalendar.getJewishYear());
+        if (!vsFile.isFile()) {
             return;
+        }
 
-        List<Long> vSunriseTimes;
+        List<Long> vSunriseTimes = Collections.emptyList();
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(vsFile))) {
             vSunriseTimes = (List<Long>) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
-			throw new RuntimeException(e);
-		}
+            e.printStackTrace();
+        }
 
-		// Convert each seconds-since-midnight long into a Calendar
+        // Convert each seconds-since-midnight long into a Calendar
         for (Long seconds : vSunriseTimes) {
             Calendar cal = Calendar.getInstance();
             cal.setTime(new Date(seconds * 1000));  // convert seconds → millis
@@ -666,10 +665,6 @@ public class ROZmanimCalendar extends ZmanimCalendar {
         loadVSunriseFile();
     }
 
-    public File getExternalFilesDir() {
-        return this.externalFilesDir;
-    }
-
     @Override
     public void setCalendar(Calendar calendar) {
         int curYear = 0;
@@ -682,8 +677,9 @@ public class ROZmanimCalendar extends ZmanimCalendar {
             jewishCalendar.setDate(getCalendar());
         }
 
-        if (this.externalFilesDir != null && curYear != 0 && jewishCalendar != null && curYear != jewishCalendar.getJewishYear())
+        if (this.externalFilesDir != null && curYear != 0 && curYear != jewishCalendar.getJewishYear()) {
             loadVSunriseFile();
+        }
     }
 
     /**

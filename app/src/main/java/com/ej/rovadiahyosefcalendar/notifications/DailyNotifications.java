@@ -81,20 +81,18 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
             }
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                NotificationChannel channel = new NotificationChannel("Jewish Special Day",
-                        "Daily Special Day Notifications",
-                        NotificationManager.IMPORTANCE_HIGH);
-                channel.setDescription("This notification will check daily if there is a special jewish day and display it at sunrise.");
-                channel.enableLights(true);
-                channel.enableVibration(true);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    channel.setAllowBubbles(true);
-                }
-                channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
-                channel.setLightColor(Color.BLUE);
-                notificationManager.createNotificationChannel(channel);
+            NotificationChannel channel = new NotificationChannel("Jewish Special Day",
+                    "Daily Special Day Notifications",
+                    NotificationManager.IMPORTANCE_HIGH);
+            channel.setDescription("This notification will check daily if there is a special jewish day and display it at sunrise.");
+            channel.enableLights(true);
+            channel.enableVibration(true);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                channel.setAllowBubbles(true);
             }
+            channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+            channel.setLightColor(Color.BLUE);
+            notificationManager.createNotificationChannel(channel);
 
             Intent notificationIntent = new Intent(context, MainFragmentManagerActivity.class);
             notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

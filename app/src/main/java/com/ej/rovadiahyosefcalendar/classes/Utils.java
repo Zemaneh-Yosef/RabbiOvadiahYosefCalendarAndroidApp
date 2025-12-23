@@ -1,8 +1,8 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sJewishDateInfo;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentLocationName;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentTimeZoneID;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sJewishDateInfo;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sLatitude;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sLongitude;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sSettingsPreferences;
@@ -33,12 +33,16 @@ import com.google.android.gms.wearable.Wearable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -69,18 +73,27 @@ public class Utils {
     }
 
     public static boolean isLocaleHebrew() {
-        return Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew");
+        return Locale.getDefault().getDisplayLanguage(new Locale.Builder().setLanguage("en").setRegion("US").build()).equals("Hebrew");
     }
 
     public static String inputStreamToString(InputStream inputStream) {
         try {
             byte[] bytes = new byte[inputStream.available()];
             inputStream.read(bytes, 0, bytes.length);
-            String json = new String(bytes);
-            return json;
+            return new String(bytes);
         } catch (IOException e) {
             return null;
         }
+    }
+
+    /**
+     * Mainly use this method to remove the postal code from the location name in chaitable classes so the location name is more generic.
+     * @param input the location name
+     * @return the location name without the postal code
+     */
+    public static String removePostalCode(String input) {
+        if (input == null) return null;
+        return input.replaceAll("\\s*\\([^)]*\\)$", "").trim();// Removes ANY trailing " (something)"
     }
 
     public static String dateFormatPattern(boolean showSeconds) {
@@ -135,14 +148,10 @@ public class Utils {
     }
 
     public static void showVisibleSunriseNotification(Context context) {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel("visible_sunrise", "Visible Sunrise Notification", NotificationManager.IMPORTANCE_HIGH);
-            channel.setDescription("This notification will only be sent after the setup process is complete. Otherwise, please use the sunrise dialog.");
-            NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
-            if (notificationManager != null) {
-                notificationManager.createNotificationChannel(channel);
-            }
-        }
+        NotificationChannel channel = new NotificationChannel("visible_sunrise", "Visible Sunrise Notification", NotificationManager.IMPORTANCE_HIGH);
+        channel.setDescription("This notification will only be sent after the setup process is complete. Otherwise, please use the sunrise dialog.");
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+        notificationManager.createNotificationChannel(channel);
         int notificationId = Integer.MAX_VALUE; // Unique ID for this notification
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "visible_sunrise")
@@ -155,7 +164,6 @@ public class Utils {
                         PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE))
                 .setAutoCancel(true);
 
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
             notificationManager.notify(notificationId, builder.build());
         }
@@ -274,35 +282,49 @@ public class Utils {
                                 sendMessageTask.addOnCompleteListener(task -> {
                                     if (task.isSuccessful()) {
                                         int result = task.getResult();
-                                        Log.d("From main app", "Message sent to " + node.getDisplayName() + ". Result: " + result + ". message: " +message);
+                                        Log.d("From main app", "Message sent to " + node.getDisplayName() + ". Result: " + result + ". message: " + message);
                                     } else {
                                         Exception exception = task.getException();
                                         Log.e("From main app", "Failed to send message to watch: " + exception);
                                     }
                                 });
 
-                                try {
-                                    ChaiTables chaiTables = new ChaiTables(context.getExternalFilesDir(null), sCurrentLocationName, sJewishDateInfo.getJewishCalendar());
-                                    String chaiTableForThisYear = chaiTables.getFullChaiTable();
-                                    byte[] chaiTablePayload = chaiTableForThisYear.getBytes(StandardCharsets.UTF_8); // use UTF-8 since each ASCII character will be 1 byte
+                                StringBuilder chaiTableForThisYear = new StringBuilder();
+                                if (sCurrentLocationName != null && sCurrentLocationName.isEmpty()) {
+                                    return;
+                                }
 
-                                    Task<Integer> sendChaiTablesTask =
-                                            Wearable.getMessageClient(context)
-                                                    .sendMessage(node.getId(), "chaiTable/", chaiTablePayload);
+                                File vsFile = ChaiTablesWebJava.getVisibleSunriseFile(context.getExternalFilesDir(null), sCurrentLocationName, sJewishDateInfo.getJewishCalendar().getJewishYear());
+                                if (!vsFile.isFile()) {
+                                    return;
+                                }
 
-                                    sendChaiTablesTask.addOnCompleteListener(task -> {
-                                        if (task.isSuccessful()) {
-                                            int result = task.getResult();
-                                            Log.d("From main app", "chaiTable sent to " + node.getDisplayName() + ". Result: " + result + ". message: " + message);
-                                        } else {
-                                            Exception exception = task.getException();
-                                            Log.e("From main app", "Failed to send chaiTable to watch: " + exception);
-                                        }
-                                    });
-                                } catch (Exception e) {
-                                    Log.e("From main app", "Failed to build ChaiTables object, file is probably missing");
+                                List<Long> vSunriseTimes = Collections.emptyList();
+                                try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(vsFile))) {
+                                    vSunriseTimes = (List<Long>) ois.readObject();
+                                } catch (IOException | ClassNotFoundException e) {
                                     e.printStackTrace();
                                 }
+
+                                for (Long seconds : vSunriseTimes) {
+                                    chaiTableForThisYear.append(seconds).append(":");
+                                }
+
+                                byte[] chaiTablePayload = chaiTableForThisYear.toString().getBytes(StandardCharsets.UTF_8); // use UTF-8 since each ASCII character will be 1 byte
+
+                                Task<Integer> sendChaiTablesTask =
+                                        Wearable.getMessageClient(context)
+                                                .sendMessage(node.getId(), "chaiTable/", chaiTablePayload);
+
+                                sendChaiTablesTask.addOnCompleteListener(task -> {
+                                    if (task.isSuccessful()) {
+                                        int result = task.getResult();
+                                        Log.d("From main app", "chaiTable sent to " + node.getDisplayName() + ". Result: " + result + ". message: " + message);
+                                    } else {
+                                        Exception exception = task.getException();
+                                        Log.e("From main app", "Failed to send chaiTable to watch: " + exception);
+                                    }
+                                });
                             }
                         } catch (ExecutionException | InterruptedException | JSONException exception) {
                             Log.e("From main app", "Failed to send message to watch: " + exception);

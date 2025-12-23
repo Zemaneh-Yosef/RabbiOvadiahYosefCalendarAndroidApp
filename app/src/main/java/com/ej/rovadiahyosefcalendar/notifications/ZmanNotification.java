@@ -47,20 +47,18 @@ public class ZmanNotification extends BroadcastReceiver {
 
     private void notifyUser(Context context, JewishCalendar jewishCalendar, String zman, int secondsTreatment) {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel("Zmanim", "Daily Zemanim Notifications", NotificationManager.IMPORTANCE_HIGH);
-            channel.setDescription("This notification will display when zmanim are about to begin.");
-            channel.enableLights(true);
-            channel.enableVibration(true);
-            //channel.setVibrationPattern(new long[]{0, 100, 200, 300});
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                channel.setAllowBubbles(true);
-            }
-            channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
-            channel.setLightColor(Color.BLUE);
-            channel.setImportance(NotificationManager.IMPORTANCE_HIGH);
-            notificationManager.createNotificationChannel(channel);
+        NotificationChannel channel = new NotificationChannel("Zmanim", "Daily Zemanim Notifications", NotificationManager.IMPORTANCE_HIGH);
+        channel.setDescription("This notification will display when zmanim are about to begin.");
+        channel.enableLights(true);
+        channel.enableVibration(true);
+        //channel.setVibrationPattern(new long[]{0, 100, 200, 300});
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            channel.setAllowBubbles(true);
         }
+        channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+        channel.setLightColor(Color.BLUE);
+        channel.setImportance(NotificationManager.IMPORTANCE_HIGH);
+        notificationManager.createNotificationChannel(channel);
 
         Intent notificationIntent = new Intent(context, MainFragmentManagerActivity.class);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

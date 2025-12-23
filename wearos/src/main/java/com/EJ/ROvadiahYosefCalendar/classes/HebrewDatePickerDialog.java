@@ -43,7 +43,7 @@ public class HebrewDatePickerDialog extends Dialog {
                                   View.OnClickListener cancelOnClick) {
         super(context, 0);
         mListener = listener;
-        if (Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew")) {
+        if (Locale.getDefault().getDisplayLanguage(new Locale.Builder().setLanguage("en").setRegion("US").build()).equals("Hebrew")) {
             mHebrewMonths = new String[]{"ניסן", "אייר", "סיון", "תמוז", "אב", "אלול", "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר"};
             mHebrewMonthsLeap = new String[]{"ניסן", "אייר", "סיון", "תמוז", "אב", "אלול", "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר א׳", "אדר ב׳"};
         }

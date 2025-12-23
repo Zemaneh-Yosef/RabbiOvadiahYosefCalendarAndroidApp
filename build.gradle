@@ -3,8 +3,8 @@ ext {
 }// Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     ext {
-        wear_compose_version = '1.4.1'
-        horologist_version = '0.6.23'
+        wear_compose_version = '1.5.6'
+        horologist_version = '0.7.15'
         wear_tiles_version = '1.5.0'
         kotlin_version = '2.1.0'
     }

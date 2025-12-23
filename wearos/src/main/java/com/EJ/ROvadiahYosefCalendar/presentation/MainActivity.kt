@@ -88,7 +88,6 @@ import androidx.wear.tiles.TileService
 import com.EJ.ROvadiahYosefCalendar.R
 import com.EJ.ROvadiahYosefCalendar.classes.HebrewDatePickerDialog
 import com.EJ.ROvadiahYosefCalendar.classes.JewishDateInfo
-import com.EJ.ROvadiahYosefCalendar.classes.LocaleChecker
 import com.EJ.ROvadiahYosefCalendar.classes.LocationResolver
 import com.EJ.ROvadiahYosefCalendar.classes.OnChangeListener
 import com.EJ.ROvadiahYosefCalendar.classes.PreferenceListener
@@ -122,6 +121,7 @@ import java.util.TimeZone
 import java.util.concurrent.CopyOnWriteArrayList
 import androidx.core.content.edit
 import androidx.core.net.toUri
+import com.EJ.ROvadiahYosefCalendar.classes.ZmanimFactory
 
 class MainActivity : ComponentActivity() {
 
@@ -186,7 +186,7 @@ class MainActivity : ComponentActivity() {
                 val message = String(messageEvent.data, StandardCharsets.UTF_8) // convert bytes to String
                 sharedPref.edit {
                     putString(
-                        "chaiTable" + sharedPref.getString("locationName", ""),
+                        "chaiTable" + Utils.removePostalCode(sharedPref.getString("locationName", "")),
                         message
                     )
                 } // The location name should be set already from the previous message
@@ -198,8 +198,11 @@ class MainActivity : ComponentActivity() {
 
         // To test JSON object transfer, uncomment:
 
-        //savePreferencesToLocalDevice(JSONTest.getJSONPreferencesObject(sharedPref, sharedPref))
-        //sharedPref.edit().putBoolean("hasGottenDataFromApp", true).apply()
+//        savePreferencesToLocalDevice(JSONTest.getJSONPreferencesObject(sharedPref, sharedPref))
+//        sharedPref.edit {
+//            putString("chaiTable" + Utils.removePostalCode(sharedPref.getString("locationName", "")), "1766319591:1768825127:1771415244:1773918088:1776507280:1779010685:1781601992:1784108342:1786702047:1766406020:1768911495:1771501579:1774004396:1776593595:1779097028:1781688399:1784194785:1786788502:1766492447:1768997858:1771587905:1774090697:1776679914:1779183371:1781774806:1784281229:1786874961:1766578872:1769084212:1771674221:1774176989:1776766236:1779269725:1781861214:1784367681:1786961423:1766665294:1769170572:1771760536:1774263295:1776852544:1779356079:1781947624:1784454128:1787047885:1766751715:1769256934:1771846856:1774349601:1776938848:1779442436:1782034037:1784540572:1787134347:1766838134:1769343295:1771933174:1774435901:1777025163:1779528794:1782120451:1784627022:1787220811:1766924550:1769429651:1772019486:1774522193:1777111474:1779615159:1782206867:1784713472:1787307278:1767010964:1769516002:1772105797:1774608484:1777197789:1779701521:1782293284:1784799920:1787393732:1767097376:1769602358:1772192099:1774694787:1777284107:1779787883:1782379701:1784886373:1787480184:1764590649:1767183783:1769688711:1772278395:1774781090:1777370431:1779874248:1782466122:1784972830:1787566636:1764677111:1767270191:1769775061:1772364721:1774867391:1777456751:1779960618:1782552545:1785059292:1787653090:1764763568:1767356599:1769861405:1772451046:1774953692:1777543060:1780046986:1782638967:1785145750:1787739540:1764850026:1767443002:1769947746:1772537358:1775039993:1777629367:1780133358:1782725393:1785232198:1787825981:1764936481:1767529402:1770034085:1772623664:1775126287:1777715678:1780219734:1782811821:1785318649:1787912425:1765022936:1767615799:1770120406:1772709970:1775212584:1777801996:1780306111:1782898250:1785405101:1787998879:1765109393:1767702195:1770206734:1772796268:1775298894:1777888315:1780392499:1782984678:1785491567:1788085330:1765195846:1767788592:1770293067:1772882543:1775385202:1777974637:1780478886:1783071111:1785578025:1788171786:1765282297:1767874983:1770379397:1772968842:1775471512:1778060961:1780565269:1783157544:1785664480:1788258245:1765368745:1767961375:1770465728:1773055136:1775557823:1778147289:1780651655:1783243979:1785750927:1788344701:1765455194:1768047763:1770552057:1773141429:1775644139:1778233618:1780738043:1783330408:1785837385:1788431151:1765541644:1768134145:1770638383:1773227732:1775730447:1778319945:1780824433:1783416843:1785923849:1788517605:1765628090:1768220527:1770724703:1773314014:1775816757:1778406294:1780910820:1783503277:1786010310:1788604054:1765714534:1768306909:1770811021:1773400319:1775903064:1778492632:1780997209:1783589713:1786096771:1788690505:1765800976:1768393282:1770897341:1773486610:1775989371:1778578971:1781083603:1783676142:1786183234:1788776959:1765887416:1768479653:1770983658:1773572917:1776075682:1778665301:1781169995:1783762574:1786269701:1788863410:1765973855:1768566032:1771069991:1773659221:1776161997:1778751646:1781256390:1783849011:1786356167:1788949865:1766060292:1768652406:1771156320:1773745507:1776248315:1778837994:1781342787:1783935453:1786442639:1789036329:1766146727:1768738766:1771242623:1773831792:1776334638:1778924342:1781429186:1784021896:1786529113:1789122795:1766233160:1771328933:1776420962:1781515589:1786615585:")
+//            putBoolean("hasGottenDataFromApp", true)
+//        }
     }
 
     private fun savePreferencesToLocalDevice(jsonPreferences: JSONObject) {
@@ -307,7 +310,8 @@ class MainActivity : ComponentActivity() {
                 editor.putBoolean("Show Regular Minutes", jsonPreferences.getBoolean("Show Regular Minutes"))
                     .putBoolean("Show Rabbeinu Tam", jsonPreferences.getBoolean("Show Rabbeinu Tam")).apply()
             }
-        } catch (_:JSONException) {
+        } catch (e:JSONException) {
+            e.printStackTrace()
             val builder = AlertDialog.Builder(this)
             builder.setTitle(R.string.error)
             builder.setMessage(getString(R.string.json_error))
@@ -318,7 +322,6 @@ class MainActivity : ComponentActivity() {
             builder.show()
         }
     }
-
 
     private fun showHebrewDatePickerDialog() {
         val hebrewDatePickerDialog = HebrewDatePickerDialog(
@@ -568,7 +571,7 @@ class MainActivity : ComponentActivity() {
                             mROZmanimCalendar.calendar.getDisplayName(
                                 Calendar.DAY_OF_WEEK,
                                 Calendar.LONG,
-                                Locale("he", "IL")
+                                Locale.Builder().setLanguage("he").setRegion("IL").build()
                             )
                 )
             )
@@ -650,7 +653,7 @@ class MainActivity : ComponentActivity() {
         }
         addTekufaLength(zmanim, tekufaOpinions)
 
-        addZmanim(zmanim, false, sharedPref, sharedPref, mROZmanimCalendar, mJewishDateInfo, sharedPref.getBoolean("isZmanimInHebrew", false), sharedPref.getBoolean("isZmanimEnglishTranslated", false), true)
+        addZmanim(zmanim, false, sharedPref, mROZmanimCalendar, mJewishDateInfo, sharedPref.getBoolean("isZmanimInHebrew", false), sharedPref.getBoolean("isZmanimEnglishTranslated", false), true)
 
         if (!mCurrentDateShown.before(dafYomiStartDate)) {
             zmanim.add(
@@ -762,7 +765,7 @@ class MainActivity : ComponentActivity() {
 
     private fun addTekufaTime() {
         val zmanimFormat: DateFormat =
-            if (Locale.getDefault().getDisplayLanguage(Locale("en", "US")) == "Hebrew") {
+            if (Locale.getDefault().getDisplayLanguage(Locale.Builder().setLanguage("en").setRegion("US").build()) == "Hebrew") {
                 SimpleDateFormat("H:mm", Locale.getDefault())
             } else {
                 SimpleDateFormat("h:mm aa", Locale.getDefault())
@@ -780,7 +783,7 @@ class MainActivity : ComponentActivity() {
             cal2.time =
                 mJewishDateInfo.jewishCalendar.tekufaAsDate // should not be null in this if block
             if (cal1[Calendar.ERA] == cal2[Calendar.ERA] && cal1[Calendar.YEAR] == cal2[Calendar.YEAR] && cal1[Calendar.DAY_OF_YEAR] == cal2[Calendar.DAY_OF_YEAR]) {
-                if (Locale.getDefault().getDisplayLanguage(Locale("en", "US")) == "Hebrew") {
+                if (Locale.getDefault().getDisplayLanguage(Locale.Builder().setLanguage("en").setRegion("US").build()) == "Hebrew") {
                     zmanim.add(
                         ZmanListEntry(
                             "תקופת " + mJewishDateInfo.jewishCalendar.tekufaName +
@@ -806,7 +809,7 @@ class MainActivity : ComponentActivity() {
             cal2.time =
                 mJewishDateInfo.jewishCalendar.tekufaAsDate // should not be null in this if block
             if (cal1[Calendar.ERA] == cal2[Calendar.ERA] && cal1[Calendar.YEAR] == cal2[Calendar.YEAR] && cal1[Calendar.DAY_OF_YEAR] == cal2[Calendar.DAY_OF_YEAR]) {
-                if (Locale.getDefault().getDisplayLanguage(Locale("en", "US")) == "Hebrew") {
+                if (Locale.getDefault().getDisplayLanguage(Locale.Builder().setLanguage("en").setRegion("US").build()) == "Hebrew") {
                     zmanim.add(
                         ZmanListEntry(
                             "תקופת " + mJewishDateInfo.jewishCalendar.tekufaName +
@@ -827,7 +830,7 @@ class MainActivity : ComponentActivity() {
 
     private fun addAmudeiHoraahTekufaTime() {
         val zmanimFormat: DateFormat =
-            if (Locale.getDefault().getDisplayLanguage(Locale("en", "US")) == "Hebrew") {
+            if (Locale.getDefault().getDisplayLanguage(Locale.Builder().setLanguage("en").setRegion("US").build()) == "Hebrew") {
                 SimpleDateFormat("H:mm", Locale.getDefault())
             } else {
                 SimpleDateFormat("h:mm aa", Locale.getDefault())
@@ -845,7 +848,7 @@ class MainActivity : ComponentActivity() {
             cal2.time =
                 mJewishDateInfo.jewishCalendar.amudeiHoraahTekufaAsDate // should not be null in this if block
             if (cal1[Calendar.ERA] == cal2[Calendar.ERA] && cal1[Calendar.YEAR] == cal2[Calendar.YEAR] && cal1[Calendar.DAY_OF_YEAR] == cal2[Calendar.DAY_OF_YEAR]) {
-                if (Locale.getDefault().getDisplayLanguage(Locale("en", "US")) == "Hebrew") {
+                if (Locale.getDefault().getDisplayLanguage(Locale.Builder().setLanguage("en").setRegion("US").build()) == "Hebrew") {
                     zmanim.add(
                         ZmanListEntry(
                             "תקופת " + mJewishDateInfo.jewishCalendar.tekufaName +
@@ -871,7 +874,7 @@ class MainActivity : ComponentActivity() {
             cal2.time =
                 mJewishDateInfo.jewishCalendar.amudeiHoraahTekufaAsDate // should not be null in this if block
             if (cal1[Calendar.ERA] == cal2[Calendar.ERA] && cal1[Calendar.YEAR] == cal2[Calendar.YEAR] && cal1[Calendar.DAY_OF_YEAR] == cal2[Calendar.DAY_OF_YEAR]) {
-                if (Locale.getDefault().getDisplayLanguage(Locale("en", "US")) == "Hebrew") {
+                if (Locale.getDefault().getDisplayLanguage(Locale.Builder().setLanguage("en").setRegion("US").build()) == "Hebrew") {
                     zmanim.add(
                         ZmanListEntry(
                             "תקופת " + mJewishDateInfo.jewishCalendar.tekufaName +
@@ -892,7 +895,7 @@ class MainActivity : ComponentActivity() {
 
     private fun addTekufaLength(zmanim: MutableList<ZmanListEntry>, opinion: String?) {
         val millisPerHour = 3_600_000
-        val zmanimFormat: DateFormat = if (Locale.getDefault().getDisplayLanguage(Locale("en", "US")) == "Hebrew") {
+        val zmanimFormat: DateFormat = if (Locale.getDefault().getDisplayLanguage(Locale.Builder().setLanguage("en").setRegion("US").build()) == "Hebrew") {
             SimpleDateFormat("H:mm", Locale.getDefault())
         } else {
             SimpleDateFormat("h:mm aa", Locale.getDefault())
@@ -942,7 +945,7 @@ class MainActivity : ComponentActivity() {
                         halfHourBefore = Date(tekufa.time - (millisPerHour / 2))
                         halfHourAfter = Date(tekufa.time + (millisPerHour / 2))
                     }
-                    if (LocaleChecker.isLocaleHebrew()) {
+                    if (Utils.isLocaleHebrew()) {
                         zmanim.add(
                             ZmanListEntry(
                                 getString(R.string.tekufa_length) + zmanimFormat.format(
@@ -964,7 +967,7 @@ class MainActivity : ComponentActivity() {
                 "2" -> {
                     halfHourBefore = Date(tekufa.time - (millisPerHour / 2))
                     halfHourAfter = Date(tekufa.time + (millisPerHour / 2))
-                    if (LocaleChecker.isLocaleHebrew()) {
+                    if (Utils.isLocaleHebrew()) {
                         zmanim.add(
                             ZmanListEntry(
                                 getString(R.string.tekufa_length) + zmanimFormat.format(
@@ -986,7 +989,7 @@ class MainActivity : ComponentActivity() {
                 "3" -> {
                     halfHourBefore = Date(aHTekufa.time - (millisPerHour / 2))
                     halfHourAfter = Date(aHTekufa.time + (millisPerHour / 2))
-                    if (LocaleChecker.isLocaleHebrew()) {
+                    if (Utils.isLocaleHebrew()) {
                         zmanim.add(
                             ZmanListEntry(
                                 getString(R.string.tekufa_length) + zmanimFormat.format(
@@ -1008,7 +1011,7 @@ class MainActivity : ComponentActivity() {
                 else -> {
                     halfHourBefore = Date(aHTekufa.time - (millisPerHour / 2))
                     halfHourAfter = Date(tekufa.time + (millisPerHour / 2))
-                    if (LocaleChecker.isLocaleHebrew()) {
+                    if (Utils.isLocaleHebrew()) {
                         zmanim.add(
                             ZmanListEntry(
                                 getString(R.string.tekufa_length) + zmanimFormat.format(
@@ -1031,30 +1034,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun setNextUpcomingZman() {
-        var theZman: Date? = null
-        val zmanim: MutableList<ZmanListEntry> = java.util.ArrayList()
-        val today = Calendar.getInstance()
-        today.add(Calendar.DATE, -1)
-        mROZmanimCalendar.calendar = today
-        mJewishDateInfo.setCalendar(today)
-        addZmanim(zmanim, false, sharedPref, sharedPref, mROZmanimCalendar, mJewishDateInfo, sharedPref.getBoolean("isZmanimInHebrew", false), sharedPref.getBoolean("isZmanimEnglishTranslated", false), true) //for the previous day
-        today.add(Calendar.DATE, 1)
-        mROZmanimCalendar.calendar = today
-        mJewishDateInfo.setCalendar(today)
-        addZmanim(zmanim, false, sharedPref, sharedPref, mROZmanimCalendar, mJewishDateInfo, sharedPref.getBoolean("isZmanimInHebrew", false), sharedPref.getBoolean("isZmanimEnglishTranslated", false), true) //for the current day
-        today.add(Calendar.DATE, 1)
-        mROZmanimCalendar.calendar = today
-        mJewishDateInfo.setCalendar(today)
-        addZmanim(zmanim, false, sharedPref, sharedPref, mROZmanimCalendar, mJewishDateInfo, sharedPref.getBoolean("isZmanimInHebrew", false), sharedPref.getBoolean("isZmanimEnglishTranslated", false), true) //for the next day
-        syncCalendars() //reset
-        //find the next upcoming zman that is after the current time and before all the other zmanim
-        for (zmanEntry in zmanim) {
-            val zman: Date? = zmanEntry.zman
-            if (zman != null && zman.after(Date()) && (theZman == null || zman.before(theZman))) {
-                theZman = zman
-            }
-        }
-        sNextUpcomingZman = theZman
+        sNextUpcomingZman = ZmanimFactory.getNextUpcomingZman(Calendar.getInstance(), mROZmanimCalendar, mJewishDateInfo, sharedPref).zman
         setNextUpcomingZmanIndex()
     }
 
@@ -1088,7 +1068,7 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterialApi::class)
     @Composable
     fun WearApp(zmanimList: MutableList<ZmanListEntry>) {
-        if (zmanimList.size == 0) {
+        if (zmanimList.isEmpty()) {
             zmanimList.add(ZmanListEntry(""))
         }
         val refreshScope = rememberCoroutineScope()

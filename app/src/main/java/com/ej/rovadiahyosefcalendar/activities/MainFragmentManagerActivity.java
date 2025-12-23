@@ -43,7 +43,7 @@ import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.ui.limudiim.LimudFragment;
 import com.ej.rovadiahyosefcalendar.activities.ui.siddur.SiddurFragment;
 import com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment;
-import com.ej.rovadiahyosefcalendar.classes.ChaiTables;
+import com.ej.rovadiahyosefcalendar.classes.ChaiTablesWebJava;
 import com.ej.rovadiahyosefcalendar.classes.ExceptionHandler;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
@@ -151,21 +151,20 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
 
         String lang = sSettingsPreferences.getString("language", "Default");
         if (!lang.equals("Default")) {
-            if (!Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals(lang)) {
+            if (!Locale.getDefault().getDisplayLanguage(new Locale.Builder().setLanguage("en").setRegion("US").build()).equals(lang)) {
                 switch (lang) {
                     case "English":
-                        Locale locale = new Locale("en", "US");
+                        Locale locale = new Locale.Builder().setLanguage("en").setRegion("US").build();
                         Locale.setDefault(locale);
                         setLocale(locale);
                         break;
                     case "Hebrew":
-                        Locale helocale = new Locale("he", "IL");
+                        Locale helocale = new Locale.Builder().setLanguage("he").setRegion("IL").build();
                         Locale.setDefault(helocale);
                         setLocale(helocale);
                         sJewishDateInfo.resetLocale();
                         sSharedPreferences.edit()
                                 .putBoolean("isZmanimInHebrew", true)
-                                .putBoolean("isZmanimEnglishTranslated", false)
                                 .apply();
                         break;
                     default:
@@ -175,7 +174,7 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
         }
         sJewishDateInfo.getJewishCalendar().setInIsrael(sSharedPreferences.getBoolean("inIsrael", false));
         initSetupResult();
-        if (ChaiTables.visibleSunriseFileDoesNotExist(getExternalFilesDir(null), sCurrentLocationName, sJewishDateInfo.getJewishCalendar())
+        if (ChaiTablesWebJava.checkIfFileExists(getExternalFilesDir(null), sCurrentLocationName, sJewishDateInfo.getJewishCalendar().getJewishYear())
                 && sSharedPreferences.getBoolean("UseTable" + sCurrentLocationName, true)
                 && !sSharedPreferences.getBoolean("isSetup", false)
                 && savedInstanceState == null) {// it should only run if the user has not set up the app
@@ -361,11 +360,7 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
                         exception.printStackTrace();
                     }
                 } else {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        startForegroundService(new Intent(this, NextZmanCountdownNotification.class));
-                    } else {
-                        startService(new Intent(this, NextZmanCountdownNotification.class));
-                    }
+                    startForegroundService(new Intent(this, NextZmanCountdownNotification.class));
                 }
             }
         }

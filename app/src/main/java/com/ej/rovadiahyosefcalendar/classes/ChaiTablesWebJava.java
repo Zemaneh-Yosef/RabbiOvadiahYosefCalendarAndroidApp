@@ -1,6 +1,18 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
+import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
+import com.kosherjava.zmanim.util.GeoLocation;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -16,19 +28,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
-import com.kosherjava.zmanim.util.GeoLocation;
-import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
-
 /**
  * Java port of the ChaiTables helper used to build and scrape ChaiTables URLs.
  * This relies on GeoLocation and JewishDate from the KosherJava library
  * and on jsoup for HTML parsing.
- *
  * Note: ChaiTables uses Hebrew month indexing starting from Tishrei (1-12 or 1-13 in leap years),
  * whereas KosherJava uses indexing starting from Nissan (1-12 or 1-13 in leap years).
  * Conversion is handled automatically by convertMonthToChaiTablesIndex() and convertMonthFromChaiTablesIndex().
@@ -48,8 +51,8 @@ public final class ChaiTablesWebJava {
 	private int indexOfMetroArea;
 
 	public ChaiTablesWebJava(GeoLocation geoLocation, JewishDate jewishCalendar) {
-		this.geoLocation = Objects.requireNonNull(geoLocation, "geoLocation");
-		this.baseCalendar = Objects.requireNonNull(jewishCalendar, "jewishCalendar");
+		this.geoLocation = geoLocation;
+		this.baseCalendar = jewishCalendar;
 	}
 
 	/**
@@ -66,7 +69,8 @@ public final class ChaiTablesWebJava {
 	 */
 	public URL getChaiTablesLink(String searchradius, int type, JewishDate jewishCalendar, int userId) {
 		if (type < 0 || type > 5) {
-			throw new IllegalArgumentException("type of tables must be between 0 and 5");
+			new IllegalArgumentException("type of tables must be between 0 and 5").printStackTrace();
+			return null;
 		}
 
 		Map<String, String> urlParams = new LinkedHashMap<>();
@@ -112,16 +116,18 @@ public final class ChaiTablesWebJava {
 		try {
 			return new URL(builder.toString());
 		} catch (Exception e) {
-			throw new IllegalStateException("Failed to build ChaiTables URL", e);
+			new IllegalStateException("Failed to build ChaiTables URL", e).printStackTrace();
+			return null;
 		}
-	}
+    }
 
 	public List<Long> extractTimes(Document domParsed, JewishDate jDate) {
 		Element zmanTable = findZmanTable(domParsed);
 		if (zmanTable == null) {
 			Element inject = domParsed.getElementById("fetchURLInject");
 			String originalUrl = inject != null ? inject.data() : "";
-			throw new IllegalStateException("No zman table found: " + originalUrl);
+			new IllegalStateException("No zman table found: " + originalUrl).printStackTrace();
+			return null;
 		}
 
 		JewishDate loopCal = (JewishDate) jDate.clone();
@@ -149,39 +155,47 @@ public final class ChaiTablesWebJava {
 					continue;
 				}
 
-				int dayOfMonth = Integer.parseInt(cells.get(0).text().trim());
+                int dayOfMonth = Integer.parseInt(cells.get(0).text().trim());
 
-				// Convert ChaiTables month index (Tishrei=1) to KosherJava month index (Nissan=1)
-				int kosherjavaMonth = convertMonthFromChaiTablesIndex(monthIndex, loopCal.isJewishLeapYear());
-				loopCal.setJewishDate(loopCal.getJewishYear(), kosherjavaMonth, dayOfMonth);
+                // Convert ChaiTables month index (Tishrei=1) to KosherJava month index (Nissan=1)
+                int kosherjavaMonth = convertMonthFromChaiTablesIndex(monthIndex, loopCal.isJewishLeapYear());
+                loopCal.setJewishDate(loopCal.getJewishYear(), kosherjavaMonth, dayOfMonth);
 
-				boolean underlined = cell.html().toLowerCase(Locale.US).contains("<u");
-				ZonedDateTime time = toZonedDateTime(loopCal, zoneId, zmanTime);
+                boolean underlined = cell.html().toLowerCase(Locale.US).contains("<u");
+                ZonedDateTime time = toZonedDateTime(loopCal, zoneId, zmanTime);
 
-				if (underlined && time.getDayOfWeek() != DayOfWeek.SATURDAY) {
-					System.err.println("non-Shabbat underline. Something must be wrong: " + loopCal);
-					continue;
-				}
+                if (underlined && time.getDayOfWeek() != DayOfWeek.SATURDAY) {
+                    System.err.println("non-Shabbat underline. Something must be wrong: " + loopCal);
+                    continue;
+                }
 
-				if (time.isAfter(compareDate)) {
-					times.add(time.toEpochSecond());
-				}
-			}
-		}
+                if (time.isAfter(compareDate)) {
+                    times.add(time.toEpochSecond());
+                }
+            }
+        }
 
-		return times;
+        return times;
 	}
 
-	public ChaiTablesResult[] formatInterfacer() throws IOException {
+	/**
+	 * This method will format the results of the ChaiTables search into a ChaiTablesResult object array. It will take some time because it needs to
+	 * continuously scrape the website until the smallest radius is found.
+	 * @param customCTURL a custom URL to overwrite the default ChaiTables URL generated by this class.
+	 * @return ChaiTablesResult[] array of results
+	 */
+	public ChaiTablesResult[] formatInterfacer(String customCTURL) {
 		JewishDate calendar = (JewishDate) baseCalendar.clone();
 		ChaiTablesResult[] results = new ChaiTablesResult[2];
 		int i = 0;
 
 		Map<String, Document> radiusData = new LinkedHashMap<>();
 
-		Optional<String> smallestRadiusOpt = determineSmallestRadius(calendar, radiusData);
+		Optional<String> smallestRadiusOpt = determineSmallestRadius(customCTURL, calendar, radiusData);
 		if (smallestRadiusOpt.isEmpty()) {
-			throw new IOException("No valid data within a 15km search radius was found");
+			new IOException("No valid data within a 15km search radius was found")
+					.printStackTrace();
+			return null;
 		}
 
 		String smallestRadius = smallestRadiusOpt.get();
@@ -195,33 +209,39 @@ public final class ChaiTablesWebJava {
 				yearLoop.setJewishDayOfMonth(1);
 			}
 
+			URL ctLink = getChaiTablesLink(smallestRadius, 0, yearLoop, 413);
+			if (customCTURL != null) {
+                try {
+                    ctLink = new URL(customCTURL);
+                } catch (MalformedURLException e) {
+					new RuntimeException(e).printStackTrace();
+                }
+            }
+
 			String cacheKey = smallestRadius + "-" + yearLoop.getJewishYear();
 			Document ctDoc = radiusData.get(cacheKey);
 			if (ctDoc == null) {
-				URL ctLink = getChaiTablesLink(smallestRadius, 0, yearLoop, 413);
 				ctDoc = fetchChaiTablesDocument(ctLink);
 			}
 
-			if (findZmanTable(ctDoc) == null) {
+			if (ctDoc != null && findZmanTable(ctDoc) == null) {
 				continue;
 			}
 
-			List<Long> times = new ArrayList<>(extractTimes(ctDoc, yearLoop));
-			results[i] = new ChaiTablesResult(getChaiTablesLink(smallestRadius, 0, yearLoop, 413).toString(), times);
+			List<Long> times = new ArrayList<>(Objects.requireNonNull(extractTimes(ctDoc, yearLoop)));
+			results[i] = new ChaiTablesResult(Objects.requireNonNull(ctLink).toString(), times);
 			i++;
 		}
 
 		return results;
 	}
 
-	private Optional<String> determineSmallestRadius(JewishDate calendar, Map<String, Document> radiusData)
-		throws IOException {
-
+	private Optional<String> determineSmallestRadius(String customCTURL, JewishDate calendar, Map<String, Document> radiusData) {
 		if ("Israel".equals(selectedCountry)) {
 			return Optional.of("2");
 		}
 
-		if ("USA".equals(selectedCountry) && indexOfMetroArea == 32) {
+		if ("USA".equals(selectedCountry) && indexOfMetroArea == 32) { // 32 is Los Angeles, CA
 			if (doubleEquals(geoLocation.getLatitude(), 34.09777065545882)
 				&& doubleEquals(geoLocation.getLongitude(), -118.42699812743257)) {
 				return Optional.of("14");
@@ -229,25 +249,39 @@ public final class ChaiTablesWebJava {
 			return Optional.of("8");
 		}
 
-		String largestRadius = SEARCH_RADII.get(SEARCH_RADII.size() - 1);
+		String largestRadius = SEARCH_RADII.get(SEARCH_RADII.size() - 1);// first check if the largest radius has data
 		URL ctBiggestRadius = getChaiTablesLink(largestRadius, 0, calendar, 413);
+		if (customCTURL != null) {
+			try {
+				ctBiggestRadius = new URL(customCTURL.replaceAll("searchradius=[^&]*", "searchradius=" + largestRadius));
+			} catch (MalformedURLException e) {
+				new RuntimeException(e).printStackTrace();
+			}
+		}
 		Document ctBiggestDoc = fetchChaiTablesDocument(ctBiggestRadius);
 
-		if (findZmanTable(ctBiggestDoc) == null) {
+		if (ctBiggestDoc != null && findZmanTable(ctBiggestDoc) == null) { // no data, return empty
 			return Optional.empty();
 		}
 
 		radiusData.put(largestRadius + "-" + calendar.getJewishYear(), ctBiggestDoc);
 
 		for (String radius : SEARCH_RADII) {
-			if (radius.equals(largestRadius)) {
+			if (radius.equals(largestRadius)) { // just return if we got to the max
 				return Optional.of(radius);
 			}
 
 			URL ctLink = getChaiTablesLink(radius, 0, calendar, 413);
+			if (customCTURL != null) {
+				try {
+					ctLink = new URL(customCTURL.replaceAll("searchradius=[^&]*", "searchradius=" + radius));
+				} catch (MalformedURLException e) {
+					new RuntimeException(e).printStackTrace();
+				}
+			}
 			Document ctDoc = fetchChaiTablesDocument(ctLink);
 
-			if (findZmanTable(ctDoc) != null) {
+			if (ctDoc != null && findZmanTable(ctDoc) != null) {
 				radiusData.put(radius + "-" + calendar.getJewishYear(), ctDoc);
 				return Optional.of(radius);
 			}
@@ -256,9 +290,17 @@ public final class ChaiTablesWebJava {
 		return Optional.of(largestRadius);
 	}
 
-	private Document fetchChaiTablesDocument(URL url) throws IOException {
-		return Jsoup.connect(url.toString()).get();
-	}
+	private Document fetchChaiTablesDocument(URL url) {
+		try {
+			return Jsoup.connect(url.toString())
+					.userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
+					.referrer("https://www.google.com")
+					.get();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+        return null;
+    }
 
 	private static Element findZmanTable(Document doc) {
 		for (Element table : doc.getElementsByTag("table")) {
@@ -317,7 +359,6 @@ public final class ChaiTablesWebJava {
 
 	/**
 	 * Converts a Hebrew month index from ChaiTables format (Tishrei=1) to KosherJava format (Nissan=1).
-	 *
 	 * KosherJava indexing: Nissan=1, Iyar=2, ..., Shevat=11, Adar=12, Adar_II=13 (leap year only)
 	 * ChaiTables indexing: Tishrei=1, Cheshvan=2, ..., Elul=12 or 13 (depending on leap year)
 	 *
@@ -336,7 +377,20 @@ public final class ChaiTablesWebJava {
 		}
 	}
 
-	public record ChaiTablesResult(String url, List<Long> times) {
-
+	public static void saveResultsToFile(ChaiTablesResult r, File externalFilesDir, String locationName, int jewishYear) throws IOException {
+		File file = getVisibleSunriseFile(externalFilesDir, Utils.removePostalCode(locationName), jewishYear);
+		try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
+			oos.writeObject(r.times());   // List<Long>
+		}
 	}
+
+	public static File getVisibleSunriseFile(File externalFilesDir, String locationName, int jewishYear) {
+		return new File(externalFilesDir, "visibleSunriseTable" + Utils.removePostalCode(locationName) + jewishYear + ".dat");
+	}
+
+	public static boolean checkIfFileExists(File externalFilesDir, String locationName, int jewishYear) {
+		return getVisibleSunriseFile(externalFilesDir, Utils.removePostalCode(locationName), jewishYear).exists();
+	}
+
+	public record ChaiTablesResult(String url, List<Long> times) { }
 }

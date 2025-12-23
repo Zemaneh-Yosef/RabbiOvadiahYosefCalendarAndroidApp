@@ -9,7 +9,7 @@ import java.util.Locale;
 public class Utils {
 
     public static boolean isLocaleHebrew() {
-        return Locale.getDefault().getDisplayLanguage(new Locale("en", "US")).equals("Hebrew");
+        return Locale.getDefault().getDisplayLanguage(new Locale.Builder().setLanguage("en").setRegion("US").build()).equals("Hebrew");
     }
 
     /**
@@ -27,4 +27,8 @@ public class Utils {
         return new Date(date.getTime() + 60_000);
     }
 
+    public static String removePostalCode(String input) {
+        if (input == null) return null;
+        return input.replaceAll("\\s*\\([^)]*\\)$", "").trim();// Removes ANY trailing " (something)"
+    }
 }

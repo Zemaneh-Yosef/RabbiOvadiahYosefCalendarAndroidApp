@@ -44,20 +44,18 @@ public class TekufaNotifications extends BroadcastReceiver {
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel("Tekufa Notifications",
-                    "Tekufa Notifications",
-                    NotificationManager.IMPORTANCE_HIGH);
-            channel.setDescription("This notification will check daily if the seasons change and will show a notification to the user at an hour and a half before.");
-            channel.enableLights(true);
-            channel.enableVibration(true);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                channel.setAllowBubbles(true);
-            }
-            channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
-            channel.setLightColor(Color.BLUE);
-            notificationManager.createNotificationChannel(channel);
+        NotificationChannel channel = new NotificationChannel("Tekufa Notifications",
+                "Tekufa Notifications",
+                NotificationManager.IMPORTANCE_HIGH);
+        channel.setDescription("This notification will check daily if the seasons change and will show a notification to the user at an hour and a half before.");
+        channel.enableLights(true);
+        channel.enableVibration(true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            channel.setAllowBubbles(true);
         }
+        channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+        channel.setLightColor(Color.BLUE);
+        notificationManager.createNotificationChannel(channel);
 
         Intent notificationIntent = new Intent(context, MainFragmentManagerActivity.class);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

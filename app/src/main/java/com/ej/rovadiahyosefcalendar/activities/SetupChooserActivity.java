@@ -11,6 +11,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -31,6 +32,8 @@ public class SetupChooserActivity extends AppCompatActivity {
         setContentView(R.layout.activity_setup_chooser);
 
         MaterialToolbar materialToolbar = findViewById(R.id.topAppBar);
+        materialToolbar.setNavigationIcon(AppCompatResources.getDrawable(this, R.drawable.baseline_arrow_back_24));
+        materialToolbar.setNavigationOnClickListener(v -> finish());
         if (Utils.isLocaleHebrew()) {
             materialToolbar.setSubtitle("");
         }

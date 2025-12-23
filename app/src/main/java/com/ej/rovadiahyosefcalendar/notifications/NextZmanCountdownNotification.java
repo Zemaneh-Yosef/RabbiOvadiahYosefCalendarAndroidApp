@@ -296,16 +296,14 @@ public class NextZmanCountdownNotification extends Service {
     }
 
     private void createNotificationChannel() {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            String description = "Next Zman Countdown Channel";
-            int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, description, importance);
-            channel.setDescription(description);
-            channel.enableVibration(false);
+        String description = "Next Zman Countdown Channel";
+        int importance = NotificationManager.IMPORTANCE_HIGH;
+        NotificationChannel channel = new NotificationChannel(CHANNEL_ID, description, importance);
+        channel.setDescription(description);
+        channel.enableVibration(false);
 
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
+        NotificationManager notificationManager = getSystemService(NotificationManager.class);
+        notificationManager.createNotificationChannel(channel);
     }
 
     @Override

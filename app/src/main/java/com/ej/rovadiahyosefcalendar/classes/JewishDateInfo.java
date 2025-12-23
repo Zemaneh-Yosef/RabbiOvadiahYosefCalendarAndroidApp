@@ -608,7 +608,7 @@ public class JewishDateInfo {
 
         CharSequence thisWeekHaftara = WeeklySephardicHaftarot.Companion.formatWeeklyHaftara(this.jewishCalendar);
 		SpannableStringBuilder haftarah = new SpannableStringBuilder();
-        haftarah.append(Utils.isLocaleHebrew() ? "מפטירין" : "Haftara: \u202B");
+        haftarah.append(Utils.isLocaleHebrew() ? "מפטירין: " : "Haftara: \u202B");
         haftarah.append(thisWeekHaftara);
 
         this.jewishCalendar.setDate(this.currentDate);
