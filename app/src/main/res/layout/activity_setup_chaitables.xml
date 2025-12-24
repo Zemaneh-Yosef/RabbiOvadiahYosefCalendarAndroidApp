@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_centerHorizontal="true"
+    android:orientation="vertical"
+    android:background="?android:attr/colorBackground"
+    tools:context=".activities.SetupChaiTablesActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fitsSystemWindows="true">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/topAppBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="?attr/actionBarSize"
+                app:title="@string/setup_visible_sunrise"
+                app:titleCentered="true"
+                app:subtitle="@string/short_app_name"
+                app:subtitleCentered="true"
+                app:menu="@menu/setup_chaitables_menu"/>
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/yy_chaitables_quote"
+            android:textSize="26sp"
+            android:fontFamily="@font/frank_yy_font"
+            android:justificationMode="inter_word"
+            android:padding="8dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/yy_chaitables_source"
+            android:textSize="18sp"
+            android:fontFamily="@font/frank_yy_font"
+            android:padding="2dp"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:padding="8dp"
+            android:textStyle="bold"
+            tools:text="Test Location Name" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/select_country_layout"
+            style="?attr/textInputFilledExposedDropdownMenuStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="8dp"
+            android:hint="@string/select_your_country"
+            android:layout_marginBottom="16dp">
+
+            <AutoCompleteTextView
+                android:id="@+id/select_country"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/select_state_layout"
+            style="?attr/textInputFilledExposedDropdownMenuStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/select_your_state"
+            android:layout_marginHorizontal="8dp"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <AutoCompleteTextView
+                android:id="@+id/select_state"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/select_metro_layout"
+            style="?attr/textInputFilledExposedDropdownMenuStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="8dp"
+            android:hint="@string/select_your_metro_area"
+            android:layout_marginBottom="32dp">
+
+            <AutoCompleteTextView
+                android:id="@+id/select_metro_area"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:id="@+id/quickSetupDownloadButton"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:drawableEnd="@android:drawable/stat_sys_download"
+            android:drawableTint="@color/black"
+            android:backgroundTint="@color/dark_gold"
+            android:text="@string/download" />
+
+        <TextView
+            android:id="@+id/notListedArea"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:gravity="center"
+            android:padding="8dp"
+            android:text="@string/area_not_listed"
+            android:textSize="16sp"
+            android:textColor="?android:attr/textColorPrimary" />
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
+
+    </LinearLayout>
+
+</ScrollView>

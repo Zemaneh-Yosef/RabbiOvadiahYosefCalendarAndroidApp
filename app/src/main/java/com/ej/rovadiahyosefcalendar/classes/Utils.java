@@ -24,7 +24,7 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.preference.PreferenceManager;
 
 import com.ej.rovadiahyosefcalendar.R;
-import com.ej.rovadiahyosefcalendar.activities.SetupChooserActivity;
+import com.ej.rovadiahyosefcalendar.activities.SetupChaiTablesActivity;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.gms.wearable.Node;
@@ -160,7 +160,7 @@ public class Utils {
                 .setContentText(context.getString(R.string.setup_visible_sunrise_now_wanna_try_later_visit_the_sunrise_description))
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setContentIntent(PendingIntent.getActivity(context, 0,
-                        new Intent(context, SetupChooserActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP),
+                        new Intent(context, SetupChaiTablesActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP),
                         PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE))
                 .setAutoCancel(true);
 

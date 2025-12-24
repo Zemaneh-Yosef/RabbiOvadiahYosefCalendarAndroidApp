@@ -182,21 +182,16 @@ public class SetupElevationActivity extends AppCompatActivity {
 
             Thread thread = new Thread(() -> {
                 try {
-                    ChaiTablesWebJava.ChaiTablesResult[] result = scraper.formatInterfacer(link);
+                    ChaiTablesWebJava.ChaiTablesResult[] results = scraper.formatInterfacer(link);
                     int jewishYear = jDate.getJewishYear();
-                    if (result != null) {
-                        for (ChaiTablesWebJava.ChaiTablesResult r : result) {
-                            ChaiTablesWebJava.saveResultsToFile(r, getExternalFilesDir(null), sCurrentLocationName, jewishYear);
-                            jewishYear++;
-                        }
-                    } else {
-                        Toast.makeText(getApplicationContext(), getString(R.string.something_went_wrong_is_the_link_correct), Toast.LENGTH_SHORT).show();
-                        recreate();
+                    for (ChaiTablesWebJava.ChaiTablesResult r : results) {
+                        ChaiTablesWebJava.saveResultsToFile(r, getExternalFilesDir(null), sCurrentLocationName, jewishYear);
+                        jewishYear++;
                     }
 
                     Looper.prepare();
                     Toast.makeText(getApplicationContext(), getString(R.string.success), Toast.LENGTH_SHORT).show();
-                    sharedPreferences.edit().putString("chaitablesLink" + sCurrentLocationName, result != null ? result[0].url() : null).apply(); //save the link for this location to automatically download again next time
+                    sharedPreferences.edit().putString("chaitablesLink" + sCurrentLocationName, results[0].url()).apply(); //save the link for this location to automatically download again next time
 
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), R.string.something_went_wrong_is_the_link_correct, Toast.LENGTH_SHORT).show();
@@ -211,3 +206,18 @@ public class SetupElevationActivity extends AppCompatActivity {
         }
     }
 }
+
+        /*This code is from https://stackoverflow.com/questions/7477003/calculating-new-longitude-latitude-from-old-n-meters
+        It may be useful in the future if we want to find the highest point in the area.
+        double meters = 50;
+
+        // number of km per degree = ~111km (111.32 in google maps, but range varies between 110.567km at the equator and 111.699km at the poles)
+        // 1km in degree = 1 / 111.32km = 0.0089
+        // 1m in degree = 0.0089 / 1000 = 0.0000089
+        double coef = meters * 0.0000089;
+
+        double new_lat = my_lat + coef;
+
+        // pi / 180 = 0.018
+        double new_long = my_long + coef / Math.cos(my_lat * 0.018);
+        */

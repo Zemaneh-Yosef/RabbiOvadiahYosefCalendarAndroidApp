@@ -32,7 +32,7 @@ import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ej.rovadiahyosefcalendar.R;
-import com.ej.rovadiahyosefcalendar.activities.SetupChooserActivity;
+import com.ej.rovadiahyosefcalendar.activities.SetupChaiTablesActivity;
 import com.ej.rovadiahyosefcalendar.activities.SetupElevationActivity;
 import com.ej.rovadiahyosefcalendar.activities.SiddurViewActivity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -340,7 +340,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                 .setMessage(Utils.isLocaleHebrew() ? loadContentFromFile("hanetzHB.md") : loadContentFromFile("hanetz.md"))
                 .setPositiveButton(R.string.setup_visible_sunrise, (dialog, which) -> {
                     if (sSetupLauncher != null) {
-                        sSetupLauncher.launch(new Intent(context, SetupChooserActivity.class));
+                        sSetupLauncher.launch(new Intent(context, SetupChaiTablesActivity.class));
                     }
                 })
                 .setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());

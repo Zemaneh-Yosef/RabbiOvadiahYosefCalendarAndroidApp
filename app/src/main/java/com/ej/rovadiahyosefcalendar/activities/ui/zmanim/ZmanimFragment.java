@@ -455,13 +455,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                             String finalChaitablesURL = chaitablesURL;
                             Thread thread = new Thread(() -> {
                                 try {
-                                    ChaiTablesWebJava.ChaiTablesResult[] result = scraper.formatInterfacer(finalChaitablesURL); // will download 2 more years
+                                    ChaiTablesWebJava.ChaiTablesResult[] results = scraper.formatInterfacer(finalChaitablesURL); // will download 2 more years
                                     int jewishYear = sJewishDateInfo.getJewishCalendar().getJewishYear();
-                                    if (result != null) {
-                                        for (ChaiTablesWebJava.ChaiTablesResult r : result) {
-                                            ChaiTablesWebJava.saveResultsToFile(r, mContext.getExternalFilesDir(null), sCurrentLocationName, jewishYear);
-                                            jewishYear++;
-                                        }
+                                    for (ChaiTablesWebJava.ChaiTablesResult r : results) {
+                                        ChaiTablesWebJava.saveResultsToFile(r, mContext.getExternalFilesDir(null), sCurrentLocationName, jewishYear);
+                                        jewishYear++;
                                     }
                                     mActivity.runOnUiThread(() -> {
                                         if (sSharedPreferences.getBoolean("weeklyMode", false)) {

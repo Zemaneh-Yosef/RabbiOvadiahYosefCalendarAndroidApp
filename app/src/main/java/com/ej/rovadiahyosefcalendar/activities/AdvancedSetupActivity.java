@@ -142,7 +142,7 @@ public class AdvancedSetupActivity extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                startActivity(new Intent(AdvancedSetupActivity.this, SetupChooserActivity.class)
+                startActivity(new Intent(AdvancedSetupActivity.this, SetupChaiTablesActivity.class)
                         .putExtra("fromSetup", AdvancedSetupActivity.this.getIntent().getBooleanExtra("fromSetup", false)));
                 finish();
             }

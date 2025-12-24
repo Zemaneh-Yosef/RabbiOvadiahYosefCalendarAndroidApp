@@ -123,10 +123,7 @@
             android:name=".activities.AdvancedSetupActivity"
             android:exported="true" />
         <activity
-            android:name=".activities.SimpleSetupActivity"
-            android:exported="true" />
-        <activity
-            android:name=".activities.SetupChooserActivity"
+            android:name=".activities.SetupChaiTablesActivity"
             android:exported="true" />
         <activity android:name=".activities.InIsraelActivity" />
         <activity
