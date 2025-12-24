@@ -152,6 +152,7 @@ public class SliderPreference extends Preference {
   private void cleanup() {
     if (slider != null) {
       slider.removeOnSliderTouchListener(sliderListener);
+      slider.removeOnChangeListener(sliderListener);
     }
 
     if (enabled != null) {
@@ -280,24 +281,24 @@ public class SliderPreference extends Preference {
    */
   private class CurrentValueTextWatcher implements TextWatcher {
 
+    boolean ignoreChanges = false;
+
     @Override
-    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-      if (!sliderListener.isTracking) {
-        slider.removeOnChangeListener(sliderListener);
-      }
-    }
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
     @Override
     public void afterTextChanged(Editable s) {
-      if (!sliderListener.isTracking) {
-        int alertTime = getAlertValue();
-        setValue(alertTime);
-        updateSeekBar();
-        slider.addOnSliderTouchListener(sliderListener);
-      }
+      if (sliderListener.isTracking || ignoreChanges) return;
+
+      int alertTime = getAlertValue();
+      setValue(alertTime);
+
+      ignoreChanges = true;
+      updateSeekBar();
+      ignoreChanges = false;
     }
   }
 

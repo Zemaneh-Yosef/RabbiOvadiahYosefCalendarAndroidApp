@@ -407,8 +407,8 @@ public final class ChaiTablesWebJava {
 		return new File(externalFilesDir, "visibleSunriseTable" + Utils.removePostalCode(locationName) + jewishYear + ".dat");
 	}
 
-	public static boolean checkIfFileExists(File externalFilesDir, String locationName, int jewishYear) {
-		return getVisibleSunriseFile(externalFilesDir, Utils.removePostalCode(locationName), jewishYear).exists();
+	public static boolean checkIfFileDoesNotExist(File externalFilesDir, String locationName, int jewishYear) {
+		return !getVisibleSunriseFile(externalFilesDir, Utils.removePostalCode(locationName), jewishYear).exists();
 	}
 
 	public record ChaiTablesResult(String url, List<Long> times) { }
