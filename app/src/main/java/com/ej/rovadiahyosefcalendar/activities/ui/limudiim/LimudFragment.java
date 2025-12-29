@@ -174,7 +174,7 @@ public class LimudFragment extends Fragment {
             }
         }
 
-        String mishnaYomi = MishnaYomi.getMishnaForDate(sJewishDateInfo.getJewishCalendar(), true);
+        String mishnaYomi = new MishnaYomi().getMishnaForDate(sJewishDateInfo.getJewishCalendar(), true);
         if (mishnaYomi != null) {
             limudim.add(new LimudListEntry(getString(R.string.mishna_yomi) + " " + mishnaYomi));
         }

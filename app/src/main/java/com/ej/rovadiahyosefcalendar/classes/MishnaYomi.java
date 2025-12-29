@@ -84,15 +84,20 @@ public class MishnaYomi {
         put("Yadayim", new int[]{5, 4, 5, 8});
         put("Uktzin", new int[]{6, 10, 12});
     }};
-    private static String sFirstMasechta = "";
-    private static int sFirstPerek = 0;
-    private static int sFirstMishna = 0;
-    private static String sSecondMasechta = "";
-    private static int sSecondPerek = 0;
-    private static int sSecondMishna = 0;
+    private String sFirstMasechta = "";
+    private int sFirstPerek = 0;
+    private int sFirstMishna = 0;
+    private String sSecondMasechta = "";
+    private int sSecondPerek = 0;
+    private int sSecondMishna = 0;
 
-    public static String getMishnaForDate(JewishCalendar calendar, boolean useHebrewText) {
-        resetVars();
+    public MishnaYomi() {}
+
+    public MishnaYomi(JewishCalendar jewishCalendar, boolean useHebrewText) {
+        getMishnaForDate(jewishCalendar, useHebrewText); // init the variables
+    }
+
+    public String getMishnaForDate(JewishCalendar calendar, boolean useHebrewText) {
         Calendar nextCycle = new GregorianCalendar();
         Calendar prevCycle = new GregorianCalendar();
         Calendar requested = calendar.getGregorianCalendar();
@@ -145,16 +150,7 @@ public class MishnaYomi {
         }
     }
 
-    private static void resetVars() {
-        sFirstMasechta = "";
-        sFirstPerek = 0;
-        sFirstMishna = 0;
-        sSecondMasechta = "";
-        sSecondPerek = 0;
-        sSecondMishna = 0;
-    }
-
-    private static void findSecondMishna(int numberOfMishnasRead) {
+    private void findSecondMishna(int numberOfMishnasRead) {
         for (Map.Entry<String, int[]> entry: UNITS.entrySet()) {
             String masechta = entry.getKey();
             int[] perakim = entry.getValue();
@@ -181,7 +177,7 @@ public class MishnaYomi {
         }
     }
 
-    private static void findFirstMishna(int numberOfMishnasRead) {
+    private void findFirstMishna(int numberOfMishnasRead) {
         for (Map.Entry<String, int[]> entry: UNITS.entrySet()) {
             String masechta = entry.getKey();
             int[] perakim = entry.getValue();
@@ -214,11 +210,11 @@ public class MishnaYomi {
      * @param end the end date
      * @return the number of days between the start and end dates
      */
-    private static long getDiffBetweenDays(Calendar start, Calendar end) {
+    private long getDiffBetweenDays(Calendar start, Calendar end) {
         return (end.getTimeInMillis() - start.getTimeInMillis()) / DAY_MILIS;
     }
 
-    private static String replaceEnglishWithHebrew(String input) {
+    private String replaceEnglishWithHebrew(String input) {
         return switch (input) {
             case "Berachot" -> "ברכות";
             case "Peah" -> "פאה";
@@ -285,5 +281,13 @@ public class MishnaYomi {
             case "Uktzin" -> "עוקצין";
             default -> input; // If no match is found, return the original string
         };
+    }
+
+    public String getFirstMasechta() {
+        return sFirstMasechta;
+    }
+
+    public int getFirstPerek() {
+        return sFirstPerek;
     }
 }

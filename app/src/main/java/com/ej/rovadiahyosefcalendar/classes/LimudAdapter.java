@@ -123,19 +123,20 @@ public class LimudAdapter extends RecyclerView.Adapter<LimudAdapter.ZmanViewHold
                     dialogBuilder.setMessage(R.string.this_will_open_the_sefaria_website_or_app_in_a_new_window_with_the_page);
                     dialogBuilder.setPositiveButton(context.getString(R.string.open), (dialog, which) -> {
                                 Intent intent = new Intent(Intent.ACTION_VIEW);
-                                intent.setData(android.net.Uri.parse(yerushalmiYomiLink));
+                                intent.setData(Uri.parse(yerushalmiYomiLink));
                                 context.startActivity(intent);
                             });
                     dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
                     dialogBuilder.show();
                 } else if (limudim.get(position).getLimudTitle().contains(context.getString(R.string.mishna_yomi))) {
-                    String mishnaYomi = MishnaYomi.getMishnaForDate(mJewishDateInfo.getJewishCalendar(), false);
-                    String mishnaYomiLink = "https://www.sefaria.org/" + "Mishnah_" + mishnaYomi;
+                    MishnaYomi mishnaYomi = new MishnaYomi(mJewishDateInfo.getJewishCalendar(), false);
+                    String mishnaYomiLink = "https://www.sefaria.org/" + (mishnaYomi.getFirstMasechta().equals("Avot") ? "" : "Mishnah_") // apparently Pirkei Avot link is missing the Mishnah_ part
+                            + replaceWithSefariaNames(mishnaYomi.getFirstMasechta()) + "."+ mishnaYomi.getFirstPerek();
                     dialogBuilder.setTitle(context.getString(R.string.open_sefaria_link_for) + limudim.get(position).getLimudTitle().replace(context.getString(R.string.mishna_yomi) + " ", "") + "?");
                     dialogBuilder.setMessage(R.string.this_will_open_the_sefaria_website_or_app_in_a_new_window_with_the_page);
                     dialogBuilder.setPositiveButton(context.getString(R.string.open), (dialog, which) -> {
                         Intent intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setData(android.net.Uri.parse(mishnaYomiLink));
+                        intent.setData(Uri.parse(mishnaYomiLink));
                         context.startActivity(intent);
                     });
                     dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
@@ -158,7 +159,7 @@ public class LimudAdapter extends RecyclerView.Adapter<LimudAdapter.ZmanViewHold
                         dialogBuilder.setMessage(R.string.this_will_open_the_sefaria_website_or_app_in_a_new_window_with_the_page);
                         dialogBuilder.setPositiveButton(context.getString(R.string.open), (dialog, which) -> {
                             Intent intent = new Intent(Intent.ACTION_VIEW);
-                            intent.setData(android.net.Uri.parse(halachaYomiLink));
+                            intent.setData(Uri.parse(halachaYomiLink));
                             context.startActivity(intent);
                         });
                         dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
@@ -179,6 +180,29 @@ public class LimudAdapter extends RecyclerView.Adapter<LimudAdapter.ZmanViewHold
 
             holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.disabled_gray, context.getTheme()));
         }
+    }
+
+    private String replaceWithSefariaNames(String masechta) {
+        return switch (masechta) {
+            case "Berachot" -> "Berakhot";
+            case "Maaser Sheni" -> "Maaser_Sheni";
+            case "Bikurim" -> "Bikkurim";
+            case "Rosh Hashanah" -> "Rosh_Hashanah";
+            case "Taanit" -> "Ta'anit";
+            case "Moed Katan" -> "Moed_Katan";
+            case "Avodah Zarah" -> "Avodah_Zarah";
+            case "Avot" -> "Pirkei_Avot";
+            case "Horiyot" -> "Horayot";
+            case "Bechorot" -> "Bekhorot";
+            case "Arachin" -> "Arakhin";
+            case "Midot" -> "Middot";
+            case "Keilim" -> "Kelim";
+            case "Ohalot" -> "Oholot";
+            case "Machshirin" -> "Makhshirin";
+            case "Tevul Yom" -> "Tevul_Yom";
+            case "Uktzin" -> "Oktzin";
+            default -> masechta; // If no match is found, return the original string
+        };
     }
 
     @Override
