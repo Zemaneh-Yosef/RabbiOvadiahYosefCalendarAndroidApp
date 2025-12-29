@@ -184,16 +184,13 @@ public class LimudFragment extends Fragment {
                 sCurrentDateShown.get(Calendar.MONTH) + 1,
                 sCurrentDateShown.get(Calendar.DATE));
 
-        HalachaYomi halachaYomi = HalachaYomi.INSTANCE;
-        List<HalachaSegment> halachaSegments = halachaYomi.getDailyLearning(currentDate);
+        List<HalachaSegment> halachaSegments = HalachaYomi.INSTANCE.getDailyLearning(currentDate);
         if (halachaSegments != null) {
             StringBuilder halacha = new StringBuilder();
             halacha.append(halachaSegments.get(0).getBookName()).append(" ");// book name shouldn't change on the same day
-            sHebrewDateFormatter.setHebrewFormat(true);
             for (HalachaSegment segment : halachaSegments) {
                 halacha.append(sHebrewDateFormatter.formatHebrewNumber(segment.getSiman())).append(" ").append(segment.getSeifim()).append(", ");
             }
-            sHebrewDateFormatter.setHebrewFormat(false);
             halacha.delete(halacha.length() - 2, halacha.length());// remove the last comma and space
             limudim.add(new LimudListEntry(getString(R.string.daily_halacha) + " " + halacha));
         }

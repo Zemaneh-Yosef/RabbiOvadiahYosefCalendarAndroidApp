@@ -58,6 +58,8 @@ class NextZmanComplicationService : SuspendingComplicationDataSourceService() {
 
         if (totalTimeInMinutes > 100) {
             totalTimeInMinutes = 100
+        } else if (totalTimeInMinutes < 0) {
+            totalTimeInMinutes = 0
         }
 
         val text = PlainComplicationText.Builder(
@@ -75,7 +77,7 @@ class NextZmanComplicationService : SuspendingComplicationDataSourceService() {
 
         // Create a content description that includes the value information
         val contentDescription = PlainComplicationText.Builder(
-            text = "$totalTimeInMinutes complete until next zman."
+            text = getString(R.string.complete_until_next_zman, totalTimeInMinutes)
         ).build()
 
         return RangedValueComplicationData.Builder(

@@ -557,5 +557,6 @@
     <string name="fourth_year_of_shmita">שנה ד׳ של שמיטה</string>
     <string name="fifth_year_of_shmita">שנה ה׳ של שמיטה</string>
     <string name="sixth_year_of_shmita">שנה ו׳ של שמיטה</string>
+    <string name="complete_until_next_zman">%1$d השלמה עד הזמן הבא</string>
 
 </resources>
