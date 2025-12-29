@@ -146,7 +146,13 @@ public class LimudAdapter extends RecyclerView.Adapter<LimudAdapter.ZmanViewHold
                             mJewishDateInfo.getJewishCalendar().getGregorianMonth() + 1,
                             mJewishDateInfo.getJewishCalendar().getGregorianDayOfMonth()));
                     if (halachaYomi != null) {
-                        String halachaYomiLink = "https://www.sefaria.org/" + (halachaYomi.get(0).getBookName().equals("שו\"ע - או\"ח") ? "Shulchan_Arukh%2C_Orach_Chayim." : "Kitzur_Shulchan_Arukh.") + halachaYomi.get(0).getSiman();
+                        String halachaYomiLink = "https://www.sefaria.org/" +
+                                (halachaYomi.get(0).getBookName().equals("שו\"ע - או\"ח") ?
+                                        "Shulchan_Arukh%2C_Orach_Chayim." :
+                                        "Kitzur_Shulchan_Arukh.")
+                                + halachaYomi.get(0).getSiman()
+                                + "."
+                                + halachaYomi.get(0).getFirstSeif();
                         dialogBuilder.setTitle(context.getString(R.string.open_sefaria_link_for) +
                                 limudim.get(position).getLimudTitle().replace(context.getString(R.string.daily_halacha) + " ", "") + "?");
                         dialogBuilder.setMessage(R.string.this_will_open_the_sefaria_website_or_app_in_a_new_window_with_the_page);

@@ -10,6 +10,7 @@ import kotlin.math.ceil
 data class HalachaSegment(
     val bookName: String,
     val siman: Int,
+    val firstSeif: Int,
     val seifim: String
 )
 
@@ -106,9 +107,9 @@ object HalachaYomi {
                 val rangeString = if (localStart == localEnd) "${numberFormatter.formatHebrewNumber(localStart)}"
                 else "${numberFormatter.formatHebrewNumber(localStart)}-${numberFormatter.formatHebrewNumber(localEnd)}"
 
-                results.add(HalachaSegment(bookName, simanNumber, rangeString))
+                results.add(HalachaSegment(bookName, simanNumber, localStart, rangeString))
                 if (bookName == NAME_SA && simanNumber == 696 && localEnd == 8) { // add the last Siman because it is merged with the last 3 readings
-                    results.add(HalachaSegment(bookName, 697, numberFormatter.formatHebrewNumber(1)))
+                    results.add(HalachaSegment(bookName, 697, 1, numberFormatter.formatHebrewNumber(1)))
                 }
             }
 
