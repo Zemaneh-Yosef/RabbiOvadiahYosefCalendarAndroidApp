@@ -1,5 +1,7 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
+import android.util.Log;
+
 import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
 import com.kosherjava.zmanim.util.GeoLocation;
 
@@ -50,6 +52,7 @@ public final class ChaiTablesWebJava {
 	private final JewishDate baseCalendar;
 
 	private String selectedCountry;
+	private String selectedMetroArea;
 	private int indexOfMetroArea;
 
 	public ChaiTablesWebJava(GeoLocation geoLocation, JewishDate jewishCalendar) {
@@ -61,8 +64,9 @@ public final class ChaiTablesWebJava {
 	 * @param selectedCountry country name expected by ChaiTables (e.g. "Israel", "USA", "Eretz_Yisroel").
 	 * @param indexOfMetroArea numeric metro area index used by ChaiTables.
 	 */
-	public void setOtherData(String selectedCountry, int indexOfMetroArea) {
-		this.selectedCountry = Objects.requireNonNull(selectedCountry, "selectedCountry");
+	public void setOtherData(String selectedCountry, String selectedMetroArea, int indexOfMetroArea) {
+		this.selectedCountry = selectedCountry;
+		this.selectedMetroArea = selectedMetroArea;
 		this.indexOfMetroArea = indexOfMetroArea;
 	}
 
@@ -98,7 +102,7 @@ public final class ChaiTablesWebJava {
 		if ("Eretz_Yisroel".equals(selectedCountry)) {
 			urlParams.put("TableType", "BY");
 			urlParams.put("USAcities1", "1");
-			urlParams.put("MetroArea", Integer.toString(indexOfMetroArea));
+			urlParams.put("MetroArea", selectedMetroArea);
 		} else {
 			urlParams.put("searchradius", searchradius);
 			urlParams.put("TableType", "Chai");
@@ -108,14 +112,14 @@ public final class ChaiTablesWebJava {
 			urlParams.put("MetroArea", "jerusalem");
 		}
 
-		StringBuilder builder = new StringBuilder("http://chaitables.com/cgi-bin/ChaiTables.cgi/");
-		builder.append("?");
+		StringBuilder builder = new StringBuilder("http://chaitables.com/cgi-bin/ChaiTables.cgi/?");
 		String query = urlParams.entrySet().stream()
 			.map(e -> "cgi_" + e.getKey() + "=" + e.getValue())
 			.collect(Collectors.joining("&"));
 		builder.append(query);
 
 		try {
+			Log.d("ChaiTablesWebJava", "URL: " + builder);
 			return new URL(builder.toString());
 		} catch (Exception e) {
 			new IllegalStateException("Failed to build ChaiTables URL", e).printStackTrace();

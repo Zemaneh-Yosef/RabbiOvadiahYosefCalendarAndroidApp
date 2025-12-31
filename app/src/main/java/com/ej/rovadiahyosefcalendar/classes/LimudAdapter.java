@@ -131,7 +131,7 @@ public class LimudAdapter extends RecyclerView.Adapter<LimudAdapter.ZmanViewHold
                 } else if (limudim.get(position).getLimudTitle().contains(context.getString(R.string.mishna_yomi))) {
                     MishnaYomi mishnaYomi = new MishnaYomi(mJewishDateInfo.getJewishCalendar(), false);
                     String mishnaYomiLink = "https://www.sefaria.org/" + (mishnaYomi.getFirstMasechta().equals("Avot") ? "" : "Mishnah_") // apparently Pirkei Avot link is missing the Mishnah_ part
-                            + replaceWithSefariaNames(mishnaYomi.getFirstMasechta()) + "."+ mishnaYomi.getFirstPerek();
+                            + replaceWithSefariaNames(mishnaYomi.getFirstMasechta()) + "." + mishnaYomi.getFirstPerek() + "." + mishnaYomi.getFirstMishna();
                     dialogBuilder.setTitle(context.getString(R.string.open_sefaria_link_for) + limudim.get(position).getLimudTitle().replace(context.getString(R.string.mishna_yomi) + " ", "") + "?");
                     dialogBuilder.setMessage(R.string.this_will_open_the_sefaria_website_or_app_in_a_new_window_with_the_page);
                     dialogBuilder.setPositiveButton(context.getString(R.string.open), (dialog, which) -> {

@@ -290,4 +290,8 @@ public class MishnaYomi {
     public int getFirstPerek() {
         return sFirstPerek;
     }
+
+    public int getFirstMishna() {
+        return sFirstMishna;
+    }
 }
