@@ -129,7 +129,7 @@ public class SetupChaiTablesActivity extends AppCompatActivity {
             JewishDate jDate = new JewishDate();
             GeoLocation geoLocation = new GeoLocation("", sLatitude, sLongitude, TimeZone.getTimeZone(sCurrentTimeZoneID));
             ChaiTablesWebJava scraper = new ChaiTablesWebJava(geoLocation, jDate);
-            scraper.setOtherData(mCountryACTV.getText().toString(), ChaiTablesOptionsList.indexOfMetroArea);
+            scraper.setOtherData(mCountry.label, mMetroACTV.getText().toString() , ChaiTablesOptionsList.indexOfMetroArea);
 
             Thread thread = new Thread(() -> {
                 try {
@@ -210,8 +210,9 @@ public class SetupChaiTablesActivity extends AppCompatActivity {
         super.onStart();
         if (mCountryACTV.getAdapter() == null) return;
         selectCountry(String.valueOf(mCountryACTV.getAdapter().getItem(mSharedPreferences.getInt("selectedCountry", 0))), mSharedPreferences.getInt("selectedCountry", 0));
-        if (mStateACTV.getAdapter() == null) return;
-        selectState(String.valueOf(mStateACTV.getAdapter().getItem(mSharedPreferences.getInt("selectedState", 0))), mSharedPreferences.getInt("selectedState", 0));
+        if (mStateACTV.getAdapter() != null) {
+            selectState(String.valueOf(mStateACTV.getAdapter().getItem(mSharedPreferences.getInt("selectedState", 0))), mSharedPreferences.getInt("selectedState", 0));
+        }
         if (mMetroACTV.getAdapter() == null) return;
         selectMetro(String.valueOf(mMetroACTV.getAdapter().getItem(mSharedPreferences.getInt("selectedMetroArea", 0))), mSharedPreferences.getInt("selectedMetroArea", 0));
     }

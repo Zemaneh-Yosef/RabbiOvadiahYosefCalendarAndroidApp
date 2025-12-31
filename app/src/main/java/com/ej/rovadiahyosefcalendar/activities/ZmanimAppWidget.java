@@ -14,7 +14,6 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.ArrayMap;
-import android.util.Log;
 import android.util.SizeF;
 import android.view.View;
 import android.widget.RemoteViews;
@@ -54,7 +53,6 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         mSettingsPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         mROZmanimCalendar = getROZmanimCalendar();
         if (!mROZmanimCalendar.getGeoLocation().equals(new GeoLocation())) {// if using location, default GeoLocation will be returned. Avoid that
-            Log.d("ZmanimAppWidget", "GeoLocation is not default");
             mROZmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
             String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
             if (candles.isEmpty()) {
@@ -71,7 +69,7 @@ public class ZmanimAppWidget extends AppWidgetProvider {
             }
             mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false));
 
-            String jewishDate = mJewishDateInfo.getJewishCalendar().toString();
+            String jewishDate = mJewishDateInfo.getJewishCalendar().toString();// TODO add pre/post sunset somehow
             String parsha = mJewishDateInfo.getThisWeeksParsha();
             ZmanListEntry nextUpcomingZman = getNextUpcomingZman(context, appWidgetManager, appWidgetId);
             ZmanimNames zmanimNames = new ZmanimNames(mSharedPreferences.getBoolean("isZmanimInHebrew", false), mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false), mSharedPreferences.getBoolean("isZmanimAmericanized", false));
