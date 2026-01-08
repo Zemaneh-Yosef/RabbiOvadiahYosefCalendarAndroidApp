@@ -299,14 +299,16 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 instantiateZmanimCalendar();
                 setNextUpcomingZman();
                 if (binding != null) {
-                    if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                        setWeeklyViewVisibility(true);
-                        updateWeeklyZmanim();
-                    } else {
-                        setWeeklyViewVisibility(false);
-                        updateDailyZmanim();
-                    }
-                    binding.shimmerLayout.setVisibility(View.GONE);
+                    updateChaitableTimesFromLatLong(() -> {
+                        if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                            setWeeklyViewVisibility(true);
+                            updateWeeklyZmanim();
+                        } else {
+                            setWeeklyViewVisibility(false);
+                            updateDailyZmanim();
+                        }
+                        binding.shimmerLayout.setVisibility(View.GONE);
+                    });
                 }
                 createBackgroundThreadForNextUpcomingZman();
             });
@@ -315,6 +317,33 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         setNotifications();
         askForRealTimeNotificationPermissions();
         checkIfUserIsInIsraelOrNot();
+    }
+
+    /**
+     * This method updates the chaitable times for the current location using the Latitude and Longitude. This method should be called before the zmanim
+     * list is updated.
+     * @param codeToRunAfterwards the code to run after the chaitable times are updated. This should be done on the main UI thread if it the code will affect the UI.
+     */
+    private void updateChaitableTimesFromLatLong(Runnable codeToRunAfterwards) {
+//        new Thread(() -> {
+//            if (sROZmanimCalendar.getHaNetz() == null) {// if visible sunrise for this location is null, try to update it
+//                JewishDate jDate = new JewishDate();
+//                ChaiTablesWebJava scraper = new ChaiTablesWebJava(new GeoLocation("", sLatitude, sLongitude, TimeZone.getTimeZone(sCurrentTimeZoneID)), jDate);
+//
+//                try {
+//                    ChaiTablesWebJava.ChaiTablesResult[] result = scraper.getChaitableTimesWithLatLong();
+//                    int jewishYear = jDate.getJewishYear();
+//                    for (ChaiTablesWebJava.ChaiTablesResult r : result) {
+//                        ChaiTablesWebJava.saveResultsToFile(r, mContext.getExternalFilesDir(null), sCurrentLocationName, jewishYear);
+//                        jewishYear++;
+//                    }
+//                    sSharedPreferences.edit().putString("chaitablesLink" + sCurrentLocationName, result[0].url()).apply(); // save the link for this location to automatically download again next time
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+            mActivity.runOnUiThread(codeToRunAfterwards);
+//        }).start();
     }
 
     private void setupButtons() {
@@ -2336,7 +2365,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
     /**
      * This method accepts a new location object after a request is made from the {@link LocationResolver} class.
-     *
      * @param location the input argument
      */
     @Override
@@ -2361,7 +2389,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             try {
                 Thread.sleep(500);// Let's wait a bit to give the program a chance to update the UI
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                new RuntimeException(e).printStackTrace();
             }
             if (binding != null && binding.shimmerLayout.getVisibility() == View.VISIBLE) {
                 showViewAfterLocationCall();
@@ -2390,20 +2418,22 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                             setNextUpcomingZman();
                             createBackgroundThreadForNextUpcomingZman();
                             sJewishDateInfo.setCalendar(sCurrentDateShown);
-                            if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                                updateWeeklyTextViewTextColor();
-                                updateWeeklyZmanim();
-                            } else {
-                                updateDailyZmanim();
-                                mMainRecyclerView.scrollToPosition(mCurrentPosition);
-                            }
-                            if (binding != null) {
-                                binding.shimmerLayout.setVisibility(View.GONE);
-                            }
-                            if (mCalendarButton != null) {
-                                mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
-                            }
-                            setAllNotifications();
+                            updateChaitableTimesFromLatLong(() -> {
+                                if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                                    updateWeeklyTextViewTextColor();
+                                    updateWeeklyZmanim();
+                                } else {
+                                    updateDailyZmanim();
+                                    mMainRecyclerView.scrollToPosition(mCurrentPosition);
+                                }
+                                if (binding != null) {
+                                    binding.shimmerLayout.setVisibility(View.GONE);
+                                }
+                                if (mCalendarButton != null) {
+                                    mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
+                                }
+                                setAllNotifications();
+                            });
                         }
                     });
                 }

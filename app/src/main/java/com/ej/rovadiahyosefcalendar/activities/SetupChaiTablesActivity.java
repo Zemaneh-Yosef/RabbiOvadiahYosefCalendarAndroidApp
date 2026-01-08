@@ -127,11 +127,10 @@ public class SetupChaiTablesActivity extends AppCompatActivity {
             progressBar.setVisibility(View.VISIBLE);
 
             JewishDate jDate = new JewishDate();
-            GeoLocation geoLocation = new GeoLocation("", sLatitude, sLongitude, TimeZone.getTimeZone(sCurrentTimeZoneID));
-            ChaiTablesWebJava scraper = new ChaiTablesWebJava(geoLocation, jDate);
+            ChaiTablesWebJava scraper = new ChaiTablesWebJava(new GeoLocation("", sLatitude, sLongitude, TimeZone.getTimeZone(sCurrentTimeZoneID)), jDate);
             scraper.setOtherData(mCountry.label, mMetroACTV.getText().toString() , ChaiTablesOptionsList.indexOfMetroArea);
 
-            Thread thread = new Thread(() -> {
+            new Thread(() -> {
                 try {
                     ChaiTablesWebJava.ChaiTablesResult[] result = scraper.formatInterfacer();
                     int jewishYear = jDate.getJewishYear();
@@ -150,18 +149,13 @@ public class SetupChaiTablesActivity extends AppCompatActivity {
                             .putBoolean("isSetup", true)
                             .putBoolean("useElevation", true)
                             .apply();
-                    Intent returnIntent = new Intent();
-                    returnIntent.putExtra("elevation", mSharedPreferences.getString("elevation" + sCurrentLocationName, ""));
-                    setResult(Activity.RESULT_OK, returnIntent);
-
+                    setResult(Activity.RESULT_OK, new Intent().putExtra("elevation", mSharedPreferences.getString("elevation" + sCurrentLocationName, "")));
                     finish();
                 } catch (IOException e) {
                     recreate();
                     e.printStackTrace();
                 }
-            });
-
-            thread.start();
+            }).start();
         });
 
         TextView areaNotListedButton = findViewById(R.id.notListedArea);
@@ -175,14 +169,13 @@ public class SetupChaiTablesActivity extends AppCompatActivity {
                     .putBoolean("isSetup", true)
                     .putBoolean("useElevation", true)
                     .apply();
-            Thread thread = new Thread(() ->
+            new Thread(() ->
                     locationResolver.getElevationFromWebService(new Handler(getMainLooper()), null, () -> {
                         Intent returnIntent = new Intent();
                         returnIntent.putExtra("elevation", mSharedPreferences.getString("elevation" + sCurrentLocationName, ""));
                         setResult(Activity.RESULT_OK, returnIntent);
                         finish();
-                    }));
-            thread.start();
+                    })).start();
         });
 
         ViewCompat.setOnApplyWindowInsetsListener(areaNotListedButton, (v, windowInsets) -> {

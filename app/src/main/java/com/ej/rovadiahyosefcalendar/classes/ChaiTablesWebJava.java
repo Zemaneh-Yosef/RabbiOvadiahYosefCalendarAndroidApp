@@ -1,7 +1,5 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
-import android.util.Log;
-
 import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
 import com.kosherjava.zmanim.util.GeoLocation;
 
@@ -119,7 +117,7 @@ public final class ChaiTablesWebJava {
 		builder.append(query);
 
 		try {
-			Log.d("ChaiTablesWebJava", "URL: " + builder);
+			//Log.d("ChaiTablesWebJava", "Radius: " + searchradius + " URL: " + builder);
 			return new URL(builder.toString());
 		} catch (Exception e) {
 			new IllegalStateException("Failed to build ChaiTables URL", e).printStackTrace();
@@ -268,6 +266,47 @@ public final class ChaiTablesWebJava {
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }
+		}
+
+		return results;
+	}
+
+	public ChaiTablesResult[] getChaitableTimesWithLatLong() {
+		JewishDate calendar = (JewishDate) baseCalendar.clone();
+		ChaiTablesResult[] results = new ChaiTablesResult[2];
+		int i = 0;
+
+		for (JewishDate yearLoop = (JewishDate) calendar.clone();
+			 yearLoop.getJewishYear() != calendar.getJewishYear() + 2;
+			 yearLoop.setJewishYear(yearLoop.getJewishYear() + 1)) {
+
+			if (calendar.getJewishYear() != yearLoop.getJewishYear()) {
+				yearLoop.setJewishMonth(JewishDate.TISHREI);
+				yearLoop.setJewishDayOfMonth(1);
+			}
+
+			try {
+				//                      https://chaitables.com/cgi-bin/ChaiTables.cgi/?cgi_country=USA&cgi_USAcities2=0&cgi_eroshgt=0.0&cgi_geotz=-5.0&cgi_DST=ON&cgi_exactcoord=OFF&cgi_types=0&cgi_RoundSecond=1&cgi_AddCushion=2&cgi_24hr=&cgi_typezman=-1&cgi_yrheb=5786&cgi_optionheb=1&cgi_UserNumber=413&cgi_Language=English&cgi_AllowShaving=OFF&cgi_searchradius=1.3&cgi_TableType=Chai&cgi_USAcities1=31&cgi_eroslatitude=40.808548&cgi_eroslongitude=73.741425&cgi_MetroArea=jerusalem
+				String chaitablesURL = "http://162.253.153.219/cgi-bin/ChaiTables.cgi/?cgi_TableType=Astr&cgi_country=Astro&cgi_USAcities1=1&cgi_USAcities2=0&cgi_searchradius=&cgi_Placename=?&cgi_eroslatitude=40.80854833333334&cgi_eroslongitude=73.741425&cgi_eroshgt=0.0&cgi_geotz=-5&cgi_exactcoord=OFF&cgi_MetroArea=&cgi_types=10&cgi_ignoretiles=OFF&cgi_RoundSecond=1&cgi_AddCushion=2&cgi_24hr=&cgi_DST=ON&cgi_typezman=-1&cgi_yrheb=5786&cgi_optionheb=1&cgi_UserNumber=24479&cgi_Language=English&cgi_erosaprn=0.1&cgi_erosdiflat=1&cgi_erosdiflon=1&cgi_DTMs=1&cgi_AllowShaving=ON";
+				String hebrewYear = String.valueOf(yearLoop.getJewishYear());
+				Pattern pattern = Pattern.compile("&cgi_yrheb=\\d{4}");
+				Matcher matcher = pattern.matcher(chaitablesURL);
+				if (matcher.find()) {
+					chaitablesURL = chaitablesURL.replace(matcher.group(), "&cgi_yrheb=" + hebrewYear);//replace the year in the URL with the current year
+				}
+				URL ctLink = new URL(chaitablesURL);
+				Document ctDoc = fetchChaiTablesDocument(ctLink);
+
+				if (ctDoc != null && findZmanTable(ctDoc) == null) {
+					continue;
+				}
+
+				List<Long> times = new ArrayList<>(Objects.requireNonNull(extractTimes(ctDoc, yearLoop)));
+				results[i] = new ChaiTablesResult(chaitablesURL, times);
+				i++;
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			}
 		}
 
 		return results;

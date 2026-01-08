@@ -25,6 +25,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -610,9 +611,10 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
     }
 
     private void createAdvancedDialog() {
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setGravity(Gravity.CENTER);
+        ScrollView scrollView = new ScrollView(this);
+        LinearLayout linearLayout = new LinearLayout(this);
+        linearLayout.setOrientation(LinearLayout.VERTICAL);
+        linearLayout.setGravity(Gravity.CENTER);
 
         TextView locationName = new TextView(this);
         locationName.setText(R.string.enter_location_name);
@@ -667,25 +669,27 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
             public void onNothingSelected(AdapterView<?> parent) {}
         });
 
-        layout.addView(locationName);
-        layout.addView(locationInput);
+        linearLayout.addView(locationName);
+        linearLayout.addView(locationInput);
 
-        layout.addView(latitude);
-        layout.addView(latInput);
+        linearLayout.addView(latitude);
+        linearLayout.addView(latInput);
 
-        layout.addView(longitude);
-        layout.addView(longInput);
+        linearLayout.addView(longitude);
+        linearLayout.addView(longInput);
 
-        layout.addView(elevation);
-        layout.addView(elevationInput);
+        linearLayout.addView(elevation);
+        linearLayout.addView(elevationInput);
 
-        layout.addView(timezone);
-        layout.addView(timezones);
+        linearLayout.addView(timezone);
+        linearLayout.addView(timezones);
+
+        scrollView.addView(linearLayout);
 
         MaterialAlertDialogBuilder advancedAlert = new MaterialAlertDialogBuilder(this);
 
         advancedAlert.setTitle(R.string.advanced)
-                .setView(layout)
+                .setView(scrollView)
                 .setPositiveButton(R.string.ok, (dialogAd, whichAd) -> {
                     if (locationInput.getText().toString().isEmpty()) {
                         Toast.makeText(this, R.string.please_enter_something, Toast.LENGTH_SHORT).show();
@@ -706,7 +710,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                         finish();
                     }
                 });
-        advancedAlert.create().show();
+        advancedAlert.show();
     }
 
     private void askUserIfTheyWantToDeleteThisEntry(String location, Button locationButton) {
