@@ -341,7 +341,7 @@ private fun SiddurRow(
     }
 
     val rowBackgroundColor = when {
-        (currentTextType == HighlightString.StringType.INFO || currentTextType == HighlightString.StringType.INVERSE_INFO) -> Color.DarkGray
+        (currentTextType == HighlightString.StringType.INFO || currentTextType == HighlightString.StringType.INVERSE_INFO) -> (if (isNightMode) Color.DarkGray else Color.LightGray)
         currentText.isHighlighted -> colorResource(if (isNightMode) AppR.color.goldenrod else AppR.color.mainly_BLUE)
         else -> Color.Transparent
     }
