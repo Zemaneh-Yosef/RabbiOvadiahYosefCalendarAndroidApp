@@ -22,16 +22,13 @@ import androidx.core.app.NotificationCompat;
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
-import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
+import com.ej.rovadiahyosefcalendar.classes.SecondTreatment;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
 
 import org.apache.commons.lang3.time.DateUtils;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 
 public class CombinedTekufaNotifications extends BroadcastReceiver {
 
@@ -66,14 +63,6 @@ public class CombinedTekufaNotifications extends BroadcastReceiver {
         Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
         Date earlierTekufaTime = findEarlierTekufaTime(jewishDateInfo);
-        DateFormat zmanimFormat;
-        if (Utils.isLocaleHebrew()) {
-            zmanimFormat = new SimpleDateFormat("H:mm", Locale.getDefault());//no need for seconds as the tekufa never has seconds
-        } else {
-            zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());//no need for seconds as the tekufa never has seconds
-        }
-        zmanimFormat.setTimeZone(new LocationResolver(context, null).getTimeZone());
-
         if (earlierTekufaTime == null) {return;}// it should never be null, but just in case
 
         Date halfHourBefore = new Date(earlierTekufaTime.getTime() - DateUtils.MILLIS_PER_HOUR / 2);
@@ -83,23 +72,23 @@ public class CombinedTekufaNotifications extends BroadcastReceiver {
         NotificationCompat.Builder mNotifyBuilder;
         String contentText;
         String title;
-        if (Utils.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew(context)) {
             contentText = "התקופות משתנות היום ב "
-                    + zmanimFormat.format(earlierTekufaTime) + "/" + zmanimFormat.format(tekufaTime) + ". " +
+                    + Utils.formatZmanTime(context, earlierTekufaTime, SecondTreatment.ROUND_EARLIER) + "/" + Utils.formatZmanTime(context, tekufaTime, SecondTreatment.ROUND_EARLIER) + ". " +
                     "נא לא לשתות מים מ- " +
-                    zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfterPlus21Minutes);
+                    Utils.formatZmanTime(context, halfHourBefore, SecondTreatment.ROUND_EARLIER) + " - " + Utils.formatZmanTime(context, halfHourAfterPlus21Minutes, SecondTreatment.ROUND_EARLIER);
             title = "התקופות משתנות";
         } else {
             contentText = "The tekufas (seasons) change today at "
-                    + zmanimFormat.format(earlierTekufaTime) + "/" + zmanimFormat.format(tekufaTime) +
+                    + Utils.formatZmanTime(context, earlierTekufaTime, SecondTreatment.ROUND_EARLIER) + "/" + Utils.formatZmanTime(context, tekufaTime, SecondTreatment.ROUND_EARLIER) +
                     ". Preferably, do not drink water from " +
-                    zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfterPlus21Minutes);
+                    Utils.formatZmanTime(context, halfHourBefore, SecondTreatment.ROUND_EARLIER) + " - " + Utils.formatZmanTime(context, halfHourAfterPlus21Minutes, SecondTreatment.ROUND_EARLIER);
             title = "Tekufa/Season Change";
         }
 
         mNotifyBuilder = new NotificationCompat.Builder(context, "Tekufa Notifications")
                 .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
-                .setSmallIcon(getSeasonalIcon(jewishDateInfo.getJewishCalendar().getTekufaName()))
+                .setSmallIcon(getSeasonalIcon(jewishDateInfo.getJewishCalendar().getTekufaName(Utils.isLocaleHebrew(context))))
                 .setContentTitle(title)
                 .setContentText(contentText)
                 .setStyle(new NotificationCompat.BigTextStyle()

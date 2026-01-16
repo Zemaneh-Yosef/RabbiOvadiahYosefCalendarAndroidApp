@@ -54,7 +54,7 @@ public class SetupElevationActivity extends AppCompatActivity {
         MaterialToolbar materialToolbar = findViewById(R.id.topAppBar);
         materialToolbar.setNavigationIcon(AppCompatResources.getDrawable(this, R.drawable.baseline_arrow_back_24));
         materialToolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
-        if (Utils.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew(this)) {
             materialToolbar.setSubtitle("");
         }
         materialToolbar.setOnMenuItemClickListener(item -> {

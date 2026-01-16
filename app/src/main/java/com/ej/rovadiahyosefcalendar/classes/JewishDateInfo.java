@@ -1,5 +1,6 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
+import android.content.Context;
 import android.text.SpannableStringBuilder;
 
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
@@ -62,15 +63,12 @@ public class JewishDateInfo {
         this.hebrewDateFormatter = new HebrewDateFormatter();
         this.hebrewDateFormatter.setUseGershGershayim(false);
         this.hebrewDateFormatter.setTransliteratedMonthList(new String[]{ "Nissan", "Iyar", "Sivan", "Tammuz", "Av", "Elul", "Tishri", "Ḥeshvan", "Kislev", "Tevet", "Shevat", "Adar", "Adar II", "Adar I" });
-        if (Utils.isLocaleHebrew()) {
-            this.hebrewDateFormatter.setHebrewFormat(true);
-            this.isLocaleHebrew = true;
-        }
         this.tefilaRules = new TefilaRules();
     }
 
-    public void resetLocale() {
-        if (Utils.isLocaleHebrew()) {
+    public void resetLocale(Context context) {
+        this.jewishCalendar.mContext = context;
+        if (Utils.isLocaleHebrew(context)) {
             this.hebrewDateFormatter.setHebrewFormat(true);
             this.isLocaleHebrew = true;
         }
@@ -608,7 +606,7 @@ public class JewishDateInfo {
 
         CharSequence thisWeekHaftara = WeeklySephardicHaftarot.Companion.formatWeeklyHaftara(this.jewishCalendar);
 		SpannableStringBuilder haftarah = new SpannableStringBuilder();
-        haftarah.append(Utils.isLocaleHebrew() ? "מפטירין: " : "Haftara: \u202B");
+        haftarah.append(isLocaleHebrew ? "מפטירין: " : "Haftara: \u202B");
         haftarah.append(thisWeekHaftara);
 
         this.jewishCalendar.setDate(this.currentDate);

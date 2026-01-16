@@ -49,8 +49,11 @@ public class MoladActivity extends AppCompatActivity {
         MaterialToolbar materialToolbar = findViewById(R.id.topAppBar);
         materialToolbar.setNavigationIcon(AppCompatResources.getDrawable(this, R.drawable.baseline_arrow_back_24));
         materialToolbar.setNavigationOnClickListener(v -> finish());
-        if (Utils.isLocaleHebrew()) {
-            mSDF = new SimpleDateFormat("EEE MMM d H:mm:ss", Locale.getDefault());
+        if (Utils.isLocaleHebrew(this)) {
+            mSDF = new SimpleDateFormat("EEE MMM d H:mm:ss", getResources()
+                    .getConfiguration()
+                    .getLocales()
+                    .get(0));
             mHebrewMonths = new String[]{ "ניסן", "אייר", "סיון", "תמוז", "אב", "אלול", "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר", "אדר ב", "אדר א" };
         }
 
@@ -127,7 +130,10 @@ public class MoladActivity extends AppCompatActivity {
         } else {
             currentHebrewMonth = mHebrewMonths[mJewishCalendar.getJewishMonth() - 1];
         }
-        String currentEnglishMonthYear = mJewishCalendar.getGregorianCalendar().getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()) + "\n"
+        String currentEnglishMonthYear = mJewishCalendar.getGregorianCalendar().getDisplayName(Calendar.MONTH, Calendar.LONG, getResources()
+                .getConfiguration()
+                .getLocales()
+                .get(0)) + "\n"
                 + mJewishCalendar.getGregorianYear();
         mCurrentEnglishMonthYear.setText(currentEnglishMonthYear);
 
@@ -141,7 +147,7 @@ public class MoladActivity extends AppCompatActivity {
 
         String moladTime = moladHours + getString(R.string.h) + moladMinutes + getString(R.string.m_and) + " " + moladChalakim + " " + getString(R.string.chalakim);
 
-        if (Utils.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew(this)) {
             TextView m = findViewById(R.id.moladAnnouncement);
             m.setGravity(Gravity.END);
             mMoladAnnouncementTime.setGravity(Gravity.END);

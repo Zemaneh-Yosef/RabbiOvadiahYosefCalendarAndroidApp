@@ -162,7 +162,6 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
                         Locale helocale = new Locale.Builder().setLanguage("he").setRegion("IL").build();
                         Locale.setDefault(helocale);
                         setLocale(helocale);
-                        sJewishDateInfo.resetLocale();
                         sSharedPreferences.edit()
                                 .putBoolean("isZmanimInHebrew", true)
                                 .apply();
@@ -172,6 +171,7 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
                 }
             }
         }
+        sJewishDateInfo.resetLocale(this);
         sJewishDateInfo.getJewishCalendar().setInIsrael(sSharedPreferences.getBoolean("inIsrael", false));
         initSetupResult();
         if (ChaiTablesWebJava.checkIfFileDoesNotExist(getExternalFilesDir(null), sCurrentLocationName, sJewishDateInfo.getJewishCalendar().getJewishYear())
@@ -208,13 +208,13 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
                 if (materialToolbar != null) {
                     if (position == 0) {// Limud
                         materialToolbar.setTitle(getString(R.string.limudim_hillulot));
-                        if (Utils.isLocaleHebrew()) {
+                        if (Utils.isLocaleHebrew(MainFragmentManagerActivity.this)) {
                             materialToolbar.setSubtitle(getString(R.string.app_name));
                         } else {
                             materialToolbar.setSubtitle(getString(R.string.short_app_name));
                         }
                     } else if (position == 1) {// Zmanim
-                        if (Utils.isLocaleHebrew()) {
+                        if (Utils.isLocaleHebrew(MainFragmentManagerActivity.this)) {
                             materialToolbar.setTitle(getString(R.string.app_name));
                             materialToolbar.setSubtitle("");
                         } else {

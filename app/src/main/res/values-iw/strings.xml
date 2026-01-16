@@ -678,4 +678,10 @@
     <string name="rambam_yomi_3_chapters">"רמב״ם יומי ג פרקים: "</string>
     <string name="rambam_yomi">"רמב״ם יומי: "</string>
     <string name="daily_halacha">הלכה יומי:</string>
+    <string name="tehilim">תהילים</string>
+    <string name="chanukah_night">חנוכה – לילה</string>
+    <string name="ideal">לכתחילה:</string>
+    <string name="earliest">מוקדם:</string>
+    <string name="latest">מאוחר:</string>
+    <string name="zemaneh_yosef">זמני יוסף</string>
 </resources>

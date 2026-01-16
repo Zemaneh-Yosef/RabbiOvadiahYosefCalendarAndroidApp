@@ -323,21 +323,21 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
     private void showDawnDialog() {
         AlertDialog alertDialog = dialogBuilder.setTitle("Dawn - עלות השחר - Alot HaShaḥar")
-                .setMessage(Utils.isLocaleHebrew() ? loadContentFromFile("alothHB.md") : loadContentFromFile("aloth.md"))
+                .setMessage(Utils.isLocaleHebrew(context) ? loadContentFromFile("alothHB.md") : loadContentFromFile("aloth.md"))
                 .create();
         alertDialog.show();
     }
 
     private void showEarliestTalitTefilinDialog() {
         AlertDialog alertDialog = dialogBuilder.setTitle("Earliest Talit/Tefilin - טלית ותפילין - Misheyakir")
-                .setMessage(Utils.isLocaleHebrew() ? loadContentFromFile("misheyakirHB.md") : loadContentFromFile("misheyakir.md"))
+                .setMessage(Utils.isLocaleHebrew(context) ? loadContentFromFile("misheyakirHB.md") : loadContentFromFile("misheyakir.md"))
                 .create();
         alertDialog.show();
     }
 
     private void showSunriseDialog() {
         dialogBuilder.setTitle("Sunrise - הנץ - HaNetz")
-                .setMessage(Utils.isLocaleHebrew() ? loadContentFromFile("hanetzHB.md") : loadContentFromFile("hanetz.md"))
+                .setMessage(Utils.isLocaleHebrew(context) ? loadContentFromFile("hanetzHB.md") : loadContentFromFile("hanetz.md"))
                 .setPositiveButton(R.string.setup_visible_sunrise, (dialog, which) -> {
                     if (sSetupLauncher != null) {
                         sSetupLauncher.launch(new Intent(context, SetupChaiTablesActivity.class));
@@ -372,14 +372,14 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
     private void showShemaMGADialog() {
         AlertDialog alertDialog = dialogBuilder.setTitle("Latest Shema MG\"A - סוף זמן שמע מג\"א")
-                .setMessage(Utils.isLocaleHebrew() ? loadContentFromFile("kriatShemaHB.md") : loadContentFromFile("kriatShema.md"))
+                .setMessage(Utils.isLocaleHebrew(context) ? loadContentFromFile("kriatShemaHB.md") : loadContentFromFile("kriatShema.md"))
                 .create();
         alertDialog.show();
     }
 
     private void showShmaGRADialog() {
         AlertDialog alertDialog = dialogBuilder.setTitle("Latest Shema GR\"A - סוף זמן שמע גר\"א")
-                .setMessage(Utils.isLocaleHebrew() ? loadContentFromFile("kriatShemaHB.md") : loadContentFromFile("kriatShema.md"))
+                .setMessage(Utils.isLocaleHebrew(context) ? loadContentFromFile("kriatShemaHB.md") : loadContentFromFile("kriatShema.md"))
                 .create();
         alertDialog.show();
     }
@@ -422,7 +422,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
     private void showPlagDialog() {
         AlertDialog alertDialog = dialogBuilder.setTitle("Plag HaMinḥa - פלג המנחה")
-                .setMessage(Utils.isLocaleHebrew() ? loadContentFromFile("plagHaminchaHB.md") : loadContentFromFile("plagHamincha.md"))
+                .setMessage(Utils.isLocaleHebrew(context) ? loadContentFromFile("plagHaminchaHB.md") : loadContentFromFile("plagHamincha.md"))
                 .create();
         alertDialog.show();
     }
@@ -488,7 +488,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             }
         }
         AlertDialog alertDialog = dialogBuilder.setTitle("Shabbat/Chag Ends (%) - (%) צאת שבת/חג".replace("%", shabbatSetting))
-                .setMessage(Utils.isLocaleHebrew() ? loadContentFromFile("tzetShabbatHB.md") : loadContentFromFile("tzetShabbat.md"))
+                .setMessage(Utils.isLocaleHebrew(context) ? loadContentFromFile("tzetShabbatHB.md") : loadContentFromFile("tzetShabbat.md"))
                 .create();
         alertDialog.show();
     }
@@ -535,7 +535,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
     private void showTekufaDialog() {
         AlertDialog alertDialog = dialogBuilder.setTitle("Tekufa - Season - תקופה")
-                .setMessage(Utils.isLocaleHebrew() ? loadContentFromFile("tekufa-hb.md") : loadContentFromFile("tekufot-en.md"))
+                .setMessage(Utils.isLocaleHebrew(context) ? loadContentFromFile("tekufa-hb.md") : loadContentFromFile("tekufot-en.md"))
                 .create();
         alertDialog.show();
     }

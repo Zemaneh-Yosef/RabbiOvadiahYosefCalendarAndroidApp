@@ -88,17 +88,29 @@ public class NextZmanCountdownNotification extends Service {
             }
         };
         mSettingsPreferences.registerOnSharedPreferenceChangeListener(settingsPrefListener);
-        if (Utils.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew(this)) {
             if (mSettingsPreferences.getBoolean("ShowSeconds", false)) {
-                zmanimFormat = new SimpleDateFormat("H:mm:ss", Locale.getDefault());
+                zmanimFormat = new SimpleDateFormat("H:mm:ss", getResources()
+                        .getConfiguration()
+                        .getLocales()
+                        .get(0));
             } else {
-                zmanimFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
+                zmanimFormat = new SimpleDateFormat("H:mm", getResources()
+                        .getConfiguration()
+                        .getLocales()
+                        .get(0));
             }
         } else {
             if (mSettingsPreferences.getBoolean("ShowSeconds", false)) {
-                zmanimFormat = new SimpleDateFormat("h:mm:ss aa", Locale.getDefault());
+                zmanimFormat = new SimpleDateFormat("h:mm:ss aa", getResources()
+                        .getConfiguration()
+                        .getLocales()
+                        .get(0));
             } else {
-                zmanimFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+                zmanimFormat = new SimpleDateFormat("h:mm aa", getResources()
+                        .getConfiguration()
+                        .getLocales()
+                        .get(0));
             }
         }
         mLocationResolver = new LocationResolver(this, new Activity());

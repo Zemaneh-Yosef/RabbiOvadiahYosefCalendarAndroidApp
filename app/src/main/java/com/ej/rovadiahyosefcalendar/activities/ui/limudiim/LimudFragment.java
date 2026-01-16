@@ -57,7 +57,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Locale;
 import java.util.TimeZone;
 
 public class LimudFragment extends Fragment {
@@ -99,15 +98,29 @@ public class LimudFragment extends Fragment {
         StringBuilder sb = new StringBuilder();
         sb.append(sCurrentDateShown.get(Calendar.DATE));
         sb.append(" ");
-        sb.append(sCurrentDateShown.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault()));
+        sb.append(sCurrentDateShown.getDisplayName(Calendar.MONTH, Calendar.SHORT, mContext
+                .getResources()
+                .getConfiguration()
+                .getLocales()
+                .get(0)));
         sb.append(", ");
         sb.append(sCurrentDateShown.get(Calendar.YEAR));
-        if (DateUtils.isSameDay(sCurrentDateShown.getTime(), new Date())) {
+        boolean isToday = DateUtils.isSameDay(sCurrentDateShown.getTime(), new Date());
+        if (isToday) {
             sb.append("   ▼   ");//add a down arrow to indicate that this is the current day
         } else {
             sb.append("      ");
         }
-        sb.append(sJewishDateInfo.getJewishCalendar().toString());
+        String jewishDate = sJewishDateInfo.getJewishCalendar().currentToString(sROZmanimCalendar);
+        if (sROZmanimCalendar.getSunset() != null && new Date().after(sROZmanimCalendar.getSunset())) {
+            jewishDate = "\uD83C\uDF19 " + jewishDate;
+        } else {
+            jewishDate = "☀️ " + jewishDate;
+        }
+        if (!isToday) {
+            jewishDate = sJewishDateInfo.getJewishCalendar().toString();
+        }
+        sb.append(jewishDate);
         if (binding != null) {
             binding.hillulotDate.setText(sb.toString());
         }
@@ -118,7 +131,7 @@ public class LimudFragment extends Fragment {
             return;
         }
         materialToolbar.setTitle(mContext.getString(R.string.limudim_hillulot));
-        if (Utils.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew(mContext)) {
             materialToolbar.setSubtitle(mContext.getString(R.string.app_name));
         } else {
             materialToolbar.setSubtitle(mContext.getString(R.string.short_app_name));
@@ -142,6 +155,11 @@ public class LimudFragment extends Fragment {
     }
 
     private void updateLists() {
+        boolean isToday = DateUtils.isSameDay(sCurrentDateShown.getTime(), new Date());
+        if (isToday && sROZmanimCalendar.getSunset() != null && new Date().after(sROZmanimCalendar.getSunset())) {
+            sCurrentDateShown.add(Calendar.DATE, 1);
+            sJewishDateInfo.setCalendar(sCurrentDateShown);
+        }
         limudRV.setAdapter(new LimudAdapter(mContext, getLimudList(), sJewishDateInfo, v -> {
             mSeeMore = false;
             limudRV.setAdapter(new LimudAdapter(mContext, getLimudList(), sJewishDateInfo));
@@ -152,6 +170,10 @@ public class LimudFragment extends Fragment {
             hillulotRV.setVisibility(View.GONE);
         } else {
             hillulotRV.setVisibility(View.VISIBLE);
+        }
+        if (isToday && sROZmanimCalendar.getSunset() != null && new Date().after(sROZmanimCalendar.getSunset())) {
+            sCurrentDateShown.add(Calendar.DATE, -1);
+            sJewishDateInfo.setCalendar(sCurrentDateShown);
         }
     }
 
@@ -203,7 +225,7 @@ public class LimudFragment extends Fragment {
         limudim.add(new LimudListEntry(mContext.getString(R.string.daily_chafetz_chaim) + ChafetzChayimYomiCalculator.getChafetzChayimYomi(sJewishDateInfo.getJewishCalendar())));
 
         ArrayList<String> dailyMonthlyTehilim;
-        if (Utils.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew(mContext)) {
             dailyMonthlyTehilim = new ArrayList<>(Arrays.asList(
                     "א - ט",       // 1 - 9
                     "י - יז",      // 10 - 17
@@ -269,11 +291,10 @@ public class LimudFragment extends Fragment {
                     "140 - " + (sJewishDateInfo.getJewishCalendar().getDaysInJewishMonth() == 29 ? 150 : 145),
                     "145 - 150"));
         }
-
         limudim.add(new LimudListEntry(mContext.getString(R.string.daily_tehilim) + mContext.getString(R.string.monthly) + ": " + dailyMonthlyTehilim.get(sJewishDateInfo.getJewishCalendar().getJewishDayOfMonth() - 1)));
 
         ArrayList<String> dailyWeeklyTehilim;
-        if (Utils.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew(mContext)) {
             dailyWeeklyTehilim = new ArrayList<>(Arrays.asList(
                     "א - כט",      // 1 - 29
                     "ל - נ",       // 30 - 50
@@ -294,7 +315,7 @@ public class LimudFragment extends Fragment {
                     "120 - 150"
             ));
         }
-        limudim.add(new LimudListEntry(mContext.getString(R.string.daily_tehilim) + mContext.getString(R.string.weekly) + ": " + dailyWeeklyTehilim.get(sCurrentDateShown.get(Calendar.DAY_OF_WEEK) - 1)));
+        limudim.add(new LimudListEntry(mContext.getString(R.string.daily_tehilim) + mContext.getString(R.string.weekly) + ": " + dailyWeeklyTehilim.get(sJewishDateInfo.getJewishCalendar().getDayOfWeek() - 1)));
 
         DailyMishnehTorah dailyMishnehTorah = DailyMishnehTorah.INSTANCE;
 
@@ -335,7 +356,7 @@ public class LimudFragment extends Fragment {
         List<LimudListEntry> hillulot = new ArrayList<>();
 
         // Read JSON file from the 'raw' directory
-        String jsonFileString = readJSONFromRawResource(mContext, Utils.isLocaleHebrew() ? R.raw.he : R.raw.en);
+        String jsonFileString = readJSONFromRawResource(mContext, Utils.isLocaleHebrew(mContext) ? R.raw.he : R.raw.en);
 
         if (jsonFileString != null) {
             try {
@@ -386,6 +407,7 @@ public class LimudFragment extends Fragment {
                 sCurrentDateShown.add(Calendar.DATE, -1);//subtract one day
                 sROZmanimCalendar.setCalendar(sCurrentDateShown);
                 sJewishDateInfo.setCalendar(sCurrentDateShown);
+                System.out.println("jewish date: " + sJewishDateInfo.getJewishCalendar().toString());
                 setDate();
                 updateLists();
                 mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
@@ -480,6 +502,7 @@ public class LimudFragment extends Fragment {
         binding = null;
     }
 
+    /** @noinspection ResultOfMethodCallIgnored*/
     private String readJSONFromRawResource(Context context, int rawResourceId) {
         String jsonString = null;
         try {

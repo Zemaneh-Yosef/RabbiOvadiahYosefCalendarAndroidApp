@@ -82,7 +82,7 @@ public class OmerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_omer);
 
         MaterialToolbar materialToolbar = findViewById(R.id.topAppBar);
-        if (Utils.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew(this)) {
             materialToolbar.setSubtitle("");
         }
         materialToolbar.setNavigationIcon(AppCompatResources.getDrawable(this, R.drawable.baseline_arrow_back_24));

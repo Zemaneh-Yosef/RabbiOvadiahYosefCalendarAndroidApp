@@ -4,8 +4,10 @@ import static com.ej.rovadiahyosefcalendar.activities.OmerActivity.getSefirahAtt
 import static com.ej.rovadiahyosefcalendar.activities.OmerActivity.omerList;
 import static com.ej.rovadiahyosefcalendar.classes.TehilimFactory.*;
 
+import android.content.Context;
 import android.graphics.Color;
 
+import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
 
@@ -176,6 +178,8 @@ public class SiddurMaker {
 		ARVIT
 	}
 
+	private Context context;
+
 	/**
 	 * This goal of this class is to create the proper tefilot/prayers for the day
 	 * with the date set in the
@@ -199,7 +203,7 @@ public class SiddurMaker {
 	 * @see JewishDateInfo
 	 * @see HighlightString
 	 */
-	public SiddurMaker(JewishDateInfo jewishDateInfo, int textColor) {
+	public SiddurMaker(JewishDateInfo jewishDateInfo, int textColor, Context context) {
 		this.jewishDateInfo = jewishDateInfo;
 		this.isTachanunSaidInTheMorning = jewishDateInfo.getIsTachanunSaid().equals("Tachanun only in the morning")
             || jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון רק בבוקר")
@@ -222,6 +226,7 @@ public class SiddurMaker {
 				|| jewishDateInfo.getJewishCalendar().getIsMukafChoma());
 
 		this.halfOpaqueColor = Color.argb(170, Color.red(textColor), Color.green(textColor), Color.blue(textColor));
+		this.context = context;
 	}
 
 	public ArrayList<HighlightString> getSelichotPrayers(boolean isAfterChatzot, boolean isAfterSunrise) {
@@ -656,7 +661,7 @@ public class SiddurMaker {
 			addToSiddur("וְאֵרַשְׂתִּ֥יךְ לִ֖י לְעוֹלָ֑ם וְאֵרַשְׂתִּ֥יךְ לִי֙ בְּצֶ֣דֶק וּבְמִשְׁפָּ֔ט וּבְחֶ֖סֶד וּֽבְרַחֲמִֽים׃ וְאֵרַשְׂתִּ֥יךְ לִ֖י בֶּאֱמוּנָ֑ה וְיָדַ֖עַתְּ אֶת־יְהֹוָֽה׃");
 
 			addToSiddur(
-				WeeklyParashaReadings.tefilinParashatBo[0] +
+				WeeklyParashaReadings.tefilinParashatBo[0] + " " +
 				WeeklyParashaReadings.tefilinParashatBo[1] +
 				"\n\n" +
 				WeeklyParashaReadings.tefilinParashatBo[2]);
@@ -1396,7 +1401,7 @@ public class SiddurMaker {
 
 			addKaddishVariants(KaddishTypes.HALF);
 
-			if (Utils.isLocaleHebrew()) {
+			if (Utils.isLocaleHebrew(context)) {
 				if (jewishDateInfo.getJewishCalendar().isRoshChodesh()) {
 					addInstructionToSiddur("הסרת תפילין כאן");
 				}
@@ -4774,6 +4779,22 @@ public class SiddurMaker {
 			"כְּרוֹת קוֹמַת בְּרוֹשׁ בִּקֵּשׁ אֲגָגִי בֶּן הַמְּדָתָא וְנִהְיָתָה לוֹ לְפַח וּלְמוֹקֵשׁ וְגַאֲוָתוֹ נִשְׁבָּתָה רֹאשׁ יְמִינִי נִשֵּׂאתָ וְאוֹיֵב שְׁמוֹ מָחִיתָ רֹב בָּנָיו וְקִנְיָנָיו עַל הָעֵץ תָּלִיתָ: \n" +
 			"יְוָנִים נִקְבְּצוּ עָלַי אֲזַי בִּימֵי חַשְׁמַנִּים וּפָרְצוּ חוֹמוֹת מִגְדָּלַי וְטִמְּאוּ כָּל־הַשְּׁמָנִים וּמִנּוֹתַר קַנְקַנִּים נַעֲשָׂה נֵס לַשּׁוֹשַׁנִּים בְּנֵי בִינָה יְמֵי שְׁמוֹנָה קָבְעוּ שִׁיר וּרְנָנִים: \n" +
 			"חֲשׂוֹף זְרוֹעַ קָדְשֶׁךָ וְקָרֵב קֵץ הַיְשׁוּעָה נְקֹם נִקְמַת עֲבָדֶיךָ מֵאֻמָּה הָרְשָׁעָה כִּי אָרְכָה לָנוּ הַשָּׁעָה וְאֵין קֵץ לִימֵי הָרָעָה דְּחֵה אַדְמוֹן בְּצֵל צַלְמוֹן הָקֵם לָנוּ רוֹעֶה שִׁבְעָה:");
+
+		return siddur;
+	}
+
+	public ArrayList<HighlightString> getTehilimPrayers() {
+		siddur = new ArrayList<>();
+
+		HebrewDateFormatter formatter = new HebrewDateFormatter();
+		formatter.setHebrewFormat(true);
+		formatter.setUseGershGershayim(false);
+		int chapterAsNumber = 1;
+		for (String chapter: chapters) {
+			addCategoryToSiddur( formatter.formatHebrewNumber(chapterAsNumber) + " / " + chapterAsNumber);
+			addToSiddur(chapter);
+			chapterAsNumber++;
+		}
 
 		return siddur;
 	}

@@ -69,7 +69,12 @@ public class ZmanimAppWidget extends AppWidgetProvider {
             }
             mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false));
 
-            String jewishDate = mJewishDateInfo.getJewishCalendar().toString();// TODO add pre/post sunset somehow
+            String jewishDate = mJewishDateInfo.getJewishCalendar().currentToString(mROZmanimCalendar);
+            if (mROZmanimCalendar.getSunset() != null && new Date().after(mROZmanimCalendar.getSunset())) {
+                jewishDate = "\uD83C\uDF19 " + jewishDate;
+            } else {
+                jewishDate = "☀️ " + jewishDate;
+            }
             String parsha = mJewishDateInfo.getThisWeeksParsha();
             ZmanListEntry nextUpcomingZman = getNextUpcomingZman(context, appWidgetManager, appWidgetId);
             ZmanimNames zmanimNames = new ZmanimNames(mSharedPreferences.getBoolean("isZmanimInHebrew", false), mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false), mSharedPreferences.getBoolean("isZmanimAmericanized", false));

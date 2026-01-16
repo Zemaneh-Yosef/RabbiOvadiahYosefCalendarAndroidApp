@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ej.rovadiahyosefcalendar.R;
+import com.ej.rovadiahyosefcalendar.activities.SiddurViewActivity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.kosherjava.zmanim.hebrewcalendar.Daf;
 import com.kosherjava.zmanim.hebrewcalendar.YerushalmiYomiCalculator;
@@ -85,7 +86,7 @@ public class LimudAdapter extends RecyclerView.Adapter<LimudAdapter.ZmanViewHold
 
         if (limudim.get(position) != null) {
             if (limudim.get(position).hasSource()) {// make name text bold
-                if (Utils.isLocaleHebrew()) {
+                if (Utils.isLocaleHebrew(context)) {
                     holder.mRightTextView.setText(limudim.get(position).getLimudTitle());
                     holder.mRightTextView.setTypeface(null, Typeface.BOLD);
                 } else {
@@ -164,6 +165,18 @@ public class LimudAdapter extends RecyclerView.Adapter<LimudAdapter.ZmanViewHold
                         });
                         dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
                         dialogBuilder.show();
+                    }
+                } else if (limudim.get(position).getLimudTitle().contains(context.getString(R.string.daily_tehilim))) {
+                    if (limudim.get(position).getLimudTitle().contains(context.getString(R.string.weekly))) {
+                        int[] weeklyTehilim = { 1, 30, 51, 73, 90, 107, 120 };
+                        context.startActivity(new Intent(context, SiddurViewActivity.class)
+                                .putExtra("prayer", "תהילים")
+                                .putExtra("tehilimIndex", weeklyTehilim[mJewishDateInfo.getJewishCalendar().getDayOfWeek() - 1]));
+                    } else if (limudim.get(position).getLimudTitle().contains(context.getString(R.string.monthly))) {
+                        int[] monthlyTehilim = { 1, 10, 18, 23, 29, 35, 39, 44, 49, 55, 60, 66, 69, 72, 77, 79, 83, 88, 90, 97, 104, 106, 108, 113, 119, 119, 120, 135, 140, 145 };
+                        context.startActivity(new Intent(context, SiddurViewActivity.class)
+                                .putExtra("prayer", "תהילים")
+                                .putExtra("tehilimIndex", monthlyTehilim[mJewishDateInfo.getJewishCalendar().getJewishDayOfMonth() - 1]));
                     }
                 } else if (limudim.get(position).getLimudTitle().contains(context.getString(R.string.daily_nasi))) {
                     dialogBuilder.setTitle(limudim.get(position).getLimudTitle());

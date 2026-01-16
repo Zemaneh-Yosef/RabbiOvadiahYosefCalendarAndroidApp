@@ -46,7 +46,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
@@ -72,8 +71,14 @@ public class Utils {
         //return latitude >= 29.7 && latitude <= 36.1 && longitude >= 31.5 && longitude <= 38.0;
     }
 
-    public static boolean isLocaleHebrew() {
-        return Locale.getDefault().getDisplayLanguage(new Locale.Builder().setLanguage("en").setRegion("US").build()).equals("Hebrew");
+    public static boolean isLocaleHebrew(Context context) {
+        return context
+                .getResources()
+                .getConfiguration()
+                .getLocales()
+                .get(0)
+                .getLanguage()
+                .equals("he");
     }
 
     public static String inputStreamToString(InputStream inputStream) {
@@ -96,11 +101,11 @@ public class Utils {
         return input.replaceAll("\\s*\\([^)]*\\)$", "").trim();// Removes ANY trailing " (something)"
     }
 
-    public static String dateFormatPattern(boolean showSeconds) {
-        return (Utils.isLocaleHebrew() ? "H" : "h")
+    public static String dateFormatPattern(Context context, boolean showSeconds) {
+        return (Utils.isLocaleHebrew(context) ? "H" : "h")
             + ":mm"
             + (showSeconds ? ":ss" : "")
-            + (Utils.isLocaleHebrew() ? "" : " aa");
+            + (Utils.isLocaleHebrew(context) ? "" : " aa");
     }
 
     public static String formatZmanTime(Context context, ZmanListEntry zmanListEntry) {
@@ -109,8 +114,16 @@ public class Utils {
 
     public static String formatZmanTime(Context context, Date zman, SecondTreatment secondTreatment) {
         boolean showSeconds = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowSeconds", false);
-        DateFormat noSecondDateFormat = new SimpleDateFormat(dateFormatPattern(false), Locale.getDefault());
-        DateFormat yesSecondDateFormat = new SimpleDateFormat(dateFormatPattern(true), Locale.getDefault());
+        DateFormat noSecondDateFormat = new SimpleDateFormat(dateFormatPattern(context,false), context
+                .getResources()
+                .getConfiguration()
+                .getLocales()
+                .get(0));
+        DateFormat yesSecondDateFormat = new SimpleDateFormat(dateFormatPattern(context,true), context
+                .getResources()
+                .getConfiguration()
+                .getLocales()
+                .get(0));
         TimeZone timezone = new LocationResolver(context, null).getTimeZone();
         noSecondDateFormat.setTimeZone(timezone);
         yesSecondDateFormat.setTimeZone(timezone);

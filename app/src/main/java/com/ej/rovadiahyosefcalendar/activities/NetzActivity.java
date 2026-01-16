@@ -35,7 +35,6 @@ import com.kosherjava.zmanim.util.GeoLocation;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
 
@@ -214,7 +213,10 @@ public class NetzActivity extends AppCompatActivity {
                     }
 
                     countdownText += netzName.getIsInString() + "\n\n";
-                    countdownText += String.format(Locale.getDefault(), "%02dh:%02dm:%02ds", hours, minutes, seconds);
+                    countdownText += String.format(getResources()
+                            .getConfiguration()
+                            .getLocales()
+                            .get(0), "%02dh:%02dm:%02ds", hours, minutes, seconds);
                     binding.fullscreenContent.setText(countdownText);
 
                     mHideHandler.postDelayed(this, 1000); // Re-run this Runnable in 1 second

@@ -23,6 +23,8 @@ public class SiddurComposeView extends AbstractComposeView {
 	// Create a field to hold the scrolling function given to us by Compose.
 	private Function1<Integer, Unit> scrollToPositionLambda = null;
 
+	private Integer pendingScrollPosition = null;
+
 	public SiddurComposeView(@NonNull Context context) {
 		super(context);
 	}
@@ -40,6 +42,8 @@ public class SiddurComposeView extends AbstractComposeView {
 		// If we have received the scrolling lambda from Compose, invoke it.
 		if (scrollToPositionLambda != null) {
 			scrollToPositionLambda.invoke(position);
+		} else {
+			pendingScrollPosition = position;// Compose not ready yet → remember it
 		}
 	}
 
@@ -64,6 +68,10 @@ public class SiddurComposeView extends AbstractComposeView {
 			// Update the cast to match the expected type with wildcards
 			(Function1<? super Function1<? super Integer, Unit>, Unit>) scrollLambda -> {
 				this.scrollToPositionLambda = (Function1<Integer, Unit>) scrollLambda;
+				if (pendingScrollPosition != null) {
+					scrollToPositionLambda.invoke(pendingScrollPosition);
+					pendingScrollPosition = null;
+				}
 				return Unit.INSTANCE;
 			},
 			composer,

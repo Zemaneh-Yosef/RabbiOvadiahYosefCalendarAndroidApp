@@ -65,7 +65,11 @@ public class LocationResolver {
     public LocationResolver(Context context, Activity activity) {
         mContext = context;
         mActivity = activity;
-        mGeocoder = new Geocoder(mContext, Locale.getDefault());
+        mGeocoder = new Geocoder(mContext, context
+                .getResources()
+                .getConfiguration()
+                .getLocales()
+                .get(0));
         mSharedPreferences = mContext.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE);
     }
 
@@ -158,8 +162,16 @@ public class LocationResolver {
     public void resolveCurrentLocationName() {
         sCurrentLocationName = getFullLocationName(true);
         if (sCurrentLocationName.isEmpty()) {
-            String lat = String.format(Locale.getDefault(), "%.3f", sLatitude);
-            String longitude = String.format(Locale.getDefault(), "%.3f", sLongitude);
+            String lat = String.format(mContext
+                    .getResources()
+                    .getConfiguration()
+                    .getLocales()
+                    .get(0), "%.3f", sLatitude);
+            String longitude = String.format(mContext
+                    .getResources()
+                    .getConfiguration()
+                    .getLocales()
+                    .get(0), "%.3f", sLongitude);
 
             sCurrentLocationName = "Lat: " + lat + ", Long: " + longitude;
         }
@@ -170,12 +182,12 @@ public class LocationResolver {
         StringBuilder result = new StringBuilder();
         List<Address> addresses = null;
         try {
-            addresses = mGeocoder.getFromLocation(sLatitude, sLongitude, (Utils.isLocaleHebrew() ? 5 : 1));
+            addresses = mGeocoder.getFromLocation(sLatitude, sLongitude, (Utils.isLocaleHebrew(mContext) ? 5 : 1));
         } catch (IOException e) {
             e.printStackTrace();
         }
         if (addresses != null && !addresses.isEmpty()) {
-            if (Utils.isLocaleHebrew()) {
+            if (Utils.isLocaleHebrew(mContext)) {
                 Address address = null;
                 for (Address add : addresses) {
                     if (add.getLocale().getDisplayLanguage(new Locale.Builder().setLanguage("en").setRegion("US").build()).equals("Hebrew")) {
@@ -703,7 +715,7 @@ public class LocationResolver {
         StringBuilder result = new StringBuilder();
         List<Address> addresses = null;
         try {
-            if (Utils.isLocaleHebrew()) {
+            if (Utils.isLocaleHebrew(mContext)) {
                 addresses = mGeocoder.getFromLocation(latitude, longitude, 5);
             } else {
                 addresses = mGeocoder.getFromLocation(latitude, longitude, 1);
@@ -713,7 +725,7 @@ public class LocationResolver {
         }
         if (addresses != null && !addresses.isEmpty()) {
 
-            if (Utils.isLocaleHebrew()) {
+            if (Utils.isLocaleHebrew(mContext)) {
                 Address address = null;
                 for (Address add:addresses) {
                     if (add.getLocale().getDisplayLanguage(new Locale.Builder().setLanguage("en").setRegion("US").build()).equals("Hebrew")) {
@@ -770,8 +782,16 @@ public class LocationResolver {
         }
         mLocationName = result.toString().trim();
         if (mLocationName.isEmpty()) {
-            mLocationName = "Lat: " + String.format(Locale.getDefault(), "%.3f", latitude)
-                    + " Long: " + String.format(Locale.getDefault(), "%.3f", longitude);
+            mLocationName = "Lat: " + String.format(mContext
+                    .getResources()
+                    .getConfiguration()
+                    .getLocales()
+                    .get(0), "%.3f", latitude)
+                    + " Long: " + String.format(mContext
+                    .getResources()
+                    .getConfiguration()
+                    .getLocales()
+                    .get(0), "%.3f", longitude);
         }
         mSharedPreferences.edit().putString("name", mLocationName).apply();
         return mLocationName;

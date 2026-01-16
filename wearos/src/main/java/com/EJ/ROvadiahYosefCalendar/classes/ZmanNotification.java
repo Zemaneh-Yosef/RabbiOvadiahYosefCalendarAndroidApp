@@ -27,7 +27,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 import java.util.TimeZone;
 
 public class ZmanNotification extends BroadcastReceiver {
@@ -94,7 +93,11 @@ public class ZmanNotification extends BroadcastReceiver {
             String dateFormatPattern = "H:mm" + (mSharedPreferences.getBoolean("ShowSeconds", false) ? ":ss" : "");
             if (!Utils.isLocaleHebrew())
                 dateFormatPattern = dateFormatPattern.toLowerCase() + " aa";
-            DateFormat zmanimFormat = new SimpleDateFormat(dateFormatPattern, Locale.getDefault());
+            DateFormat zmanimFormat = new SimpleDateFormat(dateFormatPattern, context
+                    .getResources()
+                    .getConfiguration()
+                    .getLocales()
+                    .get(0));
             zmanimFormat.setTimeZone(TimeZone.getTimeZone(mSharedPreferences.getString("currentTimezone", ""))); //set the formatters time zone
 
             String text;

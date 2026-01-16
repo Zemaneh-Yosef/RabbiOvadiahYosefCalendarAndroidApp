@@ -1,5 +1,7 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
@@ -20,6 +22,8 @@ public class JewishCalendarWithExtraMethods extends JewishCalendar {
     public void setIsSafekMukafChoma(boolean isSafekMukafChoma) {
         this.isSafekMukafChoma = isSafekMukafChoma;
     }
+
+    public Context mContext;
 
     @Override
     public boolean isPurim() {
@@ -52,9 +56,9 @@ public class JewishCalendarWithExtraMethods extends JewishCalendar {
         }
     }
 
-    public String getTekufaName() {
+    public String getTekufaName(boolean isLocaleHebrew) {
         String[] tekufaNames;
-        if (Utils.isLocaleHebrew()) {
+        if (isLocaleHebrew) {
             tekufaNames = new String[]{"תשרי", "טבת", "ניסן", "תמוז"};
         } else {
             tekufaNames = new String[]{"Tishri", "Tevet", "Nissan", "Tammuz"};
@@ -126,6 +130,7 @@ public class JewishCalendarWithExtraMethods extends JewishCalendar {
      */
     public String currentToString(ROZmanimCalendar zmanimCalendar) {
         JewishCalendarWithExtraMethods jewishCalendar = new JewishCalendarWithExtraMethods();
+        jewishCalendar.mContext = this.mContext;
         jewishCalendar.setDate(zmanimCalendar.getCalendar());// set the date to the date of the zmanim calendar, because we are going based on that sunset
         if (zmanimCalendar.getSunset() != null && new Date().after(zmanimCalendar.getSunset())) {
             jewishCalendar.forward(Calendar.DATE, 1);
@@ -137,7 +142,9 @@ public class JewishCalendarWithExtraMethods extends JewishCalendar {
     @Override
     public String toString() {
         HebrewDateFormatter hebrewDateFormatter = new HebrewDateFormatter();
-        hebrewDateFormatter.setHebrewFormat(Utils.isLocaleHebrew());
+        if (mContext != null) {
+            hebrewDateFormatter.setHebrewFormat(Utils.isLocaleHebrew(mContext));
+        }
         return hebrewDateFormatter.format(this)
                 .replace("Teves", "Tevet")
                 .replace("Tishrei", "Tishri")

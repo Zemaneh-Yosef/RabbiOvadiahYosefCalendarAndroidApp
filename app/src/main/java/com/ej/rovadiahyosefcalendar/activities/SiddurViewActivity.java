@@ -59,7 +59,7 @@ public class SiddurViewActivity extends AppCompatActivity {
         getTheme().resolveAttribute(android.R.attr.textColorPrimary, typedValue, true);
         int textColor = ContextCompat.getColor(this, typedValue.resourceId);
 
-        SiddurMaker siddurMaker = new SiddurMaker(mJewishDateInfo, textColor);
+        SiddurMaker siddurMaker = new SiddurMaker(mJewishDateInfo, textColor, this);
         assert siddurTitle != null;
         ArrayList<HighlightString> prayers = switch (siddurTitle) {
             case "סליחות" -> siddurMaker.getSelichotPrayers(getIntent().getBooleanExtra("isAfterChatzot", false), getIntent().getBooleanExtra("isAfterSunrise", false));
@@ -77,6 +77,7 @@ public class SiddurViewActivity extends AppCompatActivity {
             case "תיקון חצות" -> siddurMaker.getTikkunChatzotPrayers(getIntent().getBooleanExtra("isNightTikkunChatzot", true));
             case "ק״ש שעל המיטה" -> siddurMaker.getKriatShemaShealHamitaPrayers(!getIntent().getBooleanExtra("isAfterChatzot", false));
             case "ברכת מעין שלוש" -> siddurMaker.getBirchatMeeyinShaloshPrayers(Objects.requireNonNull(getIntent().getStringArrayExtra("itemsForMeyinShalosh")));
+            case "תהילים" -> siddurMaker.getTehilimPrayers();
             default -> new ArrayList<>();
         };
 
@@ -131,6 +132,11 @@ public class SiddurViewActivity extends AppCompatActivity {
         if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("siddurAlwaysOn", false)) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
-    }
 
+        int tehilimIndex = getIntent().getIntExtra("tehilimIndex", -1);
+        if (tehilimIndex != -1) {
+            int positionToScrollTo = categoryPositions.get(tehilimIndex - 1);
+            siddurView.post(() -> siddurView.scrollToPosition(positionToScrollTo));
+        }
+    }
 }

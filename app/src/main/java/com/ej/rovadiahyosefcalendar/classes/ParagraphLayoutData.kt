@@ -84,7 +84,7 @@ fun AdvancedText(
                         var belowTextLayoutHeight = 0f
                         val besideTextHeight = fullRestOfTextLayout.getLineBottom(lineIndexBeside)
                         // This is the spacing between the text beside the large words and the text below
-                        val lineSpacing = if (style.lineHeight.isSp) style.lineHeight.toPx() / 4 else style.fontSize.toPx() / 4
+                        val lineSpacing = if (style.lineHeight.isSp) style.lineHeight.toPx() / 16 else style.fontSize.toPx() / 16
 
 
                         drawText(largeWordsLayout, topLeft = Offset(size.width - largeWordsWidth, currentY))
@@ -171,7 +171,7 @@ fun AdvancedText(
 
                 var textBelowLayoutHeight = 0f
                 // Same spacing logic as in the Canvas
-                val lineSpacing = if (style.lineHeight.isSp) style.lineHeight.toPx() / 4 else style.fontSize.toPx() / 4
+                val lineSpacing = if (style.lineHeight.isSp) style.lineHeight.toPx() / 16 else style.fontSize.toPx() / 16
 
                 if (textBelowAnnotatedString.text.isNotBlank()) {
                     val textBelowLayout = textMeasurer.measure(

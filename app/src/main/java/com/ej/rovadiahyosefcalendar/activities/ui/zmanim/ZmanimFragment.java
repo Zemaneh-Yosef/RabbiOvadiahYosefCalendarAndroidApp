@@ -22,10 +22,12 @@ import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivit
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sSetupLauncher;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sSharedPreferences;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sViewPager;
+import static com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar.MILLISECONDS_PER_MINUTE;
 import static com.ej.rovadiahyosefcalendar.classes.Utils.getCurrentCalendarDrawableDark;
 import static com.ej.rovadiahyosefcalendar.classes.Utils.getCurrentCalendarDrawableLight;
 import static com.ej.rovadiahyosefcalendar.classes.Utils.inputStreamToString;
 import static com.ej.rovadiahyosefcalendar.classes.ZmanimFactory.addZmanim;
+import static com.kosherjava.zmanim.AstronomicalCalendar.getTimeOffset;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -211,7 +213,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
 
         try {
-            makamNames = new JSONArray(inputStreamToString(mActivity.getResources().openRawResource(Utils.isLocaleHebrew() ? R.raw.makam_names_he : R.raw.makam_names)));
+            makamNames = new JSONArray(inputStreamToString(mActivity.getResources().openRawResource(Utils.isLocaleHebrew(mContext) ? R.raw.makam_names_he : R.raw.makam_names)));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -324,7 +326,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      * list is updated.
      * @param codeToRunAfterwards the code to run after the chaitable times are updated. This should be done on the main UI thread if it the code will affect the UI.
      */
-    private void updateChaitableTimesFromLatLong(Runnable codeToRunAfterwards) {
+    private void updateChaitableTimesFromLatLong(Runnable codeToRunAfterwards) {//TODO
 //        new Thread(() -> {
 //            if (sROZmanimCalendar.getHaNetz() == null) {// if visible sunrise for this location is null, try to update it
 //                JewishDate jDate = new JewishDate();
@@ -964,7 +966,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (materialToolbar == null) {
             return;
         }
-        if (Utils.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew(mContext)) {
             materialToolbar.setSubtitle("");
         } else {
             materialToolbar.setTitle(mContext.getString(R.string.app_name));
@@ -1058,6 +1060,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private List<ZmanListEntry> getZmanimList(boolean add66MisheyakirZman) {
         List<ZmanListEntry> zmanim = new ArrayList<>();
 
+        // -- UPDATE TOP UI CODE --
         String locationName = mLocationResolver.getFullLocationName(true);
         if (locationName != null && locationName.isEmpty()) {//if it's still empty, use backup. NPE was thrown here for some reason
             locationName = sROZmanimCalendar.getGeoLocation().getLocationName();
@@ -1065,7 +1068,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
         String engDate = sROZmanimCalendar.getCalendar().get(Calendar.DATE) +
                 " " +
-                sROZmanimCalendar.getCalendar().getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()) +
+                sROZmanimCalendar.getCalendar().getDisplayName(Calendar.MONTH, Calendar.LONG, mContext
+                        .getResources()
+                        .getConfiguration()
+                        .getLocales()
+                        .get(0)) +
                 ", " +
                 sROZmanimCalendar.getCalendar().get(Calendar.YEAR);
 
@@ -1091,11 +1098,18 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 binding.gregDate.setText(engDate);
                 binding.hebDate.setText(sJewishDateInfo.getJewishCalendar().toString());
             }
-            binding.weekday.setText(Utils.isLocaleHebrew() ?
-                    sROZmanimCalendar.getCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault())
+            binding.weekday.setText(Utils.isLocaleHebrew(mContext) ?
+                    sROZmanimCalendar.getCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, mContext.getResources()
+                            .getConfiguration()
+                            .getLocales()
+                            .get(0))
                     :
                     sROZmanimCalendar.getCalendar()
-                            .getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault())
+                            .getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, mContext
+                                    .getResources()
+                                    .getConfiguration()
+                                    .getLocales()
+                                    .get(0))
                             + " / " +
                             sROZmanimCalendar.getCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, new Locale.Builder().setLanguage("he").setRegion("IL").build()));
             binding.parsha.setText(sJewishDateInfo.getThisWeeksParsha());
@@ -1140,7 +1154,38 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 e.printStackTrace();
                 binding.makamLayout.setVisibility(View.GONE);
             }
+            if (sJewishDateInfo.getJewishCalendar().getDayOfChanukah() != 8
+                    && (sJewishDateInfo.tomorrow().getJewishCalendar().isChanukah() || sJewishDateInfo.getJewishCalendar().isChanukah())) {
+                int night = sJewishDateInfo.getJewishCalendar().getDayOfChanukah() + 1;
+                if (night == 0) {// edge case for erev chanukah
+                    night = 1;
+                }
+                binding.nightOfChanuka.setText(new StringBuilder(mContext.getString(R.string.chanukah_night))
+                        .append(" ")
+                        .append(Utils.isLocaleHebrew(mContext) ? sHebrewDateFormatter.formatHebrewNumber(night) : night));
+                binding.lchatchilaLightingTime.setPaintFlags(binding.nightOfChanuka.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);// underline
+                binding.lchatchilaLightingTime.setText(new StringBuilder(mContext.getString(R.string.ideal))
+                        .append(" ")
+                        .append(Utils.formatZmanTime(mContext, sROZmanimCalendar.getTzeit(), SecondTreatment.ROUND_LATER))
+                        .append(" - ")
+                        .append(Utils.formatZmanTime(mContext, getTimeOffset(sROZmanimCalendar.getTzeit(), 30.0 * MILLISECONDS_PER_MINUTE), SecondTreatment.ROUND_EARLIER)));
+                ROZmanimCalendar tomorrow = sROZmanimCalendar.getCopy();
+                tomorrow.getCalendar().add(Calendar.DATE, 1);
+                String alotHashacharForTomorrow = Utils.formatZmanTime(mContext, tomorrow.getAlotHashachar(), SecondTreatment.ROUND_EARLIER);
+                binding.fullWindowLightingTime.setText(new StringBuilder(mContext.getString(R.string.earliest))
+                        .append(" ")
+                        .append(Utils.formatZmanTime(mContext, sROZmanimCalendar.getPlagHaminchaYalkutYosef(), SecondTreatment.ROUND_LATER))
+                        .append(" - ")
+                        .append(mContext.getString(R.string.latest))
+                        .append(" ")
+                        .append(alotHashacharForTomorrow));
+                binding.chanukaCard.setVisibility(View.VISIBLE);
+                binding.chanukaCard.setCardElevation(12f);
+            } else {
+                binding.chanukaCard.setVisibility(View.GONE);
+            }
         }
+        // -- END OF UPDATE TOP UI CODE --
 
         if (sSettingsPreferences.getBoolean("showShabbatMevarchim", false)) {
             if (sJewishDateInfo.getJewishCalendar().isShabbosMevorchim()) {
@@ -1209,10 +1254,18 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 zmanim.add(new ZmanListEntry(mContext.getString(R.string.there_is_no_moon_tonight)));
             } else {
                 SimpleDateFormat moonFormat;
-                if (Utils.isLocaleHebrew()) {
-                    moonFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
+                if (Utils.isLocaleHebrew(mContext)) {
+                    moonFormat = new SimpleDateFormat("H:mm", mContext
+                            .getResources()
+                            .getConfiguration()
+                            .getLocales()
+                            .get(0));
                 } else {
-                    moonFormat = new SimpleDateFormat("h:mm aa", Locale.getDefault());
+                    moonFormat = new SimpleDateFormat("h:mm aa", mContext
+                            .getResources()
+                            .getConfiguration()
+                            .getLocales()
+                            .get(0));
                 }
                 String moonRiseSet = "";
                 if (moonTimes.getRise() != null) {
@@ -1478,19 +1531,23 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         sJewishDateInfo.setCalendar(sCurrentDateShown);
 
         HebrewDateFormatter hebrewDateFormatter = new HebrewDateFormatter();
-        if (Utils.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew(mContext)) {
             hebrewDateFormatter.setHebrewFormat(true);
         }
         List<TextView[]> weeklyInfo = Arrays.asList(mSunday, mMonday, mTuesday, mWednesday, mThursday, mFriday, mSaturday);
 
-        String month = sCurrentDateShown.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
+        String month = sCurrentDateShown.getDisplayName(Calendar.MONTH, Calendar.LONG, mContext
+                .getResources()
+                .getConfiguration()
+                .getLocales()
+                .get(0));
         String year = String.valueOf(sCurrentDateShown.get(Calendar.YEAR));
 
         String hebrewMonth = hebrewDateFormatter.formatMonth(sJewishDateInfo.getJewishCalendar())
                 .replace("Tishrei", "Tishri")
                 .replace("Teves", "Tevet");
         String hebrewYear = String.valueOf(sJewishDateInfo.getJewishCalendar().getJewishYear());
-        if (Utils.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew(mContext)) {
             hebrewYear = hebrewDateFormatter.formatHebrewNumber(sJewishDateInfo.getJewishCalendar().getJewishYear());
         }
 
@@ -1536,15 +1593,27 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             }
             weeklyInfo.get(i)[2].setText(sJewishDateInfo.getJewishDayOfWeek());//E.G. "יום ראשון"
             weeklyInfo.get(i)[3].setText(sHebrewDateFormatter.formatHebrewNumber(sJewishDateInfo.getJewishCalendar().getJewishDayOfMonth()));//E.G. "א"
-            weeklyInfo.get(i)[4].setText(sROZmanimCalendar.getCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, Locale.getDefault()));//E.G. "Sun"
+            weeklyInfo.get(i)[4].setText(sROZmanimCalendar.getCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, mContext
+                    .getResources()
+                    .getConfiguration()
+                    .getLocales()
+                    .get(0)));//E.G. "Sun"
             weeklyInfo.get(i)[5].setText(String.valueOf(sROZmanimCalendar.getCalendar().get(Calendar.DAY_OF_MONTH)));//E.G. "6"
             if (i != 6) {
                 sROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
                 sJewishDateInfo.setCalendar(sROZmanimCalendar.getCalendar());
             }
         }
-        if (month != null && !month.equals(sROZmanimCalendar.getCalendar().getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()))) {
-            month += " - " + sROZmanimCalendar.getCalendar().getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
+        if (month != null && !month.equals(sROZmanimCalendar.getCalendar().getDisplayName(Calendar.MONTH, Calendar.LONG, mContext
+                .getResources()
+                .getConfiguration()
+                .getLocales()
+                .get(0)))) {
+            month += " - " + sROZmanimCalendar.getCalendar().getDisplayName(Calendar.MONTH, Calendar.LONG, mContext
+                    .getResources()
+                    .getConfiguration()
+                    .getLocales()
+                    .get(0));
         }
         if (!year.equals(String.valueOf(sROZmanimCalendar.getCalendar().get(Calendar.YEAR)))) {
             year += " / " + sROZmanimCalendar.getCalendar().get(Calendar.YEAR);
@@ -1556,7 +1625,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     .replace("Tishrei", "Tishri")
                     .replace("Teves", "Tevet");
         }
-        if (Utils.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew(mContext)) {
             if (!hebrewYear.equals(hebrewDateFormatter.formatHebrewNumber(sJewishDateInfo.getJewishCalendar().getJewishYear()))) {
                 hebrewYear += " / " + hebrewDateFormatter.formatHebrewNumber(sJewishDateInfo.getJewishCalendar().getJewishYear());
             }
@@ -1567,7 +1636,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
         String monthYear = month + " " + year;
         mEnglishMonthYear.setText(monthYear);
-        if (Utils.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew(mContext)) {
             mEnglishMonthYear.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_END);
             mHebrewMonthYear.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
         }
@@ -1596,7 +1665,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (sSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
             for (ZmanListEntry zman : zmanim) {
                 if (zman.isNoteworthyZman()) {
-                    if (!Utils.isLocaleHebrew()) {
+                    if (!Utils.isLocaleHebrew(mContext)) {
                         mZmanimForAnnouncements.add(Utils.formatZmanTime(mContext, zman) + " :" + zman.getTitle().replaceAll("\\(.*\\)", "").trim());
                     } else {
                         mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + ": " + Utils.formatZmanTime(mContext, zman));
@@ -1618,7 +1687,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         String[] shortZmanim = new String[zmanim.size()];
         if (sSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
             for (ZmanListEntry zman : zmanim) {
-                if (!Utils.isLocaleHebrew()) {
+                if (!Utils.isLocaleHebrew(mContext)) {
                     shortZmanim[zmanim.indexOf(zman)] = Utils.formatZmanTime(mContext, zman) + " :" + zman.getTitle()
                             .replace("סוף זמן ", "")
                             .replace("(", "")
@@ -1632,7 +1701,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
                 if (zman.getZman().equals(sNextUpcomingZman)) {
                     shortZmanim[zmanim.indexOf(zman)] = shortZmanim[zmanim.indexOf(zman)] +
-                            (Utils.isLocaleHebrew() ? " ➤ " : " ◄ ");
+                            (Utils.isLocaleHebrew(mContext) ? " ➤ " : " ◄ ");
                 }
             }
         } else {
@@ -1646,7 +1715,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         + ": " + Utils.formatZmanTime(mContext, zman);
                 if (zman.getZman().equals(sNextUpcomingZman)) {
                     shortZmanim[zmanim.indexOf(zman)] = shortZmanim[zmanim.indexOf(zman)] +
-                            (Utils.isLocaleHebrew() ? " ➤ " : " ◄ ");
+                            (Utils.isLocaleHebrew(mContext) ? " ➤ " : " ◄ ");
                 }
             }
         }
@@ -1661,7 +1730,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      * @param shortStyle if the tekufa should be added as "Tekufa Nissan : 4:30" or "Tekufa Nissan is today at 4:30"
      */
     private void addTekufaTime(List<ZmanListEntry> zmanim, boolean shortStyle) {
-        DateFormat zmanimFormat = new SimpleDateFormat(Utils.dateFormatPattern(false), Locale.getDefault());
+        DateFormat zmanimFormat = new SimpleDateFormat(Utils.dateFormatPattern(mContext, false), mContext
+                .getResources()
+                .getConfiguration()
+                .getLocales()
+                .get(0));
         zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
         ROZmanimCalendar zmanimCalendarCopy = sROZmanimCalendar.getCopy();
         JewishDateInfo jewishDateInfoCopy = sJewishDateInfo.getCopy();
@@ -1678,12 +1751,12 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
                     cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
 
-                if (Utils.isLocaleHebrew()) {
-                    zmanim.add(new ZmanListEntry("תקופת " + jewishDateInfoCopy.getJewishCalendar().getTekufaName() +
+                if (Utils.isLocaleHebrew(mContext)) {
+                    zmanim.add(new ZmanListEntry("תקופת " + jewishDateInfoCopy.getJewishCalendar().getTekufaName(Utils.isLocaleHebrew(mContext)) +
                             (shortStyle ? " : " : " היום בשעה ") +
                             zmanimFormat.format(jewishDateInfoCopy.getJewishCalendar().getTekufaAsDate())));
                 } else {
-                    zmanim.add(new ZmanListEntry("Tekufa " + jewishDateInfoCopy.getJewishCalendar().getTekufaName() +
+                    zmanim.add(new ZmanListEntry("Tekufa " + jewishDateInfoCopy.getJewishCalendar().getTekufaName(Utils.isLocaleHebrew(mContext)) +
                             (shortStyle ? " : " : " is today at ") +
                             zmanimFormat.format(jewishDateInfoCopy.getJewishCalendar().getTekufaAsDate())));
                 }
@@ -1702,12 +1775,12 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
                     cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
 
-                if (Utils.isLocaleHebrew()) {
-                    zmanim.add(new ZmanListEntry("תקופת " + jewishDateInfoCopy.getJewishCalendar().getTekufaName() +
+                if (Utils.isLocaleHebrew(mContext)) {
+                    zmanim.add(new ZmanListEntry("תקופת " + jewishDateInfoCopy.getJewishCalendar().getTekufaName(Utils.isLocaleHebrew(mContext)) +
                             (shortStyle ? " : " : " היום בשעה ") +
                             zmanimFormat.format(jewishDateInfoCopy.getJewishCalendar().getTekufaAsDate())));
                 } else {
-                    zmanim.add(new ZmanListEntry("Tekufa " + jewishDateInfoCopy.getJewishCalendar().getTekufaName() +
+                    zmanim.add(new ZmanListEntry("Tekufa " + jewishDateInfoCopy.getJewishCalendar().getTekufaName(Utils.isLocaleHebrew(mContext)) +
                             (shortStyle ? " : " : " is today at ") +
                             zmanimFormat.format(jewishDateInfoCopy.getJewishCalendar().getTekufaAsDate())));
                 }
@@ -1723,7 +1796,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      * @param shortStyle if the tekufa should be added as "Tekufa Nissan : 4:30" or "Tekufa Nissan is today at 4:30"
      */
     private void addAmudeiHoraahTekufaTime(List<ZmanListEntry> zmanim, boolean shortStyle) {
-        DateFormat zmanimFormat = new SimpleDateFormat(Utils.dateFormatPattern(false), Locale.getDefault());
+        DateFormat zmanimFormat = new SimpleDateFormat(Utils.dateFormatPattern(mContext, false), mContext
+                .getResources()
+                .getConfiguration()
+                .getLocales()
+                .get(0));
         zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
         ROZmanimCalendar zmanimCalendarCopy = sROZmanimCalendar.getCopy();
         JewishDateInfo jewishDateInfoCopy = sJewishDateInfo.getCopy();
@@ -1741,12 +1818,12 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
                     cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
 
-                if (Utils.isLocaleHebrew()) {
-                    zmanim.add(new ZmanListEntry("תקופת " + jewishDateInfoCopy.getJewishCalendar().getTekufaName() +
+                if (Utils.isLocaleHebrew(mContext)) {
+                    zmanim.add(new ZmanListEntry("תקופת " + jewishDateInfoCopy.getJewishCalendar().getTekufaName(Utils.isLocaleHebrew(mContext)) +
                             (shortStyle ? " : " : " היום בשעה ") +
                             zmanimFormat.format(jewishDateInfoCopy.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
                 } else {
-                    zmanim.add(new ZmanListEntry("Tekufa " + jewishDateInfoCopy.getJewishCalendar().getTekufaName() +
+                    zmanim.add(new ZmanListEntry("Tekufa " + jewishDateInfoCopy.getJewishCalendar().getTekufaName(Utils.isLocaleHebrew(mContext)) +
                             (shortStyle ? " : " : " is today at ") +
                             zmanimFormat.format(jewishDateInfoCopy.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
                 }
@@ -1765,12 +1842,12 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
                     cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
 
-                if (Utils.isLocaleHebrew()) {
-                    zmanim.add(new ZmanListEntry("תקופת " + jewishDateInfoCopy.getJewishCalendar().getTekufaName() +
+                if (Utils.isLocaleHebrew(mContext)) {
+                    zmanim.add(new ZmanListEntry("תקופת " + jewishDateInfoCopy.getJewishCalendar().getTekufaName(Utils.isLocaleHebrew(mContext)) +
                             (shortStyle ? " : " : " היום בשעה ") +
                             zmanimFormat.format(jewishDateInfoCopy.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
                 } else {
-                    zmanim.add(new ZmanListEntry("Tekufa " + jewishDateInfoCopy.getJewishCalendar().getTekufaName() +
+                    zmanim.add(new ZmanListEntry("Tekufa " + jewishDateInfoCopy.getJewishCalendar().getTekufaName(Utils.isLocaleHebrew(mContext)) +
                             (shortStyle ? " : " : " is today at ") +
                             zmanimFormat.format(jewishDateInfoCopy.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
                 }
@@ -1779,7 +1856,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     }
 
     public void addTekufaLength(List<ZmanListEntry> zmanim, String opinion) {
-        DateFormat zmanimFormat = new SimpleDateFormat(Utils.dateFormatPattern(false), Locale.getDefault());
+        DateFormat zmanimFormat = new SimpleDateFormat(Utils.dateFormatPattern(mContext, false), mContext
+                .getResources()
+                .getConfiguration()
+                .getLocales()
+                .get(0));
         zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
 
         Date tekufa = null;
@@ -1834,7 +1915,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         halfHourBefore = new Date(tekufa.getTime() - (DateUtils.MILLIS_PER_HOUR / 2));
                         halfHourAfter = new Date(tekufa.getTime() + (DateUtils.MILLIS_PER_HOUR / 2));
                     }
-                    if (Utils.isLocaleHebrew()) {
+                    if (Utils.isLocaleHebrew(mContext)) {
                         zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourAfter) + " - " + zmanimFormat.format(halfHourBefore)));
                     } else {
                         zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfter)));
@@ -1843,7 +1924,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 case "2":
                     halfHourBefore = new Date(tekufa.getTime() - (DateUtils.MILLIS_PER_HOUR / 2));
                     halfHourAfter = new Date(tekufa.getTime() + (DateUtils.MILLIS_PER_HOUR / 2));
-                    if (Utils.isLocaleHebrew()) {
+                    if (Utils.isLocaleHebrew(mContext)) {
                         zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourAfter) + " - " + zmanimFormat.format(halfHourBefore)));
                     } else {
                         zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfter)));
@@ -1852,7 +1933,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 case "3":
                     halfHourBefore = new Date(aHTekufa.getTime() - (DateUtils.MILLIS_PER_HOUR / 2));
                     halfHourAfter = new Date(aHTekufa.getTime() + (DateUtils.MILLIS_PER_HOUR / 2));
-                    if (Utils.isLocaleHebrew()) {
+                    if (Utils.isLocaleHebrew(mContext)) {
                         zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourAfter) + " - " + zmanimFormat.format(halfHourBefore)));
                     } else {
                         zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfter)));
@@ -1861,7 +1942,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 default:// 4
                     halfHourBefore = new Date(aHTekufa.getTime() - (DateUtils.MILLIS_PER_HOUR / 2));
                     halfHourAfter = new Date(tekufa.getTime() + (DateUtils.MILLIS_PER_HOUR / 2));
-                    if (Utils.isLocaleHebrew()) {
+                    if (Utils.isLocaleHebrew(mContext)) {
                         zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourAfter) + " - " + zmanimFormat.format(halfHourBefore)));
                     } else {
                         zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfter)));
@@ -1947,7 +2028,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 TextClock clock = binding.clock;
                 if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
                     clock.setVisibility(View.VISIBLE);
-                    if (Utils.isLocaleHebrew()) {
+                    if (Utils.isLocaleHebrew(mContext)) {
                         clock.setFormat24Hour("hh:mm:ss");
                     }
                 }
@@ -2224,7 +2305,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             TextClock clock = binding.clock;
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 clock.setVisibility(View.VISIBLE);
-                if (Utils.isLocaleHebrew()) {
+                if (Utils.isLocaleHebrew(mContext)) {
                     clock.setFormat24Hour("H:mm:ss");
                 }
             } else {
@@ -2238,9 +2319,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             return;
         }
         sJewishDateInfo.getJewishCalendar().setInIsrael(sSharedPreferences.getBoolean("inIsrael", false));// check if the user changed the inIsrael setting
-        sJewishDateInfo.resetLocale();
+        sJewishDateInfo.resetLocale(mContext);
         try {
-            makamNames = new JSONArray(inputStreamToString(mActivity.getResources().openRawResource(Utils.isLocaleHebrew() ? R.raw.makam_names_he : R.raw.makam_names)));
+            makamNames = new JSONArray(inputStreamToString(mActivity.getResources().openRawResource(Utils.isLocaleHebrew(mContext) ? R.raw.makam_names_he : R.raw.makam_names)));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -2322,6 +2403,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             binding.parsha.setTextColor(textColor);
             binding.haftara.setTextColor(textColor);
             binding.makam.setTextColor(textColor);
+            binding.nightOfChanuka.setTextColor(textColor);
+            binding.lchatchilaLightingTime.setTextColor(textColor);
+            binding.fullWindowLightingTime.setTextColor(textColor);
             if (!sShabbatMode) {
                 mCalendarButton.setBackgroundColor(sSharedPreferences.getBoolean("useDefaultCalButtonColor", true) ? mContext.getColor(R.color.dark_blue) : sSharedPreferences.getInt("CalButtonColor", 0x18267C));
             }

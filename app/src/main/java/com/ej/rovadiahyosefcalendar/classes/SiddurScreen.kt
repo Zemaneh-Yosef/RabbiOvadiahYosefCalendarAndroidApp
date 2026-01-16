@@ -1,7 +1,5 @@
 package com.ej.rovadiahyosefcalendar.classes
 
-// M3 Imports
-// End M3 Imports
 import android.content.Context
 import android.content.Intent
 import android.hardware.Sensor
@@ -9,7 +7,6 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.text.SpannableString
-import android.util.Log
 import android.util.TypedValue
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState

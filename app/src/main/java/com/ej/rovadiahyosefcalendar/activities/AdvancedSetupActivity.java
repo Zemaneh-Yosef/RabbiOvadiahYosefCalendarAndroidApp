@@ -41,7 +41,7 @@ public class AdvancedSetupActivity extends AppCompatActivity {
         MaterialToolbar materialToolbar = findViewById(R.id.topAppBar);
         materialToolbar.setNavigationIcon(AppCompatResources.getDrawable(this, R.drawable.baseline_arrow_back_24));
         materialToolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
-        if (Utils.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew(this)) {
             materialToolbar.setSubtitle("");
         }
         SharedPreferences.Editor editor = getSharedPreferences(SHARED_PREF, MODE_PRIVATE).edit();
@@ -80,7 +80,7 @@ public class AdvancedSetupActivity extends AppCompatActivity {
                 .create();
             WebView webView = new WebView(this);
             webView.getSettings().setJavaScriptEnabled(true);
-            webView.loadUrl(Utils.isLocaleHebrew() ? "https://chaitables.com/chai_heb.php" : "http://www.chaitables.com/");
+            webView.loadUrl(Utils.isLocaleHebrew(AdvancedSetupActivity.this) ? "https://chaitables.com/chai_heb.php" : "http://www.chaitables.com/");
             webView.setWebViewClient(new WebViewClient() {
 
                 @Override

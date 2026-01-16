@@ -37,7 +37,6 @@ import com.kosherjava.zmanim.util.GeoLocation;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 import java.util.function.Consumer;
 
 public class OmerNotifications extends BroadcastReceiver implements Consumer<Location> {
@@ -118,12 +117,12 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
                 NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "Omer")
                         .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
                         .setSmallIcon(R.drawable.omer_wheat)
-                        .setContentTitle(Locale.getDefault().getDisplayLanguage(new Locale.Builder().setLanguage("en").setRegion("US").build()).equals("Hebrew") ? "יום בעומר" : "Day of Omer")
+                        .setContentTitle(Utils.isLocaleHebrew(context) ? "יום בעומר" : "Day of Omer")
                         .setContentText(omerList.get(day))
                         .setStyle(new NotificationCompat
                                 .BigTextStyle()
                                 .setBigContentTitle(nextJewishDay)
-                                .setSummaryText(Locale.getDefault().getDisplayLanguage(new Locale.Builder().setLanguage("en").setRegion("US").build()).equals("Hebrew") ? "אל תשכח לספור!" : "Don't forget to count!")
+                                .setSummaryText(Utils.isLocaleHebrew(context) ? "אל תשכח לספור!" : "Don't forget to count!")
                                 .bigText("בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם, אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ עַל סְפִירַת הָעֹמֶר:" + "\n\n" + omerList.get(day) + "\n\nהָרַחֲמָן הוּא יַחֲזִיר עֲבוֹדַת בֵּית הַמִּקְדָּשׁ לִמְקוֹמָהּ בִּמְהֵרָה בְיָמֵינוּ אָמֵן:"))
                         .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                         .setCategory(NotificationCompat.CATEGORY_REMINDER)
@@ -177,7 +176,7 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
 
         Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
-        if (Utils.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew(context)) {
             NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "BarechAleinu")
                 .setSmallIcon(R.drawable.winter)
                 .setContentTitle("ברך עלינו הלילה!")

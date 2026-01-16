@@ -108,8 +108,8 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
                     mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "last known day was not the same as today, sending notification" + "\n\n").apply();
                 }
 
-                String title = (Utils.isLocaleHebrew() ? "יום מיוחד ביהדות" : "Jewish Special Day");
-                String content = (Utils.isLocaleHebrew() ? "היום הוא " : "Today is ") + specialDay;
+                String title = (Utils.isLocaleHebrew(context) ? "יום מיוחד ביהדות" : "Jewish Special Day");
+                String content = (Utils.isLocaleHebrew(context) ? "היום הוא " : "Today is ") + specialDay;
 
                 NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "Jewish Special Day")
                         .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))

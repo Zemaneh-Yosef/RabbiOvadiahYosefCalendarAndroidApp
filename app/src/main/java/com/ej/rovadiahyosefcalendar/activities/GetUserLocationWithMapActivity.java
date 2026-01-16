@@ -97,7 +97,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
         binding = ActivityGetUserLocationWithMapBinding.inflate(getLayoutInflater());
         EdgeToEdge.enable(this);
         setContentView(binding.getRoot());
-        if (Utils.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew(this)) {
             binding.topAppBar.setSubtitle("");
         }
         binding.topAppBar.setNavigationIcon(AppCompatResources.getDrawable(this, R.drawable.baseline_arrow_back_24));
@@ -306,7 +306,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
             if (!getIntent().getBooleanExtra("loneActivity", false)) {
                 startActivity(new Intent(this, InIsraelActivity.class));
             }
-        } else if (!Utils.isLocaleHebrew()) {
+        } else if (!Utils.isLocaleHebrew(this)) {
             mSharedPreferences.edit().putBoolean("LuachAmudeiHoraah", true).apply();
             mSharedPreferences.edit().putBoolean("useElevation", false).apply();
             if (!getIntent().getBooleanExtra("loneActivity", false)) {

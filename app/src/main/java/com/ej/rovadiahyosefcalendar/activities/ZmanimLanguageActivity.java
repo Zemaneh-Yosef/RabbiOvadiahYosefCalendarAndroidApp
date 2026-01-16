@@ -47,7 +47,7 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_zmanim_language);
         MaterialToolbar materialToolbar = findViewById(R.id.topAppBar);
-        if (Utils.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew(this)) {
             materialToolbar.setSubtitle("");
         }
         materialToolbar.setOnMenuItemClickListener(item -> {

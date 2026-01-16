@@ -31,7 +31,7 @@ public class InIsraelActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_in_israel_setup);
         MaterialToolbar materialToolbar = findViewById(R.id.topAppBar);
-        if (Utils.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew(this)) {
             materialToolbar.setSubtitle("");
         }
         materialToolbar.setOnMenuItemClickListener(item -> {
@@ -89,13 +89,13 @@ public class InIsraelActivity extends AppCompatActivity {
     }
 
     private void saveInfoAndStartActivity(boolean b) {
-        mSharedPreferences.edit().putBoolean("inIsrael", b).apply();
-        mSharedPreferences.edit().putBoolean("LuachAmudeiHoraah", !b).apply();
-        mSharedPreferences.edit().putBoolean("useElevation", !b).apply();
-        if (Utils.isLocaleHebrew()) {
-            mSharedPreferences.edit().putBoolean("isZmanimInHebrew", true).apply();
-            mSharedPreferences.edit().putBoolean("isZmanimEnglishTranslated", false).apply();
-            mSharedPreferences.edit().putBoolean("isSetup", true).apply();
+        mSharedPreferences.edit().putBoolean("inIsrael", b)
+                .putBoolean("LuachAmudeiHoraah", !b)
+                .putBoolean("useElevation", !b).apply();
+        if (Utils.isLocaleHebrew(this)) {
+            mSharedPreferences.edit().putBoolean("isZmanimInHebrew", true)
+                    .putBoolean("isZmanimEnglishTranslated", false)
+                    .putBoolean("isSetup", true).apply();
             if (mSharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
                 startActivity(new Intent(getBaseContext(), TipScreenActivity.class));
                 mSharedPreferences.edit().putBoolean("hasNotShownTipScreen", false).apply();

@@ -34,12 +34,12 @@ import java.util.List;
  * <br><br>
  * All the other zmanim that were not included in KosherJava's zmanim calculator are calculated in this class.
  * <br><br>
- * On the subject of zmanim outside of Israel, Rabbi Ovadiah Yosef ZT"L never gave a definite psak on how to calculate zmanim outside of Israel, and
+ * For zmanim outside of Israel, Rabbi Ovadiah Yosef ZT"L never gave a definite psak on how to calculate zmanim outside of Israel, and
  * it is not so simple to say that the same way the Ohr HaChaim calendar calculates the zmanim should be used also outside of Israel. The Ohr HaChaim
  * calendar calculates the zmanim based on the Minchat Cohen that used Shaot Zmaniyot. This works well in Israel, however, even the Minchat Cohen
  * agrees that outside of Israel there should be a slight adjustment to the times for alot and tzait because of the curvature of the earth.
  * <br><br>
- * Therefore, Rabbi Leeor Dahan Shlita, who the authored the Amudei Horaah calendar (and sefarim under the same name on the mishna berurah) uses
+ * Therefore, Rabbi Leeor Dahan Shlita, who authored the Amudei Horaah calendar (and the sefarim under the same name on the Mishna Berurah) uses
  * degrees to adjust the times for the zmanim reliant on alot and tzait. I have sat
  * down with him and he explained to me exactly how he calculated his zmanim, and I have implemented his calculations in this class as well.
  * <br><br>
@@ -129,7 +129,7 @@ public class ROZmanimCalendar extends ZmanimCalendar {
 
     private final JewishCalendar jewishCalendar;
     private static final int MINUTES_PER_HOUR = 60;
-    private static final int MILLISECONDS_PER_MINUTE = 60_000;
+    public static final int MILLISECONDS_PER_MINUTE = 60_000;
     public List<Calendar> vSunriseDates = new ArrayList<>();
     private File externalFilesDir;
 
@@ -672,7 +672,7 @@ public class ROZmanimCalendar extends ZmanimCalendar {
             curYear = jewishCalendar.getJewishYear();
         }
 
-        super.setCalendar(calendar);
+        super.setCalendar((Calendar) calendar.clone());
         if (getCalendar() != null && jewishCalendar != null) {
             jewishCalendar.setDate(getCalendar());
         }

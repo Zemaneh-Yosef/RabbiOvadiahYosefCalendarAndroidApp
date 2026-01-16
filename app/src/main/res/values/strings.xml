@@ -468,4 +468,10 @@
     <string name="daily_halacha">Daily Halacha:</string>
     <string name="yy_chaitables_quote" translatable="false">והנכון הוא ללכת אחר לוח אור החיים, או לוח ביכורי יוסף, וכדומה, המבוסס על הזריחה המוקדמת ביותר הנראית מעל אופק המזרחי האמיתי, מנקודה כלשהי בישוב, מידי יום ביומו, בסיוע מודל טופוגרפי ממוחשב של ארץ ישראל.</string>
    <string name="yy_chaitables_source" translatable="false">(ילקוט יוסף מהדורא תשפ״א סימן פ״ט סעיף ג)</string>
+    <string name="tehilim">תהילים</string>
+    <string name="chanukah_night">Chanukah - Night</string>
+   <string name="ideal">Ideal:</string>
+    <string name="earliest">Earliest:</string>
+   <string name="latest">Latest:</string>
+    <string name="zemaneh_yosef">Zemaneh Yosef</string>
 </resources>
