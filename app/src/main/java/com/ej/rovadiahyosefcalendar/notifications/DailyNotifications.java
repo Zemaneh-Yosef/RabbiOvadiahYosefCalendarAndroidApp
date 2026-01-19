@@ -39,7 +39,6 @@ import java.util.function.Consumer;
 
 public class DailyNotifications extends BroadcastReceiver implements Consumer<Location> {
 
-    private static int MID = 50;
     private LocationResolver mLocationResolver;
     private SharedPreferences mSharedPreferences;
     private Context context;
@@ -98,42 +97,40 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
             notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
             PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,
-                    notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
+                    notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
             Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
-            if (!mSharedPreferences.getString("lastKnownDay","").equals(jewishDateInfo.getJewishCalendar().toString())) {//We only want 1 notification a day.
-                mSharedPreferences.edit().putString("lastKnownDay", jewishDateInfo.getJewishCalendar().toString()).apply();
-                if (BuildConfig.DEBUG) {
-                    mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "last known day was not the same as today, sending notification" + "\n\n").apply();
-                }
+            String title = (Utils.isLocaleHebrew(context) ? "יום מיוחד ביהדות" : "Jewish Special Day");
+            String content = (Utils.isLocaleHebrew(context) ? "היום הוא " : "Today is ") + specialDay;
 
-                String title = (Utils.isLocaleHebrew(context) ? "יום מיוחד ביהדות" : "Jewish Special Day");
-                String content = (Utils.isLocaleHebrew(context) ? "היום הוא " : "Today is ") + specialDay;
-
-                NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "Jewish Special Day")
-                        .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
-                        .setSmallIcon(R.drawable.calendar_foreground)
-                        .setContentTitle(title)
-                        .setContentText(content)
-                        .setStyle(new NotificationCompat.BigTextStyle()
-                                .setBigContentTitle(title)
-                                .setSummaryText(calendar.getGeoLocation().getLocationName())
-                                .bigText(content))
-                        .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                        .setCategory(NotificationCompat.CATEGORY_REMINDER)
-                        .setPriority(NotificationCompat.PRIORITY_HIGH)
-                        .setSound(alarmSound)
-                        .setColor(context.getColor(R.color.dark_gold))
-                        .setAutoCancel(true)
-                        .setWhen(when)
-                        .setContentIntent(pendingIntent);
-                notificationManager.notify(MID, mNotifyBuilder.build());
-                MID++;
-                if (BuildConfig.DEBUG) {
-                    mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "notification sent" + "\n\n").apply();
-                }
-            }
+            NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "Jewish Special Day")
+                    .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
+                    .setSmallIcon(R.drawable.calendar_foreground)
+                    .setContentTitle(title)
+                    .setContentText(content)
+                    .setStyle(new NotificationCompat.BigTextStyle()
+                            .setBigContentTitle(title)
+                            .setSummaryText(calendar.getGeoLocation().getLocationName())
+                            .bigText(content))
+                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                    .setCategory(NotificationCompat.CATEGORY_REMINDER)
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setSound(alarmSound)
+                    .setColor(context.getColor(R.color.dark_gold))
+                    .setAutoCancel(true)
+                    .setWhen(when)
+                    .setContentIntent(pendingIntent);
+            notificationManager.notify(50, mNotifyBuilder.build());// keep the notification ID the same as it will just overwrite the last sent daily notification.
+            // This is overall a better solution instead of keeping track of the date (like we used to) to ensure one notification per day.
+            // We will just let the code notify the user and use the same ID to make it look like it only ran and notified once.
+            // For reference:
+            // IDs 0-49 are designated for Omer Notifications
+            // ID 50 is designated for Daily Notifications (the ID will not iterate anymore, IT WILL OVERWRITE THE LAST DAILY NOTIFICATION)
+            // ID 51 is designated to tekufa notifications (the ID will not iterate anymore as it only occurs 4 times a year and it's unlikely to ever overwrite the last tekufa notification)
+            // ID 52 is designated to the Barech Aleinu notification
+            // ID Integer.MAX_VALUE is designated to the Visible sunrise notification due to chatGPT recommendation, we could make it 53... but what's done is done
+            // The zemanim notifications are based on the timestamp of the zeman (which is bigger than Integer.MAX_VALUE so we remainder it, either way they should never overwrite each other)
         }
         Calendar cal = Calendar.getInstance();
         AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);

@@ -41,7 +41,6 @@ import java.util.function.Consumer;
 
 public class OmerNotifications extends BroadcastReceiver implements Consumer<Location> {
 
-    private static int MID = 1;
     private LocationResolver mLocationResolver;
     private SharedPreferences mSharedPreferences;
     private Context context;
@@ -105,49 +104,30 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
             Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
             String nextJewishDay = jewishDateInfo.tomorrow().getJewishCalendar().toString();
-            if (BuildConfig.DEBUG) {
-                mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "The hebrew date for the omer is: " + nextJewishDay + "\n\n").apply();
-            }
 
-            if (!mSharedPreferences.getString("lastKnownDayOmer", "").equals(nextJewishDay)) {//We only want 1 notification a day.
-                mSharedPreferences.edit().putString("lastKnownDayOmer", nextJewishDay).apply();
-                if (BuildConfig.DEBUG) {
-                    mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "The hebrew date for the omer was not the same as the last known day: " + nextJewishDay + "\n\n").apply();
-                }
-                NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "Omer")
-                        .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
-                        .setSmallIcon(R.drawable.omer_wheat)
-                        .setContentTitle(Utils.isLocaleHebrew(context) ? "יום בעומר" : "Day of Omer")
-                        .setContentText(omerList.get(day))
-                        .setStyle(new NotificationCompat
-                                .BigTextStyle()
-                                .setBigContentTitle(nextJewishDay)
-                                .setSummaryText(Utils.isLocaleHebrew(context) ? "אל תשכח לספור!" : "Don't forget to count!")
-                                .bigText("בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם, אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ עַל סְפִירַת הָעֹמֶר:" + "\n\n" + omerList.get(day) + "\n\nהָרַחֲמָן הוּא יַחֲזִיר עֲבוֹדַת בֵּית הַמִּקְדָּשׁ לִמְקוֹמָהּ בִּמְהֵרָה בְיָמֵינוּ אָמֵן:"))
-                        .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                        .setCategory(NotificationCompat.CATEGORY_REMINDER)
-                        .setPriority(NotificationCompat.PRIORITY_HIGH)
-                        .setSound(alarmSound)
-                        .setColor(context.getColor(R.color.dark_gold))
-                        .setAutoCancel(true)
-                        .setWhen(when)
-                        .setContentIntent(pendingIntent)
-                        .addAction(new NotificationCompat.Action(0, context.getString(R.string.see_full_text), pendingIntent));
-                notificationManager.notify(MID, mNotifyBuilder.build());
-                MID++;
-                if (BuildConfig.DEBUG) {
-                    mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "Omer notification was sent" + "\n\n").apply();
-                }
-            }
-        }// end of omer code
-        if (BuildConfig.DEBUG) {
-            mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "check if barech aleinu is tonight" + "\n\n").apply();
+            NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "Omer")
+                    .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
+                    .setSmallIcon(R.drawable.omer_wheat)
+                    .setContentTitle(Utils.isLocaleHebrew(context) ? "יום בעומר" : "Day of Omer")
+                    .setContentText(omerList.get(day))
+                    .setStyle(new NotificationCompat
+                            .BigTextStyle()
+                            .setBigContentTitle(nextJewishDay)
+                            .setSummaryText(Utils.isLocaleHebrew(context) ? "אל תשכח לספור!" : "Don't forget to count!")
+                            .bigText("בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם, אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ עַל סְפִירַת הָעֹמֶר:" + "\n\n" + omerList.get(day) + "\n\nהָרַחֲמָן הוּא יַחֲזִיר עֲבוֹדַת בֵּית הַמִּקְדָּשׁ לִמְקוֹמָהּ בִּמְהֵרָה בְיָמֵינוּ אָמֵן:"))
+                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                    .setCategory(NotificationCompat.CATEGORY_REMINDER)
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setSound(alarmSound)
+                    .setColor(context.getColor(R.color.dark_gold))
+                    .setAutoCancel(true)
+                    .setWhen(when)
+                    .setContentIntent(pendingIntent)
+                    .addAction(new NotificationCompat.Action(0, context.getString(R.string.see_full_text), pendingIntent));
+            notificationManager.notify(day, mNotifyBuilder.build());
         }
         if (new TefilaRules().isVeseinTalUmatarStartDate(jewishDateInfo.tomorrow().getJewishCalendar())) {// we need to know if user is in Israel or not
-            if (mSharedPreferences.getInt("lastKnownBarechAleinu", 0) != jewishDateInfo.getJewishCalendar().getJewishYear()) {//We only want 1 notification a year.
-                notifyBarechAleinu(context);
-                mSharedPreferences.edit().putInt("lastKnownBarechAleinu", jewishDateInfo.getJewishCalendar().getJewishYear()).apply();
-            }
+            notifyBarechAleinu(context);
         }
         updateAlarm(context, c);
     }
@@ -172,20 +152,19 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,
-                notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
+                notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
-        if (Utils.isLocaleHebrew(context)) {
-            NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "BarechAleinu")
+        NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "BarechAleinu")
                 .setSmallIcon(R.drawable.winter)
-                .setContentTitle("ברך עלינו הלילה!")
-                .setContentText("הלילה אנחנו מתחילים לומר ברך עלינו!")
+                .setContentTitle(Utils.isLocaleHebrew(context) ? "ברך עלינו הלילה!" : "Barech Aleinu tonight!")
+                .setContentText(Utils.isLocaleHebrew(context) ? "הלילה אנחנו מתחילים לומר ברך עלינו!" : "Tonight we start saying Barech Aleinu!")
                 .setStyle(new NotificationCompat
                         .BigTextStyle()
-                        .setBigContentTitle("ברך עלינו הלילה!")
-                        .setSummaryText("הלילה אנחנו מתחילים לומר ברך עלינו!")
-                        .bigText("הלילה אנחנו מתחילים לומר ברך עלינו!"))
+                        .setBigContentTitle(Utils.isLocaleHebrew(context) ? "ברך עלינו הלילה!" : "Barech Aleinu tonight!")
+                        .setSummaryText(Utils.isLocaleHebrew(context) ? "הלילה אנחנו מתחילים לומר ברך עלינו!" : "Tonight we start saying Barech Aleinu!")
+                        .bigText(Utils.isLocaleHebrew(context) ? "הלילה אנחנו מתחילים לומר ברך עלינו!" : "Tonight we start saying Barech Aleinu!"))
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setCategory(NotificationCompat.CATEGORY_REMINDER)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -194,28 +173,7 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
                 .setAutoCancel(true)
                 .setWhen(System.currentTimeMillis())
                 .setContentIntent(pendingIntent);
-            notificationManager.notify(MID, mNotifyBuilder.build());
-        } else {
-            NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "BarechAleinu")
-                .setSmallIcon(R.drawable.winter)
-                .setContentTitle("Barech Aleinu tonight!")
-                .setContentText("Tonight we start saying Barech Aleinu!")
-                .setStyle(new NotificationCompat
-                        .BigTextStyle()
-                        .setBigContentTitle("Barech Aleinu tonight!")
-                        .setSummaryText("Tonight we start saying Barech Aleinu!")
-                        .bigText("Tonight we start saying Barech Aleinu!"))
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setCategory(NotificationCompat.CATEGORY_REMINDER)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setSound(alarmSound)
-                .setColor(context.getColor(R.color.dark_gold))
-                .setAutoCancel(true)
-                .setWhen(System.currentTimeMillis())
-                .setContentIntent(pendingIntent);
-            notificationManager.notify(MID, mNotifyBuilder.build());
-        }
-        MID++;
+        notificationManager.notify(52, mNotifyBuilder.build());
         if (BuildConfig.DEBUG) {
             mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "barech aleinu notification was sent" + "\n\n").apply();
         }

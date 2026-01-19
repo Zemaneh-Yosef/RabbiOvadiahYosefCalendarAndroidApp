@@ -32,8 +32,6 @@ import java.util.Date;
 
 public class AmudeiHoraahTekufaNotifications extends BroadcastReceiver {
 
-    private static int MID = 100;
-
     @Override
     public void onReceive(Context context, Intent intent) {
         SharedPreferences sp = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
@@ -100,8 +98,7 @@ public class AmudeiHoraahTekufaNotifications extends BroadcastReceiver {
                 .setAutoCancel(true)
                 .setWhen(tekufaTime.getTime())
                 .setContentIntent(pendingIntent);
-        notificationManager.notify(MID, mNotifyBuilder.build());
-        MID++;
+        notificationManager.notify(51, mNotifyBuilder.build());
     }
 
     private int getSeasonalIcon(String tekufaName) {

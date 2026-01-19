@@ -910,7 +910,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 new Intent(mContext, DailyNotifications.class), PendingIntent.FLAG_IMMUTABLE);
         AlarmManager am = (AlarmManager) mContext.getSystemService(ALARM_SERVICE);
         if (BuildConfig.DEBUG) {
-            if (sSharedPreferences.getString("debugNotifs", "").length() > 10000) {
+            if (sSharedPreferences.getString("debugNotifs", "").length() > 100000) {
                 sSharedPreferences.edit().putString("debugNotifs", "").apply();
             }
             sSharedPreferences.edit().putString("debugNotifs", sSharedPreferences.getString("debugNotifs", "") + "Daily Notifications set for: " + calendar.getTime() + "\n\n").apply();
