@@ -137,24 +137,19 @@ public class JewishDateInfo {
      */
     private String getRoshChodeshOrErevRoshChodesh() {
         String result;
-        if (isLocaleHebrew) {
-            hebrewDateFormatter.setHebrewFormat(true);
-            if (this.jewishCalendar.isRoshChodesh()) {
-                result = hebrewDateFormatter.formatRoshChodesh(this.jewishCalendar);
-            } else if (this.jewishCalendar.isErevRoshChodesh()) {
-                String hebrewMonth = hebrewDateFormatter.formatRoshChodesh(tomorrow().getJewishCalendar());
-                result = "ערב " + hebrewMonth;
-            } else {
-                result = "";
-            }
+        if (this.jewishCalendar.isRoshChodesh()) {
+            result = hebrewDateFormatter.formatRoshChodesh(this.jewishCalendar);
+        } else if (this.jewishCalendar.isErevRoshChodesh()) {
+            String hebrewMonth = hebrewDateFormatter.formatRoshChodesh(tomorrow().getJewishCalendar());
+            result = (isLocaleHebrew ? "ערב " : "Erev ") + hebrewMonth;
         } else {
-            if (this.jewishCalendar.isRoshChodesh()) {
-                result = hebrewDateFormatter.formatRoshChodesh(this.jewishCalendar);
-            } else if (this.jewishCalendar.isErevRoshChodesh()) {
-                String hebrewMonth = hebrewDateFormatter.formatRoshChodesh(tomorrow().getJewishCalendar());
-                result = "Erev " + hebrewMonth;
-            } else {
-                result = "";
+            result = "";
+        }
+        if (!result.isEmpty() && !this.jewishCalendar.isErevRoshChodesh()) {// do not show the numbers for Erev Rosh Chodesh or if Rosh Chodesh is one day
+            if (yesterday().jewishCalendar.getJewishDayOfMonth() == 30) {
+                result += " (2)";
+            } else if (tomorrow().jewishCalendar.getJewishDayOfMonth() == 1) {
+                result += " (1)";
             }
         }
         return result;
