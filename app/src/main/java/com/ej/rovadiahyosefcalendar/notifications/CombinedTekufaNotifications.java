@@ -100,6 +100,7 @@ public class CombinedTekufaNotifications extends BroadcastReceiver {
                 .setColor(context.getColor(R.color.dark_gold))
                 .setAutoCancel(true)
                 .setWhen(earlierTekufaTime.getTime())
+                .setTimeoutAfter(259_200_00)// remove the notification after 3 days (259,200,000 milliseconds)
                 .setContentIntent(pendingIntent);
         notificationManager.notify(51, mNotifyBuilder.build());
     }

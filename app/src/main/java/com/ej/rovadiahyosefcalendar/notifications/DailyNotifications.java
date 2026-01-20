@@ -120,6 +120,7 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
                     .setColor(context.getColor(R.color.dark_gold))
                     .setAutoCancel(true)
                     .setWhen(when)
+                    .setTimeoutAfter(259_200_00)// remove the notification after 3 days (259,200,000 milliseconds)
                     .setContentIntent(pendingIntent);
             notificationManager.notify(50, mNotifyBuilder.build());// keep the notification ID the same as it will just overwrite the last sent daily notification.
             // This is overall a better solution instead of keeping track of the date (like we used to) to ensure one notification per day.

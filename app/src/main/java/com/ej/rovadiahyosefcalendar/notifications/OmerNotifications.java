@@ -122,6 +122,7 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
                     .setColor(context.getColor(R.color.dark_gold))
                     .setAutoCancel(true)
                     .setWhen(when)
+                    .setTimeoutAfter(259_200_00)// remove the notification after 3 days (259,200,000 milliseconds)
                     .setContentIntent(pendingIntent)
                     .addAction(new NotificationCompat.Action(0, context.getString(R.string.see_full_text), pendingIntent));
             notificationManager.notify(day, mNotifyBuilder.build());
@@ -171,6 +172,7 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
                 .setSound(alarmSound)
                 .setColor(context.getColor(R.color.dark_gold))
                 .setAutoCancel(true)
+                .setTimeoutAfter(259_200_00)// remove the notification after 3 days (259,200,000 milliseconds)
                 .setWhen(System.currentTimeMillis())
                 .setContentIntent(pendingIntent);
         notificationManager.notify(52, mNotifyBuilder.build());
