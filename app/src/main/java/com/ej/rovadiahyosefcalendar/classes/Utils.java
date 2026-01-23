@@ -182,6 +182,21 @@ public class Utils {
         }
     }
 
+    public static String removeNikudAndTaamim(String text) {
+        if (text == null) return null;
+
+        // Hebrew diacritics ranges:
+        // ֑-ֽ  (Taamim + some nikud)
+        // ֿ        (Rafe)
+        // ׁ-ׂ (Shin / Sin dot)
+        // ׄ-ׅ (Upper dot / Lower dot)
+        // ׇ        (Qamats Qatan)
+        return text.replaceAll(
+                "[֑-ֽֿׁ-ׂׄ-ׇׅ]",
+                ""
+        );
+    }
+
     /**
      * Returns the current calendar drawable depending on the current day of the month.
      */

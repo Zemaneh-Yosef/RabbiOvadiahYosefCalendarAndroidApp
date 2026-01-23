@@ -68,6 +68,7 @@ public class LimudFragment extends Fragment {
     private RecyclerView hillulotRV;
     private Button mCalendarButton;
     private boolean mSeeMore = true;
+    private boolean mAdjustDate = true;
     /**
      * These calendars are used to know when daf/yerushalmi yomi started
      */
@@ -94,33 +95,35 @@ public class LimudFragment extends Fragment {
         return root;
     }
 
+    private boolean isToday() {
+        return DateUtils.isSameDay(sCurrentDateShown.getTime(), new Date());
+    }
+
+    private boolean isAfterSunset() {
+        return sROZmanimCalendar.getSunset() != null && new Date().after(sROZmanimCalendar.getSunset());
+    }
+
     private void setDate() {
         StringBuilder sb = new StringBuilder();
-        sb.append(sCurrentDateShown.get(Calendar.DATE));
-        sb.append(" ");
-        sb.append(sCurrentDateShown.getDisplayName(Calendar.MONTH, Calendar.SHORT, mContext
-                .getResources()
-                .getConfiguration()
-                .getLocales()
-                .get(0)));
-        sb.append(", ");
-        sb.append(sCurrentDateShown.get(Calendar.YEAR));
-        boolean isToday = DateUtils.isSameDay(sCurrentDateShown.getTime(), new Date());
-        if (isToday) {
-            sb.append("   ▼   ");//add a down arrow to indicate that this is the current day
-        } else {
-            sb.append("      ");
+        boolean today = isToday();
+        boolean afterSunset = today && mAdjustDate && isAfterSunset();
+
+        if (!Utils.isLocaleHebrew(mContext)) {// if not hebrew, show the date in english
+            sb.append(sCurrentDateShown.get(Calendar.DATE))
+                    .append(" ")
+                    .append(sCurrentDateShown.getDisplayName(
+                            Calendar.MONTH,
+                            Calendar.SHORT,
+                            mContext.getResources().getConfiguration().getLocales().get(0)))
+                    .append(", ")
+                    .append(sCurrentDateShown.get(Calendar.YEAR))
+                    .append("   ");
         }
-        String jewishDate = sJewishDateInfo.getJewishCalendar().currentToString(sROZmanimCalendar);
-        if (sROZmanimCalendar.getSunset() != null && new Date().after(sROZmanimCalendar.getSunset())) {
-            jewishDate = "\uD83C\uDF19 " + jewishDate;
-        } else {
-            jewishDate = "☀️ " + jewishDate;
+        if (isToday()) {
+            sb.append(afterSunset ? "🌙 " : "☀️ ");
         }
-        if (!isToday) {
-            jewishDate = sJewishDateInfo.getJewishCalendar().toString();
-        }
-        sb.append(jewishDate);
+        sb.append(afterSunset ? sJewishDateInfo.getJewishCalendar().currentToString(sROZmanimCalendar) : sJewishDateInfo.getJewishCalendar().toString());
+
         if (binding != null) {
             binding.hillulotDate.setText(sb.toString());
         }
@@ -146,17 +149,19 @@ public class LimudFragment extends Fragment {
             limudRV = binding.limudRV;
             limudRV.setLayoutManager(new LinearLayoutManager(mContext));
             limudRV.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
-            limudRV.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));//add 2 to make it look bold
+            limudRV.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));// add 2 to make it look bold
+            limudRV.setHasFixedSize(false); // apparently not needed as it is false by default, but chatGPT says to keep it in
             hillulotRV = binding.HillulotRV;
             hillulotRV.setLayoutManager(new LinearLayoutManager(mContext));
             hillulotRV.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
-            hillulotRV.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));//add 2 to make it look bold
+            hillulotRV.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));// add 2 to make it look bold
+            hillulotRV.setHasFixedSize(false); // apparently not needed as it is false by default, but chatGPT says to keep it in
         }
     }
 
     private void updateLists() {
-        boolean isToday = DateUtils.isSameDay(sCurrentDateShown.getTime(), new Date());
-        if (isToday && sROZmanimCalendar.getSunset() != null && new Date().after(sROZmanimCalendar.getSunset())) {
+        boolean isNowAdjustable = isToday() && mAdjustDate && isAfterSunset();
+        if (isNowAdjustable && mAdjustDate) {
             sCurrentDateShown.add(Calendar.DATE, 1);
             sJewishDateInfo.setCalendar(sCurrentDateShown);
         }
@@ -171,7 +176,7 @@ public class LimudFragment extends Fragment {
         } else {
             hillulotRV.setVisibility(View.VISIBLE);
         }
-        if (isToday && sROZmanimCalendar.getSunset() != null && new Date().after(sROZmanimCalendar.getSunset())) {
+        if (isNowAdjustable && mAdjustDate) {// reset
             sCurrentDateShown.add(Calendar.DATE, -1);
             sJewishDateInfo.setCalendar(sCurrentDateShown);
         }
@@ -402,12 +407,14 @@ public class LimudFragment extends Fragment {
      */
     private void setupPreviousDayButton() {
         if (binding != null) {
-            Button previousDate = binding.prevDay;
-            previousDate.setOnClickListener(v -> {
-                sCurrentDateShown.add(Calendar.DATE, -1);//subtract one day
+            binding.prevDay.setOnClickListener(v -> {
+                if (isToday() && isAfterSunset() && mAdjustDate) {
+                    mAdjustDate = false; // disable adjust date logic on today if after sunset
+                } else {
+                    sCurrentDateShown.add(Calendar.DATE, -1);
+                }
                 sROZmanimCalendar.setCalendar(sCurrentDateShown);
                 sJewishDateInfo.setCalendar(sCurrentDateShown);
-                System.out.println("jewish date: " + sJewishDateInfo.getJewishCalendar().toString());
                 setDate();
                 updateLists();
                 mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
@@ -420,14 +427,16 @@ public class LimudFragment extends Fragment {
      */
     private void setupNextDayButton() {
         if (binding != null) {
-            Button nextDate = binding.nextDay;
-            nextDate.setOnClickListener(v -> {
-                sCurrentDateShown.add(Calendar.DATE, 1);//add one day
+            binding.nextDay.setOnClickListener(v -> {
+                sCurrentDateShown.add(Calendar.DATE, 1);// add one day
                 sROZmanimCalendar.setCalendar(sCurrentDateShown);
                 sJewishDateInfo.setCalendar(sCurrentDateShown);
                 setDate();
                 updateLists();
                 mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
+                if (isToday()) {
+                    mAdjustDate = true;
+                }
             });
         }
     }

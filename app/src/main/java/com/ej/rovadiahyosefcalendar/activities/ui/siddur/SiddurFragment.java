@@ -32,6 +32,7 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
+import com.ej.rovadiahyosefcalendar.activities.AllTehillimActivity;
 import com.ej.rovadiahyosefcalendar.activities.JerusalemDirectionMapsActivity;
 import com.ej.rovadiahyosefcalendar.activities.SiddurViewActivity;
 import com.ej.rovadiahyosefcalendar.classes.CustomPreferenceView;
@@ -442,7 +443,7 @@ public class SiddurFragment extends Fragment {
             CustomPreferenceView tehilim = findPreference("siddur_tehilim");
             if (tehilim != null) {
                 tehilim.setOnPreferenceClickListener(v -> {
-                    startSiddurActivity(getString(R.string.tehilim));
+                    startActivity(new Intent(requireContext(), AllTehillimActivity.class));
                     return true;
                 });
                 tehilim.setForceLTRTextDirection(!Utils.isLocaleHebrew(requireContext()));

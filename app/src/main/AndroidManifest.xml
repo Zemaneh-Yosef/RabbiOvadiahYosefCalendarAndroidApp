@@ -51,13 +51,16 @@
         android:enableOnBackInvokedCallback="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/zemaneh_yosef"
+        android:largeHeap="true"
         android:localeConfig="@xml/locales_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
-        android:largeHeap="true"
         tools:targetApi="tiramisu">
+        <activity
+            android:name=".activities.AllTehillimActivity"
+            android:exported="false" />
         <activity
             android:name=".activities.TipScreenActivity"
             android:exported="false" />
@@ -155,13 +158,27 @@
             android:exported="false"
             android:foregroundServiceType="location" />
 
-        <receiver android:name=".notifications.DailyNotifications" android:exported="true" />
-        <receiver android:name=".notifications.ZmanimNotifications" android:exported="true" />
-        <receiver android:name=".notifications.ZmanNotification" android:exported="true" />
-        <receiver android:name=".notifications.OmerNotifications" android:exported="true" />
-        <receiver android:name=".notifications.TekufaNotifications" android:exported="true" />
-        <receiver android:name=".notifications.CombinedTekufaNotifications" android:exported="true" />
-        <receiver android:name=".notifications.AmudeiHoraahTekufaNotifications" android:exported="true" />
+        <receiver
+            android:name=".notifications.DailyNotifications"
+            android:exported="true" />
+        <receiver
+            android:name=".notifications.ZmanimNotifications"
+            android:exported="true" />
+        <receiver
+            android:name=".notifications.ZmanNotification"
+            android:exported="true" />
+        <receiver
+            android:name=".notifications.OmerNotifications"
+            android:exported="true" />
+        <receiver
+            android:name=".notifications.TekufaNotifications"
+            android:exported="true" />
+        <receiver
+            android:name=".notifications.CombinedTekufaNotifications"
+            android:exported="true" />
+        <receiver
+            android:name=".notifications.AmudeiHoraahTekufaNotifications"
+            android:exported="true" />
         <receiver
             android:name=".notifications.BootNotifications"
             android:exported="true">
@@ -170,4 +187,5 @@
             </intent-filter>
         </receiver>
     </application>
+
 </manifest>

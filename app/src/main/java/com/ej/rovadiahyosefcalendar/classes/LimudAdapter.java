@@ -31,11 +31,16 @@ public class LimudAdapter extends RecyclerView.Adapter<LimudAdapter.ZmanViewHold
     private MaterialAlertDialogBuilder dialogBuilder;
     private final JewishDateInfo mJewishDateInfo;
     private View.OnClickListener onSeeMoreClickListener = null;
-    private static final String[] masechtotYerushalmiTransliterated = { "Berakhot", "Peah", "Demai", "Kilayim", "Sheviit",
-            "Terumot", "Maasrot", "Maaser Sheni", "Challah", "Orlah", "Bikkurim", "Shabbat", "Eruvin", "Pesachim",
-            "Beitzah", "Rosh Hashanah", "Yoma", "Sukkah", "Taanit", "Shekalim", "Megillah", "Chagigah", "Moed Katan",
-            "Yevamot", "Ketubot", "Sotah", "Nedarim", "Nazir", "Gittin", "Kiddushin", "Bava Kamma", "Bava Metzia",
-            "Bava Batra", "Shevuot", "Makkot", "Sanhedrin", "Avodah Zarah", "Horayot", "Niddah", "No Daf Today" };
+    private static final String[] masechtosBavliSefariaTransliterated = { "Berakhot", "Shabbat", "Eruvin", "Pesachim", "Shekalim",
+            "Yoma", "Sukkah", "Beitzah", "Rosh_Hashana", "Taanit", "Megillah", "Moed_Katan", "Chagigah", "Yevamot",
+            "Ketubot", "Nedarim", "Nazir", "Sotah", "Gittin", "Kiddushin", "Bava_Kamma", "Bava_Metzia", "Bava_Batra",
+            "Sanhedrin", "Makkot", "Shevuot", "Avodah_Zarah", "Horayot", "Zevachim", "Menachot", "Chullin", "Bekhorot",
+            "Arakhin", "Temurah", "Keritot", "Meilah", "Kinnim", "Tamid", "Midot", "Niddah" };
+    private static final String[] masechtotYerushalmiSephariaTransliterated = { "Berakhot", "Peah", "Demai", "Kilayim", "Sheviit",
+            "Terumot", "Maasrot", "Maaser_Sheni", "Challah", "Orlah", "Bikkurim", "Shabbat", "Eruvin", "Pesachim",
+            "Beitzah", "Rosh_Hashana", "Yoma", "Sukkah", "Taanit", "Shekalim", "Megillah", "Chagigah", "Moed_Katan",
+            "Yevamot", "Ketubot", "Sotah", "Nedarim", "Nazir", "Gittin", "Kiddushin", "Bava_Kamma", "Bava_Metzia",
+            "Bava_Batra", "Shevuot", "Makkot", "Sanhedrin", "Avodah_Zarah", "Horayot", "Niddah", "No Daf Today" };
 
     public LimudAdapter(Context context, List<LimudListEntry> limudim, JewishDateInfo jewishDateInfo) {
         this.limudim = limudim;
@@ -54,10 +59,6 @@ public class LimudAdapter extends RecyclerView.Adapter<LimudAdapter.ZmanViewHold
         mJewishDateInfo = jewishDateInfo;
         dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
         dialogBuilder.create();
-    }
-
-    public void setLimudim(List<LimudListEntry> limudim) {
-        this.limudim = limudim;
     }
 
     @NotNull
@@ -104,44 +105,46 @@ public class LimudAdapter extends RecyclerView.Adapter<LimudAdapter.ZmanViewHold
                 }
                 dialogBuilder = new MaterialAlertDialogBuilder(context);
                 if (limudim.get(position).getLimudTitle().contains(context.getString(R.string.daf_yomi))) {
-                        String masechta = YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getMasechtaTransliterated();
-                        int daf = YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getDaf();
-                        String dafYomiLink = "https://www.sefaria.org/" + masechta + "." + daf + "a";
-                        dialogBuilder.setTitle(context.getString(R.string.open_sefaria_link_for) + limudim.get(position).getLimudTitle().replace(context.getString(R.string.daf_yomi) + " ", "") + "?");
-                        dialogBuilder.setMessage(R.string.this_will_open_the_sefaria_website_or_app_in_a_new_window_with_the_page);
-                        dialogBuilder.setPositiveButton(context.getString(R.string.open), (dialog, which) -> {
-                            Intent intent = new Intent(Intent.ACTION_VIEW);
-                            intent.setData(Uri.parse(dafYomiLink));
-                            context.startActivity(intent);
-                        });
-                        dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
-                        dialogBuilder.show();
-                    } else if (limudim.get(position).getLimudTitle().contains(context.getString(R.string.yerushalmi_yomi))) {
+                    Daf dafYomi = YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar());
+                    dafYomi.setMasechtaTransliterated(masechtosBavliSefariaTransliterated);
+                    String masechta = dafYomi.getMasechtaTransliterated();
+                    int daf = YomiCalculator.getDafYomiBavli(mJewishDateInfo.getJewishCalendar()).getDaf();
+                    String dafYomiLink;
+                    switch (masechta) {
+                        case "Shekalim" -> dafYomiLink = "https://www.sefaria.org/Jerusalem_Talmud_" + masechta + "." + daf + "a";
+                        case "Kinnim", "Midot" -> dafYomiLink = "https://www.dafyomi.org/index.php?masechta=meilah&daf=" + daf + "a";
+                        case "Meilah" -> {
+                            if (daf == 22) {
+                                dafYomiLink = "https://www.dafyomi.org/index.php?masechta=meilah&daf=22a";
+                            } else {
+                                dafYomiLink  = "https://www.sefaria.org/" + masechta + "." + daf + "a";
+                            }
+                        }
+                        default -> dafYomiLink  = "https://www.sefaria.org/" + masechta + "." + daf + "a";
+                    }
+                    dialogBuilder.setTitle(context.getString(R.string.open_sefaria_link_for) + limudim.get(position).getLimudTitle().replace(context.getString(R.string.daf_yomi) + " ", "") + "?")
+                            .setMessage(R.string.this_will_open_the_sefaria_website_or_app_in_a_new_window_with_the_page)
+                            .setPositiveButton(context.getString(R.string.open), (dialog, which) -> context.startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse(dafYomiLink))))
+                            .setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss())
+                            .show();
+                } else if (limudim.get(position).getLimudTitle().contains(context.getString(R.string.yerushalmi_yomi))) {
                     Daf dafYomiYerushalmi = YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.getJewishCalendar());
-                    dafYomiYerushalmi.setYerushalmiMasechtaTransliterated(masechtotYerushalmiTransliterated);
+                    dafYomiYerushalmi.setYerushalmiMasechtaTransliterated(masechtotYerushalmiSephariaTransliterated);
                     String yerushalmiYomiLink = "https://www.sefaria.org/" + "Jerusalem_Talmud_" + dafYomiYerushalmi.getYerushalmiMasechtaTransliterated();
-                    dialogBuilder.setTitle(context.getString(R.string.open_sefaria_link_for) + limudim.get(position).getLimudTitle().replace(context.getString(R.string.yerushalmi_yomi) + " ", "") + "?");
-                    dialogBuilder.setMessage(R.string.this_will_open_the_sefaria_website_or_app_in_a_new_window_with_the_page);
-                    dialogBuilder.setPositiveButton(context.getString(R.string.open), (dialog, which) -> {
-                                Intent intent = new Intent(Intent.ACTION_VIEW);
-                                intent.setData(Uri.parse(yerushalmiYomiLink));
-                                context.startActivity(intent);
-                            });
-                    dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
-                    dialogBuilder.show();
+                    dialogBuilder.setTitle(context.getString(R.string.open_sefaria_link_for) + limudim.get(position).getLimudTitle().replace(context.getString(R.string.yerushalmi_yomi) + " ", "") + "?")
+                            .setMessage(R.string.this_will_open_the_sefaria_website_or_app_in_a_new_window_with_the_page)
+                            .setPositiveButton(context.getString(R.string.open), (dialog, which) -> context.startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse(yerushalmiYomiLink))))
+                            .setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss())
+                            .show();
                 } else if (limudim.get(position).getLimudTitle().contains(context.getString(R.string.mishna_yomi))) {
                     MishnaYomi mishnaYomi = new MishnaYomi(mJewishDateInfo.getJewishCalendar(), false);
                     String mishnaYomiLink = "https://www.sefaria.org/" + (mishnaYomi.getFirstMasechta().equals("Avot") ? "" : "Mishnah_") // apparently Pirkei Avot link is missing the Mishnah_ part
                             + replaceWithSefariaNames(mishnaYomi.getFirstMasechta()) + "." + mishnaYomi.getFirstPerek() + "." + mishnaYomi.getFirstMishna();
-                    dialogBuilder.setTitle(context.getString(R.string.open_sefaria_link_for) + limudim.get(position).getLimudTitle().replace(context.getString(R.string.mishna_yomi) + " ", "") + "?");
-                    dialogBuilder.setMessage(R.string.this_will_open_the_sefaria_website_or_app_in_a_new_window_with_the_page);
-                    dialogBuilder.setPositiveButton(context.getString(R.string.open), (dialog, which) -> {
-                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setData(Uri.parse(mishnaYomiLink));
-                        context.startActivity(intent);
-                    });
-                    dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
-                    dialogBuilder.show();
+                    dialogBuilder.setTitle(context.getString(R.string.open_sefaria_link_for) + limudim.get(position).getLimudTitle().replace(context.getString(R.string.mishna_yomi) + " ", "") + "?")
+                            .setMessage(R.string.this_will_open_the_sefaria_website_or_app_in_a_new_window_with_the_page)
+                            .setPositiveButton(context.getString(R.string.open), (dialog, which) -> context.startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse(mishnaYomiLink))))
+                            .setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss())
+                            .show();
                 } else if (limudim.get(position).getLimudTitle().contains(context.getString(R.string.daily_halacha))) {
                     List<HalachaSegment> halachaYomi = HalachaYomi.INSTANCE.getDailyLearning(LocalDate.of(
                             mJewishDateInfo.getJewishCalendar().getGregorianYear(),
@@ -155,39 +158,34 @@ public class LimudAdapter extends RecyclerView.Adapter<LimudAdapter.ZmanViewHold
                                 + halachaYomi.get(0).getSiman()
                                 + "."
                                 + halachaYomi.get(0).getFirstSeif();
-                        dialogBuilder.setTitle(context.getString(R.string.open_sefaria_link_for) +
-                                limudim.get(position).getLimudTitle().replace(context.getString(R.string.daily_halacha) + " ", "") + "?");
-                        dialogBuilder.setMessage(R.string.this_will_open_the_sefaria_website_or_app_in_a_new_window_with_the_page);
-                        dialogBuilder.setPositiveButton(context.getString(R.string.open), (dialog, which) -> {
-                            Intent intent = new Intent(Intent.ACTION_VIEW);
-                            intent.setData(Uri.parse(halachaYomiLink));
-                            context.startActivity(intent);
-                        });
-                        dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
-                        dialogBuilder.show();
+                        dialogBuilder.setTitle(context.getString(R.string.open_sefaria_link_for) + limudim.get(position).getLimudTitle().replace(context.getString(R.string.daily_halacha) + " ", "") + "?")
+                                .setMessage(R.string.this_will_open_the_sefaria_website_or_app_in_a_new_window_with_the_page)
+                                .setPositiveButton(context.getString(R.string.open), (dialog, which) -> context.startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse(halachaYomiLink))))
+                                .setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss())
+                                .show();
                     }
                 } else if (limudim.get(position).getLimudTitle().contains(context.getString(R.string.daily_tehilim))) {
                     if (limudim.get(position).getLimudTitle().contains(context.getString(R.string.weekly))) {
-                        int[] weeklyTehilim = { 1, 30, 51, 73, 90, 107, 120 };
+                        int[] weeklyTehilim = {1, 30, 51, 73, 90, 107, 120};
                         context.startActivity(new Intent(context, SiddurViewActivity.class)
-                                .putExtra("prayer", "תהילים")
+                                .putExtra("prayer", context.getString(R.string.tehilim))
                                 .putExtra("tehilimIndex", weeklyTehilim[mJewishDateInfo.getJewishCalendar().getDayOfWeek() - 1]));
                     } else if (limudim.get(position).getLimudTitle().contains(context.getString(R.string.monthly))) {
-                        int[] monthlyTehilim = { 1, 10, 18, 23, 29, 35, 39, 44, 49, 55, 60, 66, 69, 72, 77, 79, 83, 88, 90, 97, 104, 106, 108, 113, 119, 119, 120, 135, 140, 145 };
+                        int[] monthlyTehilim = {1, 10, 18, 23, 29, 35, 39, 44, 49, 55, 60, 66, 69, 72, 77, 79, 83, 88, 90, 97, 104, 106, 108, 113, 119, 119, 120, 135, 140, 145};
                         context.startActivity(new Intent(context, SiddurViewActivity.class)
-                                .putExtra("prayer", "תהילים")
+                                .putExtra("prayer", context.getString(R.string.tehilim))
                                 .putExtra("tehilimIndex", monthlyTehilim[mJewishDateInfo.getJewishCalendar().getJewishDayOfMonth() - 1]));
                     }
                 } else if (limudim.get(position).getLimudTitle().contains(context.getString(R.string.daily_nasi))) {
-                    dialogBuilder.setTitle(limudim.get(position).getLimudTitle());
-                    dialogBuilder.setMessage(limudim.get(position).getSource());
-                    dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
-                    dialogBuilder.show();
+                    dialogBuilder.setTitle(limudim.get(position).getLimudTitle())
+                            .setMessage(limudim.get(position).getSource())
+                            .setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss())
+                            .show();
                 } else if (limudim.get(position).hasSource()) {// keep the hasSource check to avoid other listings
-                    dialogBuilder.setTitle(limudim.get(position).getLimudTitle());
-                    dialogBuilder.setMessage(limudim.get(position).getDescription() + "\n-----\n" + context.getString(R.string.source) + limudim.get(position).getSource());
-                    dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
-                    dialogBuilder.show();
+                    dialogBuilder.setTitle(limudim.get(position).getLimudTitle())
+                            .setMessage(limudim.get(position).getDescription() + "\n-----\n" + context.getString(R.string.source) + limudim.get(position).getSource())
+                            .setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss())
+                            .show();
                 }
             });
 
