@@ -2,6 +2,9 @@ package com.ej.rovadiahyosefcalendar.classes;
 
 import android.content.Context;
 import android.content.Intent;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.RelativeSizeSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,7 +55,16 @@ public class TehillimAdapter extends RecyclerView.Adapter<TehillimAdapter.Tehill
             holder.tehillimBookNumber.setVisibility(View.GONE);
         }
         holder.tehillimChapter.setText(hebrewDateFormatter.formatHebrewNumber(position + 1));
-        holder.tehillimText.setText(Utils.removeNikudAndTaamim(TehilimFactory.chapters[position]));
+
+        TehilimChapter chapter = TehilimFactory.getChapters().get(position);
+
+        String raw = Utils.removeNikudAndTaamim(chapter.getText());
+        int big = chapter.getBigWords();
+
+        CharSequence styled = makeFirstWordsBig(raw, big);
+
+        holder.tehillimText.setText(styled);
+
         holder.tehillimChapterNumber.setText(String.valueOf(position + 1));
         holder.itemView.setOnClickListener(v -> context.startActivity(
                 new Intent(context, SiddurViewActivity.class)
@@ -62,7 +74,33 @@ public class TehillimAdapter extends RecyclerView.Adapter<TehillimAdapter.Tehill
 
     @Override
     public int getItemCount() {
-        return TehilimFactory.chapters.length;
+        return TehilimFactory.getChapters().size();
+    }
+
+    private CharSequence makeFirstWordsBig(String text, int bigWords) {
+        if (bigWords <= 0) return text;
+
+        String[] words = text.split("\\s+");
+        if (words.length == 0) return text;
+
+        // Find the character index where the first X words end
+        int endIndex = 0;
+        for (int i = 0; i < Math.min(bigWords, words.length); i++) {
+            endIndex += words[i].length() + 1; // +1 for the space
+        }
+        endIndex = Math.min(endIndex, text.length());
+
+        SpannableString span = new SpannableString(text);
+
+        // Make the first X words bigger
+        span.setSpan(
+            new RelativeSizeSpan(0.8f), // adjust size multiplier
+            endIndex,
+            text.length(),
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        );
+
+        return span;
     }
 
     public static class TehillimViewHolder extends RecyclerView.ViewHolder {

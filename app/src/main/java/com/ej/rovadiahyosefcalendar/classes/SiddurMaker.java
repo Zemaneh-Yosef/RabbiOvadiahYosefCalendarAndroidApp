@@ -478,7 +478,7 @@ public class SiddurMaker {
 			"חֲצוֹת (נ\"א בְּעוֹד) לַיְלָה לְךָ קָמוּ, עֲבָדֶיךָ בְּמַהֲלָלָם. זְכוּת אָבוֹת לָהֶם תִּזְכֹּר, וְאַל תֵּפֶן לְמַעֲלָלָם. קְנֵה עֲדָתְךָ כִּימֵי קֶדֶם, קְדוֹשׁ יַעֲקֹב גֹּאֲלָם. וְהִנָּשֵׂא הָאֵל, עוֹשֶׂה הַשָּׁלוֹם בִּמְרוֹמָיו: נִפְּלָה נָּא בְּיַד יְהֹוָה כִּי רַבִּים רַחֲמָיו:");
 		if (!isTachanunNotSaid) {
 			addToSiddur("רַחוּם וְחַנּוּן חָטָאנוּ לְפָנֶיךָ רַחֵם עָלֵינוּ וְהוֹשִׁיעֵנוּ:");
-			addOneWordToSiddur(getTehilimChapterByIndex(25) + "\nוְ֭הוּא יִפְדֶּ֣ה אֶת־יִשְׂרָאֵ֑ל מִ֝כֹּ֗ל עֲוֺנֹתָֽיו׃ יְהֹוָה אֱלֹהֵי יִשְׂרָאֵל שׁוּב מֵחֲרוֹן אַפֶּךָ. וְהִנָּחֵם עַל הָרָעָה לְעַמֶּךָ:");
+			addOneWordToSiddur(getTehilimChapterTextByIndex(25) + "\nוְ֭הוּא יִפְדֶּ֣ה אֶת־יִשְׂרָאֵ֑ל מִ֝כֹּ֗ל עֲוֺנֹתָֽיו׃ יְהֹוָה אֱלֹהֵי יִשְׂרָאֵל שׁוּב מֵחֲרוֹן אַפֶּךָ. וְהִנָּחֵם עַל הָרָעָה לְעַמֶּךָ:");
 		}
 		addTwoWordToSiddur(
 			"אָתָאנוּ לְחַלּוֹת פָּנֶיךָ. כִּי חֶסֶד וֶאֱמֶת יְקַדְּמוּ פָנֶיךָ. נָא אַל תְּבִישֵׁנוּ. נָא אַל תְּשִׁיבֵנוּ רֵיקָם מִלְּפָנֶיךָ. סְלַח לָנוּ. וּשְׁלַח לָנוּ. יְשׁוּעָה וְרַחֲמִים מִמְּעוֹנֶךָ:");
@@ -772,16 +772,16 @@ public class SiddurMaker {
 		addInstructionToSiddur("יאחוז הציציות של שתי כנפות שכנגד פניו, וישארו בידו עד סוף ברוך שאמר\nGrasp the two front Tzitzit with your right hand. Hold them in front of you until the conclusion of the blessing");
 		addTwoWordToSiddur(
 			"בָּרוּךְ שֶׁאָמַר וְהָיָה הָעוֹלָם, בָּרוּךְ הוּא, בָּרוּךְ אוֹמֵר וְעוֹשֶׂה, בָּרוּךְ גּוֹזֵר וּמְקַיֵּם, בָּרוּךְ עוֹשֶׂה בְרֵאשִׁית, בָּרוּךְ מְרַחֵם עַל הָאָרֶץ, בָּרוּךְ מְרַחֵם עַל הַבְּרִיּוֹת, בָּרוּךְ מְשַׁלֵּם שָׂכָר טוֹב לִירֵאָיו, בָּרוּךְ חַי לָעַד וְקַיָּם לָנֶצַח, בָּרוּךְ פּוֹדֶה וּמַצִּיל, בָּרוּךְ שְׁמוֹ. בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם, הָאֵל, אָב הָרַחֲמָן, הַמְהֻלָּל בְּפֶה עַמּוֹ, מְשֻׁבָּח וּמְפֹאָר בִּלְשׁוֹן חֲסִידָיו וַעֲבָדָיו, וּבְשִׁירֵי דָּוִד עַבְדָּךְ נְהַלְלָךְ יְהֹוָה אֱלֹהֵינוּ בִּשְׁבָחוֹת וּבִזְמִירוֹת, וּנְגַדְּלָךְ וּנְשַׁבְּחָךְ וּנְפָאֲרָךְ וְנַמְלִיכָךְ, וְנַזְכִּיר שִׁמְךָ מַלְכֵּנוּ אֱלֹהֵינוּ, יָחִיד חַי הָעוֹלָמִים, מֶלֶךְ מְשֻׁבָּח וּמְפֹאָר עֲדֵי עַד שְׁמוֹ הַגָּדוֹל. בָּרוּךְ אַתָּה יְהֹוָה, מֶלֶךְ מְהֻלָּל בַּתִּשְׁבָּחוֹת:");
-		addTwoWordToSiddur(getTehilimChapterByIndex(100));
+		addTwoWordToSiddur(getTehilimChapterTextByIndex(100));
 		addTwoWordToSiddur(
 			"יְהִ֤י כְב֣וֹד יְהֹוָ֣ה לְעוֹלָ֑ם יִשְׂמַ֖ח יְהֹוָ֣ה בְּמַעֲשָֽׂיו: יְהִ֤י שֵׁ֣ם יְהֹוָ֣ה מְבֹרָ֑ךְ מֵ֝עַתָּ֗ה וְעַד־עוֹלָֽם: מִמִּזְרַח־שֶׁ֥מֶשׁ עַד־מְבוֹא֑וֹ מְ֝הֻלָּ֗ל שֵׁ֣ם יְהֹוָֽה: רָ֖ם עַל־כָּל־גּוֹיִ֥ם ׀ יְהֹוָ֑ה עַ֖ל הַשָּׁמַ֣יִם כְּבוֹדֽוֹ:  יְ֭הֹוָה שִׁמְךָ֣ לְעוֹלָ֑ם יְ֝הֹוָ֗ה זִכְרְךָ֥ לְדֹר־וָדֹֽר: יְֽהֹוָ֗ה בַּ֭שָּׁמַיִם הֵכִ֣ין כִּסְא֑וֹ וּ֝מַלְכוּת֗וֹ בַּכֹּ֥ל מָשָֽׁלָה: יִשְׂמְח֤וּ הַשָּׁמַ֙יִם֙ וְתָגֵ֣ל הָאָ֔רֶץ וְיֹאמְר֥וּ בַגּוֹיִ֖ם יְהֹוָ֥ה מָלָֽךְ: יְהֹוָה מֶֽלֶךְ, יְהֹוָה מָלָֽךְ, יְהֹוָ֥ה ׀ יִמְלֹ֖ךְ לְעֹלָ֥ם וָעֶֽד: יְהֹוָ֣ה מֶ֭לֶךְ עוֹלָ֣ם וָעֶ֑ד אָבְד֥וּ ג֝וֹיִ֗ם מֵאַרְצֽוֹ: יְֽהֹוָ֗ה הֵפִ֥יר עֲצַת־גּוֹיִ֑ם הֵ֝נִ֗יא מַחְשְׁב֥וֹת עַמִּֽים: רַבּ֣וֹת מַחֲשָׁב֣וֹת בְּלֶב־אִ֑ישׁ וַעֲצַ֥ת יְ֝הֹוָ֗ה הִ֣יא תָקֽוּם: עֲצַ֣ת יְ֭הֹוָה לְעוֹלָ֣ם תַּעֲמֹ֑ד מַחְשְׁב֥וֹת לִ֝בּ֗וֹ לְדֹ֣ר וָדֹֽר: כִּ֤י ה֣וּא אָמַ֣ר וַיֶּ֑הִי הֽוּא־צִ֝וָּ֗ה וַֽיַּעֲמֹֽד: כִּי־בָחַ֣ר יְהֹוָ֣ה בְּצִיּ֑וֹן אִ֝וָּ֗הּ לְמוֹשָׁ֥ב לֽוֹ: כִּֽי־יַעֲקֹ֗ב בָּחַ֣ר ל֣וֹ יָ֑הּ יִ֝שְׂרָאֵ֗ל לִסְגֻלָּתֽוֹ: כִּ֤י ׀ לֹא־יִטֹּ֣שׁ יְהֹוָ֣ה עַמּ֑וֹ וְ֝נַחֲלָת֗וֹ לֹ֣א יַעֲזֹֽב: וְה֤וּא רַח֨וּם ׀ יְכַפֵּ֥ר עָוֺן֮ וְֽלֹא־יַֽ֫שְׁחִ֥ית וְ֭הִרְבָּה לְהָשִׁ֣יב אַפּ֑וֹ וְלֹא־יָ֝עִ֗יר כׇּל־חֲמָתֽוֹ: יְהֹוָ֥ה הוֹשִׁ֑יעָה הַ֝מֶּ֗לֶךְ יַעֲנֵ֥נוּ בְיוֹם־קׇרְאֵֽנוּ:");
 		addAshreh();
 
-		addOneWordToSiddur(getTehilimChapterByIndex(146));
-		addOneWordToSiddur(getTehilimChapterByIndex(147));
-		addOneWordToSiddur(getTehilimChapterByIndex(148));
-		addOneWordToSiddur(getTehilimChapterByIndex(149));
-		addOneWordToSiddur(getTehilimChapterByIndex(150) + "\n כֹּ֣ל הַ֭נְּשָׁמָה תְּהַלֵּ֥ל יָ֗הּ הַֽלְלוּ־יָֽהּ׃");
+		addOneWordToSiddur(getTehilimChapterTextByIndex(146));
+		addOneWordToSiddur(getTehilimChapterTextByIndex(147));
+		addOneWordToSiddur(getTehilimChapterTextByIndex(148));
+		addOneWordToSiddur(getTehilimChapterTextByIndex(149));
+		addOneWordToSiddur(getTehilimChapterTextByIndex(150) + "\n כֹּ֣ל הַ֭נְּשָׁמָה תְּהַלֵּ֥ל יָ֗הּ הַֽלְלוּ־יָֽהּ׃");
 
 		addToSiddur(
 			"בָּר֖וּךְ יְהֹוָ֥ה לְ֝עוֹלָ֗ם אָ֘מֵ֥ן ׀ וְאָמֵֽן: בָּ֘ר֤וּךְ יְהֹוָ֨ה ׀ מִצִּיּ֗וֹן שֹׁ֘כֵ֤ן יְרוּשָׁלַיִם הַֽלְלוּיָֽהּ: בָּר֤וּךְ ׀ יְהֹוָ֣ה אֱ֭לֹהִים אֱלֹהֵ֣י יִשְׂרָאֵ֑ל עֹשֵׂ֖ה נִפְלָא֣וֹת לְבַדּֽוֹ: וּבָר֤וּךְ ׀ שֵׁ֥ם כְּבוֹד֗וֹ לְע֫וֹלָ֥ם וְיִמָּלֵ֣א כְ֭בוֹדוֹ אֶת־כֹּ֥ל הָאָ֗רֶץ אָ֘מֵ֥ן ׀ וְאָמֵֽן:");
@@ -799,7 +799,7 @@ public class SiddurMaker {
 
 		if (jewishDateInfo.getJewishCalendar().isAseresYemeiTeshuva()
 			|| jewishDateInfo.getJewishCalendar().isHoshanaRabba()) {
-			addToSiddurHighlighted(getTehilimChapterByIndex(130));
+			addToSiddurHighlighted(getTehilimChapterTextByIndex(130));
 		} // Pisukei D'Zimra
 
 		addKaddishVariants(KaddishTypes.HALF);
@@ -1268,7 +1268,7 @@ public class SiddurMaker {
 		addAshreh();
 
 		if (isTachanunSaidInTheMorning) {
-			addOneWordToSiddur(getTehilimChapterByIndex(20));
+			addOneWordToSiddur(getTehilimChapterTextByIndex(20));
 		}
 
 		String uvaLetzion = "וּבָ֤א לְצִיּוֹן֙ גּוֹאֵ֔ל וּלְשָׁבֵ֥י פֶ֖שַׁע בְּיַֽעֲקֹ֑ב נְאֻ֖ם יְהֹוָֽה׃";
@@ -1323,17 +1323,17 @@ public class SiddurMaker {
 					"יְהַלְל֤וּ ׀ אֶת־שֵׁ֬ם יְהֹוָ֗ה כִּֽי־נִשְׂגָּ֣ב שְׁמ֣וֹ לְבַדּ֑וֹ ה֝וֹד֗וֹ עַל־אֶ֥רֶץ וְשָׁמָֽיִם׃ וַיָּ֤רֶם קֶ֨רֶן ׀ לְעַמּ֡וֹ תְּהִלָּ֤ה לְֽכׇל־חֲסִידָ֗יו לִבְנֵ֣י יִ֭שְׂרָאֵל עַ֥ם קְרֹב֗וֹ הַֽלְלוּיָֽהּ׃ יְהֹוָה הוּא הָאֱלֹהִים, יְהֹוָה֙ ה֣וּא הָֽאֱלֹהִ֔ים בַּשָּׁמַ֣יִם מִמַּ֔עַל וְעַל־הָאָ֖רֶץ מִתָּ֑חַת אֵ֖ין עֽוֹד: אֵין־כָּמ֖וֹךָ בָאֱלֹהִ֥ים ׀ אֲדֹנָ֗י וְאֵ֣ין כְּֽמַעֲשֶֽׂיךָ׃ הֲשִׁיבֵ֨נוּ יְהֹוָ֤ה ׀ אֵלֶ֙יךָ֙ וְֽנָשׁ֔וּבָה חַדֵּ֥שׁ יָמֵ֖ינוּ כְּקֶֽדֶם׃");
 			} else if (jewishDateInfo.getJewishCalendar().isTishaBav()) {
 				addInstructionToSiddur("ומחזירין את ספר התורה למקומו ואומרים\nThe Sefer Torah is now returned");
-				addToSiddurHighlighted(getTehilimChapterByIndex(137));
+				addToSiddurHighlighted(getTehilimChapterTextByIndex(137));
 			}
 		}
 
 		if (isTachanunSaidInTheMorning) {
-			addTwoWordToSiddur(getTehilimChapterByIndex(86));
+			addTwoWordToSiddur(getTehilimChapterTextByIndex(86));
 		}
 
 		addTwoWordToSiddur(
 			"בֵּ֖ית יַעֲקֹ֑ב לְכ֥וּ וְנֵלְכָ֖ה בְּא֥וֹר יְהֹוָֽה׃ כִּ֚י כׇּל־הָ֣עַמִּ֔ים יֵלְכ֕וּ אִ֖ישׁ בְּשֵׁ֣ם אֱלֹהָ֑יו וַאֲנַ֗חְנוּ נֵלֵ֛ךְ בְּשֵׁם־יְהֹוָ֥ה אֱלֹהֵ֖ינוּ לְעוֹלָ֥ם וָעֶֽד׃ יְהִ֨י יְהֹוָ֤ה אֱלֹהֵ֙ינוּ֙ עִמָּ֔נוּ כַּאֲשֶׁ֥ר הָיָ֖ה עִם־אֲבֹתֵ֑ינוּ אַל־יַעַזְבֵ֖נוּ וְאַֽל־יִטְּשֵֽׁנוּ׃ לְהַטּ֥וֹת לְבָבֵ֖נוּ אֵלָ֑יו לָלֶ֣כֶת בְּכׇל־דְּרָכָ֗יו וְלִשְׁמֹ֨ר מִצְוֺתָ֤יו וְחֻקָּיו֙ וּמִשְׁפָּטָ֔יו אֲשֶׁ֥ר צִוָּ֖ה אֶת־אֲבֹתֵֽינוּ׃ וְיִֽהְי֨וּ דְבָרַ֜י אֵ֗לֶּה אֲשֶׁ֤ר הִתְחַנַּ֙נְתִּי֙ לִפְנֵ֣י יְהֹוָ֔ה קְרֹבִ֛ים אֶל־יְהֹוָ֥ה אֱלֹהֵ֖ינוּ יוֹמָ֣ם וָלָ֑יְלָה לַעֲשׂ֣וֹת ׀ מִשְׁפַּ֣ט עַבְדּ֗וֹ וּמִשְׁפַּ֛ט עַמּ֥וֹ יִשְׂרָאֵ֖ל דְּבַר־י֥וֹם בְּיוֹמֽוֹ׃ לְמַ֗עַן דַּ֚עַת כׇּל־עַמֵּ֣י הָאָ֔רֶץ כִּ֥י יְהֹוָ֖ה ה֣וּא הָאֱלֹהִ֑ים אֵ֖ין עֽוֹד׃");
-		addTwoWordToSiddur(getTehilimChapterByIndex(124));
+		addTwoWordToSiddur(getTehilimChapterTextByIndex(124));
 
 		boolean removeHashir = jewishDateInfo.getJewishCalendar().isRoshChodesh()
 				|| jewishDateInfo.getJewishCalendar().isChanukah()
@@ -1343,30 +1343,30 @@ public class SiddurMaker {
 
 		addInfoToSiddur(
 			"בבית האבל אומרים  (We add in a mourner's house)",
-			"\n\n" + getTehilimChapterByIndex(49));
+			"\n\n" + getTehilimChapterTextByIndex(49));
 
 		switch (jewishDateInfo.getJewishCalendar().getYomTovIndex()) {
 			case JewishCalendar.FAST_OF_GEDALYAH:
 			case JewishCalendar.TENTH_OF_TEVES:
-				addToSiddurHighlighted(getTehilimChapterByIndex(83));
+				addToSiddurHighlighted(getTehilimChapterTextByIndex(83));
 				break;
 			case JewishCalendar.CHANUKAH:
 				if (!jewishDateInfo.getJewishCalendar().isRoshChodesh()) {
-					addToSiddurHighlighted(getTehilimChapterByIndex(30)
+					addToSiddurHighlighted(getTehilimChapterTextByIndex(30)
 							.replace("וְלֹ֣א יִדֹּ֑ם יְהוָ֥ה", "וְלֹ֣א יִדֹּ֑ם (יפסיק מעט/break) יְהוָ֥ה"));
 				}
 				break;
 			case JewishCalendar.PURIM:
 			case JewishCalendar.FAST_OF_ESTHER:
-				addOneWordToSiddurHighlighted(getTehilimChapterByIndex(22));
+				addOneWordToSiddurHighlighted(getTehilimChapterTextByIndex(22));
 				break;
 			case JewishCalendar.SEVENTEEN_OF_TAMMUZ:
-				addTwoWordToSiddurHighlighted(getTehilimChapterByIndex(79));
+				addTwoWordToSiddurHighlighted(getTehilimChapterTextByIndex(79));
 				break;
 		}
 
 		if (jewishDateInfo.yesterday().getJewishCalendar().isYomKippur()) {
-			addOneWordToSiddurHighlighted(getTehilimChapterByIndex(85));
+			addOneWordToSiddurHighlighted(getTehilimChapterTextByIndex(85));
 		}
 
 		addOneWordToSiddur(
@@ -1725,42 +1725,42 @@ public class SiddurMaker {
 					"הַיּוֹם יוֹם אֶחָד בְּשַׁבַּת קוֹדֶשׁ"
 					+ (!removeHashir ? ", הַשִּׁיר שֶׁהָיוּ הַלְוִיִּם אוֹמְרִים עַל הַדּוּכָן" : "")
 					+ "׃\n\n"
-					+ getTehilimChapterByIndex(24));
+					+ getTehilimChapterTextByIndex(24));
 				break;
 			case 2:
 				addToSiddur(
 					"הַיּוֹם יוֹם שֵׁנִי בְּשַׁבַּת קוֹדֶשׁ"
 					+ (!removeHashir ? ", הַשִּׁיר שֶׁהָיוּ הַלְוִיִּם אוֹמְרִים עַל הַדּוּכָן" : "")
 					+ "׃\n\n"
-					+ getTehilimChapterByIndex(48));
+					+ getTehilimChapterTextByIndex(48));
 				break;
 			case 3:
 				addToSiddur(
 					"הַיּוֹם יוֹם שְׁלִישִׁי בְּשַׁבַּת קוֹדֶשׁ"
 					+ (!removeHashir ? ", הַשִּׁיר שֶׁהָיוּ הַלְוִיִּם אוֹמְרִים עַל הַדּוּכָן" : "")
 					+ "׃\n\n"
-					+ getTehilimChapterByIndex(82));
+					+ getTehilimChapterTextByIndex(82));
 				break;
 			case 4:
 				addToSiddur(
 					"הַיּוֹם יוֹם רְבִיעִי בְּשַׁבַּת קוֹדֶשׁ"
 					+ (!removeHashir ? ", הַשִּׁיר שֶׁהָיוּ הַלְוִיִּם אוֹמְרִים עַל הַדּוּכָן" : "")
 					+ "׃\n\n"
-					+ getTehilimChapterByIndex(94));
+					+ getTehilimChapterTextByIndex(94));
 				break;
 			case 5:
 				addToSiddur(
 					"הַיּוֹם יוֹם חֲמִישִׁי בְּשַׁבַּת קוֹדֶשׁ"
 					+ (!removeHashir ? ", הַשִּׁיר שֶׁהָיוּ הַלְוִיִּם אוֹמְרִים עַל הַדּוּכָן" : "")
 					+ "׃\n\n"
-					+ getTehilimChapterByIndex(81));
+					+ getTehilimChapterTextByIndex(81));
 				break;
 			case 6:
 				addToSiddur(
 					"הַיּוֹם יוֹם הַשִּׁשִּׁי בְּשַׁבַּת קוֹדֶשׁ"
 					+ (!removeHashir ? ", הַשִּׁיר שֶׁהָיוּ הַלְוִיִּם אוֹמְרִים עַל הַדּוּכָן" : "")
 					+ "׃\n\n"
-					+ getTehilimChapterByIndex(93));
+					+ getTehilimChapterTextByIndex(93));
 				break;
 		}
 	}
@@ -1936,8 +1936,8 @@ public class SiddurMaker {
 			addToSiddurHighlighted("בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם, אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו, וְצִוָּנוּ לִגְמוֹר אֶת הַהַלֵּל:");
 		}
 
-		addOneWordToSiddurHighlighted(getTehilimChapterByIndex(113));
-		addTwoWordToSiddurHighlighted(getTehilimChapterByIndex(114));
+		addOneWordToSiddurHighlighted(getTehilimChapterTextByIndex(113));
+		addTwoWordToSiddurHighlighted(getTehilimChapterTextByIndex(114));
 
 		if (isFullHallel) {
 			addTwoWordToSiddurHighlighted(
@@ -1954,7 +1954,7 @@ public class SiddurMaker {
 
 		addOneWordToSiddurHighlighted(
 			"מָה־אָשִׁ֥יב לַיהֹוָ֑ה כׇּֽל־תַּגְמוּל֥וֹהִי עָלָֽי׃ כּוֹס־יְשׁוּע֥וֹת אֶשָּׂ֑א וּבְשֵׁ֖ם יְהֹוָ֣ה אֶקְרָֽא׃ נְ֭דָרַי לַיהֹוָ֣ה אֲשַׁלֵּ֑ם נֶגְדָה־נָּ֗֝א לְכׇל־עַמּֽוֹ׃ יָ֭קָר בְּעֵינֵ֣י יְהֹוָ֑ה הַ֝מָּ֗וְתָה לַחֲסִידָֽיו׃ אָנָּ֣ה יְהֹוָה֮ כִּֽי־אֲנִ֢י עַ֫בְדֶּ֥ךָ אֲנִי־עַ֭בְדְּךָ בֶּן־אֲמָתֶ֑ךָ פִּ֝תַּ֗חְתָּ לְמֽוֹסֵרָֽי׃ לְֽךָ־אֶ֭זְבַּח זֶ֣בַח תּוֹדָ֑ה וּבְשֵׁ֖ם יְהֹוָ֣ה אֶקְרָֽא׃ נְ֭דָרַי לַיהֹוָ֣ה אֲשַׁלֵּ֑ם נֶגְדָה־נָּ֗֝א לְכׇל־עַמּֽוֹ׃ בְּחַצְר֤וֹת ׀ בֵּ֤ית יְהֹוָ֗ה בְּֽת֘וֹכֵ֤כִי יְרוּשָׁלַיִם הַֽלְלוּיָֽהּ׃");
-		addOneWordToSiddurHighlighted(getTehilimChapterByIndex(117));
+		addOneWordToSiddurHighlighted(getTehilimChapterTextByIndex(117));
 
 		if (jewishDateInfo.getJewishCalendar().isCholHamoedSuccos()) {
 			addToSiddurHighlighted(
@@ -3643,18 +3643,18 @@ public class SiddurMaker {
 		addKaddishVariants(KaddishTypes.TITKABAL);
 
 		if (jewishDateInfo.getJewishCalendar().isTishaBav()) {
-			addTwoWordToSiddurHighlighted(getTehilimChapterByIndex(126));
+			addTwoWordToSiddurHighlighted(getTehilimChapterTextByIndex(126));
 		} else if (jewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.FRIDAY) {
-			addTwoWordToSiddurHighlighted(getTehilimChapterByIndex(93));
+			addTwoWordToSiddurHighlighted(getTehilimChapterTextByIndex(93));
 		} else {
 			addLamnatzeachToSiddur();
 		}
 
 		if (jewishDateInfo.getJewishCalendar().isRegularTaanis() && !jewishDateInfo.getJewishCalendar().isTishaBav()) {
 			if (jewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.FAST_OF_ESTHER) {
-				addOneWordToSiddurHighlighted(getTehilimChapterByIndex(22));
+				addOneWordToSiddurHighlighted(getTehilimChapterTextByIndex(22));
 			} else {
-				addTwoWordToSiddurHighlighted(getTehilimChapterByIndex(102));
+				addTwoWordToSiddurHighlighted(getTehilimChapterTextByIndex(102));
 			}
 		}
 
@@ -3856,11 +3856,11 @@ public class SiddurMaker {
 				"(יִבָּקַע אוֹרִי יָהּ כַּשַּׁחַר. עַל רְשָׁעִים צוּר אַפּוֹ יִחַר. וּבְעַמּוֹ יִבְחַר. הַבּוֹחֵר בִּירוּשָׁלַיִם: (וּבְעַמּוֹ יִבְחַר. הַבּוֹחֵר בִּירוּשָׁלַיִם))";
 
 		if (jewishDateInfo.getJewishCalendar().isRoshChodesh()) {
-			addTwoWordToSiddur(getTehilimChapterByIndex(104));
+			addTwoWordToSiddur(getTehilimChapterTextByIndex(104));
 		} else if (jewishDateInfo.getJewishCalendar().isPurim()) {
-			addOneWordToSiddur(getTehilimChapterByIndex(22));
+			addOneWordToSiddur(getTehilimChapterTextByIndex(22));
 		} else if (jewishDateInfo.getJewishCalendar().isTishaBav()) {
-			addToSiddur(getTehilimChapterByIndex(137));
+			addToSiddur(getTehilimChapterTextByIndex(137));
 
 			if (jewishDateInfo.getJewishCalendar().getDayOfWeek() != 1) { // 1 is motzei shabbat because we set the date
 																			// a day forward
@@ -3874,7 +3874,7 @@ public class SiddurMaker {
 			addToSiddurHighlighted(
 					"בַּצַּ֣ר לְךָ֔ וּמְצָא֕וּךָ כֹּ֖ל הַדְּבָרִ֣ים הָאֵ֑לֶּה בְּאַחֲרִית֙ הַיָּמִ֔ים וְשַׁבְתָּ֙ עַד־יְהֹוָ֣ה אֱלֹהֶ֔יךָ וְשָׁמַעְתָּ֖ בְּקֹלֽוֹ׃");
 		} else if (jewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SUNDAY) {// Motzei Shabbat
-			addToSiddur("יש אומרים (Some say) \n\n" + getTehilimChapterByIndex(144));
+			addToSiddur("יש אומרים (Some say) \n\n" + getTehilimChapterTextByIndex(144));
 			addLamnatzeachToSiddur();
 		}
 
@@ -4082,7 +4082,7 @@ public class SiddurMaker {
 		}
 
 		addCategoryToSiddur("שיר למעלות");
-		addTwoWordToSiddur(getTehilimChapterByIndex(121));
+		addTwoWordToSiddur(getTehilimChapterTextByIndex(121));
 		addKaddishVariants(KaddishTypes.YEHE_SHELAMA);
 		addBarchu(true);
 		addAlenu();
@@ -4400,7 +4400,7 @@ public class SiddurMaker {
 	public ArrayList<HighlightString> getBirchatHalevanaPrayers() {
 		siddur = new ArrayList<>();
 
-		addOneWordToSiddur(getTehilimChapterByIndex(19));
+		addOneWordToSiddur(getTehilimChapterTextByIndex(19));
 		addToSiddur(
 			"צוּרִי בָּעוֹלָם הַזֶּה וְגוֹאֲלִי לָעוֹלָם הַבָּא. וְכׇל־קַרְנֵ֣י רְשָׁעִ֣ים אֲגַדֵּ֑עַ תְּ֝רוֹמַ֗מְנָה קַֽרְנ֥וֹת צַדִּֽיק׃");
 		addOneWordToSiddur(
@@ -4423,8 +4423,8 @@ public class SiddurMaker {
 			"(עד כאן חוזר/repeat until here) \n\n" +
 			"דָּוִד מֶלֶךְ יִשְׂרָאֵל חַי וְקַיָּם (שלש פעמים/three times). אָמֵן, אָמֵן, אָמֵן: נֶצַח, נֶצַח, נֶצַח: סֶלָה, סֶלָה, סֶלָה: וָעֶד, וָעֶד, וָעֶד: \n\n" +
 			"לֵ֣ב טָ֭הוֹר בְּרָא־לִ֣י אֱלֹהִ֑ים וְר֥וּחַ נָ֝כ֗וֹן חַדֵּ֥שׁ בְּקִרְבִּֽי׃ (שבע פעמים/seven times) \n\n");
-		addTwoWordToSiddur(getTehilimChapterByIndex(121));
-		addOneWordToSiddur(getTehilimChapterByIndex(150));
+		addTwoWordToSiddur(getTehilimChapterTextByIndex(121));
+		addOneWordToSiddur(getTehilimChapterTextByIndex(150));
 		addOneWordToSiddur(
 			"תָּנָא דְבֵי רִבִּי יִשְׁמָעֵאל אִלְמָלֵא זָכוּ בְנֵי יִשְׂרָאֵל אֶלָּא לְהַקְבִּיל פְּנֵי אֲבִיהֶם שֶׁבַּשָּׁמַיִם פַּעַם אַחַת בַּחֹדֶשׁ דַּיָּם. אָמַר אַבַּיֵּי הֵלְכָךְ נִימְרִינְהוּ מֵעֹמֶד:");
 		addKaddishVariants(KaddishTypes.AL_YISRAEL);
@@ -4495,15 +4495,15 @@ public class SiddurMaker {
 	}
 
 	private void addTikkunLeah(boolean isTachanunSaid) {
-		addOneWordToSiddur(getTehilimChapterByIndex(42));
-		addTwoWordToSiddur(getTehilimChapterByIndex(43));
+		addOneWordToSiddur(getTehilimChapterTextByIndex(42));
+		addTwoWordToSiddur(getTehilimChapterTextByIndex(43));
 		if (isTachanunSaid) {
-			addOneWordToSiddurHighlighted(getTehilimChapterByIndex(20));
+			addOneWordToSiddurHighlighted(getTehilimChapterTextByIndex(20));
 		}
-		addOneWordToSiddur(getTehilimChapterByIndex(24));
+		addOneWordToSiddur(getTehilimChapterTextByIndex(24));
 		addLamnatzeachToSiddur();
-		addOneWordToSiddur(getTehilimChapterByIndex(111));
-		addOneWordToSiddur(getTehilimChapterByIndex(51));
+		addOneWordToSiddur(getTehilimChapterTextByIndex(111));
+		addOneWordToSiddur(getTehilimChapterTextByIndex(51));
 		if (isTachanunSaid) {
 			addToSiddurHighlighted("עַד אָנָה בִּכְיָה בְּצִיּוֹן וּמִסְפֵּד בִּירוּשָׁלָיִם:");
 		}
@@ -4511,12 +4511,12 @@ public class SiddurMaker {
 		addInstructionToSiddur("מנהג לומר אחר סיום תיקון לאה מלך רחמן וכו' ומזמור בשוב וכו' כדי לפסוק בנחמה\nThe custom is to conclude Tikkun Leah with these verses of consolation (בא\"ח וישלח הי\"ב)");
 		addToSiddur(
 			"אֱלֹהֵינוּ וֵאלֹהֵי אֲבוֹתֵינוּ, מֶלֶךְ רַחֲמָן רַחֵם עָלֵינוּ, טוֹב וּמֵטִיב הִדָּרֶשׁ לָנוּ, שׁוּבָה עָלֵינוּ בַּהֲמוֹן רַחֲמֶיךָ, בִּגְלַל אָבוֹת שֶׁעָשׂוּ רְצוֹנֶךָ, בְּנֵה בֵיתְךָ כְּבַתְּחִלָּה, כּוֹנֵן בֵּית מִקְדָּשְׁךָ עַל מְכוֹנוֹ, הַרְאֵנוּ בְּבִנְיָנוֹ, שַׂמְּחֵנוּ בְּתִקּוּנוֹ, וְהָשֵׁב שְׁכִינָתְךָ לְתוֹכוֹ, וְהָשֵׁב כֹּהֲנִים לַעֲבוֹדָתָם, וּלְוִיִּים לְדוּכָנָם, לְשִׁירָם וּלְזִמְרָם, וְהָשֵׁב יִשְׂרָאֵל לִנְוֵיהֶם. וְשָׁם נַעֲלֶה וְנֵרָאֶה וְנִשְׁתַּחֲוֶה לְפָנֶיךָ: יְהִי רָצוֹן מִלְּפָנֶיךָ יְהֹוָה אֱלֹהֵינוּ וֵאלֹהֵי אֲבֹתֵינוּ, שֶׁתַּעֲלֵנוּ בְּשִׂמְחָה לְאַרְצֵנוּ, וְתִטָּעֵנוּ בִּגְבוּלֵנוּ, וְשָׁם נַעֲשֶׂה לְפָנֶיךָ אֶת קָרְבְּנוֹת חֹבֹתֵינוּ, תְּמִידִים כְּסִדְרָם וּמוּסָפִים כְּהִלְכָתָם:");
-		addTwoWordToSiddur(getTehilimChapterByIndex(126));
+		addTwoWordToSiddur(getTehilimChapterTextByIndex(126));
 	}
 
 	private void addTikkunRachel(boolean isForDay) {
-		addToSiddur(getTehilimChapterByIndex(137));
-		addTwoWordToSiddur(getTehilimChapterByIndex(79));
+		addToSiddur(getTehilimChapterTextByIndex(137));
+		addTwoWordToSiddur(getTehilimChapterTextByIndex(79));
 		addEicha(true);
 		addTwoWordToSiddur(
 			"הַבֵּ֤ט מִשָּׁמַ֙יִם֙ וּרְאֵ֔ה מִזְּבֻ֥ל קׇדְשְׁךָ֖ וְתִפְאַרְתֶּ֑ךָ אַיֵּ֤ה קִנְאָֽתְךָ֙ וּגְב֣וּרֹתֶ֔ךָ הֲמ֥וֹן מֵעֶ֛יךָ וְֽרַחֲמֶ֖יךָ אֵלַ֥י הִתְאַפָּֽקוּ׃ כִּֽי־אַתָּ֣ה אָבִ֔ינוּ כִּ֤י אַבְרָהָם֙ לֹ֣א יְדָעָ֔נוּ וְיִשְׂרָאֵ֖ל לֹ֣א יַכִּירָ֑נוּ אַתָּ֤ה יְהֹוָה֙ אָבִ֔ינוּ גֹּאֲלֵ֥נוּ מֵעוֹלָ֖ם שְׁמֶֽךָ׃ לָ֣מָּה תַתְעֵ֤נוּ יְהֹוָה֙ מִדְּרָכֶ֔יךָ תַּקְשִׁ֥יחַ לִבֵּ֖נוּ מִיִּרְאָתֶ֑ךָ שׁ֚וּב לְמַ֣עַן עֲבָדֶ֔יךָ שִׁבְטֵ֖י נַחֲלָתֶֽךָ׃ לַמִּצְעָ֕ר יָרְשׁ֖וּ עַם־קׇדְשֶׁ֑ךָ צָרֵ֕ינוּ בּוֹסְס֖וּ מִקְדָּשֶֽׁךָ׃");
@@ -4630,7 +4630,8 @@ public class SiddurMaker {
 		addCategoryToSiddur("הדרן");
 
 		addTwoWordToSiddur(
-			"הֲדְרָן עֲלָךְ מַסֶּכֶת (יאמר שם המסכת) וְהֲדְרָךְ עֲלָן. דַּעְתָּן עֲלָךְ מַסֶּכֶת (יאמר שם המסכת) וְדַעְתָּךְ עֲלָן. לָא נִתְנְשֵׁי מִינָךְ מַסֶּכֶת (יאמר שם המסכת) וְלֹא תִתְנְשֵׁי מִינָן, לָא בְּעָלְמָא הָדֵין וְלֹא בְּעָלְמָא דְאַָתֵי: (ג' פעמים/three times) \n\n" +
+			"הֲדְרָן עֲלָךְ מַסֶּכֶת (יאמר שם המסכת) וְהֲדְרָךְ עֲלָן. דַּעְתָּן עֲלָךְ מַסֶּכֶת (יאמר שם המסכת) וְדַעְתָּךְ עֲלָן. לָא נִתְנְשֵׁי מִינָךְ מַסֶּכֶת (יאמר שם המסכת) וְלֹא תִתְנְשֵׁי מִינָן, לָא בְּעָלְמָא הָדֵין וְלֹא בְּעָלְמָא דְאַָתֵי: (ג' פעמים/three times)");
+		addTwoWordToSiddur(
 			"יְהִי רָצוֹן מִלְּפָנֶיךָ יְהֹוָה אֱלֹהֵינוּ וֶאֱלֹהֵי אֲבוֹתֵינוּ שֶׁתְּהֵא תּוֹרָתְךָ אֻמָּנוּתֵנוּ בָּעוֹלָם הַזֶּה וּתְהֵא עִמָּנוּ לָעוֹלָם הַבָּא. חֲנִינָא בַּר פָּפָּא, רָמִי בַּר פָּפָּא, נַחְמָן בַּר פָּפָּא, אַחַאי בַּר פָּפָּא, אַבָּא מָרִי בַּר פָּפָּא, רַפְרָם בַּר פָּפָּא, רָכִישׁ בַּר פָּפָּא, סוּרְחָב בַּר פָּפָּא, אַדָּא בַּר פָּפָּא, דָּרוּ בַּר פָּפָּא:");
 		addTwoWordToSiddur(
 			"הַעֲרֵב נָא יְהֹוָה אֱלֹהֵינוּ, אֶת דִּבְרֵי תּוֹרָתְךָ בְּפִינוּ וּבְפִיפִיּוֹת עַמְּךָ בֵּית יִשְׂרָאֵל, וְנִהְיֶה כּוּלָנוּ אֲנַחְנוּ וְצֶאֱצָאֵינוּ וְצֶאֱצָאֵי עַמְּךָ בֵּית יִשְׂרָאֵל, כּוּלָנוּ יוֹדְעֵי שְׁמֶךָ וְלוֹמְדֵי תּוֹרָתְךָ. מֵֽ֭אֹיְבַי תְּחַכְּמֵ֣נִי מִצְוֺתֶ֑ךָ כִּ֖י לְעוֹלָ֣ם הִיא־לִֽי׃ יְהִי־לִבִּ֣י תָמִ֣ים בְּחֻקֶּ֑יךָ לְ֝מַ֗עַן לֹ֣א אֵבֽוֹשׁ׃ לְ֭עוֹלָם לֹא־אֶשְׁכַּ֣ח פִּקּוּדֶ֑יךָ כִּ֥י בָ֗֝ם חִיִּיתָֽנִי׃ בָּר֖וּךְ אַתָּ֥ה יְהֹוָ֗ה לַמְּדֵ֥נִי חֻקֶּֽיךָ׃ אָמֵן | אָמֵן | אָמֵן סֶלָה וָעֶד:");
@@ -4757,9 +4758,13 @@ public class SiddurMaker {
 		formatter.setHebrewFormat(true);
 		formatter.setUseGershGershayim(false);
 		int chapterAsNumber = 1;
-		for (String chapter: chapters) {
+		for (TehilimChapter chapter: getChapters()) {
 			addCategoryToSiddur( formatter.formatHebrewNumber(chapterAsNumber) + " / " + chapterAsNumber);
-			addToSiddur(chapter);
+
+			HighlightString siddurChapter = new HighlightString(chapter.getText());
+			siddurChapter.setBigWordsStart(chapter.getBigWords());
+			siddur.add(siddurChapter);
+
 			chapterAsNumber++;
 		}
 
@@ -4767,7 +4772,7 @@ public class SiddurMaker {
 	}
 
 	private void addLamnatzeachToSiddur() {
-		HighlightString lamnatzeach = new HighlightString(getTehilimChapterByIndex(67));
+		HighlightString lamnatzeach = new HighlightString(getTehilimChapterTextByIndex(67));
 		lamnatzeach.setBigWordsStart(1);
 		lamnatzeach.setImageAttachment(HighlightString.ImageAttachment.MENORAH);
 		siddur.add(lamnatzeach);
