@@ -9,18 +9,44 @@
     tools:context=".activities.ui.limudiim.LimudFragment">
 
     <!-- TOP DATE (fixed) -->
-    <TextView
-        android:id="@+id/hillulotDate"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:textSize="26sp"
-        android:maxLines="1"
-        android:autoSizeMaxTextSize="26sp"
-        android:autoSizeMinTextSize="8sp"
-        android:autoSizeTextType="uniform"
-        tools:text="29 Aug, 2024         25 Av, 5784"
-        android:textStyle="bold" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/hebrewDateTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:paddingStart="16dp"
+            android:paddingEnd="8dp"
+            tools:text="25 Av, 5784" />
+
+        <TextView
+            android:id="@+id/currentDateArrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            tools:visibility="visible"
+            tools:text="☀️" />
+
+        <TextView
+            android:id="@+id/englishDateTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:paddingStart="8dp"
+            android:paddingEnd="16dp"
+            tools:text="29 Aug, 2024" />
+    </LinearLayout>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"

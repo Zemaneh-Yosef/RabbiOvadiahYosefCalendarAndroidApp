@@ -104,29 +104,50 @@ public class LimudFragment extends Fragment {
     }
 
     private void setDate() {
-        StringBuilder sb = new StringBuilder();
         boolean today = isToday();
         boolean afterSunset = today && mAdjustDate && isAfterSunset();
 
         if (!Utils.isLocaleHebrew(mContext)) {// if not hebrew, show the date in english
-            sb.append(sCurrentDateShown.get(Calendar.DATE))
-                    .append(" ")
-                    .append(sCurrentDateShown.getDisplayName(
-                            Calendar.MONTH,
-                            Calendar.SHORT,
-                            mContext.getResources().getConfiguration().getLocales().get(0)))
-                    .append(", ")
-                    .append(sCurrentDateShown.get(Calendar.YEAR))
-                    .append("   ");
-        }
-        if (isToday()) {
-            sb.append(afterSunset ? "🌙 " : "☀️ ");
-        }
-        sb.append(afterSunset ? sJewishDateInfo.getJewishCalendar().currentToString(sROZmanimCalendar) : sJewishDateInfo.getJewishCalendar().toString());
+            StringBuilder hebrewDate = new StringBuilder()
+				.append(sCurrentDateShown.get(Calendar.DATE))
+				.append(" ")
+				.append(sCurrentDateShown.getDisplayName(
+						Calendar.MONTH,
+						Calendar.SHORT,
+						mContext.getResources().getConfiguration().getLocales().get(0)))
+				.append(", ")
+				.append(sCurrentDateShown.get(Calendar.YEAR))
+				.append("   ");
 
-        if (binding != null) {
-            binding.hillulotDate.setText(sb.toString());
-        }
+			if (binding != null) {
+				assert binding.hebrewDateTextView != null;
+				binding.hebrewDateTextView.setText(hebrewDate.toString());
+
+				assert binding.currentDateArrow != null;
+				binding.currentDateArrow.setVisibility(today ? View.VISIBLE : View.GONE);
+				binding.currentDateArrow.setText(afterSunset ? "🌙" : "☀️");
+
+				assert binding.englishDateTextView != null;
+				binding.englishDateTextView.setText(
+					afterSunset
+						? sJewishDateInfo.getJewishCalendar().currentToShortString(sROZmanimCalendar)
+						: sJewishDateInfo.getJewishCalendar().toShortString()
+				);
+			}
+        } else {
+			assert binding.currentDateArrow != null;
+			assert binding.englishDateTextView != null;
+			binding.currentDateArrow.setVisibility(View.GONE);
+			binding.englishDateTextView.setVisibility(View.GONE);
+
+			assert binding.hebrewDateTextView != null;
+			binding.hebrewDateTextView.setText(
+				today ?
+					afterSunset ? "🌙 " + sJewishDateInfo.getJewishCalendar().currentToString(sROZmanimCalendar)
+						: "☀️ " + sJewishDateInfo.getJewishCalendar().toString()
+					: sJewishDateInfo.getJewishCalendar().toString()
+			);
+		}
     }
 
     private void initMenu() {
