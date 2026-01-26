@@ -812,7 +812,7 @@ public class SiddurMaker {
 		};
 
 		addInstructionToSiddur("אמר את ברכות קריאת שמע (כולל קריאת שמע עצמה) בישיבה. ימשמש את תפילין של היד בעת תחילת הברכה.\n" +
-				"Recite the blessings of Shema (as well as the Shema itself) sitting. Touch your Hand Tefillin as you begin the blessing.");
+				"Recite the blessings of Shema (as well as the Shema itself) sitting. Touch your Hand Tefillin as you begin the blessing");
 
 		addToSiddur(advancedString
 			.append("בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵֽינוּ מֶֽלֶךְ הָעוֹלָם, יוֹצֵר אוֹר וּבוֹרֵא חֹשֶׁךְ עֹשֵׂה שָׁלוֹם וּבוֹרֵא אֶת הַכֹּל. הַמֵּאִיר לָאָרֶץ וְלַדָּרִים עָלֶיהָ בְּרַחֲמִים, וּבְטוּבוֹ מְחַדֵּשׁ בְּכָל יוֹם תָּמִיד מַעֲשֵׂה בְּרֵאשִׁית. מָה־רַבּ֬וּ מַעֲשֶׂ֨יךָ ׀ יְֽהֹוָ֗ה כֻּ֭לָּם בְּחׇכְמָ֣ה עָשִׂ֑יתָ מָלְאָ֥ה הָ֝אָ֗רֶץ קִנְיָנֶֽךָ׃ הַמֶּלֶךְ הַמְּרוֹמָם לְבַדּוֹ מֵאָז, הַמְּשֻׁבָּח וְהַמְּפוֹאָר וְהַמִּתְנַשֵּׂא מִימוֹת עוֹלָם. אֱלֹהַי עוֹלָם, בְּרַחֲמֶיךָ הָרַבִּים רַחֵם עָלֵינוּ, אֲדוֹן עוּזֵּנוּ, צוּר מִשְׂגַּבֵּנוּ, מָגֵן יִשְׁעֵנוּ, מִשְׂגָּב בַּעֲדֵנוּ. ")
@@ -2958,7 +2958,7 @@ public class SiddurMaker {
 		addCategoryToSiddur("עמידה");
 
 		addToSiddur("אֲ֭דֹנָי שְׂפָתַ֣י תִּפְתָּ֑ח וּ֝פִ֗י יַגִּ֥יד תְּהִלָּתֶֽךָ׃");
-		addInstructionToSiddur("כורעים בתחילת ברכה זו ובסיומה. במילה \"ברוך\" יש לכרוע את הגוף עד שכל חוליות השדרה בולטות. במילה \"אתה\" יש גם להרכין את הראש (כקנה). בהזכרת שם ה׳ יש לזקוף תחילה את הגב ולאחר מכן את הראש.\nWe bow at the beginning and end of this blessing. At the word \"Barukh\", bow your body to the point where all the vertebrae in the spine stick out. At the word \"Atah\", also bow your head (like a reed). For the name of Hashem, straighten your back, then your head");// Beshalach 6
+		addInstructionToSiddur(Utils.isLocaleHebrew(context) ? "כורעים בתחילת ברכה זו ובסיומה. במילה \"ברוך\" יש לכרוע את הגוף עד שכל חוליות השדרה בולטות. במילה \"אתה\" יש גם להרכין את הראש (כקנה). בהזכרת שם ה׳ יש לזקוף תחילה את הגב ולאחר מכן את הראש." : "We bow at the beginning and end of this blessing. At the word \"Barukh\", bow your body to the point where all the vertebrae in the spine stick out. At the word \"Atah\", also bow your head (like a reed). For the name of Hashem, straighten your back, then your head.");// BIC Beshalach 6
 		addToSiddur(
 			"בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵֽינוּ וֵֽאלֹהֵי אֲבוֹתֵֽינוּ, אֱלֹהֵי אַבְרָהָם, אֱלֹהֵי יִצְחָק, וֵֽאלֹהֵי יַעֲקֹב. הָאֵל הַגָּדוֹל הַגִּבּוֹר וְהַנּוֹרָא, אֵל עֶלְיוֹן, גּוֹמֵל חֲסָדִים טוֹבִים, קוֹנֵה הַכֹּל, וְזוֹכֵר חַסְדֵּי אָבוֹת, וּמֵבִיא גוֹאֵל לִבְנֵי בְנֵיהֶם לְמַֽעַן שְׁמוֹ בְּאַֽהֲבָה:");
 
@@ -3110,14 +3110,14 @@ public class SiddurMaker {
 
 		addToSiddur(
 			"וְאַתָּה בְּרַֽחֲמֶֽיךָ הָרַבִּים, תַּחְפֹּץ בָּֽנוּ וְתִרְצֵֽנוּ, וְתֶֽחֱזֶֽינָה עֵינֵֽינוּ בְּשֽׁוּבְךָ לְצִיּוֹן בְּרַֽחֲמִים: בָּרוּךְ אַתָּה יִהִוִהִ, הַמַּֽחֲזִיר שְׁכִֽינָתוֹ לְצִיּוֹן:");
-		addInstructionToSiddur("באמירת \"מודים\" יש לכרוע את הראש והגוף עד שכל חוליות השדרה בולטות. בהזכרת שם ה׳ יש לזקוף תחילה את הגב ולאחר מכן את הראש.\nAt the recital of \"Modim\", bow your body and head to the point where all the vertebrae in the spine stick out. For the name of Hashem, straighten your back, then your head");
+		addInstructionToSiddur(Utils.isLocaleHebrew(context) ? "באמירת \"מודים\" יש לכרוע את הראש והגוף עד שכל חוליות השדרה בולטות. בהזכרת שם ה׳ יש לזקוף תחילה את הגב ולאחר מכן את הראש." : "At the recital of \"Modim\", bow your body and head to the point where all the vertebrae in the spine stick out. For the name of Hashem, straighten your back, then your head.");
 		addOneWordToSiddur(
 			"מוֹדִים אֲנַֽחְנוּ לָךְ, שֶׁאַתָּה הוּא יְהֹוָה אֱלֹהֵֽינוּ וֵֽאלֹהֵי אֲבוֹתֵֽינוּ לְעוֹלָם וָעֶד, צוּרֵֽנוּ צוּר חַיֵּֽינוּ וּמָגֵן יִשְׁעֵֽנוּ אַתָּה הוּא, לְדוֹר וָדוֹר נוֹדֶה לְךָ וּנְסַפֵּר תְּהִלָּתֶֽךָ, עַל חַיֵּֽינוּ הַמְּסוּרִים בְּיָדֶֽךָ, וְעַל נִשְׁמוֹתֵֽינוּ הַפְּקוּדוֹת לָךְ, וְעַל נִסֶּֽיךָ שֶׁבְּכָל־יוֹם עִמָּֽנוּ, וְעַל נִפְלְאוֹתֶֽיךָ וְטֽוֹבוֹתֶֽיךָ שֶׁבְּכָל־עֵת, עֶֽרֶב וָבֹֽקֶר וְצָֽהֳרָֽיִם. הַטּוֹב, כִּי לֹא כָלוּ רַחֲמֶֽיךָ, הַמְּרַחֵם, כִּי לֹא תַֽמּוּ חֲסָדֶֽיךָ, כִּי מֵֽעוֹלָם קִוִּֽינוּ לָךְ:");
 
 		if (curTefila != TefilotForAmidah.ARVIT) {
 			addToSiddur(lineBreak);
-			addInstructionToSiddur("אחר עניית אמן לברכת \"רצה\", הקהל יעמדו ל\"מודים דרבנן\" (עד סיום אמירתו) ואומר אותו יחד עם חזרת הש\"ץ בברכת מודים. בעת אמירת המילה \"מודים\" יש לכרוע את הגוף והראש (עד שכל חוליות השדרה בולטות)." +
-					"\nAfter answering \"Amen\" to the blessing of \"Retze\", the congregation now rises for \"Modim DeRabbanan\" (until they've concluded its recital) and recites it alongside the Shaliach Tzibur's recital of the Modim blessing. They should bow their body and head (to the point where all the vertebrae in the spine stick out) as they say the word Modim");
+			addInstructionToSiddur(Utils.isLocaleHebrew(context) ? "אחר עניית אמן לברכת \"רצה\", הקהל יעמדו ל\"מודים דרבנן\" (עד סיום אמירתו) ואומר אותו יחד עם חזרת הש\"ץ בברכת מודים. בעת אמירת המילה \"מודים\" יש לכרוע את הגוף והראש (עד שכל חוליות השדרה בולטות)." :
+					"After answering \"Amen\" to the blessing of \"Retze\", the congregation now rises for \"Modim DeRabbanan\" (until they've concluded its recital) and recites it alongside the Shaliach Tzibur's recital of the Modim blessing. They should bow their body and head (to the point where all the vertebrae in the spine stick out) as they say the word \"Modim\"");
 			addToSiddur(
 				"מוֹדִים אֲנַחְנוּ לָךְ, שֶׁאַתָּה הוּא יְהֹוָה אֱלֹהֵינוּ וֵאלֹהֵי אֲבוֹתֵינוּ, אֱלֹהֵי כָל בָּשָׁר, יוֹצְרֵנוּ יוֹצֵר בְּרֵאשִׁית. בְּרָכוֹת וְהוֹדָאוֹת לְשִׁמְךָ הַגָּדוֹל וְהַקָּדוֹשׁ, עַל שֶׁהֶחֱיִיתָנוּ וְקִיַּמְתָּנוּ. כֵּן תְּחַיֵּנוּ וּתְחָנֵּנוּ וְתֶאֱסוֹף גָּלֻיּוֹתֵינוּ לְחַצְרוֹת קָדְשֶׁךָ, לִשְׁמֹר חֻקֶּיךָ וְלַעֲשׂוֹת רְצוֹנְךָ וּלְעָבְדְךָ בְלֵבָב שָׁלֵם, עַל שֶׁאֲנַחְנוּ מוֹדִים לָךְ, בָּרוּךְ אֵל הַהוֹדָאוֹת.");
 			addToSiddur(lineBreak);
@@ -3144,7 +3144,7 @@ public class SiddurMaker {
 			addToSiddurHighlighted("וּכְתֹב לְחַיִּים טוֹבִים כָּל בְּנֵי בְרִיתֶךָ.");
 		}
 
-		addInstructionToSiddur("במילה \"ברוך\" יש לכרוע את הגוף עד שכל חוליות השדרה בולטות. במילה \"אתה\" יש גם להרכין את הראש (כקנה). בהזכרת שם ה׳ יש לזקוף תחילה את הגב ולאחר מכן את הראש.\nAt the word \"Barukh\", bow your body to the point where all the vertebrae in the spine stick out. At the word \"Atah\", also bow your head (like a reed). For the name of Hashem, straighten your back, then your head");// BIC Beshalach 6
+		addInstructionToSiddur(Utils.isLocaleHebrew(context) ? "במילה \"ברוך\" יש לכרוע את הגוף עד שכל חוליות השדרה בולטות. במילה \"אתה\" יש גם להרכין את הראש (כקנה). בהזכרת שם ה׳ יש לזקוף תחילה את הגב ולאחר מכן את הראש." : "At the word \"Barukh\", bow your body to the point where all the vertebrae in the spine stick out. At the word \"Atah\", also bow your head (like a reed). For the name of Hashem, straighten your back, then your head.");// BIC Beshalach 6
 
 		addToSiddur("וִֽיהַֽלְלוּ וִֽיבָֽרְכוּ אֶת־שִׁמְךָ הַגָּדוֹל בֶּֽאֱמֶת לְעוֹלָם כִּי טוֹב, הָאֵל יְשֽׁוּעָתֵֽנוּ וְעֶזְרָתֵֽנוּ סֶֽלָה, הָאֵל הַטּוֹב: " + "בָּרוּךְ אַתָּה יֻהֻוֻהֻ, הַטּוֹב שִׁמְךָ וּלְךָ נָאֶה לְהוֹדוֹת:");
 
@@ -3268,8 +3268,8 @@ public class SiddurMaker {
 			"אֱלֹהַי, נְצֹר לְשׁוֹנִי מֵרָע וְשִׂפְתוֹתַי מִדַּבֵּר מִרְמָה, וְלִמְקַלְלַי נַפְשִׁי תִדֹּם, וְנַפְשִׁי כֶּֽעָפָר לַכֹּל תִּֽהְיֶה, פְּתַח לִבִּי בְּתוֹרָתֶֽךָ, וְאַחֲרֵי מִצְוֹתֶֽיךָ תִּרְדֹּף נַפְשִׁי. וְכָל־הַקָּמִים עָלַי לְרָעָה, מְהֵרָה הָפֵר עֲצָתָם וְקַלְקֵל מַחְשְׁבוֹתָם. עֲשֵׂה לְמַֽעַן שְׁמָךְ, עֲשֵׂה לְמַֽעַן יְמִינָךְ, עֲשֵׂה לְמַֽעַן תּֽוֹרָתָךְ, עֲשֵׂה לְמַֽעַן קְדֻשָּׁתָךְ. לְ֭מַעַן יֵחָלְצ֣וּן יְדִידֶ֑יךָ הוֹשִׁ֖יעָה יְמִֽינְךָ֣ וַעֲנֵֽנִי:\n" +
 			"יִֽהְי֥וּ לְרָצ֨וֹן ׀ אִמְרֵי־פִ֡י וְהֶגְי֣וֹן לִבִּ֣י לְפָנֶ֑יךָ יְ֝הֹוָ֗ה צוּרִ֥י וְגֹאֲלִֽי׃");
 
-		addInstructionToSiddur("יש להביט לאחור שאין אדם המתפלל בתוך ד' אמותיך (כ־2 מטרים). יש לכרוע עד שכל חוליות השדרה בולטות ולפסוע ג' פסיעות לאחור, החל ברגל שמאל. יש לפנות שמאלה באמירת \"עושה שלום\", לאחר מכן לפנות ימינה באמירת \"הוא ברחמיו\", ולבסוף לפנות קדימה באמירת \"ועל כל עמו\"" +
-				"\nLook back to ensure there isn't one praying within your four amot (six feet). One should now bow to the point where all the vertebrae in the spine stick out and take three steps back, starting with your left foot. Turn left as you say \"Oseh Shalom\", then turn right as you say \"Hu BeRakhamav\", then turn forward as you say VeAlkol 'Amo");
+		addInstructionToSiddur(Utils.isLocaleHebrew(context) ? "יש להביט לאחור שאין אדם המתפלל בתוך ד' אמותיך (כ־2 מטרים). יש לכרוע עד שכל חוליות השדרה בולטות ולפסוע ג' פסיעות לאחור, החל ברגל שמאל. יש לפנות שמאלה באמירת \"עושה שלום\", לאחר מכן לפנות ימינה באמירת \"הוא ברחמיו\", ולבסוף לפנות קדימה באמירת \"ועל כל עמו\"" :
+				"Look back to ensure there isn't one praying within your four amot (six feet). One should now bow to the point where all the vertebrae in the spine stick out and take three steps back, starting with your left foot. Turn left as you say \"Oseh Shalom\", then turn right as you say \"Hu BeRakhamav\", then turn forward as you say VeAlkol 'Amo");
 
 		if (jewishDateInfo.getJewishCalendar().isAseresYemeiTeshuva()) {
 			addToSiddur("עֹשֶׂה");
@@ -3281,8 +3281,8 @@ public class SiddurMaker {
 
 		addToSiddur("יְהִי רָצוֹן מִלְּפָנֶֽיךָ, יְהֹוָה אֱלֹהֵֽינוּ וֵֽאלֹהֵי אֲבוֹתֵֽינוּ, שֶׁתִּבְנֶה בֵּית הַמִּקְדָשׁ בִּמְהֵרָה בְיָמֵֽינוּ, וְתֵן חֶלְקֵֽנוּ בְתוֹרָתָךְ לַעֲשׂוֹת חֻקֵּי רְצוֹנָךְ וּלְעָבְדָךְ בְּלֵבָב שָׁלֵם:");
 
-		addInstructionToSiddur("יש לזקוף את הגב. במניין עם חזרת הש״ץ, יש להמתין עד הש״ץ מתחיל \"נקדישך\" ואז פוסעים את ג' הפסיעות קדימה." +
-				"\nStraighten your back. In a minyan with a repetition, wait until the Shaliach Tzibur starts \"Nakdishakh\" before taking the three steps forward");
+		addInstructionToSiddur(Utils.isLocaleHebrew(context) ? "יש לזקוף את הגב. במניין עם חזרת הש״ץ, יש להמתין עד הש״ץ מתחיל \"נקדישך\" ואז פוסעים את ג' הפסיעות קדימה." :
+				"Straighten your back. In a minyan with a repetition, wait until the Shaliach Tzibur starts \"Nakdishakh\" before taking the three steps forward");
 	}
 
 	private void addAvinuMalkeinu(boolean isTachanunSaid) {
@@ -3441,13 +3441,13 @@ public class SiddurMaker {
 
 		addOneWordToSiddur(
 			"רְצֵה יְהֹוָה אֱלֹהֵֽינוּ בְּעַמְּךָ יִשְׂרָאֵל וְלִתְפִלָּתָם שְׁעֵה, וְהָשֵׁב הָֽעֲבוֹדָה לִדְבִיר בֵּיתֶֽךָ, וְאִשֵּׁי יִשְׂרָאֵל וּתְפִלָּתָם, מְהֵרָה בְּאַֽהֲבָה תְקַבֵּל בְּרָצוֹן, וּתְהִי לְרָצוֹן תָּמִיד עֲבוֹדַת יִשְׂרָאֵל עַמֶּֽךָ: וְאַתָּה בְּרַֽחֲמֶֽיךָ הָרַבִּים, תַּחְפֹּץ בָּֽנוּ וְתִרְצֵֽנוּ, וְתֶֽחֱזֶֽינָה עֵינֵֽינוּ בְּשֽׁוּבְךָ לְצִיּוֹן בְּרַֽחֲמִים: בָּרוּךְ אַתָּה יִהִוִהִ, הַמַּֽחֲזִיר שְׁכִֽינָתוֹ לְצִיּוֹן:");
-		addInstructionToSiddur("באמירת \"מודים\" יש לכרוע את הראש והגוף עד שכל חוליות השדרה בולטות. בהזכרת שם ה׳ יש לזקוף תחילה את הגב ולאחר מכן את הראש.\nAt the recital of \"Modim\", bow your body and head to the point where all the vertebrae in the spine stick out. For the name of Hashem, straighten your back, then your head");
+		addInstructionToSiddur(Utils.isLocaleHebrew(context) ? "באמירת \"מודים\" יש לכרוע את הראש והגוף עד שכל חוליות השדרה בולטות. בהזכרת שם ה׳ יש לזקוף תחילה את הגב ולאחר מכן את הראש." : "At the recital of \"Modim\", bow your body and head to the point where all the vertebrae in the spine stick out. For the name of Hashem, straighten your back, then your head.");
 		addOneWordToSiddur(
 			"מוֹדִים אֲנַֽחְנוּ לָךְ, שֶׁאַתָּה הוּא יְהֹוָה אֱלֹהֵֽינוּ וֵֽאלֹהֵי אֲבוֹתֵֽינוּ לְעוֹלָם וָעֶד, צוּרֵֽנוּ צוּר חַיֵּֽינוּ וּמָגֵן יִשְׁעֵֽנוּ אַתָּה הוּא, לְדוֹר וָדוֹר נוֹדֶה לְךָ וּנְסַפֵּר תְּהִלָּתֶֽךָ, עַל חַיֵּֽינוּ הַמְּסוּרִים בְּיָדֶֽךָ, וְעַל נִשְׁמוֹתֵֽינוּ הַפְּקוּדוֹת לָךְ, וְעַל נִסֶּֽיךָ שֶׁבְּכָל־יוֹם עִמָּֽנוּ, וְעַל נִפְלְאוֹתֶֽיךָ וְטֽוֹבוֹתֶֽיךָ שֶׁבְּכָל־עֵת, עֶֽרֶב וָבֹֽקֶר וְצָֽהֳרָֽיִם. הַטּוֹב, כִּי לֹא כָלוּ רַחֲמֶֽיךָ, הַמְּרַחֵם, כִּי לֹא תַֽמּוּ חֲסָדֶֽיךָ, כִּי מֵֽעוֹלָם קִוִּֽינוּ לָךְ:");
 
 		addToSiddur(lineBreak);
-		addInstructionToSiddur("אחר עניית אמן לברכת \"רצה\", הקהל יעמדו ל\"מודים דרבנן\" (עד סיום אמירתו) ואומר אותו יחד עם חזרת הש\"ץ בברכת מודים. בעת אמירת המילה \"מודים\" יש לכרוע את הגוף והראש (עד שכל חוליות השדרה בולטות)." +
-				"\nAfter answering \"Amen\" to the blessing of \"Retze\", the congregation now rises for \"Modim DeRabbanan\" (until they've concluded its recital) and recites it alongside the Shaliach Tzibur's recital of the Modim blessing. They should bow their body and head (to the point where all the vertebrae in the spine stick out) as they say the word Modim");
+		addInstructionToSiddur(Utils.isLocaleHebrew(context) ? "אחר עניית אמן לברכת \"רצה\", הקהל יעמדו ל\"מודים דרבנן\" (עד סיום אמירתו) ואומר אותו יחד עם חזרת הש\"ץ בברכת מודים. בעת אמירת המילה \"מודים\" יש לכרוע את הגוף והראש (עד שכל חוליות השדרה בולטות)." :
+				"After answering \"Amen\" to the blessing of \"Retze\", the congregation now rises for \"Modim DeRabbanan\" (until they've concluded its recital) and recites it alongside the Shaliach Tzibur's recital of the Modim blessing. They should bow their body and head (to the point where all the vertebrae in the spine stick out) as they say the word \"Modim\"");
 		addToSiddur(
 			"מוֹדִים אֲנַחְנוּ לָךְ, שָׁאַתָּה הוּא יְהֹוָה אֱלֹהֵינוּ וֵאלֹהֵי אֲבוֹתֵינוּ, אֱלֹהֵי כָל בָּשָׁר, יוֹצְרֵנוּ יוֹצֵר בְּרֵאשִׁית. בְּרָכוֹת וְהוֹדָאוֹת לְשִׁמְךָ הַגָּדוֹל וְהַקָּדוֹשׁ, עַל שֶׁהֶחֱיִיתָנוּ וְקִיַּמְתָּנוּ. כֵּן תְּחַיֵּנוּ וּתְחָנֵּנוּ וְתֶאֱסוֹף גָּלֻיּוֹתֵינוּ לְחַצְרוֹת קָדְשֶׁךָ, לִשְׁמֹר חֻקֶּיךָ וְלַעֲשׂוֹת רְצוֹנְךָ וּלְעָבְדְךָ בְלֵבָב שָׁלֵם, עַל שֶׁאֲנַחְנוּ מוֹדִים לָךְ, בָּרוּךְ אֵל הַהוֹדָאוֹת.");
 		addToSiddur(lineBreak);

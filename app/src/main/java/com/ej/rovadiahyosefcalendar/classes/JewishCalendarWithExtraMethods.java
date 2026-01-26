@@ -175,7 +175,6 @@ public class JewishCalendarWithExtraMethods extends JewishCalendar {
 		if (mContext != null) {
 			hebrewDateFormatter.setHebrewFormat(Utils.isLocaleHebrew(mContext));
 		}
-
 		return hebrewDateFormatter.format(this)
 			.replace("Tishrei", "Tish")
 			.replace("Cheshvan", "Ḥesh")

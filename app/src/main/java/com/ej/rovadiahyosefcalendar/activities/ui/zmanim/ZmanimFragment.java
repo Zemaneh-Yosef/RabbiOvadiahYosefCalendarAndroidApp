@@ -122,6 +122,7 @@ import org.shredzone.commons.suncalc.MoonTimes;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -1247,35 +1248,23 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     .at(sLatitude, sLongitude)
                     .timezone(sCurrentTimeZoneID == null ? TimeZone.getDefault().getID() : sCurrentTimeZoneID)
                     .midnight()
+                    .oneDay() // since we want to only show the moon times for the current day, set it to one day with this call. In V2 the default was one day, but in V3 the default is fullCycle (i.e. 365 days).
                     .execute();
             if (moonTimes.isAlwaysUp()) {
                 zmanim.add(new ZmanListEntry(mContext.getString(R.string.the_moon_is_up_all_night)));
             } else if (moonTimes.isAlwaysDown()) {
                 zmanim.add(new ZmanListEntry(mContext.getString(R.string.there_is_no_moon_tonight)));
             } else {
-                SimpleDateFormat moonFormat;
-                if (Utils.isLocaleHebrew(mContext)) {
-                    moonFormat = new SimpleDateFormat("H:mm", mContext
-                            .getResources()
-                            .getConfiguration()
-                            .getLocales()
-                            .get(0));
-                } else {
-                    moonFormat = new SimpleDateFormat("h:mm aa", mContext
-                            .getResources()
-                            .getConfiguration()
-                            .getLocales()
-                            .get(0));
-                }
+                DateTimeFormatter moonFormat = DateTimeFormatter.ofPattern((Utils.isLocaleHebrew(mContext) ? "H:mm" : "h:mm a"));
                 String moonRiseSet = "";
                 if (moonTimes.getRise() != null) {
-                    moonRiseSet += mContext.getString(R.string.moonrise) + moonFormat.format(moonTimes.getRise());
+                    moonRiseSet += mContext.getString(R.string.moonrise) + moonTimes.getRise().format(moonFormat);
                 }
                 if (moonTimes.getSet() != null) {
                     if (!moonRiseSet.isEmpty()) {
                         moonRiseSet += " - ";
                     }
-                    moonRiseSet += mContext.getString(R.string.moonset) + moonFormat.format(moonTimes.getSet());
+                    moonRiseSet += mContext.getString(R.string.moonset) + moonTimes.getSet().format(moonFormat);
                 }
                 if (!moonRiseSet.isEmpty()) {
                     zmanim.add(new ZmanListEntry(moonRiseSet));

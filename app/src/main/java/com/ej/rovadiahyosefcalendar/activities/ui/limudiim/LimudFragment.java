@@ -108,7 +108,7 @@ public class LimudFragment extends Fragment {
         boolean afterSunset = today && mAdjustDate && isAfterSunset();
 
         if (!Utils.isLocaleHebrew(mContext)) {// if not hebrew, show the date in english
-            StringBuilder hebrewDate = new StringBuilder()
+            StringBuilder engDate = new StringBuilder()
 				.append(sCurrentDateShown.get(Calendar.DATE))
 				.append(" ")
 				.append(sCurrentDateShown.getDisplayName(
@@ -116,32 +116,44 @@ public class LimudFragment extends Fragment {
 						Calendar.SHORT,
 						mContext.getResources().getConfiguration().getLocales().get(0)))
 				.append(", ")
-				.append(sCurrentDateShown.get(Calendar.YEAR))
-				.append("   ");
+				.append(sCurrentDateShown.get(Calendar.YEAR));
 
 			if (binding != null) {
-				binding.hebrewDateTextView.setText(hebrewDate.toString());
+                if (binding.englishDateTextView != null) {
+                    binding.englishDateTextView.setText(engDate.toString());
+                }
 
-				binding.currentDateArrow.setVisibility(today ? View.VISIBLE : View.GONE);
-				binding.currentDateArrow.setText(afterSunset ? "🌙" : "☀️");
+                if (binding.currentDateArrow != null) {
+                    binding.currentDateArrow.setVisibility(today ? View.VISIBLE : View.GONE);
+                }
+                if (binding.currentDateArrow != null) {
+                    binding.currentDateArrow.setText(afterSunset ? "🌙" : "☀️");
+                }
 
-				binding.englishDateTextView.setText(
-					afterSunset
-						? sJewishDateInfo.getJewishCalendar().currentToShortString(sROZmanimCalendar)
-						: sJewishDateInfo.getJewishCalendar().toShortString()
-				);
-			}
+                if (binding.hebrewDateTextView != null) {
+                    binding.hebrewDateTextView.setText(
+                        afterSunset
+                            ? sJewishDateInfo.getJewishCalendar().currentToShortString(sROZmanimCalendar)
+                            : sJewishDateInfo.getJewishCalendar().toShortString()
+                    );
+                }
+            }
         } else {
             if (binding != null) {
-                binding.currentDateArrow.setVisibility(View.GONE);
-                binding.englishDateTextView.setVisibility(View.GONE);
-
-                binding.hebrewDateTextView.setText(
-                    today ?
-                        afterSunset ? "🌙 " + sJewishDateInfo.getJewishCalendar().currentToString(sROZmanimCalendar)
-                            : "☀️ " + sJewishDateInfo.getJewishCalendar().toString()
-                        : sJewishDateInfo.getJewishCalendar().toString()
-                );
+                if (binding.englishDateTextView != null) {
+                    binding.englishDateTextView.setVisibility(View.GONE);
+                }
+                if (binding.currentDateArrow != null) {
+                    binding.currentDateArrow.setVisibility(View.GONE);
+                }
+                if (binding.hebrewDateTextView != null) {
+                    binding.hebrewDateTextView.setText(
+                        today ?
+                            afterSunset ? "🌙 " + sJewishDateInfo.getJewishCalendar().currentToString(sROZmanimCalendar)
+                                : "☀️ " + sJewishDateInfo.getJewishCalendar().toString()
+                            : sJewishDateInfo.getJewishCalendar().toString()
+                    );
+                }
             }
 		}
     }

@@ -38,16 +38,22 @@ public class TehillimAdapter extends RecyclerView.Adapter<TehillimAdapter.Tehill
     public void onBindViewHolder(@NonNull TehillimViewHolder holder, int position) {
         if (position == 0 || position == 41 || position == 72 || position == 89 || position == 106) {
             String book = context.getString(R.string.book);
+            int bookNumber;
             if (position == 0) {
-                book += " " + 1;
+                bookNumber = 1;
             } else if (position == 41) {
-                book += " " + 2;
+                bookNumber = 2;
             } else if (position == 72) {
-                book += " " + 3;
+                bookNumber = 3;
             } else if (position == 89) {
-                book += " " + 4;
+                bookNumber = 4;
             } else {
-                book += " " + 5;
+                bookNumber = 5;
+            }
+            if (Utils.isLocaleHebrew(context)) {
+                book += " " + hebrewDateFormatter.formatHebrewNumber(bookNumber);
+            } else {
+                book += " " + bookNumber;
             }
             holder.tehillimBookNumber.setText(book);
             holder.tehillimBookNumber.setVisibility(View.VISIBLE);
