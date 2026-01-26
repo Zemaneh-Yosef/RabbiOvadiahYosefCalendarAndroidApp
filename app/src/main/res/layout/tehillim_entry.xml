@@ -9,50 +9,78 @@
 
     <TextView
         android:id="@+id/tehillimBookNumber"
+        style="@style/Theme.AppTheme.MaterialPreferenceCategory.Text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/light_blue_A400"
-        style="@style/Theme.AppTheme.MaterialPreferenceCategory.Text"
         android:visibility="gone"
         tools:text="Book 1"
-        tools:visibility="visible"/>
+        tools:visibility="visible" />
 
-    <LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layoutDirection="rtl"
-    android:paddingVertical="8dp">
-
-    <TextView
-        android:id="@+id/tehillimChapter"
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:maxLines="1"
-        android:textSize="26sp"
-        android:fontFamily="@font/mantb_2"
-        android:textStyle="bold"
-        android:paddingHorizontal="16dp"
-        tools:text="א"/>
+        android:layoutDirection="rtl"
+        android:paddingVertical="8dp">
 
-    <TextView
-        android:id="@+id/tehillimText"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:maxLines="1"
-        android:ellipsize="end"
-        android:textSize="24sp"
-        android:fontFamily="@font/guttman_keren"
-        tools:text="מִזְמ֗וֹר לְדָ֫וִ֥ד יְ֭הֹוָה מִי־יָג֣וּר בְּאָהֳלֶ֑ךָ מִֽי־יִ֝שְׁכֹּ֗ן בְּהַ֣ר קָדְשֶֽׁךָ׃ הוֹלֵ֣ךְ תָּ֭מִים וּפֹעֵ֥ל צֶ֑דֶק וְדֹבֵ֥ר אֱ֝מֶ֗ת בִּלְבָבֽוֹ׃ לֹֽא־רָגַ֨ל ׀ עַל־לְשֹׁנ֗וֹ לֹא־עָשָׂ֣ה לְרֵעֵ֣הוּ רָעָ֑ה וְ֝חֶרְפָּ֗ה לֹא־נָשָׂ֥א עַל־קְרֹֽבוֹ׃ נִבְזֶ֤ה ׀ בְּֽעֵ֘ינָ֤יו נִמְאָ֗ס וְאֶת־יִרְאֵ֣י יְהוָ֣ה יְכַבֵּ֑ד נִשְׁבַּ֥ע לְ֝הָרַ֗ע וְלֹ֣א יָמִֽר׃ כַּסְפּ֤וֹ ׀ לֹא־נָתַ֣ן בְּנֶשֶׁךְ֮ וְשֹׁ֥חַד עַל־נָקִ֗י לֹ֥א לָ֫קָ֥ח עֹֽשֵׂה־אֵ֑לֶּה לֹ֖א יִמּ֣וֹט לְעוֹלָֽם׃"/>
+        <!-- This invisible view contains the widest possible text ("קיט"). -->
+        <!-- Its only job is to reserve the correct amount of space in every row. -->
+        <TextView
+            android:id="@+id/chapter_width_placeholder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/mantb_2"
+            android:maxLines="1"
+            android:paddingHorizontal="16dp"
+            android:text="קיט"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:visibility="invisible"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/tehillimChapterNumber"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:maxLines="1"
-        android:textSize="26sp"
-        android:paddingHorizontal="16dp"
-        tools:text="1"/>
+        <!-- This is the actual TextView that displays the chapter number (e.g., "כ"). -->
+        <!-- It is constrained to the placeholder, so it will be centered within the same reserved space. -->
+        <TextView
+            android:id="@+id/tehillimChapter"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/mantb_2"
+            android:gravity="center"
+            android:maxLines="1"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@id/chapter_width_placeholder"
+            app:layout_constraintEnd_toEndOf="@id/chapter_width_placeholder"
+            app:layout_constraintStart_toStartOf="@id/chapter_width_placeholder"
+            app:layout_constraintTop_toTopOf="@id/chapter_width_placeholder"
+            tools:text="כא" />
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/tehillimText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:fontFamily="@font/guttman_keren"
+            android:maxLines="1"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/tehillimChapterNumber"
+            app:layout_constraintStart_toEndOf="@id/chapter_width_placeholder"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="מִזְמ֗וֹר לְדָ֫וִ֥ד יְ֭הֹוָה מִי־יָג֣וּר בְּאָהֳלֶ֑ךָ מִֽי־יִ֝שׁכֹּ֗ן בְּהַ֣ר קָדְשֶֽׁךָ׃" />
+
+        <TextView
+            android:id="@+id/tehillimChapterNumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:paddingHorizontal="16dp"
+            android:textSize="26sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="1" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>
