@@ -120,14 +120,11 @@ public class LimudFragment extends Fragment {
 				.append("   ");
 
 			if (binding != null) {
-				assert binding.hebrewDateTextView != null;
 				binding.hebrewDateTextView.setText(hebrewDate.toString());
 
-				assert binding.currentDateArrow != null;
 				binding.currentDateArrow.setVisibility(today ? View.VISIBLE : View.GONE);
 				binding.currentDateArrow.setText(afterSunset ? "🌙" : "☀️");
 
-				assert binding.englishDateTextView != null;
 				binding.englishDateTextView.setText(
 					afterSunset
 						? sJewishDateInfo.getJewishCalendar().currentToShortString(sROZmanimCalendar)
@@ -135,18 +132,17 @@ public class LimudFragment extends Fragment {
 				);
 			}
         } else {
-			assert binding.currentDateArrow != null;
-			assert binding.englishDateTextView != null;
-			binding.currentDateArrow.setVisibility(View.GONE);
-			binding.englishDateTextView.setVisibility(View.GONE);
+            if (binding != null) {
+                binding.currentDateArrow.setVisibility(View.GONE);
+                binding.englishDateTextView.setVisibility(View.GONE);
 
-			assert binding.hebrewDateTextView != null;
-			binding.hebrewDateTextView.setText(
-				today ?
-					afterSunset ? "🌙 " + sJewishDateInfo.getJewishCalendar().currentToString(sROZmanimCalendar)
-						: "☀️ " + sJewishDateInfo.getJewishCalendar().toString()
-					: sJewishDateInfo.getJewishCalendar().toString()
-			);
+                binding.hebrewDateTextView.setText(
+                    today ?
+                        afterSunset ? "🌙 " + sJewishDateInfo.getJewishCalendar().currentToString(sROZmanimCalendar)
+                            : "☀️ " + sJewishDateInfo.getJewishCalendar().toString()
+                        : sJewishDateInfo.getJewishCalendar().toString()
+                );
+            }
 		}
     }
 
