@@ -214,11 +214,9 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
                             materialToolbar.setSubtitle(getString(R.string.short_app_name));
                         }
                     } else if (position == 1) {// Zmanim
+                        materialToolbar.setTitle(getString(R.string.app_name));
                         if (Utils.isLocaleHebrew(MainFragmentManagerActivity.this)) {
-                            materialToolbar.setTitle(getString(R.string.app_name));
                             materialToolbar.setSubtitle("");
-                        } else {
-                            materialToolbar.setTitle(getString(R.string.app_name));
                         }
                     } else {// Siddur
                         materialToolbar.setTitle(getString(R.string.show_siddur));

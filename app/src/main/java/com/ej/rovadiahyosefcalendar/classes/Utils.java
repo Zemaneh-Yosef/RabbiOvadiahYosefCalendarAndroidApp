@@ -72,13 +72,7 @@ public class Utils {
     }
 
     public static boolean isLocaleHebrew(Context context) {
-        return context
-                .getResources()
-                .getConfiguration()
-                .getLocales()
-                .get(0)
-                .getLanguage()
-                .equals("he");
+        return context.getString(R.string.locale).equalsIgnoreCase("Hebrew");// my own implementation because context.getResources().getConfiguration().getLocales().get(0) is not reliable enough, but the strings are always working
     }
 
     public static String inputStreamToString(InputStream inputStream) {

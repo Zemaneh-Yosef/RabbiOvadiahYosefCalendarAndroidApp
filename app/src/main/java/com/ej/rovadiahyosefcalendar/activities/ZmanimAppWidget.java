@@ -68,6 +68,7 @@ public class ZmanimAppWidget extends AppWidgetProvider {
                 mROZmanimCalendar.setAteretTorahSunsetOffset(30);
             }
             mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false));
+            mJewishDateInfo.resetLocale(context);
 
             String jewishDate = mJewishDateInfo.getJewishCalendar().currentToString(mROZmanimCalendar);
             if (mROZmanimCalendar.getSunset() != null && new Date().after(mROZmanimCalendar.getSunset())) {

@@ -74,6 +74,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuCompat;
 import androidx.core.widget.NestedScrollView;
+import androidx.core.widget.TextViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -291,6 +292,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
         mLocationResolver.setTimeZoneID();
         if (binding != null) {
+            setSafeSettingsForSpecificManufacturers();
             setupDailyViews();
             // hide everything except the shimmer layout before updating the UI
             setWeeklyViewVisibility(false);
@@ -320,6 +322,24 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         setNotifications();
         askForRealTimeNotificationPermissions();
         checkIfUserIsInIsraelOrNot();
+    }
+
+    /**
+     * As is well known to Android Developers worldwide, phone manufacturers customize their phone's android code for many different reasons. This
+     * results in some android phones working fine with simple features while others struggle or crash. Although, Google does not care about the manufacturer's
+     * faulty code. If your app crashes on their phone, it's your issue and it will affect your app's visibility on the Play Store.
+     * This method attempts to disable/change some features on certain phones if needed.
+     */
+    private void setSafeSettingsForSpecificManufacturers() {
+        if (binding == null) return;
+        if (Build.MANUFACTURER.equalsIgnoreCase("Xiaomi")) {
+            TextView[] textViews = {binding.weekday, binding.gregDate, binding.hebDate, binding.parsha, binding.haftara, binding.makam, binding.nightOfChanuka, binding.lchatchilaLightingTime, binding.fullWindowLightingTime};
+            for (TextView textView : textViews) {
+                TextViewCompat.setAutoSizeTextTypeWithDefaults(
+                        textView,
+                        TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM);
+            }
+        }
     }
 
     /**
