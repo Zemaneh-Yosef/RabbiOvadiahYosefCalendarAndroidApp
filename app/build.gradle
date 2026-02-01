@@ -12,8 +12,8 @@ android {
         minSdk 26
         compileSdk 36
         targetSdk 36
-        versionCode 245
-        versionName "26.1"
+        versionCode 246
+        versionName "26.2"
         multiDexEnabled true
 
         ndk { debugSymbolLevel 'FULL' }
@@ -61,7 +61,7 @@ android {
 
 dependencies {
     // This manages the versions of your Compose libraries.
-    implementation platform('androidx.compose:compose-bom:2026.01.00')
+    implementation platform('androidx.compose:compose-bom:2026.01.01')
 
     // REMOVE VERSIONS FROM INDIVIDUAL COMPOSE DEPENDENCIES
     // The BOM now controls these versions.
@@ -86,8 +86,8 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
     implementation 'androidx.viewpager2:viewpager2:1.1.0'
     implementation 'androidx.vectordrawable:vectordrawable:1.2.0'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.9.6'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.9.6'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.9.7'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.9.7'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.2.0'
     implementation group: 'com.kosherjava', name: 'zmanim', version: '2.5.0'
@@ -107,13 +107,13 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.13.2'
     implementation 'com.google.android.gms:play-services-maps:20.0.0'
     implementation 'com.google.maps.android:android-maps-utils:4.0.0'
-    implementation 'com.google.android.material:material:1.14.0-alpha08'
-    implementation 'androidx.activity:activity-ktx:1.12.2'
+    implementation 'com.google.android.material:material:1.14.0-alpha09'
+    implementation 'androidx.activity:activity-ktx:1.12.3'
     implementation 'com.google.android.play:app-update:2.1.0'
     implementation 'com.github.roynx98:transition-button-android:c1bf882dc3'
     implementation 'com.github.deano2390:MaterialShowcaseView:1.3.7'
     implementation "com.github.Elyahu41:Material-You-Preferences:v1.2"
-    implementation 'androidx.activity:activity-ktx:1.12.2'
+    implementation 'androidx.activity:activity-ktx:1.12.3'
     implementation 'androidx.core:core-i18n:1.0.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.3.0'

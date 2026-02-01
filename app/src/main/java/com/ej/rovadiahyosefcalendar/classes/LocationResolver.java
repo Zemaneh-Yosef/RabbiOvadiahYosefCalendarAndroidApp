@@ -24,6 +24,7 @@ import android.os.NetworkOnMainThreadException;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.preference.PreferenceManager;
 
@@ -160,120 +161,141 @@ public class LocationResolver {
      * @see MainFragmentManagerActivity#sCurrentLocationName
      */
     public void resolveCurrentLocationName() {
-        sCurrentLocationName = getFullLocationName(true);
-        if (sCurrentLocationName.isEmpty()) {
-            String lat = String.format(mContext
-                    .getResources()
-                    .getConfiguration()
-                    .getLocales()
-                    .get(0), "%.3f", sLatitude);
-            String longitude = String.format(mContext
-                    .getResources()
-                    .getConfiguration()
-                    .getLocales()
-                    .get(0), "%.3f", sLongitude);
+        getFullLocationName(true, locationName -> {
+            if (locationName != null) {
+                if (sCurrentLocationName.isEmpty()) {
+                    String lat = String.format(mContext
+                            .getResources()
+                            .getConfiguration()
+                            .getLocales()
+                            .get(0), "%.3f", sLatitude);
+                    String longitude = String.format(mContext
+                            .getResources()
+                            .getConfiguration()
+                            .getLocales()
+                            .get(0), "%.3f", sLongitude);
 
-            sCurrentLocationName = "Lat: " + lat + ", Long: " + longitude;
-        }
-        mSharedPreferences.edit().putString("name", sCurrentLocationName).apply();
+                    sCurrentLocationName = "Lat: " + lat + ", Long: " + longitude;
+                }
+                mSharedPreferences.edit().putString("name", sCurrentLocationName).apply();
+            }
+        });
     }
 
-    public String getFullLocationName(boolean postalCode) {
-        StringBuilder result = new StringBuilder();
-        List<Address> addresses = null;
-        try {
-            addresses = mGeocoder.getFromLocation(sLatitude, sLongitude, (Utils.isLocaleHebrew(mContext) ? 5 : 1));
-        } catch (IOException e) {
-            e.printStackTrace();
+    public void getFullLocationName(boolean postalCode, @NonNull LocationNameCallback callback) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            mGeocoder.getFromLocation(sLatitude, sLongitude, Utils.isLocaleHebrew(mContext) ? 5 : 1, addresses -> {
+                String result = buildLocationString(addresses, postalCode);
+                callback.onResult(result);
+            });
+        } else { // older versions
+             Executors.newSingleThreadExecutor().execute(() -> {
+                String result = null;
+                try {
+                    List<Address> addresses = mGeocoder.getFromLocation(sLatitude, sLongitude, 1);
+                    result = buildLocationString(addresses, postalCode);
+                } catch (IOException ignored) {}
+
+                String finalResult = result;
+                new Handler(Looper.getMainLooper()).post(() -> callback.onResult(finalResult)
+                );
+            });
         }
-        if (addresses != null && !addresses.isEmpty()) {
-            if (Utils.isLocaleHebrew(mContext)) {
-                Address address = null;
-                for (Address add : addresses) {
-                    if (add.getLocale().getDisplayLanguage(new Locale.Builder().setLanguage("en").setRegion("US").build()).equals("Hebrew")) {
-                        address = add;
-                    }
+    }
+
+    @Nullable
+    private String buildLocationString(@Nullable List<Address> addresses, boolean postalCode) {
+        if (addresses == null || addresses.isEmpty()) return null;
+
+        StringBuilder result = new StringBuilder();
+
+        if (Utils.isLocaleHebrew(mContext)) {
+            Address address = null;
+            for (Address add : addresses) {
+                if (add.getLocale().getDisplayLanguage(new Locale.Builder().setLanguage("en").setRegion("US").build()).equals("Hebrew")) {
+                    address = add;
                 }
-                String city = null;
+            }
+            String city = null;
+            if (address != null) {
+                city = address.getLocality();
+            }
+            if (city != null) {
+                result.append(city).append(", ");
+            }
+
+            String state = null;
+            if (address != null) {
+                state = address.getAdminArea();
+            }
+            if (state != null) {
+                result.append(state);
+            }
+
+            if (result.toString().endsWith(", ")) {
+                result.deleteCharAt(result.length() - 2);
+            }
+
+            if (city == null && state == null) {
+                String country = null;
                 if (address != null) {
-                    city = address.getLocality();
+                    country = address.getCountryName();
                 }
-                if (city != null) {
-                    result.append(city).append(", ");
-                }
+                result.append(country);
+            }
+        } else {
+            String country = addresses.get(0).getCountryName();
 
-                String state = null;
-                if (address != null) {
-                    state = address.getAdminArea();
-                }
-                if (state != null) {
-                    result.append(state);
-                }
+            String featureName = addresses.get(0).getFeatureName();
+            if (featureName != null
+                    && !featureName.matches("^[0-9-]*$")
+                    && !addresses.get(0).getAddressLine(0).startsWith(featureName)
+                    && !featureName.equals(country)) {
+                result.append(featureName).append(", ");
+            }
 
-                if (result.toString().endsWith(", ")) {
-                    result.deleteCharAt(result.length() - 2);
-                }
+            String city = addresses.get(0).getLocality();
+            if (city != null && (featureName == null || !featureName.equals(city))) {
+                result.append(city).append(", ");
+            }
 
-                if (city == null && state == null) {
-                    String country = null;
-                    if (address != null) {
-                        country = address.getCountryName();
-                    }
-                    result.append(country);
-                }
-            } else {
-                String country = addresses.get(0).getCountryName();
+            String county = addresses.get(0).getSubAdminArea();
+            if (county != null && (city == null || !county.contains(city))) {
+                // County city check made for Los Angeles, that has a county of "Los Angeles County"
+                result.append(county).append(", ");
+            }
 
-                String featureName = addresses.get(0).getFeatureName();
-                if (featureName != null
-                        && !featureName.matches("^[0-9-]*$")
-                        && !addresses.get(0).getAddressLine(0).startsWith(featureName)
-                        && !featureName.equals(country)) {
-                    result.append(featureName).append(", ");
-                }
+            String state = addresses.get(0).getAdminArea();
+            if (state != null && (city == null || !state.contains(city)) && (!state.equals(county))) {
+                // State city check made for Jerusalem, that has a county of "Jerusalem"
+                // County equals check to account Rio De Janeiro
+                result.append(state);
+            }
 
-                String city = addresses.get(0).getLocality();
-                if (city != null && (featureName == null || !featureName.equals(city))) {
-                    result.append(city).append(", ");
-                }
+            if (result.toString().endsWith(", ")) {
+                result.deleteCharAt(result.length() - 1);
+                result.deleteCharAt(result.length() - 1);
+            }
 
-                String county = addresses.get(0).getSubAdminArea();
-                if (county != null && (city == null || !county.contains(city))) {
-                    // County city check made for Los Angeles, that has a county of "Los Angeles County"
-                    result.append(county).append(", ");
+            if ((city == null && state == null) || (featureName != null && featureName.equals(addresses.get(0).getCountryName()))) {
+                if (featureName != null && featureName.equals(addresses.get(0).getCountryName())) {
+                    result.append(", ");
                 }
+                result.append(country);
+            }
 
-                String state = addresses.get(0).getAdminArea();
-                if (state != null && (city == null || !state.contains(city)) && (!state.equals(county))) {
-                    // State city check made for Jerusalem, that has a county of "Jerusalem"
-                    // County equals check to account Rio De Janeiro
-                    result.append(state);
-                }
+            if (result.toString().endsWith(", ")) {
+                result.deleteCharAt(result.length() - 2);
+            }
 
-                if (result.toString().endsWith(", ")) {
-                    result.deleteCharAt(result.length() - 1);
-                    result.deleteCharAt(result.length() - 1);
-                }
-
-                if ((city == null && state == null) || (featureName != null && featureName.equals(addresses.get(0).getCountryName()))) {
-                    if (featureName != null && featureName.equals(addresses.get(0).getCountryName())) {
-                        result.append(", ");
-                    }
-                    result.append(country);
-                }
-
-                if (result.toString().endsWith(", ")) {
-                    result.deleteCharAt(result.length() - 2);
-                }
-
-                if (postalCode) {
-                    String postalCodeNum = addresses.get(0).getPostalCode();
-                    if (postalCodeNum != null) {
-                        result.append(" (").append(postalCodeNum).append(")");
-                    }
+            if (postalCode) {
+                String postalCodeNum = addresses.get(0).getPostalCode();
+                if (postalCodeNum != null) {
+                    result.append(" (").append(postalCodeNum).append(")");
                 }
             }
         }
+
         return result.toString().trim();
     }
 
@@ -299,14 +321,18 @@ public class LocationResolver {
             Address first = address.get(0);
             sLatitude = first.getLatitude();
             sLongitude = first.getLongitude();
-            sCurrentLocationName = getFullLocationName(true);
-            mLocationName = sCurrentLocationName;
-            mSharedPreferences.edit()
-                    .putString("oldZipcode", zipcode)
-                    .putString("oldLocationName", sCurrentLocationName)
-                    .putLong("oldLat", Double.doubleToRawLongBits(sLatitude))
-                    .putLong("oldLong", Double.doubleToRawLongBits(sLongitude))
-                    .apply();
+            getFullLocationName(true, locationName -> {
+                if (locationName != null) {
+                    sCurrentLocationName = locationName;
+                }
+                mLocationName = sCurrentLocationName;
+                mSharedPreferences.edit()
+                        .putString("oldZipcode", zipcode)
+                        .putString("oldLocationName", sCurrentLocationName)
+                        .putLong("oldLat", Double.doubleToRawLongBits(sLatitude))
+                        .putLong("oldLong", Double.doubleToRawLongBits(sLongitude))
+                        .apply();
+            });
         } else {
             getOldSearchLocation();
         }
@@ -711,6 +737,14 @@ public class LocationResolver {
         }
     }
 
+    /**
+     * This method create a synchronous call to get the location as a name. This name will be shorter than the
+     * {@link LocationResolver#getFullLocationName(boolean, LocationNameCallback)} method and it should only be called on a background thread that
+     * will not have an issue with ANP errors.
+     * @param latitude the latitude of the location
+     * @param longitude the longitude of the location
+     * @return the short name of the location as a string
+     */
     public String getLocationAsName(double latitude, double longitude) {
         StringBuilder result = new StringBuilder();
         List<Address> addresses = null;

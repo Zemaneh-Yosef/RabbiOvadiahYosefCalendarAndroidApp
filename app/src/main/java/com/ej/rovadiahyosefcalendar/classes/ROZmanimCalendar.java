@@ -1,7 +1,5 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentLocationName;
-
 import com.kosherjava.zmanim.AstronomicalCalendar;
 import com.kosherjava.zmanim.ZmanimCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
@@ -155,11 +153,11 @@ public class ROZmanimCalendar extends ZmanimCalendar {
 
     @SuppressWarnings("unchecked")
     private void loadVSunriseFile() {
-        if (sCurrentLocationName != null && sCurrentLocationName.isEmpty()) {
+        if (getGeoLocation().getLocationName() != null && getGeoLocation().getLocationName().isEmpty()) {
             return;
         }
 
-        File vsFile = ChaiTablesWebJava.getVisibleSunriseFile(externalFilesDir, sCurrentLocationName, jewishCalendar.getJewishYear());
+        File vsFile = ChaiTablesWebJava.getVisibleSunriseFile(externalFilesDir, getGeoLocation().getLocationName(), jewishCalendar.getJewishYear());
         if (!vsFile.isFile()) {
             return;
         }

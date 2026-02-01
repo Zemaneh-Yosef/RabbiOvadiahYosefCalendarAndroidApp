@@ -337,7 +337,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             for (TextView textView : textViews) {
                 TextViewCompat.setAutoSizeTextTypeWithDefaults(
                         textView,
-                        TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM);
+                        TextViewCompat.AUTO_SIZE_TEXT_TYPE_NONE);
             }
         }
     }
@@ -814,6 +814,19 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 sLongitude,
                 sElevation,
                 TimeZone.getTimeZone(sCurrentTimeZoneID == null ? TimeZone.getDefault().getID() : sCurrentTimeZoneID)));
+        mLocationResolver.getFullLocationName(true, locationName -> {
+            if (locationName == null || locationName.isEmpty()) {//if it's still empty, use backup. NPE was thrown here for some reason
+                locationName = sROZmanimCalendar.getGeoLocation().getLocationName();
+            }
+            String finalLocationName = locationName;
+            sCurrentLocationName = finalLocationName;
+            sROZmanimCalendar.getGeoLocation().setLocationName(finalLocationName);
+            mActivity.runOnUiThread(() -> {
+                if (binding != null) {
+                    binding.dailyLocationName.setText(finalLocationName);
+                }
+            });
+        });
         sROZmanimCalendar.setExternalFilesDir(mActivity.getExternalFilesDir(null));
         String candles = sSettingsPreferences.getString("CandleLightingOffset", "20");
         if (candles.isEmpty()) {
@@ -1082,11 +1095,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         List<ZmanListEntry> zmanim = new ArrayList<>();
 
         // -- UPDATE TOP UI CODE --
-        String locationName = mLocationResolver.getFullLocationName(true);
-        if (locationName != null && locationName.isEmpty()) {//if it's still empty, use backup. NPE was thrown here for some reason
-            locationName = sROZmanimCalendar.getGeoLocation().getLocationName();
-        }
-
         String engDate = sROZmanimCalendar.getCalendar().get(Calendar.DATE) +
                 " " +
                 sROZmanimCalendar.getCalendar().getDisplayName(Calendar.MONTH, Calendar.LONG, mContext
@@ -1098,7 +1106,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 sROZmanimCalendar.getCalendar().get(Calendar.YEAR);
 
         if (binding != null) {
-            binding.dailyLocationName.setText(locationName);
             if (DateUtils.isSameDay(sROZmanimCalendar.getCalendar().getTime(), new Date())) {
                 binding.dailyCard.setStrokeColor(ContextCompat.getColor(mContext, R.color.sunset_orange));
                 binding.dailyCard.setStrokeWidth(6);
@@ -1649,7 +1656,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             mEnglishMonthYear.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_END);
             mHebrewMonthYear.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
         }
-        mLocationName.setText(mLocationResolver.getFullLocationName(true));
+        mLocationResolver.getFullLocationName(true, locationName -> {
+            if (locationName != null) {
+                mLocationName.setText(locationName);
+            }
+        });
         String hebrewMonthYear = hebrewMonth + " " + hebrewYear;
         mHebrewMonthYear.setText(hebrewMonthYear);
         mWeeklyParsha.setText(sJewishDateInfo.getThisWeeksParsha());

@@ -163,7 +163,11 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                     }
                     runOnUiThread(() -> {
                         chosenLocation = new LatLng(sLatitude, sLongitude);
-                        currentLocation = mMap.addMarker(new MarkerOptions().position(chosenLocation).draggable(true).title(locationResolver.getFullLocationName(true)));
+                        locationResolver.getFullLocationName(true, locationName -> {
+                            if (locationName != null) {
+                                runOnUiThread(() -> currentLocation = mMap.addMarker(new MarkerOptions().position(chosenLocation).draggable(true).title(locationName)));
+                            }
+                        });
                         LatLng northEastCorner = SphericalUtil.computeOffset(chosenLocation, 950000.0 / 100, 45.0);
                         LatLng southWestCorner = SphericalUtil.computeOffset(chosenLocation, 950000.0 / 100, 225.0);
                         mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(new LatLngBounds(southWestCorner, northEastCorner), 0));
@@ -207,7 +211,11 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                 mLocationResolver.setTimeZoneID();
                 chosenLocation = new LatLng(sLatitude, sLongitude);
                 if (mMap != null) {
-                    currentLocation = mMap.addMarker(new MarkerOptions().position(chosenLocation).draggable(true).title(mLocationResolver.getFullLocationName(true)));
+                    mLocationResolver.getFullLocationName(true, locationName -> {
+                        if (locationName != null) {
+                            runOnUiThread(() -> currentLocation = mMap.addMarker(new MarkerOptions().position(chosenLocation).draggable(true).title(locationName)));
+                        }
+                    });
                     LatLng northEastCorner = SphericalUtil.computeOffset(chosenLocation, 950000.0 / 100, 45.0);
                     LatLng southWestCorner = SphericalUtil.computeOffset(chosenLocation, 950000.0 / 100, 225.0);
                     mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(new LatLngBounds(southWestCorner, northEastCorner), 0));
@@ -405,16 +413,18 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
             sLatitude = latLng.latitude;
             sLongitude = latLng.longitude;
             LocationResolver locationResolver = new LocationResolver(GetUserLocationWithMapActivity.this, GetUserLocationWithMapActivity.this);
-            sCurrentLocationName = locationResolver.getLocationAsName(sLatitude, sLongitude);
 
-            mSharedPreferences.edit()
-                    .putString("advancedLN", sCurrentLocationName)
-                    .putString("advancedLat", String.valueOf(sLatitude))
-                    .putString("advancedLong", String.valueOf(sLongitude)).apply();
+            locationResolver.getFullLocationName(true, locationName -> {
+                if (locationName != null) {
+                    runOnUiThread(() -> currentLocation = mMap.addMarker(new MarkerOptions().position(latLng).draggable(true).title(locationName)));
+                    sCurrentLocationName = locationName;
 
-            currentLocation = mMap.addMarker(new MarkerOptions()
-                    .position(latLng)
-                    .title(locationResolver.getFullLocationName(true)));
+                    mSharedPreferences.edit()
+                            .putString("advancedLN", sCurrentLocationName)
+                            .putString("advancedLat", String.valueOf(sLatitude))
+                            .putString("advancedLong", String.valueOf(sLongitude)).apply();
+                }
+            });
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
             Snackbar.make(GetUserLocationWithMapActivity.this, binding.getRoot(), getString(R.string.the_application_will_not_track_your_location), Snackbar.LENGTH_SHORT)
                     .setBackgroundTint(Color.RED)
@@ -855,7 +865,11 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                 }
                 runOnUiThread(() -> {
                     chosenLocation = new LatLng(sLatitude, sLongitude);
-                    currentLocation = mMap.addMarker(new MarkerOptions().position(chosenLocation).draggable(true).title(locationResolver.getFullLocationName(true)));
+                    locationResolver.getFullLocationName(true, locationName -> {
+                        if (locationName != null) {
+                            runOnUiThread(() -> currentLocation = mMap.addMarker(new MarkerOptions().position(chosenLocation).draggable(true).title(locationName)));
+                        }
+                    });
                     LatLng northEastCorner = SphericalUtil.computeOffset(chosenLocation, 950000.0 / 100, 45.0);
                     LatLng southWestCorner = SphericalUtil.computeOffset(chosenLocation, 950000.0 / 100, 225.0);
                     mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(new LatLngBounds(southWestCorner, northEastCorner), 0));

@@ -37,7 +37,7 @@ public class JewishDateInfo {
     /**
      * The formatter class used to change the raw numbers/enums from the Jewish Calendar to text
      */
-    private final HebrewDateFormatter hebrewDateFormatter;
+    public final HebrewDateFormatter hebrewDateFormatter;
     /**
      * A class that has multiple methods that can help you find out the "rules" of the day for tefilot/prayers
      */
@@ -49,7 +49,7 @@ public class JewishDateInfo {
     /**
      * A boolean that in instantiated by the constructor that checks if the user's device is using Hebrew as it's main language
      */
-    private boolean isLocaleHebrew = false;
+    public boolean isLocaleHebrew = false;
 
     /**
      * Constructor of the class that initializes the objects and variables to the current date.
@@ -91,22 +91,28 @@ public class JewishDateInfo {
         clonedDate.add(Calendar.DATE, 1); // Move to tomorrow
 
         JewishDateInfo tomorrow = new JewishDateInfo(this.jewishCalendar.getInIsrael());
+        tomorrow.isLocaleHebrew = this.isLocaleHebrew;
+        tomorrow.hebrewDateFormatter.setHebrewFormat(this.isLocaleHebrew);
         tomorrow.setCalendar(clonedDate);
         return tomorrow;
     }
 
     public JewishDateInfo yesterday() {
         Calendar clonedDate = (Calendar) this.currentDate.clone(); // Clone the current date to avoid modifying it directly
-        clonedDate.add(Calendar.DATE, -1); // Move to tomorrow
+        clonedDate.add(Calendar.DATE, -1); // Move to yesterday
 
-        JewishDateInfo tomorrow = new JewishDateInfo(this.jewishCalendar.getInIsrael());
-        tomorrow.setCalendar(clonedDate);
-        return tomorrow;
+        JewishDateInfo yesterday = new JewishDateInfo(this.jewishCalendar.getInIsrael());
+        yesterday.isLocaleHebrew = this.isLocaleHebrew;
+        yesterday.hebrewDateFormatter.setHebrewFormat(this.isLocaleHebrew);
+        yesterday.setCalendar(clonedDate);
+        return yesterday;
     }
 
     public JewishDateInfo getCopy() {
         Calendar clonedDate = (Calendar) this.currentDate.clone(); // Clone the current date to avoid modifying it directly
         JewishDateInfo copy = new JewishDateInfo(this.jewishCalendar.getInIsrael());
+        copy.isLocaleHebrew = this.isLocaleHebrew;
+        copy.hebrewDateFormatter.setHebrewFormat(this.isLocaleHebrew);
         copy.setCalendar(clonedDate);
         return copy;
     }
