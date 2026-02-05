@@ -75,6 +75,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
     private List<String> mLocationList;
     private ItemAdapter itemAdapter;
     private Marker currentLocation;
+    private LocationResolver mLocationResolver;
     private String bLocationName;
     private double bLat;
     private double bLong;
@@ -151,8 +152,8 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                         .putBoolean("useZipcode", false)
                         .apply();
 
-                LocationResolver locationResolver = new LocationResolver(this, this);
-                locationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
+                mLocationResolver = new LocationResolver(this, this);
+                mLocationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
                 Thread thread = new Thread(() -> {
                     while (sLatitude == 0 && sLongitude == 0) {
                         try {
@@ -163,7 +164,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                     }
                     runOnUiThread(() -> {
                         chosenLocation = new LatLng(sLatitude, sLongitude);
-                        locationResolver.getFullLocationName(true, locationName -> {
+                        mLocationResolver.getFullLocationName(true, locationName -> {
                             if (locationName != null) {
                                 runOnUiThread(() -> currentLocation = mMap.addMarker(new MarkerOptions().position(chosenLocation).draggable(true).title(locationName)));
                             }
@@ -206,7 +207,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                         .putString("Zipcode", query)
                         .apply();
                 binding.searchView.clearFocus();
-                LocationResolver mLocationResolver = new LocationResolver(GetUserLocationWithMapActivity.this, GetUserLocationWithMapActivity.this);
+                mLocationResolver = new LocationResolver(GetUserLocationWithMapActivity.this, GetUserLocationWithMapActivity.this);
                 mLocationResolver.getLatitudeAndLongitudeFromSearchQuery();
                 mLocationResolver.setTimeZoneID();
                 chosenLocation = new LatLng(sLatitude, sLongitude);
@@ -239,12 +240,11 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
             if (chosenLocation != null) {
                 binding.progressBar.setVisibility(View.VISIBLE);
                 binding.confirmLocation.setEnabled(false);
-                LocationResolver locationResolver = new LocationResolver(GetUserLocationWithMapActivity.this, GetUserLocationWithMapActivity.this);
                 Runnable finish = () -> {
                     if (mSharedPreferences.getBoolean("useAdvanced", false)) {
-                        locationResolver.acquireTimeZoneID();
+                        mLocationResolver.acquireTimeZoneID();
                     } else {// using regular location services, or zipcode
-                        locationResolver.setTimeZoneID();
+                        mLocationResolver.setTimeZoneID();
                     }
                     configureSettingsBasedOnLocation();
                     finish();
@@ -253,8 +253,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                     if (mSharedPreferences.contains("elevation" + sCurrentLocationName)) {
                         finish.run();
                     } else {
-                        Thread thread = new Thread(() -> locationResolver.getElevationFromWebService(new Handler(getMainLooper()), null, finish));
-                        thread.start();
+                        new Thread(() -> mLocationResolver.getElevationFromWebService(new Handler(getMainLooper()), null, finish)).start();
                     }
                 } else {
                     finish.run();
@@ -412,9 +411,9 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
 
             sLatitude = latLng.latitude;
             sLongitude = latLng.longitude;
-            LocationResolver locationResolver = new LocationResolver(GetUserLocationWithMapActivity.this, GetUserLocationWithMapActivity.this);
+            mLocationResolver = new LocationResolver(GetUserLocationWithMapActivity.this, GetUserLocationWithMapActivity.this);
 
-            locationResolver.getFullLocationName(true, locationName -> {
+            mLocationResolver.getFullLocationName(true, locationName -> {
                 if (locationName != null) {
                     runOnUiThread(() -> currentLocation = mMap.addMarker(new MarkerOptions().position(latLng).draggable(true).title(locationName)));
                     sCurrentLocationName = locationName;
@@ -526,7 +525,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                                 .putBoolean("useZipcode", true)
                                 .putString("Zipcode", input.getText().toString())
                                 .apply();
-                        LocationResolver mLocationResolver = new LocationResolver(this, this);
+                        mLocationResolver = new LocationResolver(this, this);
                         mLocationResolver.getLatitudeAndLongitudeFromSearchQuery();
                         mLocationResolver.setTimeZoneID();
                         Runnable finish = () -> {
@@ -553,7 +552,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                             .putBoolean("useAdvanced", false)
                             .putBoolean("useZipcode", false)
                             .apply();
-                    LocationResolver mLocationResolver = new LocationResolver(this, this);
+                    mLocationResolver = new LocationResolver(this, this);
                     mLocationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
                     mLocationResolver.setTimeZoneID();
                     Runnable finish = () -> {
@@ -714,7 +713,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                                 .putString("elevation" + locationInput.getText().toString(),
                                 elevationInput.getText().toString()).apply();
 
-                        LocationResolver mLocationResolver = new LocationResolver(this, this);
+                        mLocationResolver = new LocationResolver(this, this);
                         mLocationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
                         configureSettingsBasedOnLocation();
                         finish();
@@ -798,7 +797,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                         .putBoolean("useLocation4", location4)
                         .putBoolean("useLocation5", location5)
                         .apply();
-                LocationResolver mLocationResolver = new LocationResolver(GetUserLocationWithMapActivity.this, GetUserLocationWithMapActivity.this);
+                mLocationResolver = new LocationResolver(GetUserLocationWithMapActivity.this, GetUserLocationWithMapActivity.this);
                 mLocationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
                 mLocationResolver.setTimeZoneID();
                 Runnable finish = () -> {

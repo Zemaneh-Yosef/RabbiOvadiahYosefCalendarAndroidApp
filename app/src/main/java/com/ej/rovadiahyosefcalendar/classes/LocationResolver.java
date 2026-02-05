@@ -311,6 +311,8 @@ public class LocationResolver {
         if (zipcode.equals(mSharedPreferences.getString("oldZipcode", "None"))) {
             getOldSearchLocation();
             return;
+        } else {// new zipcode input, remove the old timezone
+            mSharedPreferences.edit().remove("savedZipcodeTimezone" + mSharedPreferences.getString("oldZipcode", "")).apply();
         }
         List<Address> address = null;
         try {
@@ -388,45 +390,39 @@ public class LocationResolver {
             mTimeZone = TimeZone.getTimeZone(mSharedPreferences.getString("location5Timezone", TimeZone.getDefault().getID()));
         } else {
             if (mSharedPreferences.getBoolean("useZipcode", false)) {
-                String savedZipcodeLocation = "location";
-                for (int i = 1; i <= 5; i++) {
-                    if (mSharedPreferences.getString("location" + i, "").equals(mLocationName)) {
-                        savedZipcodeLocation = "location" + i;
-                        break;
-                    }
-                }
-                if (mSharedPreferences.getString(savedZipcodeLocation, "").equals(mLocationName)) {
-                    mTimeZone = TimeZone.getTimeZone(mSharedPreferences.getString(savedZipcodeLocation + "Timezone", TimeZone.getDefault().getID()));
+                if (!mSharedPreferences.getString("savedZipcodeTimezone" + mSharedPreferences.getString("Zipcode", ""), "").isEmpty()) {
+                    mTimeZone = TimeZone.getTimeZone(mSharedPreferences.getString("savedZipcodeTimezone" + mSharedPreferences.getString("Zipcode", ""), TimeZone.getDefault().getID()));
                     sCurrentTimeZoneID = mTimeZone.getID();
-                    return; // basically, avoid making the engine if we already got the timezone last time
-                }
-                try {
-                    if (sLatitude != 0.0 && sLongitude != 0.0) {
-                        while (ENGINE == null) {// we need to wait for the TimeZoneEngine to be initialized
-                            if (!sTimeZoneEngineHasBeenInitialized) {
-                                getTimeshapeEngine();
-                            }
-                        }
-                        String zoneID = TimeZone.getDefault().getID();
-                        List<ZoneId> allZones = getTimeshapeEngine().queryAll(sLatitude, sLongitude);// first query all possible time zones in the area. There could be multiple due to border disputes
-                        if (allZones.size() > 1) {// if there are multiple
-                            for (ZoneId zone : allZones) {
-                                zoneID = zone.toString();
-                                if (zone.toString().equals(TimeZone.getDefault().getID())) {// if the zone is the device default, assumingly use that
-                                    break;
+                } else {// we never set a timezone for this zipcode before
+                    try {
+                        if (sLatitude != 0.0 && sLongitude != 0.0) {
+                            while (ENGINE == null) {// we need to wait for the TimeZoneEngine to be initialized
+                                if (!sTimeZoneEngineHasBeenInitialized) {
+                                    getTimeshapeEngine();
                                 }
                             }
-                        } else if (allZones.size() == 1) {// if there is only one
-                            zoneID = allZones.get(0).toString();
+                            String zoneID = TimeZone.getDefault().getID();
+                            List<ZoneId> allZones = getTimeshapeEngine().queryAll(sLatitude, sLongitude);// first query all possible time zones in the area. There could be multiple due to border disputes
+                            if (allZones.size() > 1) {// if there are multiple
+                                for (ZoneId zone : allZones) {
+                                    zoneID = zone.toString();
+                                    if (zone.toString().equals(TimeZone.getDefault().getID())) {// if the zone is the device default, assumingly use that
+                                        break;
+                                    }
+                                }
+                            } else if (allZones.size() == 1) {// if there is only one
+                                zoneID = allZones.get(0).toString();
+                            }
+                            mTimeZone = TimeZone.getTimeZone(zoneID);
+                            sCurrentTimeZoneID = mTimeZone.getID();// need to set this for the saveLocationInformation method
+                            mSharedPreferences.edit().putString("savedZipcodeTimezone" + mSharedPreferences.getString("Zipcode", ""), zoneID).apply();
+                            saveLocationInformation();// only want to use this when people search their location
                         }
-                        mTimeZone = TimeZone.getTimeZone(zoneID);
-                        sCurrentTimeZoneID = mTimeZone.getID();// need to set this for the saveLocationInformation method
-                        saveLocationInformation();// only want to use this when people search their location
+                    } catch (IllegalArgumentException e) {
+                        mTimeZone = TimeZone.getDefault();
                     }
-                } catch (IllegalArgumentException e) {
-                    mTimeZone = TimeZone.getDefault();
                 }
-            } else {
+            } else {// using device location
                 mTimeZone = TimeZone.getDefault();
             }
         }
