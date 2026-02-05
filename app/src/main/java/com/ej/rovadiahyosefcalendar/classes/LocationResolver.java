@@ -34,6 +34,7 @@ import com.kosherjava.zmanim.util.GeoLocation;
 
 import net.iakovlev.timeshape.TimeZoneEngine;
 
+import org.geonames.GeoNamesException;
 import org.geonames.WebService;
 
 import java.io.IOException;
@@ -346,6 +347,7 @@ public class LocationResolver {
      */
     public void getOldSearchLocation() {
         sCurrentLocationName = mSharedPreferences.getString("oldLocationName", "");
+        mLocationName = sCurrentLocationName;
         double oldLat = Double.longBitsToDouble(mSharedPreferences.getLong("oldLat", 0));
         double oldLong = Double.longBitsToDouble(mSharedPreferences.getLong("oldLong", 0));
 
@@ -536,7 +538,7 @@ public class LocationResolver {
             for (int e : elevations) {
                 sum += e;
             }
-        } catch (NumberFormatException | IOException ex) {//an error occurred getting the elevation data, try again!
+        } catch (GeoNamesException | NumberFormatException | IOException ex) {//an error occurred getting the elevation data, try again!
             try {
                 WebService.setUserName("graviton57");//another user api key that I found online, only used as a backup
                 int e1 = WebService.srtm3(sLatitude, sLongitude);
@@ -555,7 +557,7 @@ public class LocationResolver {
                 for (int e : elevations) {
                     sum += e;
                 }
-            } catch (NumberFormatException | IOException ex1) {
+            } catch (GeoNamesException | NumberFormatException | IOException ex1) {
                 ex.printStackTrace();
                 ex1.printStackTrace();
             }

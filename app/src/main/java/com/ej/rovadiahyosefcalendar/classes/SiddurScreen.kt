@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -136,7 +137,6 @@ private fun SiddurScreen(
                 currentTextSize = textSize,
                 isJustified = isJustified,
                 onTextSizeChange = { newSize ->
-                    textSize = newSize
                     sharedPreferences.edit { putInt("TextSize", newSize.toInt()) }
                 },
                 onJustifyClick = {
@@ -269,7 +269,6 @@ private fun Compass(instructionalText: String) {
         if (delta > 180f) delta -= 360f
         if (delta < -180f) delta += 360f
         smoothDegree += delta
-        previousDegree = degree
         smoothDegree
     }
 
@@ -408,15 +407,27 @@ private fun SiddurRow(
         )
 
         if (isParagraph) {
-            AdvancedText(
-                text = text,
-                style = textStyle,
-                isJustified = isJustified,
-                largeWordCount = currentText.bigWordsStart,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-            )
+            Box {
+                AdvancedText(
+                    text = text,
+                    style = textStyle,
+                    isJustified = isJustified,
+                    largeWordCount = currentText.bigWordsStart,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                )
+                SelectionContainer {
+                    Text(
+                        text = text,
+                        style = textStyle,
+                        color = Color.Transparent,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                    )
+                }
+            }
         } else {
             var isInfoExpanded by remember { mutableStateOf(false) }
             val textToDisplay = when {
@@ -425,42 +436,44 @@ private fun SiddurRow(
                 else -> text
             }
 
-            Text(
-                text = textToDisplay,
-                style = textStyle,
-                modifier = Modifier
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = {
-                            if (isInfo || isInverseInfo) {
-                                isInfoExpanded = !isInfoExpanded
-                            } else if (text.text == "Open Sefaria Siddur/פתח את סידור ספריה") {
-                                val browserIntent = Intent(
-                                    Intent.ACTION_VIEW,
-                                    "https://www.sefaria.org/Siddur_Edot_HaMizrach?tab=contents".toUri()
-                                )
-                                context.startActivity(browserIntent)
-                            } else if (text.text == "Mussaf is said here, press here to go to Mussaf" || text.text == "מוסף אומרים כאן, לחץ כאן כדי להמשיך למוסף") {
-                                val intent = Intent(context, SiddurViewActivity::class.java).apply {
-                                    putExtra("prayer", "מוסף")
-                                    putExtra(
-                                        "JewishDay",
-                                        jewishDateInfo.jewishCalendar.jewishDayOfMonth
+            SelectionContainer {
+                Text(
+                    text = textToDisplay,
+                    style = textStyle,
+                    modifier = Modifier
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            onClick = {
+                                if (isInfo || isInverseInfo) {
+                                    isInfoExpanded = !isInfoExpanded
+                                } else if (text.text == "Open Sefaria Siddur" || text.text == "פתח את סידור ספריה") {
+                                    val browserIntent = Intent(
+                                        Intent.ACTION_VIEW,
+                                        "https://www.sefaria.org/Siddur_Edot_HaMizrach?tab=contents".toUri()
                                     )
-                                    putExtra(
-                                        "JewishMonth",
-                                        jewishDateInfo.jewishCalendar.jewishMonth
-                                    )
-                                    putExtra("JewishYear", jewishDateInfo.jewishCalendar.jewishYear)
+                                    context.startActivity(browserIntent)
+                                } else if (text.text == "Mussaf is said here, press here to go to Mussaf" || text.text == "מוסף אומרים כאן, לחץ כאן כדי להמשיך למוסף") {
+                                    val intent = Intent(context, SiddurViewActivity::class.java).apply {
+                                        putExtra("prayer", "מוסף")
+                                        putExtra(
+                                            "JewishDay",
+                                            jewishDateInfo.jewishCalendar.jewishDayOfMonth
+                                        )
+                                        putExtra(
+                                            "JewishMonth",
+                                            jewishDateInfo.jewishCalendar.jewishMonth
+                                        )
+                                        putExtra("JewishYear", jewishDateInfo.jewishCalendar.jewishYear)
+                                    }
+                                    context.startActivity(intent)
                                 }
-                                context.startActivity(intent)
                             }
-                        }
-                    )
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            )
+                        )
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                )
+            }
         }
 
         if (currentText.imageAttachment == HighlightString.ImageAttachment.MENORAH) {

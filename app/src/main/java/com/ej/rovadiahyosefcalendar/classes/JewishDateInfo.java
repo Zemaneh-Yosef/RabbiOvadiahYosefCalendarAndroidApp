@@ -91,6 +91,7 @@ public class JewishDateInfo {
         clonedDate.add(Calendar.DATE, 1); // Move to tomorrow
 
         JewishDateInfo tomorrow = new JewishDateInfo(this.jewishCalendar.getInIsrael());
+        tomorrow.jewishCalendar.mContext = this.jewishCalendar.mContext;
         tomorrow.isLocaleHebrew = this.isLocaleHebrew;
         tomorrow.hebrewDateFormatter.setHebrewFormat(this.isLocaleHebrew);
         tomorrow.setCalendar(clonedDate);
@@ -102,6 +103,7 @@ public class JewishDateInfo {
         clonedDate.add(Calendar.DATE, -1); // Move to yesterday
 
         JewishDateInfo yesterday = new JewishDateInfo(this.jewishCalendar.getInIsrael());
+        yesterday.jewishCalendar.mContext = this.jewishCalendar.mContext;
         yesterday.isLocaleHebrew = this.isLocaleHebrew;
         yesterday.hebrewDateFormatter.setHebrewFormat(this.isLocaleHebrew);
         yesterday.setCalendar(clonedDate);
@@ -111,6 +113,7 @@ public class JewishDateInfo {
     public JewishDateInfo getCopy() {
         Calendar clonedDate = (Calendar) this.currentDate.clone(); // Clone the current date to avoid modifying it directly
         JewishDateInfo copy = new JewishDateInfo(this.jewishCalendar.getInIsrael());
+        copy.jewishCalendar.mContext = this.jewishCalendar.mContext;
         copy.isLocaleHebrew = this.isLocaleHebrew;
         copy.hebrewDateFormatter.setHebrewFormat(this.isLocaleHebrew);
         copy.setCalendar(clonedDate);

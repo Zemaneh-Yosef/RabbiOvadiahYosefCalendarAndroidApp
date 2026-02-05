@@ -1389,12 +1389,10 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private void createBackgroundThreadForNextUpcomingZman() {
         Runnable nextZmanUpdater = () -> {
             setNextUpcomingZman();
-            if (mMainRecyclerView != null && !sSharedPreferences.getBoolean("weeklyMode", false)) {
-                mCurrentPosition = ((LinearLayoutManager) Objects.requireNonNull(mMainRecyclerView.getLayoutManager())).findFirstVisibleItemPosition();
+            if (mNestedScrollView != null && !sSharedPreferences.getBoolean("weeklyMode", false)) {
+                mCurrentPosition = mNestedScrollView.getScrollY();
                 updateDailyZmanim();
-                if (mCurrentPosition < Objects.requireNonNull(mMainRecyclerView.getAdapter()).getItemCount()) {
-                    mMainRecyclerView.scrollToPosition(mCurrentPosition);
-                }
+                mNestedScrollView.scrollTo(0, mCurrentPosition);
             } else if (sSharedPreferences.getBoolean("weeklyMode", false)) {
                 updateWeeklyZmanim();
             }
@@ -2306,8 +2304,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
     @Override
     public void onPause() {
-        if (mMainRecyclerView != null) {
-            mCurrentPosition = ((LinearLayoutManager) Objects.requireNonNull(mMainRecyclerView.getLayoutManager())).findFirstVisibleItemPosition();
+        if (mNestedScrollView != null) {
+            mCurrentPosition = mNestedScrollView.getScrollY();
         }
         super.onPause();
     }
@@ -2355,7 +2353,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     updateWeeklyZmanim();
                 } else {
                     updateDailyZmanim();
-                    mMainRecyclerView.scrollToPosition(mCurrentPosition);
+                    if (mNestedScrollView != null) {
+                        mNestedScrollView.scrollTo(0, mCurrentPosition);
+                    }
                 }
                 // update the zmanim notifications if the user changed the settings to start showing them
                 PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(
@@ -2384,7 +2384,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 updateWeeklyZmanim();
             } else {
                 updateDailyZmanim();
-                mMainRecyclerView.scrollToPosition(mCurrentPosition);
+                if (mNestedScrollView != null) {
+                    mNestedScrollView.scrollTo(0, mCurrentPosition);
+                }
             }
         }
         sLastTimeUserWasInApp = new Date();
@@ -2528,7 +2530,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                                     updateWeeklyZmanim();
                                 } else {
                                     updateDailyZmanim();
-                                    mMainRecyclerView.scrollToPosition(mCurrentPosition);
+                                    if (mNestedScrollView != null) {
+                                        mNestedScrollView.scrollTo(0, mCurrentPosition);
+                                    }
                                 }
                                 if (binding != null) {
                                     binding.shimmerLayout.setVisibility(View.GONE);
