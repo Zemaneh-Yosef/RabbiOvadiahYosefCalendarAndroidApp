@@ -85,11 +85,14 @@ fun AdvancedText(
                         val besideTextHeight = fullRestOfTextLayout.getLineBottom(lineIndexBeside)
                         // This is the spacing between the text beside the large words and the text below
                         val lineSpacing = if (style.lineHeight.isSp) style.lineHeight.toPx() / 16 else style.fontSize.toPx() / 16
-
+                        val besideWidth = size.width - largeWordsWidth - spacing
 
                         drawText(largeWordsLayout, topLeft = Offset(size.width - largeWordsWidth, currentY))
-                        clipRect(left = 0f, top = currentY, right = size.width - largeWordsWidth - spacing, bottom = currentY + besideTextHeight) {
-                            drawText(fullRestOfTextLayout, topLeft = Offset(0f, currentY))
+                        clipRect(left = 0f, top = currentY, right = besideWidth, bottom = currentY + besideTextHeight) {
+                            drawText(
+                                fullRestOfTextLayout,
+                                topLeft = Offset(0f, currentY)
+                            )
                         }
 
                         if (textBelowAnnotatedString.text.isNotBlank()) {
@@ -99,7 +102,13 @@ fun AdvancedText(
                                 constraints = Constraints(maxWidth = size.width.toInt())
                             )
                             // Apply the line spacing when drawing the text below
-                            drawText(belowTextLayout, topLeft = Offset(0f, currentY + besideTextHeight + lineSpacing))
+                            drawText(
+                                belowTextLayout,
+                                topLeft = Offset(
+                                    size.width - belowTextLayout.size.width,
+                                    currentY + besideTextHeight + lineSpacing
+                                )
+                            )
                             belowTextLayoutHeight = belowTextLayout.size.height.toFloat()
                         }
 

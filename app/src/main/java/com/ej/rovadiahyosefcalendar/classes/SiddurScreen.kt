@@ -137,7 +137,10 @@ private fun SiddurScreen(
                 currentTextSize = textSize,
                 isJustified = isJustified,
                 onTextSizeChange = { newSize ->
-                    sharedPreferences.edit { putInt("TextSize", newSize.toInt()) }
+                    textSize = newSize // Do not remove, state needs to be updated
+                    sharedPreferences.edit {
+                        putInt("TextSize", newSize.toInt())
+                    }
                 },
                 onJustifyClick = {
                     isJustified = !isJustified

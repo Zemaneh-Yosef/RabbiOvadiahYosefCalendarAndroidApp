@@ -1094,6 +1094,14 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private List<ZmanListEntry> getZmanimList(boolean add66MisheyakirZman) {
         List<ZmanListEntry> zmanim = new ArrayList<>();
 
+        if (BuildConfig.DEBUG) {
+            sSharedPreferences.edit().putString("debugNotifs", sSharedPreferences.getString("debugNotifs", "")
+                    + "getZmanimList() called with these dates:\n"
+                    + "userChosenDate= " + sCurrentDateShown.getTime() + "\n"
+            + "sROZmanimCalendar= " + sROZmanimCalendar.getCalendar().getTime() + "\n"
+            + "sJewishDateInfo= " + sJewishDateInfo.getJewishCalendar().getGregorianCalendar().getTime() + "\n\n").apply();
+        }
+
         // -- UPDATE TOP UI CODE --
         String engDate = sROZmanimCalendar.getCalendar().get(Calendar.DATE) +
                 " " +
