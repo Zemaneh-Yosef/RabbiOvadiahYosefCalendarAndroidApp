@@ -1169,31 +1169,18 @@ class MakamJCal {
                 )
 
                 Parsha.TETZAVEH -> generateUniformMap(
-                    getAllBooks(AllBooks.SHEMOT),
-                    listOf(Makam.SABA),
+                    getAllBooks(AllBooks.SHEMOT) - "Hallel VeZimrah, Greece List, 1926",
+                    listOf(Makam.SIGAH),
                     mapOf(
-                        "ELIE SHAUL COHEN FROM AINTAB, ~1880" to listOf(Makam.SABA, Makam.RAST),
-                        "YAAQOB ABADI-PARSIYA" to listOf(Makam.SABA, Makam.RAST),
-                        "Dibre Shelomo S KASSIN Pre1915" to listOf(Makam.SABA, Makam.MOUHAYAR),
-                        "IDELSOHN Pre1923" to listOf(Makam.SIGAH),
                         "M H Elias, SHIR HADASH, Jerusalem, 1930" to listOf(
                             Makam.SABA,
-                            Makam.HOSENI
+                            Makam.SIGAH
                         ),
-                        "ASHEAR NOTES 1936-1940" to listOf(Makam.BAYAT),
-                        "Shire Zimra H S ABOUD Jerusalem, 1950" to listOf(Makam.BAYAT, Makam.SABA),
-                        "GABRIEL A SHREM 1964 SUHV" to listOf(Makam.HOSENI),
-                        "D KASSIN/ ISAAC CAIN; RODFE SEDEQ; MEXICO" to listOf(Makam.RAST),
-                        "YOSEF YEHEZKEL Jerusalem 1975" to listOf(Makam.BAYAT, Makam.HOSENI),
-                        "Ish Massliah \"Abia Renanot\" Tunisians" to listOf(Makam.BAYAT),
-                        "BOZO, Ades, Shir Ushbaha 2005" to listOf(Makam.BAYAT, Makam.SIGAH),
-                        "Yishaq Yeranen Halabi" to listOf(Makam.BAYAT),
-                        "MOSHE AMASH (Shami)" to listOf(Makam.RAST),
-                        "EZRA MASLATON TARAB (Shami)" to listOf(Makam.BAYAT),
-                        "ABRAHAM SHAMRICHA (Shami)" to listOf(Makam.BAYAT),
-                        "Victor Afya, Istanbul List" to listOf(Makam.BEYATI),
-                        "Izak Alaluf, Izmir List" to listOf(Makam.SEGAH),
-                        "Hallel VeZimrah, Greece List, 1926" to listOf(Makam.NAHWAND),
+                        "MOSHE AMASH (Shami)" to listOf(Makam.BAYAT),
+                        "EZRA MASLATON TARAB (Shami)" to listOf(Makam.MAHOUR),
+                        "ABRAHAM SHAMRICHA (Shami)" to listOf(Makam.MAHOUR),
+                        "Victor Afya, Istanbul List" to listOf(Makam.SEGAH),
+                        "Izak Alaluf, Izmir List" to listOf(Makam.ISFAHAN),
                     )
                 )
 
