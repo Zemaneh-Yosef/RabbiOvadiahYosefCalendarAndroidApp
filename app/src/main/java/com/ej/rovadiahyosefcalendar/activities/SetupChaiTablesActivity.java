@@ -5,6 +5,7 @@ import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivit
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentTimeZoneID;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sLatitude;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sLongitude;
+import static com.ej.rovadiahyosefcalendar.classes.Utils.inputStreamToString;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -32,8 +33,6 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment;
-import com.ej.rovadiahyosefcalendar.classes.ChaiTablesCountries;
-import com.ej.rovadiahyosefcalendar.classes.ChaiTablesOptionsList;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesWebJava;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
@@ -42,6 +41,10 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputLayout;
 import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
 import com.kosherjava.zmanim.util.GeoLocation;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -54,7 +57,9 @@ import java.util.TimeZone;
 public class SetupChaiTablesActivity extends AppCompatActivity {
 
     private SharedPreferences mSharedPreferences;
-    private ChaiTablesCountries mCountry;
+    private String mCountry;
+    private JSONArray chaitablesIndex;
+    private int mMetroIndex;
     private TextInputLayout mStateLayout;
     private TextInputLayout mMetroLayout;
     private AutoCompleteTextView mCountryACTV;
@@ -96,6 +101,14 @@ public class SetupChaiTablesActivity extends AppCompatActivity {
             return false;
         });
 
+        try {
+            chaitablesIndex = new JSONArray(inputStreamToString(getResources().openRawResource(R.raw.chaitable)));
+        } catch (JSONException e) {
+            Toast.makeText(this, getString(R.string.error), Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+            finish();
+        }
+
         TextView locationTextView = findViewById(R.id.location);
         locationTextView.setText(sCurrentLocationName);
 
@@ -108,17 +121,47 @@ public class SetupChaiTablesActivity extends AppCompatActivity {
         mMetroACTV = findViewById(R.id.select_metro_area);
         mMetroLayout = findViewById(R.id.select_metro_layout);
 
-        mCountryACTV.setAdapter(new ArrayAdapter<>(this, R.layout.custom_spinner_item, ChaiTablesOptionsList.countries));
+        List<String> countries = new ArrayList<>();
+
+        for (int i = 0; i < chaitablesIndex.length(); i++) {
+            try {
+                countries.add(chaitablesIndex
+                        .getJSONObject(i)
+                        .getJSONObject("info")
+                        .getString("title"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        mCountryACTV.setAdapter(new ArrayAdapter<>(this, R.layout.custom_spinner_item, countries));
 
         mCountryACTV.setOnItemClickListener((p, v, pos, id) ->
-                selectCountry((String) p.getItemAtPosition(pos), pos));
+        {
+            try {
+                selectCountry((String) p.getItemAtPosition(pos), pos);
+            } catch (JSONException e) {
+                new RuntimeException(e).printStackTrace();
+            }
+        });
 
         mStateACTV.setOnItemClickListener((p, v, pos, id) ->
-                selectState((String) p.getItemAtPosition(pos), pos));
+        {
+            try {
+                selectState((String) p.getItemAtPosition(pos), pos);
+            } catch (JSONException e) {
+                new RuntimeException(e).printStackTrace();
+            }
+        });
 
         mMetroACTV.setOnItemClickListener((p, v, pos, id) ->
-                selectMetro((String) p.getItemAtPosition(pos), pos));
-
+        {
+            try {
+                selectMetro((String) p.getItemAtPosition(pos), pos);
+            } catch (JSONException e) {
+                new RuntimeException(e).printStackTrace();
+            }
+        });
 
         mDownloadButton.setOnClickListener(v -> {
             mDownloadButton.setEnabled(false);
@@ -128,7 +171,7 @@ public class SetupChaiTablesActivity extends AppCompatActivity {
 
             JewishDate jDate = new JewishDate();
             ChaiTablesWebJava scraper = new ChaiTablesWebJava(new GeoLocation("", sLatitude, sLongitude, TimeZone.getTimeZone(sCurrentTimeZoneID)), jDate);
-            scraper.setOtherData(mCountry.label, mMetroACTV.getText().toString() , ChaiTablesOptionsList.indexOfMetroArea);
+            scraper.setOtherData(mCountry, mMetroACTV.getText().toString(), mMetroIndex);
 
             new Thread(() -> {
                 try {
@@ -201,78 +244,67 @@ public class SetupChaiTablesActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        if (mCountryACTV.getAdapter() == null) return;
-        selectCountry(String.valueOf(mCountryACTV.getAdapter().getItem(mSharedPreferences.getInt("selectedCountry", 0))), mSharedPreferences.getInt("selectedCountry", 0));
-        if (mStateACTV.getAdapter() != null) {
-            selectState(String.valueOf(mStateACTV.getAdapter().getItem(mSharedPreferences.getInt("selectedState", 0))), mSharedPreferences.getInt("selectedState", 0));
+        try {
+            if (mCountryACTV.getAdapter() == null && mCountryACTV.getAdapter().getCount() < mSharedPreferences.getInt("selectedCountry", 0)) return;
+            selectCountry(String.valueOf(mCountryACTV.getAdapter().getItem(mSharedPreferences.getInt("selectedCountry", 0))), mSharedPreferences.getInt("selectedCountry", 0));
+            if (mStateACTV.getAdapter() != null && mStateACTV.getAdapter().getCount() < mSharedPreferences.getInt("selectedState", 0)) {
+                selectState(String.valueOf(mStateACTV.getAdapter().getItem(mSharedPreferences.getInt("selectedState", 0))), mSharedPreferences.getInt("selectedState", 0));
+            }
+            if (mMetroACTV.getAdapter() == null && mMetroACTV.getAdapter().getCount() < mSharedPreferences.getInt("selectedMetroArea", 0)) return;
+            selectMetro(String.valueOf(mMetroACTV.getAdapter().getItem(mSharedPreferences.getInt("selectedMetroArea", 0))), mSharedPreferences.getInt("selectedMetroArea", 0));
+        } catch (JSONException e) {
+            new RuntimeException(e).printStackTrace();
         }
-        if (mMetroACTV.getAdapter() == null) return;
-        selectMetro(String.valueOf(mMetroACTV.getAdapter().getItem(mSharedPreferences.getInt("selectedMetroArea", 0))), mSharedPreferences.getInt("selectedMetroArea", 0));
     }
 
-    private void selectCountry(String country, int countryIndex) {
+    private void selectCountry(String country, int countryIndex) throws JSONException {
         mCountryACTV.setText(country, false);
         mSharedPreferences.edit().putInt("selectedCountry", countryIndex).apply();
 
-        String enumKey = country.replace("-", "_")
-                .replace(" ", "_")
-                .replace("(", "")
-                .replace(")", "")
-                .toUpperCase();
+        mCountry = country;
 
-        mCountry = ChaiTablesCountries.valueOf(enumKey);
-
-        if (mCountry == ChaiTablesCountries.USA || mCountry == ChaiTablesCountries.CANADA) {
+        if (chaitablesIndex.getJSONObject(countryIndex).getJSONObject("info").has("stateSeparate") && chaitablesIndex.getJSONObject(countryIndex).getJSONObject("info").getBoolean("stateSeparate")) {
             mStateLayout.setVisibility(View.VISIBLE);
             mMetroLayout.setVisibility(View.GONE);
 
-            String[] states = extractStates(ChaiTablesOptionsList.selectCountry(mCountry));
-            mStateACTV.setAdapter(new ArrayAdapter<>(this, R.layout.custom_spinner_item, states));
+            String[] states = extractStates(formatToStringArray(chaitablesIndex.getJSONObject(countryIndex).getJSONArray("metroAreas")));
 
+            mStateACTV.setAdapter(new ArrayAdapter<>(this, R.layout.custom_spinner_item, states));
             int stateIndex = mSharedPreferences.getInt("selectedState", 0);
             stateIndex = Math.min(stateIndex, states.length - 1);
-
             selectState(states[stateIndex], stateIndex);
         } else {
             mStateLayout.setVisibility(View.GONE);
             mMetroLayout.setVisibility(View.VISIBLE);
 
-            String[] metros = ChaiTablesOptionsList.selectCountry(mCountry);
+            JSONArray jsonArray =  chaitablesIndex.getJSONObject(countryIndex).getJSONArray("metroAreas");
+            String[] metros = new String[jsonArray.length()];
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                metros[i] = jsonObject.getString("name");
+            }
             mMetroACTV.setAdapter(new ArrayAdapter<>(this, R.layout.custom_spinner_item, metros));
 
             int metroIndex = mSharedPreferences.getInt("selectedMetroArea", 0);
             metroIndex = Math.min(metroIndex, metros.length - 1);
-
             selectMetro(metros[metroIndex], metroIndex);
         }
 
         mDownloadButton.setEnabled(false);
     }
 
-    private String[] extractStates(String[] metroAreas) {
-        Set<String> stateSet = new HashSet<>();
-
-        for (String metro : metroAreas) {
-            if (metro != null && metro.length() >= 2) {
-                stateSet.add(metro.substring(metro.length() - 2));
-            }
-        }
-
-        String[] states = stateSet.toArray(new String[0]);
-        Arrays.sort(states);
-        return states;
-    }
-
-    private void selectState(String state, int stateIndex) {
+    private void selectState(String state, int stateIndex) throws JSONException {
         mStateACTV.setText(state, false);
         mSharedPreferences.edit().putInt("selectedState", stateIndex).apply();
 
-        String[] allMetros = ChaiTablesOptionsList.selectCountry(mCountry);
+        String[] allMetros = formatToStringArray(chaitablesIndex.getJSONObject(mSharedPreferences.getInt("selectedCountry", 0)).getJSONArray("metroAreas"));
         List<String> metros = new ArrayList<>();
 
         for (String metro : allMetros) {
-            if (metro.endsWith(state)) {
-                metros.add(metro);
+            JSONObject jsonObject = new JSONObject(metro);
+            String name = jsonObject.getString("name");
+            if (name.endsWith(state)) {
+                metros.add(name);
             }
         }
 
@@ -281,16 +313,50 @@ public class SetupChaiTablesActivity extends AppCompatActivity {
         mMetroACTV.setAdapter(new ArrayAdapter<>(this, R.layout.custom_spinner_item, metroArray));
 
         int metroIndex = mSharedPreferences.getInt("selectedMetroArea", 0);
-        metroIndex = Math.min(metroIndex, metroArray.length - 1);
-
-        selectMetro(metroArray[metroIndex], metroIndex);
+        if (metroArray.length > 0) {
+            metroIndex = Math.min(metroIndex, metroArray.length - 1);
+            selectMetro(metroArray[metroIndex], metroIndex);
+        }
     }
 
-    private void selectMetro(String metro, int metroIndex) {
+    private void selectMetro(String metro, int metroIndex) throws JSONException {
         mMetroACTV.setText(metro, false);
         mSharedPreferences.edit().putInt("selectedMetroArea", metroIndex).apply();
-
-        ChaiTablesOptionsList.selectMetropolitanArea(metro);
+        JSONArray metroAreas = chaitablesIndex.getJSONObject(mSharedPreferences.getInt("selectedCountry", 0)).getJSONArray("metroAreas");
+        for (int i = 0; i < metroAreas.length(); i++) {
+            if (metroAreas.getJSONObject(i).getString("name").equals(metro)) {
+                mMetroIndex = i + 1;
+                break;
+            }
+        }
         mDownloadButton.setEnabled(true);
+    }
+
+    private String[] extractStates(String[] metroAreas) throws JSONException {
+        Set<String> stateSet = new HashSet<>();
+
+        for (String metro : metroAreas) {
+            JSONObject jsonObject = new JSONObject(metro);
+            String name = jsonObject.getString("name");
+            if (name.length() >= 2) {
+                stateSet.add(name.substring(name.length() - 2));
+            }
+        }
+
+        String[] states = stateSet.toArray(new String[0]);
+        Arrays.sort(states);
+        return states;
+    }
+
+    private String[] formatToStringArray(JSONArray array) {
+        String[] result = new String[array.length()];
+        for (int i = 0; i < array.length(); i++) {
+            try {
+                result[i] = array.getString(i);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
     }
 }

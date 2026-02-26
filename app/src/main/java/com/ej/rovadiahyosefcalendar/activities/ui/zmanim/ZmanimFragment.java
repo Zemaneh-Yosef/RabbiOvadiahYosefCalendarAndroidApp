@@ -1098,7 +1098,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             sSharedPreferences.edit().putString("debugNotifs", sSharedPreferences.getString("debugNotifs", "")
                     + "getZmanimList() called with these dates:\n"
                     + "userChosenDate= " + sCurrentDateShown.getTime() + "\n"
-            + "sROZmanimCalendar= " + sROZmanimCalendar.getCalendar().getTime() + "\n"
+            + "sROZmanimCale= " + sROZmanimCalendar.getCalendar().getTime() + "\n"
             + "sJewishDateInfo= " + sJewishDateInfo.getJewishCalendar().getGregorianCalendar().getTime() + "\n\n").apply();
         }
 

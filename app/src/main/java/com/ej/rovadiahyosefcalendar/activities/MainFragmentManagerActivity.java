@@ -171,6 +171,7 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
                 }
             }
         }
+        sJewishDateInfo.setCalendar(Calendar.getInstance());
         sJewishDateInfo.resetLocale(this);
         sJewishDateInfo.getJewishCalendar().setInIsrael(sSharedPreferences.getBoolean("inIsrael", false));
         initSetupResult();

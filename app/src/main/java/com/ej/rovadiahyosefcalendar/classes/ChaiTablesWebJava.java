@@ -216,6 +216,7 @@ public final class ChaiTablesWebJava {
 			Document ctDoc = radiusData.get(cacheKey);
 			if (ctDoc == null) {
 				URL ctLink = getChaiTablesLink(smallestRadius, 0, yearLoop, 413);
+                System.out.println(ctLink);
 				ctDoc = fetchChaiTablesDocument(ctLink);
 			}
 
@@ -345,6 +346,7 @@ public final class ChaiTablesWebJava {
 
 			if (ctDoc != null && findZmanTable(ctDoc) != null) {
 				radiusData.put(radius + "-" + calendar.getJewishYear(), ctDoc);
+                System.out.println("Radius: " + radius);
 				return Optional.of(radius);
 			}
 		}
