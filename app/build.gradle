@@ -12,8 +12,8 @@ android {
         minSdk 26
         compileSdk 36
         targetSdk 36
-        versionCode 247
-        versionName "26.3"
+        versionCode 248
+        versionName "26.4"
         multiDexEnabled true
 
         ndk { debugSymbolLevel 'FULL' }
@@ -61,7 +61,7 @@ android {
 
 dependencies {
     // This manages the versions of your Compose libraries.
-    implementation platform('androidx.compose:compose-bom:2026.02.00')
+    implementation platform('androidx.compose:compose-bom:2026.02.01')
 
     // REMOVE VERSIONS FROM INDIVIDUAL COMPOSE DEPENDENCIES
     // The BOM now controls these versions.
@@ -105,8 +105,8 @@ dependencies {
     implementation 'com.atlassian.commonmark:commonmark:0.17.0'
     implementation 'com.google.android.gms:play-services-wearable:19.0.0'
     implementation 'com.google.code.gson:gson:2.13.2'
-    implementation 'com.google.android.gms:play-services-maps:19.2.0'// upgrading is causing a crash on certain pixel devices: ClassNotFoundException: org.apache.http.ProtocolVersion. let's wait a little
-    implementation 'com.google.maps.android:android-maps-utils:4.0.0'
+    implementation 'com.google.android.gms:play-services-maps:20.0.0'
+    implementation 'com.google.maps.android:android-maps-utils:4.1.0'
     implementation 'com.google.android.material:material:1.14.0-alpha09'
     implementation 'androidx.activity:activity-ktx:1.12.4'
     implementation 'com.google.android.play:app-update:2.1.0'

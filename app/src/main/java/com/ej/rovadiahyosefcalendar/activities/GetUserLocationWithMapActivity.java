@@ -132,11 +132,16 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
         bUseLocation4 = mSharedPreferences.getBoolean("useLocation4", false);
         bUseLocation5 = mSharedPreferences.getBoolean("useLocation5", false);
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        if (mapFragment != null) {
-            mapFragment.getMapAsync(this);
+        try {
+            // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                    .findFragmentById(R.id.map);
+            if (mapFragment != null) {
+                mapFragment.getMapAsync(this);
+            }
+        } catch (Throwable t) {
+            t.printStackTrace();
+            Toast.makeText(this, t.getMessage(), Toast.LENGTH_SHORT).show();
         }
 
         binding.deviceLocation.setOnClickListener(v -> {
