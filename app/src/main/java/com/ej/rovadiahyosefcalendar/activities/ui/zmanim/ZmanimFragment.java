@@ -145,9 +145,12 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private int mCurrentPosition;//current position in the list of zmanim to return to
     private boolean mUpdateTablesDialogShown;
 
+    //android classes
     private FragmentZmanimBinding binding;
     private Context mContext;
     private FragmentActivity mActivity;
+    private Handler mHandler = null;
+    private Runnable mZmanimUpdater;
 
     //android views:
     private View mLayout;
@@ -184,8 +187,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private LocationResolver mLocationResolver;
     private final ZmanimFormatter mZmanimFormatter = new ZmanimFormatter(TimeZone.getDefault());
     public static ActivityResultLauncher<Intent> sNotificationLauncher;
-    private Handler mHandler = null;
-    private Runnable mZmanimUpdater;
     private SharedPreferences.OnSharedPreferenceChangeListener sSharedPrefListener;
     private static JSONArray makamNames;
 
@@ -250,7 +251,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     editor.putBoolean("useAdvanced", false).apply();
                     editor.putBoolean("useZipcode", true).apply();
                     editor.putString("Zipcode", sharedText).apply();
-                    mLocationResolver.getLatitudeAndLongitudeFromSearchQuery();
+                    mLocationResolver.getLatitudeAndLongitudeFromSearchQuery();// even though the location name is updated here, it will be updated later as well and then the UI will be updated
                     mLocationResolver.setTimeZoneID();
                     resolveElevationAndVisibleSunrise(() -> {
                         instantiateZmanimCalendar();
@@ -298,24 +299,36 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             setWeeklyViewVisibility(false);
             binding.swipeRefreshLayout.setVisibility(View.GONE);
             binding.shimmerLayout.setVisibility(View.VISIBLE);
+            System.out.println("Shimmer set to shown");
         }
         if (sLatitude != 0 && sLongitude != 0) {// the values are updated, the user is using a zipcode or saved location or the app was just restarted
-            resolveElevationAndVisibleSunrise(() -> {
-                instantiateZmanimCalendar();
-                setNextUpcomingZman();
-                if (binding != null) {
-                    updateChaitableTimesFromLatLong(() -> {
-                        if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                            setWeeklyViewVisibility(true);
-                            updateWeeklyZmanim();
-                        } else {
-                            setWeeklyViewVisibility(false);
-                            updateDailyZmanim();
-                        }
-                        binding.shimmerLayout.setVisibility(View.GONE);
-                    });
+            mLocationResolver.getFullLocationName(true, locationName -> {
+                if (locationName == null || locationName.isEmpty()) {//if it's still empty, use backup. NPE was thrown here for some reason
+                    locationName = sROZmanimCalendar.getGeoLocation().getLocationName();
                 }
-                createBackgroundThreadForNextUpcomingZman();
+                sCurrentLocationName = locationName;
+                mActivity.runOnUiThread(() -> {
+                    if (binding != null) {
+                        binding.dailyLocationName.setText(sCurrentLocationName);
+                    }
+                });
+                resolveElevationAndVisibleSunrise(() -> {
+                    instantiateZmanimCalendar();
+                    setNextUpcomingZman();
+                    if (binding != null) {
+                        updateChaitableTimesFromLatLong(() -> {
+                            binding.shimmerLayout.setVisibility(View.GONE);
+                            if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                                setWeeklyViewVisibility(true);
+                                updateWeeklyZmanim();
+                            } else {
+                                setWeeklyViewVisibility(false);
+                                updateDailyZmanim();
+                            }
+                        });
+                    }
+                    createBackgroundThreadForNextUpcomingZman();
+                });
             });
         }
         setupButtons();
@@ -549,30 +562,40 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             if (sCurrentDateShown != null && sROZmanimCalendar != null && mMainRecyclerView != null) {
                 sCurrentDateShown.setTime(new Date());
                 sJewishDateInfo.setCalendar(new GregorianCalendar());
-                resolveElevationAndVisibleSunrise(() -> {
-                    instantiateZmanimCalendar();
-                    setNextUpcomingZman();
-                    sSharedPreferences.edit().putString("Full" + sROZmanimCalendar.getGeoLocation().getLocationName(), "").apply();
-                    updateDailyZmanim();
-                    mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
+                mLocationResolver.getFullLocationName(true, locationName -> {
+                    if (locationName == null || locationName.isEmpty()) {//if it's still empty, use backup. NPE was thrown here for some reason
+                        locationName = sROZmanimCalendar.getGeoLocation().getLocationName();
+                    }
+                    sCurrentLocationName = locationName;
+                    mActivity.runOnUiThread(() -> {
+                        if (binding != null) {
+                            binding.dailyLocationName.setText(sCurrentLocationName);
+                        }
+                    });
+                    resolveElevationAndVisibleSunrise(() -> {
+                        instantiateZmanimCalendar();
+                        setNextUpcomingZman();
+                        updateDailyZmanim();
+                        mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
+                        swipeRefreshLayout.setRefreshing(false);
+                    });
                 });
             }
-            swipeRefreshLayout.setRefreshing(false);
             Objects.requireNonNull(Looper.myLooper()).quit();
         }).start());
         mNestedScrollView = binding.nestedScrollView;
         TextView dailyLocationName = binding.dailyLocationName;
         dailyLocationName.setPaintFlags(dailyLocationName.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         dailyLocationName.setOnClickListener(v -> new MaterialAlertDialogBuilder(mContext)
-            .setTitle(mContext.getString(R.string.location_info_for) + " " + sSharedPreferences.getString("Full" + sROZmanimCalendar.getGeoLocation().getLocationName(), ""))
-            .setMessage(mContext.getString(R.string.location_name) + " " + sCurrentLocationName + "\n" +
-                mContext.getString(R.string.latitude) + " " + sLatitude + "\n" +
-                mContext.getString(R.string.longitude) + " " + sLongitude + "\n" +
+            .setTitle(mContext.getString(R.string.location_info_for) + " " + sROZmanimCalendar.getGeoLocation().getLocationName())
+            .setMessage(mContext.getString(R.string.location_name) + " " + sROZmanimCalendar.getGeoLocation().getLocationName() + "\n" +
+                mContext.getString(R.string.latitude) + " " + sROZmanimCalendar.getGeoLocation().getLatitude() + "\n" +
+                mContext.getString(R.string.longitude) + " " + sROZmanimCalendar.getGeoLocation().getLongitude() + "\n" +
                 mContext.getString(R.string.elevation) + " " +
                 (sSharedPreferences.getBoolean("useElevation", true) ?
-                    sSharedPreferences.getString("elevation" + sCurrentLocationName, "0") : "0")
+                    sSharedPreferences.getString("elevation" + sROZmanimCalendar.getGeoLocation().getLocationName(), "0") : "0")
                 + " " + mContext.getString(R.string.meters) + "\n" +
-                mContext.getString(R.string.time_zone) + sCurrentTimeZoneID)
+                mContext.getString(R.string.time_zone) + sROZmanimCalendar.getGeoLocation().getTimeZone().getID())
             .setPositiveButton(R.string.share, ((dialog, which) -> {
                 Intent sendIntent = new Intent(Intent.ACTION_SEND);
                 sendIntent.setType("text/plain");
@@ -647,15 +670,26 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                             sSharedPreferences.edit().putBoolean("useElevation", true).apply();
                             sSettingsPreferences.edit().putBoolean("LuachAmudeiHoraah", false).apply();
                             Toast.makeText(mContext, R.string.settings_updated, Toast.LENGTH_SHORT).show();
-                            resolveElevationAndVisibleSunrise(() -> {
-                                instantiateZmanimCalendar();
-                                setNextUpcomingZman();
-                                if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                                    updateWeeklyZmanim();
-                                } else {
-                                    updateDailyZmanim();
+                            mLocationResolver.getFullLocationName(true, locationName -> {
+                                if (locationName == null || locationName.isEmpty()) {//if it's still empty, use backup. NPE was thrown here for some reason
+                                    locationName = sROZmanimCalendar.getGeoLocation().getLocationName();
                                 }
-                                createBackgroundThreadForNextUpcomingZman();
+                                sCurrentLocationName = locationName;
+                                mActivity.runOnUiThread(() -> {
+                                    if (binding != null) {
+                                        binding.dailyLocationName.setText(sCurrentLocationName);
+                                    }
+                                });
+                                resolveElevationAndVisibleSunrise(() -> {
+                                    instantiateZmanimCalendar();
+                                    setNextUpcomingZman();
+                                    if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                                        updateWeeklyZmanim();
+                                    } else {
+                                        updateDailyZmanim();
+                                    }
+                                    createBackgroundThreadForNextUpcomingZman();
+                                });
                             });
                             initMenu();
                         })
@@ -813,20 +847,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 sLatitude,
                 sLongitude,
                 sElevation,
-                TimeZone.getTimeZone(sCurrentTimeZoneID == null ? TimeZone.getDefault().getID() : sCurrentTimeZoneID)));
-        mLocationResolver.getFullLocationName(true, locationName -> {
-            if (locationName == null || locationName.isEmpty()) {//if it's still empty, use backup. NPE was thrown here for some reason
-                locationName = sROZmanimCalendar.getGeoLocation().getLocationName();
-            }
-            String finalLocationName = locationName;
-            sCurrentLocationName = finalLocationName;
-            sROZmanimCalendar.getGeoLocation().setLocationName(finalLocationName);
-            mActivity.runOnUiThread(() -> {
-                if (binding != null) {
-                    binding.dailyLocationName.setText(finalLocationName);
-                }
-            });
-        });
+                TimeZone.getTimeZone(sCurrentTimeZoneID)));
         sROZmanimCalendar.setExternalFilesDir(mActivity.getExternalFilesDir(null));
         String candles = sSettingsPreferences.getString("CandleLightingOffset", "20");
         if (candles.isEmpty()) {
@@ -1982,7 +2003,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      * This method will check if elevation has been set for the current location and if not, it will automatically set it by connecting to geonames
      * and getting the elevation for the current location via the LocationResolver class. It will then set the elevation in the shared preferences
      * for the current location. If the user is offline, it will not do anything. The only time it will not set the elevation is if the user has
-     * disabled the elevation setting in the settings menu.
+     * disabled the elevation setting in the settings menu. This method should be called after the location name has been set.
      */
     private void resolveElevationAndVisibleSunrise(Runnable codeToRunOnMainThread) {
         boolean sUserIsOffline = false;
@@ -2352,31 +2373,42 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             e.printStackTrace();
         }
         if (sLastTimeUserWasInApp != null) {
-            resolveElevationAndVisibleSunrise(() -> {// recreate the zmanim calendar object because it might have changed. Lat, Long, Elevation, or settings might have changed
-                instantiateZmanimCalendar();
-                sROZmanimCalendar.setCalendar(sCurrentDateShown);// make sure date doesn't change
-                setNextUpcomingZman();
-                if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                    updateWeeklyTextViewTextColor();
-                    updateWeeklyZmanim();
-                } else {
-                    updateDailyZmanim();
-                    if (mNestedScrollView != null) {
-                        mNestedScrollView.scrollTo(0, mCurrentPosition);
+            mLocationResolver.getFullLocationName(true, locationName -> {
+                if (locationName == null || locationName.isEmpty()) {//if it's still empty, use backup. NPE was thrown here for some reason
+                    locationName = sROZmanimCalendar.getGeoLocation().getLocationName();
+                }
+                sCurrentLocationName = locationName;
+                mActivity.runOnUiThread(() -> {
+                    if (binding != null) {
+                        binding.dailyLocationName.setText(sCurrentLocationName);
                     }
-                }
-                // update the zmanim notifications if the user changed the settings to start showing them
-                PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(
-                        mContext,
-                        0,
-                        new Intent(mContext, ZmanimNotifications.class),
-                        PendingIntent.FLAG_IMMUTABLE);
-                try {
-                    zmanimPendingIntent.send();
-                } catch (PendingIntent.CanceledException e) {
-                    e.printStackTrace();
-                }
-                checkIfUserIsInIsraelOrNot();
+                });
+                resolveElevationAndVisibleSunrise(() -> {// recreate the zmanim calendar object because it might have changed. Lat, Long, Elevation, or settings might have changed
+                    instantiateZmanimCalendar();
+                    sROZmanimCalendar.setCalendar(sCurrentDateShown);// make sure date doesn't change
+                    setNextUpcomingZman();
+                    if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                        updateWeeklyTextViewTextColor();
+                        updateWeeklyZmanim();
+                    } else {
+                        updateDailyZmanim();
+                        if (mNestedScrollView != null) {
+                            mNestedScrollView.scrollTo(0, mCurrentPosition);
+                        }
+                    }
+                    // update the zmanim notifications if the user changed the settings to start showing them
+                    PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(
+                            mContext,
+                            0,
+                            new Intent(mContext, ZmanimNotifications.class),
+                            PendingIntent.FLAG_IMMUTABLE);
+                    try {
+                        zmanimPendingIntent.send();
+                    } catch (PendingIntent.CanceledException e) {
+                        e.printStackTrace();
+                    }
+                    checkIfUserIsInIsraelOrNot();
+                });
             });
         }
 
@@ -2516,41 +2548,44 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         synchronized (sJewishDateInfo) {
             mActivity.runOnUiThread(() -> {
                 if (mMainRecyclerView != null && mMainRecyclerView.isFocusable()) {
-                    if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                        if (binding != null) {
-                            setWeeklyViewVisibility(true);
+                    mLocationResolver.getFullLocationName(true, locationName -> {
+                        if (locationName == null || locationName.isEmpty()) {//if it's still empty, use backup. NPE was thrown here for some reason
+                            locationName = sROZmanimCalendar.getGeoLocation().getLocationName();
                         }
-                    } else {
-                        if (binding != null) {
-                            binding.swipeRefreshLayout.setVisibility(View.VISIBLE);
-                        }
-                    }
-                    resolveElevationAndVisibleSunrise(() -> {
-                        if (sCurrentDateShown != null) {
-                            instantiateZmanimCalendar();
-                            sROZmanimCalendar.setCalendar(sCurrentDateShown);
-                            setNextUpcomingZman();
-                            createBackgroundThreadForNextUpcomingZman();
-                            sJewishDateInfo.setCalendar(sCurrentDateShown);
-                            updateChaitableTimesFromLatLong(() -> {
-                                if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                                    updateWeeklyTextViewTextColor();
-                                    updateWeeklyZmanim();
-                                } else {
-                                    updateDailyZmanim();
-                                    if (mNestedScrollView != null) {
-                                        mNestedScrollView.scrollTo(0, mCurrentPosition);
+                        sCurrentLocationName = locationName;
+                        mActivity.runOnUiThread(() -> {
+                            if (binding != null) {
+                                binding.dailyLocationName.setText(sCurrentLocationName);
+                            }
+                        });
+                        resolveElevationAndVisibleSunrise(() -> {
+                            if (sCurrentDateShown != null) {
+                                instantiateZmanimCalendar();
+                                sROZmanimCalendar.setCalendar(sCurrentDateShown);
+                                setNextUpcomingZman();
+                                createBackgroundThreadForNextUpcomingZman();
+                                sJewishDateInfo.setCalendar(sCurrentDateShown);
+                                updateChaitableTimesFromLatLong(() -> {
+                                    if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                                        updateWeeklyTextViewTextColor();
+                                        updateWeeklyZmanim();
+                                    } else {
+                                        updateDailyZmanim();
+                                        if (mNestedScrollView != null) {
+                                            mNestedScrollView.scrollTo(0, mCurrentPosition);
+                                        }
                                     }
-                                }
-                                if (binding != null) {
-                                    binding.shimmerLayout.setVisibility(View.GONE);
-                                }
-                                if (mCalendarButton != null) {
-                                    mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
-                                }
-                                setAllNotifications();
-                            });
-                        }
+                                    if (binding != null) {
+                                        binding.shimmerLayout.setVisibility(View.GONE);
+                                        setWeeklyViewVisibility(sSharedPreferences.getBoolean("weeklyMode", false));
+                                    }
+                                    if (mCalendarButton != null) {
+                                        mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
+                                    }
+                                    setAllNotifications();
+                                });
+                            }
+                        });
                     });
                 }
             });

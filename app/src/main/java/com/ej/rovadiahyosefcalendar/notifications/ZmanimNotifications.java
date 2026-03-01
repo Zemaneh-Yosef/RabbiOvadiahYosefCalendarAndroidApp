@@ -141,8 +141,8 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
     @Override
     public void accept(Location location) {
         if (location != null) {
-            String locationName = mLocationResolver.getLocationAsName(location.getLatitude(), location.getLongitude());
-            mLocationResolver.resolveElevation(() -> {
+            mLocationResolver.getFullLocationName(location.getLatitude(), location.getLongitude(), false, locationName ->
+                    mLocationResolver.resolveElevation(() -> {
                 ROZmanimCalendar zmanimCalendar = new ROZmanimCalendar(new GeoLocation(
                         locationName,
                         location.getLatitude(),
@@ -165,7 +165,7 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
                 }
                 mSharedPreferences.edit().putString("locationNameFN", zmanimCalendar.getGeoLocation().getLocationName()).apply();
                 setAlarms(zmanimCalendar, new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false)));
-            });
+            }));
         } else {
             ROZmanimCalendar zmanimCalendar = new ROZmanimCalendar(mLocationResolver.getLastKnownGeoLocation());
             zmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));

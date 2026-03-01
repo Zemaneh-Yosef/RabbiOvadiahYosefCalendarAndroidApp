@@ -536,9 +536,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                             if (mSharedPreferences.contains("elevation" + sCurrentLocationName)) {
                                 finish.run();
                             } else {
-                                Thread thread = new Thread(() ->
-                                        mLocationResolver.getElevationFromWebService(new Handler(getMainLooper()), null, finish));
-                                thread.start();
+                                new Thread(() -> mLocationResolver.getElevationFromWebService(new Handler(getMainLooper()), null, finish)).start();
                             }
                         } else {
                            finish.run();
@@ -563,9 +561,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                         if (mSharedPreferences.contains("elevation" + sCurrentLocationName)) {
                             finish.run();
                         } else {
-                            Thread thread = new Thread(() ->
-                                    mLocationResolver.getElevationFromWebService(new Handler(getMainLooper()), null, finish));
-                            thread.start();
+                            new Thread(() -> mLocationResolver.getElevationFromWebService(new Handler(getMainLooper()), null, finish)).start();
                         }
                     } else {
                         finish.run();

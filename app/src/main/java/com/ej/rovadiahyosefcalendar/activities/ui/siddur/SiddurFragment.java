@@ -1054,6 +1054,7 @@ public class SiddurFragment extends Fragment {
 
             if ((getSunsetBasedJewishDateInfo().getJewishCalendar().getYomTovIndex() == JewishCalendar.PURIM ||
                     getSunsetBasedJewishDateInfo().getJewishCalendar().getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM)
+                    && !prayer.equals(getString(R.string.birchat_meyin_shalosh))// no text for purim in birchat meyin shalosh unlike birchat hamazon
                     && !prayer.equals(getString(R.string.birchat_levana))
                     && !prayer.equals(getString(R.string.tefilat_haderech))
                     && !prayer.equals(getString(R.string.seder_siyum_masechet))

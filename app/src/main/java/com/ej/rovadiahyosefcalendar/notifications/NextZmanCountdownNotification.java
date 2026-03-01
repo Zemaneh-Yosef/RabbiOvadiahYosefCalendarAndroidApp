@@ -173,8 +173,8 @@ public class NextZmanCountdownNotification extends Service {
                 ActivityCompat.checkSelfPermission(context, ACCESS_COARSE_LOCATION) == PERMISSION_GRANTED) {
             mLocationResolver.getRealtimeNotificationData(location -> {
                 if (location != null) {
-                    String locationName = mLocationResolver.getLocationAsName(location.getLatitude(), location.getLongitude());
-                    mLocationResolver.resolveElevation(() -> {
+                    mLocationResolver.getFullLocationName(location.getLatitude(), location.getLongitude(), true, locationName ->
+                            mLocationResolver.resolveElevation(() -> {
                         mROZmanimCalendar = new ROZmanimCalendar(new GeoLocation(
                                 locationName,
                                 location.getLatitude(),
@@ -199,7 +199,7 @@ public class NextZmanCountdownNotification extends Service {
                         nextZman = null;
                         remainingTime = 0;
                         // startCountdown will already be called, just make it re-get the correct time
-                    });
+                    }));
                 }
             }, false);
             // no need to worry about returning null here because the above code will reset everything

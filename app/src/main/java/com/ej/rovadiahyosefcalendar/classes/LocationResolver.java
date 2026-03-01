@@ -163,21 +163,21 @@ public class LocationResolver {
      */
     public void resolveCurrentLocationName() {
         getFullLocationName(true, locationName -> {
-            if (locationName != null) {
-                if (sCurrentLocationName.isEmpty()) {
-                    String lat = String.format(mContext
-                            .getResources()
-                            .getConfiguration()
-                            .getLocales()
-                            .get(0), "%.3f", sLatitude);
-                    String longitude = String.format(mContext
-                            .getResources()
-                            .getConfiguration()
-                            .getLocales()
-                            .get(0), "%.3f", sLongitude);
+            if (locationName != null && !locationName.isEmpty()) {
+                sCurrentLocationName = locationName;
+            } else {
+                String lat = String.format(mContext
+                        .getResources()
+                        .getConfiguration()
+                        .getLocales()
+                        .get(0), "%.3f", sLatitude);
+                String longitude = String.format(mContext
+                        .getResources()
+                        .getConfiguration()
+                        .getLocales()
+                        .get(0), "%.3f", sLongitude);
 
-                    sCurrentLocationName = "Lat: " + lat + ", Long: " + longitude;
-                }
+                sCurrentLocationName = "Lat: " + lat + ", Long: " + longitude;
                 mSharedPreferences.edit().putString("name", sCurrentLocationName).apply();
             }
         });
@@ -194,6 +194,27 @@ public class LocationResolver {
                 String result = null;
                 try {
                     List<Address> addresses = mGeocoder.getFromLocation(sLatitude, sLongitude, 1);
+                    result = buildLocationString(addresses, postalCode);
+                } catch (IOException ignored) {}
+
+                String finalResult = result;
+                new Handler(Looper.getMainLooper()).post(() -> callback.onResult(finalResult)
+                );
+            });
+        }
+    }
+
+    public void getFullLocationName(double latitude, double longitude, boolean postalCode, @NonNull LocationNameCallback callback) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            mGeocoder.getFromLocation(latitude, longitude, Utils.isLocaleHebrew(mContext) ? 5 : 1, addresses -> {
+                String result = buildLocationString(addresses, postalCode);
+                callback.onResult(result);
+            });
+        } else { // older versions
+            Executors.newSingleThreadExecutor().execute(() -> {
+                String result = null;
+                try {
+                    List<Address> addresses = mGeocoder.getFromLocation(latitude, longitude, 1);
                     result = buildLocationString(addresses, postalCode);
                 } catch (IOException ignored) {}
 

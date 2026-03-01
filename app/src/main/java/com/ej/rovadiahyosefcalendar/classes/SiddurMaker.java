@@ -24,6 +24,7 @@ public class SiddurMaker {
 	private ArrayList<HighlightString> siddur = new ArrayList<>();
 	private SiddurKahalStringBuilder advancedString = new SiddurKahalStringBuilder();
 	private final JewishDateInfo jewishDateInfo;
+    private Context context;
     private boolean isHebrew;
     private final boolean isTachanunSaidInTheMorning;
 	private final boolean isTachanunSaidByMincha;
@@ -225,6 +226,7 @@ public class SiddurMaker {
 				|| jewishDateInfo.getJewishCalendar().getIsMukafChoma());
 
 		this.halfOpaqueColor = Color.argb(170, Color.red(textColor), Color.green(textColor), Color.blue(textColor));
+        this.context = context;
 		this.isHebrew = Utils.isLocaleHebrew(context);// check locale once and save it as a boolean in order to avoid mutilple .equals calls
 	}
 
@@ -835,7 +837,7 @@ public class SiddurMaker {
 			"ואומר בלחש: בָּרוּךְ, שֵּׁם כְּבוֹד מַלְכוּתוֹ, לְעוֹלָם וָעֶד:".replace(isHebrew ? "@" : "ואומר בלחש", "say quietly"));
 		addShema();
 		addToSiddur(
-			"וחוזר הש\"ץ: יְהֹוָה אֱלֹהֵיכֶם אֱמֶת: \n\n".replace(isHebrew ? "@" : "וחוזר הש\"ץ:", "The Shaliach Tzibur repeats") +
+			"וחוזר הש\"ץ: יְהֹוָה אֱלֹהֵיכֶם אֱמֶת: \n\n".replace(isHebrew ? "@" : "וחוזר הש\"ץ: ", "The Shaliach Tzibur repeats:\n\u202B") +
 			"וְיַצִּיב, וְנָכוֹן, וְקַיָּם, וְיָשָׁר, וְנֶאֱמָן, וְאָהוּב, וְחָבִיב, וְנֶחְמָד, וְנָעִים, וְנוֹרָא, וְאַדִּיר, וּמְתוּקָן, וּמְקֻבָּל, וְטוֹב, וְיָפֶה, הַדָּבָר הַזֶּה עָלֵינוּ לְעוֹלָם וָעֶד. \n\n" +
 			"אֱמֶת, אֱלֹהֵי עוֹלָם מַלְכֵּנוּ צוּר יַעֲקֹב מָגֵן יִשְׁעֵנוּ, לְדוֹר וָדוֹר הוּא קַיָּם, וּשְׁמוֹ קַיָּם, וְכִסְאוֹ נָכוֹן, וּמַלְכוּתוֹ וֶאֱמוּנָתוֹ לָעַד קַיֶּמֶת, וּדְבָרָיו חַיִּים וְקַיָּמִים, וְנֶאֱמָנִים וְנֶחֱמָדִים לָעַד וּלְעוֹלְמֵי עוֹלָמִים. עַל אֲבוֹתֵינוּ, עָלֵינוּ וְעַל בָּנֵינוּ וְעַל דּוֹרוֹתֵינוּ וְעַל כָּל דּוֹרוֹת זֶרַע יִשְׂרָאֵל עֲבָדֶיךָ. עַל הָרִאשׁוֹנִים וְעַל הָאַחֲרוֹנִים דָּבָר טוֹב וְקַיָּם בֶּאֱמֶת וֶאֱמוּנָה חוֹק וְלֹא יַעֲבוֹר. אֱמֶת שֶׁאַתָּה הוּא יְהֹוָה אֱלֹהֵינוּ וֵאלֹהֵי אֲבוֹתֵינוּ. מַלְכֵּנוּ מֶלֶךְ אֲבוֹתֵינוּ. גּוֹאֲלֵנוּ גּוֹאֵל אֲבוֹתֵינוּ. יוֹצְרֵנוּ צוּר יְשׁוּעָתֵנוּ. פּוֹדֵנוּ וּמַצִּילֵנוּ מֵעוֹלָם הוּא שְׁמֶךָ, וְאֵין לָנוּ עוֹד אֱלֹהִים זוּלָתְךָ סֶלָה: \n\n" +
 			"עֶזְרַת אֲבוֹתֵינוּ אַתָּה הוּא מֵעוֹלָם, מָגֵן וּמוֹשִׁיעַ לָהֶם וְלִבְנֵיהֶם אַחֲרֵיהֶם בְּכָל דּוֹר וָדוֹר, בְּרוּם עוֹלָם מוֹשָׁבֶךָ, וּמִשְׁפָּטֶיךָ, וְצִדְקָתְךָ עַד אַפְסֵי אָרֶץ, אֱמֶת אַשְׁרֵי אִישׁ שֶׁיִּשְׁמַע לְמִצְוֹתֶיךָ וְתוֹרָתְךָ וּדְבָרְךָ יָשִׂים עַל לִבּוֹ. אֱמֶת שֶׁאַתָּה הוּא אֲדוֹן לְעַמֶּךָ וּמֶלֶךְ גִּבּוֹר לָרִיב רִיבָם לְאָבוֹת וּבָנִים, אֱמֶת אַתָּה הוּא רִאשׁוֹן וְאַתָּה הוּא אַחֲרוֹן וּמִבַּלְעָדֶיךָ אֵין לָנוּ מֶלֶךְ גּוֹאֵל וּמוֹשִׁיעַ. אֱמֶת מִמִּצְרַיִם גְּאַלְתָּנוּ יְהֹוָה אֱלֹהֵינוּ, מִבֵּית עֲבָדִים פְּדִיתָנוּ, כָּל בְּכוֹרֵיהֶם הָרַגְתָּ, וּבְכוֹרְךָ יִשְׂרָאֵל גָּאַלְתָּ, וְיַם־סוּף לָהֶם בָּקַעְתָּ, וְזֵדִים טִבַּעְתָּ, וִידִידִים עָבְרוּ יָם. וַיְכַסּוּ מַיִם צָרֵיהֶם אֶחָד מֵהֶם לֹא נוֹתַר. עַל זֹאת שִׁבְּחוּ אֲהוּבִים, וְרוֹמְמוּ לָאֵל, וְנָתְנוּ יְדִידִים זְמִירוֹת שִׁירוֹת וְתִשְׁבָּחוֹת בְּרָכוֹת וְהוֹדָאוֹת לַמֶּלֶךְ אֶל חַי וְקַיָּם, רָם וְנִשָּׂא, גָּדוֹל וְנוֹרָא, מַשְׁפִּיל גֵּאִים עֲדֵי אָרֶץ, מַגְבִּיהַּ שְׁפָלִים עַד מָרוֹם, מוֹצִיא אֲסִירִים, פּוֹדֶה עֲנָוִים, עוֹזֵר דַּלִּים, הָעוֹנֶה לְעַמּוֹ יִשְׂרָאֵל בְּעֵת שַׁוְּעָם אֵלָיו. \n\n" +
@@ -955,15 +957,15 @@ public class SiddurMaker {
 			}
 
 			addToSiddur(
-				"ואומר העולה: הַשֵּׁם עִמָּכֶם: \n\n".replace(isHebrew ? "@" : "ואומר העולה", "The one who is called up says") +
-				"ועונים הקהל: יְבָרֶכְךָ הַשֵּׁם: \n\n".replace(isHebrew ? "@" : "ועונים הקהל", "The congregation answers") +
-				"ואומר העולה: בָּרְכוּ אֶת יְהֹוָה הַמְּבֹרָךְ: \n\n".replace(isHebrew ? "@" : "ואומר העולה", "The one who is called up says") +
-				"ועונים הקהל: בָּרוּךְ יְהֹוָה הַמְּבֹרָךְ לְעוֹלָם וָעֶד: \n\n".replace(isHebrew ? "@" : "ועונים הקהל", "The congregation answers") +
-				"וחוזר העולה: בָּרוּךְ יְהֹוָה הַמְּבֹרָךְ לְעוֹלָם וָעֶד: \n\n".replace(isHebrew ? "@" : "וחוזר העולה", "The one who is called up repeats") +
+				"ואומר העולה: הַשֵּׁם עִמָּכֶם: \n\n".replace(isHebrew ? "@" : "ואומר העולה: ", "The one who is called up says:\n") +
+				"ועונים הקהל: יְבָרֶכְךָ הַשֵּׁם: \n\n".replace(isHebrew ? "@" : "ועונים הקהל: ", "The congregation answers:\n") +
+				"ואומר העולה: בָּרְכוּ אֶת יְהֹוָה הַמְּבֹרָךְ: \n\n".replace(isHebrew ? "@" : "ואומר העולה: ", "The one who is called up says:\n") +
+				"ועונים הקהל: בָּרוּךְ יְהֹוָה הַמְּבֹרָךְ לְעוֹלָם וָעֶד: \n\n".replace(isHebrew ? "@" : "ועונים הקהל: ", "The congregation answers:\n") +
+				"וחוזר העולה: בָּרוּךְ יְהֹוָה הַמְּבֹרָךְ לְעוֹלָם וָעֶד: \n\n".replace(isHebrew ? "@" : "וחוזר העולה: ", "The one who is called up repeats:\n") +
                         (isHebrew ? "ומברך העולה לפני הקריאה" : "Before the reading the one who is called up says") + "\n\n" +
-				"בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵינוּ  מֶלֶךְ הָעוֹלָם, אֲשֶׁר בָּחַר בָּנוּ מִכָּל הָעַמִּים וְנָתַן לָנוּ אֶת תּוֹרָתוֹ. בָּרוּךְ אַתָּה יְהֹוָה, נוֹתֵן הַתּוֹרָה: [אמן] \n\n" +
-                        (isHebrew ? "אחר הקריאה מברך העולה" : "After the reading one who is called up says") + "\n\n" +
-				"בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵינוּ  מֶלֶךְ הָעוֹלָם, אֲשֶׁר נָתַן לָנוּ אֶת תּוֹרָתוֹ תּוֹרַת אֱמֶת, וְחַיֵּי עוֹלָם נָטַע בְּתוֹכֵנוּ. בָּרוּךְ אַתָּה יְהֹוָה, נוֹתֵן הַתּוֹרָה: [אמן]");
+				"בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם, אֲשֶׁר בָּחַר בָּנוּ מִכָּל הָעַמִּים וְנָתַן לָנוּ אֶת תּוֹרָתוֹ. בָּרוּךְ אַתָּה יְהֹוָה, נוֹתֵן הַתּוֹרָה: [אמן] \n\n" +
+                        (isHebrew ? "אחר הקריאה מברך העולה" : "After the reading the one who is called up says") + "\n\n" +
+				"בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם, אֲשֶׁר נָתַן לָנוּ אֶת תּוֹרָתוֹ תּוֹרַת אֱמֶת, וְחַיֵּי עוֹלָם נָטַע בְּתוֹכֵנוּ. בָּרוּךְ אַתָּה יְהֹוָה, נוֹתֵן הַתּוֹרָה: [אמן]");
 
 			if (jewishDateInfo.getJewishCalendar().isRoshChodesh()) {
 				addToSiddur(
@@ -1263,7 +1265,8 @@ public class SiddurMaker {
 			} else {
 				addToSiddur(WeeklyParashaReadings.getWeeklyParashaReading(
 						jewishDateInfo.getJewishCalendar(),
-						true));
+						true,
+                        context));
 
 				addInstructionToSiddur(isHebrew ? "העולה האחרון אומר חצי קדיש" : "The last person says Half Kaddish");
 			}
@@ -3164,22 +3167,22 @@ public class SiddurMaker {
 
 		addToSiddur("וִֽיהַֽלְלוּ וִֽיבָֽרְכוּ אֶת־שִׁמְךָ הַגָּדוֹל בֶּֽאֱמֶת לְעוֹלָם כִּי טוֹב, הָאֵל יְשֽׁוּעָתֵֽנוּ וְעֶזְרָתֵֽנוּ סֶֽלָה, הָאֵל הַטּוֹב: " + "בָּרוּךְ אַתָּה יֻהֻוֻהֻ, הַטּוֹב שִׁמְךָ וּלְךָ נָאֶה לְהוֹדוֹת:");
 
-		String birkatKohanim = "בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵֽינוּ מֶֽלֶךְ הָֽעוֹלָם, אֲשֶׁר קִדְּשָֽׁנוּ בִּקְדֻשָּׁתוֹ שֶׁל־אַֽהֲרֹן, וְצִוָּֽנוּ לְבָרֵךְ אֶת־עַמּוֹ יִשְׂרָאֵל בְּאַֽהֲבָה:\n הקהל עונים: אָמֵן: \n\n".replace(isHebrew ? "@" : "הקהל עונים", "The congregation answers") +
+		String birkatKohanim = "בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵֽינוּ מֶֽלֶךְ הָֽעוֹלָם, אֲשֶׁר קִדְּשָֽׁנוּ בִּקְדֻשָּׁתוֹ שֶׁל־אַֽהֲרֹן, וְצִוָּֽנוּ לְבָרֵךְ אֶת־עַמּוֹ יִשְׂרָאֵל בְּאַֽהֲבָה:\n הקהל עונים: אָמֵן:\n\n".replace(isHebrew ? "@" : "הקהל עונים: ", "The congregation answers:\n") +
                 (isHebrew ? "ואומר הש\"ץ והכהנים אחריו מילה במילה:" : "The Shaliach Tzibur says and the cohanim repeat word for word") + "\n\n" +
-			"יְבָרֶכְךָ֥ יְהֹוָ֖ה וְיִשְׁמְרֶֽךָ׃ ועונים אָמֵן: \n\n".replace(isHebrew ? "@" : "ועונים", "We answer") +
-			"יָאֵ֨ר יְהֹוָ֧ה ׀ פָּנָ֛יו אֵלֶ֖יךָ וִֽיחֻנֶּֽךָּ׃ ועונים אָמֵן: \n\n".replace(isHebrew ? "@" : "ועונים", "We answer") +
-			"יִשָּׂ֨א יְהֹוָ֤ה ׀ פָּנָיו֙ אֵלֶ֔יךָ וְיָשֵׂ֥ם לְךָ֖ שָׁלֽוֹם׃ ועונים אָמֵן: \n\n".replace(isHebrew ? "@" : "ועונים", "We answer") +
+			"יְבָרֶכְךָ֥ יְהֹוָ֖ה וְיִשְׁמְרֶֽךָ׃ ועונים אָמֵן: \n\n".replace(isHebrew ? "@" : " ועונים ", "\nWe answer\n") +
+			"יָאֵ֨ר יְהֹוָ֧ה ׀ פָּנָ֛יו אֵלֶ֖יךָ וִֽיחֻנֶּֽךָּ׃ ועונים אָמֵן: \n\n".replace(isHebrew ? "@" : " ועונים ", "\nWe answer\n") +
+			"יִשָּׂ֨א יְהֹוָ֤ה ׀ פָּנָיו֙ אֵלֶ֔יךָ וְיָשֵׂ֥ם לְךָ֖ שָׁלֽוֹם׃ ועונים אָמֵן: \n\n".replace(isHebrew ? "@" : " ועונים ", "\nWe answer\n") +
 			"אם אין כהנים אומר הש\"ץ: \n\n".replace(isHebrew ? "@" : "אם אין כהנים אומר הש\"ץ", "if there is no cohen, the Shaliach Tzibur says") +
 			"אֱלֹהֵינוּ וֵאלֹהֵי אֲבוֹתֵינוּ, בָּרְכֵנוּ בַּבְּרָכָה הַמְשֻׁלֶּשֶת בַּתּוֹרָה הַכְּתוּבָה עַל יְדֵי מֹשֶׁה עַבְדֶּֽךָ, הָאֲמוּרָה מִפִּי אַהֲרֹן וּבָנָיו הַכֹּהֲנִים עִם קְדוֹשֶׁיךָ כָּאָמוּר: \n\n" +
-			"יְבָרֶכְךָ֥ יְהֹוָ֖ה וְיִשְׁמְרֶֽךָ׃ ועונים כֵּן יְהִי רָצוֹן: \n\n".replace(isHebrew ? "@" : "ועונים", "We answer") +
-			"יָאֵ֨ר יְהֹוָ֧ה ׀ פָּנָ֛יו אֵלֶ֖יךָ וִֽיחֻנֶּֽךָּ׃ ועונים כֵּן יְהִי רָצוֹן: \n\n".replace(isHebrew ? "@" : "ועונים", "We answer") +
+			"יְבָרֶכְךָ֥ יְהֹוָ֖ה וְיִשְׁמְרֶֽךָ׃ ועונים כֵּן יְהִי רָצוֹן: \n\n".replace(isHebrew ? "@" : " ועונים ", "\nWe answer\n") +
+			"יָאֵ֨ר יְהֹוָ֧ה ׀ פָּנָ֛יו אֵלֶ֖יךָ וִֽיחֻנֶּֽךָּ׃ ועונים כֵּן יְהִי רָצוֹן: \n\n".replace(isHebrew ? "@" : " ועונים ", "\nWe answer\n") +
 			"יִשָּׂ֨א יְהֹוָ֤ה ׀ פָּנָיו֙ אֵלֶ֔יךָ וְיָשֵׂ֥ם לְךָ֖ שָׁלֽוֹם׃ ועונים כֵּן יְהִי רָצוֹן: וְשָׂמ֥וּ אֶת־שְׁמִ֖י עַל־בְּנֵ֣י יִשְׂרָאֵ֑ל וַאֲנִ֖י אֲבָרְכֵֽם:";
 
 		if (curTefila == TefilotForAmidah.MINHA && jewishDateInfo.getJewishCalendar().isRegularTaanis()) {
 			addToSiddurHighlighted(lineBreak);
 			addToSiddurHighlighted(
-                    (isHebrew ? "בחזרת הש\"ץ בתענית ציבור כשמתפללים מנחה קטנה תוך חצי שעה סמוך לשקיעה, אומרים ברכת כהנים:" : "On a fast day, when Mincha is being said around 30 minutes before sunset, Birkat Kohanim" ) + " " +
-                            (isHebrew ? "אם יש יותר מכהן אחד קורא להם הש\"ץ:" : " If there is more than one cohen, the Shaliach Tzibur calls out") + "\n\n" +
+                    (isHebrew ? "בחזרת הש\"ץ בתענית ציבור כשמתפללים מנחה קטנה תוך חצי שעה סמוך לשקיעה, אומרים ברכת כהנים:" : "On a fast day, when Mincha is being said around 30 minutes before sunset, we say Birkat Kohanim.") + " " +
+                            (isHebrew ? "אם יש יותר מכהן אחד קורא להם הש\"ץ:" : "If there is more than one cohen, the Shaliach Tzibur calls out") + "\n\n" +
                             "כֹּהֲנִים:\n\nהכהנים מברכים:" + "\n\n" +
 				birkatKohanim);
 			addToSiddurHighlighted(lineBreak);
@@ -3484,15 +3487,15 @@ public class SiddurMaker {
 		addToSiddur(lineBreak);
 		addToSiddur((isHebrew ? "בחזרת הש\"ץ אומרים ברכת כהנים, אם יש יותר מכהן אחד קורא להם הש\"ץ:" : " If there is more than one cohen, the Shaliach Tzibur calls out") + "\n\n" +
                 "כֹּהֲנִים:\n\nהכהנים מברכים:" + "\n\n" +
-                "בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵֽינוּ מֶֽלֶךְ הָֽעוֹלָם, אֲשֶׁר קִדְּשָֽׁנוּ בִּקְדֻשָּׁתוֹ שֶׁל־אַֽהֲרֹן, וְצִוָּֽנוּ לְבָרֵךְ אֶת־עַמּוֹ יִשְׂרָאֵל בְּאַֽהֲבָה:\n הקהל עונים: אָמֵן: \n\n".replace(isHebrew ? "@" : "הקהל עונים", "The congregation answers") +
+                "בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵֽינוּ מֶֽלֶךְ הָֽעוֹלָם, אֲשֶׁר קִדְּשָֽׁנוּ בִּקְדֻשָּׁתוֹ שֶׁל־אַֽהֲרֹן, וְצִוָּֽנוּ לְבָרֵךְ אֶת־עַמּוֹ יִשְׂרָאֵל בְּאַֽהֲבָה:\n הקהל עונים: אָמֵן: \n\n".replace(isHebrew ? "@" : "הקהל עונים: ", "The congregation answers:\n") +
                 (isHebrew ? "ואומר הש\"ץ והכהנים אחריו מילה במילה:" : "The Shaliach Tzibur says and the cohanim repeat word for word") + "\n\n" +
-                "יְבָרֶכְךָ֥ יְהֹוָ֖ה וְיִשְׁמְרֶֽךָ׃ ועונים אָמֵן: \n\n".replace(isHebrew ? "@" : "ועונים", "We answer") +
-                "יָאֵ֨ר יְהֹוָ֧ה ׀ פָּנָ֛יו אֵלֶ֖יךָ וִֽיחֻנֶּֽךָּ׃ ועונים אָמֵן: \n\n".replace(isHebrew ? "@" : "ועונים", "We answer") +
-                "יִשָּׂ֨א יְהֹוָ֤ה ׀ פָּנָיו֙ אֵלֶ֔יךָ וְיָשֵׂ֥ם לְךָ֖ שָׁלֽוֹם׃ ועונים אָמֵן: \n\n".replace(isHebrew ? "@" : "ועונים", "We answer") +
-                "אם אין כהנים אומר הש\"ץ: \n\n".replace(isHebrew ? "@" : "אם אין כהנים אומר הש\"ץ", "if there is no cohen, the Shaliach Tzibur says") +
+                "יְבָרֶכְךָ֥ יְהֹוָ֖ה וְיִשְׁמְרֶֽךָ׃ ועונים אָמֵן: \n\n".replace(isHebrew ? "@" : " ועונים ", "\nWe answer\n") +
+                "יָאֵ֨ר יְהֹוָ֧ה ׀ פָּנָ֛יו אֵלֶ֖יךָ וִֽיחֻנֶּֽךָּ׃ ועונים אָמֵן: \n\n".replace(isHebrew ? "@" : " ועונים ", "\nWe answer\n") +
+                "יִשָּׂ֨א יְהֹוָ֤ה ׀ פָּנָיו֙ אֵלֶ֔יךָ וְיָשֵׂ֥ם לְךָ֖ שָׁלֽוֹם׃ ועונים אָמֵן: \n\n".replace(isHebrew ? "@" : " ועונים ", "\nWe answer\n") +
+                "אם אין כהנים אומר הש\"ץ: \n\n".replace(isHebrew ? "@" : "אם אין כהנים אומר הש\"ץ", "if there is no cohen, the Shaliach Tzibur says\n") +
                 "אֱלֹהֵינוּ וֵאלֹהֵי אֲבוֹתֵינוּ, בָּרְכֵנוּ בַּבְּרָכָה הַמְשֻׁלֶּשֶת בַּתּוֹרָה הַכְּתוּבָה עַל יְדֵי מֹשֶׁה עַבְדֶּֽךָ, הָאֲמוּרָה מִפִּי אַהֲרֹן וּבָנָיו הַכֹּהֲנִים עִם קְדוֹשֶׁיךָ כָּאָמוּר: \n\n" +
-                "יְבָרֶכְךָ֥ יְהֹוָ֖ה וְיִשְׁמְרֶֽךָ׃ ועונים כֵּן יְהִי רָצוֹן: \n\n".replace(isHebrew ? "@" : "ועונים", "We answer") +
-                "יָאֵ֨ר יְהֹוָ֧ה ׀ פָּנָ֛יו אֵלֶ֖יךָ וִֽיחֻנֶּֽךָּ׃ ועונים כֵּן יְהִי רָצוֹן: \n\n".replace(isHebrew ? "@" : "ועונים", "We answer") +
+                "יְבָרֶכְךָ֥ יְהֹוָ֖ה וְיִשְׁמְרֶֽךָ׃ ועונים כֵּן יְהִי רָצוֹן: \n\n".replace(isHebrew ? "@" : " ועונים ", "\nWe answer\n") +
+                "יָאֵ֨ר יְהֹוָ֧ה ׀ פָּנָ֛יו אֵלֶ֖יךָ וִֽיחֻנֶּֽךָּ׃ ועונים כֵּן יְהִי רָצוֹן: \n\n".replace(isHebrew ? "@" : "ועונים", "\nWe answer\n") +
                 "יִשָּׂ֨א יְהֹוָ֤ה ׀ פָּנָיו֙ אֵלֶ֔יךָ וְיָשֵׂ֥ם לְךָ֖ שָׁלֽוֹם׃ ועונים כֵּן יְהִי רָצוֹן: וְשָׂמ֥וּ אֶת־שְׁמִ֖י עַל־בְּנֵ֣י יִשְׂרָאֵ֑ל וַאֲנִ֖י אֲבָרְכֵֽם:");
 		addToSiddur(lineBreak);
 
@@ -3586,19 +3589,20 @@ public class SiddurMaker {
 			addToSiddur(
                     (isHebrew ? "כשמגיע לדוכן, מגביה את ספר התורה ומראה הכתב לקהל ואומרים" : "When it reaches the platform, raise the torah for everyone to see and say")+ "\n\n" +
 				"וְזֹ֖את הַתּוֹרָ֑ה אֲשֶׁר־שָׂ֣ם מֹשֶׁ֔ה לִפְנֵ֖י בְּנֵ֥י יִשְׂרָאֵֽל׃ תּוֹרָ֥ה צִוָּה־לָ֖נוּ מֹשֶׁ֑ה מוֹרָשָׁ֖ה קְהִלַּ֥ת יַעֲקֹֽב׃ הָאֵל֮ תָּמִ֢ים דַּ֫רְכּ֥וֹ אִמְרַֽת־יְהֹוָ֥ה צְרוּפָ֑ה מָגֵ֥ן ה֝֗וּא לְכֹ֤ל ׀ הַחֹסִ֬ים בּֽוֹ׃ \n\n" +
-                            "ואומר העולה: הַשֵּׁם עִמָּכֶם: \n\n".replace(isHebrew ? "@" : "ואומר העולה", "The one who is called up says") +
-                            "ועונים הקהל: יְבָרֶכְךָ הַשֵּׁם: \n\n".replace(isHebrew ? "@" : "ועונים הקהל", "The congregation answers") +
-                            "ואומר העולה: בָּרְכוּ אֶת יְהֹוָה הַמְּבֹרָךְ: \n\n".replace(isHebrew ? "@" : "ואומר העולה", "The one who is called up says") +
-                            "ועונים הקהל: בָּרוּךְ יְהֹוָה הַמְּבֹרָךְ לְעוֹלָם וָעֶד: \n\n".replace(isHebrew ? "@" : "ועונים הקהל", "The congregation answers") +
-                            "וחוזר העולה: בָּרוּךְ יְהֹוָה הַמְּבֹרָךְ לְעוֹלָם וָעֶד: \n\n".replace(isHebrew ? "@" : "וחוזר העולה", "The one who is called up repeats") +
-                            (isHebrew ? "ומברך העולה לפני הקריאה" : "Before the reading the one who is called up says") + "\n\n" +
-                            "בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵינוּ  מֶלֶךְ הָעוֹלָם, אֲשֶׁר בָּחַר בָּנוּ מִכָּל הָעַמִּים וְנָתַן לָנוּ אֶת תּוֹרָתוֹ. בָּרוּךְ אַתָּה יְהֹוָה, נוֹתֵן הַתּוֹרָה: [אמן] \n\n" +
-                            (isHebrew ? "אחר הקריאה מברך העולה" : "After the reading one who is called up says") + "\n\n" +
-				"בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵינוּ  מֶלֶךְ הָעוֹלָם, אֲשֶׁר נָתַן לָנוּ אֶת תּוֹרָתוֹ תּוֹרַת אֱמֶת, וְחַיֵּי עוֹלָם נָטַע בְּתוֹכֵנוּ. בָּרוּךְ אַתָּה יְהֹוָה, נוֹתֵן הַתּוֹרָה: [אמן] \n\n" +
+                            "ואומר העולה: הַשֵּׁם עִמָּכֶם: \n\n".replace(isHebrew ? "@" : "ואומר העולה: ", "The one who is called up says\n") +
+                            "ועונים הקהל: יְבָרֶכְךָ הַשֵּׁם: \n\n".replace(isHebrew ? "@" : "ועונים הקהל: ", "The congregation answers\n") +
+                            "ואומר העולה: בָּרְכוּ אֶת יְהֹוָה הַמְּבֹרָךְ: \n\n".replace(isHebrew ? "@" : "ואומר העולה: ", "The one who is called up says\n") +
+                            "ועונים הקהל: בָּרוּךְ יְהֹוָה הַמְּבֹרָךְ לְעוֹלָם וָעֶד: \n\n".replace(isHebrew ? "@" : "ועונים הקהל: ", "The congregation answers\n") +
+                            "וחוזר העולה: בָּרוּךְ יְהֹוָה הַמְּבֹרָךְ לְעוֹלָם וָעֶד: \n\n".replace(isHebrew ? "@" : "וחוזר העולה: ", "The one who is called up repeats\n") +
+                            (isHebrew ? "ומברך העולה לפני הקריאה" : "Before the reading, the one who is called up says") + "\n\n" +
+                            "בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם, אֲשֶׁר בָּחַר בָּנוּ מִכָּל הָעַמִּים וְנָתַן לָנוּ אֶת תּוֹרָתוֹ. בָּרוּךְ אַתָּה יְהֹוָה, נוֹתֵן הַתּוֹרָה: [אמן] \n\n" +
+                            (isHebrew ? "אחר הקריאה מברך העולה" : "After the reading, the one who is called up says") + "\n\n" +
+				"בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם, אֲשֶׁר נָתַן לָנוּ אֶת תּוֹרָתוֹ תּוֹרַת אֱמֶת, וְחַיֵּי עוֹלָם נָטַע בְּתוֹכֵנוּ. בָּרוּךְ אַתָּה יְהֹוָה, נוֹתֵן הַתּוֹרָה: [אמן] \n\n" +
                             (isHebrew ? "מוציאים ספר תורה וקוראים ג' עולים" : "Three people go up for Aliya") + "\n\n" +
 				WeeklyParashaReadings.getWeeklyParashaReading(
 						jewishDateInfo.getJewishCalendar(),
-						false));
+						false,
+                        context));
 			if (jewishDateInfo.getJewishCalendar().isTishaBav()) {
 				addToSiddurHighlighted(isHebrew ? "אין אומרים חצי קדיש" : "Do NOT say Half Kaddish here");
 				addToSiddurHighlighted(
