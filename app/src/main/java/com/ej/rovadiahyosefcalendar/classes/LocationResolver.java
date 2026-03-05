@@ -207,19 +207,17 @@ public class LocationResolver {
     public void getFullLocationName(double latitude, double longitude, boolean postalCode, @NonNull LocationNameCallback callback) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             mGeocoder.getFromLocation(latitude, longitude, Utils.isLocaleHebrew(mContext) ? 5 : 1, addresses -> {
-                String result = buildLocationString(addresses, postalCode);
-                callback.onResult(result);
+                mLocationName = buildLocationString(addresses, postalCode);
+                callback.onResult(mLocationName);
             });
         } else { // older versions
             Executors.newSingleThreadExecutor().execute(() -> {
-                String result = null;
                 try {
                     List<Address> addresses = mGeocoder.getFromLocation(latitude, longitude, 1);
-                    result = buildLocationString(addresses, postalCode);
+                    mLocationName = buildLocationString(addresses, postalCode);
                 } catch (IOException ignored) {}
 
-                String finalResult = result;
-                new Handler(Looper.getMainLooper()).post(() -> callback.onResult(finalResult)
+                new Handler(Looper.getMainLooper()).post(() -> callback.onResult(mLocationName)
                 );
             });
         }
