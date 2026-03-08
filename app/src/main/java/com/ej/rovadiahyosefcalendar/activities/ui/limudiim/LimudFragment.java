@@ -194,12 +194,12 @@ public class LimudFragment extends Fragment {
             sCurrentDateShown.add(Calendar.DATE, 1);
             sJewishDateInfo.setCalendar(sCurrentDateShown);
         }
-        limudRV.setAdapter(new LimudAdapter(mContext, getLimudList(), sJewishDateInfo, v -> {
+        limudRV.setAdapter(new LimudAdapter(mContext, getLimudList(), sJewishDateInfo.getCopy(), v -> {
             mSeeMore = false;
-            limudRV.setAdapter(new LimudAdapter(mContext, getLimudList(), sJewishDateInfo));
+            limudRV.setAdapter(new LimudAdapter(mContext, getLimudList(), sJewishDateInfo.getCopy()));
         }));
         List<LimudListEntry> list = getHillulotList();
-        hillulotRV.setAdapter(new LimudAdapter(mContext, list, sJewishDateInfo));
+        hillulotRV.setAdapter(new LimudAdapter(mContext, list, sJewishDateInfo.getCopy()));
         if (list.isEmpty()) {
             hillulotRV.setVisibility(View.GONE);
         } else {

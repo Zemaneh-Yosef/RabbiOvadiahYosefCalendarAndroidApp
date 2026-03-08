@@ -26,7 +26,7 @@ import java.util.List;
 
 public class LimudAdapter extends RecyclerView.Adapter<LimudAdapter.ZmanViewHolder> {
 
-    private List<LimudListEntry> limudim;
+    private final List<LimudListEntry> limudim;
     private final Context context;
     private MaterialAlertDialogBuilder dialogBuilder;
     private final JewishDateInfo mJewishDateInfo;
