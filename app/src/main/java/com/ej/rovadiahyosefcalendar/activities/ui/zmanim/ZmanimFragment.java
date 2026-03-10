@@ -568,6 +568,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     sCurrentLocationName = locationName;
                     mActivity.runOnUiThread(() -> {
                         if (binding != null) {
+                            binding.shimmerLayout.setVisibility(View.GONE);
                             binding.dailyLocationName.setText(sCurrentLocationName);
                         }
                     });

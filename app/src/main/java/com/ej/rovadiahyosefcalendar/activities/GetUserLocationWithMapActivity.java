@@ -754,7 +754,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
         @NonNull
         @Override
         public ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.text_view, parent, false);
+            View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_text, parent, false);
             return new ItemViewHolder(itemView);
         }
 
