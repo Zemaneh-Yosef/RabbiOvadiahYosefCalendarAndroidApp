@@ -299,7 +299,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             setWeeklyViewVisibility(false);
             binding.swipeRefreshLayout.setVisibility(View.GONE);
             binding.shimmerLayout.setVisibility(View.VISIBLE);
-            System.out.println("Shimmer set to shown");
         }
         if (sLatitude != 0 && sLongitude != 0) {// the values are updated, the user is using a zipcode or saved location or the app was just restarted
             mLocationResolver.getFullLocationName(true, locationName -> {
@@ -346,7 +345,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private void setSafeSettingsForSpecificManufacturers() {
         if (binding == null) return;
         if (Build.MANUFACTURER.equalsIgnoreCase("Xiaomi")) {
-            TextView[] textViews = {binding.weekday, binding.gregDate, binding.hebDate, binding.parsha, binding.haftara, binding.makam, binding.nightOfChanuka, binding.lchatchilaLightingTime, binding.fullWindowLightingTime};
+            TextView[] textViews = {binding.weekday, binding.topDate, binding.bottomDate, binding.parsha, binding.haftara, binding.makam, binding.nightOfChanuka, binding.lchatchilaLightingTime, binding.fullWindowLightingTime};
             for (TextView textView : textViews) {
                 TextViewCompat.setAutoSizeTextTypeWithDefaults(
                         textView,
@@ -1147,13 +1146,19 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     hebDate = mContext.getString(R.string.pre_sunset_date);
                 }
                 hebDate += " " + sJewishDateInfo.getJewishCalendar().currentToString(sROZmanimCalendar);
-                binding.gregDate.setText(engDate);
-                binding.hebDate.setText(hebDate);
+                binding.topDate.setText(engDate);
+                binding.bottomDate.setText(hebDate);
             } else {
                 binding.dailyCard.setStrokeColor(ContextCompat.getColor(mContext, R.color.cardview_border));
                 binding.dailyCard.setStrokeWidth(3);
-                binding.gregDate.setText(engDate);
-                binding.hebDate.setText(sJewishDateInfo.getJewishCalendar().toString());
+                binding.topDate.setText(engDate);
+                binding.bottomDate.setText(sJewishDateInfo.getJewishCalendar().toString());
+            }
+            if (Utils.isLocaleHebrew(mContext)) {
+                CharSequence top = binding.topDate.getText();
+                CharSequence bottom = binding.bottomDate.getText();
+                binding.topDate.setText(bottom);
+                binding.bottomDate.setText(top);
             }
             binding.weekday.setText(Utils.isLocaleHebrew(mContext) ?
                     sROZmanimCalendar.getCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, mContext.getResources()
@@ -2460,8 +2465,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             int textColor = sSharedPreferences.getBoolean("customTextColor", false) ? sSharedPreferences.getInt("tColor", 0xFFFFFFFF) : ContextCompat.getColor(mContext, R.color.textColor);
             binding.dailyLocationName.setTextColor(textColor);
             binding.weekday.setTextColor(textColor);
-            binding.gregDate.setTextColor(textColor);
-            binding.hebDate.setTextColor(textColor);
+            binding.topDate.setTextColor(textColor);
+            binding.bottomDate.setTextColor(textColor);
             binding.parsha.setTextColor(textColor);
             binding.haftara.setTextColor(textColor);
             binding.makam.setTextColor(textColor);

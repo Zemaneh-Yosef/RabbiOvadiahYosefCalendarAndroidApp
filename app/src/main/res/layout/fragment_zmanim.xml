@@ -117,7 +117,7 @@
                             tools:text="Friday / יום שישי"/>
 
                         <TextView
-                            android:id="@+id/greg_date"
+                            android:id="@+id/top_date"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center"
@@ -130,7 +130,7 @@
                             tools:text="Today - July 10th, 2025"/>
 
                         <TextView
-                            android:id="@+id/heb_date"
+                            android:id="@+id/bottom_date"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center"
