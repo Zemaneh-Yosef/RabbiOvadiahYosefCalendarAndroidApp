@@ -3302,10 +3302,14 @@ public class SiddurMaker {
 			addToSiddur("עֹשֶׂה שָׁלוֹם בִּמְרוֹמָיו, הוּא בְּרַחֲמָיו יַעֲשֶׂה שָׁלוֹם עָלֵֽינוּ, וְעַל כָּל־עַמּוֹ יִשְׂרָאֵל, וְאִמְרוּ אָמֵן:");
 		}
 
+        addInstructionToSiddur(isHebrew ? "זקוף את גבך" : "Straighten your back");
+
 		addToSiddur("יְהִי רָצוֹן מִלְּפָנֶֽיךָ, יְהֹוָה אֱלֹהֵֽינוּ וֵֽאלֹהֵי אֲבוֹתֵֽינוּ, שֶׁתִּבְנֶה בֵּית הַמִּקְדָשׁ בִּמְהֵרָה בְיָמֵֽינוּ, וְתֵן חֶלְקֵֽנוּ בְתוֹרָתָךְ לַעֲשׂוֹת חֻקֵּי רְצוֹנָךְ וּלְעָבְדָךְ בְּלֵבָב שָׁלֵם:");
 
-		addInstructionToSiddur(isHebrew ? "יש לזקוף את הגב. במניין עם חזרת הש״ץ, יש להמתין עד הש״ץ מתחיל \"נקדישך\" ואז פוסעים את ג' הפסיעות קדימה." :
-				"Straighten your back. In a minyan with a repetition, wait until the Shaliach Tzibur starts \"Nakdishakh\" before taking the three steps forward");
+        if (curTefila != TefilotForAmidah.ARVIT) {
+		addInstructionToSiddur(isHebrew ? "במניין עם חזרת הש״ץ, יש להמתין עד הש״ץ מתחיל \"נקדישך\" ואז פוסעים את ג' הפסיעות קדימה." :
+				"In a minyan with a repetition, wait until the Shaliach Tzibur starts \"Nakdishakh\" before taking the three steps forward");
+        }
 	}
 
 	private void addAvinuMalkeinu(boolean isTachanunSaid) {
