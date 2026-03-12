@@ -729,7 +729,7 @@ public class LocationResolver {
 
     public void resolveElevation(Runnable codeToRunAfter) {
         boolean sUserIsOffline = false;
-        if (mLocationName.contains("Lat:") && mLocationName.contains("Long:")
+        if (mLocationName != null && mLocationName.contains("Lat:") && mLocationName.contains("Long:")
                 && PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean("SetElevationToLastKnownLocation", false)) {//only if the user has enabled the setting to set the elevation to the last known location
             sUserIsOffline = true;
             mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mSharedPreferences.getString("name", ""), "0"));//lastKnownLocation

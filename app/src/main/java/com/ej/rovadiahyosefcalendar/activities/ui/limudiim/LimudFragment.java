@@ -398,23 +398,45 @@ public class LimudFragment extends Fragment {
 
                 int month = sJewishDateInfo.getJewishCalendar().getJewishMonth();
                 int day = sJewishDateInfo.getJewishCalendar().getJewishDayOfMonth();
-                String currentDate;// e.g. 1225 == 25th of Adar
+                String monthString;// e.g. 1225 == 25th of Adar
+                String dayString;
                 if (month <= 9) {
-                    currentDate = "0" + month;
+                    monthString = "0" + month;
                 } else {
-                    currentDate = String.valueOf(month);// 10, 11, 12, 13 do not need a 0
+                    monthString = String.valueOf(month);// 10, 11, 12, 13 do not need a 0
                 }
                 if (day <= 9) {
-                    currentDate += "0" + day;
+                    dayString = "0" + day;
                 } else {
-                    currentDate += String.valueOf(day);// 10 and up do not need a 0
+                    dayString = String.valueOf(day);// 10 and up do not need a 0
                 }
-                JSONArray currentHillulot = new JSONArray(jsonObject.getString(currentDate));
+                JSONArray currentHillulot = new JSONArray(jsonObject.getString(monthString + dayString));
                 for (int i = 0; i < currentHillulot.length(); i++) {
                     String name = (String) currentHillulot.getJSONObject(i).get("name");
                     String desc = (String) currentHillulot.getJSONObject(i).get("desc");
                     String src = (String) currentHillulot.getJSONObject(i).get("src");
                     hillulot.add(new LimudListEntry(name, desc, src));
+                }
+                if (month == JewishDate.ADAR) { // add other adar hillulot
+                    currentHillulot = new JSONArray(jsonObject.getString(JewishDate.ADAR_II + dayString));
+                    for (int i = 0; i < currentHillulot.length(); i++) {
+                        String name = (String) currentHillulot.getJSONObject(i).get("name");
+                        String desc = (String) currentHillulot.getJSONObject(i).get("desc");
+                        String src = (String) currentHillulot.getJSONObject(i).get("src");
+                        if (hillulot.stream().noneMatch(entry -> entry.getLimudTitle().equals(name))) {// don't add duplicates
+                            hillulot.add(new LimudListEntry(name, desc, src));
+                        }
+                    }
+                } else if (month == JewishDate.ADAR_II) {// add other adar hillulot
+                    currentHillulot = new JSONArray(jsonObject.getString(JewishDate.ADAR + dayString));
+                    for (int i = 0; i < currentHillulot.length(); i++) {
+                        String name = (String) currentHillulot.getJSONObject(i).get("name");
+                        String desc = (String) currentHillulot.getJSONObject(i).get("desc");
+                        String src = (String) currentHillulot.getJSONObject(i).get("src");
+                        if (hillulot.stream().noneMatch(entry -> entry.getLimudTitle().equals(name))) {// don't add duplicates
+                            hillulot.add(new LimudListEntry(name, desc, src));
+                        }
+                    }
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
