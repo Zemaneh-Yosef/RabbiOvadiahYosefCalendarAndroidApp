@@ -178,8 +178,8 @@ public class LocationResolver {
                         .get(0), "%.3f", sLongitude);
 
                 sCurrentLocationName = "Lat: " + lat + ", Long: " + longitude;
-                mSharedPreferences.edit().putString("name", sCurrentLocationName).apply();
             }
+            mSharedPreferences.edit().putString("name", sCurrentLocationName).apply();
         });
     }
 
@@ -217,8 +217,7 @@ public class LocationResolver {
                     mLocationName = buildLocationString(addresses, postalCode);
                 } catch (IOException ignored) {}
 
-                new Handler(Looper.getMainLooper()).post(() -> callback.onResult(mLocationName)
-                );
+                new Handler(Looper.getMainLooper()).post(() -> callback.onResult(mLocationName));
             });
         }
     }
