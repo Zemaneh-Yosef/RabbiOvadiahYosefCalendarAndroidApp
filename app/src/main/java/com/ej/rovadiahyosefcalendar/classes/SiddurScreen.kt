@@ -8,6 +8,7 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.text.SpannableString
 import android.util.TypedValue
+import android.widget.Toast
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -65,6 +66,7 @@ import androidx.core.net.toUri
 import androidx.preference.PreferenceManager
 import com.aghajari.compose.text.asAnnotatedString
 import com.ej.rovadiahyosefcalendar.activities.SiddurViewActivity
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import java.util.LinkedList
 import kotlin.math.atan2
@@ -255,7 +257,19 @@ private fun Compass(instructionalText: String) {
                 }
             }
 
-            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+                when (accuracy) {
+                    SensorManager.SENSOR_STATUS_UNRELIABLE, SensorManager.SENSOR_STATUS_ACCURACY_LOW -> {
+                        Toast.makeText(context, AppR.string.sensor_accuracy_is_low, Toast.LENGTH_SHORT).show()
+                    }
+                    SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM, SensorManager.SENSOR_STATUS_ACCURACY_HIGH -> {
+                        Toast.makeText(context, AppR.string.sensor_accuracy_is_okay, Toast.LENGTH_SHORT).show()
+                    }
+                    SensorManager.SENSOR_STATUS_NO_CONTACT -> {
+                        Toast.makeText(context, AppR.string.no_sensor_found, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
         }
 
         sensorManager.registerListener(sensorListener, accelerometer, SensorManager.SENSOR_DELAY_UI)

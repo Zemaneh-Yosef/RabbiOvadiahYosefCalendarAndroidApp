@@ -232,7 +232,6 @@ public class SiddurMaker {
 
 	public ArrayList<HighlightString> getSelichotPrayers(boolean isAfterChatzot, boolean isAfterSunrise) {
 		siddur = new ArrayList<>();// reset
-		advancedString = new SiddurKahalStringBuilder();
 
 		if (jewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
 			addToSiddur(isHebrew ? "שבת ויום טוב כרגע אינם נתמכים" : "Shabbat and Yom Tov are currently not supported");
@@ -987,7 +986,7 @@ public class SiddurMaker {
 				if (jewishDateInfo.getJewishCalendar().getDayOfChanukah() != 1) {
 					addInstructionToSiddurHighlighted(
 						isHebrew ?	" הראשון קורא את שלושת הפסוקים הראשונים, השני קורא את שלושת הפסוקים הבאים, והמשלים חוזר על הכל ואומר חצי קדיש" :
-						"The" + (jewishDateInfo.getJewishCalendar().getDayOfChanukah() == 8 ? " first " : " ") + "six verses are divided in half for the first and second aliyot, then repreated for the third aliya. The reading is then concluded with Half Kaddish.");
+						"The" + (jewishDateInfo.getJewishCalendar().getDayOfChanukah() == 8 ? " first " : " ") + "six verses are divided in half for the first and second aliyot, then repeated for the third aliya. The reading is then concluded with Half Kaddish.");
 				}
 				addChanukaTorahReading();
 			} else if (jewishDateInfo.getJewishCalendar().isCholHamoedPesach()) {
@@ -1356,10 +1355,6 @@ public class SiddurMaker {
 
 		addShirShelYom(removeHashir);
 
-		addInfoToSiddur(
-			isHebrew ? "בבית האבל אומרים" : "We add in a mourner's house",
-			"\n\n" + getTehilimChapterTextByIndex(49));
-
 		switch (jewishDateInfo.getJewishCalendar().getYomTovIndex()) {
 			case JewishCalendar.FAST_OF_GEDALYAH:
 			case JewishCalendar.TENTH_OF_TEVES:
@@ -1383,6 +1378,9 @@ public class SiddurMaker {
 		if (jewishDateInfo.yesterday().getJewishCalendar().isYomKippur()) {
 			addOneWordToSiddurHighlighted(getTehilimChapterTextByIndex(85));
 		}
+
+        addInfoToSiddur(isHebrew ? "בבית האבל אומרים" : "We add in a mourner's house",
+                "\n\n" + getTehilimChapterTextByIndex(49));// TODO see if this should be moved to after Shir Shel Yom
 
 		addOneWordToSiddur(
 			"הוֹשִׁיעֵ֨נוּ ׀ יְהֹ֘וָ֤ה אֱלֹהֵ֗ינוּ וְקַבְּצֵנוּ֮ מִֽן־הַגּ֫וֹיִ֥ם לְ֭הֹדוֹת לְשֵׁ֣ם קׇדְשֶׁ֑ךָ לְ֝הִשְׁתַּבֵּ֗חַ בִּתְהִלָּתֶֽךָ: בָּ֤רֽוּךְ יְהֹוָ֨ה אֱלֹהֵ֪י יִשְׂרָאֵ֡ל מִן־הָ֤עוֹלָ֨ם ׀ וְעַ֬ד הָעוֹלָ֗ם וְאָמַ֖ר כׇּל־הָעָ֥ם אָמֵ֗ן הַֽלְלוּיָֽהּ: בָּ֘ר֤וּךְ יְהֹוָ֨ה ׀ מִצִּיּ֗וֹן שֹׁ֘כֵ֤ן יְֽרוּשָׁלִָ֗ם הַֽלְלוּיָֽהּ: בָּר֤וּךְ ׀ יְהֹוָ֣ה אֱ֭לֹהִים אֱלֹהֵ֣י יִשְׂרָאֵ֑ל עֹשֵׂ֖ה נִפְלָא֣וֹת לְבַדּֽוֹ׃ וּבָר֤וּךְ ׀ שֵׁ֥ם כְּבוֹד֗וֹ לְע֫וֹלָ֥ם וְיִמָּלֵ֣א כְ֭בוֹדוֹ אֶת־כֹּ֥ל הָאָ֗רֶץ אָ֘מֵ֥ן ׀ וְאָמֵֽן:");
@@ -1672,7 +1670,7 @@ public class SiddurMaker {
 				"הַנּוֹתֵן בַּיָּם דָּרֶךְ. וּבְמַיִם עַזִּים נְתִיבָה. הָחִישׁ יְשׁוּעָתֵנוּ. וְאֶת יְרִיבֵנוּ רִיבָה. וְגַם אֶת אַחֲרִיתֵנוּ. מֵרֵאשִׁיתֵנוּ הֵטִיבָה. הֲשִׁיבֵ֨נוּ יְהֹוָ֤ה ׀ אֵלֶ֙יךָ֙ וְֽנָשׁ֔וּבָה: כַּכָּתוּב הֲשִׁיבֵ֨נוּ יְהֹוָ֤ה ׀ אֵלֶ֙יךָ֙ וְֽנָשׁ֔וּבָה חַדֵּ֥שׁ יָמֵ֖ינוּ כְּקֶֽדֶם׃");
 			addToSiddur(
 				"עַד אָנָה בִּכְיָה בְּצִיּוֹן וּמִסְפֵּד בִּירוּשָׁלַיִם. תָּקוּם תְּרַחֵם צִיּוֹן תִּבְנֶה חוֹמוֹת יְרוּשָׁלַיִם: כַּכָּתוּב. אַתָּ֣ה תָ֭קוּם תְּרַחֵ֣ם צִיּ֑וֹן כִּי־עֵ֥ת לְ֝חֶֽנְנָ֗הּ כִּי־בָ֥א מוֹעֵֽד׃ וְנֶאֱמַר. וּפְדוּיֵ֨י יְהֹוָ֜ה יְשֻׁב֗וּן וּבָ֤אוּ צִיּוֹן֙ בְּרִנָּ֔ה וְשִׂמְחַ֥ת עוֹלָ֖ם עַל־רֹאשָׁ֑ם שָׂשׂ֤וֹן וְשִׂמְחָה֙ יַשִּׂ֔יגוּ וְנָ֖סוּ יָג֥וֹן וַאֲנָחָֽה׃");
-			addToSiddur("יש אומרים (Some say)");
+			addToSiddur(isHebrew ? "יש אומרים" : "Some say");
 			addToSiddur(
 				"כְּדִכְתִיב. כִּֽי־נִחַ֨ם יְהֹוָ֜ה צִיּ֗וֹן נִחַם֙ כָּל־חָרְבֹתֶ֔יהָ וַיָּ֤שֶׂם מִדְבָּרָהּ֙ כְּעֵ֔דֶן וְעַרְבָתָ֖הּ כְּגַן־יְהֹוָ֑ה שָׂשׂ֤וֹן וְשִׂמְחָה֙ יִמָּ֣צֵא בָ֔הּ תּוֹדָ֖ה וְק֥וֹל זִמְרָֽה׃ הִתְנַעֲרִ֧י מֵעָפָ֛ר ק֥וּמִי שְּׁבִ֖י יְרֽוּשָׁלִָ֑ם הִֽתְפַּתְּחִי֙ מוֹסְרֵ֣י צַוָּארֵ֔ךְ שְׁבִיָּ֖ה בַּת־צִיּֽוֹן׃");
 			addKaddishVariants(KaddishTypes.TITKABAL);// Chazon Ovadiah Page 391
@@ -1928,7 +1926,7 @@ public class SiddurMaker {
 		if (jewishDateInfo.getJewishCalendar().isCholHamoedSuccos()) {
 			addInstructionToSiddur(isHebrew ? "ארבעת המינים מנענעים במשך שבעת ימי חג הסוכות (ללא שבת), לפני ההלל ובמהלך ההלל עצמו. ישנם שישה כיוונים שבהם מנענעים את ארבעת המינים: דרום, צפון, מזרח, מעלה, מטה ומערב. כדי לנענע את ד' המינים, אחוז את כריכת הלולב ביד ימין ואת האתרוג ביד שמאל. הושט את ידיך כך שארבעת המינים יהיו רחוקים מגופך, ואז קרב אותם חזרה אל החזה. יש להקפיד לעשות זאת שלוש פעמים." : "The Arba Minim are waved throughout the seven days of Sukkot (excluding Shabbat), prior to Hallel and during Hallel itself.\n\nThere are six directions one should wave the Arba Minim: South, North, East, Up, Down & West.\nTo wave the Dalet Minim, take the Lulav bundle in your right hand and Etrog in your left. Outstretch your arms so the Arba Minim are away from your body, then bring them back close to the chest. Make sure this is done three times.");
 
-			HighlightString compassInstruction = new HighlightString(isHebrew ? "יש למעט ככל האפשר בזמן שבין סיום הברכה לבין תחילת נענוע ד' המינים. לכן, יש לעמוד פונים דרומה תוך אחיזת כריכת הלולב ביד ימין, ולהניח את האתרוג מוכן לנטילה מיד לאחר סיום הברכה. כדי לעזור לך לעמוד לכיוון דרום, השתמש/י במצפן למטה בזמן שהטלפון מוחזק כרגיל (לא על שולחן ולא בצורה אנכית)." : "One should minimize the amount of time between concluding the blessing and beginning to wave the Dalet Minim. Thus, one should face South while hold the Lulav bundle in their right hand, leaving the Etrog ready to be picked up after the blessing is concluded.\nTo help you face South, use the compass below as you hold your phone normally (not on a table or straight up)")
+			HighlightString compassInstruction = new HighlightString(isHebrew ? "יש למעט ככל האפשר בזמן שבין סיום הברכה לבין תחילת נענוע ד' המינים. לכן, יש לעמוד פונים דרומה תוך אחיזת כריכת הלולב ביד ימין, ולהניח את האתרוג מוכן לנטילה מיד לאחר סיום הברכה. כדי לעזור לך לעמוד לכיוון דרום, השתמש/י במצפן למטה בזמן שהטלפון מוחזק כרגיל (לא על שולחן ולא בצורה אנכית)." : "One should minimize the amount of time between concluding the blessing and beginning to wave the Dalet Minim. Thus, one should face South while holding the Lulav bundle in their right hand, leaving the Etrog ready to be picked up after the blessing is concluded.\nTo help you face South, use the compass below as you hold your phone normally (not on a table or straight up)")
 				.setTypeChain(HighlightString.StringType.INSTRUCTION);
 			compassInstruction.setImageAttachment(HighlightString.ImageAttachment.COMPASS);
 			siddur.add(compassInstruction);
@@ -3941,7 +3939,7 @@ public class SiddurMaker {
 		addTwoWordToSiddur("יְהִ֤י שֵׁ֣ם יְהֹוָ֣ה מְבֹרָ֑ךְ מֵ֝עַתָּ֗ה וְעַד־עוֹלָֽם׃ מִמִּזְרַח־שֶׁ֥מֶשׁ עַד־מְבוֹא֑וֹ מְ֝הֻלָּ֗ל שֵׁ֣ם יְהֹוָֽה׃ רָ֖ם עַל־כׇּל־גּוֹיִ֥ם ׀ יְהֹוָ֑ה עַ֖ל הַשָּׁמַ֣יִם כְּבוֹדֽוֹ׃ יְהֹוָ֥ה אֲדֹנֵ֑ינוּ מָה־אַדִּ֥יר שִׁ֝מְךָ֗ בְּכׇל־הָאָֽרֶץ׃");
 
 		boolean purim = jewishDateInfo.getJewishCalendar().isPurim() ||
-				(jewishDateInfo.getJewishCalendar().getIsMukafChoma() // edge case for when purim is on Shabbat in a Mukaf Choma, the arvit of Thursday night will have megilah reading
+				(jewishDateInfo.getJewishCalendar().getIsMukafChoma() // edge case for purim meshulash when purim (the 15th) is on Shabbat in a Mukaf Choma (Jerusalem), the arvit of Thursday night will have megilah reading
 					&& jewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.FRIDAY
 					&& jewishDateInfo.getJewishCalendar().getJewishDayOfMonth() == 14
 					&& (jewishDateInfo.getJewishCalendar().getJewishMonth() == JewishDate.ADAR || jewishDateInfo.getJewishCalendar().getJewishMonth() == JewishDate.ADAR_II));
@@ -3952,7 +3950,7 @@ public class SiddurMaker {
 			addKaddishVariants(KaddishTypes.HALF);
 			if (jewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SUNDAY) {// checking for Motzaeh Shabbat, so it should be Sunday
 				addToSiddur(
-					"יש אומרים (Some say): [הֲרֵינִי מֵכִין עַצְמִי לְקַבֵּל אוֹר תּוֹסֶפֶת קְדֻשַּׁת שַׁבָּת לִימֵי הַחֹל, וְאֶתְקַדֵּשׁ בּעֶזְרַת הַשֵּׁם יִתְבָּרַךְ בִּימֵי הַחֹל מִקְּדֻשַּׁת הַשַּׁבָּת, כְּמוֹ שֶׁצִּוָּנוּ יְהֹוָה אֱלֹהֵינוּ בְּתוֹרָתוֹ הַקְּדוֹשָׁה: וְהִתְקַדִּשְׁתֶּם וִהְיִיתֶם קְדֹשִׁים, וִיהִי רָצוֹן מִלְּפָנֶיךָ יְהֹוָה אֱלֹהַי וֵאלֹהֵי אֲבוֹתַי, שֶׁיַּעֲלֶה לְפָנֶיךָ כְּאִלּוּ כִּוַּנְתִּי בְּכֹל הַכַּוָּנוֹת הָרְאוּיוֹת לְכַוֵּן בָּזֶה:] \n\n" +
+					"יש אומרים: [הֲרֵינִי מֵכִין עַצְמִי לְקַבֵּל אוֹר תּוֹסֶפֶת קְדֻשַּׁת שַׁבָּת לִימֵי הַחֹל, וְאֶתְקַדֵּשׁ בּעֶזְרַת הַשֵּׁם יִתְבָּרַךְ בִּימֵי הַחֹל מִקְּדֻשַּׁת הַשַּׁבָּת, כְּמוֹ שֶׁצִּוָּנוּ יְהֹוָה אֱלֹהֵינוּ בְּתוֹרָתוֹ הַקְּדוֹשָׁה: וְהִתְקַדִּשְׁתֶּם וִהְיִיתֶם קְדֹשִׁים, וִיהִי רָצוֹן מִלְּפָנֶיךָ יְהֹוָה אֱלֹהַי וֵאלֹהֵי אֲבוֹתַי, שֶׁיַּעֲלֶה לְפָנֶיךָ כְּאִלּוּ כִּוַּנְתִּי בְּכֹל הַכַּוָּנוֹת הָרְאוּיוֹת לְכַוֵּן בָּזֶה:] \n\n".replace(isHebrew ? "@" : "יש אומרים" , "Some say") +
 					"שׁוּבָ֣ה יְ֭הֹוָה עַד־מָתָ֑י וְ֝הִנָּחֵ֗ם עַל־עֲבָדֶֽיךָ׃ שַׂבְּעֵ֣נוּ בַבֹּ֣קֶר חַסְדֶּ֑ךָ וּֽנְרַנְּנָ֥ה וְ֝נִשְׂמְחָ֗ה בְּכׇל־יָמֵֽינוּ׃ שַׂ֭מְּחֵנוּ כִּימ֣וֹת עִנִּיתָ֑נוּ שְׁ֝נ֗וֹת רָאִ֥ינוּ רָעָֽה׃ יֵרָאֶ֣ה אֶל־עֲבָדֶ֣יךָ פׇעֳלֶ֑ךָ וַ֝הֲדָרְךָ֗ עַל־בְּנֵיהֶֽם׃ וִיהִ֤י ׀ נֹ֤עַם אֲדֹנָ֥י אֱלֹהֵ֗ינוּ עָ֫לֵ֥ינוּ וּמַעֲשֵׂ֣ה יָ֭דֵינוּ כּוֹנְנָ֥ה עָלֵ֑ינוּ וּֽמַעֲשֵׂ֥ה יָ֝דֵ֗ינוּ כּוֹנְנֵֽהוּ׃");
 				addInstructionToSiddur(isHebrew ? "טוב לעמוד פה" : "It is appropriate to stand here");
 				addToSiddur("יֹ֭שֵׁב בְּסֵ֣תֶר עֶלְי֑וֹן בְּצֵ֥ל שַׁ֝דַּ֗י יִתְלוֹנָֽן׃ אֹמַ֗ר לַ֭יהֹוָה מַחְסִ֣י וּמְצוּדָתִ֑י אֱ֝לֹהַ֗י אֶבְטַח־בּֽוֹ׃ כִּ֤י ה֣וּא יַ֭צִּילְךָ מִפַּ֥ח יָק֗וּשׁ מִדֶּ֥בֶר הַוּֽוֹת׃ בְּאֶבְרָת֨וֹ ׀  יָ֣סֶךְ לָ֭ךְ וְתַחַת־כְּנָפָ֣יו תֶּחְסֶ֑ה צִנָּ֖ה וְסֹחֵרָ֣ה אֲמִתּֽוֹ׃ לֹֽא־תִ֭ירָא מִפַּ֣חַד לָ֑יְלָה מֵ֝חֵ֗ץ יָע֥וּף יוֹמָֽם׃ מִ֭דֶּבֶר בָּאֹ֣פֶל יַהֲלֹ֑ךְ מִ֝קֶּ֗טֶב יָשׁ֥וּד צׇהֳרָֽיִם׃ יִפֹּ֤ל מִצִּדְּךָ֨ ׀ אֶ֗לֶף וּרְבָבָ֥ה מִימִינֶ֑ךָ אֵ֝לֶ֗יךָ לֹ֣א יִגָּֽשׁ׃ רַ֭ק בְּעֵינֶ֣יךָ תַבִּ֑יט וְשִׁלֻּמַ֖ת רְשָׁעִ֣ים תִּרְאֶֽה׃ כִּֽי־אַתָּ֣ה יְהֹוָ֣ה מַחְסִ֑י עֶ֝לְי֗וֹן שַׂ֣מְתָּ מְעוֹנֶֽךָ׃ לֹא־תְאֻנֶּ֣ה אֵלֶ֣יךָ רָעָ֑ה וְ֝נֶ֗גַע לֹא־יִקְרַ֥ב בְּאׇהֳלֶֽךָ׃ כִּ֣י מַ֭לְאָכָיו יְצַוֶּה־לָּ֑ךְ לִ֝שְׁמׇרְךָ֗ בְּכׇל־דְּרָכֶֽיךָ׃ עַל־כַּפַּ֥יִם יִשָּׂא֑וּנְךָ פֶּן־תִּגֹּ֖ף בָּאֶ֣בֶן רַגְלֶֽךָ׃ עַל־שַׁ֣חַל וָפֶ֣תֶן תִּדְרֹ֑ךְ תִּרְמֹ֖ס כְּפִ֣יר וְתַנִּֽין׃ כִּ֤י בִ֣י חָ֭שַׁק וַאֲפַלְּטֵ֑הוּ אֲ֝שַׂגְּבֵ֗הוּ כִּֽי־יָדַ֥ע שְׁמִֽי׃ יִקְרָאֵ֨נִי ׀ וְֽאֶעֱנֵ֗הוּ עִמּֽוֹ־אָנֹכִ֥י בְצָרָ֑ה אֲ֝חַלְּצֵ֗הוּ וַאֲכַבְּדֵֽהוּ׃ אֹ֣רֶךְ יָ֭מִים אַשְׂבִּיעֵ֑הוּ וְ֝אַרְאֵ֗הוּ בִּישׁוּעָתִֽי׃");

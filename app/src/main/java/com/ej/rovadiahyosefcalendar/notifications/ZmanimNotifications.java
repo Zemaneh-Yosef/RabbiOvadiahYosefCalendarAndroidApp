@@ -33,37 +33,58 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
     private SharedPreferences mSettingsPreferences;
     private LocationResolver mLocationResolver;
     private Context context;
+
     @Override
     public void onReceive(Context context, Intent intent) {
-        this.context = context;
-        mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
-        mSettingsPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        mLocationResolver = new LocationResolver(context, null);
-        if (mSharedPreferences.getBoolean("isSetup",false) && mSettingsPreferences.getBoolean("zmanim_notifications", true)) {
-            Thread thread = new Thread(() -> {
-                ROZmanimCalendar zmanimCalendar = getROZmanimCalendar();
-                if (!zmanimCalendar.getGeoLocation().equals(new GeoLocation())) {// if equal, we can get the user's location in the accept method
-                    JewishDateInfo jDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael",false));
-                    zmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
-                    String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
-                    if (candles.isEmpty()) {
-                        candles = "20";
+        final PendingResult pendingResult = goAsync();
+
+        new Thread(() -> {
+            try {
+                this.context = context;
+                mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
+                mSettingsPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+                mLocationResolver = new LocationResolver(context, null);
+
+                if (mSharedPreferences.getBoolean("isSetup", false) &&
+                        mSettingsPreferences.getBoolean("zmanim_notifications", true)) {
+
+                    ROZmanimCalendar zmanimCalendar = getROZmanimCalendar();
+
+                    if (!zmanimCalendar.getGeoLocation().equals(new GeoLocation())) {// if equal, we will get the user's location in the accept method
+                        JewishDateInfo jDateInfo =
+                                new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false));
+
+                        zmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
+
+                        String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
+                        if (candles.isEmpty()) candles = "20";
+
+                        zmanimCalendar.setCandleLightingOffset(Double.parseDouble(candles));
+
+                        String shabbat = mSettingsPreferences.getString(
+                                "EndOfShabbatOffset",
+                                mSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40"
+                        );
+                        if (shabbat.isEmpty()) shabbat = "40";
+
+                        zmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(shabbat));
+
+                        if (mSharedPreferences.getBoolean("inIsrael", false) && shabbat.equals("40")) {
+                            zmanimCalendar.setAteretTorahSunsetOffset(30);
+                        }
+
+                        mSharedPreferences.edit()
+                                .putString("locationNameFN", zmanimCalendar.getGeoLocation().getLocationName())
+                                .apply();
+
+                        setAlarms(zmanimCalendar, jDateInfo);
                     }
-                    zmanimCalendar.setCandleLightingOffset(Double.parseDouble(candles));
-                    String shabbat = mSettingsPreferences.getString("EndOfShabbatOffset", mSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40");
-                    if (shabbat.isEmpty()) {// for some reason this is happening
-                        shabbat = "40";
-                    }
-                    zmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(shabbat));
-                    if (mSharedPreferences.getBoolean("inIsrael", false) && shabbat.equals("40")) {
-                        zmanimCalendar.setAteretTorahSunsetOffset(30);
-                    }
-                    mSharedPreferences.edit().putString("locationNameFN", zmanimCalendar.getGeoLocation().getLocationName()).apply();
-                    setAlarms(zmanimCalendar, jDateInfo);
                 }
-            });
-            thread.start();
-        }
+
+            } finally {
+                pendingResult.finish(); // REQUIRED TO AVOID ANR
+            }
+        }).start();
     }
 
     private ROZmanimCalendar getROZmanimCalendar() {

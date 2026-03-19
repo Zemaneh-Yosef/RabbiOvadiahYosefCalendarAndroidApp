@@ -1,5 +1,6 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
+import static android.hardware.SensorManager.SENSOR_STATUS_UNRELIABLE;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sLatitude;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sLongitude;
 
@@ -40,6 +41,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.maps.android.SphericalUtil;
 import com.kosherjava.zmanim.util.GeoLocation;
 
@@ -320,5 +322,19 @@ public class JerusalemDirectionMapsActivity extends FragmentActivity implements 
     }
 
     @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        if (accuracy == SENSOR_STATUS_UNRELIABLE || accuracy == SensorManager.SENSOR_STATUS_ACCURACY_LOW) {
+            Snackbar.make(this.findViewById(R.id.map), R.string.sensor_accuracy_is_low_please_move_the_device_in_a_figure_eight_movement_to_increase_the_accuracy, Snackbar.LENGTH_LONG)
+                    .setBackgroundTint(Color.RED)
+                    .show();
+        } else if (accuracy == SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM || accuracy == SensorManager.SENSOR_STATUS_ACCURACY_HIGH) {
+            Snackbar.make(this.findViewById(R.id.map), R.string.sensor_accuracy_is_okay, Snackbar.LENGTH_LONG)
+                    .setBackgroundTint(Color.GREEN)
+                    .show();
+        } else if (accuracy == SensorManager.SENSOR_STATUS_NO_CONTACT) {
+            Snackbar.make(this.findViewById(R.id.map), R.string.no_sensor_found, Snackbar.LENGTH_LONG)
+                    .setBackgroundTint(Color.BLACK)
+                    .show();
+        }
+    }
 }
