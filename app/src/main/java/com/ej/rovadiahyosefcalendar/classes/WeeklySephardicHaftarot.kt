@@ -16,7 +16,7 @@ class WeeklySephardicHaftarot {
 
     companion object {
         private val specialShabbatot: Map<Parsha, HaftarahReading> = mapOf(
-            Parsha.SHKALIM to HaftarahReading("ויכרת יהוידע", "מלכים ב י\"א"),
+            Parsha.SHKALIM to HaftarahReading("ויכרות יהוידע", "מלכים ב י\"א"),
             Parsha.ZACHOR to HaftarahReading("ויאמר שמואל", "שמואל א ט\"ו"),
             Parsha.PARA to HaftarahReading("ויהי דבר", "יחזקאל ל\"ו"),
             Parsha.HACHODESH to HaftarahReading("כה אמר", "יחזקאל מ\"ה"),
@@ -90,7 +90,7 @@ class WeeklySephardicHaftarot {
                 if (jCal.isErevRoshChodesh) {
                     return HaftarahReading("מחר חודש", "שמואל א כ")
                 } else if (jCal.isRoshChodesh) {
-                    return HaftarahReading("כה אמר", "ישעיה ס\"ו" + " [הפטרת ר\"ח]")
+                    return HaftarahReading("השמים כסאי", "ישעיה ס\"ו" + " [הפטרת ר\"ח]")
                 }
             }
 
@@ -111,15 +111,15 @@ class WeeklySephardicHaftarot {
                 Parsha.VAYESHEV -> HaftarahReading("כה אמר", "עמוס ב")
                 Parsha.MIKETZ -> HaftarahReading("ויקץ שלמה", "מלכים א ג")
                 Parsha.VAYIGASH -> HaftarahReading("ויהי דבר", "יחזקאל ל\"ז")
-                Parsha.VAYECHI -> HaftarahReading("ויקרבו", "מלכים א ב")
-                Parsha.SHEMOS -> HaftarahReading("דברי ירמיה", "ירמיה א")
+                Parsha.VAYECHI -> HaftarahReading("ויקרבו ימי", "מלכים א ב")
+                Parsha.SHEMOS -> HaftarahReading("דברי ירמיהו", "ירמיה א")
                 Parsha.VAERA -> HaftarahReading("כה אמר", "יחזקאל כ\"ח")
                 Parsha.BO -> HaftarahReading("הדבר אשר", "ירמיה מ\"ו")
                 Parsha.BESHALACH -> HaftarahReading("ותשר דבורה", "שופטים ד")
                 Parsha.YISRO -> HaftarahReading("בשנת מות", "ישעיה ו")
                 Parsha.MISHPATIM -> HaftarahReading("הדבר אשר", "ירמיה ל\"ד")
-                Parsha.TERUMAH -> HaftarahReading("ויהוה נתן", "מלכים א ה")
-                Parsha.TETZAVEH -> HaftarahReading("אתה בן אדם", "יחזקאל מ\"ג")
+                Parsha.TERUMAH -> HaftarahReading("וה' נתן", "מלכים א ה")
+                Parsha.TETZAVEH -> HaftarahReading("אתה בן אדם", "יחזקאל מ\"ג")// TODO double check this title
                 Parsha.KI_SISA -> HaftarahReading("וישלח אחאב", "מלכים א י\"ח")
                 Parsha.VAYAKHEL -> HaftarahReading("וישלח המלך", "מלכים א ז")
                 Parsha.PEKUDEI, Parsha.VAYAKHEL_PEKUDEI -> HaftarahReading("ויעש חירום", "מלכים א ז")
@@ -130,39 +130,39 @@ class WeeklySephardicHaftarot {
                 Parsha.METZORA, Parsha.TAZRIA_METZORA -> HaftarahReading("וארבעה אנשים", "מלכים ב ז")
                 Parsha.ACHREI_MOS -> HaftarahReading("ויהי דבר", "יחזקאל כ\"ב")
                 Parsha.KEDOSHIM, Parsha.ACHREI_MOS_KEDOSHIM -> HaftarahReading("ויהי דבר", "יחזקאל כ")
-                Parsha.EMOR -> HaftarahReading("והכהנים", "יחזקאל מ\"ד")
+                Parsha.EMOR -> HaftarahReading("והכהנים הלוים", "יחזקאל מ\"ד")
                 Parsha.BEHAR -> HaftarahReading("ויאמר ירמיהו", "ירמיה ל\"ב")
                 Parsha.BECHUKOSAI, Parsha.BEHAR_BECHUKOSAI -> HaftarahReading("ה' עזי", "ירמיה ט\"ז")
                 Parsha.BAMIDBAR -> HaftarahReading("והיה מספר", "הושע ב")
                 Parsha.NASSO -> HaftarahReading("ויהי איש", "שופטים י\"ג")
                 Parsha.BEHAALOSCHA -> HaftarahReading("רני ושמחי", "זכריה ב")
-                Parsha.SHLACH -> HaftarahReading("וישלח", "יהושע ב")
+                Parsha.SHLACH -> HaftarahReading("וישלח יהושע", "יהושע ב")
                 Parsha.KORACH -> HaftarahReading("ויאמר שמואל", "שמואל א י\"א")
-                Parsha.CHUKAS -> HaftarahReading("ויפתח", "שופטים י\"א")
-                Parsha.BALAK, Parsha.CHUKAS_BALAK -> HaftarahReading("והיה", "מיכה ה")
+                Parsha.CHUKAS -> HaftarahReading("ויפתח הגלעדי", "שופטים י\"א")
+                Parsha.BALAK, Parsha.CHUKAS_BALAK -> HaftarahReading("והיה שארית", "מיכה ה")
                 Parsha.PINCHAS -> {
                     if (jCal < tammuz17) {
                         HaftarahReading("ויד יהוה", "מלכים י\"ח")
                     } else {
-                        HaftarahReading("דברי ירמיהו", "ירמיהו א")
+                        HaftarahReading("דברי ירמיהו", "ירמיה א")
                     }
                 }
-                Parsha.MATOS -> HaftarahReading("דברי ירמיהו", "ירמיהו א")
-                Parsha.MASEI, Parsha.MATOS_MASEI -> HaftarahReading("שמעו דבר", "ירמיהו ב")
-                Parsha.DEVARIM -> HaftarahReading("חזון", "ישעיה א")
-                Parsha.VAESCHANAN -> HaftarahReading("נחמו", "ישעיה מ")
+                Parsha.MATOS -> HaftarahReading("דברי ירמיהו", "ירמיה א")
+                Parsha.MASEI, Parsha.MATOS_MASEI -> HaftarahReading("שמעו דבר", "ירמיה ב")
+                Parsha.DEVARIM -> HaftarahReading("חזון ישעיהו", "ישעיה א")
+                Parsha.VAESCHANAN -> HaftarahReading("נחמו נחמו", "ישעיה מ")
                 Parsha.EIKEV -> HaftarahReading("ותאמר ציון", "ישעיה מ\"ט")
                 Parsha.REEH -> HaftarahReading("עניה סערה", "ישעיה נ\"ד")
                 Parsha.SHOFTIM -> HaftarahReading("אנכי אנכי", "ישעיה נ\"א")
-                Parsha.KI_SEITZEI -> HaftarahReading("רני עקרה", "ישעיה נ\"ד")
+                Parsha.KI_SEITZEI -> HaftarahReading("רוני עקרה", "ישעיה נ\"ד")
                 Parsha.KI_SAVO -> HaftarahReading("קומי אורי", "ישעיה ס")
                 Parsha.NITZAVIM, Parsha.NITZAVIM_VAYEILECH -> HaftarahReading("שוש אשיש", "ישעיה ס\"א")
-                Parsha.VAYEILECH -> HaftarahReading("שובה", "הושע י\"ד")
+                Parsha.VAYEILECH -> HaftarahReading("שובה ישראל", "הושע י\"ד")
                 Parsha.HAAZINU -> {
                     if (jCal.jewishMonth == JewishCalendar.TISHREI && jCal.jewishDayOfMonth > 10) {
                         HaftarahReading("וידבר דוד", "שמואל ב כ\"ב")
                     } else {
-                        HaftarahReading("שובה", "הושע י\"ד")
+                        HaftarahReading("שובה ישראל", "הושע י\"ד")
                     }
                 }
                 else -> null // V'zos Haberachah unused
