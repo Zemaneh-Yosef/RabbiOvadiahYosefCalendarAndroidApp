@@ -136,8 +136,7 @@ public class SetupChaiTablesActivity extends AppCompatActivity {
 
         mCountryACTV.setAdapter(new ArrayAdapter<>(this, R.layout.custom_spinner_item, countries));
 
-        mCountryACTV.setOnItemClickListener((p, v, pos, id) ->
-        {
+        mCountryACTV.setOnItemClickListener((p, v, pos, id) -> {
             try {
                 selectCountry((String) p.getItemAtPosition(pos), pos);
             } catch (JSONException e) {
@@ -145,8 +144,7 @@ public class SetupChaiTablesActivity extends AppCompatActivity {
             }
         });
 
-        mStateACTV.setOnItemClickListener((p, v, pos, id) ->
-        {
+        mStateACTV.setOnItemClickListener((p, v, pos, id) -> {
             try {
                 selectState((String) p.getItemAtPosition(pos), pos);
             } catch (JSONException e) {
@@ -154,8 +152,7 @@ public class SetupChaiTablesActivity extends AppCompatActivity {
             }
         });
 
-        mMetroACTV.setOnItemClickListener((p, v, pos, id) ->
-        {
+        mMetroACTV.setOnItemClickListener((p, v, pos, id) -> {
             try {
                 selectMetro((String) p.getItemAtPosition(pos), pos);
             } catch (JSONException e) {
@@ -177,23 +174,28 @@ public class SetupChaiTablesActivity extends AppCompatActivity {
                 try {
                     ChaiTablesWebJava.ChaiTablesResult[] result = scraper.formatInterfacer();
                     int jewishYear = jDate.getJewishYear();
-                    if (result != null) {
+                    Looper.prepare();
+                    if (result != null && result[0] != null) {
                         for (ChaiTablesWebJava.ChaiTablesResult r : result) {
                             ChaiTablesWebJava.saveResultsToFile(r, getExternalFilesDir(null), sCurrentLocationName, jewishYear);
                             jewishYear++;
                         }
+                        Toast.makeText(getApplicationContext(), getString(R.string.success), Toast.LENGTH_SHORT).show();
+                        mSharedPreferences.edit().putString("chaitablesLink" + sCurrentLocationName, result[0].url()).apply(); // save the link for this location to automatically download again next time
+                        mSharedPreferences.edit().putBoolean("UseTable" + sCurrentLocationName, true)
+                                .putBoolean("showMishorSunrise" + sCurrentLocationName, false)
+                                .putBoolean("isSetup", true)
+                                .putBoolean("useElevation", true)
+                                .apply();
+                        setResult(Activity.RESULT_OK, new Intent().putExtra("elevation", mSharedPreferences.getString("elevation" + sCurrentLocationName, "")));
+                        finish();
+                    } else {
+                        runOnUiThread(() -> {
+                            mDownloadButton.setEnabled(true);
+                            progressBar.setVisibility(View.GONE);
+                        });
+                        Toast.makeText(getApplicationContext(), getString(R.string.error), Toast.LENGTH_SHORT).show();
                     }
-
-                    Looper.prepare();
-                    Toast.makeText(getApplicationContext(), getString(R.string.success), Toast.LENGTH_SHORT).show();
-                    mSharedPreferences.edit().putString("chaitablesLink" + sCurrentLocationName, result != null ? result[0].url() : null).apply(); // save the link for this location to automatically download again next time
-                    mSharedPreferences.edit().putBoolean("UseTable" + sCurrentLocationName, true)
-                            .putBoolean("showMishorSunrise" + sCurrentLocationName, false)
-                            .putBoolean("isSetup", true)
-                            .putBoolean("useElevation", true)
-                            .apply();
-                    setResult(Activity.RESULT_OK, new Intent().putExtra("elevation", mSharedPreferences.getString("elevation" + sCurrentLocationName, "")));
-                    finish();
                 } catch (IOException e) {
                     recreate();
                     e.printStackTrace();
@@ -261,9 +263,10 @@ public class SetupChaiTablesActivity extends AppCompatActivity {
         mCountryACTV.setText(country, false);
         mSharedPreferences.edit().putInt("selectedCountry", countryIndex).apply();
 
-        mCountry = country;
+        mCountry = chaitablesIndex.getJSONObject(countryIndex).getJSONObject("info").getString("value");
 
-        if (chaitablesIndex.getJSONObject(countryIndex).getJSONObject("info").has("stateSeparate") && chaitablesIndex.getJSONObject(countryIndex).getJSONObject("info").getBoolean("stateSeparate")) {
+        if (chaitablesIndex.getJSONObject(countryIndex).getJSONObject("info").has("stateSeparate")
+                && chaitablesIndex.getJSONObject(countryIndex).getJSONObject("info").getBoolean("stateSeparate")) {
             mStateLayout.setVisibility(View.VISIBLE);
             mMetroLayout.setVisibility(View.GONE);
 

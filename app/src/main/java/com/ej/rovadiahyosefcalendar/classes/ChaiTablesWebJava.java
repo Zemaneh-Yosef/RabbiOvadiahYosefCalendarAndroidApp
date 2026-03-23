@@ -100,7 +100,7 @@ public final class ChaiTablesWebJava {
 		if ("Eretz_Yisroel".equals(selectedCountry)) {
 			urlParams.put("TableType", "BY");
 			urlParams.put("USAcities1", "1");
-			urlParams.put("MetroArea", selectedMetroArea);
+			urlParams.put("MetroArea", selectedMetroArea.toLowerCase().replace(" ", "_"));
 		} else {
 			urlParams.put("searchradius", searchradius);
 			urlParams.put("TableType", "Chai");
@@ -217,7 +217,7 @@ public final class ChaiTablesWebJava {
 			if (ctDoc == null) {
 				URL ctLink = getChaiTablesLink(smallestRadius, 0, yearLoop, 413);
                 System.out.println(ctLink);
-				ctDoc = fetchChaiTablesDocument(ctLink);
+                ctDoc = fetchChaiTablesDocument(ctLink);
 			}
 
 			if (ctDoc != null && findZmanTable(ctDoc) == null) {
@@ -347,7 +347,7 @@ public final class ChaiTablesWebJava {
 			if (ctDoc != null && findZmanTable(ctDoc) != null) {
 				radiusData.put(radius + "-" + calendar.getJewishYear(), ctDoc);
                 System.out.println("Radius: " + radius);
-				return Optional.of(radius);
+                return Optional.of(radius);
 			}
 		}
 
@@ -442,6 +442,10 @@ public final class ChaiTablesWebJava {
 	}
 
 	public static void saveResultsToFile(ChaiTablesResult r, File externalFilesDir, String locationName, int jewishYear) throws IOException {
+        if (r == null) {
+            new IOException("(r)esult is null").printStackTrace();
+            return;
+        }
 		File file = getVisibleSunriseFile(externalFilesDir, Utils.removePostalCode(locationName), jewishYear);
 		try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
 			oos.writeObject(r.times());   // List<Long>
