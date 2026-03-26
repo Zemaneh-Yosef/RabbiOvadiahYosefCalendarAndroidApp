@@ -128,7 +128,7 @@ public class SetupChaiTablesActivity extends AppCompatActivity {
                 countries.add(chaitablesIndex
                         .getJSONObject(i)
                         .getJSONObject("info")
-                        .getString("title"));
+                        .getString(Utils.isLocaleHebrew(this) ? "title_he" : "title"));
             } catch (JSONException e) {
                 e.printStackTrace();
             }

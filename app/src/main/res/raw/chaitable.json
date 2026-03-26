@@ -2,6 +2,7 @@
 	{
 		"info": {
 			"title": "Argentina",
+            "title_he": "ארגנטינה",
 			"value": "Argentina"
 		},
 		"metroAreas": [
@@ -45,6 +46,7 @@
 	{
 		"info": {
 			"title": "Australia",
+            "title_he": "אוסטרליה",
 			"value": "Australia"
 		},
 		"metroAreas": [
@@ -85,6 +87,7 @@
 	{
 		"info": {
 			"title": "Austria",
+            "title_he": "אוסטריה",
 			"value": "Austria"
 		},
 		"metroAreas": [
@@ -110,6 +113,7 @@
 	{
 		"info": {
 			"title": "Belgium",
+            "title_he": "בלגיה",
 			"value": "Belgium"
 		},
 		"metroAreas": [
@@ -150,6 +154,7 @@
 	{
 		"info": {
 			"title": "Brazil",
+            "title_he": "ברזיל",
 			"value": "Brazil"
 		},
 		"metroAreas": [
@@ -190,6 +195,7 @@
 	{
 		"info": {
 			"title": "Bulgaria",
+            "title_he": "בולגריה",
 			"value": "Bulgaria"
 		},
 		"metroAreas": [
@@ -215,6 +221,7 @@
 	{
 		"info": {
 			"title": "Canada",
+            "title_he": "קנדה",
 			"value": "Canada"
 		},
 		"metroAreas": [
@@ -357,6 +364,7 @@
 	{
 		"info": {
 			"title": "Chile",
+            "title_he": "צ'ילה",
 			"value": "Chile"
 		},
 		"metroAreas": [
@@ -382,6 +390,7 @@
 	{
 		"info": {
 			"title": "China",
+            "title_he": "סין",
 			"value": "China"
 		},
 		"metroAreas": [
@@ -407,6 +416,7 @@
 	{
 		"info": {
 			"title": "Colombia",
+            "title_he": "קולומביה",
 			"value": "Colombia"
 		},
 		"metroAreas": [
@@ -447,6 +457,7 @@
 	{
 		"info": {
 			"title": "Czech Republic",
+            "title_he": "צ'כיה",
 			"value": "Czech-Republic"
 		},
 		"metroAreas": [
@@ -472,6 +483,7 @@
 	{
 		"info": {
 			"title": "Denmark",
+            "title_he": "דנמרק",
 			"value": "Denmark"
 		},
 		"metroAreas": [
@@ -497,6 +509,7 @@
 	{
 		"info": {
 			"title": "Eretz Yisrael (Cities)",
+            "title_he": "ארץ ישראל (ערים)",
 			"value": "Eretz_Yisroel"
 		},
 		"metroAreas": [
@@ -4308,6 +4321,7 @@
 	{
 		"info": {
 			"title": "Eretz Yisrael (Neighborhoods)",
+            "title_he": "ארץ ישראל (שכונות)",
 			"value": "Israel"
 		},
 		"metroAreas": [
@@ -4369,6 +4383,7 @@
 	{
 		"info": {
 			"title": "France",
+            "title_he": "צרפת",
 			"value": "France"
 		},
 		"metroAreas": [
@@ -4547,6 +4562,7 @@
 	{
 		"info": {
 			"title": "Germany",
+            "title_he": "גרמניה",
 			"value": "Germany"
 		},
 		"metroAreas": [
@@ -4617,6 +4633,7 @@
 	{
 		"info": {
 			"title": "Greece",
+            "title_he": "יוון",
 			"value": "Greece"
 		},
 		"metroAreas": [
@@ -4642,6 +4659,7 @@
 	{
 		"info": {
 			"title": "Hungary",
+            "title_he": "הונגריה",
 			"value": "Hungary"
 		},
 		"metroAreas": [
@@ -4667,6 +4685,7 @@
 	{
 		"info": {
 			"title": "Italy",
+            "title_he": "איטליה",
 			"value": "Italy"
 		},
 		"metroAreas": [
@@ -4719,6 +4738,7 @@
 	{
 		"info": {
 			"title": "Mexico",
+            "title_he": "מקסיקו",
 			"value": "Mexico"
 		},
 		"metroAreas": [
@@ -4759,6 +4779,7 @@
 	{
 		"info": {
 			"title": "Netherlands",
+            "title_he": "הולנד",
 			"value": "Netherlands"
 		},
 		"metroAreas": [
@@ -4784,6 +4805,7 @@
 	{
 		"info": {
 			"title": "Panama",
+            "title_he": "פנמה",
 			"value": "Panama"
 		},
 		"metroAreas": [
@@ -4809,6 +4831,7 @@
 	{
 		"info": {
 			"title": "Poland",
+            "title_he": "פולין",
 			"value": "Poland"
 		},
 		"metroAreas": [
@@ -4834,6 +4857,7 @@
 	{
 		"info": {
 			"title": "Romania",
+            "title_he": "רומניה",
 			"value": "Romania"
 		},
 		"metroAreas": [
@@ -4859,6 +4883,7 @@
 	{
 		"info": {
 			"title": "Russia",
+            "title_he": "רוסיה",
 			"value": "Russia"
 		},
 		"metroAreas": [
@@ -4884,6 +4909,7 @@
 	{
 		"info": {
 			"title": "South-Africa",
+            "title_he": "דרום אפריקה",
 			"value": "South-Africa"
 		},
 		"metroAreas": [
@@ -4924,6 +4950,7 @@
 	{
 		"info": {
 			"title": "Spain",
+            "title_he": "ספרד",
 			"value": "Spain"
 		},
 		"metroAreas": [
@@ -4985,6 +5012,7 @@
 	{
 		"info": {
 			"title": "Switzerland",
+            "title_he": "שוויץ",
 			"value": "Switzerland"
 		},
 		"metroAreas": [
@@ -5064,6 +5092,7 @@
 	{
 		"info": {
 			"title": "Turkey",
+            "title_he": "טורקיה",
 			"value": "Turkey"
 		},
 		"metroAreas": [
@@ -5104,6 +5133,7 @@
 	{
 		"info": {
 			"title": "UK and Ireland",
+            "title_he": "בריטניה ואירלנד",
 			"value": "England"
 		},
 		"metroAreas": [
@@ -5255,6 +5285,7 @@
 	{
 		"info": {
 			"title": "Ukraine",
+            "title_he": "אוקראינה",
 			"value": "Ukraine"
 		},
 		"metroAreas": [
@@ -5343,6 +5374,7 @@
 	{
 		"info": {
 			"title": "Uruguay",
+            "title_he": "אורוגוואי",
 			"value": "Uruguay"
 		},
 		"metroAreas": [
@@ -5372,7 +5404,7 @@
 				"e": -56.02915299560375,
 				"w": -56.43121809663672
 			},
-			{
+          {
 				"n": -33.832011243067384,
 				"s": -34.790075947855435,
 				"e": -56.33820715163627,
@@ -5383,6 +5415,7 @@
 	{
 		"info": {
 			"title": "USA",
+            "title_he": "ארה\"ב",
 			"value": "USA",
 			"stateSeparate": true
 		},
@@ -6009,6 +6042,7 @@
 	{
 		"info": {
 			"title": "Venezuela",
+            "title_he": "ונצואלה",
 			"value": "Venezuela"
 		},
 		"metroAreas": [

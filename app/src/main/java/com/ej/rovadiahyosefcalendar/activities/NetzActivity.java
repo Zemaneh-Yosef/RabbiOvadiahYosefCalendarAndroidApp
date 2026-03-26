@@ -6,7 +6,6 @@ import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivit
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sLatitude;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sLongitude;
 
-import android.app.Activity;
 import android.content.SharedPreferences;
 import android.graphics.LinearGradient;
 import android.graphics.Shader;
@@ -156,7 +155,7 @@ public class NetzActivity extends AppCompatActivity {
             Objects.requireNonNull(Looper.myLooper()).quit();
         }).start());
 
-        mLocationResolver = new LocationResolver(this, new Activity());
+        mLocationResolver = new LocationResolver(this, null);
         mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         setZmanimLanguageBools();
         mROZmanimCalendar = getROZmanimCalendar();

@@ -5,7 +5,6 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.SHARED_PREF;
 
-import android.app.Activity;
 import android.app.ForegroundServiceStartNotAllowedException;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -113,7 +112,7 @@ public class NextZmanCountdownNotification extends Service {
                         .get(0));
             }
         }
-        mLocationResolver = new LocationResolver(this, new Activity());
+        mLocationResolver = new LocationResolver(this, null);
         zmanimFormat.setTimeZone(mLocationResolver.getTimeZone()); //set the formatters time zone
         mROZmanimCalendar = getROZmanimCalendar(this);
         mROZmanimCalendar.setExternalFilesDir(getExternalFilesDir(null));
@@ -144,10 +143,6 @@ public class NextZmanCountdownNotification extends Service {
                 .setContentText(String.format(Locale.getDefault(),"%02dh:%02dm:%02ds", 0, 0, 0))
                 .setProgress(100, 0, false)
                 .setOngoing(true);
-
-        Intent notificationIntent = new Intent(this, MainFragmentManagerActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
-        builder.setContentIntent(pendingIntent);
 
         Notification notification = builder.build();
         notification.flags = Notification.FLAG_ONGOING_EVENT;
@@ -309,13 +304,10 @@ public class NextZmanCountdownNotification extends Service {
 
     private void createNotificationChannel() {
         String description = "Next Zman Countdown Channel";
-        int importance = NotificationManager.IMPORTANCE_HIGH;
-        NotificationChannel channel = new NotificationChannel(CHANNEL_ID, description, importance);
+        NotificationChannel channel = new NotificationChannel(CHANNEL_ID, description, NotificationManager.IMPORTANCE_HIGH);
         channel.setDescription(description);
         channel.enableVibration(false);
-
-        NotificationManager notificationManager = getSystemService(NotificationManager.class);
-        notificationManager.createNotificationChannel(channel);
+        getSystemService(NotificationManager.class).createNotificationChannel(channel);
     }
 
     @Override

@@ -155,7 +155,7 @@ class SiddurKahalStringBuilder(
         return builder.length
     }
 
-    fun delete(start: Int, end: Int): SiddurKahalStringBuilder? {
+    fun delete(start: Int, end: Int): SiddurKahalStringBuilder {
         builder.delete(start, end)
         return this
     }
