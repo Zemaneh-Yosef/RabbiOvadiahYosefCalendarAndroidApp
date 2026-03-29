@@ -46,6 +46,7 @@ import com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesWebJava;
 import com.ej.rovadiahyosefcalendar.classes.ExceptionHandler;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
+import com.ej.rovadiahyosefcalendar.classes.NisanLimudYomi;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.ej.rovadiahyosefcalendar.databinding.ActivityMainFragmentManagerBinding;
@@ -64,6 +65,7 @@ import com.google.android.play.core.install.model.AppUpdateType;
 import com.google.android.play.core.install.model.UpdateAvailability;
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
+import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
 import com.kosherjava.zmanim.util.GeoLocation;
 
 import java.util.Calendar;
@@ -195,10 +197,20 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
         // Set initial selection on BottomNavigationView to the corresponding menu item
         sNavView.setSelectedItemId(R.id.navigation_zmanim);
 
-        if (sJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.TU_BESHVAT ||
-                (sJewishDateInfo.getJewishCalendar().getUpcomingParshah() == JewishCalendar.Parsha.BESHALACH &&
+        if (sJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.TU_BESHVAT) {
+           sNavView.getOrCreateBadge(R.id.navigation_siddur).setText("תפילה לאתרוג");
+        }
+
+        if ((sJewishDateInfo.getJewishCalendar().getUpcomingParshah() == JewishCalendar.Parsha.BESHALACH &&
                 sJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.TUESDAY)) {
-           sNavView.getOrCreateBadge(R.id.navigation_siddur).setNumber(1);
+            sNavView.getOrCreateBadge(R.id.navigation_siddur).setText("פרשת המן");
+        }
+
+        if (sJewishDateInfo.getJewishCalendar().getJewishMonth() == JewishDate.NISSAN) {
+            String title = NisanLimudYomi.getNisanLimudYomiTitle(sJewishDateInfo.getJewishCalendar().getJewishDayOfMonth());
+            if (!title.isEmpty()) {
+                sNavView.getOrCreateBadge(R.id.navigation_limud).setText(title);
+            }
         }
 
         // Synchronize BottomNavigationView with ViewPager2

@@ -40,6 +40,7 @@ import com.ej.rovadiahyosefcalendar.classes.HebrewDayMonthYearPickerDialog;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
+import com.ej.rovadiahyosefcalendar.classes.SecondTreatment;
 import com.ej.rovadiahyosefcalendar.classes.SiddurMaker;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.ej.rovadiahyosefcalendar.databinding.FragmentSiddurBinding;
@@ -52,7 +53,6 @@ import com.kosherjava.zmanim.hebrewcalendar.YomiCalculator;
 
 import org.apache.commons.lang3.time.DateUtils;
 
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -578,7 +578,7 @@ public class SiddurFragment extends Fragment {
             }
             // end of dimming code
 
-            String sunset = DateFormat.getTimeInstance(DateFormat.SHORT).format(currentZmanimCalendar.getSunset() != null ? currentZmanimCalendar.getSunset() : new Date());
+            String sunset = Utils.formatZmanTime(requireContext(), currentZmanimCalendar.getSunset() != null ? currentZmanimCalendar.getSunset() : new Date(), SecondTreatment.ROUND_EARLIER);
 
             CustomPreferenceView bh = findPreference("siddur_birchat_hamazon");
             if (bh != null) {

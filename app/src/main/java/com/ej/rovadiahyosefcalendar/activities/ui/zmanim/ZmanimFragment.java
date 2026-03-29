@@ -558,6 +558,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             }
             mLocationResolver.acquireLatitudeAndLongitude(this);
             mLocationResolver.setTimeZoneID();
+            checkIfUserIsInIsraelOrNot();
             if (sCurrentDateShown != null && sROZmanimCalendar != null && mMainRecyclerView != null) {
                 sCurrentDateShown.setTime(new Date());
                 sJewishDateInfo.setCalendar(new GregorianCalendar());

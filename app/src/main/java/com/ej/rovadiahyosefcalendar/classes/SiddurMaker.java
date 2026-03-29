@@ -876,7 +876,7 @@ public class SiddurMaker {
 				 || jewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.THURSDAY) {
 					addInstructionToSiddurHighlighted(
 						isHebrew ?	"מי שמתפלל ביחיד או עם אשכנזים יאמר \"אל מלך יושב\" עד \"וכן כתוב בתורתך\". אז ידלג את הי\"ג מדות וימשיך לאחריו"
-						: "Outside of a Sepharadic minyan, the paragraph of \"אֶל מֶלֶך\" should end before \"וְכֵן כָּתוּב בְּתוֹרָתָךְ\"; skip to the next paragraph after \"וַיַּעֲבֹר\"");
+						: "Outside of a Sepharadic minyan, the paragraph of \"אֶל מֶלֶך\" should end before \"וְכֵן כָּתוּב בְּתוֹרָתָךְ\"; skip to the paragraph after the next \"וַיַּעֲבֹר\"");
 					addFastSelichot();
 
 					addTwoWordToSiddur(

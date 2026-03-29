@@ -314,13 +314,17 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
     }
 
     private void configureSettingsBasedOnLocation() {
+        if (sLatitude < 29.4 || sLatitude > 33.3 || sLongitude < 34.0 || sLongitude > 38.5) {// if we are nowhere near Israel, just auto set to outside
+            mSharedPreferences.edit().putBoolean("inIsrael", false).apply();
+        }
         if (Utils.isInOrNearIsrael(sLatitude, sLongitude)) {
             if (!getIntent().getBooleanExtra("loneActivity", false)) {
                 startActivity(new Intent(this, InIsraelActivity.class));
             }
         } else if (!Utils.isLocaleHebrew(this)) {
-            mSharedPreferences.edit().putBoolean("LuachAmudeiHoraah", true).apply();
-            mSharedPreferences.edit().putBoolean("useElevation", false).apply();
+            mSharedPreferences.edit()
+                    .putBoolean("LuachAmudeiHoraah", true)
+                    .putBoolean("useElevation", false).apply();
             if (!getIntent().getBooleanExtra("loneActivity", false)) {
                 mSharedPreferences.edit().putBoolean("inIsrael", false).apply();
                 startActivity(new Intent(this, ZmanimLanguageActivity.class));
@@ -330,10 +334,11 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
             if (!getIntent().getBooleanExtra("loneActivity", false)) {
                 mSharedPreferences.edit().putBoolean("inIsrael", false).apply();
             }
-            mSharedPreferences.edit().putBoolean("LuachAmudeiHoraah", true).apply();
-            mSharedPreferences.edit().putBoolean("isZmanimInHebrew", true).apply();
-            mSharedPreferences.edit().putBoolean("isZmanimEnglishTranslated", false).apply();
-            mSharedPreferences.edit().putBoolean("isSetup", true).apply();
+            mSharedPreferences.edit()
+                    .putBoolean("LuachAmudeiHoraah", true)
+                    .putBoolean("isZmanimInHebrew", true)
+                    .putBoolean("isZmanimEnglishTranslated", false)
+                    .putBoolean("isSetup", true).apply();
             if (mSharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
                 startActivity(new Intent(getBaseContext(), TipScreenActivity.class));
                 mSharedPreferences.edit().putBoolean("hasNotShownTipScreen", false).apply();

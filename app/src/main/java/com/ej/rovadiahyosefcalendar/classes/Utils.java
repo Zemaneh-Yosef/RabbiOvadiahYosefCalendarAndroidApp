@@ -106,6 +106,16 @@ public class Utils {
         return formatZmanTime(context, zmanListEntry.getZman(), zmanListEntry.getSecondTreatment());
     }
 
+    /**
+     * Formats the zman time to a string formatted this: "12:30 AM" or "5:30 PM".
+     * If the context is Hebrew, the time will be in military time, I.E. "0:30" or "17:30".
+     * Note that this method does not handle null dates, it should be checked before calling this method.
+     *
+     * @param context the app context to use
+     * @param zman the Date to format
+     * @param secondTreatment how to handle seconds
+     * @return the formatted time as a string
+     */
     public static String formatZmanTime(Context context, Date zman, SecondTreatment secondTreatment) {
         boolean showSeconds = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowSeconds", false);
         DateFormat noSecondDateFormat = new SimpleDateFormat(dateFormatPattern(context,false), context
