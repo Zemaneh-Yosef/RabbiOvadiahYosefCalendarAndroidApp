@@ -58,12 +58,13 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
                 if (BuildConfig.DEBUG) {
                     mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "Daily notifications init called with a saved location/zipcode" + "\n\n").apply();
                 }
-                init(context, jewishDateInfo, calendar);
+                init(jewishDateInfo, calendar);
             }
         }
     }
 
-    private void init(Context context, JewishDateInfo jewishDateInfo, ROZmanimCalendar calendar) {
+    private void init(JewishDateInfo jewishDateInfo, ROZmanimCalendar calendar) {
+        jewishDateInfo.resetLocale(context);
         String specialDay = jewishDateInfo.getSpecialDay(false);
         if (BuildConfig.DEBUG) {
             mSharedPreferences.edit().putString("debugNotifs", "ShowDayOfOmer: " + PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowDayOfOmer",false) + "\n\n").apply();
@@ -173,15 +174,15 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
             }
         }
 
-        updateAlarm(context, am, calendar);// for next day
-        startUpDailyZmanim(context);//we need to start the zmanim service every day because there might be a person who will just want to see candle lighting time every week or once a year for pesach zmanim.
+        updateAlarm(am, calendar);// for next day
+        startUpDailyZmanim();//we need to start the zmanim service every day because there might be a person who will just want to see candle lighting time every week or once a year for pesach zmanim.
     }
 
     private ROZmanimCalendar getROZmanimCalendar() {
         return new ROZmanimCalendar(mLocationResolver.getRealtimeNotificationData(this, false));// we will continue in the accept method
     }
 
-    private void startUpDailyZmanim(Context context) {
+    private void startUpDailyZmanim() {
         PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(
                 context.getApplicationContext(),
                 0,
@@ -194,7 +195,7 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
         }
     }
 
-    private void updateAlarm(Context context, AlarmManager am, AstronomicalCalendar c) {
+    private void updateAlarm(AlarmManager am, AstronomicalCalendar c) {
         Calendar cal = Calendar.getInstance();
         Date sunrise = c.getSunrise();
         if (sunrise == null) {
@@ -223,7 +224,7 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
             }
             String locationName = mLocationResolver.getLocationAsName(location.getLatitude(), location.getLongitude());
             mLocationResolver.resolveElevation(() ->
-                    init(context, new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false)), new ROZmanimCalendar(new GeoLocation(
+                    init(new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false)), new ROZmanimCalendar(new GeoLocation(
                             locationName,
                             location.getLatitude(),
                             location.getLongitude(),
@@ -233,7 +234,7 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
             if (BuildConfig.DEBUG) {
                 mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "location object in DailyNotifications WAS null" + "\n\n").apply();
             }
-            init(context, new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false)), new ROZmanimCalendar(mLocationResolver.getLastKnownGeoLocation()));
+            init(new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false)), new ROZmanimCalendar(mLocationResolver.getLastKnownGeoLocation()));
         }
     }
 }
