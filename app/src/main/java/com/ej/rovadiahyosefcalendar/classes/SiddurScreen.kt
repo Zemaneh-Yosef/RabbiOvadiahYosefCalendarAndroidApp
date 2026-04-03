@@ -28,6 +28,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
@@ -66,7 +67,6 @@ import androidx.core.net.toUri
 import androidx.preference.PreferenceManager
 import com.aghajari.compose.text.asAnnotatedString
 import com.ej.rovadiahyosefcalendar.activities.SiddurViewActivity
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import java.util.LinkedList
 import kotlin.math.atan2
@@ -74,21 +74,33 @@ import kotlin.math.cos
 import kotlin.math.sin
 import com.ej.rovadiahyosefcalendar.R as AppR
 
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TopAppBarDefaults
+
 // 1. Define a type for our scroll event lambda
 typealias ScrollToPosition = (Int) -> Unit
 
-// 2. The entry point now accepts a function that provides the scroll action
 @Composable
 fun SiddurScreenEntry(
-    siddurContent: List<HighlightString>,
-    jewishDateInfo: JewishDateInfo,
-    onScrollRequested: (ScrollToPosition) -> Unit
+	siddurContent: List<HighlightString>,
+	jewishDateInfo: JewishDateInfo,
+	siddurTitle: String,
+	categoryNames: List<String>,
+	categoryPositions: List<Int>,
+	onNavigateBack: () -> Unit,
+	onScrollRequested: (ScrollToPosition) -> Unit,
 ) {
-    SiddurScreen(
-        siddurContent = siddurContent,
-        jewishDateInfo = jewishDateInfo,
-        onScrollRequested = onScrollRequested
-    )
+	SiddurScreen(
+		siddurContent = siddurContent,
+		jewishDateInfo = jewishDateInfo,
+		siddurTitle = siddurTitle,
+		categoryNames = categoryNames,
+		categoryPositions = categoryPositions,
+		onNavigateBack = onNavigateBack,
+		onScrollRequested = onScrollRequested,
+	)
 }
 
 @Composable
@@ -104,70 +116,139 @@ fun getThemeColor(colorAttr: Int): Color {
     return Color(colorInt)
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SiddurScreen(
-    siddurContent: List<HighlightString>,
-    jewishDateInfo: JewishDateInfo,
-    onScrollRequested: (ScrollToPosition) -> Unit
+	siddurContent: List<HighlightString>,
+	jewishDateInfo: JewishDateInfo,
+	siddurTitle: String,
+	categoryNames: List<String>,
+	categoryPositions: List<Int>,
+	onNavigateBack: () -> Unit,
+	onScrollRequested: (ScrollToPosition) -> Unit,
 ) {
-    val context = LocalContext.current
-    val sharedPreferences = remember { PreferenceManager.getDefaultSharedPreferences(context) }
+	val context = LocalContext.current
+	val sharedPreferences = remember { PreferenceManager.getDefaultSharedPreferences(context) }
 
-    var textSize by remember { mutableFloatStateOf(sharedPreferences.getInt("TextSize", 24).toFloat()) }
-    var isJustified by remember { mutableStateOf(sharedPreferences.getBoolean("isJustified", false)) }
-    val fontPreference = remember { sharedPreferences.getString("font", "Guttman Keren") ?: "Guttman Keren" }
+	var textSize by remember { mutableFloatStateOf(sharedPreferences.getInt("TextSize", 24).toFloat()) }
+	var isJustified by remember { mutableStateOf(sharedPreferences.getBoolean("isJustified", false)) }
+	val fontPreference = remember { sharedPreferences.getString("font", "Guttman Keren") ?: "Guttman Keren" }
 
-    val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
+	val listState = rememberLazyListState()
+	val coroutineScope = rememberCoroutineScope()
 
-    val scrollToPosition: ScrollToPosition = { position ->
-        coroutineScope.launch {
-            listState.animateScrollToItem(position)
-        }
-    }
+	val scrollToPosition: ScrollToPosition = { position ->
+		coroutineScope.launch {
+			listState.animateScrollToItem(position)
+		}
+	}
 
-    LaunchedEffect(scrollToPosition) {
-        onScrollRequested(scrollToPosition)
-    }
+	LaunchedEffect(scrollToPosition) {
+		onScrollRequested(scrollToPosition)
+	}
 
-    val defaultBackgroundColor = getThemeColor(android.R.attr.colorBackground)
+	// State for the category dropdown menu
+	var showCategoryMenu by remember { mutableStateOf(false) }
 
-    Scaffold(
-        containerColor = defaultBackgroundColor, // M3 uses containerColor
-        bottomBar = {
-            SiddurBottomBar(
-                currentTextSize = textSize,
-                isJustified = isJustified,
-                onTextSizeChange = { newSize ->
-                    textSize = newSize // Do not remove, state needs to be updated
-                    sharedPreferences.edit {
-                        putInt("TextSize", newSize.toInt())
-                    }
-                },
-                onJustifyClick = {
-                    isJustified = !isJustified
-                    sharedPreferences.edit { putBoolean("isJustified", isJustified) }
-                }
-            )
-        }
-    ) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth(),
-            state = listState,
-            contentPadding = innerPadding
-        ) {
-            items(siddurContent) { currentText ->
-                SiddurRow(
-                    currentText = currentText,
-                    textSize = textSize.toInt(),
-                    isJustified = isJustified,
-                    fontPreference = fontPreference,
-                    jewishDateInfo = jewishDateInfo,
-                    context = context
-                )
-            }
-        }
-    }
+	val defaultBackgroundColor = getThemeColor(android.R.attr.colorBackground)
+
+	Scaffold(
+		containerColor = defaultBackgroundColor,
+		topBar = {
+			CenterAlignedTopAppBar(
+				title = {
+					Column(horizontalAlignment = Alignment.CenterHorizontally) {
+						Text(siddurTitle)
+						Text(
+							text = stringResource(AppR.string.short_app_name),
+							style = MaterialTheme.typography.bodySmall
+						)
+					}
+				},
+				navigationIcon = {
+					IconButton(onClick = onNavigateBack) {
+						Icon(
+							painter = painterResource(id = AppR.drawable.baseline_arrow_back_24),
+							contentDescription = null
+						)
+					}
+				},
+				actions = {
+					if (categoryNames.isNotEmpty()) {
+						IconButton(onClick = { showCategoryMenu = true }) {
+							Icon(
+								painter = painterResource(id = AppR.drawable.baseline_format_align_justify_24),
+								contentDescription = null
+							)
+						}
+						DropdownMenu(
+							expanded = showCategoryMenu,
+							onDismissRequest = { showCategoryMenu = false },
+						) {
+							categoryNames.forEachIndexed { index, name ->
+								DropdownMenuItem(
+									text = { Text(name) },
+									onClick = {
+										showCategoryMenu = false
+										if (index in categoryPositions.indices) {
+											coroutineScope.launch {
+												listState.animateScrollToItem(categoryPositions[index])
+											}
+										}
+									}
+								)
+							}
+						}
+					}
+				},
+				colors = TopAppBarDefaults.topAppBarColors(
+					containerColor = getThemeColor(android.R.attr.windowBackground),
+					titleContentColor = getThemeColor(android.R.attr.textColorPrimary),
+					navigationIconContentColor = getThemeColor(android.R.attr.textColorPrimary),
+					actionIconContentColor = getThemeColor(android.R.attr.textColorPrimary),
+				)
+			)
+		},
+		bottomBar = {
+			SiddurBottomBar(
+				currentTextSize = textSize,
+				isJustified = isJustified,
+				onTextSizeChange = { newSize ->
+					textSize = newSize
+					sharedPreferences.edit {
+						putInt("TextSize", newSize.toInt())
+					}
+				},
+				onJustifyClick = {
+					isJustified = !isJustified
+					sharedPreferences.edit { putBoolean("isJustified", isJustified) }
+				}
+			)
+		}
+	) { innerPadding ->
+		LazyColumn(
+			modifier = Modifier
+				.fillMaxWidth()
+				.verticalScrollbar(
+					state = listState,
+					topPadding = innerPadding.calculateTopPadding(),
+					bottomPadding = innerPadding.calculateBottomPadding()
+				),
+			state = listState,
+			contentPadding = innerPadding
+		) {
+			items(siddurContent) { currentText ->
+				SiddurRow(
+					currentText = currentText,
+					textSize = textSize.toInt(),
+					isJustified = isJustified,
+					fontPreference = fontPreference,
+					jewishDateInfo = jewishDateInfo,
+					context = context
+				)
+			}
+		}
+	}
 }
 
 @Composable
@@ -325,182 +406,181 @@ private fun Compass(instructionalText: String) {
 
 @Composable
 private fun SiddurRow(
-    currentText: HighlightString,
-    textSize: Int,
-    isJustified: Boolean,
-    fontPreference: String,
-    jewishDateInfo: JewishDateInfo,
-    context: Context
+	currentText: HighlightString,
+	textSize: Int,
+	isJustified: Boolean,
+	fontPreference: String,
+	jewishDateInfo: JewishDateInfo,
+	context: Context
 ) {
-    if (currentText.imageAttachment == HighlightString.ImageAttachment.COMPASS) {
-        Compass(instructionalText = currentText.toString())
-        return
-    }
+	if (currentText.imageAttachment == HighlightString.ImageAttachment.COMPASS) {
+		Compass(instructionalText = currentText.toString())
+		return
+	}
 
-    val isNightMode = isSystemInDarkTheme()
-    val currentTextType = currentText.type
-    val text = SpannableString(currentText.content).asAnnotatedString().annotatedString
+	val isNightMode = isSystemInDarkTheme()
+	val currentTextType = currentText.type
 
-    if (text.text == "[break here]") {
-        val color = if (isNightMode) Color.White else Color.Black
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-                .height(1.dp)
-                .background(color)
-        )
-        return
-    }
+	val text = remember(currentText.content, textSize) {
+		SpannableString(currentText.content).asAnnotatedString().annotatedString
+	}
 
-    val rowBackgroundColor = when {
-        (currentTextType == HighlightString.StringType.INFO || currentTextType == HighlightString.StringType.INVERSE_INFO) -> (if (isNightMode) Color.DarkGray else Color.LightGray)
-        currentText.isHighlighted -> colorResource(if (isNightMode) AppR.color.goldenrod else AppR.color.mainly_BLUE)
-        else -> Color.Transparent
-    }
+	if (text.text == "[break here]") {
+		val color = if (isNightMode) Color.White else Color.Black
+		Box(
+			modifier = Modifier
+				.fillMaxWidth()
+				.padding(vertical = 8.dp)
+				.height(1.dp)
+				.background(color)
+		)
+		return
+	}
 
-    Column(modifier = Modifier.background(rowBackgroundColor)) {
-        val isParagraph = currentText.bigWordsStart > 0
-        val isCategory = currentTextType == HighlightString.StringType.CATEGORY
-        val isInstruction = currentTextType == HighlightString.StringType.INSTRUCTION
-        val isInfo = currentTextType == HighlightString.StringType.INFO
-        val isInverseInfo = currentTextType == HighlightString.StringType.INVERSE_INFO
+	val rowBackgroundColor = when {
+		(currentTextType == HighlightString.StringType.INFO || currentTextType == HighlightString.StringType.INVERSE_INFO) ->
+			if (isNightMode) Color.DarkGray else Color.LightGray
+		currentText.isHighlighted -> colorResource(if (isNightMode) AppR.color.goldenrod else AppR.color.mainly_BLUE)
+		else -> Color.Transparent
+	}
 
-        val textColor = when {
-            currentText.isHighlighted -> Color.Black
-            else -> getThemeColor(android.R.attr.textColorPrimary)
-        }
+	Column(modifier = Modifier.background(rowBackgroundColor)) {
+		val isParagraph = currentText.bigWordsStart > 0
+		val isCategory = currentTextType == HighlightString.StringType.CATEGORY
+		val isInstruction = currentTextType == HighlightString.StringType.INSTRUCTION
+		val isInfo = currentTextType == HighlightString.StringType.INFO
+		val isInverseInfo = currentTextType == HighlightString.StringType.INVERSE_INFO
 
-        val fontFamily = when {
-            isCategory -> FontFamily(Font(AppR.font.mantb_2))
-            isInstruction -> FontFamily(Font(AppR.font.spectral_bold, FontWeight.Bold))
-            fontPreference == "Taamey Frank" -> FontFamily(Font(AppR.font.taamey_d))
-            fontPreference == "Guttman Keren" -> FontFamily(Font(AppR.font.guttman_keren))
-            else -> FontFamily.Default
-        }
+		val textColor = when {
+			currentText.isHighlighted -> Color.Black
+			else -> getThemeColor(android.R.attr.textColorPrimary)
+		}
 
-        val finalSize = when {
-            isCategory -> textSize + 8
-            isInstruction -> textSize - 6
-            else -> textSize
-        }
+		val fontFamily = when {
+			isCategory -> FontFamily(Font(AppR.font.mantb_2))
+			isInstruction -> FontFamily(Font(AppR.font.spectral_bold, FontWeight.Bold))
+			fontPreference == "Taamey Frank" -> FontFamily(Font(AppR.font.taamey_d))
+			fontPreference == "Guttman Keren" -> FontFamily(Font(AppR.font.guttman_keren))
+			else -> FontFamily.Default
+		}
 
-        val textDirection = remember(text.text) {
-            var isRtl = false
-            for (char in text.text) {
-                when (Character.getDirectionality(char)) {
-                    Character.DIRECTIONALITY_RIGHT_TO_LEFT,
-                    Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC -> {
-                        isRtl = true
-                        break
-                    }
-                    Character.DIRECTIONALITY_LEFT_TO_RIGHT -> {
-                        isRtl = false
-                        break
-                    }
-                    else -> continue
-                }
-            }
-            if (isRtl) {
-                androidx.compose.ui.text.style.TextDirection.Rtl
-            } else {
-                androidx.compose.ui.text.style.TextDirection.Ltr
-            }
-        }
+		val finalSize = when {
+			isCategory -> textSize + 8
+			isInstruction -> textSize - 6
+			else -> textSize
+		}
 
-        val textAlign = when {
-            isCategory || isInstruction -> TextAlign.Center
-            isJustified -> TextAlign.Justify
-            else -> TextAlign.Right
-        }
+		val textDirection = remember(currentText.content) {
+			var isRtl = false
+			for (char in text.text) {
+				when (Character.getDirectionality(char)) {
+					Character.DIRECTIONALITY_RIGHT_TO_LEFT,
+					Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC -> {
+						isRtl = true
+						break
+					}
+					Character.DIRECTIONALITY_LEFT_TO_RIGHT -> {
+						isRtl = false
+						break
+					}
+					else -> continue
+				}
+			}
+			if (isRtl) {
+				androidx.compose.ui.text.style.TextDirection.Rtl
+			} else {
+				androidx.compose.ui.text.style.TextDirection.Ltr
+			}
+		}
 
-        val textStyle = TextStyle(
-            color = textColor,
-            fontSize = finalSize.sp,
-            fontFamily = fontFamily,
-            textAlign = textAlign,
-            lineHeight = (finalSize * 1.2).sp,
-            textDirection = textDirection
-        )
+		val textAlign = when {
+			isCategory || isInstruction -> TextAlign.Center
+			isJustified -> TextAlign.Justify
+			else -> TextAlign.Right
+		}
 
-        if (isParagraph) {
-            Box {
-                AdvancedText(
-                    text = text,
-                    style = textStyle,
-                    isJustified = isJustified,
-                    largeWordCount = currentText.bigWordsStart,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                )
-                SelectionContainer {
-                    Text(
-                        text = text,
-                        style = textStyle,
-                        color = Color.Transparent,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    )
-                }
-            }
-        } else {
-            var isInfoExpanded by remember { mutableStateOf(false) }
-            val textToDisplay = when {
-                isInfo -> if (isInfoExpanded) AnnotatedString("▼ ${currentText.summary}${text}") else AnnotatedString("▲ ${currentText.summary}")
-                isInverseInfo -> if (isInfoExpanded) AnnotatedString("▲ ${currentText.summary}") else AnnotatedString("▼ ${currentText.summary}${text}")
-                else -> text
-            }
+		val textStyle = TextStyle(
+			color = textColor,
+			fontSize = finalSize.sp,
+			fontFamily = fontFamily,
+			textAlign = textAlign,
+			lineHeight = (finalSize * 1.2).sp,
+			textDirection = textDirection
+		)
 
-            SelectionContainer {
-                Text(
-                    text = textToDisplay,
-                    style = textStyle,
-                    modifier = Modifier
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                            onClick = {
-                                if (isInfo || isInverseInfo) {
-                                    isInfoExpanded = !isInfoExpanded
-                                } else if (text.text == "Open Sefaria Siddur" || text.text == "פתח את סידור ספריה") {
-                                    val browserIntent = Intent(
-                                        Intent.ACTION_VIEW,
-                                        "https://www.sefaria.org/Siddur_Edot_HaMizrach?tab=contents".toUri()
-                                    )
-                                    context.startActivity(browserIntent)
-                                } else if (text.text == "Mussaf is said here, press here to go to Mussaf" || text.text == "מוסף אומרים כאן, לחץ כאן כדי להמשיך למוסף") {
-                                    val intent = Intent(context, SiddurViewActivity::class.java).apply {
-                                        putExtra("prayer", "מוסף")
-                                        putExtra(
-                                            "JewishDay",
-                                            jewishDateInfo.jewishCalendar.jewishDayOfMonth
-                                        )
-                                        putExtra(
-                                            "JewishMonth",
-                                            jewishDateInfo.jewishCalendar.jewishMonth
-                                        )
-                                        putExtra("JewishYear", jewishDateInfo.jewishCalendar.jewishYear)
-                                    }
-                                    context.startActivity(intent)
-                                }
-                            }
-                        )
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                )
-            }
-        }
+		// Rest of the composable is unchanged from your original.
+		if (isParagraph) {
+			Box {
+				AdvancedText(
+					text = text,
+					style = textStyle,
+					isJustified = isJustified,
+					largeWordCount = currentText.bigWordsStart,
+					modifier = Modifier
+						.fillMaxWidth()
+						.padding(16.dp),
+				)
+				SelectionContainer {
+					Text(
+						text = text,
+						style = textStyle,
+						color = Color.Transparent,
+						modifier = Modifier
+							.fillMaxWidth()
+							.padding(16.dp)
+					)
+				}
+			}
+		} else {
+			var isInfoExpanded by remember { mutableStateOf(false) }
+			val textToDisplay = when {
+				isInfo -> if (isInfoExpanded) AnnotatedString("▼ ${currentText.summary}${text}") else AnnotatedString("▲ ${currentText.summary}")
+				isInverseInfo -> if (isInfoExpanded) AnnotatedString("▲ ${currentText.summary}") else AnnotatedString("▼ ${currentText.summary}${text}")
+				else -> text
+			}
 
-        if (currentText.imageAttachment == HighlightString.ImageAttachment.MENORAH) {
-            Image(
-                painter = painterResource(id = AppR.drawable.menorah),
-                contentDescription = "Menorah",
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(8.dp)
-            )
-        }
-    }
+			SelectionContainer {
+				Text(
+					text = textToDisplay,
+					style = textStyle,
+					modifier = Modifier
+						.clickable(
+							interactionSource = remember { MutableInteractionSource() },
+							indication = null,
+							onClick = {
+								if (isInfo || isInverseInfo) {
+									isInfoExpanded = !isInfoExpanded
+								} else if (text.text == "Open Sefaria Siddur" || text.text == "פתח את סידור ספריה") {
+									val browserIntent = Intent(
+										Intent.ACTION_VIEW,
+										"https://www.sefaria.org/Siddur_Edot_HaMizrach?tab=contents".toUri()
+									)
+									context.startActivity(browserIntent)
+								} else if (text.text == "Mussaf is said here, press here to go to Mussaf" || text.text == "מוסף אומרים כאן, לחץ כאן כדי להמשיך למוסף") {
+									val intent = Intent(context, SiddurViewActivity::class.java).apply {
+										putExtra("prayer", "מוסף")
+										putExtra("JewishDay", jewishDateInfo.jewishCalendar.jewishDayOfMonth)
+										putExtra("JewishMonth", jewishDateInfo.jewishCalendar.jewishMonth)
+										putExtra("JewishYear", jewishDateInfo.jewishCalendar.jewishYear)
+									}
+									context.startActivity(intent)
+								}
+							}
+						)
+						.fillMaxWidth()
+						.padding(16.dp)
+				)
+			}
+		}
+
+		if (currentText.imageAttachment == HighlightString.ImageAttachment.MENORAH) {
+			Image(
+				painter = painterResource(id = AppR.drawable.menorah),
+				contentDescription = "Menorah",
+				modifier = Modifier
+					.align(Alignment.CenterHorizontally)
+					.padding(8.dp)
+			)
+		}
+	}
 }

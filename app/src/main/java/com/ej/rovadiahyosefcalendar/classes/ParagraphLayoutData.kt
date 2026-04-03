@@ -3,11 +3,13 @@ package com.ej.rovadiahyosefcalendar.classes
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -17,200 +19,257 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.sp
 import kotlin.math.max
 
+// Holds all pre-measured layout data for a single paragraph.
+// Produced by the Layout pass, consumed by the Canvas draw pass.
+private sealed class ParagraphLayout {
+
+	// A paragraph that fits in a single block with no large words.
+	data class Simple(
+		val layout: TextLayoutResult,
+	) : ParagraphLayout()
+
+	// A paragraph with large words at the start, text beside them,
+	// and optionally text below once the large words end.
+	data class Complex(
+		val largeWordsLayout: TextLayoutResult,
+		val besideLayout: TextLayoutResult,
+		val belowLayout: TextLayoutResult?,
+		val largeWordsWidth: Float,
+		val besideHeight: Float,
+		val lineSpacing: Float,
+	) : ParagraphLayout()
+}
+
+// Total pixel height of a paragraph layout.
+private fun ParagraphLayout.totalHeight(): Float = when (this) {
+	is ParagraphLayout.Simple -> layout.size.height.toFloat()
+	is ParagraphLayout.Complex -> {
+		val belowHeight = belowLayout?.size?.height?.toFloat() ?: 0f
+		val extraSpacing = if (belowHeight > 0f) lineSpacing else 0f
+		max(
+			largeWordsLayout.size.height.toFloat(),
+			besideHeight + extraSpacing + belowHeight
+		)
+	}
+}
+
 @Composable
 fun AdvancedText(
-    text: AnnotatedString,
-    modifier: Modifier = Modifier,
-    style: TextStyle = TextStyle.Default,
-    isJustified: Boolean,
-    largeWordCount: Int,
+	text: AnnotatedString,
+	modifier: Modifier = Modifier,
+	style: TextStyle = TextStyle.Default,
+	isJustified: Boolean,
+	largeWordCount: Int,
 ) {
-    val textMeasurer = rememberTextMeasurer()
+	val textMeasurer = rememberTextMeasurer()
 
-    Layout(
-        modifier = modifier,
-        content = {
-            Canvas(Modifier.fillMaxWidth()) {
-                val paragraphs = text.text.split("\n\n")
-                var currentY = 0f
+	// Shared cache: the Layout pass fills this, the Canvas pass reads it.
+	// Keyed on everything that affects measurement so it resets when input changes.
+	val measuredLayouts = remember(text, style, isJustified, largeWordCount) {
+		mutableListOf<ParagraphLayout>()
+	}
 
-                paragraphs.forEach { paragraphText ->
-                    if (paragraphText.isBlank()) return@forEach
+	// Pre-split paragraphs and track positions once, shared by both passes.
+	// Using a running index avoids indexOf() finding the wrong occurrence
+	// of repeated prayer text.
+	data class ParagraphEntry(
+		val annotatedString: AnnotatedString,
+		val words: List<String>,
+	)
 
-                    val words = paragraphText.trim().split(' ')
-                    val finalStyle = style.copy(textAlign = if (isJustified) TextAlign.Justify else TextAlign.Right)
-                    val useComplexLayout = largeWordCount > 0 && words.size > largeWordCount
+	val paragraphEntries = remember(text) {
+		var currentIndex = 0
+		text.text.split("\n\n").mapNotNull { paragraphText ->
+			val start = currentIndex
+			val end = (start + paragraphText.length).coerceAtMost(text.length)
+			currentIndex = end + 2 // skip the "\n\n"
 
-                    val paragraphStartIndex = text.text.indexOf(paragraphText)
-                    val paragraphAnnotatedString = if (paragraphStartIndex != -1) {
-                        text.subSequence(paragraphStartIndex, paragraphStartIndex + paragraphText.length)
-                    } else {
-                        AnnotatedString(paragraphText) // Fallback
-                    }
+			if (paragraphText.isBlank()) return@mapNotNull null
 
-                    if (useComplexLayout) {
-                        val largeWords = words.take(largeWordCount)
-                        val largeWordsString = largeWords.joinToString(" ")
-                        val restOfText = paragraphText.substring(paragraphText.indexOf(largeWordsString) + largeWordsString.length).trimStart()
+			ParagraphEntry(
+				annotatedString = text.subSequence(start, end),
+				words = paragraphText.trim().split(' '),
+			)
+		}
+	}
 
-                        val largeWordStyle = style.copy(fontSize = style.fontSize * 1.4f)
-                        val largeWordsLayout = textMeasurer.measure(text = largeWordsString, style = largeWordStyle)
-                        val largeWordsWidth = largeWordsLayout.size.width
-                        val largeWordsHeight = largeWordsLayout.size.height
+	Layout(
+		modifier = modifier,
+		content = {
+			Canvas(Modifier.fillMaxWidth()) {
+				// Draw pass: consume measuredLayouts filled by the Layout pass.
+				// No measuring happens here — just drawing.
+				var currentY = 0f
 
-                        val spacing = 8.sp.toPx()
-                        val indentedConstraints = Constraints(maxWidth = (size.width - largeWordsWidth - spacing).toInt().coerceAtLeast(0))
+				measuredLayouts.forEach { paragraphLayout ->
+					when (paragraphLayout) {
+						is ParagraphLayout.Simple -> {
+							drawText(paragraphLayout.layout, topLeft = Offset(0f, currentY))
+							currentY += paragraphLayout.layout.size.height
+						}
 
-                        val restOfTextStartIndex = paragraphAnnotatedString.text.indexOf(restOfText)
-                        val restOfTextAnnotated = if (restOfTextStartIndex != -1) {
-                            paragraphAnnotatedString.subSequence(restOfTextStartIndex, paragraphAnnotatedString.length)
-                        } else {
-                            AnnotatedString(restOfText)
-                        }
+						is ParagraphLayout.Complex -> {
+							val largeWordsWidth = paragraphLayout.largeWordsWidth
+							val largeWordsHeight = paragraphLayout.largeWordsLayout.size.height.toFloat()
+							val besideHeight = paragraphLayout.besideHeight
+							val lineSpacing = paragraphLayout.lineSpacing
+							val besideWidth = size.width - largeWordsWidth - 8.sp.toPx()
+							val belowHeight = paragraphLayout.belowLayout?.size?.height?.toFloat() ?: 0f
+							val extraSpacing = if (belowHeight > 0f) lineSpacing else 0f
 
-                        val fullRestOfTextLayout = textMeasurer.measure(
-                            text = restOfTextAnnotated,
-                            style = finalStyle,
-                            constraints = indentedConstraints,
-                            overflow = TextOverflow.Visible
-                        )
+							drawText(
+								paragraphLayout.largeWordsLayout,
+								topLeft = Offset(size.width - largeWordsWidth, currentY)
+							)
+							clipRect(
+								left = 0f,
+								top = currentY,
+								right = besideWidth,
+								bottom = currentY + besideHeight
+							) {
+								drawText(
+									paragraphLayout.besideLayout,
+									topLeft = Offset(0f, currentY)
+								)
+							}
+							paragraphLayout.belowLayout?.let { belowLayout ->
+								drawText(
+									belowLayout,
+									topLeft = Offset(
+										size.width - belowLayout.size.width,
+										currentY + besideHeight + lineSpacing
+									)
+								)
+							}
 
-                        val lineIndexBeside = fullRestOfTextLayout.getLineForVerticalPosition(largeWordsHeight.toFloat() - 1)
-                        val lastCharIndexBeside = fullRestOfTextLayout.getLineEnd(lineIndex = lineIndexBeside, visibleEnd = true)
+							currentY += max(
+								largeWordsHeight,
+								besideHeight + extraSpacing + belowHeight
+							)
+						}
+					}
+				}
+			}
+		}
+	) { measurables, constraints ->
+		// Measure pass: do all measuring here with real constraints,
+		// store results in measuredLayouts for the Canvas draw pass.
+		measuredLayouts.clear()
 
-                        val textBelowString = restOfTextAnnotated.subSequence(lastCharIndexBeside, restOfTextAnnotated.length).text.trimStart()
-                        val textBelowAnnotatedString = AnnotatedString(textBelowString)
+		val finalStyle = style.copy(
+			textAlign = if (isJustified) TextAlign.Justify else TextAlign.Right
+		)
+		val lineSpacing = if (style.lineHeight.isSp) {
+			style.lineHeight.toPx() / 16f
+		} else {
+			style.fontSize.toPx() / 16f
+		}
 
-                        var belowTextLayoutHeight = 0f
-                        val besideTextHeight = fullRestOfTextLayout.getLineBottom(lineIndexBeside)
-                        // This is the spacing between the text beside the large words and the text below
-                        val lineSpacing = if (style.lineHeight.isSp) style.lineHeight.toPx() / 16 else style.fontSize.toPx() / 16
-                        val besideWidth = size.width - largeWordsWidth - spacing
+		var totalHeight = 0f
 
-                        drawText(largeWordsLayout, topLeft = Offset(size.width - largeWordsWidth, currentY))
-                        clipRect(left = 0f, top = currentY, right = besideWidth, bottom = currentY + besideTextHeight) {
-                            drawText(
-                                fullRestOfTextLayout,
-                                topLeft = Offset(0f, currentY)
-                            )
-                        }
+		paragraphEntries.forEach { entry ->
+			val useComplexLayout = largeWordCount > 0 && entry.words.size > largeWordCount
 
-                        if (textBelowAnnotatedString.text.isNotBlank()) {
-                            val belowTextLayout = textMeasurer.measure(
-                                text = textBelowAnnotatedString,
-                                style = finalStyle,
-                                constraints = Constraints(maxWidth = size.width.toInt())
-                            )
-                            // Apply the line spacing when drawing the text below
-                            drawText(
-                                belowTextLayout,
-                                topLeft = Offset(
-                                    size.width - belowTextLayout.size.width,
-                                    currentY + besideTextHeight + lineSpacing
-                                )
-                            )
-                            belowTextLayoutHeight = belowTextLayout.size.height.toFloat()
-                        }
+			if (useComplexLayout) {
+				val largeWords = entry.words.take(largeWordCount)
+				val largeWordsString = largeWords.joinToString(" ")
+				val largeWordStyle = style.copy(fontSize = style.fontSize * 1.4f)
 
-                        // Apply the same spacing to the total height calculation
-                        val extraSpacing = if (belowTextLayoutHeight > 0f) lineSpacing else 0f
-                        currentY += max(largeWordsHeight.toFloat(), besideTextHeight + extraSpacing + belowTextLayoutHeight)
+				val largeWordsLayout = textMeasurer.measure(
+					text = largeWordsString,
+					style = largeWordStyle
+				)
+				val largeWordsWidth = largeWordsLayout.size.width.toFloat()
+				val largeWordsHeight = largeWordsLayout.size.height.toFloat()
+				val spacing = 8.sp.toPx()
 
-                    } else {
-                        val simpleLayout = textMeasurer.measure(
-                            text = paragraphAnnotatedString,
-                            style = finalStyle,
-                            constraints = Constraints(maxWidth = size.width.toInt())
-                        )
-                        drawText(simpleLayout, topLeft = Offset(0f, currentY))
-                        currentY += simpleLayout.size.height
-                    }
-                }
-            }
-        }
-    ) { measurables, constraints ->
-        var totalHeight = 0f
-        val paragraphs = text.text.split("\n\n")
+				// Derive restOfText as AnnotatedString so spans are preserved.
+				val largeWordsEndIndex = entry.annotatedString.text
+					.indexOf(largeWordsString)
+					.plus(largeWordsString.length)
+					.coerceAtMost(entry.annotatedString.length)
 
-        paragraphs.forEach { paragraphText ->
-            if (paragraphText.isBlank()) return@forEach
+				val restOfTextAnnotated = entry.annotatedString
+					.subSequence(largeWordsEndIndex, entry.annotatedString.length)
+					.let { raw ->
+						val trimOffset = raw.length - raw.text.trimStart().length
+						if (trimOffset > 0) raw.subSequence(trimOffset, raw.length) else raw
+					}
 
-            val paragraphStartIndex = text.text.indexOf(paragraphText)
-            val paragraphAnnotatedString = if (paragraphStartIndex != -1) {
-                text.subSequence(paragraphStartIndex, paragraphStartIndex + paragraphText.length)
-            } else {
-                AnnotatedString(paragraphText)
-            }
+				val besideConstraints = constraints.copy(
+					minWidth = 0,
+					maxWidth = (constraints.maxWidth - largeWordsWidth - spacing)
+						.toInt()
+						.coerceAtLeast(0)
+				)
 
-            val words = paragraphText.trim().split(' ')
-            val finalStyle = style.copy(textAlign = if (isJustified) TextAlign.Justify else TextAlign.Right)
-            val useComplexLayout = largeWordCount > 0 && words.size > largeWordCount
+				val besideLayout = textMeasurer.measure(
+					text = restOfTextAnnotated,
+					style = finalStyle,
+					constraints = besideConstraints,
+					overflow = TextOverflow.Visible
+				)
 
-            if (useComplexLayout) {
-                val largeWords = words.take(largeWordCount)
-                val largeWordsString = largeWords.joinToString(" ")
-                val largeWordStyle = style.copy(fontSize = style.fontSize * 1.4f)
-                val largeWordsLayout = textMeasurer.measure(text = largeWordsString, style = largeWordStyle)
-                val largeWordsHeight = largeWordsLayout.size.height
-                val largeWordsWidth = largeWordsLayout.size.width
+				val lineIndexBeside = besideLayout
+					.getLineForVerticalPosition(largeWordsHeight - 1f)
+				val lastCharIndexBeside = besideLayout
+					.getLineEnd(lineIndex = lineIndexBeside, visibleEnd = true)
+				val besideHeight = besideLayout.getLineBottom(lineIndexBeside)
 
-                val restOfText = paragraphText.substring(paragraphText.indexOf(largeWordsString) + largeWordsString.length).trimStart()
-                val restOfTextStartIndex = paragraphAnnotatedString.text.indexOf(restOfText)
-                val restOfTextAnnotated = if (restOfTextStartIndex != -1) {
-                    paragraphAnnotatedString.subSequence(restOfTextStartIndex, paragraphAnnotatedString.length)
-                } else {
-                    AnnotatedString(restOfText)
-                }
+				// Extract below text as AnnotatedString, preserving spans.
+				val belowLayout = if (lastCharIndexBeside < restOfTextAnnotated.length) {
+					val belowAnnotated = restOfTextAnnotated
+						.subSequence(lastCharIndexBeside, restOfTextAnnotated.length)
+						.let { raw ->
+							val trimOffset = raw.length - raw.text.trimStart().length
+							if (trimOffset > 0) raw.subSequence(trimOffset, raw.length) else raw
+						}
+					if (belowAnnotated.text.isNotBlank()) {
+						textMeasurer.measure(
+							text = belowAnnotated,
+							style = finalStyle,
+							constraints = constraints
+						)
+					} else null
+				} else null
 
-                val spacing = 8.sp.toPx()
-                val indentedConstraints = constraints.copy(minWidth = 0, maxWidth = (constraints.maxWidth - largeWordsWidth - spacing).toInt().coerceAtLeast(0))
+				val belowHeight = belowLayout?.size?.height?.toFloat() ?: 0f
+				val extraSpacing = if (belowHeight > 0f) lineSpacing else 0f
 
-                val fullRestOfTextLayout = textMeasurer.measure(
-                    text = restOfTextAnnotated,
-                    style = finalStyle,
-                    constraints = indentedConstraints,
-                    overflow = TextOverflow.Visible
-                )
+				measuredLayouts.add(
+					ParagraphLayout.Complex(
+						largeWordsLayout = largeWordsLayout,
+						besideLayout = besideLayout,
+						belowLayout = belowLayout,
+						largeWordsWidth = largeWordsWidth,
+						besideHeight = besideHeight,
+						lineSpacing = lineSpacing,
+					)
+				)
 
-                val lineIndexBeside = fullRestOfTextLayout.getLineForVerticalPosition(largeWordsHeight.toFloat() - 1)
-                val lastCharIndexBeside = fullRestOfTextLayout.getLineEnd(lineIndex = lineIndexBeside, visibleEnd = true)
+				totalHeight += max(
+					largeWordsHeight,
+					besideHeight + extraSpacing + belowHeight
+				)
+			} else {
+				val layout = textMeasurer.measure(
+					text = entry.annotatedString,
+					style = finalStyle,
+					constraints = constraints
+				)
+				measuredLayouts.add(ParagraphLayout.Simple(layout = layout))
+				totalHeight += layout.size.height
+			}
+		}
 
-                val textBelowString = restOfTextAnnotated.subSequence(lastCharIndexBeside, restOfTextAnnotated.length).text.trimStart()
-                val textBelowAnnotatedString = AnnotatedString(textBelowString)
-
-                var textBelowLayoutHeight = 0f
-                // Same spacing logic as in the Canvas
-                val lineSpacing = if (style.lineHeight.isSp) style.lineHeight.toPx() / 16 else style.fontSize.toPx() / 16
-
-                if (textBelowAnnotatedString.text.isNotBlank()) {
-                    val textBelowLayout = textMeasurer.measure(
-                        text = textBelowAnnotatedString,
-                        style = finalStyle,
-                        constraints = constraints
-                    )
-                    textBelowLayoutHeight = textBelowLayout.size.height.toFloat()
-                }
-
-                val besideTextHeight = fullRestOfTextLayout.getLineBottom(lineIndexBeside)
-                val extraSpacing = if (textBelowLayoutHeight > 0f) lineSpacing else 0f
-                // Ensure total height calculation in the measure pass matches the drawing pass
-                totalHeight += max(largeWordsHeight.toFloat(), besideTextHeight + extraSpacing + textBelowLayoutHeight)
-
-            } else {
-                val simpleLayout = textMeasurer.measure(
-                    text = paragraphAnnotatedString,
-                    style = finalStyle,
-                    constraints = constraints
-                )
-                totalHeight += simpleLayout.size.height
-            }
-        }
-
-        val placeable = measurables.first().measure(
-            constraints.copy(minHeight = totalHeight.toInt(), maxHeight = totalHeight.toInt())
-        )
-        layout(placeable.width, placeable.height) {
-            placeable.placeRelative(0, 0)
-        }
-    }
+		val placeable = measurables.first().measure(
+			constraints.copy(
+				minHeight = totalHeight.toInt(),
+				maxHeight = totalHeight.toInt()
+			)
+		)
+		layout(placeable.width, placeable.height) {
+			placeable.placeRelative(0, 0)
+		}
+	}
 }

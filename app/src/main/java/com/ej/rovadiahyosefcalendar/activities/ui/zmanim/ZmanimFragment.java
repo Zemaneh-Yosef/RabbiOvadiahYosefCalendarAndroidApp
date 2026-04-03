@@ -498,55 +498,57 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      * @param fromButton if the method is called from the buttons, it will not ask more than once if the user wants to update the tables.
      */
     private void seeIfTablesNeedToBeUpdated(boolean fromButton) {
-        if (sSharedPreferences.getBoolean("isSetup", false) //only check after the app has been setup before
-                && sSharedPreferences.getBoolean("UseTable" + sCurrentLocationName, false)) { //and only if the tables are being used
+        if (!(sSharedPreferences.getBoolean("isSetup", false) //only check after the app has been setup before
+                && sSharedPreferences.getBoolean("UseTable" + sCurrentLocationName, false))) //and only if the tables are being used
+			return;
 
-            if (ChaiTablesWebJava.checkIfFileDoesNotExist(mActivity.getExternalFilesDir(null), sCurrentLocationName, sJewishDateInfo.getJewishCalendar().getJewishYear())) {
-                if (!mUpdateTablesDialogShown) {
-                    MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext);
-                    builder.setTitle(R.string.update_tables);
-                    builder.setMessage(R.string.the_visible_sunrise_tables_for_the_current_location_and_year_need_to_be_updated_do_you_want_to_update_the_tables_now);
-                    builder.setPositiveButton(R.string.yes, (dialog, which) -> {
-                        String chaitablesURL = sSharedPreferences.getString("chaitablesLink" + sCurrentLocationName, "");
-                        if (!chaitablesURL.isEmpty()) {//it should not be empty if the user has set up the app, but it is good to check
-                            String hebrewYear = String.valueOf(sJewishDateInfo.getJewishCalendar().getJewishYear());
-                            Pattern pattern = Pattern.compile("&cgi_yrheb=\\d{4}");
-                            Matcher matcher = pattern.matcher(chaitablesURL);
-                            if (matcher.find()) {
-                                chaitablesURL = chaitablesURL.replace(matcher.group(), "&cgi_yrheb=" + hebrewYear);//replace the year in the URL with the current year
-                            }
-                            ChaiTablesWebJava scraper = new ChaiTablesWebJava(sROZmanimCalendar.getGeoLocation(), sJewishDateInfo.getJewishCalendar());
-                            String finalChaitablesURL = chaitablesURL;
-                            Thread thread = new Thread(() -> {
-                                try {
-                                    ChaiTablesWebJava.ChaiTablesResult[] results = scraper.formatInterfacer(finalChaitablesURL); // will download 2 more years
-                                    int jewishYear = sJewishDateInfo.getJewishCalendar().getJewishYear();
-                                    for (ChaiTablesWebJava.ChaiTablesResult r : results) {
-                                        ChaiTablesWebJava.saveResultsToFile(r, mContext.getExternalFilesDir(null), sCurrentLocationName, jewishYear);
-                                        jewishYear++;
-                                    }
-                                    mActivity.runOnUiThread(() -> {
-                                        if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                                            updateWeeklyZmanim();
-                                        } else {
-                                            updateDailyZmanim();
-                                        }
-                                    });
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            });
-                            thread.start();
-                        }
-                    });
-                    builder.setNegativeButton(R.string.no, (dialog, which) -> dialog.dismiss());
-                    builder.show();
-                    if (fromButton) {
-                        mUpdateTablesDialogShown = true;
-                    }
-                }
-            }
-        }
+		if (!ChaiTablesWebJava.checkIfFileDoesNotExist(mActivity.getExternalFilesDir(null), sCurrentLocationName, sJewishDateInfo.getJewishCalendar().getJewishYear()))
+			return;
+
+		if (mUpdateTablesDialogShown)
+			return;
+
+		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext);
+		builder.setTitle(R.string.update_tables);
+		builder.setMessage(R.string.the_visible_sunrise_tables_for_the_current_location_and_year_need_to_be_updated_do_you_want_to_update_the_tables_now);
+		builder.setPositiveButton(R.string.yes, (dialog, which) -> {
+			String chaitablesURL = sSharedPreferences.getString("chaitablesLink" + sCurrentLocationName, "");
+			if (!chaitablesURL.isEmpty()) {//it should not be empty if the user has set up the app, but it is good to check
+				String hebrewYear = String.valueOf(sJewishDateInfo.getJewishCalendar().getJewishYear());
+				Pattern pattern = Pattern.compile("&cgi_yrheb=\\d{4}");
+				Matcher matcher = pattern.matcher(chaitablesURL);
+				if (matcher.find()) {
+					chaitablesURL = chaitablesURL.replace(matcher.group(), "&cgi_yrheb=" + hebrewYear);//replace the year in the URL with the current year
+				}
+				ChaiTablesWebJava scraper = new ChaiTablesWebJava(sROZmanimCalendar.getGeoLocation(), sJewishDateInfo.getJewishCalendar());
+				String finalChaitablesURL = chaitablesURL;
+				Thread thread = new Thread(() -> {
+					try {
+						ChaiTablesWebJava.ChaiTablesResult[] results = scraper.formatInterfacer(finalChaitablesURL); // will download 2 more years
+						int jewishYear = sJewishDateInfo.getJewishCalendar().getJewishYear();
+						for (ChaiTablesWebJava.ChaiTablesResult r : results) {
+							ChaiTablesWebJava.saveResultsToFile(r, mContext.getExternalFilesDir(null), sCurrentLocationName, jewishYear);
+							jewishYear++;
+						}
+						mActivity.runOnUiThread(() -> {
+							if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+								updateWeeklyZmanim();
+							} else {
+								updateDailyZmanim();
+							}
+						});
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				});
+				thread.start();
+			}
+		});
+		builder.setNegativeButton(R.string.no, (dialog, which) -> dialog.dismiss());
+		builder.show();
+		if (fromButton) {
+			mUpdateTablesDialogShown = true;
+		}
     }
 
     private void setupDailyViews() {
