@@ -1370,9 +1370,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
         addZmanim(zmanim, false, sSettingsPreferences, sSharedPreferences, sROZmanimCalendar, sJewishDateInfo, add66MisheyakirZman);
 
-        zmanim.add(new ZmanListEntry(sJewishDateInfo.getIsMashivHaruchOrMoridHatalSaid()
-                + " / "
-                + sJewishDateInfo.getIsBarcheinuOrBarechAleinuSaid()));
+        zmanim.add(new ZmanListEntry(getSeasonalPrayerChanges()));
 
         zmanim.add(new ZmanListEntry(mContext.getString(R.string.shaah_zmanit_gr_a) + " " + mZmanimFormatter.format(sROZmanimCalendar.getShaahZmanisGra())));
         zmanim.add(new ZmanListEntry(mContext.getString(R.string.mg_a)
@@ -1422,6 +1420,23 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
 
         return zmanim;
+    }
+
+    @NonNull
+    private static String getSeasonalPrayerChanges() {
+        TefilaRules rules = new TefilaRules();
+        if (rules.isMashivHaruachEndDate(sJewishDateInfo.getJewishCalendar())) {
+            return "במוסף מוריד הטל / ברכנו";
+        }
+        if (rules.isMashivHaruachStartDate(sJewishDateInfo.getJewishCalendar())) {
+            return "במוסף משיב הרוח / ברכנו";
+        }
+        if (rules.isVeseinTalUmatarStartDate(sJewishDateInfo.tomorrow().getJewishCalendar())) {
+            return "בערבית משיב הרוח / ברך עלינו";
+        }
+        return sJewishDateInfo.getIsMashivHaruchOrMoridHatalSaid()
+                + " / " +
+                sJewishDateInfo.getIsBarcheinuOrBarechAleinuSaid();
     }
 
     private void createBackgroundThreadForNextUpcomingZman() {

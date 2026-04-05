@@ -718,12 +718,9 @@ public class JewishDateInfo {
     public String getIsMashivHaruchOrMoridHatalSaid() {
         if (tefilaRules.isMashivHaruachRecited(this.jewishCalendar)) {
             return "משיב הרוח";
-        }
-
-        if (tefilaRules.isMoridHatalRecited(this.jewishCalendar)) {
+        } else {
             return "מוריד הטל";
         }
-        return "";
     }
 
     /**

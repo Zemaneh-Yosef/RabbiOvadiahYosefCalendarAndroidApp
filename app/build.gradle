@@ -61,7 +61,7 @@ android {
 
 dependencies {
     // This manages the versions of your Compose libraries.
-    implementation platform('androidx.compose:compose-bom:2026.03.00')
+    implementation platform('androidx.compose:compose-bom:2026.03.01')
 
     // REMOVE VERSIONS FROM INDIVIDUAL COMPOSE DEPENDENCIES
     // The BOM now controls these versions.
@@ -106,7 +106,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-wearable:19.0.0'
     implementation 'com.google.code.gson:gson:2.13.2'
     implementation 'com.google.android.gms:play-services-maps:20.0.0'
-    implementation 'com.google.maps.android:android-maps-utils:4.1.0'
+    implementation 'com.google.maps.android:android-maps-utils:4.1.1'
     implementation 'com.google.android.material:material:1.14.0-alpha10'
     implementation 'androidx.activity:activity-ktx:1.13.0'
     implementation 'com.google.android.play:app-update:2.1.0'
