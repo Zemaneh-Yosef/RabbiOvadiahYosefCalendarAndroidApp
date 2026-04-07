@@ -5,6 +5,7 @@ import static android.content.Context.ALARM_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentTimeZoneID;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -25,6 +26,7 @@ import com.kosherjava.zmanim.util.GeoLocation;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
+import java.util.TimeZone;
 
 public class BootNotifications extends BroadcastReceiver {
 
@@ -44,7 +46,7 @@ public class BootNotifications extends BroadcastReceiver {
                                 location.getLatitude(),
                                 location.getLongitude(),
                                 0,// it barely makes a difference on when the notification sends, not worth the network call IMO
-                                mLocationResolver.getTimeZone())));
+								TimeZone.getTimeZone(sCurrentTimeZoneID))));
                     } else {
                         setDailyNotifications(context, new ROZmanimCalendar(mLocationResolver.getLastKnownGeoLocation()));
                     }

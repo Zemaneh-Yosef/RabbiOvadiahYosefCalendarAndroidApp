@@ -128,7 +128,7 @@ public class Utils {
                 .getConfiguration()
                 .getLocales()
                 .get(0));
-        TimeZone timezone = new LocationResolver(context, null).getTimeZone();
+        TimeZone timezone = TimeZone.getTimeZone(sCurrentTimeZoneID);
         noSecondDateFormat.setTimeZone(timezone);
         yesSecondDateFormat.setTimeZone(timezone);
 
@@ -394,12 +394,6 @@ public class Utils {
                     .put("EndOfShabbatOpinion", sSettingsPreferences.getString("EndOfShabbatOpinion", "1"))
                     .put("alwaysShowTzeitLChumra", sSettingsPreferences.getBoolean("alwaysShowTzeitLChumra", false))
                     .put("AlwaysShowRT", sSettingsPreferences.getBoolean("AlwaysShowRT", false))
-                    .put("useZipcode", sSharedPreferences.getBoolean("useZipcode", false))
-                    .put("Zipcode", sSharedPreferences.getString("Zipcode", ""))
-                    .put("oldZipcode", sSharedPreferences.getString("oldZipcode", "None"))
-                    .put("oldLocationName", sSharedPreferences.getString("oldLocationName", ""))
-                    .put("oldLat", sSharedPreferences.getLong("oldLat", 0))
-                    .put("oldLong", sSharedPreferences.getLong("oldLong", 0))
                     .put("locationName", sCurrentLocationName) // needed because we are not sure if the watches current location is the same as the app's
                     .put("elevation" + sCurrentLocationName, sSharedPreferences.getString("elevation" + sCurrentLocationName, "0"))
                     .put("SetElevationToLastKnownLocation", sSettingsPreferences.getBoolean("SetElevationToLastKnownLocation", false))
@@ -408,42 +402,6 @@ public class Utils {
                     .put("currentLat", String.valueOf(sLatitude))
                     .put("currentLong", String.valueOf(sLongitude))
                     .put("currentTimezone", sCurrentTimeZoneID)
-
-                    .put("useAdvanced", sSharedPreferences.getBoolean("useAdvanced", false))
-                    .put("advancedLN", sSharedPreferences.getString("advancedLN", ""))
-                    .put("advancedLat", sSharedPreferences.getString("advancedLat", "0"))
-                    .put("advancedLong", sSharedPreferences.getString("advancedLong", "0"))
-                    .put("advancedTimezone", sSharedPreferences.getString("advancedTimezone", ""))
-
-                    .put("useLocation1", sSharedPreferences.getBoolean("useLocation1", false))
-                    .put("location1", sSharedPreferences.getString("location1", ""))
-                    .put("location1Lat", sSharedPreferences.getLong("location1Lat", 0))
-                    .put("location1Long", sSharedPreferences.getLong("location1Long", 0))
-                    .put("location1Timezone", sSharedPreferences.getString("location1Timezone", ""))
-
-                    .put("useLocation2", sSharedPreferences.getBoolean("useLocation2", false))
-                    .put("location2", sSharedPreferences.getString("location2", ""))
-                    .put("location2Lat", sSharedPreferences.getLong("location2Lat", 0))
-                    .put("location2Long", sSharedPreferences.getLong("location2Long", 0))
-                    .put("location2Timezone", sSharedPreferences.getString("location2Timezone", ""))
-
-                    .put("useLocation3", sSharedPreferences.getBoolean("useLocation3", false))
-                    .put("location3", sSharedPreferences.getString("location3", ""))
-                    .put("location3Lat", sSharedPreferences.getLong("location3Lat", 0))
-                    .put("location3Long", sSharedPreferences.getLong("location3Long", 0))
-                    .put("location3Timezone", sSharedPreferences.getString("location3Timezone", ""))
-
-                    .put("useLocation4", sSharedPreferences.getBoolean("useLocation4", false))
-                    .put("location4", sSharedPreferences.getString("location4", ""))
-                    .put("location4Lat", sSharedPreferences.getLong("location4Lat", 0))
-                    .put("location4Long", sSharedPreferences.getLong("location4Long", 0))
-                    .put("location4Timezone", sSharedPreferences.getString("location4Timezone", ""))
-
-                    .put("useLocation5", sSharedPreferences.getBoolean("useLocation5", false))
-                    .put("location5", sSharedPreferences.getString("location5", ""))
-                    .put("location5Lat", sSharedPreferences.getLong("location5Lat", 0))
-                    .put("location5Long", sSharedPreferences.getLong("location5Long", 0))
-                    .put("location5Timezone", sSharedPreferences.getString("location5Timezone", ""))
 
                     .put("zmanim_notifications", sSettingsPreferences.getBoolean("zmanim_notifications", false))
                     .put("NightChatzot", sSettingsPreferences.getInt("NightChatzot", -1))

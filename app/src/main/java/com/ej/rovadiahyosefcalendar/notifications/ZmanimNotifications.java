@@ -164,12 +164,14 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
         if (location != null) {
             mLocationResolver.getFullLocationName(location.getLatitude(), location.getLongitude(), false, locationName ->
                     mLocationResolver.resolveElevation(() -> {
+				mLocationResolver.setTimeZoneID();
+
                 ROZmanimCalendar zmanimCalendar = new ROZmanimCalendar(new GeoLocation(
                         locationName,
                         location.getLatitude(),
                         location.getLongitude(),
                         mLocationResolver.getElevation(),
-                        mLocationResolver.getTimeZone()));
+                        mLocationResolver.getResolvedTimeZone()));
                 zmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
                 String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
                 if (candles.isEmpty()) {

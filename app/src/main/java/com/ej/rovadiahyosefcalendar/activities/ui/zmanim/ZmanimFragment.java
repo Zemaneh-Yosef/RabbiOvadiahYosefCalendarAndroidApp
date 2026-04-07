@@ -235,24 +235,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         String action = intent.getAction();
         String type = intent.getType();
 
-        if (Intent.ACTION_SEND.equals(action) && type != null) {
-            if (type.equals("text/plain")) {
-                String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
-                if (sharedText != null) {
-                    // Update UI to reflect text being shared
-                    // We set the zipcode location to what was sent to us
-                    sSharedPreferences.edit().putBoolean("useLocation1", false)
-                            .putBoolean("useLocation2", false)
-                            .putBoolean("useLocation3", false)
-                            .putBoolean("useLocation4", false)
-                            .putBoolean("useLocation5", false)
-                            .apply();
-                    SharedPreferences.Editor editor = sSharedPreferences.edit();
-                    editor.putBoolean("useAdvanced", false).apply();
-                    editor.putBoolean("useZipcode", true).apply();
-                    editor.putString("Zipcode", sharedText).apply();
-                    mLocationResolver.getLatitudeAndLongitudeFromSearchQuery();// even though the location name is updated here, it will be updated later as well and then the UI will be updated
-                    mLocationResolver.setTimeZoneID();
+        if (Intent.ACTION_SEND.equals(action) && type != null && type.equals("text/plain")) {
+			String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
+			if (sharedText != null) {
+				mLocationResolver.getLatitudeAndLongitudeFromSearchQuery(sharedText);// even though the location name is updated here, it will be updated later as well and then the UI will be updated
+				mLocationResolver.setTimeZoneIDAsync(() -> {
                     resolveElevationAndVisibleSunrise(() -> {
                         instantiateZmanimCalendar();
                         setNextUpcomingZman();
@@ -264,7 +251,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         checkIfUserIsInIsraelOrNot();
                         setNotifications();
                     });
-                }
+                });
             }
         }
 
@@ -291,7 +278,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (sLatitude == 0 && sLongitude == 0) {
             mLocationResolver.acquireLatitudeAndLongitude(this);
         }
-        mLocationResolver.setTimeZoneID();
         if (binding != null) {
             setSafeSettingsForSpecificManufacturers();
             setupDailyViews();
@@ -300,40 +286,42 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             binding.swipeRefreshLayout.setVisibility(View.GONE);
             binding.shimmerLayout.setVisibility(View.VISIBLE);
         }
-        if (sLatitude != 0 && sLongitude != 0) {// the values are updated, the user is using a zipcode or saved location or the app was just restarted
-            mLocationResolver.getFullLocationName(true, locationName -> {
-                if (locationName == null || locationName.isEmpty()) {//if it's still empty, use backup. NPE was thrown here for some reason
-                    locationName = sROZmanimCalendar.getGeoLocation().getLocationName();
-                }
-                sCurrentLocationName = locationName;
-                mActivity.runOnUiThread(() -> {
-                    if (binding != null) {
-                        binding.dailyLocationName.setText(sCurrentLocationName);
+        mLocationResolver.setTimeZoneIDAsync(() -> {
+            if (sLatitude != 0 && sLongitude != 0) {// the values are updated, the user is using a zipcode or saved location or the app was just restarted
+                mLocationResolver.getFullLocationName(true, locationName -> {
+                    if (locationName == null || locationName.isEmpty()) {//if it's still empty, use backup. NPE was thrown here for some reason
+                        locationName = sROZmanimCalendar.getGeoLocation().getLocationName();
                     }
+                    sCurrentLocationName = locationName;
+                    mActivity.runOnUiThread(() -> {
+                        if (binding != null) {
+                            binding.dailyLocationName.setText(sCurrentLocationName);
+                        }
+                    });
+                    resolveElevationAndVisibleSunrise(() -> {
+                        instantiateZmanimCalendar();
+                        setNextUpcomingZman();
+                        if (binding != null) {
+                            updateChaitableTimesFromLatLong(() -> {
+                                binding.shimmerLayout.setVisibility(View.GONE);
+                                if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                                    setWeeklyViewVisibility(true);
+                                    updateWeeklyZmanim();
+                                } else {
+                                    setWeeklyViewVisibility(false);
+                                    updateDailyZmanim();
+                                }
+                            });
+                        }
+                        createBackgroundThreadForNextUpcomingZman();
+                    });
                 });
-                resolveElevationAndVisibleSunrise(() -> {
-                    instantiateZmanimCalendar();
-                    setNextUpcomingZman();
-                    if (binding != null) {
-                        updateChaitableTimesFromLatLong(() -> {
-                            binding.shimmerLayout.setVisibility(View.GONE);
-                            if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                                setWeeklyViewVisibility(true);
-                                updateWeeklyZmanim();
-                            } else {
-                                setWeeklyViewVisibility(false);
-                                updateDailyZmanim();
-                            }
-                        });
-                    }
-                    createBackgroundThreadForNextUpcomingZman();
-                });
-            });
-        }
-        setupButtons();
-        setNotifications();
-        askForRealTimeNotificationPermissions();
-        checkIfUserIsInIsraelOrNot();
+            }
+            setupButtons();
+            setNotifications();
+            askForRealTimeNotificationPermissions();
+            checkIfUserIsInIsraelOrNot();
+        });
     }
 
     /**

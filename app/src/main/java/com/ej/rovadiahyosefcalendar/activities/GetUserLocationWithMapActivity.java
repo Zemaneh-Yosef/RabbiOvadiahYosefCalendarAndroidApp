@@ -7,7 +7,6 @@ import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivit
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sLatitude;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sLongitude;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -22,7 +21,6 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -50,6 +48,9 @@ import com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.ej.rovadiahyosefcalendar.databinding.ActivityGetUserLocationWithMapBinding;
+import com.ej.rovadiahyosefcalendar.db.AppDatabase;
+import com.ej.rovadiahyosefcalendar.db.SavedLocation;
+import com.ej.rovadiahyosefcalendar.db.SavedLocationDao;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -62,80 +63,90 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.maps.android.SphericalUtil;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.concurrent.Executors;
 
 public class GetUserLocationWithMapActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private ActivityGetUserLocationWithMapBinding binding;
     private SharedPreferences mSharedPreferences;
-    private LatLng chosenLocation;
-    private List<String> mLocationList;
-    private ItemAdapter itemAdapter;
-    private Marker currentLocation;
+    private SavedLocationDao mLocationDao;
+    private LatLng mChosenLatLng;
+    private ItemAdapter mItemAdapter;
+    private Marker mCurrentMarker;
     private LocationResolver mLocationResolver;
-    private String bLocationName;
-    private double bLat;
-    private double bLong;
-    private String bTimezoneID;
-    private String bZipcode;
-    private boolean bUseZipcode;
-    private boolean bUseAdvanced;
-    private boolean bUseLocation1;
-    private boolean bUseLocation2;
-    private boolean bUseLocation3;
-    private boolean bUseLocation4;
-    private boolean bUseLocation5;
+
+    // -----------------------------------------------------------------------
+    // Back-navigation backup — only two fields now instead of eight
+    // -----------------------------------------------------------------------
+    private String  bLocationName;
+    private double  bLat;
+    private double  bLong;
+    private String  bTimezoneID;
+    private boolean bUseDeviceLocation; // true  → follow GPS
+    private int     bSelectedLocationId; // Room PK, -1 → device location
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        LocationResolver.getTimeshapeEngine();// need to init as soon as possible
+        LocationResolver.initializeTimeshapeEngine();
 
         binding = ActivityGetUserLocationWithMapBinding.inflate(getLayoutInflater());
         EdgeToEdge.enable(this);
         setContentView(binding.getRoot());
+
         if (Utils.isLocaleHebrew(this)) {
             binding.topAppBar.setSubtitle("");
         }
+
         binding.topAppBar.setNavigationIcon(AppCompatResources.getDrawable(this, R.drawable.baseline_arrow_back_24));
         binding.topAppBar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
         binding.topAppBar.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
             if (id == R.id.search_for_a_place_legacy) {
-                createZipcodeDialog();
+                showSearchDialog();
                 return true;
-            } else if (id== R.id.advanced) {
-                createAdvancedDialog();
+            } else if (id == R.id.advanced) {
+                showAdvancedDialog();
+                return true;
             } else if (id == R.id.skip) {
                 finish();
+                return true;
             }
             return false;
         });
 
         mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
+        mLocationDao = AppDatabase.getInstance(this).savedLocationDao();
 
-        // Backup old location details if the user goes back without finishing
-        bLocationName = sCurrentLocationName;
-        bLat = sLatitude;
-        bLong = sLongitude;
-        bTimezoneID = sCurrentTimeZoneID;
-        bZipcode = mSharedPreferences.getString("Zipcode", "");
-        bUseZipcode = mSharedPreferences.getBoolean("useZipcode", false);
-        bUseAdvanced = mSharedPreferences.getBoolean("useAdvanced", false);
-        bUseLocation1 = mSharedPreferences.getBoolean("useLocation1", false);
-        bUseLocation2 = mSharedPreferences.getBoolean("useLocation2", false);
-        bUseLocation3 = mSharedPreferences.getBoolean("useLocation3", false);
-        bUseLocation4 = mSharedPreferences.getBoolean("useLocation4", false);
-        bUseLocation5 = mSharedPreferences.getBoolean("useLocation5", false);
+        // Snapshot current state for back-navigation restore
+        bLocationName      = sCurrentLocationName;
+        bLat               = sLatitude;
+        bLong              = sLongitude;
+        bTimezoneID        = sCurrentTimeZoneID;
+        bUseDeviceLocation = mSharedPreferences.getBoolean("useDeviceLocation", false);
+        bSelectedLocationId = mSharedPreferences.getInt("selectedLocationId", -1);
 
+        initMap();
+        initDeviceLocationButton();
+        initSearchView();
+        initConfirmButton();
+        initWindowInsets();
+        initBackHandler();
+        loadSavedLocationsIntoList();
+    }
+
+    // -----------------------------------------------------------------------
+    // Initialisation helpers
+    // -----------------------------------------------------------------------
+
+    private void initMap() {
         try {
-            // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.map);
+            SupportMapFragment mapFragment = (SupportMapFragment)
+                    getSupportFragmentManager().findFragmentById(R.id.map);
             if (mapFragment != null) {
                 mapFragment.getMapAsync(this);
             }
@@ -143,160 +154,153 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
             t.printStackTrace();
             Toast.makeText(this, t.getMessage(), Toast.LENGTH_SHORT).show();
         }
+    }
 
+    private void initDeviceLocationButton() {
         binding.deviceLocation.setOnClickListener(v -> {
-            if (mMap != null) {
-                if (currentLocation != null) {
-                    currentLocation.remove();
-                    currentLocation = null;
-                }
+            if (mMap == null) return;
+            clearMarker();
+            selectDeviceLocation();
 
-                setUseLocations(false, false, false, false, false);
-                mSharedPreferences.edit()
-                        .putBoolean("useAdvanced", false)
-                        .putBoolean("useZipcode", false)
-                        .apply();
+            mLocationResolver = new LocationResolver(this, this);
+            mLocationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
 
-                mLocationResolver = new LocationResolver(this, this);
-                mLocationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
-                Thread thread = new Thread(() -> {
-                    while (sLatitude == 0 && sLongitude == 0) {
-                        try {
-                            Thread.sleep(0);
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
+            // Wait off the main thread until GPS provides coordinates
+            Executors.newSingleThreadExecutor().execute(() -> {
+                while (sLatitude == 0 && sLongitude == 0) Thread.yield();
+                runOnUiThread(() -> {
+                    mChosenLatLng = new LatLng(sLatitude, sLongitude);
+                    mLocationResolver.getFullLocationName(true, name -> {
+                        if (name != null) {
+                            runOnUiThread(() -> mCurrentMarker = mMap.addMarker(
+                                    new MarkerOptions().position(mChosenLatLng).draggable(true).title(name)));
                         }
-                    }
-                    runOnUiThread(() -> {
-                        chosenLocation = new LatLng(sLatitude, sLongitude);
-                        mLocationResolver.getFullLocationName(true, locationName -> {
-                            if (locationName != null) {
-                                runOnUiThread(() -> currentLocation = mMap.addMarker(new MarkerOptions().position(chosenLocation).draggable(true).title(locationName)));
-                            }
-                        });
-                        LatLng northEastCorner = SphericalUtil.computeOffset(chosenLocation, 950000.0 / 100, 45.0);
-                        LatLng southWestCorner = SphericalUtil.computeOffset(chosenLocation, 950000.0 / 100, 225.0);
-                        mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(new LatLngBounds(southWestCorner, northEastCorner), 0));
-                        Snackbar.make(GetUserLocationWithMapActivity.this, binding.getRoot(), getString(R.string.the_application_will_keep_requesting_your_location), Snackbar.LENGTH_SHORT)
-                                .setBackgroundTint(getColor(R.color.green))
-                                .setTextColor(getColor(R.color.black))
-                                .show();
                     });
+                    animateMapTo(mChosenLatLng);
+                    showSnackbar(getString(R.string.the_application_will_keep_requesting_your_location),
+                            getColor(R.color.green), getColor(R.color.black));
                 });
-                thread.start();
-            }
+            });
         });
+    }
 
-        mLocationList = new ArrayList<>();
-        mLocationList.add(mSharedPreferences.getString("location1", ""));
-        mLocationList.add(mSharedPreferences.getString("location2", ""));
-        mLocationList.add(mSharedPreferences.getString("location3", ""));
-        mLocationList.add(mSharedPreferences.getString("location4", ""));
-        mLocationList.add(mSharedPreferences.getString("location5", ""));
-
-        binding.searchRV.setLayoutManager(new LinearLayoutManager(GetUserLocationWithMapActivity.this));
-        binding.searchRV.addItemDecoration(new DividerItemDecoration(GetUserLocationWithMapActivity.this, DividerItemDecoration.VERTICAL));
-        itemAdapter = new ItemAdapter(mLocationList);
-        binding.searchRV.setAdapter(itemAdapter);
+    private void initSearchView() {
+        binding.searchRV.setLayoutManager(new LinearLayoutManager(this));
+        binding.searchRV.addItemDecoration(
+                new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
 
         binding.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                if (currentLocation != null) {
-                    currentLocation.remove();
-                    currentLocation = null;
-                }
-                setUseLocations(false, false, false, false, false);
-                mSharedPreferences.edit().putBoolean("useAdvanced", false)
-                        .putBoolean("useZipcode", true)
-                        .putString("Zipcode", query)
-                        .apply();
+                clearMarker();
                 binding.searchView.clearFocus();
-                mLocationResolver = new LocationResolver(GetUserLocationWithMapActivity.this, GetUserLocationWithMapActivity.this);
-                mLocationResolver.getLatitudeAndLongitudeFromSearchQuery();
-                mLocationResolver.setTimeZoneID();
-                chosenLocation = new LatLng(sLatitude, sLongitude);
-                if (mMap != null) {
-                    mLocationResolver.getFullLocationName(true, locationName -> {
-                        if (locationName != null) {
-                            runOnUiThread(() -> currentLocation = mMap.addMarker(new MarkerOptions().position(chosenLocation).draggable(true).title(locationName)));
-                        }
-                    });
-                    LatLng northEastCorner = SphericalUtil.computeOffset(chosenLocation, 950000.0 / 100, 45.0);
-                    LatLng southWestCorner = SphericalUtil.computeOffset(chosenLocation, 950000.0 / 100, 225.0);
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(new LatLngBounds(southWestCorner, northEastCorner), 0));
-                }
-                Snackbar.make(GetUserLocationWithMapActivity.this, binding.getRoot(), getString(R.string.the_application_will_not_track_your_location), Snackbar.LENGTH_SHORT)
-                        .setBackgroundTint(Color.RED)
-                        .show();
-                updateRV("");
+
+                // Resolve query → SavedLocation on a background thread
+                Executors.newSingleThreadExecutor().execute(() -> {
+                    mLocationResolver = new LocationResolver(
+                            GetUserLocationWithMapActivity.this, GetUserLocationWithMapActivity.this);
+                    boolean success = mLocationResolver.getLatitudeAndLongitudeFromSearchQuery(query);
+
+                    if (success) {
+                        // 1. Resolve timezone from coordinates BEFORE saving or selecting
+                        //    Temporarily clear selectedLocationId so setTimeZoneID() doesn't
+                        //    short-circuit on the stale DB value
+                        mSharedPreferences.edit().remove("selectedLocationId").commit(); // commit(), not apply()
+                        mLocationResolver.setTimeZoneID();
+
+                        // 2. Now save with the correct timezone already in sCurrentTimeZoneID
+                        SavedLocation saved = saveCurrentStateAsLocation();
+
+                        // 3. Mark as selected (writes the correct ID back)
+                        selectSavedLocation(saved);
+
+                        runOnUiThread(() -> {
+                            mChosenLatLng = new LatLng(sLatitude, sLongitude);
+                            if (mMap != null) {
+                                mLocationResolver.getFullLocationName(true, name -> {
+                                    if (name != null) {
+                                        runOnUiThread(() -> mCurrentMarker = mMap.addMarker(
+                                            new MarkerOptions().position(mChosenLatLng).draggable(true).title(name)));
+                                    }
+                                });
+                                animateMapTo(mChosenLatLng);
+                            }
+                            showSnackbar(getString(R.string.the_application_will_not_track_your_location),
+                                Color.RED, Color.WHITE);
+                            refreshRecyclerView();
+                        });
+                    }
+                });
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                updateRV(newText);
-                //TODO show suggestions from an external API, maybe Geonames. But for now, we are using it just for the old locations
+                refreshRecyclerView(newText);
                 return false;
             }
         });
+    }
 
+    private void initConfirmButton() {
         binding.confirmLocation.setOnClickListener(v -> {
-            if (chosenLocation != null) {
-                binding.progressBar.setVisibility(View.VISIBLE);
-                binding.confirmLocation.setEnabled(false);
-                Runnable finish = () -> {
-                    if (mSharedPreferences.getBoolean("useAdvanced", false)) {
-                        mLocationResolver.acquireTimeZoneID();
-                    } else {// using regular location services, or zipcode
+            if (mChosenLatLng == null) {
+                showSnackbar(getString(R.string.no_location_has_been_set), Color.RED, Color.WHITE);
+                return;
+            }
+            binding.progressBar.setVisibility(View.VISIBLE);
+            binding.confirmLocation.setEnabled(false);
+
+            Runnable finish = () -> {
+                // setTimeZoneID / acquireTimeZoneID are blocking — run on BG thread
+                Executors.newSingleThreadExecutor().execute(() -> {
+                    if (!mSharedPreferences.getBoolean("useDeviceLocation", false)) {
                         mLocationResolver.setTimeZoneID();
                     }
-                    configureSettingsBasedOnLocation();
-                    finish();
-                };
-                if (mSharedPreferences.getBoolean("useElevation", true)) {
-                    if (mSharedPreferences.contains("elevation" + sCurrentLocationName)) {
-                        finish.run();
-                    } else {
-                        new Thread(() -> mLocationResolver.getElevationFromWebService(new Handler(getMainLooper()), null, finish)).start();
-                    }
-                } else {
-                    finish.run();
-                }
+                    // If this was a map-tap (advanced), acquire timezone from coordinates
+                    // acquireTimeZoneID is idempotent; setTimeZoneID already handled others
+                    runOnUiThread(() -> {
+                        configureSettingsBasedOnLocation();
+                        finish();
+                    });
+                });
+            };
+
+            if (mSharedPreferences.getBoolean("useElevation", true)
+                    && !mSharedPreferences.contains("elevation" + sCurrentLocationName)) {
+                new Thread(() -> mLocationResolver.getElevationFromWebService(
+                        new Handler(getMainLooper()), null, finish)).start();
             } else {
-                Snackbar.make(GetUserLocationWithMapActivity.this, binding.getRoot(), getString(R.string.no_location_has_been_set), Snackbar.LENGTH_SHORT)
-                        .setBackgroundTint(Color.RED)
-                        .show();
+                finish.run();
             }
         });
+    }
 
+    private void initWindowInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.confirmLocation, (v, windowInsets) -> {
             Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
             ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
-            mlp.leftMargin = insets.left;
+            mlp.leftMargin   = insets.left;
             mlp.bottomMargin = insets.bottom;
-            mlp.rightMargin = insets.right;
+            mlp.rightMargin  = insets.right;
             v.setLayoutParams(mlp);
-            // Return CONSUMED if you don't want want the window insets to keep passing
-            // down to descendant views.
             return WindowInsetsCompat.CONSUMED;
         });
+    }
 
+    private void initBackHandler() {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
+                // Restore everything that was snapshotted in onCreate
                 sCurrentLocationName = bLocationName;
-                sLatitude = bLat;
-                sLongitude = bLong;
-                sCurrentTimeZoneID = bTimezoneID;
-                mSharedPreferences.edit().putString("Zipcode", bZipcode)
-                        .putBoolean("useZipcode", bUseZipcode)
-                        .putBoolean("useAdvanced", bUseAdvanced)
-                        .putBoolean("useLocation1", bUseLocation1)
-                        .putBoolean("useLocation2", bUseLocation2)
-                        .putBoolean("useLocation3", bUseLocation3)
-                        .putBoolean("useLocation4", bUseLocation4)
-                        .putBoolean("useLocation5", bUseLocation5).apply();
+                sLatitude            = bLat;
+                sLongitude           = bLong;
+                sCurrentTimeZoneID   = bTimezoneID;
+                mSharedPreferences.edit()
+                        .putBoolean("useDeviceLocation",  bUseDeviceLocation)
+                        .putInt("selectedLocationId",     bSelectedLocationId)
+                        .apply();
                 finish();
                 if (!getIntent().getBooleanExtra("loneActivity", false)) {
                     startActivity(new Intent(getApplicationContext(), WelcomeScreenActivity.class));
@@ -305,16 +309,443 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
         });
     }
 
+    /**
+     * Loads the saved-location list from Room on a background thread,
+     * then hands the result to the RecyclerView adapter on the main thread.
+     */
+    private void loadSavedLocationsIntoList() {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            List<SavedLocation> locations = mLocationDao.getAllOrderedByRecent();
+            runOnUiThread(() -> {
+                mItemAdapter = new ItemAdapter(locations);
+                binding.searchRV.setAdapter(mItemAdapter);
+            });
+        });
+    }
+
+    // -----------------------------------------------------------------------
+    // Map callbacks
+    // -----------------------------------------------------------------------
+
     @Override
-    protected void onStart() {
-        if (binding != null) {
-            binding.progressBar.setVisibility(View.GONE);
+    public void onMapReady(@NonNull GoogleMap googleMap) {
+        mMap = googleMap;
+
+        DisplayMetrics dm = new DisplayMetrics();
+        if (getWindowManager() != null) {
+            getWindowManager().getDefaultDisplay().getMetrics(dm);
+            mMap.setPadding(dm.widthPixels / 10, dm.heightPixels / 10,
+                            dm.widthPixels / 10, dm.heightPixels / 10);
         }
-        super.onStart();
+
+        if (sLatitude != 0 && sLongitude != 0) {
+            LatLng current = new LatLng(sLatitude, sLongitude);
+            mCurrentMarker = mMap.addMarker(
+                    new MarkerOptions().position(current).draggable(true).title(sCurrentLocationName));
+            animateMapTo(current);
+        }
+
+        mMap.setOnMapClickListener(latLng -> {
+            clearMarker();
+            mChosenLatLng = latLng;
+            sLatitude  = latLng.latitude;
+            sLongitude = latLng.longitude;
+
+            mLocationResolver = new LocationResolver(this, this);
+
+            Executors.newSingleThreadExecutor().execute(() -> {
+                mLocationResolver.setTimeZoneID();
+
+                // now resolve the name
+                mLocationResolver.getFullLocationName(true, name -> {
+                    if (name != null) {
+                        sCurrentLocationName = name;
+
+                        runOnUiThread(() -> mCurrentMarker = mMap.addMarker(
+                            new MarkerOptions().position(latLng).draggable(true).title(name)));
+
+                        Executors.newSingleThreadExecutor().execute(() -> {
+                            SavedLocation saved = saveCurrentStateAsLocation();
+                            selectSavedLocation(saved);
+                        });
+                    }
+                });
+            });
+
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+            showSnackbar(getString(R.string.the_application_will_not_track_your_location),
+                    Color.RED, Color.WHITE);
+        });
+    }
+
+    // -----------------------------------------------------------------------
+    // Dialogs
+    // -----------------------------------------------------------------------
+
+    /**
+     * The old "zipcode" dialog. Now shows whatever is in the Room DB dynamically
+     * instead of five hardcoded buttons.
+     */
+    private void showSearchDialog() {
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setGravity(Gravity.CENTER);
+
+        EditText input = new EditText(this);
+        input.setGravity(Gravity.CENTER_HORIZONTAL);
+        input.setHint(R.string.enter_zipcode_or_address);
+        input.setSingleLine();
+        input.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        input.setImeOptions(EditorInfo.IME_ACTION_DONE);
+
+        // Saved locations are loaded from Room and shown as a RecyclerView inside the dialog
+        RecyclerView dialogRV = new RecyclerView(this);
+        dialogRV.setLayoutManager(new LinearLayoutManager(this));
+        dialogRV.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+
+        layout.addView(dialogRV);
+        layout.addView(input);
+
+        AlertDialog ad = new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.search_for_a_place)
+                .setMessage(R.string.warning_zmanim_will_be_based_on_your_approximate_area)
+                .setView(layout)
+                .setPositiveButton(R.string.ok, (dialog, which) -> {
+                    String query = input.getText().toString().trim();
+                    if (query.isEmpty()) {
+                        Toast.makeText(this, R.string.please_enter_something, Toast.LENGTH_SHORT).show();
+                        showSearchDialog();
+                    } else {
+                        resolveSearchQueryAndFinish(query);
+                    }
+                })
+                .setNegativeButton(R.string.advanced, (dialog, which) -> showAdvancedDialog())
+                .setNeutralButton(R.string.use_location, (dialog, which) -> resolveDeviceLocationAndFinish())
+                .create();
+
+        // Populate the dialog's RecyclerView from Room
+        Executors.newSingleThreadExecutor().execute(() -> {
+            List<SavedLocation> locations = mLocationDao.getAllOrderedByRecent();
+            runOnUiThread(() -> {
+                ItemAdapter dialogAdapter = new ItemAdapter(locations) {
+                    @Override
+                    void onLocationSelected(SavedLocation loc) {
+                        ad.dismiss();
+                        selectSavedLocation(loc);
+                        applySelectedLocationAndFinish();
+                    }
+                };
+                dialogRV.setAdapter(dialogAdapter);
+            });
+        });
+
+        ad.show();
+
+        input.setOnEditorActionListener((tv, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_NULL) {
+                ad.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
+                return true;
+            }
+            return false;
+        });
+    }
+
+    private void showAdvancedDialog() {
+        ScrollView scrollView = new ScrollView(this);
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setGravity(Gravity.CENTER);
+
+        TextView tvName = new TextView(this);
+        tvName.setText(R.string.enter_location_name);
+        tvName.setGravity(Gravity.CENTER);
+        EditText etName = new EditText(this);
+        etName.setText(sCurrentLocationName);
+        etName.setHint(R.string.location_hint);
+        etName.setGravity(Gravity.CENTER);
+
+        TextView tvLat = new TextView(this);
+        tvLat.setText(R.string.enter_latitude);
+        tvLat.setGravity(Gravity.CENTER);
+        EditText etLat = new EditText(this);
+        etLat.setText(String.valueOf(sLatitude));
+        etLat.setHint("ex: 73.09876543");
+        etLat.setGravity(Gravity.CENTER);
+
+        TextView tvLong = new TextView(this);
+        tvLong.setText(R.string.enter_longitude);
+        tvLong.setGravity(Gravity.CENTER);
+        EditText etLong = new EditText(this);
+        etLong.setText(String.valueOf(sLongitude));
+        etLong.setHint("ex: -103.098765");
+        etLong.setGravity(Gravity.CENTER);
+
+        TextView tvElev = new TextView(this);
+        tvElev.setText(R.string.enter_elevation_in_meters);
+        tvElev.setGravity(Gravity.CENTER);
+        EditText etElev = new EditText(this);
+        etElev.setText(String.valueOf(sElevation));
+        etElev.setHint("ex: 805");
+        etElev.setGravity(Gravity.CENTER);
+
+        TextView tvTz = new TextView(this);
+        tvTz.setText(R.string.choose_timezone);
+        tvTz.setGravity(Gravity.CENTER);
+        Spinner spinnerTz = new Spinner(this);
+        String[] tzIds = TimeZone.getAvailableIDs();
+        spinnerTz.setAdapter(new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_dropdown_item, tzIds));
+        final String[] chosenTzId = {TimeZone.getDefault().getID()};
+        spinnerTz.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
+                chosenTzId[0] = tzIds[pos];
+            }
+            @Override public void onNothingSelected(AdapterView<?> p) {}
+        });
+
+        layout.addView(tvName);   layout.addView(etName);
+        layout.addView(tvLat);    layout.addView(etLat);
+        layout.addView(tvLong);   layout.addView(etLong);
+        layout.addView(tvElev);   layout.addView(etElev);
+        layout.addView(tvTz);     layout.addView(spinnerTz);
+        scrollView.addView(layout);
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.advanced)
+                .setView(scrollView)
+                .setPositiveButton(R.string.ok, (dialog, which) -> {
+                    String name = etName.getText().toString().trim();
+                    if (name.isEmpty()) {
+                        Toast.makeText(this, R.string.please_enter_something, Toast.LENGTH_SHORT).show();
+                        showSearchDialog();
+                        return;
+                    }
+                    try {
+                        double lat  = Double.parseDouble(etLat.getText().toString().trim());
+                        double lng  = Double.parseDouble(etLong.getText().toString().trim());
+                        double elev = Double.parseDouble(etElev.getText().toString().trim());
+
+                        sCurrentLocationName = name;
+                        sLatitude  = lat;
+                        sLongitude = lng;
+                        sCurrentTimeZoneID = chosenTzId[0];
+
+                        // Store the manually entered elevation under the chosen name
+                        mSharedPreferences.edit()
+                                .putString("elevation" + name, String.valueOf(elev))
+                                .apply();
+
+                        // Persist as a SavedLocation and select it
+                        Executors.newSingleThreadExecutor().execute(() -> {
+                            SavedLocation saved = new SavedLocation(
+                                    name, lat, lng, chosenTzId[0], System.currentTimeMillis());
+                            long rowId = mLocationDao.insert(saved);
+                            if (rowId == -1) { // already exists — just refresh timestamp
+                                mLocationDao.updateLastUsed(name, System.currentTimeMillis());
+                                saved = mLocationDao.findByName(name);
+                            }
+                            selectSavedLocation(saved);
+                            runOnUiThread(() -> {
+                                mLocationResolver = new LocationResolver(this, this);
+                                mLocationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
+                                configureSettingsBasedOnLocation();
+                                finish();
+                            });
+                        });
+                    } catch (NumberFormatException e) {
+                        Toast.makeText(this, R.string.please_enter_something, Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .show();
+    }
+
+    // -----------------------------------------------------------------------
+    // Location selection helpers
+    // -----------------------------------------------------------------------
+
+    /**
+     * Marks the given SavedLocation as the active one in SharedPreferences.
+     * Two fields replace the old 7-boolean mess.
+     */
+    private void selectSavedLocation(@NonNull SavedLocation loc) {
+        mSharedPreferences.edit()
+                .putBoolean("useDeviceLocation", false)
+                .putInt("selectedLocationId", loc.id)
+                .apply();
+        sCurrentLocationName = loc.name;
+        sLatitude            = loc.latitude;
+        sLongitude           = loc.longitude;
+        sCurrentTimeZoneID   = loc.timezoneId;
+        mLocationDao.updateLastUsed(loc.name, System.currentTimeMillis());
+    }
+
+    /** Switches to live device GPS. Clears any saved-location selection. */
+    private void selectDeviceLocation() {
+        mSharedPreferences.edit()
+                .putBoolean("useDeviceLocation", true)
+                .putInt("selectedLocationId", -1)
+                .apply();
+    }
+
+    /**
+     * Builds a {@link SavedLocation} from the current global state
+     * (sLatitude / sLongitude / sCurrentLocationName / sCurrentTimeZoneID),
+     * inserts or updates it in Room, and returns it.
+     *
+     * Must be called from a background thread.
+     */
+    @NonNull
+    private SavedLocation saveCurrentStateAsLocation() {
+
+        // Evict if over cap
+        if (mLocationDao.count() >= AppDatabase.MAX_SAVED_LOCATIONS) {
+            mLocationDao.deleteOldest();
+        }
+
+        SavedLocation existing = mLocationDao.findByName(sCurrentLocationName);
+
+        long ts = System.currentTimeMillis();
+
+        if (existing != null) {
+            // Update all fields, not just lastUsedAt
+            mLocationDao.updateLocation(
+                sCurrentLocationName,
+                sLatitude,
+                sLongitude,
+                sCurrentTimeZoneID,
+                ts
+            );
+            return mLocationDao.findByName(sCurrentLocationName);
+        }
+
+        // Insert new row
+        SavedLocation loc = new SavedLocation(
+            sCurrentLocationName,
+            sLatitude,
+            sLongitude,
+            sCurrentTimeZoneID,
+            ts
+        );
+
+        long rowId = mLocationDao.insert(loc);
+        loc.id = (int) rowId;
+        return loc;
+    }
+
+
+    // -----------------------------------------------------------------------
+    // Finish flows
+    // -----------------------------------------------------------------------
+
+    private void resolveSearchQueryAndFinish(String query) {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            mLocationResolver = new LocationResolver(this, this);
+            mLocationResolver.getLatitudeAndLongitudeFromSearchQuery(query);
+            mLocationResolver.setTimeZoneID();
+            SavedLocation saved = saveCurrentStateAsLocation();
+            selectSavedLocation(saved);
+            runOnUiThread(() -> applySelectedLocationAndFinish());
+        });
+    }
+
+    private void resolveDeviceLocationAndFinish() {
+        selectDeviceLocation();
+        mLocationResolver = new LocationResolver(this, this);
+        mLocationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
+        mLocationResolver.setTimeZoneID();
+        applySelectedLocationAndFinish();
+    }
+
+    private void applySelectedLocationAndFinish() {
+        Runnable finish = () -> {
+            configureSettingsBasedOnLocation();
+            finish();
+        };
+        if (mSharedPreferences.getBoolean("useElevation", true)
+                && !mSharedPreferences.contains("elevation" + sCurrentLocationName)) {
+            new Thread(() -> mLocationResolver.getElevationFromWebService(
+                    new Handler(getMainLooper()), null, finish)).start();
+        } else {
+            finish.run();
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // RecyclerView refresh
+    // -----------------------------------------------------------------------
+
+    private void refreshRecyclerView() {
+        refreshRecyclerView(null);
+    }
+
+    /**
+     * Reloads the saved-location list from Room. When {@code filter} is null or
+     * empty the list is hidden; otherwise it is shown (matching the old behaviour
+     * of only showing suggestions while the user is typing).
+     */
+    private void refreshRecyclerView(String filter) {
+        if (filter != null && filter.isEmpty()) {
+            binding.searchRV.setVisibility(View.GONE);
+            return;
+        }
+        Executors.newSingleThreadExecutor().execute(() -> {
+            List<SavedLocation> locations = mLocationDao.getAllOrderedByRecent();
+            runOnUiThread(() -> {
+                if (locations.isEmpty()) {
+                    binding.searchRV.setVisibility(View.GONE);
+                    return;
+                }
+                mItemAdapter = new ItemAdapter(locations);
+                // Attach swipe-to-delete
+                new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(
+                        0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+                    @Override public boolean onMove(@NonNull RecyclerView rv,
+                            @NonNull RecyclerView.ViewHolder vh,
+                            @NonNull RecyclerView.ViewHolder t) { return false; }
+
+                    @Override public void onSwiped(@NonNull RecyclerView.ViewHolder vh, int dir) {
+                        int pos = vh.getAbsoluteAdapterPosition();
+                        SavedLocation loc = mItemAdapter.getItem(pos);
+                        Executors.newSingleThreadExecutor().execute(() ->
+                                mLocationDao.deleteById(loc.id));
+                        mItemAdapter.removeItem(pos);
+                        Snackbar.make(binding.getRoot(),
+                                getString(R.string.location_deleted), Snackbar.LENGTH_SHORT).show();
+                    }
+                }).attachToRecyclerView(binding.searchRV);
+
+                binding.searchRV.setAdapter(mItemAdapter);
+                binding.searchRV.setVisibility(View.VISIBLE);
+            });
+        });
+    }
+
+    // -----------------------------------------------------------------------
+    // Map / UI helpers
+    // -----------------------------------------------------------------------
+
+    private void clearMarker() {
+        if (mCurrentMarker != null) {
+            mCurrentMarker.remove();
+            mCurrentMarker = null;
+        }
+    }
+
+    private void animateMapTo(LatLng center) {
+        LatLng ne = SphericalUtil.computeOffset(center, 9500, 45.0);
+        LatLng sw = SphericalUtil.computeOffset(center, 9500, 225.0);
+        mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(new LatLngBounds(sw, ne), 0));
+    }
+
+    private void showSnackbar(String message, int bgColor, int textColor) {
+        Snackbar sb = Snackbar.make(binding.getRoot(), message, Snackbar.LENGTH_SHORT);
+        sb.setBackgroundTint(bgColor);
+        if (textColor != 0) sb.setTextColor(textColor);
+        sb.show();
     }
 
     private void configureSettingsBasedOnLocation() {
-        if (sLatitude < 29.4 || sLatitude > 33.3 || sLongitude < 34.0 || sLongitude > 38.5) {// if we are nowhere near Israel, just auto set to outside
+        if (sLatitude < 29.4 || sLatitude > 33.3 || sLongitude < 34.0 || sLongitude > 38.5) {
             mSharedPreferences.edit().putBoolean("inIsrael", false).apply();
         }
         if (Utils.isInOrNearIsrael(sLatitude, sLongitude)) {
@@ -329,7 +760,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                 mSharedPreferences.edit().putBoolean("inIsrael", false).apply();
                 startActivity(new Intent(this, ZmanimLanguageActivity.class));
             }
-        } else {// user is outside of Israel and device is in hebrew
+        } else {
             mSharedPreferences.edit().putBoolean("useElevation", false).apply();
             if (!getIntent().getBooleanExtra("loneActivity", false)) {
                 mSharedPreferences.edit().putBoolean("inIsrael", false).apply();
@@ -346,546 +777,149 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
         }
     }
 
-    private void updateRV(String newText) {
-        if (newText.isEmpty()) {
-            binding.searchRV.setVisibility(View.GONE);
-        } else {
-            mLocationList = new ArrayList<>();
-            mLocationList.add(mSharedPreferences.getString("location1", ""));
-            mLocationList.add(mSharedPreferences.getString("location2", ""));
-            mLocationList.add(mSharedPreferences.getString("location3", ""));
-            mLocationList.add(mSharedPreferences.getString("location4", ""));
-            mLocationList.add(mSharedPreferences.getString("location5", ""));
-            if (mLocationList.stream().allMatch(String::isEmpty)) {// if no previous locations
-                binding.searchRV.setVisibility(View.GONE);
-            } else {
-                itemAdapter = new ItemAdapter(mLocationList);
-                ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new ItemTouchHelper.SimpleCallback(
-                        0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
-                    @Override
-                    public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-                        return false; // Do not support drag-and-drop
-                    }
-
-                    @Override
-                    public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                        int position = viewHolder.getAbsoluteAdapterPosition();
-                        mLocationList.remove(position);
-                        mSharedPreferences.edit().putString("location" + (position + 1), "").apply();
-                        itemAdapter.notifyItemRemoved(position);
-                        Snackbar.make(GetUserLocationWithMapActivity.this, viewHolder.itemView, getString(R.string.location_deleted), Snackbar.LENGTH_SHORT).show();
-                    }
-                };
-                ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
-                itemTouchHelper.attachToRecyclerView(binding.searchRV);
-                binding.searchRV.setAdapter(itemAdapter);
-                binding.searchRV.setVisibility(View.VISIBLE);
-            }
+    @Override
+    protected void onStart() {
+        if (binding != null) {
+            binding.progressBar.setVisibility(View.GONE);
         }
+        super.onStart();
     }
+
+    // -----------------------------------------------------------------------
+    // Permission result
+    // -----------------------------------------------------------------------
 
     @Override
-    public void onMapReady(@NonNull GoogleMap googleMap) {
-        mMap = googleMap;
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            clearMarker();
+            LocationResolver locationResolver = new LocationResolver(this, this);
+            locationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
 
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        if (getWindowManager() != null) {
-            getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-            int height = displayMetrics.heightPixels;
-            int width = displayMetrics.widthPixels;
-            mMap.setPadding(width / 10, height / 10, width / 10, height / 10);
+            Executors.newSingleThreadExecutor().execute(() -> {
+                while (sLatitude == 0 && sLongitude == 0) Thread.yield();
+                runOnUiThread(() -> {
+                    mChosenLatLng = new LatLng(sLatitude, sLongitude);
+                    locationResolver.getFullLocationName(true, name -> {
+                        if (name != null) {
+                            runOnUiThread(() -> mCurrentMarker = mMap.addMarker(
+                                    new MarkerOptions().position(mChosenLatLng).draggable(true).title(name)));
+                        }
+                    });
+                    animateMapTo(mChosenLatLng);
+                    showSnackbar(getString(R.string.the_application_will_keep_requesting_your_location),
+                            getColor(R.color.green), getColor(R.color.black));
+                });
+            });
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // RecyclerView adapter
+    // -----------------------------------------------------------------------
+
+    /**
+     * Adapter backed by a list of {@link SavedLocation} objects from Room.
+     * Replaces the old String-list adapter that had to reverse-engineer which
+     * SharedPreferences slot a name belonged to.
+     *
+     * The {@link #onLocationSelected} method is overridable so the dialog
+     * version of this adapter can dismiss the dialog before finishing.
+     */
+    class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder> {
+
+        private final List<SavedLocation> mItems;
+
+        ItemAdapter(List<SavedLocation> items) {
+            mItems = new java.util.ArrayList<>(items);
         }
 
-        // Add a marker in the current location and move the camera
-        if (sLatitude != 0 && sLongitude != 0) {
-            LatLng current = new LatLng(sLatitude, sLongitude);
-            currentLocation = mMap.addMarker(new MarkerOptions().position(current).draggable(true).title(sCurrentLocationName));
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(current));
-            LatLng northEastCorner = SphericalUtil.computeOffset(current, 950000.0 / 100, 45.0);
-            LatLng southWestCorner = SphericalUtil.computeOffset(current, 950000.0 / 100, 225.0);
-            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(new LatLngBounds(southWestCorner, northEastCorner), 0));
+        SavedLocation getItem(int position) { return mItems.get(position); }
+
+        void removeItem(int position) {
+            mItems.remove(position);
+            notifyItemRemoved(position);
         }
 
-        mMap.setOnMapClickListener(latLng -> {
-            if (currentLocation != null) {
-                currentLocation.remove();
-                currentLocation = null;
-            }
-            chosenLocation = latLng;
+        /** Override in anonymous subclasses (e.g. the dialog adapter) if needed. */
+        void onLocationSelected(SavedLocation loc) {
+            Executors.newSingleThreadExecutor().execute(() -> selectSavedLocation(loc));
+            mLocationResolver = new LocationResolver(
+                    GetUserLocationWithMapActivity.this, GetUserLocationWithMapActivity.this);
+            mLocationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
 
-            setUseLocations(false, false, false, false, false);
-            mSharedPreferences.edit()
-                    .putBoolean("useAdvanced", true)
-                    .putBoolean("useZipcode", false)
-                    .apply();
-
-            sLatitude = latLng.latitude;
-            sLongitude = latLng.longitude;
-            mLocationResolver = new LocationResolver(GetUserLocationWithMapActivity.this, GetUserLocationWithMapActivity.this);
-
-            mLocationResolver.getFullLocationName(true, locationName -> {
-                if (locationName != null) {
-                    runOnUiThread(() -> currentLocation = mMap.addMarker(new MarkerOptions().position(latLng).draggable(true).title(locationName)));
-                    sCurrentLocationName = locationName;
-
-                    mSharedPreferences.edit()
-                            .putString("advancedLN", sCurrentLocationName)
-                            .putString("advancedLat", String.valueOf(sLatitude))
-                            .putString("advancedLong", String.valueOf(sLongitude)).apply();
+            Runnable finish = () -> {
+                mChosenLatLng = new LatLng(sLatitude, sLongitude);
+                if (mMap != null) {
+                    mMap.addMarker(new MarkerOptions().position(mChosenLatLng).title(sCurrentLocationName));
+                    animateMapTo(mChosenLatLng);
                 }
-            });
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-            Snackbar.make(GetUserLocationWithMapActivity.this, binding.getRoot(), getString(R.string.the_application_will_not_track_your_location), Snackbar.LENGTH_SHORT)
-                    .setBackgroundTint(Color.RED)
-                    .show();
-        });
-    }
+                binding.searchRV.setVisibility(View.GONE);
+                showSnackbar(getString(R.string.the_application_will_not_track_your_location),
+                        Color.RED, Color.WHITE);
+            };
 
-    private void createZipcodeDialog() {
-        MaterialAlertDialogBuilder alertDialog = new MaterialAlertDialogBuilder(this);
-
-        LinearLayout linearLayout = new LinearLayout(this);
-        linearLayout.setOrientation(LinearLayout.VERTICAL);
-        linearLayout.setGravity(Gravity.CENTER);
-
-        Button locationOne = new Button(this);
-        locationOne.setText(mSharedPreferences.getString("location1", ""));
-        if (locationOne.getText().equals("")) {
-            locationOne.setVisibility(View.GONE);
-        }
-        if (locationOne.getVisibility() != View.GONE) {
-            locationOne.setOnLongClickListener(view -> {
-                askUserIfTheyWantToDeleteThisEntry("location1", locationOne);
-                return false;
-            });
-        }
-
-        Button locationTwo = new Button(this);
-        locationTwo.setText(mSharedPreferences.getString("location2", ""));
-        if (locationTwo.getText().equals("")) {
-            locationTwo.setVisibility(View.GONE);
-        }
-        if (locationTwo.getVisibility() != View.GONE) {
-            locationTwo.setOnLongClickListener(view -> {
-                askUserIfTheyWantToDeleteThisEntry("location2", locationTwo);
-                return false;
-            });
-        }
-
-        Button locationThree = new Button(this);
-        locationThree.setText(mSharedPreferences.getString("location3", ""));
-        if (locationThree.getText().equals("")) {
-            locationThree.setVisibility(View.GONE);
-        }
-        if (locationThree.getVisibility() != View.GONE) {
-            locationThree.setOnLongClickListener(view -> {
-                askUserIfTheyWantToDeleteThisEntry("location3", locationThree);
-                return false;
-            });
-        }
-
-        Button locationFour = new Button(this);
-        locationFour.setText(mSharedPreferences.getString("location4", ""));
-        if (locationFour.getText().equals("")) {
-            locationFour.setVisibility(View.GONE);
-        }
-        if (locationFour.getVisibility() != View.GONE) {
-            locationFour.setOnLongClickListener(view -> {
-                askUserIfTheyWantToDeleteThisEntry("location4", locationFour);
-                return false;
-            });
-        }
-
-        Button locationFive = new Button(this);
-        locationFive.setText(mSharedPreferences.getString("location5", ""));
-        if (locationFive.getText().equals("")) {
-            locationFive.setVisibility(View.GONE);
-        }
-        if (locationFive.getVisibility() != View.GONE) {
-            locationFive.setOnLongClickListener(view -> {
-                askUserIfTheyWantToDeleteThisEntry("location5", locationFive);
-                return false;
-            });
-        }
-
-        linearLayout.addView(locationOne);
-        linearLayout.addView(locationTwo);
-        linearLayout.addView(locationThree);
-        linearLayout.addView(locationFour);
-        linearLayout.addView(locationFive);
-
-        final EditText input = new EditText(this);
-        input.setGravity(Gravity.CENTER_HORIZONTAL);
-        input.setHint(R.string.enter_zipcode_or_address);
-        input.setSingleLine();
-        input.setImeOptions(EditorInfo.IME_ACTION_DONE);
-        linearLayout.addView(input);
-
-        alertDialog.setTitle(R.string.search_for_a_place)
-                .setMessage(R.string.warning_zmanim_will_be_based_on_your_approximate_area)
-                .setView(linearLayout)
-                .setPositiveButton(R.string.ok, (dialog, which) -> {
-                    if (input.getText().toString().isEmpty()) {
-                        Toast.makeText(this, R.string.please_enter_something, Toast.LENGTH_SHORT).show();
-                        createZipcodeDialog();
-                    } else {
-                        setUseLocations(false, false, false, false, false);
-                        mSharedPreferences.edit()
-                                .putBoolean("useAdvanced", false)
-                                .putBoolean("useZipcode", true)
-                                .putString("Zipcode", input.getText().toString())
-                                .apply();
-                        mLocationResolver = new LocationResolver(this, this);
-                        mLocationResolver.getLatitudeAndLongitudeFromSearchQuery();
-                        mLocationResolver.setTimeZoneID();
-                        Runnable finish = () -> {
-                            configureSettingsBasedOnLocation();
-                            finish();
-                        };
-                        if (mSharedPreferences.getBoolean("useElevation", true)) {
-                            if (mSharedPreferences.contains("elevation" + sCurrentLocationName)) {
-                                finish.run();
-                            } else {
-                                new Thread(() -> mLocationResolver.getElevationFromWebService(new Handler(getMainLooper()), null, finish)).start();
-                            }
-                        } else {
-                           finish.run();
-                        }
-                    }
-                })
-                .setNegativeButton(R.string.advanced, (dialog, which) -> createAdvancedDialog())
-                .setNeutralButton(R.string.use_location, (dialog, which) -> {
-                    setUseLocations(false, false, false, false, false);
-                    mSharedPreferences.edit()
-                            .putBoolean("useAdvanced", false)
-                            .putBoolean("useZipcode", false)
-                            .apply();
-                    mLocationResolver = new LocationResolver(this, this);
-                    mLocationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
-                    mLocationResolver.setTimeZoneID();
-                    Runnable finish = () -> {
-                        configureSettingsBasedOnLocation();
-                        finish();
-                    };
-                    if (mSharedPreferences.getBoolean("useElevation", true)) {
-                        if (mSharedPreferences.contains("elevation" + sCurrentLocationName)) {
-                            finish.run();
-                        } else {
-                            new Thread(() -> mLocationResolver.getElevationFromWebService(new Handler(getMainLooper()), null, finish)).start();
-                        }
-                    } else {
-                        finish.run();
-                    }
-                });
-
-        AlertDialog ad = alertDialog.create();
-        ad.show();
-
-        input.setOnEditorActionListener((textView, actionId, keyEvent) -> {
-            if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_NULL) {
-                ad.getButton(DialogInterface.BUTTON_POSITIVE).performClick();
-                return true;
+            if (mSharedPreferences.getBoolean("useElevation", true)
+                    && !mSharedPreferences.contains("elevation" + sCurrentLocationName)) {
+                new Thread(() -> mLocationResolver.getElevationFromWebService(
+                        new Handler(getMainLooper()), null, finish)).start();
+            } else {
+                finish.run();
             }
-            return false;
-        });
-
-        locationOne.setOnClickListener(view -> {
-            setUseLocations(true, false, false, false, false);
-            ad.dismiss();
-            configureSettingsBasedOnLocation();
-            finish();
-        });
-
-        locationTwo.setOnClickListener(view -> {
-            setUseLocations(false, true, false, false, false);
-            ad.dismiss();
-            configureSettingsBasedOnLocation();
-            finish();
-        });
-
-        locationThree.setOnClickListener(view -> {
-            setUseLocations(false, false, true, false, false);
-            ad.dismiss();
-            configureSettingsBasedOnLocation();
-            finish();
-        });
-
-        locationFour.setOnClickListener(view -> {
-            setUseLocations(false, false, false, true, false);
-            ad.dismiss();
-            configureSettingsBasedOnLocation();
-            finish();
-        });
-
-        locationFive.setOnClickListener(view -> {
-            setUseLocations(false, false, false, false, true);
-            ad.dismiss();
-            configureSettingsBasedOnLocation();
-            finish();
-        });
-    }
-
-    private void createAdvancedDialog() {
-        ScrollView scrollView = new ScrollView(this);
-        LinearLayout linearLayout = new LinearLayout(this);
-        linearLayout.setOrientation(LinearLayout.VERTICAL);
-        linearLayout.setGravity(Gravity.CENTER);
-
-        TextView locationName = new TextView(this);
-        locationName.setText(R.string.enter_location_name);
-        locationName.setGravity(Gravity.CENTER);
-
-        EditText locationInput = new EditText(this);
-        locationInput.setText(sCurrentLocationName);
-        locationInput.setHint(R.string.location_hint);
-        locationInput.setGravity(Gravity.CENTER);
-
-        TextView latitude = new TextView(this);
-        latitude.setText(R.string.enter_latitude);
-        latitude.setGravity(Gravity.CENTER);
-
-        EditText latInput = new EditText(this);
-        latInput.setText(String.valueOf(sLatitude));
-        latInput.setHint("ex: 73.09876543");
-        latInput.setGravity(Gravity.CENTER);
-
-        TextView longitude = new TextView(this);
-        longitude.setText(R.string.enter_longitude);
-        longitude.setGravity(Gravity.CENTER);
-
-        EditText longInput = new EditText(this);
-        longInput.setText(String.valueOf(sLongitude));
-        longInput.setHint("ex: -103.098765");
-        longInput.setGravity(Gravity.CENTER);
-
-        TextView elevation = new TextView(this);
-        elevation.setText(R.string.enter_elevation_in_meters);
-        elevation.setGravity(Gravity.CENTER);
-
-        EditText elevationInput = new EditText(this);
-        elevationInput.setText(String.valueOf(sElevation));
-        elevationInput.setHint("ex: 805");
-        elevationInput.setGravity(Gravity.CENTER);
-
-        TextView timezone = new TextView(this);
-        timezone.setText(R.string.choose_timezone);
-        timezone.setGravity(Gravity.CENTER);
-
-        Spinner timezones = new Spinner(this);
-        timezones.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, TimeZone.getAvailableIDs()));
-        timezones.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String s = (String) parent.getItemAtPosition(position);
-                mSharedPreferences.edit().putString("advancedTimezone", s).apply();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
-        });
-
-        linearLayout.addView(locationName);
-        linearLayout.addView(locationInput);
-
-        linearLayout.addView(latitude);
-        linearLayout.addView(latInput);
-
-        linearLayout.addView(longitude);
-        linearLayout.addView(longInput);
-
-        linearLayout.addView(elevation);
-        linearLayout.addView(elevationInput);
-
-        linearLayout.addView(timezone);
-        linearLayout.addView(timezones);
-
-        scrollView.addView(linearLayout);
-
-        MaterialAlertDialogBuilder advancedAlert = new MaterialAlertDialogBuilder(this);
-
-        advancedAlert.setTitle(R.string.advanced)
-                .setView(scrollView)
-                .setPositiveButton(R.string.ok, (dialogAd, whichAd) -> {
-                    if (locationInput.getText().toString().isEmpty()) {
-                        Toast.makeText(this, R.string.please_enter_something, Toast.LENGTH_SHORT).show();
-                        createZipcodeDialog();
-                    } else {
-                        setUseLocations(false, false, false, false, false);
-                        mSharedPreferences.edit()
-                                .putBoolean("useAdvanced", true)
-                                .putString("advancedLN", locationInput.getText().toString())
-                                .putString("advancedLat", latInput.getText().toString())
-                                .putString("advancedLong", longInput.getText().toString())
-                                .putString("elevation" + locationInput.getText().toString(),
-                                elevationInput.getText().toString()).apply();
-
-                        mLocationResolver = new LocationResolver(this, this);
-                        mLocationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
-                        configureSettingsBasedOnLocation();
-                        finish();
-                    }
-                });
-        advancedAlert.show();
-    }
-
-    private void askUserIfTheyWantToDeleteThisEntry(String location, Button locationButton) {
-        String locationName = mSharedPreferences.getString(location, "");
-        MaterialAlertDialogBuilder alertDialog = new MaterialAlertDialogBuilder(this);
-        alertDialog.setTitle(locationName)
-                .setMessage(R.string.do_you_want_to_delete_this_location)
-                .setPositiveButton(getString(R.string.yes), (dialogInterface, i) -> {
-                    mSharedPreferences.edit().putString(location, "").apply();
-                    locationButton.setVisibility(View.GONE);
-                })
-                .setNegativeButton(getString(R.string.no), (dialogInterface, i) -> dialogInterface.dismiss())
-                .show();
-    }
-
-    private void setUseLocations(boolean location1, boolean location2, boolean location3, boolean location4, boolean location5) {
-        mSharedPreferences.edit().putBoolean("useLocation1", location1)
-                .putBoolean("useLocation2", location2)
-                .putBoolean("useLocation3", location3)
-                .putBoolean("useLocation4", location4)
-                .putBoolean("useLocation5", location5)
-                .apply();
-    }
-
-    class ItemAdapter extends RecyclerView.Adapter<ItemViewHolder> {
-        private final List<String> itemList;
-        public ItemAdapter(List<String> itemList) {
-            this.itemList = itemList;
         }
 
         @NonNull
         @Override
-        public ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_text, parent, false);
-            return new ItemViewHolder(itemView);
+        public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.list_item_text, parent, false);
+            return new ItemViewHolder(v);
         }
 
         @Override
         public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
-            String item = itemList.get(position);
-            if (item.isEmpty() && holder.itemTextView != null) {
-                holder.itemTextView.setVisibility(View.GONE);
+            SavedLocation loc = mItems.get(position);
+            if (loc.name == null || loc.name.isEmpty()) {
+                holder.itemView.setVisibility(View.GONE);
+                return;
             }
             holder.setIsRecyclable(false);
-            if (holder.itemTextView != null) {
-                holder.itemTextView.setText(item);
+            if (holder.textView != null) {
+                holder.textView.setText(loc.name);
             }
-
-            holder.itemView.setOnClickListener(v -> {
-                mSharedPreferences.edit()
-                        .putBoolean("useAdvanced", false)
-                        .putBoolean("useZipcode", false).apply();
-
-                boolean location1 = false;
-                boolean location2 = false;
-                boolean location3 = false;
-                boolean location4 = false;
-                boolean location5 = false;
-
-                if (item.equals(mSharedPreferences.getString("location1", ""))) {
-                    location1 = true;
-                } else if (item.equals(mSharedPreferences.getString("location2", ""))) {
-                    location2 = true;
-                } else if (item.equals(mSharedPreferences.getString("location3", ""))) {
-                    location3 = true;
-                } else if (item.equals(mSharedPreferences.getString("location4", ""))) {
-                    location4 = true;
-                } else if (item.equals(mSharedPreferences.getString("location5", ""))) {
-                    location5 = true;
-                }
-
-                mSharedPreferences.edit().putBoolean("useLocation1", location1)
-                        .putBoolean("useLocation2", location2)
-                        .putBoolean("useLocation3", location3)
-                        .putBoolean("useLocation4", location4)
-                        .putBoolean("useLocation5", location5)
-                        .apply();
-                mLocationResolver = new LocationResolver(GetUserLocationWithMapActivity.this, GetUserLocationWithMapActivity.this);
-                mLocationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
-                mLocationResolver.setTimeZoneID();
-                Runnable finish = () -> {
-                    chosenLocation = new LatLng(sLatitude, sLongitude);
-                    mMap.addMarker(new MarkerOptions().position(chosenLocation).title(sCurrentLocationName));
-                    LatLng northEastCorner = SphericalUtil.computeOffset(chosenLocation, 950000.0 / 100, 45.0);
-                    LatLng southWestCorner = SphericalUtil.computeOffset(chosenLocation, 950000.0 / 100, 225.0);
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(new LatLngBounds(southWestCorner, northEastCorner), 0));
-                    binding.searchRV.setVisibility(View.GONE);
-                    Snackbar.make(GetUserLocationWithMapActivity.this, binding.getRoot(), getString(R.string.the_application_will_not_track_your_location), Snackbar.LENGTH_SHORT)
-                            .setBackgroundTint(Color.RED)
-                            .show();
-
-                };
-                if (mSharedPreferences.getBoolean("useElevation", true)) {
-                    if (mSharedPreferences.contains("elevation" + sCurrentLocationName)) {// we already have the elevation data
-                        finish.run();
-                    } else {
-                    Thread thread = new Thread(() ->
-                            mLocationResolver.getElevationFromWebService(new Handler(getMainLooper()), null, finish));
-                    thread.start();
-                    }
-                } else {
-                    finish.run();
-                }
+            holder.itemView.setOnClickListener(v -> onLocationSelected(loc));
+            holder.itemView.setOnLongClickListener(v -> {
+                askDeleteConfirmation(loc, position);
+                return true;
             });
         }
 
-        @Override
-        public int getItemCount() {
-            return itemList.size();
-        }
-    }
+        @Override public int getItemCount() { return mItems.size(); }
 
-    static class ItemViewHolder extends RecyclerView.ViewHolder {
-        public TextView itemTextView;
-
-        public ItemViewHolder(View itemView) {
-            super(itemView);
-            itemTextView = itemView.findViewById(R.id.textView);
-            if (itemTextView != null) {
-                itemTextView.setTextIsSelectable(false);
+        class ItemViewHolder extends RecyclerView.ViewHolder {
+            TextView textView;
+            ItemViewHolder(View itemView) {
+                super(itemView);
+                textView = itemView.findViewById(R.id.textView);
+                if (textView != null) textView.setTextIsSelectable(false);
             }
         }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            if (currentLocation != null) {
-                currentLocation.remove();
-                currentLocation = null;
-            }
-            LocationResolver locationResolver = new LocationResolver(this, this);
-            locationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
-            Thread thread = new Thread(() -> {
-                while (sLatitude == 0 && sLongitude == 0) {
-                    try {
-                        Thread.sleep(0);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
+    private void askDeleteConfirmation(SavedLocation loc, int adapterPosition) {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(loc.name)
+                .setMessage(R.string.do_you_want_to_delete_this_location)
+                .setPositiveButton(R.string.yes, (dialog, which) -> {
+                    Executors.newSingleThreadExecutor().execute(() ->
+                            mLocationDao.deleteById(loc.id));
+                    if (mItemAdapter != null) {
+                        mItemAdapter.removeItem(adapterPosition);
                     }
-                }
-                runOnUiThread(() -> {
-                    chosenLocation = new LatLng(sLatitude, sLongitude);
-                    locationResolver.getFullLocationName(true, locationName -> {
-                        if (locationName != null) {
-                            runOnUiThread(() -> currentLocation = mMap.addMarker(new MarkerOptions().position(chosenLocation).draggable(true).title(locationName)));
-                        }
-                    });
-                    LatLng northEastCorner = SphericalUtil.computeOffset(chosenLocation, 950000.0 / 100, 45.0);
-                    LatLng southWestCorner = SphericalUtil.computeOffset(chosenLocation, 950000.0 / 100, 225.0);
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(new LatLngBounds(southWestCorner, northEastCorner), 0));
-                    Snackbar.make(GetUserLocationWithMapActivity.this, binding.getRoot(), getString(R.string.the_application_will_keep_requesting_your_location), Snackbar.LENGTH_SHORT)
-                            .setBackgroundTint(getColor(R.color.green))
-                            .setTextColor(getColor(R.color.black))
-                            .show();
-                });
-            });
-            thread.start();
-        }
+                })
+                .setNegativeButton(R.string.no, (d, w) -> d.dismiss())
+                .show();
     }
 }
-

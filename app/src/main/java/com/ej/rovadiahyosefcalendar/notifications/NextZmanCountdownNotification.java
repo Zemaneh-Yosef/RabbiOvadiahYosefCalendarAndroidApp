@@ -113,7 +113,7 @@ public class NextZmanCountdownNotification extends Service {
             }
         }
         mLocationResolver = new LocationResolver(this, null);
-        zmanimFormat.setTimeZone(mLocationResolver.getTimeZone()); //set the formatters time zone
+        zmanimFormat.setTimeZone(mLocationResolver.getResolvedTimeZone()); //set the formatters time zone
         mROZmanimCalendar = getROZmanimCalendar(this);
         mROZmanimCalendar.setExternalFilesDir(getExternalFilesDir(null));
         String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
@@ -170,12 +170,14 @@ public class NextZmanCountdownNotification extends Service {
                 if (location != null) {
                     mLocationResolver.getFullLocationName(location.getLatitude(), location.getLongitude(), true, locationName ->
                             mLocationResolver.resolveElevation(() -> {
+						mLocationResolver.setTimeZoneID();
+
                         mROZmanimCalendar = new ROZmanimCalendar(new GeoLocation(
                                 locationName,
                                 location.getLatitude(),
                                 location.getLongitude(),
                                 mLocationResolver.getElevation(),
-                                mLocationResolver.getTimeZone()));
+                                mLocationResolver.getResolvedTimeZone()));
                         mROZmanimCalendar.setExternalFilesDir(getExternalFilesDir(null));
                         String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
                         if (candles.isEmpty()) {

@@ -222,14 +222,15 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
             if (BuildConfig.DEBUG) {
                 mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "location object in DailyNotifications was not null" + "\n\n").apply();
             }
-            String locationName = mLocationResolver.getLocationAsName(location.getLatitude(), location.getLongitude());
+
+            String locationName = mLocationResolver.getLocationNameSync(location.getLatitude(), location.getLongitude());
             mLocationResolver.resolveElevation(() ->
                     init(new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false)), new ROZmanimCalendar(new GeoLocation(
                             locationName,
                             location.getLatitude(),
                             location.getLongitude(),
                             mLocationResolver.getElevation(),
-                            mLocationResolver.getTimeZone()))));
+                            mLocationResolver.getResolvedTimeZone()))));
         } else {
             if (BuildConfig.DEBUG) {
                 mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "location object in DailyNotifications WAS null" + "\n\n").apply();
