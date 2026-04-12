@@ -1263,6 +1263,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (!day.isEmpty()) {
             zmanim.add(new ZmanListEntry(day));
         }
+
+        if (sJewishDateInfo.isEruvTavshilimMadeToday()) {
+            zmanim.add(new ZmanListEntry(mContext.getString(R.string.eruv_tavshilim)));
+        }
+
         String dayOfOmer = sJewishDateInfo.addDayOfOmer("");
         if (!dayOfOmer.isEmpty()) {
             zmanim.add(new ZmanListEntry(dayOfOmer));
@@ -1472,8 +1477,12 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             announcements.append(day.replace("/ ", "\n")).append("\n");
         }
 
+        if (sJewishDateInfo.isEruvTavshilimMadeToday()) {
+            announcements.append(mContext.getString(R.string.eruv_tavshilim)).append("\n");
+        }
+
         if (sJewishDateInfo.isPurimMeshulash()) {
-            announcements.append(mContext.getString(R.string.no_tachanun_in_yerushalayim));
+            announcements.append(mContext.getString(R.string.no_tachanun_in_yerushalayim)).append("\n");
         }
 
         if (sSettingsPreferences.getBoolean("showShabbatMevarchim", true)) {
@@ -1527,7 +1536,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
         if (sJewishDateInfo.tomorrow().getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY
                 && sJewishDateInfo.tomorrow().getJewishCalendar().getYomTovIndex() == JewishCalendar.EREV_PESACH) {
-            announcements.append(mContext.getString(R.string.burn_your_ametz_today));
+            announcements.append(mContext.getString(R.string.burn_your_ametz_today)).append("\n");
         }
 
         List<ZmanListEntry> tekufa = new ArrayList<>();

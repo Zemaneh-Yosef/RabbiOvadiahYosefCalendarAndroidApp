@@ -34,6 +34,7 @@ import com.ej.rovadiahyosefcalendar.BuildConfig;
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.classes.MaterialButtonToggleGroupPreference;
 import com.github.tttt55.materialyoupreferences.preferences.MaterialColorPreference;
+import com.github.tttt55.materialyoupreferences.preferences.MaterialSwitchPreference;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.skydoves.colorpickerview.ColorPickerDialog;
@@ -427,6 +428,18 @@ public class SettingsActivity extends AppCompatActivity {
             if (lang != null) {
                 lang.setOnPreferenceClickListener(l -> {
                     Toast.makeText(getContext(), getString(R.string.restart_app), Toast.LENGTH_SHORT).show();
+                    return false;
+                });
+            }
+
+            MaterialSwitchPreference inIsraelPref = findPreference("inIsrael");
+            if (inIsraelPref != null) {
+                inIsraelPref.setChecked(requireContext().getSharedPreferences(SHARED_PREF, MODE_PRIVATE).getBoolean("inIsrael", false));
+                inIsraelPref.setOnPreferenceChangeListener((preference, newValue) -> {
+                    requireContext().getSharedPreferences(SHARED_PREF, MODE_PRIVATE)
+                            .edit()
+                            .putBoolean("inIsrael", (Boolean) newValue)
+                            .apply();
                     return false;
                 });
             }

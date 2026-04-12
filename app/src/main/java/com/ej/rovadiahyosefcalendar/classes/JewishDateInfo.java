@@ -63,6 +63,7 @@ public class JewishDateInfo {
         this.hebrewDateFormatter = new HebrewDateFormatter();
         this.hebrewDateFormatter.setUseGershGershayim(false);
         this.hebrewDateFormatter.setTransliteratedMonthList(new String[]{ "Nissan", "Iyar", "Sivan", "Tammuz", "Av", "Elul", "Tishri", "Ḥeshvan", "Kislev", "Tevet", "Shevat", "Adar", "Adar II", "Adar I" });
+        this.hebrewDateFormatter.setTransliteratedHolidayList(new String[]{"Erev Pesach", "Pesach", "Chol Hamoed Pesach", "Pesach Sheni", "Erev Shavuot", "Shavuot", "Fast of the Seventeenth of Tammuz", "Tishah B'Av", "Tu B'Av", "Erev Rosh Hashana", "Rosh Hashana", "Fast of Gedalyah", "Erev Yom Kippur", "Yom Kippur", "Erev Succot", "Succot", "Chol Hamoed Succot", "Hoshana Rabbah", "Shemini Atzeret", "Shemini Atzeret & Simchat Torah", "Erev Chanukah", "Chanukah", "Fast of Asarah B'Tevet", "Tu B'Shevat", "Fast of Esther", "Purim", "Shushan Purim", "Purim Katan", "Rosh Chodesh", "Yom HaShoah", "Yom Hazikaron", "Yom Ha'atzmaut", "Yom Yerushalayim", "Lag La'Omer", "Shushan Purim Katan", "Isru Chag"});
         this.tefilaRules = new TefilaRules();
     }
 
@@ -140,6 +141,27 @@ public class JewishDateInfo {
     }
 
     /**
+     * This method is used to check if Eruv Tavshilim (the food set aside to enable cooking on Yom Tov for Shabbat) is made today.
+     * It will first check if there is candle lighting today and that we are not already in the Yom Tov.
+     * Then it will check if it is Wednesday or Thursday. If it is Wednesday, it will check if Thursday and Friday are assur b'melacha.
+     * If it is Thursday, it will check if Friday is assur b'melacha.
+     * @return a boolean value indicating if Eruv Tavshilim is made today before going into Yom Tov
+     */
+    public boolean isEruvTavshilimMadeToday() {
+        if (this.jewishCalendar.hasCandleLighting() && !this.jewishCalendar.isYomTovAssurBemelacha()) {// i.e. we are right before the Yom Tov starts and not into Yom Tov
+            JewishCalendar tomorrow = tomorrow().getJewishCalendar();
+            JewishCalendar afterTomorrow = tomorrow().tomorrow().getJewishCalendar();
+            if (this.jewishCalendar.getDayOfWeek() == Calendar.WEDNESDAY) {
+                return tomorrow.isYomTovAssurBemelacha() && afterTomorrow.isYomTovAssurBemelacha();// two day Yom Tov going into shabbat
+            }
+            if (this.jewishCalendar.getDayOfWeek() == Calendar.THURSDAY) {
+                return tomorrow.isYomTovAssurBemelacha();// yom tov (1 or 2 days) going into shabbat
+            }
+        }
+        return false;
+    }
+
+    /**
      * This method is used to get the current Rosh Chodesh or Erev Rosh Chodesh as a string.
      * For example: "Erev Rosh Chodesh Nissan" or "Rosh Chodesh Nissan"
      * @return a string containing the current Rosh Chodesh or Erev Rosh Chodesh
@@ -174,10 +196,10 @@ public class JewishDateInfo {
     public String getSpecialDay(boolean addOmer) {
         String result = "";
         String yomTovOfToday = getYomTov();
-        String yomTovOfNextDay = getYomTovForNextDay();
+        String yomTovOfNextDay = tomorrow().getYomTov();
 
         if (!yomTovOfToday.isEmpty() || !yomTovOfNextDay.isEmpty()) {
-            if (yomTovOfToday.isEmpty() && !yomTovOfNextDay.startsWith("Erev")) {//if next day has yom tov
+            if (yomTovOfToday.isEmpty() && !yomTovOfNextDay.startsWith("Erev")) {//if next day has yom tov, but today doesn't
                 if (isLocaleHebrew) {
                     if (!yomTovOfNextDay.startsWith("ערב")) {
                         result = "ערב " + yomTovOfNextDay;
@@ -185,8 +207,7 @@ public class JewishDateInfo {
                 } else {
                     result = "Erev " + yomTovOfNextDay;
                 }
-            } else if (!yomTovOfNextDay.startsWith("Erev")
-                    && !yomTovOfToday.endsWith(yomTovOfNextDay)) {//if today and the next day have yom tov
+            } else if (!yomTovOfToday.endsWith(yomTovOfNextDay)) {//if today and the next day have yom tov
                 if (isLocaleHebrew) {
                     if (!yomTovOfNextDay.startsWith("ערב")) {
                         result = yomTovOfToday + " / ערב " + yomTovOfNextDay;
@@ -194,10 +215,22 @@ public class JewishDateInfo {
                         result = yomTovOfToday;
                     }
                 } else {
+                    if (!yomTovOfNextDay.startsWith("Erev")) {
+                        result = yomTovOfToday + " / Erev " + yomTovOfNextDay;
+                    } else {
+                        result = yomTovOfToday;
+                    }
+                }
+            } else {// cut off the second yom tov
+                result = yomTovOfToday;
+                if (isLocaleHebrew) {// small edge case for the 7th of pesach where I do not want the second day to get cut off
+                    if (result.equals("חול המועד פסח") && !yomTovOfNextDay.equals(yomTovOfToday)) {
+                        result = yomTovOfToday + " / ערב " + yomTovOfNextDay;
+                    }
+                }
+                if (result.equals("Chol Hamoed Pesach") && !yomTovOfNextDay.equals(yomTovOfToday)) {
                     result = yomTovOfToday + " / Erev " + yomTovOfNextDay;
                 }
-            } else {
-                result = yomTovOfToday;
             }
         }
 
@@ -316,114 +349,28 @@ public class JewishDateInfo {
     }
 
     /**
-     * This method is used to convert the int constants in the {@link JewishCalendar} class into a string.
-     * TODO: consider replacing this method with a simpler one that uses the {@link HebrewDateFormatter#setTransliteratedHolidayList(String[])} method
-     * @return a string containing the {@link JewishCalendar} class's int constants as a string
+     * This method is used to get the current day yom tov/holiday as a string. Or an empty string if there is no holiday.
+     * @return a string containing the {@link JewishCalendar} class's holiday as a string or an empty string if there is no holiday
      * @see JewishCalendar
      */
     private String getYomTov() {
-        if (isLocaleHebrew) {
-            if (isPurimMeshulash()) {
-                return "פורים משולש";
+        String result = hebrewDateFormatter.formatYomTov(this.jewishCalendar)
+                .replace("פורים שושן", "שושן פורים")
+                .replace("פורים שושן קטן", "שושן פורים קטן")
+                .replace("ל״ג בעומר", "ל״ג לעומר");
+        if (result.contains("Shemini Atzeret")) {
+            if (getJewishCalendar().getInIsrael()) {
+                result = "Shemini Atzeret & Simchat Torah";
             }
-            return hebrewDateFormatter.formatYomTov(this.jewishCalendar)
-                    .replace("פורים שושן", "שושן פורים")
-                    .replace("פורים שושן קטן", "שושן פורים קטן");
         }
-        switch (this.jewishCalendar.getYomTovIndex()) {
-            case JewishCalendar.EREV_PESACH:
-                return "Erev Pesach";
-            case JewishCalendar.PESACH:
-                return "Pesach";
-            case JewishCalendar.CHOL_HAMOED_PESACH:
-                return "Chol HaMoed Pesach";
-            case JewishCalendar.PESACH_SHENI:
-                return "Pesach Sheni";
-            case JewishCalendar.EREV_SHAVUOS:
-                return "Erev Shavuot";
-            case JewishCalendar.SHAVUOS:
-                return "Shavuot";
-            case JewishCalendar.SEVENTEEN_OF_TAMMUZ:
-                return "Fast of the Seventeenth of Tammuz";
-            case JewishCalendar.TISHA_BEAV:
-                return "Tisha Be'Av";
-            case JewishCalendar.TU_BEAV:
-                return "Tu Be'Av";
-            case JewishCalendar.EREV_ROSH_HASHANA:
-                return "Erev Rosh Hashana";
-            case JewishCalendar.ROSH_HASHANA:
-                return "Rosh Hashana";
-            case JewishCalendar.FAST_OF_GEDALYAH:
-                return "Tzom Gedalya";
-            case JewishCalendar.EREV_YOM_KIPPUR:
-                return "Erev Yom Kippur";
-            case JewishCalendar.YOM_KIPPUR:
-                return "Yom Kippur";
-            case JewishCalendar.EREV_SUCCOS:
-                return "Erev Succot";
-            case JewishCalendar.SUCCOS:
-                return "Succot";
-            case JewishCalendar.CHOL_HAMOED_SUCCOS:
-                return "Chol HaMoed Succot";
-            case JewishCalendar.HOSHANA_RABBA:
-                return "7th day of Sukkot (Hoshana Rabba)";
-            case JewishCalendar.SHEMINI_ATZERES:
-                if (this.jewishCalendar.getInIsrael()) {
-                    return "Shemini Atzeret & Simchat Torah";
-                } else {
-                    return "Shemini Atzeret";
-                }
-            case JewishCalendar.SIMCHAS_TORAH:
-                if (!this.jewishCalendar.getInIsrael()) {
-                    return "Shemini Atzeret & Simchat Torah";
-                } else {
-                    return "Shemini Atzeret";
-                }
-                //20 was erev chanuka which was deleted
-            case JewishCalendar.CHANUKAH:
-                return "Chanukah";
-            case JewishCalendar.TENTH_OF_TEVES:
-                return "Fast of Asarah Be'Tevet";
-            case JewishCalendar.TU_BESHVAT:
-                return "Tu Be'Shevat";
-            case JewishCalendar.FAST_OF_ESTHER:
-                return "Ta'anit Ester";
-            case JewishCalendar.PURIM:
-                return "Purim";
-            case JewishCalendar.SHUSHAN_PURIM:
-                return "Shushan Purim";
-            case JewishCalendar.PURIM_KATAN:
-                return "Purim Katan";
-            case JewishCalendar.ROSH_CHODESH:
-                return "Rosh Chodesh";
-            case JewishCalendar.YOM_HASHOAH:
-                return "Yom Hashoah";
-            case JewishCalendar.YOM_HAZIKARON:
-                return "Yom Hazikaron";
-            case JewishCalendar.YOM_HAATZMAUT:
-                return "Yom Haatzmaut";
-            case JewishCalendar.YOM_YERUSHALAYIM:
-                return "Yom Yerushalayim";
-            case JewishCalendar.LAG_BAOMER:
-                return "Lag B'Omer";
-            case JewishCalendar.SHUSHAN_PURIM_KATAN:
-                return "Shushan Purim Katan";
-            case JewishCalendar.ISRU_CHAG:
-                return "Isru Chag";
-            default:
-                if (isPurimMeshulash()) {
-                    return "Purim Meshulash";
-                }
-                return "";
+        if (isPurimMeshulash()) {
+            if (result.isEmpty()) {
+                result = isLocaleHebrew ? "פורים משולש" : "Purim Meshulash";
+            } else {// This should never happen, but just in case
+                result += " / " + (isLocaleHebrew ? "פורים משולש" : "Purim Meshulash");
+            }
         }
-    }
-
-    /**
-     * Utility method used to get the yom tov/holiday for the next day in the form of a string.
-     * @return a string containing the next day's yom tov/holiday
-     */
-    private String getYomTovForNextDay() {
-        return tomorrow().getYomTov();
+        return result;
     }
 
     /**
