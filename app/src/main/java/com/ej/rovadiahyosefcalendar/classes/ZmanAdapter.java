@@ -5,8 +5,7 @@ import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivit
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sJewishDateInfo;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sROZmanimCalendar;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sSetupLauncher;
-import static com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment.sNextUpcomingZman;
-import static com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment.sShabbatMode;
+import static com.ej.rovadiahyosefcalendar.activities.ui.zmanim.DailyZmanimFragment.sShabbatMode;
 
 import android.content.Context;
 import android.content.Intent;
@@ -35,6 +34,7 @@ import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.SetupChaiTablesActivity;
 import com.ej.rovadiahyosefcalendar.activities.SetupElevationActivity;
 import com.ej.rovadiahyosefcalendar.activities.SiddurViewActivity;
+import com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimViewModel;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.commonmark.parser.Parser;
@@ -58,6 +58,23 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     public boolean isZmanimEnglishTranslated;
     public boolean isZmanimAmericanized;
     private boolean wasTalitTefilinZmanClicked;
+    private ZmanimViewModel viewModel;
+
+    public ZmanAdapter(Context context, List<ZmanListEntry> zmanim,
+                       ZmanimViewModel viewModel,
+                       OnClickListeners.OnZmanClickListener onZmanClickListener) {
+        this.viewModel = viewModel;
+        this.zmanim = zmanim;
+        this.onZmanClickListener = onZmanClickListener;
+        this.context = context;
+        mSharedPreferences = this.context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
+        isZmanimInHebrew = mSharedPreferences.getBoolean("isZmanimInHebrew", false);
+        isZmanimEnglishTranslated = mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false);
+        isZmanimAmericanized = mSharedPreferences.getBoolean("isZmanimAmericanized", false);
+        dialogBuilder = new MaterialAlertDialogBuilder(context);
+        dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
+        dialogBuilder.create();
+    }
 
     public ZmanAdapter(Context context, List<ZmanListEntry> zmanim,
                        OnClickListeners.OnZmanClickListener onZmanClickListener) {
@@ -104,7 +121,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     holder.mRightTextView.setTypeface(Typeface.DEFAULT_BOLD);
                     holder.mRightTextView.setText(title);//zman name
 
-                    if (zman != null && zman.equals(sNextUpcomingZman)) {
+                    if (zman != null && viewModel != null && zman.equals(viewModel.getNextUpcomingZman())) {
                         zmanTime += "◄";
                     }
                     holder.mLeftTextView.setText(zmanTime);
@@ -112,7 +129,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     holder.mLeftTextView.setTypeface(Typeface.DEFAULT_BOLD);
                     holder.mLeftTextView.setText(title);//zman name
 
-                    if (zman != null && zman.equals(sNextUpcomingZman)) {
+                    if (zman != null && viewModel != null && zman.equals(viewModel.getNextUpcomingZman())) {
                         zmanTime = "➤" + zmanTime;//add arrow
                     }
                     holder.mRightTextView.setText(zmanTime);

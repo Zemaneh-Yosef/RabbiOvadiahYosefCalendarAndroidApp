@@ -4,7 +4,7 @@ import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.Manifest.permission.FOREGROUND_SERVICE_LOCATION;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
-import static com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment.sShabbatMode;
+import static com.ej.rovadiahyosefcalendar.activities.ui.zmanim.DailyZmanimFragment.sShabbatMode;
 
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
@@ -12,7 +12,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -42,7 +41,8 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.ui.limudiim.LimudFragment;
 import com.ej.rovadiahyosefcalendar.activities.ui.siddur.SiddurFragment;
-import com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment;
+import com.ej.rovadiahyosefcalendar.activities.ui.zmanim.DailyZmanimFragment;
+import com.ej.rovadiahyosefcalendar.activities.ui.zmanim.WeeklyZmanimFragment;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesWebJava;
 import com.ej.rovadiahyosefcalendar.classes.ExceptionHandler;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
@@ -55,7 +55,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.play.core.appupdate.AppUpdateInfo;
 import com.google.android.play.core.appupdate.AppUpdateManager;
@@ -106,6 +105,18 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
     public static Date sLastTimeUserWasInApp;
     public static BottomNavigationView sNavView;
     public static ViewPager2 sViewPager;
+    public static FragmentStateAdapter sViewPagerAdapter;
+
+    /**
+     * Toggles the zmanim fragment between daily and weekly mode.
+     * Saves the preference and notifies the ViewPager adapter to recreate position 1.
+     */
+    public static void switchZmanimFragment(boolean useWeekly) {
+        sSharedPreferences.edit().putBoolean("weeklyMode", useWeekly).apply();
+        if (sViewPagerAdapter != null) {
+            sViewPagerAdapter.notifyItemChanged(1);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,19 +149,6 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
             sSharedPreferences.edit().putBoolean("massUpdateCheck", false).apply();// do not check again
         }
 
-        if (sSharedPreferences.getBoolean("RYYHaskamaNotShown", true)) {
-            if (sSharedPreferences.getBoolean("isSetup", false)) {// so.. this is confusing because we do not want to show this dialog to new users, however, new users are not setup yet, so instead we check for if they are setup...
-                new MaterialAlertDialogBuilder(this)
-                        .setTitle(R.string.new_haskama)
-                        .setMessage(R.string.the_team_behind_zemaneh_yosef_is_proud_to_announce_that_we_have_recently_received_a_new_haskama_from_the_rishon_l_tzion_harav_yitzhak_yosef_check_it_out)
-                        .setPositiveButton(R.string.haskama_by_rabbi_yitzhak_yosef, (dialog, which) -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://royzmanim.com/assets/haskamah-rishon-letzion.pdf"))))
-                        .setNegativeButton(R.string.dismiss, (dialog, which) -> dialog.dismiss())
-                        .setCancelable(false)
-                        .show();
-            }
-            sSharedPreferences.edit().putBoolean("RYYHaskamaNotShown", false).apply();// do not check again
-        }
-
         String lang = sSettingsPreferences.getString("language", "Default");
         if (!lang.equals("Default")) {
             if (!Locale.getDefault().getDisplayLanguage(new Locale.Builder().setLanguage("en").setRegion("US").build()).equals(lang)) {
@@ -165,8 +163,8 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
                         Locale.setDefault(helocale);
                         setLocale(helocale);
                         sSharedPreferences.edit()
-                                .putBoolean("isZmanimInHebrew", true)
-                                .apply();
+                            .putBoolean("isZmanimInHebrew", true)
+                            .apply();
                         break;
                     default:
                         break;
@@ -178,9 +176,9 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
         sJewishDateInfo.getJewishCalendar().setInIsrael(sSharedPreferences.getBoolean("inIsrael", false));
         initSetupResult();
         if (ChaiTablesWebJava.checkIfFileDoesNotExist(getExternalFilesDir(null), sCurrentLocationName, sJewishDateInfo.getJewishCalendar().getJewishYear())
-                && sSharedPreferences.getBoolean("UseTable" + sCurrentLocationName, true)
-                && !sSharedPreferences.getBoolean("isSetup", false)
-                && savedInstanceState == null) {// it should only run if the user has not set up the app
+            && sSharedPreferences.getBoolean("UseTable" + sCurrentLocationName, true)
+            && !sSharedPreferences.getBoolean("isSetup", false)
+            && savedInstanceState == null) {// it should only run if the user has not set up the app
             sSetupLauncher.launch(new Intent(this, WelcomeScreenActivity.class));
             initZmanimNotificationDefaults();
         }
@@ -188,8 +186,8 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
 
         setSupportActionBar(new MaterialToolbar(this));
         sViewPager = findViewById(R.id.viewPager);
-        ViewPagerAdapter adapter = new ViewPagerAdapter(this);
-        sViewPager.setAdapter(adapter);
+        sViewPagerAdapter = new ViewPagerAdapter(this);
+        sViewPager.setAdapter(sViewPagerAdapter);
         sNavView = findViewById(R.id.nav_view);
         // Set initial page to ZmanimFragment (index 1)
         sViewPager.setCurrentItem(1, false);  // Set to page 1 without smooth scroll
@@ -198,11 +196,11 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
         sNavView.setSelectedItemId(R.id.navigation_zmanim);
 
         if (sJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.TU_BESHVAT) {
-           sNavView.getOrCreateBadge(R.id.navigation_siddur).setText("תפילה לאתרוג");
+            sNavView.getOrCreateBadge(R.id.navigation_siddur).setText("תפילה לאתרוג");
         }
 
         if ((sJewishDateInfo.getJewishCalendar().getUpcomingParshah() == JewishCalendar.Parsha.BESHALACH &&
-                sJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.TUESDAY)) {
+            sJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.TUESDAY)) {
             sNavView.getOrCreateBadge(R.id.navigation_siddur).setText("פרשת המן");
         }
 
@@ -293,39 +291,39 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
      */
     private void initSetupResult() {
         sSetupLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    sJewishDateInfo.getJewishCalendar().setInIsrael(sSharedPreferences.getBoolean("inIsrael", false));
-                    sElevation = Double.parseDouble(sSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));
-                }
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                sJewishDateInfo.getJewishCalendar().setInIsrael(sSharedPreferences.getBoolean("inIsrael", false));
+                sElevation = Double.parseDouble(sSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));
+            }
         );
     }
 
     private void initZmanimNotificationDefaults() {
         sSettingsPreferences.edit()
-                .putBoolean("zmanim_notifications", true)
-                .putInt("autoDismissNotifications", -1)
-                .putInt("Alot", -1)
-                .putInt("TalitTefilin", -1)
-                .putInt("HaNetz", -1)
-                .putInt("SofZmanShmaMGA", 15)
-                .putInt("SofZmanShmaGRA", 15)
-                .putInt("SofZmanTefila", 15)
-                .putInt("SofZmanAchilatChametz", 15)
-                .putInt("SofZmanBiurChametz", 15)
-                .putInt("Chatzot", 20)
-                .putInt("MinchaGedola", -1)
-                .putInt("MinchaKetana", -1)
-                .putInt("PlagHaMinchaYY", -1)
-                .putInt("PlagHaMinchaHB", -1)
-                .putInt("CandleLighting", 15)
-                .putInt("Shkia", 15)
-                .putInt("TzeitHacochavim", 15)
-                .putInt("TzeitHacochavimLChumra", -1)
-                .putInt("FastEnd", 15)
-                .putInt("ShabbatEnd", -1)
-                .putInt("RT", 0)
-                .putInt("NightChatzot", -1).apply();
+            .putBoolean("zmanim_notifications", true)
+            .putInt("autoDismissNotifications", -1)
+            .putInt("Alot", -1)
+            .putInt("TalitTefilin", -1)
+            .putInt("HaNetz", -1)
+            .putInt("SofZmanShmaMGA", 15)
+            .putInt("SofZmanShmaGRA", 15)
+            .putInt("SofZmanTefila", 15)
+            .putInt("SofZmanAchilatChametz", 15)
+            .putInt("SofZmanBiurChametz", 15)
+            .putInt("Chatzot", 20)
+            .putInt("MinchaGedola", -1)
+            .putInt("MinchaKetana", -1)
+            .putInt("PlagHaMinchaYY", -1)
+            .putInt("PlagHaMinchaHB", -1)
+            .putInt("CandleLighting", 15)
+            .putInt("Shkia", 15)
+            .putInt("TzeitHacochavim", 15)
+            .putInt("TzeitHacochavimLChumra", -1)
+            .putInt("FastEnd", 15)
+            .putInt("ShabbatEnd", -1)
+            .putInt("RT", 0)
+            .putInt("NightChatzot", -1).apply();
     }
 
     @Override
@@ -360,8 +358,8 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
         stopService(new Intent(this, NextZmanCountdownNotification.class));
         if (sSettingsPreferences.getBoolean("showNextZmanNotification", false)) {
             if (ContextCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED ||
-                    ContextCompat.checkSelfPermission(this, ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED ||
-                    ContextCompat.checkSelfPermission(this, FOREGROUND_SERVICE_LOCATION) != PERMISSION_GRANTED) {
+                ContextCompat.checkSelfPermission(this, ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, FOREGROUND_SERVICE_LOCATION) != PERMISSION_GRANTED) {
                 Toast.makeText(this, R.string.no_location_permission_for_next_zman_notification, Toast.LENGTH_SHORT).show();
             } else {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -434,7 +432,6 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
         });
     }
 
-    // ViewPagerAdapter for managing fragments
     private static class ViewPagerAdapter extends FragmentStateAdapter {
 
         public ViewPagerAdapter(@NonNull FragmentActivity fragmentActivity) {
@@ -445,7 +442,9 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
         @Override
         public Fragment createFragment(int position) {
             return switch (position) {
-                case 1 -> new ZmanimFragment();
+                case 1 -> sSharedPreferences.getBoolean("weeklyMode", false)
+                    ? new WeeklyZmanimFragment()
+                    : new DailyZmanimFragment();
                 case 2 -> new SiddurFragment();
                 default -> new LimudFragment();
             };
@@ -453,7 +452,26 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
 
         @Override
         public int getItemCount() {
-            return 3; // Number of fragments
+            return 3;
+        }
+
+        /**
+         * Encodes the current mode into the ID for position 1.
+         * When weeklyMode flips and notifyItemChanged(1) fires, the adapter sees a
+         * new ID for that position, destroys the old fragment, and calls createFragment(1).
+         * Positions 0 and 2 never change, so their IDs are just their position.
+         */
+        @Override
+        public long getItemId(int position) {
+            if (position == 1) {
+                return sSharedPreferences.getBoolean("weeklyMode", false) ? 11L : 10L;
+            }
+            return position;
+        }
+
+        @Override
+        public boolean containsItem(long itemId) {
+            return itemId == 0L || itemId == 10L || itemId == 11L || itemId == 2L;
         }
     }
 }

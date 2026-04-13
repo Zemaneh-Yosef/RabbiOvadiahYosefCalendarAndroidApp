@@ -456,6 +456,13 @@ public class LocationResolver {
         }
     }
 
+    public void getElevationFromWebServiceSync() {
+        double elevation = fetchAverageElevation();
+        mSharedPreferences.edit()
+            .putString("elevation" + sCurrentLocationName, String.valueOf(elevation))
+            .apply();
+    }
+
     private double fetchAverageElevation() {
         ArrayList<Integer> elevations = new ArrayList<>();
         try {

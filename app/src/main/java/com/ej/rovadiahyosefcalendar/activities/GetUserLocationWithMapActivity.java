@@ -44,7 +44,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ej.rovadiahyosefcalendar.R;
-import com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.ej.rovadiahyosefcalendar.databinding.ActivityGetUserLocationWithMapBinding;
@@ -163,7 +162,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
             selectDeviceLocation();
 
             mLocationResolver = new LocationResolver(this, this);
-            mLocationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
+            mLocationResolver.acquireLatitudeAndLongitude(location -> {});
 
             // Wait off the main thread until GPS provides coordinates
             Executors.newSingleThreadExecutor().execute(() -> {
@@ -547,7 +546,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                             selectSavedLocation(saved);
                             runOnUiThread(() -> {
                                 mLocationResolver = new LocationResolver(this, this);
-                                mLocationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
+                                mLocationResolver.acquireLatitudeAndLongitude(location -> {});
                                 configureSettingsBasedOnLocation();
                                 finish();
                             });
@@ -651,7 +650,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
     private void resolveDeviceLocationAndFinish() {
         selectDeviceLocation();
         mLocationResolver = new LocationResolver(this, this);
-        mLocationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
+        mLocationResolver.acquireLatitudeAndLongitude(location -> {});
         mLocationResolver.setTimeZoneID();
         applySelectedLocationAndFinish();
     }
@@ -796,7 +795,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             clearMarker();
             LocationResolver locationResolver = new LocationResolver(this, this);
-            locationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
+            locationResolver.acquireLatitudeAndLongitude(location -> {});
 
             Executors.newSingleThreadExecutor().execute(() -> {
                 while (sLatitude == 0 && sLongitude == 0) Thread.yield();
@@ -848,7 +847,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
             Executors.newSingleThreadExecutor().execute(() -> selectSavedLocation(loc));
             mLocationResolver = new LocationResolver(
                     GetUserLocationWithMapActivity.this, GetUserLocationWithMapActivity.this);
-            mLocationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
+            mLocationResolver.acquireLatitudeAndLongitude(location -> {});
 
             Runnable finish = () -> {
                 mChosenLatLng = new LatLng(sLatitude, sLongitude);

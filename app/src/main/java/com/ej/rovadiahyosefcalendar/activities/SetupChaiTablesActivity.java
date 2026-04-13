@@ -32,7 +32,6 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
-import com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesWebJava;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
@@ -74,7 +73,7 @@ public class SetupChaiTablesActivity extends AppCompatActivity {
         setContentView(R.layout.activity_setup_chaitables);
         mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         LocationResolver locationResolver = new LocationResolver(this, this);
-        locationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
+        locationResolver.acquireLatitudeAndLongitude(location -> {});
 
         MaterialToolbar materialToolbar = findViewById(R.id.topAppBar);
         materialToolbar.setNavigationIcon(AppCompatResources.getDrawable(this, R.drawable.baseline_arrow_back_24));

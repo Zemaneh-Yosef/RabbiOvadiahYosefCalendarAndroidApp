@@ -681,7 +681,7 @@
     <string name="rambam_yomi">"רמב״ם יומי: "</string>
     <string name="daily_halacha">הלכה יומי:</string>
     <string name="tehilim">תהילים</string>
-    <string name="chanukah_night">חנוכה – לילה</string>
+    <string name="chanukah_night">חנוכה – ליל %1$s</string>
     <string name="ideal">לכתחילה:</string>
     <string name="earliest">מוקדם:</string>
     <string name="latest">מאוחר:</string>

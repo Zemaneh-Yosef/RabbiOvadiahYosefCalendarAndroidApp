@@ -16,6 +16,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.icu.text.MessageFormat;
 import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
@@ -46,6 +47,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
@@ -430,6 +432,44 @@ public class Utils {
 
             return jsonObject;
         }
+    }
+
+    public static String toOrdinal(int num, boolean hebrew) {
+        if (hebrew) {
+            String[] numbers = new String[]{
+                "", "ראשון", "שני", "שלישי", "רביעי", "חמישי", "ששי", "שביעי", "שמיני", "תשעי"
+            };
+            return numbers[num];
+        }
+
+        // Use ICU to get locale‑correct ordinal (e.g., "1st", "2nd", "3rd", "11th")
+        MessageFormat fmt = new MessageFormat("{0,ordinal}", Locale.ENGLISH);
+        String formatted = fmt.format(new Object[]{num});
+
+        // Extract the suffix (letters only)
+        String suffix = formatted.replaceAll("[0-9]+", "");
+
+        // Convert suffix to superscript
+        String superscript = toSuperscript(suffix);
+
+        // Rebuild: number + superscript
+        return num + superscript;
+    }
+
+    private static String toSuperscript(String s) {
+        StringBuilder sb = new StringBuilder();
+        for (char c : s.toCharArray()) {
+            switch (c) {
+                case 's': sb.append('\u02E2'); break; // ˢ
+                case 't': sb.append('\u1D57'); break; // ᵗ
+                case 'n': sb.append('\u207F'); break; // ⁿ
+                case 'd': sb.append('\u1D48'); break; // ᵈ
+                case 'h': sb.append('\u02B0'); break; // ʰ
+                case 'r': sb.append('\u02B3'); break; // ʳ
+                default:  sb.append(c);
+            }
+        }
+        return sb.toString();
     }
 
     public static class NumberToHebrew {
