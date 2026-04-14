@@ -4133,6 +4133,7 @@ public class SiddurMaker {
 
 		addLamnatzeachToSiddur();
 		addFullAnaBekowach();
+        addToSiddur("בָּרוּךְ, שֵׁם כְּבוֹד מַלְכוּתוֹ, לְעוֹלָם וָעֶד:");
 
 		return siddur;
 	}
