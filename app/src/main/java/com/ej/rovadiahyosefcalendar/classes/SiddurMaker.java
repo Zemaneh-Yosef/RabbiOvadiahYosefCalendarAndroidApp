@@ -22,10 +22,10 @@ public class SiddurMaker {
 	private final int halfOpaqueBlack = Color.argb(192, 0,0,0);
 
 	private ArrayList<HighlightString> siddur = new ArrayList<>();
-	private SiddurKahalStringBuilder advancedString = new SiddurKahalStringBuilder();
+	private final SiddurKahalStringBuilder advancedString = new SiddurKahalStringBuilder();
 	private final JewishDateInfo jewishDateInfo;
     private Context context;
-    private boolean isHebrew;
+    private final boolean isHebrew;
     private final boolean isTachanunSaidInTheMorning;
 	private final boolean isTachanunSaidByMincha;
 	private final String lineBreak = "[break here]";
@@ -1264,7 +1264,7 @@ public class SiddurMaker {
 					"רַחֵם עַל צִיּוֹן כִּי הִיא בֵּית חַיֵּינוּ, וְלַעֲלוּבַת נֶפֶשׁ תּוֹשִׁיעַ בִּמְהֵרָה בְיָמֵינוּ. בָּרוּךְ אַתָּה יְהֹוָה, מְשַׂמֵּחַ צִיּוֹן בְּבָנֶיהָ: \n" +
 					"שַׂמְּחֵנוּ יְהֹוָה אֱלֹהֵינוּ, בְּאֵלִיָהוּ הַנָּבִיא עַבְדָּךְ, וּבְמַלְכוּת בֵּית דָּוִד מְשִׁיחָךְ, בִּמְהֵרָה יָבֹא וְיָגֵל לִבֵּנוּ, עַל כִּסְאוֹ לֹא יֵשֶׁב זָר, וְלֹא יִנְחֲלוּ עוֹד אֲחֵרִים אֶת כְּבוֹדוֹ, כִּי בְשֵׁם קָדְשְׁךָ נִשְׁבַּעְתָּ לּוֹ, שֶׁלֹּא יִכְבֶּה נֵרוֹ לְעוֹלָם וָעֶד. בָּרוּךְ אַתָּה יְהֹוָה, מָגֵן דָּוִד: [אָמֵן]");
 			} else {
-				addToSiddur(WeeklyParashaReadings.getWeeklyParashaReading(
+				siddur.addAll(WeeklyParashaReadings.getWeeklyParashaReading(
 						jewishDateInfo.getJewishCalendar(),
 						true,
                         context));
@@ -1671,11 +1671,11 @@ public class SiddurMaker {
 				"הַנּוֹתֵן בַּיָּם דָּרֶךְ. וּבְמַיִם עַזִּים נְתִיבָה. הָחִישׁ יְשׁוּעָתֵנוּ. וְאֶת יְרִיבֵנוּ רִיבָה. וְגַם אֶת אַחֲרִיתֵנוּ. מֵרֵאשִׁיתֵנוּ הֵטִיבָה. הֲשִׁיבֵ֨נוּ יְהֹוָ֤ה ׀ אֵלֶ֙יךָ֙ וְֽנָשׁ֔וּבָה: כַּכָּתוּב הֲשִׁיבֵ֨נוּ יְהֹוָ֤ה ׀ אֵלֶ֙יךָ֙ וְֽנָשׁ֔וּבָה חַדֵּ֥שׁ יָמֵ֖ינוּ כְּקֶֽדֶם׃");
 			addToSiddur(
 				"עַד אָנָה בִּכְיָה בְּצִיּוֹן וּמִסְפֵּד בִּירוּשָׁלַיִם. תָּקוּם תְּרַחֵם צִיּוֹן תִּבְנֶה חוֹמוֹת יְרוּשָׁלַיִם: כַּכָּתוּב. אַתָּ֣ה תָ֭קוּם תְּרַחֵ֣ם צִיּ֑וֹן כִּי־עֵ֥ת לְ֝חֶֽנְנָ֗הּ כִּי־בָ֥א מוֹעֵֽד׃ וְנֶאֱמַר. וּפְדוּיֵ֨י יְהֹוָ֜ה יְשֻׁב֗וּן וּבָ֤אוּ צִיּוֹן֙ בְּרִנָּ֔ה וְשִׂמְחַ֥ת עוֹלָ֖ם עַל־רֹאשָׁ֑ם שָׂשׂ֤וֹן וְשִׂמְחָה֙ יַשִּׂ֔יגוּ וְנָ֖סוּ יָג֥וֹן וַאֲנָחָֽה׃");
-			addToSiddur(isHebrew ? "יש אומרים" : "Some say");
+			addInstructionToSiddur(isHebrew ? "יש אומרים" : "Some say");
 			addToSiddur(
 				"כְּדִכְתִיב. כִּֽי־נִחַ֨ם יְהֹוָ֜ה צִיּ֗וֹן נִחַם֙ כָּל־חָרְבֹתֶ֔יהָ וַיָּ֤שֶׂם מִדְבָּרָהּ֙ כְּעֵ֔דֶן וְעַרְבָתָ֖הּ כְּגַן־יְהֹוָ֑ה שָׂשׂ֤וֹן וְשִׂמְחָה֙ יִמָּ֣צֵא בָ֔הּ תּוֹדָ֖ה וְק֥וֹל זִמְרָֽה׃ הִתְנַעֲרִ֧י מֵעָפָ֛ר ק֥וּמִי שְּׁבִ֖י יְרֽוּשָׁלִָ֑ם הִֽתְפַּתְּחִי֙ מוֹסְרֵ֣י צַוָּארֵ֔ךְ שְׁבִיָּ֖ה בַּת־צִיּֽוֹן׃");
 			addKaddishVariants(KaddishTypes.TITKABAL);// Chazon Ovadiah Page 391
-			addToSiddur(isHebrew ? "יש אנשים שקוראים כאן את הספר איוב" : "Some read the entire Iyov here");
+			addInstructionToSiddur(isHebrew ? "יש אנשים שקוראים כאן את הספר איוב" : "Some read the entire Iyov here");
 			// Some add the entire Iyov here. Not gonna do that because they can pick up a
 			// tanach to do that, and it will make this class even bigger than necessary
 		}

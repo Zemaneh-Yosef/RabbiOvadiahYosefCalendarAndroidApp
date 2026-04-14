@@ -245,6 +245,10 @@ class ZmanimViewModel(application: Application) : AndroidViewModel(application) 
         val specialDay = sJewishDateInfo.getSpecialDay(false)
         if (specialDay.isNotEmpty()) zmanim.add(ZmanListEntry(specialDay))
 
+        if (sJewishDateInfo.isEruvTavshilimMadeToday()) {
+            zmanim.add(ZmanListEntry(context.getString(R.string.eruv_tavshilim)));
+        }
+
         val dayOfOmer = sJewishDateInfo.addDayOfOmer("")
         if (dayOfOmer.isNotEmpty()) zmanim.add(ZmanListEntry(dayOfOmer))
 
