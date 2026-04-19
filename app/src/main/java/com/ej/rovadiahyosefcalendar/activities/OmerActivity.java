@@ -1,27 +1,9 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
-import android.graphics.Typeface;
-import android.os.Bundle;
-import android.view.ViewGroup;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.content.res.AppCompatResources;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.preference.PreferenceManager;
-
-import com.ej.rovadiahyosefcalendar.R;
-import com.ej.rovadiahyosefcalendar.classes.Utils;
-import com.google.android.material.appbar.MaterialToolbar;
-
 import java.util.Arrays;
 import java.util.List;
 
-public class OmerActivity extends AppCompatActivity {
+public class OmerActivity {
 
     public static List<String> omerList = Arrays.asList(
         "הַיּוֹם יוֹם אֶחָד לָעֹמֶר:",
@@ -74,77 +56,6 @@ public class OmerActivity extends AppCompatActivity {
         "הַיּוֹם שְׁמוֹנָה וְאַרְבָּעִים יוֹם לָעֹמֶר, שֶׁהֵם שִׁשָּׁה שָׁבוּעוֹת וְשִׁשָּׁה יָמִים:",
         "הַיּוֹם תִּשְׁעָה וְאַרְבָּעִים יוֹם לָעֹמֶר, שֶׁהֵם שִׁבְעָה שָׁבוּעוֹת:"
     );
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_omer);
-
-        MaterialToolbar materialToolbar = findViewById(R.id.topAppBar);
-        if (Utils.isLocaleHebrew(this)) {
-            materialToolbar.setSubtitle("");
-        }
-        materialToolbar.setNavigationIcon(AppCompatResources.getDrawable(this, R.drawable.baseline_arrow_back_24));
-        materialToolbar.setNavigationOnClickListener(v -> finish());
-
-        TextView initialOmerText = findViewById(R.id.omer_text);
-
-        String leshemYichud = "לְשֵׁם יִחוּד קֻדְשָׁא בְּרִיךְ הוּא וּשְׁכִינְתֵּיהּ, בִּדְחִֽילוּ וּרְחִֽימוּ, וּרְחִֽימוּ וּדְחִֽילוּ, לְיַחֲדָא אוֹת יוֹ\"ד וְאוֹת הֵ\"א בְּאוֹת וָא\"ו וְאוֹת הֵ\"א בְּיִחוּדָא שְׁלִים בְּשֵׁם כָּל־יִשְׂרָאֵל. הִנֵּה אֲנַֽחְנוּ בָּאִים לְקַיֵּם מִצְוַת סְפִירַת הָעֹֽמֶר, עִם כָּל הַמִּצְוֹת הַכְּלוּלוֹת בָּהּ, לְתַקֵּן אֶת שָׁרְשָׁהּ בְּמָקוֹם עֶלְיוֹן, לַעֲשׂוֹת נַֽחַת רֽוּחַ לְיֽוֹצְרֵֽנוּ וְלַעֲשׂוֹת רְצוֹן בּֽוֹרְאֵֽנוּ. וִיהִ֤י ׀ נֹ֤עַם אֲדֹנָ֥י אֱלֹהֵ֗ינוּ עָ֫לֵ֥ינוּ וּמַעֲשֵׂ֣ה יָ֭דֵינוּ כּוֹנְנָ֥ה עָלֵ֑ינוּ וּֽמַעֲשֵׂ֥ה יָ֝דֵ֗ינוּ כּוֹנְנֵֽהוּ: יְהֹוָה֮ יִגְמֹ֢ר בַּ֫עֲדִ֥י יְ֭הֹוָה חַסְדְּךָ֣ לְעוֹלָ֑ם מַעֲשֵׂ֖י יָדֶ֣יךָ אַל־תֶּֽרֶף: אֶ֭קְרָא לֵֽאלֹהִ֣ים עֶלְי֑וֹן לָ֝אֵ֗ל גֹּמֵ֥ר עָלָֽי: וָאֶעֱבֹ֤ר עָלַ֙יִךְ֙ וָֽאֶרְאֵ֔ךְ מִתְבּוֹסֶ֖סֶת בְּדָמָ֑יִךְ וָאֹ֤מַר לָךְ֙ בְּדָמַ֣יִךְ חֲיִ֔י וָאֹ֥מַר לָ֖ךְ בְּדָמַ֥יִךְ חֲיִֽי: בָּרְכִ֥י נַפְשִׁ֗י אֶת־יְהֹ֫וָ֥ה יְהֹוָ֣ה אֱ֭לֹהַי גָּדַ֣לְתָּ מְּאֹ֑ד ה֖וֹד וְהָדָ֣ר לָבָֽשְׁתָּ: עֹֽטֶה־א֭וֹר כַּשַּׂלְמָ֑ה נוֹטֶ֥ה שָׁ֝מַ֗יִם כַּיְרִיעָֽה:";
-        String beracha = "בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם, אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ עַל סְפִירַת הָעֹמֶר:";
-
-        int day = getIntent().getIntExtra("omerDay", 1);// the day will be based on the gregorian day a.k.a before sunset
-
-        if (day < 0 || day >= 49) {
-            Toast.makeText(this, R.string.error, Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        String firstString = leshemYichud + "\n\n" + beracha + "\n\n" +
-            omerList.get(day) + " (" + getSefirahAttribute(day) + ")" + "\n\n" +
-            "הָרַחֲמָן הוּא יַחֲזִיר עֲבוֹדַת בֵּית הַמִּקְדָּשׁ לִמְקוֹמָהּ בִּמְהֵרָה בְיָמֵֽינוּ אָמֵן:";
-
-        initialOmerText.setText(firstString);
-
-        TextView finalOmerText = findViewById(R.id.omer_text2);
-
-        String finalString =  "לַמְנַצֵּ֥חַ בִּנְגִינֹ֗ת מִזְמ֥וֹר שִֽׁיר׃ אֱֽלֹהִ֗ים יְחׇנֵּ֥נוּ וִיבָרְכֵ֑נוּ יָ֤אֵֽר פָּנָ֖יו אִתָּ֣נוּ סֶֽלָה׃ לָדַ֣עַת בָּאָ֣רֶץ דַּרְכֶּ֑ךָ בְּכׇל־גּ֝וֹיִ֗ם יְשׁוּעָתֶֽךָ׃ יוֹד֖וּךָ עַמִּ֥ים ׀ אֱלֹהִ֑ים י֝וֹד֗וּךָ עַמִּ֥ים כֻּלָּֽם׃ יִ֥שְׂמְח֥וּ וִירַנְּנ֗וּ לְאֻ֫מִּ֥ים כִּֽי־תִשְׁפֹּ֣ט עַמִּ֣ים מִישֹׁ֑ר וּלְאֻמִּ֓ים ׀ בָּאָ֖רֶץ תַּנְחֵ֣ם סֶֽלָה׃ יוֹד֖וּךָ עַמִּ֥ים ׀ אֱלֹהִ֑ים י֝וֹד֗וּךָ עַמִּ֥ים כֻּלָּֽם׃ אֶ֭רֶץ נָתְנָ֣ה יְבוּלָ֑הּ יְ֝בָרְכֵ֗נוּ אֱלֹהִ֥ים אֱלֹהֵֽינוּ׃ יְבָרְכֵ֥נוּ אֱלֹהִ֑ים וְיִֽירְא֥וּ א֝וֹת֗וֹ כׇּל־אַפְסֵי־אָֽרֶץ׃  \n\n" +
-            "אָֽנָּֽא בְּכֹֽחַ. גְּדוּלַת יְמִינֶֽךָ. תַּתִּיר צְרוּרָה:  (אב\"ג ית\"ץ) \n\n" +
-            "קַבֵּל רִנַּת עַמֶּֽךָ. שַׂגְּבֵֽנוּ. טַהֲרֵֽנוּ נוֹרָא: (קר\"ע שט\"ן) \n\n" +
-            "נָא גִבּוֹר. דּֽוֹרְשֵֽׁי יִחוּדֶֽךָ. כְּבָבַת שָׁמְרֵם: (נג\"ד יכ\"ש) \n\n" +
-            "בָּֽרְכֵֽם טַהֲרֵם. רַחֲמֵי צִדְקָתֶֽךָ. תָּמִיד גָּמְלֵם: (בט\"ר צת\"ג) \n\n" +
-            "חֲסִין קָדוֹשׁ. בְּרֹב טֽוּבְךָֽ. נַהֵל עֲדָתֶֽךָ: (חק\"ב טנ\"ע) \n\n" +
-            "יָחִיד גֵּאֶה. לְעַמְּךָ פְנֵה. זֽוֹכְרֵֽי קְדֻשָּׁתֶֽךָ: (יג\"ל פז\"ק) \n\n" +
-            "שַׁוְעָתֵֽנוּ קַבֵּל. וּשְׁמַע צַעֲקָתֵֽנוּ. יוֹדֵֽעַ תַּעֲלוּמוֹת: (שק\"ו צי\"ת) \n\n" +
-            "בָּרוּךְ שֵׁם כְּבוֹד מַלְכוּתוֹ לְעוֹלָם וָעֶד:";
-
-        finalOmerText.setText(finalString);
-
-        switch (PreferenceManager.getDefaultSharedPreferences(this).getString("font", "Guttman Keren")) {
-            case "Guttman Keren":
-                initialOmerText.setTypeface(Typeface.createFromAsset(getAssets(), "Guttman Keren.ttf"), Typeface.NORMAL);
-                finalOmerText.setTypeface(Typeface.createFromAsset(getAssets(), "Guttman Keren.ttf"), Typeface.NORMAL);
-                break;
-            case "Taamey Frank":
-                initialOmerText.setTypeface(Typeface.createFromAsset(getAssets(), "Taamey_D.ttf"), Typeface.NORMAL);
-                finalOmerText.setTypeface(Typeface.createFromAsset(getAssets(), "Taamey_D.ttf"), Typeface.NORMAL);
-                break;
-            default:
-                break;
-        }
-
-        ViewCompat.setOnApplyWindowInsetsListener(finalOmerText, (v, windowInsets) -> {
-            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
-            ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
-            mlp.leftMargin = insets.left;
-            mlp.bottomMargin = insets.bottom;
-            mlp.rightMargin = insets.right;
-            v.setLayoutParams(mlp);
-            // Return CONSUMED if you don't want want the window insets to keep passing
-            // down to descendant views.
-            return WindowInsetsCompat.CONSUMED;
-        });
-    }
 
     public static String getSefirahAttribute(int day) {
         if (day < 0 || day > 49) {

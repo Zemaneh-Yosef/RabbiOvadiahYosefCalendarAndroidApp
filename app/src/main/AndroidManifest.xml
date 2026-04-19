@@ -88,9 +88,6 @@
             android:exported="false"
             android:label="@string/jerusalem_direction" />
         <activity
-            android:name=".activities.OmerActivity"
-            android:exported="false" />
-        <activity
             android:name=".activities.NetzActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:exported="false"
