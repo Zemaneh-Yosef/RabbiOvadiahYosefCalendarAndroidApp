@@ -34,6 +34,7 @@ import androidx.preference.PreferenceFragmentCompat;
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.AllTehillimActivity;
 import com.ej.rovadiahyosefcalendar.activities.JerusalemDirectionMapsActivity;
+import com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity;
 import com.ej.rovadiahyosefcalendar.activities.SiddurViewActivity;
 import com.ej.rovadiahyosefcalendar.classes.CustomPreferenceView;
 import com.ej.rovadiahyosefcalendar.classes.HebrewDayMonthYearPickerDialog;
@@ -63,7 +64,9 @@ import java.util.TimeZone;
 public class SiddurFragment extends Fragment {
 
     private FragmentSiddurBinding binding;
+    @Nullable
     private Context mContext;
+    @Nullable
     private FragmentActivity mActivity;
     private static LinearLayout dateButtons;
     private Button mCalendarButton;
@@ -80,7 +83,9 @@ public class SiddurFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentSiddurBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-        EdgeToEdge.enable(mActivity);
+        if (mActivity != null) {
+            EdgeToEdge.enable(mActivity);
+        }
         return root;
     }
 
@@ -94,6 +99,7 @@ public class SiddurFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+        if (mActivity == null) return;
         if (mActivity.findViewById(R.id.siddur_preferences_container) != null) {
             updateView();
         }
@@ -106,9 +112,19 @@ public class SiddurFragment extends Fragment {
                 .commitNow();
     }
 
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mContext = null;
+        mActivity = null;
+    }
+
     public static class SiddurPreferenceFragment extends PreferenceFragmentCompat {
 
+        @Nullable
         private Context mContext;
+        @Nullable
+        private FragmentActivity mActivity;
         private ROZmanimCalendar currentZmanimCalendar;
         private JewishDateInfo currentJewishDateInfo;
         private static final List<String> masechtosBavli = Arrays.asList(
@@ -163,6 +179,7 @@ public class SiddurFragment extends Fragment {
         public void onAttach(@NonNull Context context) {
             super.onAttach(context);
             mContext = context;
+            mActivity = requireActivity();
         }
 
         @Override
@@ -183,9 +200,17 @@ public class SiddurFragment extends Fragment {
             initView();
         }
 
+        @Override
+        public void onDetach() {
+            super.onDetach();
+            mContext = null;
+            mActivity = null;
+        }
+
         private void initView() {
+            if (mActivity == null || mContext == null) return;
             if (currentZmanimCalendar == null) {
-                currentZmanimCalendar = new ROZmanimCalendar(new LocationResolver(mContext, requireActivity()).getRealtimeNotificationData(null, true));// the logic here is that because isForWidget returns right away. It is better than getting a callback for the current location and therefore causing the UI to delay. Besides, the location was already gotten by the Zmanim Fragment and saved when the user started the app, so there is no need to get it again.
+                currentZmanimCalendar = new ROZmanimCalendar(new LocationResolver(mContext, mActivity).getRealtimeNotificationData(null, true));// the logic here is that because isForWidget returns right away. It is better than getting a callback for the current location and therefore causing the UI to delay. Besides, the location was already gotten by the Zmanim Fragment and saved when the user started the app, so there is no need to get it again.
             }
             currentZmanimCalendar.setCalendar(Calendar.getInstance());// make sure the date is for right now when the user gets back to the page
             currentJewishDateInfo = new JewishDateInfo(sJewishDateInfo.getJewishCalendar().getInIsrael());
@@ -207,7 +232,7 @@ public class SiddurFragment extends Fragment {
                 if (seeMoreTitle != null) {
                     seeMoreTitle.setVisible(!showAllPrayers);
                 }
-                seeMore.setTitle(showAllPrayers ? getString(R.string.see_prayers_currently_applicable) : getString(R.string.see_all_prayers));
+                seeMore.setTitle(showAllPrayers ? mContext.getString(R.string.see_prayers_currently_applicable) : mContext.getString(R.string.see_all_prayers));
             }
             if (dateButtons != null) {
                 dateButtons.setVisibility(showAllPrayers ? View.VISIBLE : View.GONE);
@@ -220,7 +245,7 @@ public class SiddurFragment extends Fragment {
                     .getLocales()
                     .get(0));
             if (DateUtils.isSameDay(new Date(), sJewishDateInfo.getJewishCalendar().getGregorianCalendar().getTime())) {
-                dateAndSpecialDay += " (" + getString(R.string.today) + ")";
+                dateAndSpecialDay += " (" + mContext.getString(R.string.today) + ")";
             }
             dateAndSpecialDay += "\n" + sJewishDateInfo.getJewishCalendar().toString();
             String specialDayString = sJewishDateInfo.getSpecialDay(false);
@@ -256,7 +281,7 @@ public class SiddurFragment extends Fragment {
                 selichot.setDimmed((tzeit != null && new Date().after(tzeit)) &&
                         (solarMidnight != null && new Date().before(solarMidnight)));
                 selichot.setOnPreferenceClickListener(v -> {
-                    startSiddurActivity(getString(R.string.selichot));
+                    startSiddurActivity(mContext.getString(R.string.selichot));
                     return true;
                 });
                 CharSequence title = selichot.getTitle();
@@ -269,7 +294,7 @@ public class SiddurFragment extends Fragment {
             CustomPreferenceView shacharit = findPreference("siddur_shacharit");
             if (shacharit != null) {
                 shacharit.setOnPreferenceClickListener(v -> {
-                    startSiddurActivity(getString(R.string.shacharit));
+                    startSiddurActivity(mContext.getString(R.string.shacharit));
                     return true;
                 });
                 CharSequence title = shacharit.getTitle();
@@ -285,7 +310,7 @@ public class SiddurFragment extends Fragment {
                 mussaf.setVisible((getSunsetBasedJewishDateInfo().getJewishCalendar().isRoshChodesh() || getSunsetBasedJewishDateInfo().getJewishCalendar().isCholHamoed())
                         && (showAllPrayers || isPrayerCurrentlySaid(mussaf.getKey())));
                 mussaf.setOnPreferenceClickListener(v -> {
-                    startSiddurActivity(getString(R.string.mussaf));
+                    startSiddurActivity(mContext.getString(R.string.mussaf));
                     return true;
                 });
                 CharSequence title = mussaf.getTitle();
@@ -303,7 +328,7 @@ public class SiddurFragment extends Fragment {
                     isMinchaAfterSunsetBeforeTzeit = new Date().after(sunset) && new Date().before(tzeit);
                 }
                 mincha.setOnPreferenceClickListener(v -> {
-                    startSiddurActivity(getString(R.string.mincha));
+                    startSiddurActivity(mContext.getString(R.string.mincha));
                     return true;
                 });
                 CharSequence title = mincha.getTitle();
@@ -321,9 +346,9 @@ public class SiddurFragment extends Fragment {
                     .getLocales()
                     .get(0));
             if (DateUtils.isSameDay(new Date(), sJewishDateInfo.getJewishCalendar().getGregorianCalendar().getTime())) {
-                nextDateAndSpecialDay += " (" + getString(R.string.today) + ")";
+                nextDateAndSpecialDay += " (" + mContext.getString(R.string.today) + ")";
             }
-            nextDateAndSpecialDay += "\n" + getString(R.string.after_sunset) + "\n" + sJewishDateInfo.tomorrow().getJewishCalendar().toString();
+            nextDateAndSpecialDay += "\n" + mContext.getString(R.string.after_sunset) + "\n" + sJewishDateInfo.tomorrow().getJewishCalendar().toString();
 
             String nextSpecialDayString = sJewishDateInfo.tomorrow().getSpecialDay(false);
             if (!nextSpecialDayString.isEmpty()) {
@@ -342,7 +367,7 @@ public class SiddurFragment extends Fragment {
                     isArvitAfterPlagBeforeSunset = new Date().after(plag) && new Date().before(sunset);
                 }
                 arvit.setOnPreferenceClickListener(v -> {
-                    startSiddurActivity(getString(R.string.arvit), true);
+                    startSiddurActivity(mContext.getString(R.string.arvit), true);
                     return true;
                 });
                 CharSequence title = arvit.getTitle();
@@ -356,7 +381,7 @@ public class SiddurFragment extends Fragment {
             CustomPreferenceView sefiratHaomer = findPreference("siddur_sefirat_haomer");
             if (sefiratHaomer != null) {
                 sefiratHaomer.setOnPreferenceClickListener(v -> {
-                    startSiddurActivity(getString(R.string.sefirat_haomer), true);
+                    startSiddurActivity(mContext.getString(R.string.sefirat_haomer), true);
                     return true;
                 });
                 CharSequence title = sefiratHaomer.getTitle();
@@ -374,7 +399,7 @@ public class SiddurFragment extends Fragment {
             CustomPreferenceView hadlakatNeirotChanuka = findPreference("siddur_hadlakat_neirot_chanuka");
             if (hadlakatNeirotChanuka != null) {
                 hadlakatNeirotChanuka.setOnPreferenceClickListener(v -> {
-                    startSiddurActivity(getString(R.string.hadlakat_neirot_chanuka), true);
+                    startSiddurActivity(mContext.getString(R.string.hadlakat_neirot_chanuka), true);
                     return true;
                 });
                 CharSequence title = hadlakatNeirotChanuka.getTitle();
@@ -392,15 +417,15 @@ public class SiddurFragment extends Fragment {
                 havdalah.setOnPreferenceClickListener(v -> {
                     MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext)
                             .setTitle(R.string.havdalah_is_only_said_on_a_flame_tonight)
-                            .setMessage(getString(R.string.havdalah_will_be_completed_after_the_fast) + "\n\n" + "בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵֽינוּ מֶֽלֶךְ הָעוֹלָם, בּוֹרֵא מְאוֹרֵי הָאֵשׁ:")
-                            .setPositiveButton(getString(R.string.ok), (dialog, which) -> dialog.dismiss());
+                            .setMessage(mContext.getString(R.string.havdalah_will_be_completed_after_the_fast) + "\n\n" + "בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵֽינוּ מֶֽלֶךְ הָעוֹלָם, בּוֹרֵא מְאוֹרֵי הָאֵשׁ:")
+                            .setPositiveButton(mContext.getString(R.string.ok), (dialog, which) -> dialog.dismiss());
                     if (showAllPrayers && getSunsetBasedJewishDateInfo().tomorrow().getJewishCalendar().isTishaBav() && getSunsetBasedJewishDateInfo().getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY) {
                         builder.show();
                     } else {
                         if (!showAllPrayers && getSunsetBasedJewishDateInfo().getJewishCalendar().isTishaBav() && getSunsetBasedJewishDateInfo().getJewishCalendar().getDayOfWeek() == Calendar.SUNDAY) {
                             builder.show();
                         } else {
-                            startSiddurActivity(getString(R.string.havdala), true);
+                            startSiddurActivity(mContext.getString(R.string.havdala), true);
                         }
                     }
                     return true;
@@ -437,7 +462,7 @@ public class SiddurFragment extends Fragment {
             if (kriatShemaAlHamita != null) {
                 kriatShemaAlHamita.setVisible(showAllPrayers || isPrayerCurrentlySaid(kriatShemaAlHamita.getKey()));
                 kriatShemaAlHamita.setOnPreferenceClickListener(v -> {
-                    startSiddurActivity(getString(R.string.kriatShema), true);
+                    startSiddurActivity(mContext.getString(R.string.kriatShema), true);
                     return true;
                 });
                 CharSequence title = kriatShemaAlHamita.getTitle();
@@ -470,37 +495,37 @@ public class SiddurFragment extends Fragment {
                             new MaterialAlertDialogBuilder(mContext)
                                     .setTitle(R.string.do_you_want_to_say_tikkun_chatzot_for_the_day)
                                     .setMessage(R.string.looking_to_say_this_version_of_tikkun_chatzot)
-                                    .setPositiveButton(getString(R.string.yes), (dialog, which) -> {
+                                    .setPositiveButton(mContext.getString(R.string.yes), (dialog, which) -> {
                                         isNightTikkunChatzot = false;
-                                        startSiddurActivity(getString(R.string.tikkun_chatzot));
+                                        startSiddurActivity(mContext.getString(R.string.tikkun_chatzot));
                                     })
-                                    .setNegativeButton(getString(R.string.no), (dialog, which) -> {
+                                    .setNegativeButton(mContext.getString(R.string.no), (dialog, which) -> {
                                         isNightTikkunChatzot = true;
-                                        startSiddurActivity(getString(R.string.tikkun_chatzot), true);
+                                        startSiddurActivity(mContext.getString(R.string.tikkun_chatzot), true);
                                     })
                                     .show();
                         } else if (isDayTikkunSaid) {
                             isNightTikkunChatzot = false;
-                            startSiddurActivity(getString(R.string.tikkun_chatzot));
+                            startSiddurActivity(mContext.getString(R.string.tikkun_chatzot));
                         } else if (isNightTikkunSaid) {
                             isNightTikkunChatzot = true;
-                            startSiddurActivity(getString(R.string.tikkun_chatzot), true);
+                            startSiddurActivity(mContext.getString(R.string.tikkun_chatzot), true);
                         } else {
                             new MaterialAlertDialogBuilder(mContext)
                                     .setTitle(R.string.tikkun_chatzot_is_not_said_today_or_tonight)
                                     .setMessage(R.string.tikkun_chatzot_is_not_said_today_or_tonight_possible_reasons)
-                                    .setPositiveButton(getString(R.string.ok), (dialog, which) -> dialog.dismiss())
+                                    .setPositiveButton(mContext.getString(R.string.ok), (dialog, which) -> dialog.dismiss())
                                     .show();
                         }
                     } else {// not the 3 weeks
                         if (getSunsetBasedJewishDateInfo().tomorrow().isNightTikkunChatzotSaid()) {
                             isNightTikkunChatzot = true;
-                            startSiddurActivity(getString(R.string.tikkun_chatzot), true);
+                            startSiddurActivity(mContext.getString(R.string.tikkun_chatzot), true);
                         } else {
                             new MaterialAlertDialogBuilder(mContext)
                                     .setTitle(R.string.tikkun_chatzot_is_not_said_tonight)
                                     .setMessage(R.string.tikkun_chatzot_is_not_said_tonight_possible_reasons)
-                                    .setPositiveButton(getString(R.string.ok), (dialog, which) -> dialog.dismiss())
+                                    .setPositiveButton(mContext.getString(R.string.ok), (dialog, which) -> dialog.dismiss())
                                     .show();
                         }
                     }
@@ -515,29 +540,29 @@ public class SiddurFragment extends Fragment {
                                 && (currentZmanimCalendar.getSunset() != null && new Date().before(currentZmanimCalendar.getSunset()));
                         if (isNightTikkunSaid && isDayTikkunSaid) {// figure out which it is by the time
                             isNightTikkunChatzot = !isNowForDayTikkun;
-                            startSiddurActivity(getString(R.string.tikkun_chatzot), isNightTikkunChatzot);
+                            startSiddurActivity(mContext.getString(R.string.tikkun_chatzot), isNightTikkunChatzot);
                         } else if (isDayTikkunSaid && isNowForDayTikkun) {
                             isNightTikkunChatzot = false;
-                            startSiddurActivity(getString(R.string.tikkun_chatzot));
+                            startSiddurActivity(mContext.getString(R.string.tikkun_chatzot));
                         } else if (isNightTikkunSaid && !isNowForDayTikkun) {
                             isNightTikkunChatzot = true;
-                            startSiddurActivity(getString(R.string.tikkun_chatzot), true);
+                            startSiddurActivity(mContext.getString(R.string.tikkun_chatzot), true);
                         } else {
                             new MaterialAlertDialogBuilder(mContext)
                                     .setTitle(R.string.tikkun_chatzot_is_not_said_today_or_tonight)
                                     .setMessage(R.string.tikkun_chatzot_is_not_said_today_or_tonight_possible_reasons)
-                                    .setPositiveButton(getString(R.string.ok), (dialog, which) -> dialog.dismiss())
+                                    .setPositiveButton(mContext.getString(R.string.ok), (dialog, which) -> dialog.dismiss())
                                     .show();
                         }
                     } else {// not the 3 weeks
                         if (getSunsetBasedJewishDateInfo().isNightTikkunChatzotSaid()) {
                             isNightTikkunChatzot = true;
-                            startSiddurActivity(getString(R.string.tikkun_chatzot), true);
+                            startSiddurActivity(mContext.getString(R.string.tikkun_chatzot), true);
                         } else {
                             new MaterialAlertDialogBuilder(mContext)
                                     .setTitle(R.string.tikkun_chatzot_is_not_said_tonight)
                                     .setMessage(R.string.tikkun_chatzot_is_not_said_tonight_possible_reasons)
-                                    .setPositiveButton(getString(R.string.ok), (dialog, which) -> dialog.dismiss())
+                                    .setPositiveButton(mContext.getString(R.string.ok), (dialog, which) -> dialog.dismiss())
                                     .show();
                         }
                     }
@@ -591,25 +616,25 @@ public class SiddurFragment extends Fragment {
             if (bh != null) {
                 bh.setOnPreferenceClickListener(v -> {
                     if (new SiddurMaker(getSunsetBasedJewishDateInfo(false), Color.BLACK, mContext).getBirchatHamazonPrayers().equals(new SiddurMaker(getSunsetBasedJewishDateInfo(false).tomorrow(), Color.BLACK, mContext).getBirchatHamazonPrayers())) {
-                        startSiddurActivity(getString(R.string.birchat_hamazon));//doesn't matter which day
+                        startSiddurActivity(mContext.getString(R.string.birchat_hamazon));//doesn't matter which day
                     } else {
                         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext)
                                 .setTitle(R.string.when_did_you_start_your_meal)
-                                .setMessage(getString(R.string.did_you_start_your_meal_during_the_day) + " (" + sunset + ")")
-                                .setPositiveButton(getString(R.string.yes), (dialog, which) -> startSiddurActivity(getString(R.string.birchat_hamazon)))
-                                .setNegativeButton(getString(R.string.no), (dialog, which) -> startSiddurActivity(getString(R.string.birchat_hamazon), true));
+                                .setMessage(mContext.getString(R.string.did_you_start_your_meal_during_the_day) + " (" + sunset + ")")
+                                .setPositiveButton(mContext.getString(R.string.yes), (dialog, which) -> startSiddurActivity(mContext.getString(R.string.birchat_hamazon)))
+                                .setNegativeButton(mContext.getString(R.string.no), (dialog, which) -> startSiddurActivity(mContext.getString(R.string.birchat_hamazon), true));
                         if (showAllPrayers) {
                             builder.show();
                         } else {
                             if (currentZmanimCalendar.getSunset() != null && new Date().after(currentZmanimCalendar.getSunset())) {
-                                builder.setPositiveButton(getString(R.string.yes), (dialog, which) -> {// it is after sunset and the user started before sunset, go back to yesterday
+                                builder.setPositiveButton(mContext.getString(R.string.yes), (dialog, which) -> {// it is after sunset and the user started before sunset, go back to yesterday
                                     currentJewishDateInfo.back();
-                                    startSiddurActivity(getString(R.string.birchat_hamazon));
+                                    startSiddurActivity(mContext.getString(R.string.birchat_hamazon));
                                     currentJewishDateInfo.forward();
-                                }).setNegativeButton(getString(R.string.no), (dialog, which) -> startSiddurActivity(getString(R.string.birchat_hamazon), true));
+                                }).setNegativeButton(mContext.getString(R.string.no), (dialog, which) -> startSiddurActivity(mContext.getString(R.string.birchat_hamazon), true));
                                 builder.show();
                             } else {
-                                startSiddurActivity(getString(R.string.birchat_hamazon));
+                                startSiddurActivity(mContext.getString(R.string.birchat_hamazon));
                             }
                         }
                     }
@@ -625,13 +650,13 @@ public class SiddurFragment extends Fragment {
             CustomPreferenceView bms = findPreference("siddur_birchat_meyin_shalosh");
             if (bms != null) {
                 bms.setOnPreferenceClickListener(v -> {
-                    String[] options = {getString(R.string.wine), getString(R.string._5_grains), getString(R.string._7_fruits), getString(R.string.other)};
+                    String[] options = {mContext.getString(R.string.wine), mContext.getString(R.string._5_grains), mContext.getString(R.string._7_fruits), mContext.getString(R.string.other)};
                     boolean[] checkedItems = new boolean[options.length];
 
                     new MaterialAlertDialogBuilder(mContext)
                             .setTitle(R.string.what_did_you_eat_drink)
                             .setMultiChoiceItems(options, checkedItems, (dialog, which, isChecked) -> checkedItems[which] = isChecked)
-                            .setPositiveButton(getString(R.string.ok), (dialog, which) -> {
+                            .setPositiveButton(mContext.getString(R.string.ok), (dialog, which) -> {
                                 List<String> selectedOptions = new ArrayList<>();
                                 for (int i = 0; i < options.length; i++) {
                                     if (checkedItems[i]) {
@@ -643,32 +668,32 @@ public class SiddurFragment extends Fragment {
                                 } else {
                                     selectedShaloshItems = selectedOptions.toArray(new String[0]);
                                     if (new SiddurMaker(getSunsetBasedJewishDateInfo(false), -1, mContext).getBirchatMeeyinShaloshPrayers(options).equals(new SiddurMaker(getSunsetBasedJewishDateInfo(false).tomorrow(), -1, mContext).getBirchatMeeyinShaloshPrayers(options))) {
-                                        startSiddurActivity(getString(R.string.birchat_meyin_shalosh));//doesn't matter which day
+                                        startSiddurActivity(mContext.getString(R.string.birchat_meyin_shalosh));//doesn't matter which day
                                     } else {
                                         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext)
                                                 .setTitle(R.string.when_did_you_start_your_meal)
-                                                .setMessage(getString(R.string.did_you_start_your_meal_during_the_day) + " (" + sunset + ")")
-                                                .setPositiveButton(getString(R.string.yes), (dialog2, which2) -> startSiddurActivity(getString(R.string.birchat_meyin_shalosh)))
-                                                .setNegativeButton(getString(R.string.no), (dialog2, which2) -> startSiddurActivity(getString(R.string.birchat_meyin_shalosh), true));
+                                                .setMessage(mContext.getString(R.string.did_you_start_your_meal_during_the_day) + " (" + sunset + ")")
+                                                .setPositiveButton(mContext.getString(R.string.yes), (dialog2, which2) -> startSiddurActivity(mContext.getString(R.string.birchat_meyin_shalosh)))
+                                                .setNegativeButton(mContext.getString(R.string.no), (dialog2, which2) -> startSiddurActivity(mContext.getString(R.string.birchat_meyin_shalosh), true));
                                         if (showAllPrayers) {
                                             builder.show();
                                         } else {
                                             if (currentZmanimCalendar.getSunset() != null && new Date().after(currentZmanimCalendar.getSunset())) {
-                                                builder.setPositiveButton(getString(R.string.yes), (dialog2, which2) -> {// it is after sunset and the user started before sunset, go back to yesterday
+                                                builder.setPositiveButton(mContext.getString(R.string.yes), (dialog2, which2) -> {// it is after sunset and the user started before sunset, go back to yesterday
                                                             currentJewishDateInfo.back();
-                                                            startSiddurActivity(getString(R.string.birchat_meyin_shalosh));
+                                                            startSiddurActivity(mContext.getString(R.string.birchat_meyin_shalosh));
                                                             currentJewishDateInfo.forward();
                                                         })
-                                                        .setNegativeButton(getString(R.string.no), (dialog2, which2) -> startSiddurActivity(getString(R.string.birchat_meyin_shalosh), true));
+                                                        .setNegativeButton(mContext.getString(R.string.no), (dialog2, which2) -> startSiddurActivity(mContext.getString(R.string.birchat_meyin_shalosh), true));
                                                 builder.show();
                                             } else {
-                                                startSiddurActivity(getString(R.string.birchat_meyin_shalosh));
+                                                startSiddurActivity(mContext.getString(R.string.birchat_meyin_shalosh));
                                             }
                                         }
                                     }
                                 }
                             })
-                            .setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss())
+                            .setNegativeButton(mContext.getString(R.string.cancel), (dialog, which) -> dialog.dismiss())
                             .show();
                     return true;
                 });
@@ -682,7 +707,7 @@ public class SiddurFragment extends Fragment {
             CustomPreferenceView tefilatHaderech = findPreference("siddur_tefilat_haderech");
             if (tefilatHaderech != null) {
                 tefilatHaderech.setOnPreferenceClickListener(v -> {
-                    startSiddurActivity(getString(R.string.tefilat_haderech));
+                    startSiddurActivity(mContext.getString(R.string.tefilat_haderech));
                     return true;
                 });
                 tefilatHaderech.setVisible(!(getSunsetBasedJewishDateInfo().getJewishCalendar().isAssurBemelacha() && currentZmanimCalendar.getTzeit() != null && new Date().before(currentZmanimCalendar.getTzeit()) // if today is Assur Bemelacha and it is before tzeit, don't show the button
@@ -714,7 +739,7 @@ public class SiddurFragment extends Fragment {
                     new MaterialAlertDialogBuilder(mContext)
                             .setTitle(Utils.isLocaleHebrew(mContext) ? "בחר מסכתות" : "Choose Masekhtot")
                             .setMultiChoiceItems(masechtosArray, checkedItems, (dialog, which, isChecked) -> checkedItems[which] = isChecked)
-                            .setPositiveButton(getString(R.string.ok), (dialog, which) -> {
+                            .setPositiveButton(mContext.getString(R.string.ok), (dialog, which) -> {
                                 List<String> selectedMasechtos = new ArrayList<>();
                                 for (int i = 0; i < masechtosArray.length; i++) {
                                     if (checkedItems[i]) {
@@ -725,10 +750,10 @@ public class SiddurFragment extends Fragment {
                                     Toast.makeText(mContext, R.string.please_select_at_least_one_option, Toast.LENGTH_SHORT).show();
                                 } else {
                                     selectedMasechtot = selectedMasechtos.toArray(new String[0]);
-                                    startSiddurActivity(getString(R.string.seder_siyum_masechet));
+                                    startSiddurActivity(mContext.getString(R.string.seder_siyum_masechet));
                                 }
                             })
-                            .setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss())
+                            .setNegativeButton(mContext.getString(R.string.cancel), (dialog, which) -> dialog.dismiss())
                             .show();
                     return true;
                 });
@@ -742,7 +767,7 @@ public class SiddurFragment extends Fragment {
             CustomPreferenceView birchatLevana = findPreference("siddur_birchat_levana");
             if (birchatLevana != null) {
                 birchatLevana.setOnPreferenceClickListener(v -> {
-                    startSiddurActivity(getString(R.string.birchat_levana));
+                    startSiddurActivity(mContext.getString(R.string.birchat_levana));
                     return true;
                 });
                 birchatLevana.setVisible(!getSunsetBasedJewishDateInfo().getBirchatLevana().isEmpty());// hide the button if there's no status text returned
@@ -1033,10 +1058,10 @@ public class SiddurFragment extends Fragment {
             if (forNextDay) {
                 sJewishDateInfo.forward();// forNextDay is only for the editable date. We will adjust the date for the current jdi object in the get method
             }
-            if (prayer.equals(getString(R.string.mincha)) && isMinchaAfterSunsetBeforeTzeit) {
+            if (mContext != null && prayer.equals(mContext.getString(R.string.mincha)) && isMinchaAfterSunsetBeforeTzeit) {
                 currentJewishDateInfo.back();// edge case for mincha after sunset but before tzeit so date has changed
             }
-            if (prayer.equals(getString(R.string.arvit)) && isArvitAfterPlagBeforeSunset) {
+            if (mContext != null && prayer.equals(mContext.getString(R.string.arvit)) && isArvitAfterPlagBeforeSunset) {
                 currentJewishDateInfo.forward();// edge case for arvit after plag but before sunset so date hasn't changed
             }
             Intent intent = new Intent(mContext, SiddurViewActivity.class)
@@ -1052,26 +1077,26 @@ public class SiddurFragment extends Fragment {
             if (forNextDay) {
                 sJewishDateInfo.back();
             }
-            if (prayer.equals(getString(R.string.mincha)) && isMinchaAfterSunsetBeforeTzeit) {
+            if (prayer.equals(mContext.getString(R.string.mincha)) && isMinchaAfterSunsetBeforeTzeit) {
                 currentJewishDateInfo.forward();
             }
-            if (prayer.equals(getString(R.string.arvit)) && isArvitAfterPlagBeforeSunset) {
+            if (prayer.equals(mContext.getString(R.string.arvit)) && isArvitAfterPlagBeforeSunset) {
                 currentJewishDateInfo.back();
             }
 
             if ((getSunsetBasedJewishDateInfo().getJewishCalendar().getYomTovIndex() == JewishCalendar.PURIM ||
                     getSunsetBasedJewishDateInfo().getJewishCalendar().getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM)
-                    && !prayer.equals(getString(R.string.birchat_meyin_shalosh))// no text for purim in birchat meyin shalosh unlike birchat hamazon
-                    && !prayer.equals(getString(R.string.birchat_levana))
-                    && !prayer.equals(getString(R.string.tefilat_haderech))
-                    && !prayer.equals(getString(R.string.seder_siyum_masechet))
-                    && !prayer.equals(getString(R.string.tikkun_chatzot))
-                    && !prayer.equals(getString(R.string.kriatShema))) {// if the prayer is dependant on isMukafChoma, we ask the user
+                    && !prayer.equals(mContext.getString(R.string.birchat_meyin_shalosh))// no text for purim in birchat meyin shalosh unlike birchat hamazon
+                    && !prayer.equals(mContext.getString(R.string.birchat_levana))
+                    && !prayer.equals(mContext.getString(R.string.tefilat_haderech))
+                    && !prayer.equals(mContext.getString(R.string.seder_siyum_masechet))
+                    && !prayer.equals(mContext.getString(R.string.tikkun_chatzot))
+                    && !prayer.equals(mContext.getString(R.string.kriatShema))) {// if the prayer is dependant on isMukafChoma, we ask the user
                 SharedPreferences.Editor sharedPreferences = mContext.getSharedPreferences(SHARED_PREF, MODE_PRIVATE).edit();
                 new MaterialAlertDialogBuilder(mContext)
                         .setTitle(R.string.are_you_in_a_walled_mukaf_choma_city)
                         .setMessage(R.string.are_you_located_in_a_walled_mukaf_choma_city_from_the_time_of_yehoshua_bin_nun)
-                        .setPositiveButton(getString(R.string.yes) + " (" + getString(R.string.jerusalem) + ")", (dialog, which) -> {
+                        .setPositiveButton(mContext.getString(R.string.yes) + " (" + mContext.getString(R.string.jerusalem) + ")", (dialog, which) -> {
                             sharedPreferences
                                     .putBoolean("isMukafChoma", true)
                                     .putBoolean("isSafekMukafChoma", false).apply();
@@ -1083,7 +1108,7 @@ public class SiddurFragment extends Fragment {
                                     .putBoolean("isSafekMukafChoma", true).apply();
                             startActivity(intent);
                         })
-                        .setNegativeButton(getString(R.string.no), (dialog, which) -> {
+                        .setNegativeButton(mContext.getString(R.string.no), (dialog, which) -> {
                             sharedPreferences
                                     .putBoolean("isMukafChoma", false)
                                     .putBoolean("isSafekMukafChoma", false).apply();
@@ -1100,8 +1125,10 @@ public class SiddurFragment extends Fragment {
         if (materialToolbar == null) {
             return;
         }
-        materialToolbar.setTitle(mContext.getString(R.string.show_siddur));
-        materialToolbar.setSubtitle(mContext.getString(R.string.short_app_name));
+        if (mContext != null) {
+            materialToolbar.setTitle(mContext.getString(R.string.show_siddur));
+            materialToolbar.setSubtitle(mContext.getString(R.string.short_app_name));
+        }
         // materialToolbar.setNavigationIcon(AppCompatResources.getDrawable(mContext, R.drawable.baseline_arrow_back_24)); // if you want to show the back button
         // materialToolbar.setNavigationOnClickListener(v -> finish());
         materialToolbar.getMenu().clear();
@@ -1118,7 +1145,7 @@ public class SiddurFragment extends Fragment {
     public void onResume() {
         super.onResume();
         initMenu();
-        if (mActivity.findViewById(R.id.siddur_preferences_container) != null) {
+        if (mActivity != null && mActivity.findViewById(R.id.siddur_preferences_container) != null) {
             updateView();
         }
         if (mCalendarButton != null) {
@@ -1206,14 +1233,21 @@ public class SiddurFragment extends Fragment {
                     mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
                 };
                 materialDatePicker.addOnNegativeButtonClickListener(selection -> {
-                    HebrewDayMonthYearPickerDialog hdmypd = new HebrewDayMonthYearPickerDialog(materialDatePicker, mActivity.getSupportFragmentManager(), sJewishDateInfo.getJewishCalendar());
-                    hdmypd.updateDate(sJewishDateInfo.getJewishCalendar().getGregorianYear(),
-                        sJewishDateInfo.getJewishCalendar().getGregorianMonth(),
-                        sJewishDateInfo.getJewishCalendar().getGregorianDayOfMonth());
-                    hdmypd.setListener(onDateSetListener);
-                    hdmypd.show(mActivity.getSupportFragmentManager(), null);
+                    HebrewDayMonthYearPickerDialog hdmypd = null;
+                    if (mActivity != null) {
+                        hdmypd = new HebrewDayMonthYearPickerDialog(materialDatePicker, mActivity.getSupportFragmentManager(), MainFragmentManagerActivity.sJewishDateInfo.getJewishCalendar());
+                    }
+                    if (hdmypd != null) {
+                        hdmypd.updateDate(sJewishDateInfo.getJewishCalendar().getGregorianYear(),
+                            sJewishDateInfo.getJewishCalendar().getGregorianMonth(),
+                            sJewishDateInfo.getJewishCalendar().getGregorianDayOfMonth());
+                        hdmypd.setListener(onDateSetListener);
+                        hdmypd.show(mActivity.getSupportFragmentManager(), null);
+                    }
                 });
-                materialDatePicker.show(mActivity.getSupportFragmentManager(), null);
+                if (mActivity != null) {
+                    materialDatePicker.show(mActivity.getSupportFragmentManager(), null);
+                }
             });
 
             mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
