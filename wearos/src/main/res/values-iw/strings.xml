@@ -80,8 +80,6 @@
 
     <string name="molad_calculator">חישוב המולד</string>
 
-    <string name="moon_background">רקע ירח</string>
-
     <string name="note_times_are_just_for_reference_you_should_ask_a_rav_if_you_can_say_the_bracha_earlier_or_later">כתב ויתור: הזמנים הם רק לעיון, אתה צריך לשאול רב אם אתה יכול להגיד את הברכה מוקדם יותר או מאוחר יותר.</string>
 
     <string name="latest_birchat_halevanah_15_days">ברכת הלבנה האחרונה (15 ימים):</string>
@@ -95,10 +93,6 @@
     <string name="the_molad_time_announced">שעת המולד הכריזה:</string>
 
     <string name="title_activity_shabbat">פעילות שבת</string>
-
-    <string name="dummy_button">כפתור דמה</string>
-
-    <string name="dummy_content">DUMMYתוכן</string>
 
     <string name="shabbat_mode">מצב שבת/חג</string>
 
