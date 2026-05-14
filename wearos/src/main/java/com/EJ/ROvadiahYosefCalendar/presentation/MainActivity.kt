@@ -14,12 +14,15 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.text.format.DateUtils
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
@@ -63,13 +66,16 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.fromColorLong
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.rotary.onRotaryScrollEvent
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
@@ -107,7 +113,9 @@ import com.kosherjava.zmanim.hebrewcalendar.YerushalmiYomiCalculator
 import com.kosherjava.zmanim.hebrewcalendar.YomiCalculator
 import com.kosherjava.zmanim.util.GeoLocation
 import com.kosherjava.zmanim.util.ZmanimFormatter
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONException
 import org.json.JSONObject
 import java.nio.charset.StandardCharsets
@@ -121,7 +129,13 @@ import java.util.TimeZone
 import java.util.concurrent.CopyOnWriteArrayList
 import androidx.core.content.edit
 import androidx.core.net.toUri
+import androidx.wear.remote.interactions.RemoteActivityHelper
+import com.EJ.ROvadiahYosefCalendar.classes.EnglishDatePickerDialog
 import com.EJ.ROvadiahYosefCalendar.classes.ZmanimFactory
+import com.google.android.gms.wearable.CapabilityClient
+import com.google.android.gms.wearable.Wearable
+import com.google.android.gms.wearable.Wearable.getCapabilityClient
+import kotlinx.coroutines.tasks.await
 
 class MainActivity : ComponentActivity() {
 
@@ -160,7 +174,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var yesSecondsDFormat: SimpleDateFormat
     private lateinit var noSecondsDFormat: SimpleDateFormat
     private var showSeconds = false
-    private val mHandler: Handler? = null
+    private val mHandler: Handler = Handler(Looper.getMainLooper())
     private val dafYomiStartDate: Calendar = GregorianCalendar(1923, Calendar.SEPTEMBER, 11)
     private val dafYomiYerushalmiStartDate: Calendar = GregorianCalendar(1980, Calendar.FEBRUARY, 2)
     private val listener: PreferenceListener = PreferenceListener()
@@ -171,6 +185,7 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         sNotificationLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { setNotifications() }
+        mJewishDateInfo.resetLocale(this)
         mHebrewDateFormatter.isUseGershGershayim = false
         mZmanimFormatter.setTimeFormat(ZmanimFormatter.SEXAGESIMAL_FORMAT)
         sharedPref = getSharedPreferences(SHARED_PREF, MODE_PRIVATE)
@@ -193,7 +208,20 @@ class MainActivity : ComponentActivity() {
             }
             updateAppContents() // with the new preferences
         }, this)
-        startService(Intent(this, listener.javaClass))
+
+        // If PreferenceListener received a prefs message while this app was not running
+        // it saved the raw JSON to SharedPreferences. Process it now and clear it so
+        // it is not replayed on subsequent launches.
+        val pendingJson = sharedPref.getString("pendingPrefsJson", null)
+        if (!pendingJson.isNullOrEmpty()) {
+            try {
+                savePreferencesToLocalDevice(JSONObject(pendingJson))
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            sharedPref.edit { remove("pendingPrefsJson") }
+        }
+
         updateAppContents()
 
         // To test JSON object transfer, uncomment:
@@ -339,27 +367,23 @@ class MainActivity : ComponentActivity() {
         hebrewDatePickerDialog.show()
     }
 
+    /**
+     * Shows a custom date picker dialog. The original DatePickerDialog stopped working in Android 36
+     */
     private fun showDatePickerDialog() {
-        val datePickerDialog = DatePickerDialog(this)
-        datePickerDialog.datePicker.init(
-            mCurrentDateShown.get(Calendar.YEAR),
-            mCurrentDateShown.get(Calendar.MONTH),
-            mCurrentDateShown.get(Calendar.DAY_OF_MONTH))
-        { _, selectedYear, selectedMonth, selectedDay ->
-            mCurrentDateShown = GregorianCalendar(selectedYear, selectedMonth, selectedDay)
-        }
-        datePickerDialog.setButton(BUTTON_POSITIVE, getString(R.string.ok)) { _, _ ->
-            syncCalendars()
-            updateAppContents()
-        }
-        datePickerDialog.setButton(BUTTON_NEUTRAL, getString(R.string.switch_calendar)) { dialog, _ ->
-            dialog.dismiss()
-            showHebrewDatePickerDialog()
-        }
-        datePickerDialog.setButton(-2, getString(R.string.cancel)) { dialog, _ ->
-            dialog.dismiss()
-        }
-        datePickerDialog.show()
+        val englishDatePickerDialog = EnglishDatePickerDialog(
+            this, this,
+            { _, selectedYear, selectedMonth, selectedDay ->
+                mCurrentDateShown = GregorianCalendar(selectedYear, selectedMonth, selectedDay)
+            },
+            mCurrentDateShown,
+            {
+                syncCalendars()
+                updateAppContents() },
+            { showHebrewDatePickerDialog() },
+            {  }//Do nothing the dismiss function will be called internally
+        )
+        englishDatePickerDialog.show()
     }
 
     override fun onResume() {
@@ -375,30 +399,32 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun updateAppContents() {
+        // Clear any previously registered listeners so that rapid successive calls
+        // (e.g. onCreate + onResume) do not accumulate callbacks and trigger
+        // duplicate setContent / setNotifications calls.
+        OnChangeListener.removeAllListeners()
         OnChangeListener.addListener {
+            // Both UI operations MUST run on the main thread.
+            // setNotifications() can show an AlertDialog which requires the UI thread.
             runOnUiThread {
                 setContent {
                     WearApp(zmanim)
                 }
+                setNotifications()
             }
-            setNotifications()
         }
-        Thread {// I hope this offloads some of the work on the main thread
-            Looper.prepare()
+        Thread {
             locationResolver.acquireLatitudeAndLongitude()
             resolveElevation()
             initZmanimCalendar()
             sharedPref.edit { putString("name", sCurrentLocationName) }
-            setDateFormats() // should happen after we get the geolocation object because of the timezone
+            setDateFormats() // must happen after geolocation so the timezone is correct
             updateZmanimList()
             setNextUpcomingZman()
             createBackgroundThreadForNextUpcomingZman()
             OnChangeListener.notifyListeners()
             OnChangeListener.removeAllListeners()
         }.start()
-        setContent {
-            WearApp(zmanim)
-        }
     }
 
     private fun setNotifications() {
@@ -492,7 +518,7 @@ class MainActivity : ComponentActivity() {
 
     private fun setDateFormats() {
         var secondFormatPattern = "H:mm:ss"
-        if (!Utils.isLocaleHebrew()) {
+        if (!Utils.isLocaleHebrew(baseContext)) {
             secondFormatPattern = "h:mm:ss aa"
         }
         yesSecondsDFormat = SimpleDateFormat(secondFormatPattern, Locale.getDefault())
@@ -501,7 +527,7 @@ class MainActivity : ComponentActivity() {
         showSeconds = sharedPref.getBoolean("ShowSeconds", false)
 
         var noSecondFormatPattern = "H:mm"
-        if (!Utils.isLocaleHebrew()) {
+        if (!Utils.isLocaleHebrew(baseContext)) {
             noSecondFormatPattern = "h:mm aa"
         }
         noSecondsDFormat = SimpleDateFormat(noSecondFormatPattern, Locale.getDefault())
@@ -541,7 +567,7 @@ class MainActivity : ComponentActivity() {
 
         zmanim.add(ZmanListEntry(mJewishDateInfo.thisWeeksParsha))
         
-        val haftorah = mJewishDateInfo.thisWeeksHaftarah
+        val haftorah = mJewishDateInfo.thisWeeksHaftarah.toString()
         if (haftorah.isNotEmpty()) {
             zmanim.add(ZmanListEntry(haftorah))
         }
@@ -552,7 +578,7 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        if (Utils.isLocaleHebrew()) {
+        if (Utils.isLocaleHebrew(baseContext)) {
             zmanim.add(
                 ZmanListEntry(
                     mROZmanimCalendar.calendar
@@ -653,7 +679,7 @@ class MainActivity : ComponentActivity() {
         }
         addTekufaLength(zmanim, tekufaOpinions)
 
-        addZmanim(zmanim, false, sharedPref, mROZmanimCalendar, mJewishDateInfo, sharedPref.getBoolean("isZmanimInHebrew", false), sharedPref.getBoolean("isZmanimEnglishTranslated", false), true)
+        addZmanim(zmanim, false, sharedPref, mROZmanimCalendar, mJewishDateInfo, sharedPref.getBoolean("isZmanimInHebrew", false), sharedPref.getBoolean("isZmanimEnglishTranslated", false), sharedPref.getBoolean("isZmanimAmericanized", false), true)
 
         if (!mCurrentDateShown.before(dafYomiStartDate)) {
             zmanim.add(
@@ -786,14 +812,14 @@ class MainActivity : ComponentActivity() {
                 if (Locale.getDefault().getDisplayLanguage(Locale.Builder().setLanguage("en").setRegion("US").build()) == "Hebrew") {
                     zmanim.add(
                         ZmanListEntry(
-                            "תקופת " + mJewishDateInfo.jewishCalendar.tekufaName +
+                            "תקופת " + mJewishDateInfo.jewishCalendar.getTekufaName(Utils.isLocaleHebrew(baseContext)) +
                                     " היום בשעה " + zmanimFormat.format(mJewishDateInfo.jewishCalendar.tekufaAsDate)
                         )
                     )
                 } else {
                     zmanim.add(
                         ZmanListEntry(
-                            "Tekufa " + mJewishDateInfo.jewishCalendar.tekufaName + " is today at " +
+                            "Tekufa " + mJewishDateInfo.jewishCalendar.getTekufaName(Utils.isLocaleHebrew(baseContext)) + " is today at " +
                                     zmanimFormat.format(mJewishDateInfo.jewishCalendar.tekufaAsDate)
                         )
                     )
@@ -812,7 +838,7 @@ class MainActivity : ComponentActivity() {
                 if (Locale.getDefault().getDisplayLanguage(Locale.Builder().setLanguage("en").setRegion("US").build()) == "Hebrew") {
                     zmanim.add(
                         ZmanListEntry(
-                            "תקופת " + mJewishDateInfo.jewishCalendar.tekufaName +
+                            "תקופת " + mJewishDateInfo.jewishCalendar.getTekufaName(Utils.isLocaleHebrew(baseContext)) +
                                     " היום בשעה " + zmanimFormat.format(mJewishDateInfo.jewishCalendar.tekufaAsDate)
                         )
                     )
@@ -820,7 +846,7 @@ class MainActivity : ComponentActivity() {
             } else {
                 zmanim.add(
                     ZmanListEntry(
-                        "Tekufa " + mJewishDateInfo.jewishCalendar.tekufaName + " is today at " +
+                        "Tekufa " + mJewishDateInfo.jewishCalendar.getTekufaName(Utils.isLocaleHebrew(baseContext)) + " is today at " +
                                 zmanimFormat.format(mJewishDateInfo.jewishCalendar.tekufaAsDate)
                     )
                 )
@@ -851,14 +877,14 @@ class MainActivity : ComponentActivity() {
                 if (Locale.getDefault().getDisplayLanguage(Locale.Builder().setLanguage("en").setRegion("US").build()) == "Hebrew") {
                     zmanim.add(
                         ZmanListEntry(
-                            "תקופת " + mJewishDateInfo.jewishCalendar.tekufaName +
+                            "תקופת " + mJewishDateInfo.jewishCalendar.getTekufaName(Utils.isLocaleHebrew(baseContext)) +
                                     " היום בשעה " + zmanimFormat.format(mJewishDateInfo.jewishCalendar.amudeiHoraahTekufaAsDate)
                         )
                     )
                 } else {
                     zmanim.add(
                         ZmanListEntry(
-                            "Tekufa " + mJewishDateInfo.jewishCalendar.tekufaName + " is today at " +
+                            "Tekufa " + mJewishDateInfo.jewishCalendar.getTekufaName(Utils.isLocaleHebrew(baseContext)) + " is today at " +
                                     zmanimFormat.format(mJewishDateInfo.jewishCalendar.amudeiHoraahTekufaAsDate)
                         )
                     )
@@ -877,14 +903,14 @@ class MainActivity : ComponentActivity() {
                 if (Locale.getDefault().getDisplayLanguage(Locale.Builder().setLanguage("en").setRegion("US").build()) == "Hebrew") {
                     zmanim.add(
                         ZmanListEntry(
-                            "תקופת " + mJewishDateInfo.jewishCalendar.tekufaName +
+                            "תקופת " + mJewishDateInfo.jewishCalendar.getTekufaName(Utils.isLocaleHebrew(baseContext)) +
                                     " היום בשעה " + zmanimFormat.format(mJewishDateInfo.jewishCalendar.amudeiHoraahTekufaAsDate)
                         )
                     )
                 } else {
                     zmanim.add(
                         ZmanListEntry(
-                            "Tekufa " + mJewishDateInfo.jewishCalendar.tekufaName + " is today at " +
+                            "Tekufa " + mJewishDateInfo.jewishCalendar.getTekufaName(Utils.isLocaleHebrew(baseContext)) + " is today at " +
                                     zmanimFormat.format(mJewishDateInfo.jewishCalendar.amudeiHoraahTekufaAsDate)
                         )
                     )
@@ -945,7 +971,7 @@ class MainActivity : ComponentActivity() {
                         halfHourBefore = Date(tekufa.time - (millisPerHour / 2))
                         halfHourAfter = Date(tekufa.time + (millisPerHour / 2))
                     }
-                    if (Utils.isLocaleHebrew()) {
+                    if (Utils.isLocaleHebrew(baseContext)) {
                         zmanim.add(
                             ZmanListEntry(
                                 getString(R.string.tekufa_length) + zmanimFormat.format(
@@ -967,7 +993,7 @@ class MainActivity : ComponentActivity() {
                 "2" -> {
                     halfHourBefore = Date(tekufa.time - (millisPerHour / 2))
                     halfHourAfter = Date(tekufa.time + (millisPerHour / 2))
-                    if (Utils.isLocaleHebrew()) {
+                    if (Utils.isLocaleHebrew(baseContext)) {
                         zmanim.add(
                             ZmanListEntry(
                                 getString(R.string.tekufa_length) + zmanimFormat.format(
@@ -989,7 +1015,7 @@ class MainActivity : ComponentActivity() {
                 "3" -> {
                     halfHourBefore = Date(aHTekufa.time - (millisPerHour / 2))
                     halfHourAfter = Date(aHTekufa.time + (millisPerHour / 2))
-                    if (Utils.isLocaleHebrew()) {
+                    if (Utils.isLocaleHebrew(baseContext)) {
                         zmanim.add(
                             ZmanListEntry(
                                 getString(R.string.tekufa_length) + zmanimFormat.format(
@@ -1011,7 +1037,7 @@ class MainActivity : ComponentActivity() {
                 else -> {
                     halfHourBefore = Date(aHTekufa.time - (millisPerHour / 2))
                     halfHourAfter = Date(tekufa.time + (millisPerHour / 2))
-                    if (Utils.isLocaleHebrew()) {
+                    if (Utils.isLocaleHebrew(baseContext)) {
                         zmanim.add(
                             ZmanListEntry(
                                 getString(R.string.tekufa_length) + zmanimFormat.format(
@@ -1053,7 +1079,7 @@ class MainActivity : ComponentActivity() {
             createBackgroundThreadForNextUpcomingZman() //start a new thread to update the next upcoming zman
         }
         if (sNextUpcomingZman != null) {
-            mHandler?.postDelayed(
+            mHandler.postDelayed(
                 nextZmanUpdater,
                 sNextUpcomingZman!!.time - Date().time + 1000
             ) //add 1 second to make sure we don't get the same zman again
@@ -1065,18 +1091,37 @@ class MainActivity : ComponentActivity() {
         mJewishDateInfo.jewishCalendar.setDate(mCurrentDateShown)
     }
 
+    private suspend fun isPhoneConnected(context: android.content.Context): Boolean {
+        return try {
+            val nodes = Wearable.getNodeClient(context).connectedNodes.await()
+            // isNearby means the node is actively reachable over Bluetooth,
+            // as opposed to being known but out of range via cloud relay.
+            nodes.any { it.isNearby }
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Failed to get connected nodes", e)
+            false
+        }
+    }
+
     @OptIn(ExperimentalMaterialApi::class)
     @Composable
     fun WearApp(zmanimList: MutableList<ZmanListEntry>) {
         if (zmanimList.isEmpty()) {
             zmanimList.add(ZmanListEntry(""))
         }
+        val context = LocalContext.current
+        val remoteActivityHelper = remember { RemoteActivityHelper(context) }
         val refreshScope = rememberCoroutineScope()
         var refreshing by remember { mutableStateOf(false) }
 
         fun refresh() = refreshScope.launch {
             refreshing = true
-            locationResolver.acquireLatitudeAndLongitude()
+            // acquireLatitudeAndLongitude() may do disk / network I/O; dispatch it to
+            // the IO thread pool so it cannot block the main thread and cause an ANR.
+            withContext(Dispatchers.IO) {
+                locationResolver.acquireLatitudeAndLongitude()
+            }
+            // Resume on main — all Compose / UI calls must stay here.
             initZmanimCalendar()
             mCurrentDateShown = Calendar.getInstance()
             syncCalendars()
@@ -1148,7 +1193,7 @@ class MainActivity : ComponentActivity() {
                                 WearApp(zmanim)
                             }
                         }) { _, dragAmount ->
-                            swipedRight = dragAmount <= 0
+                            swipedRight = dragAmount <= 0 // do not delete
                         }
                     }) {
                     LaunchedEffect(Unit) {
@@ -1214,7 +1259,31 @@ class MainActivity : ComponentActivity() {
                                             ) {
                                                 Box(modifier = Modifier.padding(vertical = 36.dp)) {
                                                     DarkChip(
-                                                        text = getString(R.string.settings_not_recieved), drag = 1f
+                                                        text = getString(R.string.settings_not_recieved),
+                                                        onClick = {
+                                                            coroutineScope.launch {
+                                                                val connected = withContext(Dispatchers.IO) { isPhoneConnected(context) }
+                                                                if (connected) {
+                                                                    // If connected and we still did not get the data, push the URL to the phone. Ideally, I would want open the app on the phone but it doesn't seem to be working, so I will just open the browser with instructions instead.
+                                                                    remoteActivityHelper.startRemoteActivity(Intent(Intent.ACTION_VIEW)
+                                                                        .addCategory(Intent.CATEGORY_BROWSABLE)
+                                                                        .setData("https://support.google.com/wearos/answer/6056630?hl=en&co=GENIE.Platform%3DAndroid".toUri()))
+                                                                    Toast.makeText(context,
+                                                                        getString(R.string.opening_on_your_phone), Toast.LENGTH_SHORT).show()
+                                                                } else {
+                                                                    // If NOT connected, show a local alert on the watch
+                                                                    AlertDialog.Builder(context)
+                                                                        .setTitle(getString(R.string.error))
+                                                                        .setMessage(getString(R.string.watch_not_connected_please_ensure_bluetooth_is_on_and_the_phone_is_nearby))
+                                                                        .setPositiveButton(getString(R.string.ok)) { d, _ -> d.dismiss() }
+                                                                        .show()
+                                                                }
+                                                            }
+                                                        },
+                                                        drag = 1f,
+                                                        isBlueText = true,
+                                                        isUnderlined = true,
+                                                        isEnabled = true
                                                     )
                                                 }
                                             }
@@ -1237,7 +1306,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun DarkChip(text: String, upcoming: Boolean = false, drag: Float, onClick: () -> Unit = { }, isEnabled: Boolean = false) {
+    fun DarkChip(text: String, upcoming: Boolean = false, drag: Float, onClick: () -> Unit = { }, isEnabled: Boolean = false, isBlueText: Boolean = false, isUnderlined: Boolean = false) {
         var modifier = Modifier
             .clickable(onClick = onClick, enabled = isEnabled)
             .background(
@@ -1259,7 +1328,8 @@ class MainActivity : ComponentActivity() {
             Text(
                 text = text,
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colors.primary
+                textDecoration = if (isUnderlined) TextDecoration.Underline else TextDecoration.None,
+                color = if (isBlueText) Color(0xFF1A73E8) else MaterialTheme.colors.primary
             )
         }
     }

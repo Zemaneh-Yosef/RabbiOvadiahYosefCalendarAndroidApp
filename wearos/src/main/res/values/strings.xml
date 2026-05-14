@@ -6,6 +6,7 @@
     -->
     <string name="tile_label" translatable="false">ROYC Wear OS</string>
    <string name="tile_description" translatable="false">ROYC</string>
+    <string name="locale">English</string>
     <string name="title_activity_presentation._main" translatable="false">presentation.MainActivity</string>
     <string name="title_activity_main" translatable="false">MainActivity</string>
     <string name="complication_label">Hebrew Day</string>
@@ -353,5 +354,7 @@
    <string name="fifth_year_of_shmita">Fifth year of Shemita</string>
    <string name="sixth_year_of_shmita">Sixth year of Shemita</string>
     <string name="complete_until_next_zman">%1$d complete until next zeman.</string>
+    <string name="watch_not_connected_please_ensure_bluetooth_is_on_and_the_phone_is_nearby">Watch not connected. Please ensure Bluetooth is on and the phone is nearby.</string>
+    <string name="opening_on_your_phone">Opening on your phone…</string>
 
 </resources>

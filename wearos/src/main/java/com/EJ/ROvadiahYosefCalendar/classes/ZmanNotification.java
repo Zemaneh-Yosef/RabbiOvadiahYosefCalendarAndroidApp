@@ -91,7 +91,7 @@ public class ZmanNotification extends BroadcastReceiver {
             //no need to reset the jewish calendar since we are only using it to check if tomorrow is shabbat/yom tov, but keep in mind that the date is set to tomorrow
 
             String dateFormatPattern = "H:mm" + (mSharedPreferences.getBoolean("ShowSeconds", false) ? ":ss" : "");
-            if (!Utils.isLocaleHebrew())
+            if (!Utils.isLocaleHebrew(context))
                 dateFormatPattern = dateFormatPattern.toLowerCase() + " aa";
             DateFormat zmanimFormat = new SimpleDateFormat(dateFormatPattern, context
                     .getResources()

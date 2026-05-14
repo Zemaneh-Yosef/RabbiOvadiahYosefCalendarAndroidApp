@@ -1,15 +1,21 @@
 package com.EJ.ROvadiahYosefCalendar.classes;
 
+import android.content.Context;
+
+import com.EJ.ROvadiahYosefCalendar.R;
+
 import java.util.Date;
-import java.util.Locale;
 
 /**
  * This class contains static methods that are used multiple times
  */
 public class Utils {
 
-    public static boolean isLocaleHebrew() {
-        return Locale.getDefault().getDisplayLanguage(new Locale.Builder().setLanguage("en").setRegion("US").build()).equals("Hebrew");
+    public static boolean isLocaleHebrew(Context context) {
+        if (context == null) {
+            return false;
+        }
+        return context.getString(R.string.locale).equalsIgnoreCase("Hebrew");// my own implementation because context.getResources().getConfiguration().getLocales().get(0) is not reliable enough, but the strings are always working
     }
 
     /**

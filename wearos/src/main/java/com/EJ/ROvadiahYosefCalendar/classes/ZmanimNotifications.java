@@ -30,7 +30,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         if (mSharedPreferences.getBoolean("zmanim_notifications", true)) {
-            Runnable mAlarmUpdater = () -> {
+            new Thread(() -> {
                 JewishCalendar jewishCalendar = new JewishCalendar();
                 ROZmanimCalendar zmanimCalendar = getROZmanimCalendar();
                 String candles = mSharedPreferences.getString("CandleLightingOffset", "20");
@@ -48,8 +48,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
                 }
                 mSharedPreferences.edit().putString("locationNameFN", zmanimCalendar.getGeoLocation().getLocationName()).apply();
                 setAlarms(context, zmanimCalendar, jewishCalendar);
-            };
-            mAlarmUpdater.run();
+            }).start();
         }
     }
 
@@ -153,7 +152,8 @@ public class ZmanimNotifications extends BroadcastReceiver {
         ArrayList<ZmanInformationHolder> pairArrayList = new ArrayList<>();
         ZmanimNames zmanimNames = new ZmanimNames(
                 mSharedPreferences.getBoolean("isZmanimInHebrew", false),
-                mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false));
+                mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false),
+                mSharedPreferences.getBoolean("isZmanimAmericanized", false));
 
         int minutesBefore = mSharedPreferences.getInt("NightChatzot", -1);
         if (minutesBefore >= 0) {
@@ -310,7 +310,8 @@ public class ZmanimNotifications extends BroadcastReceiver {
         ArrayList<ZmanInformationHolder> pairArrayList = new ArrayList<>();
         ZmanimNames zmanimNames = new ZmanimNames(
                 mSharedPreferences.getBoolean("isZmanimInHebrew", false),
-                mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false));
+                mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false),
+                mSharedPreferences.getBoolean("isZmanimAmericanized", false));
 
         int minutesBefore = mSharedPreferences.getInt("NightChatzot", -1);
         if (minutesBefore >= 0) {

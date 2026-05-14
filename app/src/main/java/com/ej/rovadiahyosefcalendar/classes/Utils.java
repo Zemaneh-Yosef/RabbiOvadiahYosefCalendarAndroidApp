@@ -379,6 +379,7 @@ public class Utils {
                     .put("LuachAmudeiHoraah", sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false))
                     .put("isZmanimInHebrew", sSharedPreferences.getBoolean("isZmanimInHebrew", false))
                     .put("isZmanimEnglishTranslated", sSharedPreferences.getBoolean("isZmanimEnglishTranslated", false))
+                    .put("isZmanimAmericanized", sSharedPreferences.getBoolean("isZmanimAmericanized", false))
                     .put("ShowMishorAlways", sSettingsPreferences.getBoolean("ShowMishorAlways", false))
                     .put("plagOpinion", sSettingsPreferences.getString("plagOpinion", "1"))
                     .put("CandleLightingOffset", sSettingsPreferences.getString("CandleLightingOffset", "20"))

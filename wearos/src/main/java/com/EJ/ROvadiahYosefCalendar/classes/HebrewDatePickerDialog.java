@@ -21,8 +21,6 @@ import android.widget.NumberPicker;
 import com.EJ.ROvadiahYosefCalendar.R;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
-import java.util.Locale;
-
 public class HebrewDatePickerDialog extends Dialog {
 
     private final NumberPicker mMonthPicker;
@@ -43,7 +41,7 @@ public class HebrewDatePickerDialog extends Dialog {
                                   View.OnClickListener cancelOnClick) {
         super(context, 0);
         mListener = listener;
-        if (Locale.getDefault().getDisplayLanguage(new Locale.Builder().setLanguage("en").setRegion("US").build()).equals("Hebrew")) {
+        if (Utils.isLocaleHebrew(context)) {
             mHebrewMonths = new String[]{"ניסן", "אייר", "סיון", "תמוז", "אב", "אלול", "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר"};
             mHebrewMonthsLeap = new String[]{"ניסן", "אייר", "סיון", "תמוז", "אב", "אלול", "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר א׳", "אדר ב׳"};
         }

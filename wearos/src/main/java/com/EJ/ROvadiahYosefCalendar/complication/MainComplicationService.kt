@@ -20,6 +20,7 @@ class MainComplicationService : SuspendingComplicationDataSourceService() {
 
     override fun getPreviewData(type: ComplicationType): ComplicationData? {
         val jewishDateInfo = JewishDateInfo(false)// in Israel should not matter
+        jewishDateInfo.resetLocale(applicationContext)
         val hebrewDateFormatter = HebrewDateFormatter()
         hebrewDateFormatter.isHebrewFormat = true
         if (type == ComplicationType.SHORT_TEXT) {
@@ -32,6 +33,7 @@ class MainComplicationService : SuspendingComplicationDataSourceService() {
 
     override suspend fun onComplicationRequest(request: ComplicationRequest): ComplicationData {
         val jewishDateInfo = JewishDateInfo(false)// in Israel should not matter
+        jewishDateInfo.resetLocale(baseContext)
         val hebrewDateFormatter = HebrewDateFormatter()
         hebrewDateFormatter.isHebrewFormat = true
         return if (request.complicationType == ComplicationType.SHORT_TEXT) {

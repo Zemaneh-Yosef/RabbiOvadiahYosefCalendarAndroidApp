@@ -46,44 +46,47 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.core:core-ktx:1.17.0'
+    implementation 'androidx.core:core-ktx:1.18.0'
     implementation 'androidx.fragment:fragment-ktx:1.8.9'
     implementation "androidx.compose.material:material-icons-extended:1.7.8"
     implementation platform('org.jetbrains.kotlin:kotlin-bom:1.8.22')
     implementation 'androidx.percentlayout:percentlayout:1.0.0'
     implementation "androidx.core:core-splashscreen:1.2.0"
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation platform('androidx.compose:compose-bom:2026.01.01')
+    implementation platform('androidx.compose:compose-bom:2026.05.00')
     implementation 'androidx.compose.ui:ui'
     implementation 'androidx.compose.ui:ui-tooling-preview'
-    implementation "androidx.compose.material:material:1.10.2"
+    implementation "androidx.compose.material:material:1.11.1"
     implementation "androidx.wear.compose:compose-material:$wear_compose_version"
+    implementation "androidx.wear.compose:compose-material3:$wear_compose_version"
     implementation "androidx.wear.compose:compose-foundation:$wear_compose_version"
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.10.0'
-    implementation 'androidx.activity:activity-compose:1.12.3'
-    implementation 'com.google.android.gms:play-services-wearable:19.0.0'
+    implementation 'androidx.activity:activity-compose:1.13.0'
+    implementation 'com.google.android.gms:play-services-wearable:20.0.1'
+    implementation "androidx.wear:wear-remote-interactions:1.2.0"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.11.0"
     implementation "androidx.wear.tiles:tiles:$wear_tiles_version"
     implementation "androidx.wear.tiles:tiles-material:$wear_tiles_version"
     implementation "com.google.android.horologist:horologist-compose-tools:$horologist_version"
     implementation "com.google.android.horologist:horologist-tiles:$horologist_version"
-    implementation 'androidx.wear.watchface:watchface-complications-data-source-ktx:1.2.1'
-    implementation "androidx.compose.foundation:foundation:1.10.2"
+    implementation 'androidx.wear.watchface:watchface-complications-data-source-ktx:1.3.0'
+    implementation "androidx.compose.foundation:foundation:1.11.1"
     implementation group: 'com.kosherjava', name: 'zmanim', version: '2.5.0'
-    implementation 'com.google.code.gson:gson:2.13.2'
+    implementation 'com.google.code.gson:gson:2.14.0'
     implementation 'androidx.slice:slice-builders:1.0.0'
-    implementation 'com.google.guava:guava:33.5.0-jre'
+    implementation 'com.google.guava:guava:33.6.0-jre'
     // Use to implement support for wear tiles
-    implementation("androidx.wear.tiles:tiles:1.5.0")
+    implementation("androidx.wear.tiles:tiles:1.6.0")
     // Use to utilize standard components and layouts in your tiles
-    implementation("androidx.wear.protolayout:protolayout:1.3.0")
+    implementation("androidx.wear.protolayout:protolayout:1.4.0")
     // Use to utilize components and layouts with Material Design in your tiles
-    implementation("androidx.wear.protolayout:protolayout-material:1.3.0")
+    implementation("androidx.wear.protolayout:protolayout-material:1.4.0")
     // Use to include dynamic expressions in your tiles
-    implementation("androidx.wear.protolayout:protolayout-expression:1.3.0")
+    implementation("androidx.wear.protolayout:protolayout-expression:1.4.0")
 
     // Use to preview wear tiles in your own app
-    debugImplementation("androidx.wear.tiles:tiles-renderer:1.5.0")
-    androidTestImplementation platform('androidx.compose:compose-bom:2026.01.01')
+    debugImplementation("androidx.wear.tiles:tiles-renderer:1.6.0")
+    androidTestImplementation platform('androidx.compose:compose-bom:2026.05.00')
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
     debugImplementation 'androidx.compose.ui:ui-tooling'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'

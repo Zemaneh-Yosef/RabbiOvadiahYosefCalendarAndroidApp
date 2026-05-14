@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.drawable.Icon
+import androidx.core.content.contentValuesOf
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.MonochromaticImage
@@ -178,7 +179,7 @@ class NextZmanComplicationService : SuspendingComplicationDataSourceService() {
         mROZmanimCalendar.geoLocation.elevation = elevation
 
         var secondFormatPattern = "H:mm:ss"
-        if (!Utils.isLocaleHebrew()) {
+        if (!Utils.isLocaleHebrew(context)) {
             secondFormatPattern = "h:mm:ss aa"
         }
         yesSecondFormat = SimpleDateFormat(secondFormatPattern, Locale.getDefault())
@@ -187,11 +188,13 @@ class NextZmanComplicationService : SuspendingComplicationDataSourceService() {
         showSeconds = sharedPref.getBoolean("ShowSeconds", false)
 
         var noSecondFormatPattern = "H:mm"
-        if (!Utils.isLocaleHebrew()) {
+        if (!Utils.isLocaleHebrew(context)) {
             noSecondFormatPattern = "h:mm aa"
         }
         noSecondFormat = SimpleDateFormat(noSecondFormatPattern, Locale.getDefault())
         noSecondFormat.timeZone = mROZmanimCalendar.geoLocation.timeZone
+
+        mJewishDateInfo.resetLocale(baseContext)
 
         return ZmanimFactory.getNextUpcomingZman(Calendar.getInstance(), mROZmanimCalendar, mJewishDateInfo, sharedPref)
     }

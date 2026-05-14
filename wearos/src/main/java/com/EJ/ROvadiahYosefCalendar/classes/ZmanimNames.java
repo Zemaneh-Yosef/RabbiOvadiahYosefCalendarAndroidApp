@@ -1,20 +1,14 @@
 package com.EJ.ROvadiahYosefCalendar.classes;
 
-public class ZmanimNames {
-
-    private final boolean mIsZmanimInHebrew;
-    private final boolean mIsZmanimEnglishTranslated;
-
-    public ZmanimNames(boolean isZmanimInHebrew, boolean isZmanimEnglishTranslated) {
-        mIsZmanimInHebrew = isZmanimInHebrew;
-        mIsZmanimEnglishTranslated = isZmanimEnglishTranslated;
-    }
+public record ZmanimNames(boolean mIsZmanimInHebrew, boolean mIsZmanimEnglishTranslated, boolean mIsZmanimAmericanized) {
 
     public String getChatzotLaylaString() {
         if (mIsZmanimInHebrew) {
             return "חצות הלילה";
         } else if (mIsZmanimEnglishTranslated) {
             return "Midnight";
+        } else if (mIsZmanimAmericanized) {
+            return "Chatzot Ha'Layla";
         } else {
             return "Ḥatzot Ha'Layla";
         }
@@ -25,6 +19,8 @@ public class ZmanimNames {
             return "לחומרא";
         } else if (mIsZmanimEnglishTranslated) {
             return "(Stringent)";
+        } else if (mIsZmanimAmericanized) {
+            return "L'Chumra";
         } else {
             return "L'Ḥumra";
         }
@@ -43,6 +39,8 @@ public class ZmanimNames {
             return "צאת הכוכבים";
         } else if (mIsZmanimEnglishTranslated) {
             return "Nightfall";
+        } else if (mIsZmanimAmericanized) {
+            return "Tzet Ha'Kochavim";
         } else {
             return "Tzet Ha'Kokhavim";
         }
@@ -53,6 +51,8 @@ public class ZmanimNames {
             return "שקיעה";
         } else if (mIsZmanimEnglishTranslated) {
             return "Sunset";
+        } else if (mIsZmanimAmericanized) {
+            return "Shekia";
         } else {
             return "Sheqi'a";
         }
@@ -62,7 +62,7 @@ public class ZmanimNames {
         if (mIsZmanimInHebrew) {
             return "רבינו תם";
         } else {
-            return "Rabbeinu Tam";
+            return "Rabbenu Tam";
         }
     }
 
@@ -142,6 +142,9 @@ public class ZmanimNames {
         if (mIsZmanimInHebrew) {
             return "פלג המנחה";
         } else {
+            if (mIsZmanimAmericanized) {
+                return "Pelag Ha'Mincha";
+            }
             return "Pelag Ha'Minḥa";
         }
     }
@@ -149,6 +152,8 @@ public class ZmanimNames {
     public String getMinchaKetanaString() {
         if (mIsZmanimInHebrew) {
             return "מנחה קטנה";
+        } else if (mIsZmanimAmericanized) {
+            return "Mincha Ketana";
         } else {
             return "Minḥa Ketana";
         }
@@ -159,6 +164,8 @@ public class ZmanimNames {
             return "מנחה גדולה";
         } else if (mIsZmanimEnglishTranslated) {
             return "Earliest Minḥa";
+        } else if (mIsZmanimAmericanized) {
+            return "Mincha Gedola";
         } else {
             return "Minḥa Gedola";
         }
@@ -169,6 +176,8 @@ public class ZmanimNames {
             return "חצות";
         } else if (mIsZmanimEnglishTranslated) {
             return "Mid-day";
+        } else if (mIsZmanimAmericanized) {
+            return "Chatzot";
         } else {
             return "Ḥatzot";
         }
@@ -179,6 +188,8 @@ public class ZmanimNames {
             return "סוף זמן ביעור חמץ";
         } else if (mIsZmanimEnglishTranslated) {
             return "Latest time to burn Ḥametz";
+        } else if (mIsZmanimAmericanized) {
+            return "Sof Zeman Biur Chametz";
         } else {
             return "Sof Zeman Biur Ḥametz";
         }
@@ -189,6 +200,8 @@ public class ZmanimNames {
             return "סוף זמן ברכות שמע";
         } else if (mIsZmanimEnglishTranslated) {
             return "Latest Berakhot Shema";
+        } else if (mIsZmanimAmericanized) {
+            return "Sof Zeman Berachot Shema";
         } else {
             return "Sof Zeman Berakhot Shema";
         }
@@ -199,6 +212,8 @@ public class ZmanimNames {
             return "סוף זמן אכילת חמץ";
         } else if (mIsZmanimEnglishTranslated) {
             return "Latest time to eat Ḥametz";
+        } else if (mIsZmanimAmericanized) {
+            return "Sof Zeman Achilat Chametz";
         } else {
             return "Sof Zeman Akhilat Ḥametz";
         }
@@ -209,6 +224,8 @@ public class ZmanimNames {
             return "סוף זמן ברכת החמה";
         } else if (mIsZmanimEnglishTranslated) {
             return "Latest Birkat Ha'Ḥamah";
+        } else if (mIsZmanimAmericanized) {
+            return "Sof Zeman Birkat Ha'Chamah";
         } else {
             return "Sof Zeman Birkat Ha'Ḥamah";
         }
@@ -291,8 +308,38 @@ public class ZmanimNames {
             return "עלות השחר";
         } else if (mIsZmanimEnglishTranslated) {
             return "Dawn";
+        } else if (mIsZmanimAmericanized) {
+            return "Alot Ha'Shachar";
         } else {
             return "Alot Ha'Shaḥar";
         }
+    }
+
+    public String getRTType(boolean isFixed) {
+        if (isFixed) {
+            if (mIsZmanimInHebrew) {
+                return " (קבוע)";
+            } else {
+                return " (Fixed)";
+            }
+        } else {
+            if (mIsZmanimInHebrew) {
+                return " (זמנית)";
+            } else {
+                return " (Seasonal)";
+            }
+        }
+    }
+
+    public boolean isZmanimInHebrew() {
+        return mIsZmanimInHebrew;
+    }
+
+    public boolean isZmanimEnglishTranslated() {
+        return mIsZmanimEnglishTranslated;
+    }
+
+    public boolean isZmanimAmericanized() {
+        return mIsZmanimAmericanized;
     }
 }

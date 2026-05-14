@@ -2,6 +2,8 @@
 <resources>
     <string name="app_name">זמני יוסף</string>
 
+    <string name="locale">Hebrew</string>
+
     <string name="ok">בסדר</string>
 
     <string name="zipcode">מיקוד</string>
@@ -558,5 +560,7 @@
     <string name="fifth_year_of_shmita">שנה ה׳ של שמיטה</string>
     <string name="sixth_year_of_shmita">שנה ו׳ של שמיטה</string>
     <string name="complete_until_next_zman">%1$d השלמה עד הזמן הבא</string>
+    <string name="watch_not_connected_please_ensure_bluetooth_is_on_and_the_phone_is_nearby">שעון אינו מחובר. וודא שה-Bluetooth פועל ושהטלפון נמצא בקרבת מקום.</string>
+    <string name="opening_on_your_phone">נפתח בטלפון שלך…</string>
 
 </resources>

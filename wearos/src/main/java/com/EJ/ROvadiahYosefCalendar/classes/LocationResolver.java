@@ -119,7 +119,7 @@ public class LocationResolver {
         StringBuilder result = new StringBuilder();
         List<Address> addresses = null;
         try {
-            if (Utils.isLocaleHebrew()) {
+            if (Utils.isLocaleHebrew(mContext)) {
                 addresses = mGeocoder.getFromLocation(sLatitude, sLongitude, 5);
             } else {
                 addresses = mGeocoder.getFromLocation(sLatitude, sLongitude, 1);
@@ -129,7 +129,7 @@ public class LocationResolver {
         }
         if (addresses != null && !addresses.isEmpty()) {
 
-            if (Utils.isLocaleHebrew()) {
+            if (Utils.isLocaleHebrew(mContext)) {
                 Address address = null;
                 for (Address add:addresses) {
                     if (add.getLocale().getDisplayLanguage(new Locale.Builder().setLanguage("en").setRegion("US").build()).equals("Hebrew")) {

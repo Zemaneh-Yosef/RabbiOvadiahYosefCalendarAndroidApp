@@ -9,11 +9,11 @@ import com.kosherjava.zmanim.ComplexZmanimCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.util.GeoLocation;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * This class extends the ZmanimCalendar class to add a few methods that are specific to the opinion of the Rabbi Ovadiah Yosef ZT"L.
@@ -130,7 +130,7 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     private static final int MINUTES_PER_HOUR = 60;
     private static final int MILLISECONDS_PER_MINUTE = 60_000;
     private final SharedPreferences sharedPreferences;
-    public List<Calendar> vSunriseDates = new ArrayList<>();
+    public List<Calendar> vSunriseDates = new CopyOnWriteArrayList<>();
 
     public ROZmanimCalendar(GeoLocation location, SharedPreferences sharedPreferences) {
         super(location);

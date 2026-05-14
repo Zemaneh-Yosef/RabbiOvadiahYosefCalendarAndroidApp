@@ -915,16 +915,27 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             if (!sSharedPreferences.getBoolean("neverAskBatteryOptimization", false)) {
                 PowerManager powerManager = (PowerManager) mContext.getSystemService(POWER_SERVICE);
                 if (!powerManager.isIgnoringBatteryOptimizations(mContext.getPackageName())) {
-                    MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext);
-                    builder.setTitle(R.string.battery_optimization_is_enabled);
-                    builder.setMessage(R.string.the_current_battery_settings_for_the_app_is_trying_to_save_battery_this_may_cause_notifications_to_be_sent_at_a_later_time_would_you_like_to_change_this_setting);
-                    builder.setCancelable(false);
-                    builder.setPositiveButton(mContext.getString(R.string.yes), (dialog, which) -> mContext.startActivity(new Intent().setAction(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)));
-                    builder.setNegativeButton(mContext.getString(R.string.no), (dialog, which) -> dialog.dismiss());
-                    builder.setNeutralButton(mContext.getString(R.string.do_not_ask_me_again), (dialog, which) -> {
-                        sSharedPreferences.edit().putBoolean("neverAskBatteryOptimization", true).apply();
-                        dialog.dismiss();
-                    });
+                    MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext)
+                            .setTitle(R.string.battery_optimization_is_enabled)
+                            .setMessage(R.string.the_current_battery_settings_for_the_app_is_trying_to_save_battery_this_may_cause_notifications_to_be_sent_at_a_later_time_would_you_like_to_change_this_setting)
+                            .setCancelable(false)
+                            .setPositiveButton(mContext.getString(R.string.yes), (dialog, which) -> {
+                                try {
+                                    mContext.startActivity(new Intent("android.settings.APP_BATTERY_USAGE")
+                                            .putExtra("android.intent.extra.PACKAGE_NAME", mContext.getPackageName())
+                                            .setData(Uri.parse("package:" + mContext.getPackageName())));
+                                } catch (Exception e) {
+                                    // Fallback to the main App Info page if the specific battery page fails
+                                    Intent fallback = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                    fallback.setData(Uri.parse("package:" + mContext.getPackageName()));
+                                    mContext.startActivity(fallback);
+                                }
+                            })
+                            .setNegativeButton(mContext.getString(R.string.no), (dialog, which) -> dialog.dismiss())
+                            .setNeutralButton(mContext.getString(R.string.do_not_ask_me_again), (dialog, which) -> {
+                                sSharedPreferences.edit().putBoolean("neverAskBatteryOptimization", true).apply();
+                                dialog.dismiss();
+                            });
                     if (!mActivity.isFinishing()) {
                         builder.show();
                     }
@@ -932,12 +943,12 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !((AlarmManager) mContext.getSystemService(ALARM_SERVICE)).canScheduleExactAlarms()) {// more annoying android permission garbage
-                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext);
-                builder.setTitle(R.string.zmanim_notifications_will_not_work);
-                builder.setMessage(R.string.if_you_would_like_to_receive_zmanim_notifications);
-                builder.setCancelable(false);
-                builder.setPositiveButton(mContext.getString(R.string.yes), (dialog, which) -> sNotificationLauncher.launch(new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:" + mContext.getPackageName()))));
-                builder.setNegativeButton(mContext.getString(R.string.no), (dialog, which) -> dialog.dismiss());
+                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext)
+                        .setTitle(R.string.zmanim_notifications_will_not_work)
+                        .setMessage(R.string.if_you_would_like_to_receive_zmanim_notifications)
+                        .setCancelable(false)
+                        .setPositiveButton(mContext.getString(R.string.yes), (dialog, which) -> sNotificationLauncher.launch(new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:" + mContext.getPackageName()))))
+                        .setNegativeButton(mContext.getString(R.string.no), (dialog, which) -> dialog.dismiss());
                 if (!mActivity.isFinishing()) {
                     builder.show();
                 }

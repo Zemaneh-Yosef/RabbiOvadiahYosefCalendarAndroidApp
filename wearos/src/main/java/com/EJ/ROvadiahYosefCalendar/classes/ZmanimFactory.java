@@ -13,15 +13,16 @@ import java.util.Set;
 public class ZmanimFactory {
 
     public static void addZmanim(List<ZmanListEntry> zmanim,
-                                  boolean isForWeeklyZmanim,
-                                  SharedPreferences mSharedPreferences,
-                                  ROZmanimCalendar mROZmanimCalendar,
-                                  JewishDateInfo mJewishDateInfo,
-                                  boolean mIsZmanimInHebrew,
+                                 boolean isForWeeklyZmanim,
+                                 SharedPreferences mSharedPreferences,
+                                 ROZmanimCalendar mROZmanimCalendar,
+                                 JewishDateInfo mJewishDateInfo,
+                                 boolean mIsZmanimInHebrew,
                                  boolean mIsZmanimEnglishTranslated,
+                                 boolean mIsZmanimAmericanized,
                                  boolean add66MisheyakirZman) {
         boolean useAHZmanim = mSharedPreferences.getBoolean("LuachAmudeiHoraah", false);
-        ZmanimNames zmanimNames = new ZmanimNames(mIsZmanimInHebrew, mIsZmanimEnglishTranslated);
+        ZmanimNames zmanimNames = new ZmanimNames(mIsZmanimInHebrew, mIsZmanimEnglishTranslated, mIsZmanimAmericanized);
         if (mJewishDateInfo.getJewishCalendar().isTaanis()
                 && mJewishDateInfo.getJewishCalendar().getYomTovIndex() != JewishCalendar.TISHA_BEAV
                 && mJewishDateInfo.getJewishCalendar().getYomTovIndex() != JewishCalendar.YOM_KIPPUR) {
@@ -203,22 +204,23 @@ public class ZmanimFactory {
         Calendar today = Calendar.getInstance();
         boolean mIsZmanimInHebrew = mSharedPreferences.getBoolean("isZmanimInHebrew", false);
         boolean mIsZmanimEnglishTranslated = mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false);
+        boolean mIsZmanimAmericanized = mSharedPreferences.getBoolean("isZmanimAmericanized", false);
 
         today.add(Calendar.DATE, -1);
         mROZmanimCalendar.setCalendar(today);
         mJewishDateInfo.setCalendar(today);
         // we only care about the date
-        addZmanim(zmanim, false, mSharedPreferences, mROZmanimCalendar, mJewishDateInfo, mIsZmanimInHebrew, mIsZmanimEnglishTranslated, true);//for the previous day
+        addZmanim(zmanim, false, mSharedPreferences, mROZmanimCalendar, mJewishDateInfo, mIsZmanimInHebrew, mIsZmanimEnglishTranslated, mIsZmanimAmericanized, true);//for the previous day
 
         today.add(Calendar.DATE, 1);
         mROZmanimCalendar.setCalendar(today);
         mJewishDateInfo.setCalendar(today);
-        addZmanim(zmanim, false, mSharedPreferences, mROZmanimCalendar, mJewishDateInfo, mIsZmanimInHebrew, mIsZmanimEnglishTranslated, true);//for the current day
+        addZmanim(zmanim, false, mSharedPreferences, mROZmanimCalendar, mJewishDateInfo, mIsZmanimInHebrew, mIsZmanimEnglishTranslated, mIsZmanimAmericanized, true);//for the current day
 
         today.add(Calendar.DATE, 1);
         mROZmanimCalendar.setCalendar(today);
         mJewishDateInfo.setCalendar(today);
-        addZmanim(zmanim, false, mSharedPreferences, mROZmanimCalendar, mJewishDateInfo, mIsZmanimInHebrew, mIsZmanimEnglishTranslated, true);//for the next day
+        addZmanim(zmanim, false, mSharedPreferences, mROZmanimCalendar, mJewishDateInfo, mIsZmanimInHebrew, mIsZmanimEnglishTranslated, mIsZmanimAmericanized, true);//for the next day
 
         mROZmanimCalendar.setCalendar(mCurrentDateShown);
         mJewishDateInfo.setCalendar(mCurrentDateShown);//reset
