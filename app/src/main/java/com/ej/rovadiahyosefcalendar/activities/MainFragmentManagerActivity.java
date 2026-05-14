@@ -392,9 +392,12 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
     private void updateWidget() {
         Intent intent = new Intent(this, ZmanimAppWidget.class);
         intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-        int[] ids = AppWidgetManager.getInstance(getApplication()).getAppWidgetIds(new ComponentName(getApplication(), ZmanimAppWidget.class));
-        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
-        sendBroadcast(intent);
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
+        if (appWidgetManager != null) {
+            int[] ids = appWidgetManager.getAppWidgetIds(new ComponentName(getApplication(), ZmanimAppWidget.class));
+            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+            sendBroadcast(intent);
+        }
     }
 
     @Override
