@@ -208,11 +208,11 @@ public class SiddurMaker {
 		this.isTachanunSaidInTheMorning = jewishDateInfo.getIsTachanunSaid().equals("Tachanun only in the morning")
             || jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון רק בבוקר")
 			|| jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun today")
-			|| jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון")
+			|| jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון") || jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון בשחרית; אין תחנון במנחה")
 			|| jewishDateInfo.getIsTachanunSaid().equals("There is Tachanun today")
 			|| jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון")
 			|| jewishDateInfo.getIsTachanunSaid().equals("יש מדלגים תחנון במנחה")
-			|| jewishDateInfo.getIsTachanunSaid().equals("Some skip Tachanun by mincha")
+			|| jewishDateInfo.getIsTachanunSaid().equals("Some skip Tachanun by mincha") || jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun in the morning; no Tachanun by mincha")
 			|| jewishDateInfo.isPurimMeshulash() && (jewishDateInfo.getJewishCalendar().getIsSafekMukafChoma()
 				|| jewishDateInfo.getJewishCalendar().getIsMukafChoma());
 
@@ -864,8 +864,8 @@ public class SiddurMaker {
 			addKaddishVariants(halfKaddish ? KaddishTypes.HALF : KaddishTypes.TITKABAL);
 		} else {
 
-			if (jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun today")
-					|| jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון")) {
+			if (jewishDateInfo.getIsTachanunSaid().contains("Some say Tachanun")
+					|| jewishDateInfo.getIsTachanunSaid().contains("יש אומרים תחנון")) {
 				addToSiddur("[" + jewishDateInfo.getIsTachanunSaid() + "]");
 			}
 
@@ -3857,11 +3857,9 @@ public class SiddurMaker {
 			"עַ֤ל הַר־צִיּוֹן֙ שֶׁשָּׁמֵ֔ם שׁוּעָלִ֖ים הִלְּכוּ־בֽוֹ׃ \n" +
 			"אַתָּ֤ה יְהוָה֙ לְעוֹלָ֣ם תֵּשֵׁ֔ב כִּסְאֲךָ֖ לְדֹ֥ר וָדֽוֹר׃ \n" +
 			"לָ֤מָּה לָנֶ֙צַח֙ תִּשְׁכָּחֵ֔נוּ תַּֽעַזְבֵ֖נוּ לְאֹ֥רֶךְ יָמִֽים׃ \n" +
-			"הֲשִׁיבֵ֨נוּ יְהוָ֤ה ׀ אֵלֶ֙יךָ֙ וְֽנָשׁ֔וּבָה חַדֵּ֥שׁ יָמֵ֖ינוּ כְּקֶֽדֶם׃");
-		if (!onlyEnd) {
-			addToSiddur("כִּ֚י אִם־מָאֹ֣ס מְאַסְתָּ֔נוּ קָצַ֥פְתָּ עָלֵ֖ינוּ עַד־מְאֹֽד׃ \n" +
-							"[הֲשִׁיבֵ֨נוּ יְהוָ֤ה ׀ אֵלֶ֙יךָ֙ וְֽנָשׁ֔וּבָה חַדֵּ֥שׁ יָמֵ֖ינוּ כְּקֶֽדֶם׃]");
-		}
+			"הֲשִׁיבֵ֨נוּ יְהוָ֤ה ׀ אֵלֶ֙יךָ֙ וְֽנָשׁ֔וּבָה חַדֵּ֥שׁ יָמֵ֖ינוּ כְּקֶֽדֶם׃\n" +
+                    "כִּ֚י אִם־מָאֹ֣ס מְאַסְתָּ֔נוּ קָצַ֥פְתָּ עָלֵ֖ינוּ עַד־מְאֹֽד׃ \n" +
+                    "[הֲשִׁיבֵ֨נוּ יְהוָ֤ה ׀ אֵלֶ֙יךָ֙ וְֽנָשׁ֔וּבָה חַדֵּ֥שׁ יָמֵ֖ינוּ כְּקֶֽדֶם׃]");// see Rav Pa'alim 4
 	}
 
 	/**
@@ -4635,6 +4633,8 @@ public class SiddurMaker {
 					|| jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun today")
 					|| jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון")
 					|| jewishDateInfo.getIsTachanunSaid().equals("There is Tachanun today")
+                    || jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון בשחרית; אין תחנון במנחה")
+                    || jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun in the morning; no Tachanun by mincha")
 					|| jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון")
 					|| jewishDateInfo.getIsTachanunSaid().equals("יש מדלגים תחנון במנחה")
 					|| jewishDateInfo.getIsTachanunSaid().equals("Some skip Tachanun by mincha");
@@ -4646,6 +4646,8 @@ public class SiddurMaker {
 
 		if (jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun today")
 				|| jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון")
+                || jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון בשחרית; אין תחנון במנחה")
+                || jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun in the morning; no Tachanun by mincha")
 				|| jewishDateInfo.getIsTachanunSaid().equals("יש מדלגים תחנון במנחה")
 				|| jewishDateInfo.getIsTachanunSaid().equals("Some skip Tachanun by mincha")) {
 			addToSiddur("[" + jewishDateInfo.getIsTachanunSaid() + "]");

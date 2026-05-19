@@ -381,32 +381,42 @@ public class JewishDateInfo {
 
     /**
      * This method will return a string containing when to say tachanun for the current date.
-     * Here are a list of holidays that it will return a string for no tachanun:
-     * TODO fix this list
-     * Rosh Chodesh
+     * Here are a list of days that affect tachanun:
+     * Every Rosh Chodesh
+     * Every Shabbat
+     * Every Yom Tov
+     * Chol HaMoed
+     * Isru Chag (day after chag)
      * The entire month of Nissan
      * Pesach Sheni (14th of Iyar)
-     * Lag Ba'Omer
-     * Rosh Chodesh Sivan until the 12th of Sivan (12th included)
+     * Lag Ba\'Omer
+     * Rosh Chodesh Sivan until the 12th of Sivan (7 days after Shavuot and the 12th is included)
      * 9th of Av
      * 15th of Av
-     * Erev Rosh Hashanah
-     * Erev Yom Kippur
-     * From the 11th of Tishrei until the end of Tishrei
-     * All of Chanuka
+     * Erev Rosh Hashanah and Rosh Hashanah
+     * Erev Yom Kippur and Yom Kippur
+     * From the 11th of Tishri (day after Yom Kippur) until the end of Tishri
+     * Every day of Chanukah
      * 15th of Shevat
-     * 14th and 15th of Adar I and Adar II (and only 14th of Adar I in a leap year)
-     * Every Shabbat
-     * Here are the days that we skip tachanun the day before at mincha:
-     * Every Friday
-     * Every Erev Rosh Chodesh
-     * Fast of Esther
-     * Tisha Be'av
-     * Tu Be'Shvat
-     * Lag Ba'Omer
-     * Pesach Sheni
+     * 14th and 15th of Adar I and Adar II
+     * Purim Meshulash for walled cities (safek included)
+     * Tu Be\'Shvat
      *
-     * @return a String containing whether or not tachanun is said today, and if only in the morning
+     * @return a String containing whether one of these possible results:
+     * "There is Tachanun today",<br>
+     * "Tachanun only in the morning",<br>
+     * "No Tachanun today",<br>
+     * "Some say Tachanun today",<br>
+     * "Some skip Tachanun by mincha",<br>
+     * "Some say Tachanun in the morning; no Tachanun by mincha".<br>
+     * If {@link #isLocaleHebrew} is true, it will be:<br>
+     * "אומרים תחנון",<br>
+     * "אומרים תחנון רק בבוקר"<br>
+     * "לא אומרים תחנון",<br>
+     * "יש אומרים תחנון",<br>
+     * "יש מדלגים תחנון במנחה",<br>
+     * "יש אומרים תחנון בשחרית; אין תחנון במנחה"<br>
+     * "צדקתך"
      */
     public String getIsTachanunSaid() {
         int yomTovIndex = this.jewishCalendar.getYomTovIndex();
@@ -452,6 +462,12 @@ public class JewishDateInfo {
                     return "לא אומרים תחנון";
                 }
                 return "No Tachanun today";
+            }
+            if (yomTovIndex == JewishCalendar.YOM_YERUSHALAYIM || yomTovIndex == JewishCalendar.YOM_HAATZMAUT) {
+                if (isLocaleHebrew) {
+                    return "יש אומרים תחנון בשחרית; אין תחנון במנחה";
+                }
+                return "Some say Tachanun in the morning; no Tachanun by mincha";
             }
             if (isLocaleHebrew) {
                 return "אומרים תחנון רק בבוקר";
