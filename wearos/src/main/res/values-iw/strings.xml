@@ -562,5 +562,8 @@
     <string name="complete_until_next_zman">%1$d השלמה עד הזמן הבא</string>
     <string name="watch_not_connected_please_ensure_bluetooth_is_on_and_the_phone_is_nearby">שעון אינו מחובר. וודא שה-Bluetooth פועל ושהטלפון נמצא בקרבת מקום.</string>
     <string name="opening_on_your_phone">נפתח בטלפון שלך…</string>
+    <string name="next_zman_text_complication_label">הזמן הבא (טקסט)</string>
+    <string name="alarm_dismiss">סגור</string>
+    <string name="use_alarm_clock_for_zemanim_notifications">השתמש בשעון מעורר עבור התראות זמנים</string>
 
 </resources>

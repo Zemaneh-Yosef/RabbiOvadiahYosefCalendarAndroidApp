@@ -4,17 +4,14 @@ package com.EJ.ROvadiahYosefCalendar.presentation
 import android.Manifest
 import android.app.AlarmManager
 import android.app.AlertDialog
-import android.app.DatePickerDialog
 import android.app.PendingIntent
 import android.app.PendingIntent.CanceledException
+import android.content.ComponentName
 import android.content.DialogInterface
-import android.content.DialogInterface.BUTTON_NEUTRAL
-import android.content.DialogInterface.BUTTON_POSITIVE
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -66,7 +63,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.fromColorLong
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -74,12 +70,16 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.rotary.onRotaryScrollEvent
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
+import androidx.core.net.toUri
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.wear.compose.foundation.lazy.AutoCenteringParams
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
@@ -87,25 +87,35 @@ import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.Scaffold
+import androidx.wear.compose.material.Switch
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
+import androidx.wear.compose.material.ToggleChip
 import androidx.wear.compose.material.curvedText
+import androidx.wear.remote.interactions.RemoteActivityHelper
 import androidx.wear.tiles.TileService
+import androidx.wear.watchface.complications.datasource.ComplicationDataSourceUpdateRequester
 import com.EJ.ROvadiahYosefCalendar.R
+import com.EJ.ROvadiahYosefCalendar.classes.EnglishDatePickerDialog
 import com.EJ.ROvadiahYosefCalendar.classes.HebrewDatePickerDialog
 import com.EJ.ROvadiahYosefCalendar.classes.JewishDateInfo
 import com.EJ.ROvadiahYosefCalendar.classes.LocationResolver
 import com.EJ.ROvadiahYosefCalendar.classes.OnChangeListener
 import com.EJ.ROvadiahYosefCalendar.classes.PreferenceListener
 import com.EJ.ROvadiahYosefCalendar.classes.ROZmanimCalendar
+import com.EJ.ROvadiahYosefCalendar.classes.SecondTreatment
 import com.EJ.ROvadiahYosefCalendar.classes.Utils
 import com.EJ.ROvadiahYosefCalendar.classes.ZmanListEntry
+import com.EJ.ROvadiahYosefCalendar.classes.ZmanimFactory
 import com.EJ.ROvadiahYosefCalendar.classes.ZmanimFactory.addZmanim
 import com.EJ.ROvadiahYosefCalendar.classes.ZmanimNotifications
-import com.EJ.ROvadiahYosefCalendar.classes.SecondTreatment
+import com.EJ.ROvadiahYosefCalendar.complication.MainComplicationService
+import com.EJ.ROvadiahYosefCalendar.complication.NextZmanComplicationService
+import com.EJ.ROvadiahYosefCalendar.complication.NextZmanTextComplicationService
 import com.EJ.ROvadiahYosefCalendar.presentation.theme.DarkGray
 import com.EJ.ROvadiahYosefCalendar.presentation.theme.RabbiOvadiahYosefCalendarTheme
 import com.EJ.ROvadiahYosefCalendar.tile.MainTileService
+import com.google.android.gms.wearable.Wearable
 import com.kosherjava.zmanim.hebrewcalendar.Daf
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar
@@ -115,6 +125,7 @@ import com.kosherjava.zmanim.util.GeoLocation
 import com.kosherjava.zmanim.util.ZmanimFormatter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import org.json.JSONException
 import org.json.JSONObject
@@ -127,15 +138,6 @@ import java.util.GregorianCalendar
 import java.util.Locale
 import java.util.TimeZone
 import java.util.concurrent.CopyOnWriteArrayList
-import androidx.core.content.edit
-import androidx.core.net.toUri
-import androidx.wear.remote.interactions.RemoteActivityHelper
-import com.EJ.ROvadiahYosefCalendar.classes.EnglishDatePickerDialog
-import com.EJ.ROvadiahYosefCalendar.classes.ZmanimFactory
-import com.google.android.gms.wearable.CapabilityClient
-import com.google.android.gms.wearable.Wearable
-import com.google.android.gms.wearable.Wearable.getCapabilityClient
-import kotlinx.coroutines.tasks.await
 
 class MainActivity : ComponentActivity() {
 
@@ -223,6 +225,8 @@ class MainActivity : ComponentActivity() {
         }
 
         updateAppContents()
+
+        refreshAllComplications()
 
         // To test JSON object transfer, uncomment:
 
@@ -340,14 +344,33 @@ class MainActivity : ComponentActivity() {
             }
         } catch (e:JSONException) {
             e.printStackTrace()
-            val builder = AlertDialog.Builder(this)
-            builder.setTitle(R.string.error)
-            builder.setMessage(getString(R.string.json_error))
-            builder.setCancelable(false)
-            builder.setNeutralButton(getString(R.string.ok)) { dialog: DialogInterface?, _: Int ->
-                dialog?.dismiss()
+            runOnUiThread {
+                if (!isFinishing && !isDestroyed) {
+                    AlertDialog.Builder(this)
+                        .setTitle(R.string.error)
+                        .setMessage(getString(R.string.json_error))
+                        .setCancelable(false)
+                        .setNeutralButton(getString(R.string.ok)) { dialog, _ ->
+                            dialog.dismiss()
+                        }
+                        .show()
+                }
             }
-            builder.show()
+        }
+    }
+
+    private fun refreshAllComplications() {
+        listOf(
+            NextZmanComplicationService::class.java,
+            NextZmanTextComplicationService::class.java,
+            MainComplicationService::class.java
+        ).forEach { serviceClass ->
+            ComplicationDataSourceUpdateRequester
+                .create(
+                    this,
+                    ComponentName(this, serviceClass)
+                )
+                .requestUpdateAll()
         }
     }
 
@@ -1110,6 +1133,8 @@ class MainActivity : ComponentActivity() {
             zmanimList.add(ZmanListEntry(""))
         }
         val context = LocalContext.current
+        val sharedPref = remember { getSharedPreferences(SHARED_PREF, MODE_PRIVATE) }
+        var isAlarmMode by remember { mutableStateOf(sharedPref.getBoolean("zmanim_alarm_mode", false)) }
         val remoteActivityHelper = remember { RemoteActivityHelper(context) }
         val refreshScope = rememberCoroutineScope()
         var refreshing by remember { mutableStateOf(false) }
@@ -1292,6 +1317,15 @@ class MainActivity : ComponentActivity() {
                                         DarkChip(text = zmanimList[index].title, upcoming = index == 1, drag = if (index == 1) 2f else 1f, onClick = {if (index == 1) showDatePickerDialog() }, isEnabled = index == 1)
 
                                         if (index == zmanimList.size - 1) {
+                                            ToggleChip(
+                                                label = { Text(stringResource(R.string.use_alarm_clock_for_zemanim_notifications), maxLines = 3, overflow = TextOverflow.Ellipsis) },
+                                                checked = isAlarmMode, // Use the state variable here
+                                                toggleControl = { Switch(checked = isAlarmMode) },
+                                                onCheckedChange = { newValue ->
+                                                    isAlarmMode = newValue // Update the state to trigger recomposition
+                                                    sharedPref.edit { putBoolean("zmanim_alarm_mode", newValue) }
+                                                },
+                                            )
                                             RedChipWithWhiteX("", onRemove = { finish() })
                                         }
                                     }

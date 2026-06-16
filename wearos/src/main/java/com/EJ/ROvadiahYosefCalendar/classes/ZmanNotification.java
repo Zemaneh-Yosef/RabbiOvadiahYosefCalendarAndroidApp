@@ -13,14 +13,15 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.AudioAttributes;
 import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
 
 import com.EJ.ROvadiahYosefCalendar.R;
 import com.EJ.ROvadiahYosefCalendar.presentation.MainActivity;
+import com.EJ.ROvadiahYosefCalendar.presentation.ZmanAlarmActivity;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
 import java.text.DateFormat;
@@ -56,12 +57,30 @@ public class ZmanNotification extends BroadcastReceiver {
         channel.setImportance(NotificationManager.IMPORTANCE_HIGH);
         notificationManager.createNotificationChannel(channel);
 
+        NotificationChannel alarmChannel = new NotificationChannel(
+                "ZmanimAlarms",
+                "Zmanim Alarms",
+                NotificationManager.IMPORTANCE_HIGH
+        );
+        alarmChannel.setDescription("Alarm-style alerts for upcoming zmanim. Bypasses Do Not Disturb.");
+        alarmChannel.enableLights(true);
+        alarmChannel.enableVibration(true);
+        alarmChannel.setBypassDnd(true);  // the key line — bypasses DND
+        alarmChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+        alarmChannel.setLightColor(Color.BLUE);
+        alarmChannel.setSound(
+                RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM),
+                new AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_ALARM)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build()
+        );
+        notificationManager.createNotificationChannel(alarmChannel);
+
         Intent notificationIntent = new Intent(context, MainActivity.class);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,
                 notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-
-        Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
         try {
             String[] zmanSeparated = zman.split(":");//zman is in the format "zmanName:zmanTime" e.g. "Alot Hashachar:538383388"
@@ -100,6 +119,8 @@ public class ZmanNotification extends BroadcastReceiver {
                     .get(0));
             zmanimFormat.setTimeZone(TimeZone.getTimeZone(mSharedPreferences.getString("currentTimezone", ""))); //set the formatters time zone
 
+            boolean isAlarmMode = mSharedPreferences.getBoolean("zmanim_alarm_mode", false);
+
             String text;
             if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
                 text = String.format("%s : %s", zmanimFormat.format(zmanAsDate), zmanName);
@@ -108,7 +129,7 @@ public class ZmanNotification extends BroadcastReceiver {
             }
             long notificationID = Long.parseLong(zmanTime);//the notification ID is the time of the zman
 
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "Zmanim")
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, isAlarmMode ? "ZmanimAlarms" : "Zmanim")
                     .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
                     .setSmallIcon(R.drawable.baseline_av_timer_24)
                     .setContentTitle(zmanName)
@@ -118,15 +139,29 @@ public class ZmanNotification extends BroadcastReceiver {
                             .setSummaryText(mSharedPreferences.getString("locationNameFN", ""))
                             .bigText(text))
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                    .setCategory(NotificationCompat.CATEGORY_REMINDER)
+                    .setCategory(isAlarmMode
+                            ? NotificationCompat.CATEGORY_ALARM
+                            : NotificationCompat.CATEGORY_REMINDER)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setSound(alarmSound)
+                    .setSound(isAlarmMode
+                            ? RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+                            : RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                     .setColor(0xFFC6AA14)
                     .setAutoCancel(true)
                     .setWhen(System.currentTimeMillis())
                     .extend(new NotificationCompat.WearableExtender()
                             .setDismissalId(zman + notificationID))
                     .setContentIntent(pendingIntent);
+            if (isAlarmMode) {
+                Intent fullScreenIntent = new Intent(context, ZmanAlarmActivity.class);
+                fullScreenIntent.putExtra("zmanName", zmanName);
+                fullScreenIntent.putExtra("zmanTime", zmanTime);
+                PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(
+                        context, 0, fullScreenIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                );
+                builder.setFullScreenIntent(fullScreenPendingIntent, true);
+            }
             if (mSharedPreferences.getInt("autoDismissNotifications", -1) != -1) {
                 builder.setTimeoutAfter((mSharedPreferences.getInt("autoDismissNotifications", -1) * MINUTE_MILLI) + 3000); // add 3 seconds because 0 milliseconds doesn't do anything
             }

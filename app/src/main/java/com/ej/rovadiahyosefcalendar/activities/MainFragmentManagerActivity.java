@@ -8,16 +8,15 @@ import static com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment.s
 
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -108,6 +107,29 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
     public static ViewPager2 sViewPager;
 
     @Override
+    protected void attachBaseContext(Context base) {
+        String lang = PreferenceManager.getDefaultSharedPreferences(base).getString("language", "Default");
+        Locale locale = switch (lang) {
+            case "English" -> new Locale.Builder().setLanguage("en").setRegion("US").build();
+            case "Hebrew" -> new Locale.Builder().setLanguage("he").setRegion("IL").build();
+            default -> null;
+        };
+        if (locale != null) {
+            Locale.setDefault(locale);
+            Configuration config = base.getResources().getConfiguration();
+            config.setLocale(locale);
+            config.setLayoutDirection(locale);
+            base = base.createConfigurationContext(config);
+        }
+        if (Utils.isLocaleHebrew(base)) {
+            base.getSharedPreferences(SHARED_PREF, MODE_PRIVATE).edit()
+                    .putBoolean("isZmanimInHebrew", true)
+                    .apply();
+        }
+        super.attachBaseContext(base);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this));
@@ -151,28 +173,6 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
             sSharedPreferences.edit().putBoolean("RYYHaskamaNotShown", false).apply();// do not check again
         }
 
-        String lang = sSettingsPreferences.getString("language", "Default");
-        if (!lang.equals("Default")) {
-            if (!Locale.getDefault().getDisplayLanguage(new Locale.Builder().setLanguage("en").setRegion("US").build()).equals(lang)) {
-                switch (lang) {
-                    case "English":
-                        Locale locale = new Locale.Builder().setLanguage("en").setRegion("US").build();
-                        Locale.setDefault(locale);
-                        setLocale(locale);
-                        break;
-                    case "Hebrew":
-                        Locale helocale = new Locale.Builder().setLanguage("he").setRegion("IL").build();
-                        Locale.setDefault(helocale);
-                        setLocale(helocale);
-                        sSharedPreferences.edit()
-                                .putBoolean("isZmanimInHebrew", true)
-                                .apply();
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
         sJewishDateInfo.setCalendar(Calendar.getInstance());
         sJewishDateInfo.resetLocale(this);
         sJewishDateInfo.getJewishCalendar().setInIsrael(sSharedPreferences.getBoolean("inIsrael", false));
@@ -273,16 +273,6 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
                 finish();
             }
         });
-    }
-
-    public void setLocale(Locale locale) {
-        Resources res = getResources();
-        DisplayMetrics dm = res.getDisplayMetrics();
-        Configuration conf = res.getConfiguration();
-        conf.setLocale(locale);
-        res.updateConfiguration(conf, dm);// not perfect
-        conf.setLayoutDirection(locale);
-        recreate();
     }
 
     /**

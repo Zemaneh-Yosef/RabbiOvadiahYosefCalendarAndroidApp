@@ -53,7 +53,7 @@
 </table>
 
 # Goal of the project:
-The goal original of this project was to recreate the "Luach HaMaor Ohr HaChaim" calendar that is widespread in Israel. This calendar is special because Rabbi Ovadiah Yosef ZT"L oversaw it's creation and used the calendar himself until he passed. It is considered to be the most accurate calendar for people who want to follow Rabbi Ovadia Yosef's practices:
+The original goal of this project was to recreate the "Luach HaMaor Ohr HaChaim" calendar that is widespread in Israel. This calendar is special because Rabbi Ovadiah Yosef ZT"L oversaw it's creation and used the calendar himself until he passed. It is considered to be the most accurate calendar for people who want to follow Rabbi Ovadia Yosef's practices:
 
 <img src="https://i.imgur.com/QqGAtTB.jpg" height="750" alt="Picture of Ohr HaChaim calendar">
 
@@ -61,7 +61,7 @@ In order to recreate the calendar, we needed an API that would give the times fo
 
 The app was originally made for primarily english speakers, however, it has been localized for both english and hebrew speakers.
 
-The only zeman that could not be computed by the KosherJava API is the sunrise time that the Ohr HaChaim calendar uses. They explain in the calendar introduction that they take the sunrise times from a calendar called, "Luach Bechoray Yosef". That calendar calculates the time for sunrise by taking into account the geography of the land around that area and finding when is the first time the sun is seen in that area (based on the introduction to Chaitables.com). While not impossible, this would take a massive toll on a mobile phone's processor and memory, therefore, the app does not support it. However, I discovered that the creator of this calendar made a website [ChaiTables.com](http://chaitables.com) to help people use his algorithm for sunrise/sunset all over the world and create a 12 month table based on your input. I added the ability to download these times in the app with your own specific parameters. (It is highly recommended that you see the introduction on chaitables.com.)
+The only zeman that could not be computed by the KosherJava API is the sunrise time that the Ohr HaChaim calendar uses. They explain in the calendar introduction that they take the sunrise times from a calendar called, "Luach Bechoray Yosef". That calendar calculates the time for sunrise by taking into account the geography of the land around that area (which is around 40GB of data) and finding when is the first time the sun is seen in that area (based on the introduction to Chaitables.com). While not impossible, this would take a massive toll on a mobile phone's processor, memory, and storage space, therefore, the app does not support these sunrise calculations natively. However, I discovered that the creator of this calendar made a website [ChaiTables.com](http://chaitables.com) to help people use his algorithm for sunrise/sunset all over the world and create a 12 month table based on your input. I added the ability to download these times in the app with your own specific parameters. (It is highly recommended that you see the introduction on chaitables.com before setting the advanced parameters.)
 
 After the Ohr HaChaim calendar was implemented and fully functional, we implemented Rabbi Leeor Dahan's calendar for areas outside of Israel. The Ohr HaChaim calendar was made for Israel and it needed a few adjustments to be applicable for outside of Israel. We confirmed this with both of Rabbi Ovadia Yosef's sons (Rabbi Yitzhak Yosef and Rabbi David Yosef).
 

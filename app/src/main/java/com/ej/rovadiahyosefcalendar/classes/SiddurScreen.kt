@@ -1,5 +1,6 @@
 package com.ej.rovadiahyosefcalendar.classes
 
+import android.R
 import android.content.Context
 import android.content.Intent
 import android.hardware.Sensor
@@ -77,7 +78,9 @@ import com.ej.rovadiahyosefcalendar.R as AppR
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MenuItemColors
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.ui.text.style.TextDirection
 
 // 1. Define a type for our scroll event lambda
 typealias ScrollToPosition = (Int) -> Unit
@@ -150,7 +153,8 @@ private fun SiddurScreen(
 	// State for the category dropdown menu
 	var showCategoryMenu by remember { mutableStateOf(false) }
 
-	val defaultBackgroundColor = getThemeColor(android.R.attr.colorBackground)
+	val defaultBackgroundColor = getThemeColor(R.attr.colorBackground)
+    val defaultTextColor: Color = getThemeColor(R.attr.textColorPrimary)
 
 	Scaffold(
 		containerColor = defaultBackgroundColor,
@@ -177,17 +181,26 @@ private fun SiddurScreen(
 					if (categoryNames.isNotEmpty()) {
 						IconButton(onClick = { showCategoryMenu = true }) {
 							Icon(
-								painter = painterResource(id = AppR.drawable.baseline_format_align_justify_24),
+								painter = painterResource(id = AppR.drawable.baseline_menu_24),
 								contentDescription = null
 							)
 						}
 						DropdownMenu(
 							expanded = showCategoryMenu,
 							onDismissRequest = { showCategoryMenu = false },
+                            modifier = Modifier.background(defaultBackgroundColor)
 						) {
 							categoryNames.forEachIndexed { index, name ->
 								DropdownMenuItem(
 									text = { Text(name) },
+                                    colors = MenuItemColors(
+                                        textColor = defaultTextColor,
+                                        leadingIconColor = defaultTextColor,
+                                        trailingIconColor = defaultTextColor,
+                                        disabledTextColor = defaultTextColor,
+                                        disabledLeadingIconColor = defaultTextColor,
+                                        disabledTrailingIconColor = defaultTextColor
+                                    ),
 									onClick = {
 										showCategoryMenu = false
 										if (index in categoryPositions.indices) {
@@ -202,10 +215,10 @@ private fun SiddurScreen(
 					}
 				},
 				colors = TopAppBarDefaults.topAppBarColors(
-					containerColor = getThemeColor(android.R.attr.windowBackground),
-					titleContentColor = getThemeColor(android.R.attr.textColorPrimary),
-					navigationIconContentColor = getThemeColor(android.R.attr.textColorPrimary),
-					actionIconContentColor = getThemeColor(android.R.attr.textColorPrimary),
+					containerColor = getThemeColor(R.attr.windowBackground),
+					titleContentColor = getThemeColor(R.attr.textColorPrimary),
+					navigationIconContentColor = getThemeColor(R.attr.textColorPrimary),
+					actionIconContentColor = getThemeColor(R.attr.textColorPrimary),
 				)
 			)
 		},
@@ -259,8 +272,8 @@ private fun SiddurBottomBar(
     onJustifyClick: () -> Unit
 ) {
     BottomAppBar(
-        containerColor = getThemeColor(android.R.attr.windowBackground),
-        contentColor = getThemeColor(android.R.attr.textColorPrimary) // M3 uses contentColor
+        containerColor = getThemeColor(R.attr.windowBackground),
+        contentColor = getThemeColor(R.attr.textColorPrimary) // M3 uses contentColor
     ) {
         Slider(
             value = currentTextSize,
@@ -270,9 +283,9 @@ private fun SiddurBottomBar(
         )
         IconButton(onClick = onJustifyClick) {
             Icon(
-                painter = painterResource(id = AppR.drawable.baseline_format_align_justify_24),
+                painter = painterResource(id = if (isJustified) AppR.drawable.baseline_format_align_justify_24 else AppR.drawable.baseline_format_align_right_24),
                 contentDescription = stringResource(AppR.string.justify_text),
-                tint = if (isJustified) MaterialTheme.colorScheme.primary else LocalContentColor.current
+                tint = LocalContentColor.current
             )
         }
     }
@@ -453,7 +466,7 @@ private fun SiddurRow(
 
 		val textColor = when {
 			currentText.isHighlighted -> Color.Black
-			else -> getThemeColor(android.R.attr.textColorPrimary)
+			else -> getThemeColor(R.attr.textColorPrimary)
 		}
 
 		val fontFamily = when {
@@ -487,9 +500,9 @@ private fun SiddurRow(
 				}
 			}
 			if (isRtl) {
-				androidx.compose.ui.text.style.TextDirection.Rtl
+				TextDirection.Rtl
 			} else {
-				androidx.compose.ui.text.style.TextDirection.Ltr
+				TextDirection.Ltr
 			}
 		}
 

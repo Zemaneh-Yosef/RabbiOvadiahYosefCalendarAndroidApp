@@ -356,5 +356,8 @@
     <string name="complete_until_next_zman">%1$d complete until next zeman.</string>
     <string name="watch_not_connected_please_ensure_bluetooth_is_on_and_the_phone_is_nearby">Watch not connected. Please ensure Bluetooth is on and the phone is nearby.</string>
     <string name="opening_on_your_phone">Opening on your phone…</string>
+    <string name="next_zman_text_complication_label">Next Zman (Text)</string>
+    <string name="alarm_dismiss">Dismiss</string>
+    <string name="use_alarm_clock_for_zemanim_notifications">Use alarm clock for zemanim notifications</string>
 
 </resources>
