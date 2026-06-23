@@ -565,5 +565,6 @@
     <string name="next_zman_text_complication_label">הזמן הבא (טקסט)</string>
     <string name="alarm_dismiss">סגור</string>
     <string name="use_alarm_clock_for_zemanim_notifications">השתמש בשעון מעורר עבור התראות זמנים</string>
+    <string name="eruv_tavshilin">עירוב תבשילין</string>
 
 </resources>

@@ -480,5 +480,5 @@
     <string name="sensor_accuracy_is_low_please_move_the_device_in_a_figure_eight_movement_to_increase_the_accuracy">Sensor accuracy is low. Please move the device in a figure eight movement to increase the accuracy.</string>
     <string name="sensor_accuracy_is_okay">Sensor accuracy is okay.</string>
     <string name="no_sensor_found">No Sensor Found</string>
-    <string name="eruv_tavshilim">Eruv Tavshilin</string>
+    <string name="eruv_tavshilin">Eruv Tavshilin</string>
 </resources>

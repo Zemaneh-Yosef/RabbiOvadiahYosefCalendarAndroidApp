@@ -691,5 +691,5 @@
     <string name="sensor_accuracy_is_low_please_move_the_device_in_a_figure_eight_movement_to_increase_the_accuracy">דיוק החיישן נמוך. אנא הזז את המכשיר בתנועת שמונה כדי להגביר את הדיוק.</string>
     <string name="sensor_accuracy_is_okay">דיוק החיישן תקין</string>
     <string name="no_sensor_found">לא נמצא חיישן</string>
-    <string name="eruv_tavshilim">עירוב תבשילין</string>
+    <string name="eruv_tavshilin">עירוב תבשילין</string>
 </resources>

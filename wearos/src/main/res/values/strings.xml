@@ -359,5 +359,6 @@
     <string name="next_zman_text_complication_label">Next Zman (Text)</string>
     <string name="alarm_dismiss">Dismiss</string>
     <string name="use_alarm_clock_for_zemanim_notifications">Use alarm clock for zemanim notifications</string>
+    <string name="eruv_tavshilin">Eruv Tavshilin</string>
 
 </resources>

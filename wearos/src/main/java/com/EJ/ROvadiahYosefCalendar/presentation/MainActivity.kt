@@ -630,6 +630,9 @@ class MainActivity : ComponentActivity() {
         if (day.isNotEmpty()) {
             zmanim.add(ZmanListEntry(day))
         }
+        if (mJewishDateInfo.isEruvTavshilimMadeToday) {
+            zmanim.add(ZmanListEntry(getString(R.string.eruv_tavshilin)))
+        }
         val dayOfOmer = mJewishDateInfo.addDayOfOmer("")
         if (dayOfOmer.isNotEmpty()) {
             zmanim.add(ZmanListEntry(dayOfOmer))

@@ -1276,7 +1276,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
 
         if (sJewishDateInfo.isEruvTavshilimMadeToday()) {
-            zmanim.add(new ZmanListEntry(mContext.getString(R.string.eruv_tavshilim)));
+            zmanim.add(new ZmanListEntry(mContext.getString(R.string.eruv_tavshilin)));
         }
 
         String dayOfOmer = sJewishDateInfo.addDayOfOmer("");
@@ -1489,7 +1489,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
 
         if (sJewishDateInfo.isEruvTavshilimMadeToday()) {
-            announcements.append(mContext.getString(R.string.eruv_tavshilim)).append("\n");
+            announcements.append(mContext.getString(R.string.eruv_tavshilin)).append("\n");
         }
 
         if (sJewishDateInfo.isPurimMeshulash()) {

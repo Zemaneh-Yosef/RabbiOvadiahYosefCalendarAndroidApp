@@ -35,13 +35,12 @@ class NextZmanTextComplicationService : BaseZmanComplicationService() {
         val zmanName = zman?.title ?: ""
 
         return LongTextComplicationData.Builder(
-            // text = the full zman name (no shortening needed for LONG_TEXT)
-            text = PlainComplicationText.Builder(text = zmanName).build(),
+            text = PlainComplicationText.Builder(text = timeStr).build(),
             contentDescription = PlainComplicationText.Builder(
                 text = "$zmanName $timeStr"
             ).build()
         )
-            .setTitle(PlainComplicationText.Builder(text = timeStr).build())
+            .setTitle(PlainComplicationText.Builder(text = zmanName).build())
             .setMonochromaticImage(
                 MonochromaticImage.Builder(
                     image = Icon.createWithResource(this, R.drawable.baseline_av_timer_24)
@@ -72,13 +71,14 @@ class NextZmanTextComplicationService : BaseZmanComplicationService() {
             ).build()
         )
             .setTitle(PlainComplicationText.Builder(text = shortName).build())
-            .setMonochromaticImage(
-                MonochromaticImage.Builder(
-                    image = Icon.createWithResource(this, R.drawable.baseline_av_timer_24)
-                ).setAmbientImage(
-                    ambientImage = Icon.createWithResource(this, R.drawable.baseline_av_timer_24_burn_protect)
-                ).build()
-            )
+            // Remove the image for SHORT_TEXT complications because we don't have a lot of room as is
+//            .setMonochromaticImage(
+//                MonochromaticImage.Builder(
+//                    image = Icon.createWithResource(this, R.drawable.baseline_av_timer_24)
+//                ).setAmbientImage(
+//                    ambientImage = Icon.createWithResource(this, R.drawable.baseline_av_timer_24_burn_protect)
+//                ).build()
+//            )
             .setTapAction(
                 PendingIntent.getActivity(
                     this, 0,

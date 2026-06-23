@@ -96,13 +96,13 @@ public class ZmanNotification extends BroadcastReceiver {
             jewishCalendar.setDate(calendar);
             if ((jewishCalendar.isAssurBemelacha() && !mSharedPreferences.getBoolean("zmanim_notifications_on_shabbat", true))) {
                 //if tomorrow is shabbat/yom tov, then return if the zman is Tzait, Rabbeinu Tam, or Chatzot Layla (since they are obviously after shabbat/yom tov has started)
-                if (zmanName.equals("חצות לילה") ||
+                if (zmanName.equals("חצות הלילה") ||
                         zmanName.equals("Midnight") ||
-                        zmanName.equals("Chatzot Layla") ||
+                        zmanName.equals("Ḥatzot Ha'Layla") ||
                         zmanName.equals("צאת הכוכבים") ||
                         zmanName.equals("Nightfall") ||
-                        zmanName.equals("Tzait Hacochavim") ||
-                        zmanName.equals("Rabbeinu Tam") ||
+                        zmanName.equals("Tzet Ha'Kokhavim") ||
+                        zmanName.equals("Rabbenu Tam") ||
                         zmanName.equals("רבינו תם")) {
                     return;
                 }
@@ -128,6 +128,20 @@ public class ZmanNotification extends BroadcastReceiver {
                 text = zmanName + " is at " + zmanimFormat.format(zmanAsDate);
             }
             long notificationID = Long.parseLong(zmanTime);//the notification ID is the time of the zman
+            
+            PendingIntent contentIntent;// Build the tap/content intent based on mode
+            if (isAlarmMode) {
+                Intent alarmIntent = new Intent(context, ZmanAlarmActivity.class);
+                alarmIntent.putExtra("zmanName", zmanName);
+                alarmIntent.putExtra("zmanTime", zmanTime);
+                alarmIntent.putExtra("notificationId", (int)(notificationID % Integer.MAX_VALUE));
+                contentIntent = PendingIntent.getActivity(context, 1, alarmIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+            } else {
+                contentIntent = PendingIntent.getActivity(context, 0,
+                        new Intent(context, MainActivity.class),
+                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+            }
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context, isAlarmMode ? "ZmanimAlarms" : "Zmanim")
                     .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
@@ -151,16 +165,9 @@ public class ZmanNotification extends BroadcastReceiver {
                     .setWhen(System.currentTimeMillis())
                     .extend(new NotificationCompat.WearableExtender()
                             .setDismissalId(zman + notificationID))
-                    .setContentIntent(pendingIntent);
+                    .setContentIntent(contentIntent);
             if (isAlarmMode) {
-                Intent fullScreenIntent = new Intent(context, ZmanAlarmActivity.class);
-                fullScreenIntent.putExtra("zmanName", zmanName);
-                fullScreenIntent.putExtra("zmanTime", zmanTime);
-                PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(
-                        context, 0, fullScreenIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-                );
-                builder.setFullScreenIntent(fullScreenPendingIntent, true);
+                builder.setFullScreenIntent(contentIntent, true);
             }
             if (mSharedPreferences.getInt("autoDismissNotifications", -1) != -1) {
                 builder.setTimeoutAfter((mSharedPreferences.getInt("autoDismissNotifications", -1) * MINUTE_MILLI) + 3000); // add 3 seconds because 0 milliseconds doesn't do anything

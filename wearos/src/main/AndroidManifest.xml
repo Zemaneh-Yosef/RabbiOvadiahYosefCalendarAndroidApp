@@ -127,9 +127,8 @@
             android:showWhenLocked="true"
             android:turnScreenOn="true"
             android:launchMode="singleTop"
-            android:taskAffinity=""
             android:excludeFromRecents="true"
-            android:exported="false"
+            android:theme="@style/Theme.Material3.DayNight.NoActionBar"
             tools:targetApi="27" />
 
         <receiver android:name=".classes.ZmanimNotifications" />

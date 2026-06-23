@@ -14,6 +14,7 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 
+import com.EJ.ROvadiahYosefCalendar.presentation.MainActivity;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.util.GeoLocation;
 
@@ -104,21 +105,39 @@ public class ZmanimNotifications extends BroadcastReceiver {
             am.cancel(zmanPendingIntent);//cancel the last zmanim notifications set
         }
 
+        boolean isAlarmMode = mSharedPreferences.getBoolean("zmanim_alarm_mode", false);
+
+        // showIntent: what the Clock app opens if the user taps the status bar alarm icon
+        PendingIntent showIntent = PendingIntent.getActivity(
+                context, 0,
+                new Intent(context, MainActivity.class),
+                PendingIntent.FLAG_IMMUTABLE
+        );
+
         int max = 5;
         int set = 0;//only set 5 zmanim an hour
         for (int i = 0; i < zmanimOver3Days.size(); i++) {
             if (set < max) {
-                if ((zmanimOver3Days.get(i).getZmanDate().getTime() - (60_000L * zmanimOver3Days.get(i).getNotificationDelay()) > new Date().getTime())) {
+                long triggerTime = zmanimOver3Days.get(i).getZmanDate().getTime()
+                        - (60_000L * zmanimOver3Days.get(i).getNotificationDelay());
+
+                if (triggerTime > new Date().getTime()) {
                     PendingIntent zmanPendingIntent = PendingIntent.getBroadcast(
                             context.getApplicationContext(),
                             set,
                             new Intent(context, ZmanNotification.class)
                                     .setAction(String.valueOf(set))
                                     .putExtra("zman",
-                                            zmanimOver3Days.get(i).getZmanName() + ":" + zmanimOver3Days.get(i).getZmanDate().getTime()),//save the zman name and time for the notification e.g. "Chatzot Layla:1331313311"
-                            PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
+                                            zmanimOver3Days.get(i).getZmanName() + ":"
+                                                    + zmanimOver3Days.get(i).getZmanDate().getTime()),
+                            PendingIntent.FLAG_IMMUTABLE
+                                    | PendingIntent.FLAG_UPDATE_CURRENT
+                                    | PendingIntent.FLAG_ONE_SHOT
+                    );
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    if (isAlarmMode) {
+                        am.setAlarmClock(new AlarmManager.AlarmClockInfo(triggerTime, showIntent), zmanPendingIntent);
+                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         if (am.canScheduleExactAlarms()) {
                             am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, zmanimOver3Days.get(i).getZmanDate().getTime() - (60_000L * zmanimOver3Days.get(i).getNotificationDelay()), zmanPendingIntent);
                         }

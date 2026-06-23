@@ -8,41 +8,78 @@ import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
+import androidx.activity.ComponentActivity
 import androidx.activity.addCallback
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Divider
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.wear.compose.material3.Button
+import androidx.wear.compose.material3.ButtonDefaults
+import androidx.wear.compose.material3.Icon
+import androidx.wear.compose.material3.Text
+import com.EJ.ROvadiahYosefCalendar.R
 import com.EJ.ROvadiahYosefCalendar.classes.Utils
-import com.EJ.ROvadiahYosefCalendar.databinding.ActivityZmanAlarmBinding
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
-class ZmanAlarmActivity : AppCompatActivity() {
+private val Gold = Color(0xFFC6AA14)
 
-    private lateinit var binding: ActivityZmanAlarmBinding
+class ZmanAlarmActivity : ComponentActivity() {
+
     private lateinit var sharedPref: SharedPreferences
     private var notificationId: Int = -1
+
+    // Compose-observable: updated from both onCreate and onNewIntent
+    private val zmanName = mutableStateOf("")
+    private val zmanTime = mutableStateOf("")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setupWindowFlags()
 
-        binding = ActivityZmanAlarmBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
         sharedPref = getSharedPreferences(MainActivity.SHARED_PREF, MODE_PRIVATE)
-
         processIntent(intent)
 
-        binding.dismissButton.setOnClickListener { dismissAlarm() }
+        setContent {
+            ZmanAlarmScreen(
+                zmanName = zmanName.value,
+                zmanTime = zmanTime.value,
+                onDismiss = ::dismissAlarm
+            )
+        }
 
-        // Back press = dismiss, same as tapping the button
         onBackPressedDispatcher.addCallback(this) { dismissAlarm() }
     }
 
     /**
-     * A second alarm fires while the screen is already showing — update the display in place
-     * rather than stacking a new activity (requires launchMode="singleTop" in manifest).
+     * A second alarm fires while the screen is already showing — update state in place.
+     * Requires android:launchMode="singleTop" in the manifest.
      */
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
@@ -50,48 +87,38 @@ class ZmanAlarmActivity : AppCompatActivity() {
         processIntent(intent)
     }
 
-    // -------------------------------------------------------------------------
-    // Window flags — must be set before setContentView
-    // -------------------------------------------------------------------------
+    // ── Window flags ──────────────────────────────────────────────────────────
 
     private fun setupWindowFlags() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-            // Modern API: declarative helpers (also set in manifest, but belt-and-suspenders)
             setShowWhenLocked(true)
             setTurnScreenOn(true)
-            (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
+            (getSystemService(KEYGUARD_SERVICE) as KeyguardManager)
                 .requestDismissKeyguard(this, null)
         } else {
             @Suppress("DEPRECATION")
             window.addFlags(
                 WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON   or
-                WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+                        WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON   or
+                        WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
             )
         }
-        // Keep screen on for the full duration the alarm is displayed
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
 
-    // -------------------------------------------------------------------------
-    // Intent handling
-    // -------------------------------------------------------------------------
+    // ── Intent ────────────────────────────────────────────────────────────────
 
     private fun processIntent(intent: Intent) {
-        val zmanName    = intent.getStringExtra("zmanName")  ?: return finish()
-        val zmanTimeStr = intent.getStringExtra("zmanTime")  ?: return finish()
-        val zmanTimeLong = zmanTimeStr.toLongOrNull()        ?: return finish()
+        val name     = intent.getStringExtra("zmanName") ?: return finish()
+        val timeStr  = intent.getStringExtra("zmanTime") ?: return finish()
+        val timeLong = timeStr.toLongOrNull()             ?: return finish()
 
-        // Mirror the notification ID formula from ZmanNotification.java so we can cancel it
-        notificationId = (zmanTimeLong % Int.MAX_VALUE).toInt()
-
-        binding.zmanNameText.text = zmanName
-        binding.zmanTimeText.text = formatZmanTime(Date(zmanTimeLong))
+        notificationId = (timeLong % Int.MAX_VALUE).toInt()
+        zmanName.value = name
+        zmanTime.value = formatZmanTime(Date(timeLong))
     }
 
-    // -------------------------------------------------------------------------
-    // Time formatting — mirrors ZmanNotification.java logic
-    // -------------------------------------------------------------------------
+    // ── Formatting ────────────────────────────────────────────────────────────
 
     private fun formatZmanTime(date: Date): String {
         val showSeconds = sharedPref.getBoolean("ShowSeconds", false)
@@ -109,16 +136,91 @@ class ZmanAlarmActivity : AppCompatActivity() {
         }.format(date)
     }
 
-    // -------------------------------------------------------------------------
-    // Dismiss
-    // -------------------------------------------------------------------------
+    // ── Dismiss ───────────────────────────────────────────────────────────────
 
     private fun dismissAlarm() {
-        // Cancel the companion notification so its sound/vibration stops immediately
         if (notificationId != -1) {
-            (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+            (getSystemService(NOTIFICATION_SERVICE) as NotificationManager)
                 .cancel(notificationId)
         }
         finish()
+    }
+}
+
+// UI
+@Composable
+private fun ZmanAlarmScreen(
+    zmanName: String,
+    zmanTime: String,
+    onDismiss: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            .verticalScroll(rememberScrollState())
+    ) {
+        // Content stacks from the top, mirroring the original ConstraintLayout
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.Center)
+                .padding(top = 18.dp, start = 18.dp, end = 18.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Alarm icon
+            Icon(
+                painter = painterResource(R.drawable.outline_alarm_24),
+                contentDescription = null,
+                tint = Gold,
+                modifier = Modifier.size(26.dp)
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            // Zman name — up to two lines for long Hebrew names
+            Text(
+                text = zmanName,
+                color = Color.White,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(Modifier.height(12.dp))
+
+            // Zman time — the focal point of the screen
+            Text(
+                text = zmanTime,
+                color = Gold,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(Modifier.height(18.dp))
+
+            // Dismiss
+            Button(
+                onClick = onDismiss,
+                modifier = Modifier
+                    .padding(bottom = 8.dp)
+                    .fillMaxWidth()
+                    .height(32.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Gold),
+                shape = RoundedCornerShape(30.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.alarm_dismiss),
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    color = Color.Black,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
     }
 }
