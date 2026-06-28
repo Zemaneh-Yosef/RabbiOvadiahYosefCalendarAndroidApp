@@ -134,7 +134,7 @@ public class ZmanNotification extends BroadcastReceiver {
                 Intent alarmIntent = new Intent(context, ZmanAlarmActivity.class);
                 alarmIntent.putExtra("zmanName", zmanName);
                 alarmIntent.putExtra("zmanTime", zmanTime);
-                alarmIntent.putExtra("notificationId", (int)(notificationID % Integer.MAX_VALUE));
+                alarmIntent.putExtra("notificationId", (int) (notificationID % Integer.MAX_VALUE));
                 contentIntent = PendingIntent.getActivity(context, 1, alarmIntent,
                         PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
             } else {
@@ -166,7 +166,7 @@ public class ZmanNotification extends BroadcastReceiver {
                     .extend(new NotificationCompat.WearableExtender()
                             .setDismissalId(zman + notificationID))
                     .setContentIntent(contentIntent);
-            if (isAlarmMode) {
+            if (isAlarmMode && Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE && notificationManager.canUseFullScreenIntent()) {
                 builder.setFullScreenIntent(contentIntent, true);
             }
             if (mSharedPreferences.getInt("autoDismissNotifications", -1) != -1) {

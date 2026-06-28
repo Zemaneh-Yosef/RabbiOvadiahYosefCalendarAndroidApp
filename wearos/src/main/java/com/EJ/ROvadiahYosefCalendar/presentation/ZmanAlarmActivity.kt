@@ -2,11 +2,15 @@ package com.EJ.ROvadiahYosefCalendar.presentation
 
 import android.app.KeyguardManager
 import android.app.NotificationManager
-import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.media.Ringtone
+import android.media.RingtoneManager
 import android.os.Build
 import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.addCallback
@@ -20,11 +24,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
@@ -59,12 +61,48 @@ class ZmanAlarmActivity : ComponentActivity() {
     private val zmanName = mutableStateOf("")
     private val zmanTime = mutableStateOf("")
 
+    private var ringtone: Ringtone? = null
+    private var vibrator: Vibrator? = null
+
+    private fun startAlarmFeedback() {
+        // Vibration — primary feedback on Wear OS (works on all watches)
+        vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            (getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
+        } else {
+            @Suppress("DEPRECATION")
+            getSystemService(VIBRATOR_SERVICE) as Vibrator
+        }
+        vibrator?.vibrate(
+            VibrationEffect.createWaveform(
+                longArrayOf(0, 600, 300, 600, 300, 600),
+                1  // loop from index 1 so it keeps buzzing until dismissed
+            )
+        )
+
+        // Alarm tone — secondary feedback for watches with audio output
+        try {
+            val uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+            ringtone = RingtoneManager.getRingtone(this, uri)?.also {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) it.isLooping = true
+                it.play()
+            }
+        } catch (_: Exception) {
+            // Silent fail — vibration alone is sufficient on watches without speakers
+        }
+    }
+
+    private fun stopAlarmFeedback() {
+        ringtone?.stop();  ringtone = null
+        vibrator?.cancel(); vibrator = null
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setupWindowFlags()
 
         sharedPref = getSharedPreferences(MainActivity.SHARED_PREF, MODE_PRIVATE)
         processIntent(intent)
+        startAlarmFeedback()
 
         setContent {
             ZmanAlarmScreen(
@@ -85,6 +123,11 @@ class ZmanAlarmActivity : ComponentActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         processIntent(intent)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        stopAlarmFeedback()
     }
 
     // ── Window flags ──────────────────────────────────────────────────────────
@@ -143,6 +186,7 @@ class ZmanAlarmActivity : ComponentActivity() {
             (getSystemService(NOTIFICATION_SERVICE) as NotificationManager)
                 .cancel(notificationId)
         }
+        stopAlarmFeedback()
         finish()
     }
 }

@@ -481,7 +481,8 @@ public class SiddurFragment extends Fragment {
                     return true;
                 });
                 tehilim.setForceLTRTextDirection(!Utils.isLocaleHebrew(mContext));
-                tehilim.setDimmed(new Date().after(currentZmanimCalendar.getTzeit()) || new Date().before(currentZmanimCalendar.getAlotHashachar()));
+                tehilim.setDimmed((currentZmanimCalendar.getTzeit() != null && new Date().after(currentZmanimCalendar.getTzeit()))
+                        || (currentZmanimCalendar.getAlotHashachar() != null && new Date().before(currentZmanimCalendar.getAlotHashachar())));
             }
 
             CustomPreferenceView tikkunChatzot = findPreference("siddur_tikkun_chatzot");

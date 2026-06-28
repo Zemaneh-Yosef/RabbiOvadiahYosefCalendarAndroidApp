@@ -4,14 +4,17 @@ package com.EJ.ROvadiahYosefCalendar.presentation
 import android.Manifest
 import android.app.AlarmManager
 import android.app.AlertDialog
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.PendingIntent.CanceledException
 import android.content.ComponentName
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -1117,7 +1120,19 @@ class MainActivity : ComponentActivity() {
         mJewishDateInfo.jewishCalendar.setDate(mCurrentDateShown)
     }
 
-    private suspend fun isPhoneConnected(context: android.content.Context): Boolean {
+    private fun requestFullScreenIntentPermission(context: Context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {// This permission restriction only applies to Android 14 (API 34) and above
+            val notificationManager = context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+            if (!notificationManager.canUseFullScreenIntent()) {
+                val intent = Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT).apply {
+                    data = "package:${context.packageName}".toUri()
+                }
+                context.startActivity(intent)
+            }
+        }
+    }
+
+    private suspend fun isPhoneConnected(context: Context): Boolean {
         return try {
             val nodes = Wearable.getNodeClient(context).connectedNodes.await()
             // isNearby means the node is actively reachable over Bluetooth,
@@ -1326,6 +1341,9 @@ class MainActivity : ComponentActivity() {
                                                 toggleControl = { Switch(checked = isAlarmMode) },
                                                 onCheckedChange = { newValue ->
                                                     isAlarmMode = newValue // Update the state to trigger recomposition
+                                                    if (newValue) {
+                                                        requestFullScreenIntentPermission(context)
+                                                    }
                                                     sharedPref.edit { putBoolean("zmanim_alarm_mode", newValue) }
                                                 },
                                             )

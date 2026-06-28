@@ -15,6 +15,7 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 
 import com.EJ.ROvadiahYosefCalendar.presentation.MainActivity;
+import com.EJ.ROvadiahYosefCalendar.presentation.ZmanAlarmActivity;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.util.GeoLocation;
 
@@ -96,13 +97,19 @@ public class ZmanimNotifications extends BroadcastReceiver {
         AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
 
         for (int i = 0; i < 40; i++) {//we could save the size of the array and get rid of every unique id with that size, but I don't think it will go past 40
-            PendingIntent zmanPendingIntent = PendingIntent.getBroadcast(
-                    context.getApplicationContext(),
-                    i,
+            // Cancel regular notification intents
+            PendingIntent broadcastPI = PendingIntent.getBroadcast(
+                    context, i,
                     new Intent(context, ZmanNotification.class).setAction(String.valueOf(i)),
-                    PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
+                    PendingIntent.FLAG_NO_CREATE | PendingIntent.FLAG_IMMUTABLE);
+            if (broadcastPI != null) { am.cancel(broadcastPI); broadcastPI.cancel(); }
 
-            am.cancel(zmanPendingIntent);//cancel the last zmanim notifications set
+            // Cancel alarm activity intents
+            PendingIntent activityPI = PendingIntent.getActivity(
+                    context, i,
+                    new Intent(context, ZmanAlarmActivity.class).setAction(String.valueOf(i)),
+                    PendingIntent.FLAG_NO_CREATE | PendingIntent.FLAG_IMMUTABLE);
+            if (activityPI != null) { am.cancel(activityPI); activityPI.cancel(); }
         }
 
         boolean isAlarmMode = mSharedPreferences.getBoolean("zmanim_alarm_mode", false);
@@ -136,7 +143,23 @@ public class ZmanimNotifications extends BroadcastReceiver {
                     );
 
                     if (isAlarmMode) {
-                        am.setAlarmClock(new AlarmManager.AlarmClockInfo(triggerTime, showIntent), zmanPendingIntent);
+                        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(
+                                context.getApplicationContext(),
+                                set,
+                                new Intent(context, ZmanNotification.class)
+                                        .setAction(String.valueOf(set))
+                                        .putExtra("zman", zmanimOver3Days.get(i).getZmanName() + ":"
+                                                + zmanimOver3Days.get(i).getZmanDate().getTime()),
+                                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
+                        );
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                            if (am.canScheduleExactAlarms()) {
+                                am.setAlarmClock(
+                                        new AlarmManager.AlarmClockInfo(triggerTime, showIntent),
+                                        alarmPendingIntent
+                                );
+                            }
+                        }
                     } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         if (am.canScheduleExactAlarms()) {
                             am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, zmanimOver3Days.get(i).getZmanDate().getTime() - (60_000L * zmanimOver3Days.get(i).getNotificationDelay()), zmanPendingIntent);

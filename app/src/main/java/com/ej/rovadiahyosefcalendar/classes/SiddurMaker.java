@@ -861,7 +861,7 @@ public class SiddurMaker {
 
 			boolean halfKaddish = (jewishDateInfo.getJewishCalendar().isChanukah()
 					&& !jewishDateInfo.getJewishCalendar().isRoshChodesh());
-			addKaddishVariants(halfKaddish ? KaddishTypes.HALF : KaddishTypes.TITKABAL);
+			addKaddishVariants(halfKaddish ? KaddishTypes.HALF : KaddishTypes.TITKABAL, true);
 		} else {
 
 			if (jewishDateInfo.getIsTachanunSaid().contains("Some say Tachanun")
@@ -1326,7 +1326,7 @@ public class SiddurMaker {
 
 		if (!jewishDateInfo.getJewishCalendar().isRoshChodesh() && !jewishDateInfo.getJewishCalendar().isCholHamoed()) {// on rosh chodesh and chol hamoed, we return the sefer torah before musaf
 			addInstructionToSiddur(isHebrew ? "ואומר הש\"ץ קדיש תתקבל" : "The Shaliach Tzibur says Kaddish Titkabal");
-			addKaddishVariants(KaddishTypes.TITKABAL);
+			addKaddishVariants(KaddishTypes.TITKABAL, true);
 
 			if (jewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.MONDAY
 					|| jewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.THURSDAY
@@ -1674,7 +1674,7 @@ public class SiddurMaker {
             addInstructionToSiddur(isHebrew ? "יש אומרים" : "Some say");
 			addToSiddur(
 				"כְּדִכְתִיב. כִּֽי־נִחַ֨ם יְהֹוָ֜ה צִיּ֗וֹן נִחַם֙ כָּל־חָרְבֹתֶ֔יהָ וַיָּ֤שֶׂם מִדְבָּרָהּ֙ כְּעֵ֔דֶן וְעַרְבָתָ֖הּ כְּגַן־יְהֹוָ֑ה שָׂשׂ֤וֹן וְשִׂמְחָה֙ יִמָּ֣צֵא בָ֔הּ תּוֹדָ֖ה וְק֥וֹל זִמְרָֽה׃ הִתְנַעֲרִ֧י מֵעָפָ֛ר ק֥וּמִי שְּׁבִ֖י יְרֽוּשָׁלִָ֑ם הִֽתְפַּתְּחִי֙ מוֹסְרֵ֣י צַוָּארֵ֔ךְ שְׁבִיָּ֖ה בַּת־צִיּֽוֹן׃");
-			addKaddishVariants(KaddishTypes.TITKABAL);// Chazon Ovadiah Page 391
+			addKaddishVariants(KaddishTypes.TITKABAL, true);// Chazon Ovadiah Taaniyot Page 391
             addInstructionToSiddur(isHebrew ? "יש אנשים שקוראים כאן את הספר איוב" : "Some read the entire Iyov here");
 			// Some add the entire Iyov here. Not gonna do that because they can pick up a
 			// tanach to do that, and it will make this class even bigger than necessary
@@ -2043,10 +2043,28 @@ public class SiddurMaker {
 		DEHU_ATID_TISHABEAV,
 		DEHU_ATID_SIYUM
 	}
+
 	private void addKaddishVariants(KaddishTypes selectedKaddish) {
-		addKaddishVariants(selectedKaddish, false);
+		addKaddishVariants(selectedKaddish, false, false);
 	}
-	private void addKaddishVariants(KaddishTypes selectedKaddish, boolean highlighted) {
+
+    private void addKaddishVariants(KaddishTypes selectedKaddish, boolean hasChazarahBefore) {
+        addKaddishVariants(selectedKaddish, false, hasChazarahBefore);
+    }
+
+    /**
+     * Adds the selected Kaddish prayer to the siddur with SiddurKahalStringBuilder. See {@link KaddishTypes} for selectable options.
+     * There are optional parameters for highlighting the entire kaddish prayer and if the Kaddish had a Chazara (Amida Repitition) before it.
+     * Regarding the latter parameter, see Yalkut Yosef Siman 268 Halacha 30 and the footnote there where he writes how originally when they
+     * made their first siddur, they put the word "הַשָּׁלוֹם" (only for Aseret Yemei Teshuva) in every Kaddish prayer. However, he writes that it is only
+     * appropriate to add "הַשָּׁלוֹם" for Kaddish prayers that occur after a Chazarah prayer has been said. I.E. It should only be added for Shacharit,
+     * Musaf, Mincha, and Neilah, but not for Arvit. (However, on Friday nights, when we have the blessing of Me'eyin Sheva, he says there is what
+     * to rely on to add it there as well).
+     * @param selectedKaddish
+     * @param highlighted
+     * @param hasChazarahBefore
+     */
+	private void addKaddishVariants(KaddishTypes selectedKaddish, boolean highlighted, boolean hasChazarahBefore) {
 		advancedString.clear();
 		advancedString
 			.append("יִתְגַּדַּל וְיִתְקַדַּשׁ שְׁמֵהּ רַבָּא.")
@@ -2130,7 +2148,7 @@ public class SiddurMaker {
 		else
 			addTwoWordToSiddur(advancedString, true);
 
-		if (jewishDateInfo.getJewishCalendar().isAseresYemeiTeshuva() && (selectedKaddish == KaddishTypes.TITKABAL || selectedKaddish == KaddishTypes.TITKABAL_YAMIM_NORAIM)) {
+		if (hasChazarahBefore && jewishDateInfo.getJewishCalendar().isAseresYemeiTeshuva() && (selectedKaddish == KaddishTypes.TITKABAL || selectedKaddish == KaddishTypes.TITKABAL_YAMIM_NORAIM)) {
 			advancedString.append("עוֹשֶׂה ");
 			if (!highlighted) {
 				addToSiddur(advancedString);
@@ -3522,7 +3540,7 @@ public class SiddurMaker {
         addTwoWordToSiddur(
 			"יְהִ֤י שֵׁ֣ם יְהֹוָ֣ה מְבֹרָ֑ךְ מֵ֝עַתָּ֗ה וְעַד־עוֹלָֽם׃ מִמִּזְרַח־שֶׁ֥מֶשׁ עַד־מְבוֹא֑וֹ מְ֝הֻלָּ֗ל שֵׁ֣ם יְהֹוָֽה׃ רָ֖ם עַל־כׇּל־גּוֹיִ֥ם ׀ יְהֹוָ֑ה עַ֖ל הַשָּׁמַ֣יִם כְּבוֹדֽוֹ׃ יְהֹוָ֥ה אֲדֹנֵ֑ינוּ מָה־אַדִּ֥יר שִׁ֝מְךָ֗ בְּכׇל־הָאָֽרֶץ׃");
 		addInstructionToSiddur(isHebrew ? "ואומר הש\"ץ קדיש תתקבל" : "The Shaliach Tzibur says Kaddish Titkabal");
-		addKaddishVariants(KaddishTypes.TITKABAL);
+		addKaddishVariants(KaddishTypes.TITKABAL, true);
 
 		if (jewishDateInfo.getJewishCalendar().isCholHamoedPesach()) {
 			addToSiddur(
@@ -3672,7 +3690,7 @@ public class SiddurMaker {
 				"יְהִ֤י שֵׁ֣ם יְהֹוָ֣ה מְבֹרָ֑ךְ מֵ֝עַתָּ֗ה וְעַד־עוֹלָֽם׃ מִמִּזְרַח־שֶׁ֥מֶשׁ עַד־מְבוֹא֑וֹ מְ֝הֻלָּ֗ל שֵׁ֣ם יְהֹוָֽה׃ רָ֖ם עַל־כׇּל־גּוֹיִ֥ם ׀ יְהֹוָ֑ה עַ֖ל הַשָּׁמַ֣יִם כְּבוֹדֽוֹ׃ יְהֹוָ֥ה אֲדֹנֵ֑ינוּ מָה־אַדִּ֥יר שִׁ֝מְךָ֗ בְּכׇל־הָאָֽרֶץ׃");
 		}
 
-		addKaddishVariants(KaddishTypes.TITKABAL);
+		addKaddishVariants(KaddishTypes.TITKABAL, true);
 
 		if (jewishDateInfo.getJewishCalendar().isTishaBav()) {
 			addTwoWordToSiddurHighlighted(getTehilimChapterTextByIndex(126));
@@ -3960,7 +3978,7 @@ public class SiddurMaker {
 				addToSiddur("יֹ֭שֵׁב בְּסֵ֣תֶר עֶלְי֑וֹן בְּצֵ֥ל שַׁ֝דַּ֗י יִתְלוֹנָֽן׃ אֹמַ֗ר לַ֭יהֹוָה מַחְסִ֣י וּמְצוּדָתִ֑י אֱ֝לֹהַ֗י אֶבְטַח־בּֽוֹ׃ כִּ֤י ה֣וּא יַ֭צִּילְךָ מִפַּ֥ח יָק֗וּשׁ מִדֶּ֥בֶר הַוּֽוֹת׃ בְּאֶבְרָת֨וֹ ׀  יָ֣סֶךְ לָ֭ךְ וְתַחַת־כְּנָפָ֣יו תֶּחְסֶ֑ה צִנָּ֖ה וְסֹחֵרָ֣ה אֲמִתּֽוֹ׃ לֹֽא־תִ֭ירָא מִפַּ֣חַד לָ֑יְלָה מֵ֝חֵ֗ץ יָע֥וּף יוֹמָֽם׃ מִ֭דֶּבֶר בָּאֹ֣פֶל יַהֲלֹ֑ךְ מִ֝קֶּ֗טֶב יָשׁ֥וּד צׇהֳרָֽיִם׃ יִפֹּ֤ל מִצִּדְּךָ֨ ׀ אֶ֗לֶף וּרְבָבָ֥ה מִימִינֶ֑ךָ אֵ֝לֶ֗יךָ לֹ֣א יִגָּֽשׁ׃ רַ֭ק בְּעֵינֶ֣יךָ תַבִּ֑יט וְשִׁלֻּמַ֖ת רְשָׁעִ֣ים תִּרְאֶֽה׃ כִּֽי־אַתָּ֣ה יְהֹוָ֣ה מַחְסִ֑י עֶ֝לְי֗וֹן שַׂ֣מְתָּ מְעוֹנֶֽךָ׃ לֹא־תְאֻנֶּ֣ה אֵלֶ֣יךָ רָעָ֑ה וְ֝נֶ֗גַע לֹא־יִקְרַ֥ב בְּאׇהֳלֶֽךָ׃ כִּ֣י מַ֭לְאָכָיו יְצַוֶּה־לָּ֑ךְ לִ֝שְׁמׇרְךָ֗ בְּכׇל־דְּרָכֶֽיךָ׃ עַל־כַּפַּ֥יִם יִשָּׂא֑וּנְךָ פֶּן־תִּגֹּ֖ף בָּאֶ֣בֶן רַגְלֶֽךָ׃ עַל־שַׁ֣חַל וָפֶ֣תֶן תִּדְרֹ֑ךְ תִּרְמֹ֖ס כְּפִ֣יר וְתַנִּֽין׃ כִּ֤י בִ֣י חָ֭שַׁק וַאֲפַלְּטֵ֑הוּ אֲ֝שַׂגְּבֵ֗הוּ כִּֽי־יָדַ֥ע שְׁמִֽי׃ יִקְרָאֵ֨נִי ׀ וְֽאֶעֱנֵ֗הוּ עִמּֽוֹ־אָנֹכִ֥י בְצָרָ֑ה אֲ֝חַלְּצֵ֗הוּ וַאֲכַבְּדֵֽהוּ׃ אֹ֣רֶךְ יָ֭מִים אַשְׂבִּיעֵ֑הוּ וְ֝אַרְאֵ֗הוּ בִּישׁוּעָתִֽי׃");
 			}
 		} else {
-			addKaddishVariants(KaddishTypes.TITKABAL);
+			addKaddishVariants(KaddishTypes.TITKABAL, false);
 		}
 
 		if (purim) {
@@ -4107,7 +4125,7 @@ public class SiddurMaker {
 				addKaddishVariants(KaddishTypes.DEHU_ATID_TISHABEAV);
 				addToSiddurHighlighted("עַד אָנָה בִּכְיָה בְּצִיּוֹן וּמִסְפֵּד בִּירוּשָׁלָיִם, תְָּשׁוּב תְּרַחֵם צִיּוֹן, וְתִּבְנֶה חוֹמוֹת יְרוּשָׁלָיִם:");
 			} else {
-				addKaddishVariants(KaddishTypes.TITKABAL);
+				addKaddishVariants(KaddishTypes.TITKABAL, false);
 			}
 		}
 
