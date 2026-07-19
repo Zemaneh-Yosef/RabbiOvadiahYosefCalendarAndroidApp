@@ -253,7 +253,7 @@ private fun SiddurScreen(
 			items(siddurContent) { currentText ->
 				SiddurRow(
 					currentText = currentText,
-					textSize = textSize.toInt(),
+					textSize = textSize,
 					isJustified = isJustified,
 					fontPreference = fontPreference,
 					jewishDateInfo = jewishDateInfo,
@@ -433,7 +433,7 @@ private fun Compass(instructionalText: String) {
 @Composable
 private fun SiddurRow(
 	currentText: HighlightString,
-	textSize: Int,
+	textSize: Float,
 	isJustified: Boolean,
 	fontPreference: String,
 	jewishDateInfo: JewishDateInfo,
