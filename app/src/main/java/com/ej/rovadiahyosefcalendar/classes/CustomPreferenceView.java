@@ -13,6 +13,7 @@ public class CustomPreferenceView extends MaterialPreference {
 
     private boolean isDimmed = false;
     private boolean forceLTRTextDirection = false;
+    private View.OnLongClickListener longClickListener;
 
     public CustomPreferenceView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -26,6 +27,10 @@ public class CustomPreferenceView extends MaterialPreference {
 
     private void init() {
         //setLayoutResource(R.layout.preference_custom); // Your custom layout with CardView
+    }
+
+    public void setOnPreferenceLongClickListener(View.OnLongClickListener listener) {
+        longClickListener = listener;
     }
 
     public void setDimmed(boolean dimmed) {
@@ -48,6 +53,7 @@ public class CustomPreferenceView extends MaterialPreference {
     @Override
     public void onBindViewHolder(@NonNull PreferenceViewHolder holder) {
         super.onBindViewHolder(holder);
+        holder.itemView.setOnLongClickListener(longClickListener);
 
         if (forceLTRTextDirection) {
             holder.itemView.setTextDirection(View.TEXT_DIRECTION_LTR);

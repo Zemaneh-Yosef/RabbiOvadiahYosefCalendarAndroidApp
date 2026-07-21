@@ -692,4 +692,5 @@
     <string name="sensor_accuracy_is_okay">דיוק החיישן תקין</string>
     <string name="no_sensor_found">לא נמצא חיישן</string>
     <string name="eruv_tavshilin">עירוב תבשילין</string>
+    <string name="hold_for_more_options">לחץ והחזק לאפשרויות נוספות</string>
 </resources>

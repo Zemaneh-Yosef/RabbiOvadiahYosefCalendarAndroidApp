@@ -481,4 +481,5 @@
     <string name="sensor_accuracy_is_okay">Sensor accuracy is okay.</string>
     <string name="no_sensor_found">No Sensor Found</string>
     <string name="eruv_tavshilin">Eruv Tavshilin</string>
+    <string name="hold_for_more_options">Hold for more options</string>
 </resources>
