@@ -1,8 +1,8 @@
 package com.ej.rovadiahyosefcalendar.classes
 
-import android.R
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -133,7 +133,7 @@ private fun SiddurScreen(
 	val context = LocalContext.current
 	val sharedPreferences = remember { PreferenceManager.getDefaultSharedPreferences(context) }
 
-	var textSize by remember { mutableFloatStateOf(sharedPreferences.getInt("TextSize", 24).toFloat()) }
+	var textSize by remember { mutableFloatStateOf(getMigratedTextSize(sharedPreferences)) }
 	var isJustified by remember { mutableStateOf(sharedPreferences.getBoolean("isJustified", false)) }
 	val fontPreference = remember { sharedPreferences.getString("font", "Guttman Keren") ?: "Guttman Keren" }
 
@@ -153,8 +153,8 @@ private fun SiddurScreen(
 	// State for the category dropdown menu
 	var showCategoryMenu by remember { mutableStateOf(false) }
 
-	val defaultBackgroundColor = getThemeColor(R.attr.colorBackground)
-    val defaultTextColor: Color = getThemeColor(R.attr.textColorPrimary)
+	val defaultBackgroundColor = getThemeColor(android.R.attr.colorBackground)
+    val defaultTextColor: Color = getThemeColor(android.R.attr.textColorPrimary)
 
 	Scaffold(
 		containerColor = defaultBackgroundColor,
@@ -215,10 +215,10 @@ private fun SiddurScreen(
 					}
 				},
 				colors = TopAppBarDefaults.topAppBarColors(
-					containerColor = getThemeColor(R.attr.windowBackground),
-					titleContentColor = getThemeColor(R.attr.textColorPrimary),
-					navigationIconContentColor = getThemeColor(R.attr.textColorPrimary),
-					actionIconContentColor = getThemeColor(R.attr.textColorPrimary),
+					containerColor = getThemeColor(android.R.attr.windowBackground),
+					titleContentColor = getThemeColor(android.R.attr.textColorPrimary),
+					navigationIconContentColor = getThemeColor(android.R.attr.textColorPrimary),
+					actionIconContentColor = getThemeColor(android.R.attr.textColorPrimary),
 				)
 			)
 		},
@@ -229,7 +229,7 @@ private fun SiddurScreen(
 				onTextSizeChange = { newSize ->
 					textSize = newSize
 					sharedPreferences.edit {
-						putInt("TextSize", newSize.toInt())
+						putFloat("TextSize", newSize)
 					}
 				},
 				onJustifyClick = {
@@ -253,7 +253,7 @@ private fun SiddurScreen(
 			items(siddurContent) { currentText ->
 				SiddurRow(
 					currentText = currentText,
-					textSize = textSize.toInt(),
+					textSize = textSize,
 					isJustified = isJustified,
 					fontPreference = fontPreference,
 					jewishDateInfo = jewishDateInfo,
@@ -264,6 +264,19 @@ private fun SiddurScreen(
 	}
 }
 
+fun getMigratedTextSize(sharedPreferences: SharedPreferences): Float {
+    return try {// Try reading it as a Float first (for new or already migrated users)
+        sharedPreferences.getFloat("TextSize", 24.0f)
+    } catch (e: ClassCastException) {// The old value is still an Int, which caused the crash. Read it as an Int.
+        val oldIntValue = sharedPreferences.getInt("TextSize", 24)
+        val floatValue = oldIntValue.toFloat()
+        // Migrate the value to a Float so we don't hit this catch block again
+        sharedPreferences.edit { putFloat("TextSize", floatValue) }
+
+        floatValue
+    }
+}
+
 @Composable
 private fun SiddurBottomBar(
     currentTextSize: Float,
@@ -272,8 +285,8 @@ private fun SiddurBottomBar(
     onJustifyClick: () -> Unit
 ) {
     BottomAppBar(
-        containerColor = getThemeColor(R.attr.windowBackground),
-        contentColor = getThemeColor(R.attr.textColorPrimary) // M3 uses contentColor
+        containerColor = getThemeColor(android.R.attr.windowBackground),
+        contentColor = getThemeColor(android.R.attr.textColorPrimary) // M3 uses contentColor
     ) {
         Slider(
             value = currentTextSize,
@@ -420,7 +433,7 @@ private fun Compass(instructionalText: String) {
 @Composable
 private fun SiddurRow(
 	currentText: HighlightString,
-	textSize: Int,
+	textSize: Float,
 	isJustified: Boolean,
 	fontPreference: String,
 	jewishDateInfo: JewishDateInfo,
@@ -466,7 +479,7 @@ private fun SiddurRow(
 
 		val textColor = when {
 			currentText.isHighlighted -> Color.Black
-			else -> getThemeColor(R.attr.textColorPrimary)
+			else -> getThemeColor(android.R.attr.textColorPrimary)
 		}
 
 		val fontFamily = when {

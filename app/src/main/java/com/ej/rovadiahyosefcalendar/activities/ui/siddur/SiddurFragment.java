@@ -50,6 +50,7 @@ import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.kosherjava.zmanim.hebrewcalendar.Daf;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
+import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
 import com.kosherjava.zmanim.hebrewcalendar.TefilaRules;
 import com.kosherjava.zmanim.hebrewcalendar.YomiCalculator;
 
@@ -809,12 +810,17 @@ public class SiddurFragment extends Fragment {
                 birchatLevana.setForceLTRTextDirection(!Utils.isLocaleHebrew(mContext));
             }
 
-            CustomPreferenceView disclaimer = findPreference("siddur_misc_prayer");
-            if (disclaimer != null) {
-                disclaimer.setForceLTRTextDirection(!Utils.isLocaleHebrew(mContext));
+            CustomPreferenceView miscPrayer = findPreference("siddur_misc_prayer");
+            if (miscPrayer != null) {
+                miscPrayer.setForceLTRTextDirection(!Utils.isLocaleHebrew(mContext));
                 String title = "";
                 String summary = "";
-                if (getSunsetBasedJewishDateInfo().getJewishCalendar().getYomTovIndex() == JewishCalendar.TU_BESHVAT) {
+                boolean isTefilatEtrogSaid = getSunsetBasedJewishDateInfo().getJewishCalendar().getYomTovIndex() == JewishCalendar.TU_BESHVAT;
+                boolean isParshatHamanSaid = getSunsetBasedJewishDateInfo().getJewishCalendar().getUpcomingParshah() == JewishCalendar.Parsha.BESHALACH &&
+                        getSunsetBasedJewishDateInfo().getJewishCalendar().getDayOfWeek() == Calendar.TUESDAY;
+                boolean isTefilatHaShelahSaid = getSunsetBasedJewishDateInfo().getJewishCalendar().isErevRoshChodesh() &&
+                        getSunsetBasedJewishDateInfo().getJewishCalendar().getJewishMonth() == JewishDate.IYAR;
+                if (isTefilatEtrogSaid) {
                     if (Utils.isLocaleHebrew(mContext)) {
                         title = "תפילה לאתרוג";
                         summary = "טוב לאמר את התפילה הזו בטו בשבט";
@@ -822,14 +828,13 @@ public class SiddurFragment extends Fragment {
                         title = "Prayer for an Etrog";
                         summary = "It is good to say this prayer on Tu'Beshvat";
                     }
-                    disclaimer.setOnPreferenceClickListener(v -> {
+                    miscPrayer.setOnPreferenceClickListener(v -> {
                         startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://elyahu41.github.io/Prayer%20for%20an%20Etrog.pdf")));
                         return true;
                     });
                 }
 
-                if (getSunsetBasedJewishDateInfo().getJewishCalendar().getUpcomingParshah() == JewishCalendar.Parsha.BESHALACH &&
-                        getSunsetBasedJewishDateInfo().getJewishCalendar().getDayOfWeek() == Calendar.TUESDAY) {
+                if (isParshatHamanSaid) {
                     if (Utils.isLocaleHebrew(mContext)) {
                         title = "פרשת המן";
                         summary = "טוב לאמר את התפילה הזו היום";
@@ -837,18 +842,29 @@ public class SiddurFragment extends Fragment {
                         title = "Parshat Haman";
                         summary = "It is good to say this prayer today";
                     }
-                    disclaimer.setOnPreferenceClickListener(v -> {
+                    miscPrayer.setOnPreferenceClickListener(v -> {
                         startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://elyahu41.github.io/Parshat-Haman-3.pdf")));
                         return true;
                     });
                 }
 
-                disclaimer.setTitle(title);
-                disclaimer.setSummary(summary);
-                disclaimer.setVisible(!(getSunsetBasedJewishDateInfo().getJewishCalendar().getYomTovIndex() != JewishCalendar.TU_BESHVAT &&
-                        !(getSunsetBasedJewishDateInfo().getJewishCalendar().getUpcomingParshah() == JewishCalendar.Parsha.BESHALACH &&
-                                getSunsetBasedJewishDateInfo().getJewishCalendar().getDayOfWeek() == Calendar.TUESDAY)));
+                if (isTefilatHaShelahSaid) {
+                    if (Utils.isLocaleHebrew(mContext)) {
+                        title = "תפילת השל\"ה";
+                        summary = "טוב לאמר את התפילה הזו היום";
+                    } else {
+                        title = "Tefilat HaShelah";
+                        summary = "It is good to say this prayer today";
+                    }
+                    miscPrayer.setOnPreferenceClickListener(v -> {
+                        startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://elyahu41.github.io/tefillas_hasheloh.pdf")));
+                        return true;
+                    });
+                }
 
+                miscPrayer.setTitle(title);
+                miscPrayer.setSummary(summary);
+                miscPrayer.setVisible(isTefilatEtrogSaid || isParshatHamanSaid || isTefilatHaShelahSaid);
             }
         }
 

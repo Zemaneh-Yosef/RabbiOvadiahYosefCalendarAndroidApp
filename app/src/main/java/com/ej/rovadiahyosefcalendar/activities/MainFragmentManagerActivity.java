@@ -201,9 +201,14 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
            sNavView.getOrCreateBadge(R.id.navigation_siddur).setText("תפילה לאתרוג");
         }
 
-        if ((sJewishDateInfo.getJewishCalendar().getUpcomingParshah() == JewishCalendar.Parsha.BESHALACH &&
-                sJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.TUESDAY)) {
+        if (sJewishDateInfo.getJewishCalendar().getUpcomingParshah() == JewishCalendar.Parsha.BESHALACH &&
+                sJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.TUESDAY) {
             sNavView.getOrCreateBadge(R.id.navigation_siddur).setText("פרשת המן");
+        }
+
+        if (sJewishDateInfo.getJewishCalendar().isErevRoshChodesh() &&
+                sJewishDateInfo.getJewishCalendar().getJewishMonth() == JewishDate.IYAR) {
+            sNavView.getOrCreateBadge(R.id.navigation_siddur).setText("תפילת השל\"ה");
         }
 
         if (sJewishDateInfo.getJewishCalendar().getJewishMonth() == JewishDate.NISSAN) {
