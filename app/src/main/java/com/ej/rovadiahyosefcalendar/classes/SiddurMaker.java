@@ -1328,17 +1328,17 @@ public class SiddurMaker {
 			addInstructionToSiddur(isHebrew ? "ואומר הש\"ץ קדיש תתקבל" : "The Shaliach Tzibur says Kaddish Titkabal");
 			addKaddishVariants(KaddishTypes.TITKABAL, true);
 
-			if (jewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.MONDAY
+			if (jewishDateInfo.getJewishCalendar().isTishaBav()) {
+				addInstructionToSiddur(isHebrew ? "ומחזירין את ספר התורה למקומו ואומרים" : "The Sefer Torah is now returned");
+				addToSiddurHighlighted(getTehilimChapterTextByIndex(137));
+			} else if (jewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.MONDAY
 					|| jewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.THURSDAY
 					|| jewishDateInfo.getJewishCalendar().isPurim()
-					|| (jewishDateInfo.getJewishCalendar().isRegularTaanis() && !jewishDateInfo.getJewishCalendar().isTishaBav())
+					|| (jewishDateInfo.getJewishCalendar().isRegularTaanis())
 					|| jewishDateInfo.getJewishCalendar().isChanukah()) {
 				addInstructionToSiddur(isHebrew ? "ומחזירין את ספר התורה למקומו ואומרים יהללו" : "The Sefer Torah is now returned");
 				addToSiddur(
-					"יְהַלְל֤וּ ׀ אֶת־שֵׁ֬ם יְהֹוָ֗ה כִּֽי־נִשְׂגָּ֣ב שְׁמ֣וֹ לְבַדּ֑וֹ ה֝וֹד֗וֹ עַל־אֶ֥רֶץ וְשָׁמָֽיִם׃ וַיָּ֤רֶם קֶ֨רֶן ׀ לְעַמּ֡וֹ תְּהִלָּ֤ה לְֽכׇל־חֲסִידָ֗יו לִבְנֵ֣י יִ֭שְׂרָאֵל עַ֥ם קְרֹב֗וֹ הַֽלְלוּיָֽהּ׃ יְהֹוָה הוּא הָאֱלֹהִים, יְהֹוָה֙ ה֣וּא הָֽאֱלֹהִ֔ים בַּשָּׁמַ֣יִם מִמַּ֔עַל וְעַל־הָאָ֖רֶץ מִתָּ֑חַת אֵ֖ין עֽוֹד: אֵין־כָּמ֖וֹךָ בָאֱלֹהִ֥ים ׀ אֲדֹנָ֗י וְאֵ֣ין כְּֽמַעֲשֶֽׂיךָ׃ הֲשִׁיבֵ֨נוּ יְהֹוָ֤ה ׀ אֵלֶ֙יךָ֙ וְֽנָשׁ֔וּבָה חַדֵּ֥שׁ יָמֵ֖ינוּ כְּקֶֽדֶם׃");
-			} else if (jewishDateInfo.getJewishCalendar().isTishaBav()) {
-				addInstructionToSiddur(isHebrew ? "ומחזירין את ספר התורה למקומו ואומרים" : "The Sefer Torah is now returned");
-				addToSiddurHighlighted(getTehilimChapterTextByIndex(137));
+						"יְהַלְל֤וּ ׀ אֶת־שֵׁ֬ם יְהֹוָ֗ה כִּֽי־נִשְׂגָּ֣ב שְׁמ֣וֹ לְבַדּ֑וֹ ה֝וֹד֗וֹ עַל־אֶ֥רֶץ וְשָׁמָֽיִם׃ וַיָּ֤רֶם קֶ֨רֶן ׀ לְעַמּ֡וֹ תְּהִלָּ֤ה לְֽכׇל־חֲסִידָ֗יו לִבְנֵ֣י יִ֭שְׂרָאֵל עַ֥ם קְרֹב֗וֹ הַֽלְלוּיָֽהּ׃ יְהֹוָה הוּא הָאֱלֹהִים, יְהֹוָה֙ ה֣וּא הָֽאֱלֹהִ֔ים בַּשָּׁמַ֣יִם מִמַּ֔עַל וְעַל־הָאָ֖רֶץ מִתָּ֑חַת אֵ֖ין עֽוֹד: אֵין־כָּמ֖וֹךָ בָאֱלֹהִ֥ים ׀ אֲדֹנָ֗י וְאֵ֣ין כְּֽמַעֲשֶֽׂיךָ׃ הֲשִׁיבֵ֨נוּ יְהֹוָ֤ה ׀ אֵלֶ֙יךָ֙ וְֽנָשׁ֔וּבָה חַדֵּ֥שׁ יָמֵ֖ינוּ כְּקֶֽדֶם׃");
 			}
 		}
 
@@ -3652,6 +3652,8 @@ public class SiddurMaker {
 					"בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם, צוּר כָּל־הָעוֹלָמִים, צַדִּיק בְּכָל־הַדּוֹרוֹת, הָאֵל הַנֶּאֱמָן הָאֹמֵר וְעֹשֶׂה, הַמְדַבֵּר וּמְקַיֵּם, שֶׁכָּל־דְּבָרָיו אֱמֶת וָצֶדֶק. נֶאֱמָן, אַתָּה הוּא יְהֹוָה אֱלֹהֵינוּ, וְנֶאֱמָנִים דְּבָרֶיךָ, וְדָבָר אֶחָד מִדְּבָרֶיךָ אָחוֹר לֹא יָשׁוּב רֵיקָם, כִּי אֵל מֶלֶךְ נֶאֱמָן וְרַחֲמָן אָתָּה. בָּרוּךְ אַתָּה יְהֹוָה, הָאֵל הַנֶּאֱמָן בְּכָל־דְּבָרָיו: \n" +
 					"רַחֵם עַל צִיּוֹן כִּי הִיא בֵּית חַיֵּינוּ, וְלַעֲלוּבַת נֶפֶשׁ תּוֹשִׁיעַ בִּמְהֵרָה בְיָמֵינוּ. בָּרוּךְ אַתָּה יְהֹוָה, מְשַׂמֵּחַ צִיּוֹן בְּבָנֶיהָ: \n" +
 					"שַׂמְּחֵנוּ יְהֹוָה אֱלֹהֵינוּ, בְּאֵלִיָהוּ הַנָּבִיא עַבְדָּךְ, וּבְמַלְכוּת בֵּית דָּוִד מְשִׁיחָךְ, בִּמְהֵרָה יָבֹא וְיָגֵל לִבֵּנוּ, עַל כִּסְאוֹ לֹא יֵשֶׁב זָר, וְלֹא יִנְחֲלוּ עוֹד אֲחֵרִים אֶת כְּבוֹדוֹ, כִּי בְשֵׁם קָדְשְׁךָ נִשְׁבַּעְתָּ לּוֹ, שֶׁלֹּא יִכְבֶּה נֵרוֹ לְעוֹלָם וָעֶד. בָּרוּךְ אַתָּה יְהֹוָה, מָגֵן דָּוִד: [אָמֵן]");
+				addInstructionToSiddur(isHebrew ? "ומחזירין את ספר התורה למקומו ואומרים יהללו" : "The Sefer Torah is now returned");
+				addToSiddur("יְהַלְל֤וּ ׀ אֶת־שֵׁ֬ם יְהֹוָ֗ה כִּֽי־נִשְׂגָּ֣ב שְׁמ֣וֹ לְבַדּ֑וֹ ה֝וֹד֗וֹ עַל־אֶ֥רֶץ וְשָׁמָֽיִם׃ וַיָּ֤רֶם קֶ֨רֶן ׀ לְעַמּ֡וֹ תְּהִלָּ֤ה לְֽכׇל־חֲסִידָ֗יו לִבְנֵ֣י יִ֭שְׂרָאֵל עַ֥ם קְרֹב֗וֹ הַֽלְלוּיָֽהּ׃ יְהֹוָה הוּא הָאֱלֹהִים, יְהֹוָה֙ ה֣וּא הָֽאֱלֹהִ֔ים בַּשָּׁמַ֣יִם מִמַּ֔עַל וְעַל־הָאָ֖רֶץ מִתָּ֑חַת אֵ֖ין עֽוֹד: אֵין־כָּמ֖וֹךָ בָאֱלֹהִ֥ים ׀ אֲדֹנָ֗י וְאֵ֣ין כְּֽמַעֲשֶֽׂיךָ׃ הֲשִׁיבֵ֨נוּ יְהֹוָ֤ה ׀ אֵלֶ֙יךָ֙ וְֽנָשׁ֔וּבָה חַדֵּ֥שׁ יָמֵ֖ינוּ כְּקֶֽדֶם׃");
 			}
 		}
 
@@ -3675,6 +3677,7 @@ public class SiddurMaker {
 		if (isTachanunSaidByMincha) {
 			addTachanun();
 		} else if (jewishDateInfo.getJewishCalendar().isTishaBav()) {
+			addInstructionToSiddur(isHebrew ? "טוב שיכון הש\"ץ לסיים החזרה עם השקיעה כדי שיאמרו פסוקי הנחמה אחר השקיעה, ולא ביום ת\"ב עצמו" : "It is preferable that the Shliach Tzibur time the repetition so that it concludes at sunset, in order that the verses of consolation be said after sunset and not on Tisha B'Av itself");
 			addToSiddur(
 				"נַחֲמוּ נַחֲמוּ עַמִּי, יֹאמַר אֶשְׁכֹּל כֹּֽפֶר. לְנַחֵם אֶת כָּל־הַנִּמְצָא כָּתוּב בַּסֵּֽפֶר. לָשׂוּם לַֽאֲבֵלֵי צִיּוֹן פְּאֵר תַּֽחַת אֵֽפֶר: \n" +
 				"עַל חַלְלֵי בַת־עַמִּי, לִבִּי הוֹמֶה־עָלַי, וְעַל חָרְבַּן אוּלָמִּי, וְעַל שִׁמְמוּת הֵיכָלִי, מָקוֹם הַנִּקְרָא בִּשְׁמִי, וּקְרָאתִיו הֲדוֹם רַגְלַי, שָׂמוּ אוֹתוֹ לְעִיִּים בְּנֵי עֵיפָה וָעֵֽפֶר. לָשׂוּם לַֽאֲבֵלֵי צִיּוֹן פְּאֵר תַּֽחַת אֵֽפֶר: \n" +
@@ -4107,7 +4110,7 @@ public class SiddurMaker {
 
 			addToSiddur(
 				"אַחֵינוּ בֵּית יִשְׂרָאֵל. שְׁמָעוּ, כִּי בַּעֲוֹנוֹתֵינוּ. אֲנַחְנוּ מוֹנִים לְחֻרְבַּן בֵּית מִקְדָּשֵׁנוּ. וְלִשְׂרֵיפַת הֵיכָלֵנוּ. וּלְגָלוּת שְׁכִינַת עֻזֵּנוּ. וְלִנְפִלַת עֲטֶרֶת רֹאשֵׁנוּ. וּלְפִזּוּר עַם הַקֹּדֶשׁ מִירוּשָׁלַיִם עִיר הַקֹּדֶשׁ.");
-			addInstructionToSiddur(isHebrew ? "ואומר את מנין השנים לחרבן בית המקדש והמספר הוא ס״ח שנים פחות ממניינם של העמים" : "Here we say the number of years from the destruction of the temple. It is 68 years minus the secular year");
+			addInstructionToSiddur(isHebrew ? "ואומר את מנין השנים לחרבן בית המקדש והמספר הוא ס״ח שנים פחות ממניינם של העמים" : "Here we say the number of years from the destruction of the temple. It is the secular year minus 68 years");
 			addToSiddurHighlighted("הַיּוֹם "
 				+ Utils.NumberToHebrew.numberToHebrew(jewishDateInfo.getJewishCalendar().getGregorianYear() - 68)
 				+ " שָנָה לְחֻרְבַּן בֵּית מִקְדָשֵׁנוּ");// current year - 68 years
