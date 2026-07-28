@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace 'com.EJ.ROvadiahYosefCalendar'
-    compileSdk 36
+    compileSdk 37
 
     defaultConfig {
         applicationId "com.EJ.ROvadiahYosefCalendar"
         minSdk 26
-        targetSdk 34
+        targetSdk 37
         versionCode 257
         versionName "27.3"
         multiDexEnabled true

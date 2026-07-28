@@ -45,12 +45,14 @@ import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -94,6 +96,7 @@ import com.ej.rovadiahyosefcalendar.activities.WelcomeScreenActivity;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesWebJava;
 import com.ej.rovadiahyosefcalendar.classes.DummyZmanAdapter;
 import com.ej.rovadiahyosefcalendar.classes.HebrewDayMonthYearPickerDialog;
+import com.ej.rovadiahyosefcalendar.classes.JewishCalendarWithExtraMethods;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.MakamJCal;
@@ -183,7 +186,12 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      * The zman that is coming up next.
      */
     public static Date sNextUpcomingZman = null;
-
+    private Location mNetworkLocation;
+    private Location mGpsLocation;
+    private Location mCommittedLocation;// the candidate currently reflected in the UI for this request cycle, or null if nothing's been shown yet
+    private final Handler mLocationTimeoutHandler = new Handler(Looper.getMainLooper());
+    private Runnable mLocationTimeoutRunnable;
+    private static final long LOCATION_UPDATE_TIMEOUT_MS = 5000L;
     private LocationResolver mLocationResolver;
     private final ZmanimFormatter mZmanimFormatter = new ZmanimFormatter(TimeZone.getDefault());
     public static ActivityResultLauncher<Intent> sNotificationLauncher;
@@ -289,7 +297,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      */
     private void initMainView() {
         if (sLatitude == 0 && sLongitude == 0) {
-            mLocationResolver.acquireLatitudeAndLongitude(this);
+            requestDeviceLocation();
         }
         mLocationResolver.setTimeZoneID();
         if (binding != null) {
@@ -558,7 +566,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             if (mLocationResolver == null) {
                 mLocationResolver = new LocationResolver(mContext, mActivity);
             }
-            mLocationResolver.acquireLatitudeAndLongitude(this);
+            requestDeviceLocation();
             mLocationResolver.setTimeZoneID();
             checkIfUserIsInIsraelOrNot();
             if (sCurrentDateShown != null && sROZmanimCalendar != null && mMainRecyclerView != null) {
@@ -1365,24 +1373,20 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         String tekufaOpinions = sSettingsPreferences.getString("TekufaOpinions", "1");
         switch (tekufaOpinions) {
             case "1":
-                if (sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
-                    addAmudeiHoraahTekufaTime(zmanim, false);
-                } else {
-                    addTekufaTime(zmanim, false);
-                }
+                addTekufaTime(zmanim, false, sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false));
                 break;
             case "2":
-                addTekufaTime(zmanim, false);
+                addTekufaTime(zmanim, false, false);
                 break;
             case "3":
-                addAmudeiHoraahTekufaTime(zmanim, false);
+                addTekufaTime(zmanim, false, true);
                 break;
-            default://I.E. 4
-                addAmudeiHoraahTekufaTime(zmanim, false);
-                addTekufaTime(zmanim, false);
+            default:// 4
+                addTekufaTime(zmanim, false, true);
+                addTekufaTime(zmanim, false, false);
                 break;
         }
-        addTekufaLength(zmanim, tekufaOpinions);
+        addTekufaLength(zmanim, tekufaOpinions, sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false));
 
         addZmanim(zmanim, false, sSettingsPreferences, sSharedPreferences, sROZmanimCalendar, sJewishDateInfo, add66MisheyakirZman);
 
@@ -1550,25 +1554,21 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             announcements.append(mContext.getString(R.string.burn_your_ametz_today)).append("\n");
         }
 
-        List<ZmanListEntry> tekufa = new ArrayList<>();
         String tekufaOpinions = sSettingsPreferences.getString("TekufaOpinions", "1");
+        List<ZmanListEntry> tekufa = new ArrayList<>();
         switch (tekufaOpinions) {
             case "1":
-                if (sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
-                    addAmudeiHoraahTekufaTime(tekufa, true);
-                } else {
-                    addTekufaTime(tekufa, true);
-                }
+                addTekufaTime(tekufa, true, sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false));
                 break;
             case "2":
-                addTekufaTime(tekufa, true);
+                addTekufaTime(tekufa, true, false);
                 break;
             case "3":
-                addAmudeiHoraahTekufaTime(tekufa, true);
+                addTekufaTime(tekufa, true, true);
                 break;
             default:// 4
-                addAmudeiHoraahTekufaTime(tekufa, true);
-                addTekufaTime(tekufa, true);
+                addTekufaTime(tekufa, true, true);
+                addTekufaTime(tekufa, true, false);
                 break;
         }
         if (!tekufa.isEmpty()) {
@@ -1813,234 +1813,111 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         return shortZmanim;
     }
 
+// ZmanimFragment.java
+
     /**
-     * This method will check if the tekufa happens within the next 48 hours and it will add the tekufa to the list passed in if it happens
-     * on the current date.
-     *
-     * @param zmanim     the list of zmanim to add to
-     * @param shortStyle if the tekufa should be added as "Tekufa Nissan : 4:30" or "Tekufa Nissan is today at 4:30"
+     * True if the tekufa (checked via the given accessor) falls on the same calendar day as
+     * zmanimCalendarCopy's current date. Tekufa can land a day earlier than expected, so callers
+     * should have already advanced the copy by one day before checking, per the existing pattern.
      */
-    private void addTekufaTime(List<ZmanListEntry> zmanim, boolean shortStyle) {
-        DateFormat zmanimFormat = new SimpleDateFormat(Utils.dateFormatPattern(mContext, false), mContext
-                .getResources()
-                .getConfiguration()
-                .getLocales()
-                .get(0));
-        zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
-        ROZmanimCalendar zmanimCalendarCopy = sROZmanimCalendar.getCopy();
-        JewishDateInfo jewishDateInfoCopy = sJewishDateInfo.getCopy();
-        zmanimCalendarCopy.getCalendar().add(Calendar.DATE, 1);//check next day for tekufa, because the tekufa time can go back a day
-        jewishDateInfoCopy.setCalendar(zmanimCalendarCopy.getCalendar());
-        zmanimCalendarCopy.getCalendar().add(Calendar.DATE, -1);//reset the calendar to check for the current date
-        if (jewishDateInfoCopy.getJewishCalendar().getTekufa() != null) {
-
-            final Calendar cal1 = (Calendar) zmanimCalendarCopy.getCalendar().clone();
-            final Calendar cal2 = (Calendar) zmanimCalendarCopy.getCalendar().clone();
-            cal2.setTime(jewishDateInfoCopy.getJewishCalendar().getTekufaAsDate());// should not be null in this if block
-
-            if (cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA) &&
-                    cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
-                    cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
-
-                if (Utils.isLocaleHebrew(mContext)) {
-                    zmanim.add(new ZmanListEntry("תקופת " + jewishDateInfoCopy.getJewishCalendar().getTekufaName(Utils.isLocaleHebrew(mContext)) +
-                            (shortStyle ? " : " : " היום בשעה ") +
-                            zmanimFormat.format(jewishDateInfoCopy.getJewishCalendar().getTekufaAsDate())));
-                } else {
-                    zmanim.add(new ZmanListEntry("Tekufa " + jewishDateInfoCopy.getJewishCalendar().getTekufaName(Utils.isLocaleHebrew(mContext)) +
-                            (shortStyle ? " : " : " is today at ") +
-                            zmanimFormat.format(jewishDateInfoCopy.getJewishCalendar().getTekufaAsDate())));
-                }
-            }
-        }
-        jewishDateInfoCopy.setCalendar(zmanimCalendarCopy.getCalendar());//reset
-
-        //else the tekufa time is on the same day as the current date, so we can add it normally
-        if (jewishDateInfoCopy.getJewishCalendar().getTekufa() != null) {
-
-            final Calendar cal1 = (Calendar) zmanimCalendarCopy.getCalendar().clone();
-            final Calendar cal2 = (Calendar) zmanimCalendarCopy.getCalendar().clone();
-            cal2.setTime(jewishDateInfoCopy.getJewishCalendar().getTekufaAsDate());// should not be null in this if block
-
-            if (cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA) &&
-                    cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
-                    cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
-
-                if (Utils.isLocaleHebrew(mContext)) {
-                    zmanim.add(new ZmanListEntry("תקופת " + jewishDateInfoCopy.getJewishCalendar().getTekufaName(Utils.isLocaleHebrew(mContext)) +
-                            (shortStyle ? " : " : " היום בשעה ") +
-                            zmanimFormat.format(jewishDateInfoCopy.getJewishCalendar().getTekufaAsDate())));
-                } else {
-                    zmanim.add(new ZmanListEntry("Tekufa " + jewishDateInfoCopy.getJewishCalendar().getTekufaName(Utils.isLocaleHebrew(mContext)) +
-                            (shortStyle ? " : " : " is today at ") +
-                            zmanimFormat.format(jewishDateInfoCopy.getJewishCalendar().getTekufaAsDate())));
-                }
-            }
-        }
+    private boolean isTekufaToday(ROZmanimCalendar zmanimCalendarCopy, Date tekufaDate) {
+        if (tekufaDate == null) return false;
+        Calendar cal1 = zmanimCalendarCopy.getCalendar();
+        Calendar cal2 = (Calendar) cal1.clone();
+        cal2.setTime(tekufaDate);
+        return cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA)
+                && cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR)
+                && cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR);
     }
 
     /**
-     * This method will check if the tekufa happens within the next 48 hours and it will add the tekufa to the list passed in if it happens
-     * on the current date.
-     *
-     * @param zmanim     the list of zmanim to add to
+     * Adds the time for the Tekufa/Season Change to the list passed in as a string.
+     * @param list the list of ZmanListEntry to add to
      * @param shortStyle if the tekufa should be added as "Tekufa Nissan : 4:30" or "Tekufa Nissan is today at 4:30"
+     * @param amudeiHoraah method JewishCalendar::getTekufaAsDate or JewishCalendar::getAmudeiHoraahTekufaAsDate
      */
-    private void addAmudeiHoraahTekufaTime(List<ZmanListEntry> zmanim, boolean shortStyle) {
+    private void addTekufaTime(List<ZmanListEntry> list, boolean shortStyle, boolean amudeiHoraah) {
         DateFormat zmanimFormat = new SimpleDateFormat(Utils.dateFormatPattern(mContext, false), mContext
-                .getResources()
-                .getConfiguration()
-                .getLocales()
-                .get(0));
+                .getResources().getConfiguration().getLocales().get(0));
         zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
+
         ROZmanimCalendar zmanimCalendarCopy = sROZmanimCalendar.getCopy();
         JewishDateInfo jewishDateInfoCopy = sJewishDateInfo.getCopy();
-        zmanimCalendarCopy.getCalendar().add(Calendar.DATE, 1);//check next day for tekufa, because the tekufa time can go back a day
-        jewishDateInfoCopy.setCalendar(zmanimCalendarCopy.getCalendar());
-        zmanimCalendarCopy.getCalendar().add(Calendar.DATE, -1);//reset the calendar to check for the current date
 
-        if (jewishDateInfoCopy.getJewishCalendar().getTekufa() != null) {
+        // Check tomorrow first (tekufa can land a day earlier than expected), then today.
+        for (int dayOffset : new int[]{1, 0}) {
+            zmanimCalendarCopy.getCalendar().add(Calendar.DATE, dayOffset);
+            jewishDateInfoCopy.setCalendar(zmanimCalendarCopy.getCalendar());
+            zmanimCalendarCopy.getCalendar().add(Calendar.DATE, -dayOffset);
 
-            final Calendar cal1 = (Calendar) zmanimCalendarCopy.getCalendar().clone();
-            final Calendar cal2 = (Calendar) zmanimCalendarCopy.getCalendar().clone();
-            cal2.setTime(jewishDateInfoCopy.getJewishCalendar().getAmudeiHoraahTekufaAsDate());// should not be null in this if block
+            JewishCalendarWithExtraMethods jc = jewishDateInfoCopy.getJewishCalendar();
+            if (jc.getTekufa() == null) continue;
 
-            if (cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA) &&
-                    cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
-                    cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
+            Date tekufaDate = jc.getTekufaAsDate(amudeiHoraah);
+            if (!isTekufaToday(zmanimCalendarCopy, tekufaDate)) continue;
 
-                if (Utils.isLocaleHebrew(mContext)) {
-                    zmanim.add(new ZmanListEntry("תקופת " + jewishDateInfoCopy.getJewishCalendar().getTekufaName(Utils.isLocaleHebrew(mContext)) +
-                            (shortStyle ? " : " : " היום בשעה ") +
-                            zmanimFormat.format(jewishDateInfoCopy.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
-                } else {
-                    zmanim.add(new ZmanListEntry("Tekufa " + jewishDateInfoCopy.getJewishCalendar().getTekufaName(Utils.isLocaleHebrew(mContext)) +
-                            (shortStyle ? " : " : " is today at ") +
-                            zmanimFormat.format(jewishDateInfoCopy.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
-                }
-            }
-        }
-        jewishDateInfoCopy.setCalendar(zmanimCalendarCopy.getCalendar());//reset
-
-        //else the tekufa time is on the same day as the current date, so we can add it normally
-        if (jewishDateInfoCopy.getJewishCalendar().getTekufa() != null) {
-
-            final Calendar cal1 = (Calendar) zmanimCalendarCopy.getCalendar().clone();
-            final Calendar cal2 = (Calendar) zmanimCalendarCopy.getCalendar().clone();
-            cal2.setTime(jewishDateInfoCopy.getJewishCalendar().getAmudeiHoraahTekufaAsDate());// should not be null in this if block
-
-            if (cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA) &&
-                    cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
-                    cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
-
-                if (Utils.isLocaleHebrew(mContext)) {
-                    zmanim.add(new ZmanListEntry("תקופת " + jewishDateInfoCopy.getJewishCalendar().getTekufaName(Utils.isLocaleHebrew(mContext)) +
-                            (shortStyle ? " : " : " היום בשעה ") +
-                            zmanimFormat.format(jewishDateInfoCopy.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
-                } else {
-                    zmanim.add(new ZmanListEntry("Tekufa " + jewishDateInfoCopy.getJewishCalendar().getTekufaName(Utils.isLocaleHebrew(mContext)) +
-                            (shortStyle ? " : " : " is today at ") +
-                            zmanimFormat.format(jewishDateInfoCopy.getJewishCalendar().getAmudeiHoraahTekufaAsDate())));
-                }
-            }
+            String label = "תקופת " + jc.getTekufaName(Utils.isLocaleHebrew(mContext))
+                    + (shortStyle ? " : " : " היום בשעה ") + zmanimFormat.format(tekufaDate);
+            String labelEn = "Tekufa " + jc.getTekufaName(Utils.isLocaleHebrew(mContext))
+                    + (shortStyle ? " : " : " is today at ") + zmanimFormat.format(tekufaDate);
+            list.add(new ZmanListEntry(Utils.isLocaleHebrew(mContext) ? label : labelEn));
         }
     }
 
-    public void addTekufaLength(List<ZmanListEntry> zmanim, String opinion) {
+    public void addTekufaLength(List<ZmanListEntry> zmanim, String opinion, boolean amudeiHoraah) {
         DateFormat zmanimFormat = new SimpleDateFormat(Utils.dateFormatPattern(mContext, false), mContext
-                .getResources()
-                .getConfiguration()
-                .getLocales()
-                .get(0));
+                .getResources().getConfiguration().getLocales().get(0));
         zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
 
-        Date tekufa = null;
-        Date aHTekufa = null;
+        Date tekufa = findTodayTekufaDate(amudeiHoraah);
+        Date aHTekufa = findTodayTekufaDate(amudeiHoraah);
 
+        if (tekufa == null || aHTekufa == null) return;
+
+        Date halfHourBefore, halfHourAfter;
+        switch (opinion) {
+            case "1":
+                Date base1 = amudeiHoraah ? aHTekufa : tekufa;
+                halfHourBefore = new Date(base1.getTime() - (DateUtils.MILLIS_PER_HOUR / 2));
+                halfHourAfter = new Date(base1.getTime() + (DateUtils.MILLIS_PER_HOUR / 2));
+                break;
+            case "2":
+                halfHourBefore = new Date(tekufa.getTime() - (DateUtils.MILLIS_PER_HOUR / 2));
+                halfHourAfter = new Date(tekufa.getTime() + (DateUtils.MILLIS_PER_HOUR / 2));
+                break;
+            case "3":
+                halfHourBefore = new Date(aHTekufa.getTime() - (DateUtils.MILLIS_PER_HOUR / 2));
+                halfHourAfter = new Date(aHTekufa.getTime() + (DateUtils.MILLIS_PER_HOUR / 2));
+                break;
+            default:// 4
+                halfHourBefore = new Date(aHTekufa.getTime() - (DateUtils.MILLIS_PER_HOUR / 2));
+                halfHourAfter = new Date(tekufa.getTime() + (DateUtils.MILLIS_PER_HOUR / 2));
+                break;
+        }
+        if (Utils.isLocaleHebrew(mContext)) {
+            zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourAfter) + " - " + zmanimFormat.format(halfHourBefore)));
+        } else {
+            zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfter)));
+        }
+    }
+
+    /** Same tomorrow-then-today walk as addTekufaTimeUnified, but returns the Date instead of appending a ZmanListEntry. */
+    private Date findTodayTekufaDate(boolean amudeiHoraah) {
         ROZmanimCalendar zmanimCalendarCopy = sROZmanimCalendar.getCopy();
         JewishDateInfo jewishDateInfoCopy = sJewishDateInfo.getCopy();
 
-        zmanimCalendarCopy.getCalendar().add(Calendar.DATE, 1);//check next day for tekufa, because the tekufa time can go back a day
-        jewishDateInfoCopy.setCalendar(zmanimCalendarCopy.getCalendar());
-        zmanimCalendarCopy.getCalendar().add(Calendar.DATE, -1);//reset the calendar to check for the current date
+        for (int dayOffset : new int[]{1, 0}) {
+            zmanimCalendarCopy.getCalendar().add(Calendar.DATE, dayOffset);
+            jewishDateInfoCopy.setCalendar(zmanimCalendarCopy.getCalendar());
+            zmanimCalendarCopy.getCalendar().add(Calendar.DATE, -dayOffset);
 
-        if (jewishDateInfoCopy.getJewishCalendar().getTekufa() != null) {
+            JewishCalendarWithExtraMethods jc = jewishDateInfoCopy.getJewishCalendar();
+            if (jc.getTekufa() == null) continue;
 
-            final Calendar cal1 = (Calendar) zmanimCalendarCopy.getCalendar().clone();
-            final Calendar cal2 = (Calendar) zmanimCalendarCopy.getCalendar().clone();
-            cal2.setTime(jewishDateInfoCopy.getJewishCalendar().getTekufaAsDate());// should not be null in this if block
-
-            if (cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA) &&
-                    cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
-                    cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
-                tekufa = jewishDateInfoCopy.getJewishCalendar().getTekufaAsDate();
-                aHTekufa = jewishDateInfoCopy.getJewishCalendar().getAmudeiHoraahTekufaAsDate();
-            }
+            Date tekufaDate = jc.getTekufaAsDate(amudeiHoraah);
+            if (isTekufaToday(zmanimCalendarCopy, tekufaDate)) return tekufaDate;
         }
-        jewishDateInfoCopy.setCalendar(zmanimCalendarCopy.getCalendar());//reset
-
-        //else the tekufa time is on the same day as the current date, so we can add it normally
-        if (jewishDateInfoCopy.getJewishCalendar().getTekufa() != null) {
-
-            final Calendar cal1 = (Calendar) zmanimCalendarCopy.getCalendar().clone();
-            final Calendar cal2 = (Calendar) zmanimCalendarCopy.getCalendar().clone();
-            cal2.setTime(jewishDateInfoCopy.getJewishCalendar().getTekufaAsDate());// should not be null in this if block
-
-            if (cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA) &&
-                    cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
-                    cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
-                tekufa = jewishDateInfoCopy.getJewishCalendar().getTekufaAsDate();
-                aHTekufa = jewishDateInfoCopy.getJewishCalendar().getAmudeiHoraahTekufaAsDate();
-            }
-        }
-
-        if (tekufa != null && aHTekufa != null) {
-            Date halfHourBefore;
-            Date halfHourAfter;
-            switch (opinion) {
-                case "1":
-                    if (sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false)) {
-                        halfHourBefore = new Date(aHTekufa.getTime() - (DateUtils.MILLIS_PER_HOUR / 2));
-                        halfHourAfter = new Date(aHTekufa.getTime() + (DateUtils.MILLIS_PER_HOUR / 2));
-                    } else {
-                        halfHourBefore = new Date(tekufa.getTime() - (DateUtils.MILLIS_PER_HOUR / 2));
-                        halfHourAfter = new Date(tekufa.getTime() + (DateUtils.MILLIS_PER_HOUR / 2));
-                    }
-                    if (Utils.isLocaleHebrew(mContext)) {
-                        zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourAfter) + " - " + zmanimFormat.format(halfHourBefore)));
-                    } else {
-                        zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfter)));
-                    }
-                    break;
-                case "2":
-                    halfHourBefore = new Date(tekufa.getTime() - (DateUtils.MILLIS_PER_HOUR / 2));
-                    halfHourAfter = new Date(tekufa.getTime() + (DateUtils.MILLIS_PER_HOUR / 2));
-                    if (Utils.isLocaleHebrew(mContext)) {
-                        zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourAfter) + " - " + zmanimFormat.format(halfHourBefore)));
-                    } else {
-                        zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfter)));
-                    }
-                    break;
-                case "3":
-                    halfHourBefore = new Date(aHTekufa.getTime() - (DateUtils.MILLIS_PER_HOUR / 2));
-                    halfHourAfter = new Date(aHTekufa.getTime() + (DateUtils.MILLIS_PER_HOUR / 2));
-                    if (Utils.isLocaleHebrew(mContext)) {
-                        zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourAfter) + " - " + zmanimFormat.format(halfHourBefore)));
-                    } else {
-                        zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfter)));
-                    }
-                    break;
-                default:// 4
-                    halfHourBefore = new Date(aHTekufa.getTime() - (DateUtils.MILLIS_PER_HOUR / 2));
-                    halfHourAfter = new Date(tekufa.getTime() + (DateUtils.MILLIS_PER_HOUR / 2));
-                    if (Utils.isLocaleHebrew(mContext)) {
-                        zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourAfter) + " - " + zmanimFormat.format(halfHourBefore)));
-                    } else {
-                        zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfter)));
-                    }
-                    break;
-            }
-        }
+        return null;
     }
 
     /**
@@ -2354,7 +2231,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             sNavView.setVisibility(View.VISIBLE);
             sViewPager.setUserInputEnabled(true);
         }
-        mHandler.removeCallbacksAndMessages(mZmanimUpdater);
+        mHandler.removeCallbacks(mZmanimUpdater);
         mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             mActivity.getWindow().setHideOverlayWindows(false);
@@ -2551,14 +2428,123 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         super.onDestroyView();
         binding = null;
         sSharedPreferences.unregisterOnSharedPreferenceChangeListener(sSharedPrefListener);
+        if (mLocationTimeoutRunnable != null) {
+            mLocationTimeoutHandler.removeCallbacks(mLocationTimeoutRunnable);
+        }
+        mHandler.removeCallbacksAndMessages(null);
+    }
+
+
+    /**
+     * Starts a fresh device-location request. Resets any location candidates left over from a
+     * previous call, and arms a 5-second hard timeout so the UI is never blocked indefinitely
+     * waiting for the (usually slower, more accurate) GPS result.
+     */
+    private void requestDeviceLocation() {
+        mNetworkLocation = null;
+        mGpsLocation = null;
+        mCommittedLocation = null;
+
+        if (mLocationTimeoutRunnable != null) {
+            mLocationTimeoutHandler.removeCallbacks(mLocationTimeoutRunnable);
+        }
+        mLocationTimeoutRunnable = this::onLocationTimeout;
+        mLocationTimeoutHandler.postDelayed(mLocationTimeoutRunnable, LOCATION_UPDATE_TIMEOUT_MS);
+
+        mLocationResolver.acquireLatitudeAndLongitude(this);
+    }
+
+    /**
+     * Fires if neither location candidate has resolved within {@link #LOCATION_UPDATE_TIMEOUT_MS}.
+     * Falls back to whatever's available (a partial result, or the last-known lat/long already in
+     * shared preferences) rather than leaving the UI stuck on the shimmer indefinitely.
+     */
+    private void onLocationTimeout() {
+        if (mCommittedLocation != null) {
+            return;// already showing something for this cycle; nothing to force
+        }
+        commitLocation(pickBestLocation());// almost certainly null here - finalizeLocation falls back to cached lat/long
     }
 
     /**
      * This method accepts a new location object after a request is made from the {@link LocationResolver} class.
+     * Both the NETWORK and GPS requests report here. We hold onto both and only act once we can
+     * determine the more accurate one (via {@link Location#getElapsedRealtimeNanos()}), a 5-second
+     * timeout elapses, or both providers have reported in (whichever comes first).
      * @param location the input argument
      */
     @Override
     public void accept(Location location) {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            mHandler.post(() -> accept(location));
+            return;
+        }
+
+        if (location != null) {
+            if (LocationManager.GPS_PROVIDER.equals(location.getProvider())) {
+                mGpsLocation = location;
+            } else {
+                mNetworkLocation = location;
+            }
+        }
+
+        if (mCommittedLocation == null) {
+            if (location != null) {
+                // Nothing shown yet this cycle - show the first result the instant it arrives.
+                commitLocation(pickBestLocation());
+            } else if (!locationManagerHasBothProviders()) {
+                // Only one provider exists on this device, and it just reported null - nothing else is coming.
+                commitLocation(null);
+            }
+            // else: this was a null from one of two providers; the other might still succeed - wait for it, or the 5s timeout.
+            return;
+        }
+
+        // Already showing a result. Only re-render if the newly completed picture is actually better.
+        Location best = pickBestLocation();
+        if (best != null && best != mCommittedLocation) {
+            commitLocation(best);
+        }
+    }
+
+    private boolean locationManagerHasBothProviders() {
+        LocationManager locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+        return locationManager != null
+                && locationManager.getAllProviders().contains(LocationManager.NETWORK_PROVIDER)
+                && locationManager.getAllProviders().contains(LocationManager.GPS_PROVIDER);
+    }
+
+    /**
+     * Picks the more accurate of the two held candidates using elapsed-realtime-based freshness
+     * as a tiebreaker/quality signal, per Android's own recommendation for comparing Location objects.
+     */
+    private Location pickBestLocation() {
+        if (mGpsLocation == null) return mNetworkLocation;
+        if (mNetworkLocation == null) return mGpsLocation;
+
+        // Prefer explicit accuracy (lower = better) when both report it.
+        if (mGpsLocation.hasAccuracy() && mNetworkLocation.hasAccuracy()) {
+            if (mGpsLocation.getAccuracy() != mNetworkLocation.getAccuracy()) {
+                return mGpsLocation.getAccuracy() < mNetworkLocation.getAccuracy() ? mGpsLocation : mNetworkLocation;
+            }
+        }
+        // Fall back to whichever is more recent by elapsed realtime (immune to clock changes).
+        return mGpsLocation.getElapsedRealtimeNanos() >= mNetworkLocation.getElapsedRealtimeNanos()
+                ? mGpsLocation : mNetworkLocation;
+    }
+
+    private void commitLocation(Location location) {
+        mCommittedLocation = location;// null is a valid commit - it means "fell back," and stays open to a real result arriving later
+        if (mLocationTimeoutRunnable != null) {
+            mLocationTimeoutHandler.removeCallbacks(mLocationTimeoutRunnable);
+        }
+        finalizeLocation(location);
+    }
+
+    /**
+     * Applies the winning location (or falls back to cached lat/long if null) and updates the UI.
+     */
+    private void finalizeLocation(Location location) {
         if (sLatitude == 0.0 && sLongitude == 0.0) {// get the last location if it exists
             sLatitude = Double.longBitsToDouble(sSharedPreferences.getLong("Lat", 0));
             sLongitude = Double.longBitsToDouble(sSharedPreferences.getLong("Long", 0));
@@ -2576,15 +2562,12 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             mLocationResolver.setTimeZoneID();
             showViewAfterLocationCall();
         } else {// if location object is null, we should check the shimmer visibility to see if it was filled by the other request
-            try {
-                Thread.sleep(500);// Let's wait a bit to give the program a chance to update the UI
-            } catch (InterruptedException e) {
-                new RuntimeException(e).printStackTrace();
-            }
-            if (binding != null && binding.shimmerLayout.getVisibility() == View.VISIBLE) {
-                showViewAfterLocationCall();
-                mLocationResolver.acquireLatitudeAndLongitude(this);
-            }
+            mHandler.postDelayed(() -> {
+                if (binding != null && binding.shimmerLayout.getVisibility() == View.VISIBLE) {
+                    showViewAfterLocationCall();
+                    requestDeviceLocation();
+                }
+            }, 500);
         }
     }
 

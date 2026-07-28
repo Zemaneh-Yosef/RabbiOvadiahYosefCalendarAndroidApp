@@ -113,11 +113,11 @@ public class TekufaNotifications extends BroadcastReceiver {
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DATE, -2);
         jewishDateInfo.setCalendar(cal);
-        Date result = jewishDateInfo.getJewishCalendar().getTekufaAsDate();
+        Date result = jewishDateInfo.getJewishCalendar().getTekufaAsDate(false);
         while (result == null) {
             cal.add(Calendar.DATE, 1);
             jewishDateInfo.setCalendar(cal);
-            result = jewishDateInfo.getJewishCalendar().getTekufaAsDate();
+            result = jewishDateInfo.getJewishCalendar().getTekufaAsDate(false);
         }// Do not reset the date
         return result;
     }

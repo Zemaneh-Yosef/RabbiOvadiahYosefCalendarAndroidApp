@@ -116,11 +116,11 @@ public class AmudeiHoraahTekufaNotifications extends BroadcastReceiver {
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DATE, -2);
         jewishDateInfo.setCalendar(cal);
-        Date result = jewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate();
+        Date result = jewishDateInfo.getJewishCalendar().getTekufaAsDate(true);
         while (result == null) {
             cal.add(Calendar.DATE, 1);
             jewishDateInfo.setCalendar(cal);
-            result = jewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate();
+            result = jewishDateInfo.getJewishCalendar().getTekufaAsDate(true);
         }// Do not reset the date
         return result;
     }

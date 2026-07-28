@@ -137,7 +137,7 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
         Calendar cal = Calendar.getInstance();
         AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
         Class<?> notifClass = TekufaNotifications.class;
-        Date tekufaDate = jewishDateInfo.getJewishCalendar().getTekufaAsDate();
+        Date tekufaDate = jewishDateInfo.getJewishCalendar().getTekufaAsDate(false);
         String tekufaOpinions = PreferenceManager.getDefaultSharedPreferences(context).getString("TekufaOpinions", "1");
         switch (tekufaOpinions) {
             case "1" -> {
@@ -152,12 +152,12 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
         if (notifClass.equals(AmudeiHoraahTekufaNotifications.class) || notifClass.equals(CombinedTekufaNotifications.class)) {
             while (tekufaDate == null) {
                 jewishDateInfo.getJewishCalendar().forward(Calendar.DATE, 1);
-                tekufaDate = jewishDateInfo.getJewishCalendar().getAmudeiHoraahTekufaAsDate();
+                tekufaDate = jewishDateInfo.getJewishCalendar().getTekufaAsDate(true);
             }
         } else {
             while (tekufaDate == null) {
                 jewishDateInfo.getJewishCalendar().forward(Calendar.DATE, 1);
-                tekufaDate = jewishDateInfo.getJewishCalendar().getTekufaAsDate();
+                tekufaDate = jewishDateInfo.getJewishCalendar().getTekufaAsDate(false);
             }
         }
         cal.setTime(tekufaDate);

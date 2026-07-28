@@ -77,7 +77,7 @@ public class JewishCalendarWithExtraMethods extends JewishCalendar {
         }
     }
 
-    public Date getTekufaAsDate() {
+    public Date getTekufaAsDate(boolean luachAmudeiHoraah) {// TODO THIS IS TEMPORARY. WILL BE REMOVED WHEN WE UPDATE TO KOSHERJAVA 3.0.0
         // The tekufa Date (point in time) must be generated using standard time. Using "Asia/Jerusalem" timezone will result in the time
         // being incorrectly off by an hour in the summer due to DST. Proper adjustment for the actual time in DST will be done by the date
         // formatter class used to display the Date.
@@ -89,29 +89,9 @@ public class JewishCalendarWithExtraMethods extends JewishCalendar {
         }
         double hours = getTekufa() - 6;
         int minutes = (int) ((hours - (int) hours) * 60);
-        cal.set(getGregorianYear(), getGregorianMonth(), getGregorianDayOfMonth(), 0, 0, 0);
-        cal.add(Calendar.HOUR_OF_DAY, (int) hours);
-        cal.add(Calendar.MINUTE, minutes);
-
-        return cal.getTime();
-    }
-
-    public Date getAmudeiHoraahTekufaAsDate() {
-        //The Luach Amudei Horaah uses the same calculation for the tekufa, however, it uses the local midday time of Israel as the starting point,
-        //instead of 12pm.
-
-        // The tekufa Date (point in time) must be generated using standard time. Using "Asia/Jerusalem" timezone will result in the time
-        // being incorrectly off by an hour in the summer due to DST. Proper adjustment for the actual time in DST will be done by the date
-        // formatter class used to display the Date.
-        TimeZone yerushalayimStandardTZ = TimeZone.getTimeZone("GMT+2");
-        Calendar cal = Calendar.getInstance(yerushalayimStandardTZ);
-        cal.clear();
-        if (getTekufa() == null) {
-            return null;
+        if (luachAmudeiHoraah) {
+            minutes -= 21; //minus 21 minutes to get to local midday
         }
-        double hours = getTekufa() - 6;
-        int minutes = (int) ((hours - (int) hours) * 60);
-        minutes -= 21; //minus 21 minutes to get to local midday
         cal.set(getGregorianYear(), getGregorianMonth(), getGregorianDayOfMonth(), 0, 0, 0);
         cal.add(Calendar.HOUR_OF_DAY, (int) hours);
         cal.add(Calendar.MINUTE, minutes);
