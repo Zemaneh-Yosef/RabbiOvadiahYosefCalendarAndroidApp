@@ -63,6 +63,7 @@ public class LocationResolver {
     private double mLongitude;
     private double mElevation;
     private TimeZone mTimeZone = TimeZone.getDefault();
+    private boolean hasShownToast;
 
     public LocationResolver(Context context, Activity activity) {
         mContext = context;
@@ -126,8 +127,9 @@ public class LocationResolver {
             } else {
                 LocationManager locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
                 if (locationManager != null) {
-                    if (!locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) && !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                    if (!locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) && !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && !hasShownToast) {
                         Toast.makeText(mContext, mContext.getString(R.string.please_enable_gps), Toast.LENGTH_SHORT).show();
+                        hasShownToast = true;
                     }
                     // As of now, we make two requests and the GPS, which is usually more accurate, takes longer to respond. For now, this results in the UI being updated twice with the more accurate GPS location. Maybe only update the UI if the GPS is more accurate?
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
