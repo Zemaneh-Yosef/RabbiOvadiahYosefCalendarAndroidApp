@@ -417,24 +417,16 @@ public class LimudFragment extends Fragment {
                     String src = (String) currentHillulot.getJSONObject(i).get("src");
                     hillulot.add(new LimudListEntry(name, desc, src));
                 }
-                if (month == JewishDate.ADAR) { // add other adar hillulot
-                    currentHillulot = new JSONArray(jsonObject.getString(JewishDate.ADAR_II + dayString));
-                    for (int i = 0; i < currentHillulot.length(); i++) {
-                        String name = (String) currentHillulot.getJSONObject(i).get("name");
-                        String desc = (String) currentHillulot.getJSONObject(i).get("desc");
-                        String src = (String) currentHillulot.getJSONObject(i).get("src");
-                        if (hillulot.stream().noneMatch(entry -> entry.getLimudTitle().equals(name))) {// don't add duplicates
-                            hillulot.add(new LimudListEntry(name, desc, src));
-                        }
-                    }
-                } else if (month == JewishDate.ADAR_II) {// add other adar hillulot
-                    currentHillulot = new JSONArray(jsonObject.getString(JewishDate.ADAR + dayString));
-                    for (int i = 0; i < currentHillulot.length(); i++) {
-                        String name = (String) currentHillulot.getJSONObject(i).get("name");
-                        String desc = (String) currentHillulot.getJSONObject(i).get("desc");
-                        String src = (String) currentHillulot.getJSONObject(i).get("src");
-                        if (hillulot.stream().noneMatch(entry -> entry.getLimudTitle().equals(name))) {// don't add duplicates
-                            hillulot.add(new LimudListEntry(name, desc, src));
+                if (!sJewishDateInfo.getJewishCalendar().isJewishLeapYear()) {
+                    if (month == JewishDate.ADAR) { // if it's Adar I, add the other adar's hillulot
+                        currentHillulot = new JSONArray(jsonObject.getString(JewishDate.ADAR_II + dayString));
+                        for (int i = 0; i < currentHillulot.length(); i++) {
+                            String name = (String) currentHillulot.getJSONObject(i).get("name");
+                            String desc = (String) currentHillulot.getJSONObject(i).get("desc");
+                            String src = (String) currentHillulot.getJSONObject(i).get("src");
+                            if (hillulot.stream().noneMatch(entry -> entry.getLimudTitle().equals(name))) {// don't add duplicates
+                                hillulot.add(new LimudListEntry(name, desc, src));
+                            }
                         }
                     }
                 }

@@ -52,7 +52,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
-import android.os.SystemClock;
 import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -347,7 +346,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     /**
      * As is well known to Android Developers worldwide, phone manufacturers customize their phone's android code for many different reasons. This
      * results in some android phones working fine with simple features while others struggle or crash. Although, Google does not care about the manufacturer's
-     * faulty code. If your app crashes on their phone, it's your issue and it will affect your app's visibility on the Play Store.
+     * faulty code. If your app crashes on their phone, it's your issue, and it will affect your app's visibility on the Play Store.
      * This method attempts to disable/change some features on certain phones if needed.
      */
     private void setSafeSettingsForSpecificManufacturers() {
@@ -501,16 +500,16 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     }
 
     /**
-     * This method will automatically update the tables if the user has setup the app before for the current location.
+     * This method will automatically update the tables if the user has set up the app before for the current location.
      *
      * @param fromButton if the method is called from the buttons, it will not ask more than once if the user wants to update the tables.
      */
     private void seeIfTablesNeedToBeUpdated(boolean fromButton) {
-        if (!(sSharedPreferences.getBoolean("isSetup", false) //only check after the app has been setup before
+        if (!(sSharedPreferences.getBoolean("isSetup", false) //only check after the app has been set up before
                 && sSharedPreferences.getBoolean("UseTable" + sCurrentLocationName, false))) //and only if the tables are being used
 			return;
 
-		if (!ChaiTablesWebJava.checkIfFileDoesNotExist(mActivity.getExternalFilesDir(null), sCurrentLocationName, sJewishDateInfo.getJewishCalendar().getJewishYear()))
+        if (!ChaiTablesWebJava.checkIfFileDoesNotExist(mActivity.getExternalFilesDir(null), sCurrentLocationName, sJewishDateInfo.getJewishCalendar().getJewishYear()))
 			return;
 
 		if (mUpdateTablesDialogShown)
@@ -1869,8 +1868,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 .getResources().getConfiguration().getLocales().get(0));
         zmanimFormat.setTimeZone(TimeZone.getTimeZone(sCurrentTimeZoneID));
 
-        Date tekufa = findTodayTekufaDate(amudeiHoraah);
-        Date aHTekufa = findTodayTekufaDate(amudeiHoraah);
+        Date tekufa = findTodayTekufaDate(false);
+        Date aHTekufa = findTodayTekufaDate(true);
 
         if (tekufa == null || aHTekufa == null) return;
 
@@ -2168,51 +2167,34 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     }
 
     /**
-     * This method is called when the user clicks on shabbat mode. It will create another thread that will constantly try to scroll the recycler view
-     * up and down.
+     * This method is called when the user clicks on shabbat mode. It schedules a self-rescheduling task on
+     * the main thread's Handler that scrolls the list down to the bottom, pauses, scrolls back up to the top,
+     * pauses, and repeats for as long as Shabbat mode is active.
      */
-    @SuppressWarnings({"BusyWait"})
     private void startScrollingThread() {
         if (!sSharedPreferences.getBoolean("weeklyMode", false)) {
-            Thread scrollingThread = new Thread(() -> {
-                while (mNestedScrollView != null && mNestedScrollView.canScrollVertically(1)) {
-                    if (!sShabbatMode) break;
-                    if (mNestedScrollView.canScrollVertically(1)) {
-                        mNestedScrollView.smoothScrollBy(0, 1);
-                    }
-                    try {//must have these busy waits for scrolling to work properly. I assume it breaks because it is currently animating something. Will have to fix this in the future, but it works for now.
-                        Thread.sleep(10);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                try {//must have these waits or else the RecyclerView will have corrupted info
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                while (mNestedScrollView != null && mNestedScrollView.canScrollVertically(-1)) {
-                    if (!sShabbatMode) break;
-                    if (mNestedScrollView.canScrollVertically(-1)) {
-                        mNestedScrollView.smoothScrollBy(0, -1);
-                    }
-                    try {
-                        Thread.sleep(10);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                if (sShabbatMode) {
-                    startScrollingThread();
-                }
-            });
-            scrollingThread.start();
+            scrollDownStep();
         }
+    }
+
+    private void scrollDownStep() {
+        if (!sShabbatMode || mNestedScrollView == null || !mNestedScrollView.canScrollVertically(1)) {
+            mHandler.postDelayed(this::scrollUpStep, 1000);// pause, then start the scroll-up phase
+            return;
+        }
+        mNestedScrollView.smoothScrollBy(0, 1);
+        mHandler.postDelayed(this::scrollDownStep, 10);
+    }
+
+    private void scrollUpStep() {
+        if (!sShabbatMode || mNestedScrollView == null || !mNestedScrollView.canScrollVertically(-1)) {
+            if (sShabbatMode) {
+                mHandler.postDelayed(this::startScrollingThread, 1000);// pause, then restart the whole cycle
+            }
+            return;
+        }
+        mNestedScrollView.smoothScrollBy(0, -1);
+        mHandler.postDelayed(this::scrollUpStep, 10);
     }
 
     /**
@@ -2545,30 +2527,32 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      * Applies the winning location (or falls back to cached lat/long if null) and updates the UI.
      */
     private void finalizeLocation(Location location) {
-        if (sLatitude == 0.0 && sLongitude == 0.0) {// get the last location if it exists
-            sLatitude = Double.longBitsToDouble(sSharedPreferences.getLong("Lat", 0));
-            sLongitude = Double.longBitsToDouble(sSharedPreferences.getLong("Long", 0));
-        }
         if (location != null) {
             sLatitude = location.getLatitude();
             sLongitude = location.getLongitude();
             if (sSharedPreferences != null) {
-                sSharedPreferences.edit().putLong("Lat", Double.doubleToRawLongBits(sLatitude)).putLong("Long", Double.doubleToRawLongBits(sLongitude)).apply();
+                sSharedPreferences.edit()
+                        .putLong("Lat", Double.doubleToRawLongBits(sLatitude))
+                        .putLong("Long", Double.doubleToRawLongBits(sLongitude))
+                        .apply();
             }
-            if (mLocationResolver == null) {
-                mLocationResolver = new LocationResolver(mContext, mActivity);
+        } else {// if location object is null, we should make another request until it is not null
+            if (sLatitude == 0.0 && sLongitude == 0.0) {// get the last location if it exists
+                sLatitude = Double.longBitsToDouble(sSharedPreferences.getLong("Lat", 0));
+                sLongitude = Double.longBitsToDouble(sSharedPreferences.getLong("Long", 0));
             }
-            mLocationResolver.resolveCurrentLocationName();
-            mLocationResolver.setTimeZoneID();
-            showViewAfterLocationCall();
-        } else {// if location object is null, we should check the shimmer visibility to see if it was filled by the other request
             mHandler.postDelayed(() -> {
-                if (binding != null && binding.shimmerLayout.getVisibility() == View.VISIBLE) {
-                    showViewAfterLocationCall();
+                if (binding != null) {
                     requestDeviceLocation();
                 }
             }, 500);
         }
+        if (mLocationResolver == null) {
+            mLocationResolver = new LocationResolver(mContext, mActivity);
+        }
+        mLocationResolver.resolveCurrentLocationName();
+        mLocationResolver.setTimeZoneID();
+        showViewAfterLocationCall();
     }
 
     private void showViewAfterLocationCall() {

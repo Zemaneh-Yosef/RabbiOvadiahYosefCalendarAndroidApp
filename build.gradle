@@ -5,7 +5,8 @@ buildscript {
     ext {
         wear_compose_version = '1.6.2'
         horologist_version = '0.7.15'
-        wear_tiles_version = '1.6.0'
+        wear_tiles_version = '1.6.2'
+        protolayout_version = '1.4.2'
         kotlin_version = '2.3.0'
     }
     repositories {
