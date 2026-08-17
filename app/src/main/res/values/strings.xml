@@ -67,8 +67,9 @@
     <string name="note_times_are_just_for_reference_you_should_ask_a_rav_if_you_can_say_the_bracha_earlier_or_later">Disclaimer: Times are just for reference, you should ask a rav if you can say the bracha earlier or later.</string>
     <string name="latest_birchat_halevanah_15_days">Latest Birchat Halevanah (15 days)</string>
     <string name="earliest_birchat_halevanah_7_days">Earliest Birchat Halevanah (7 days)</string>
-    <string name="the_molad_for_this_month_in_your_timezone">The Molad for This Month (Your Timezone)</string>
-    <string name="change_date">Change Date</string>
+    <string name="the_molad_for_this_month_in_jer_timezone">The Molad for This Month (Jerusalem Time Zone)</string>
+   <string name="the_molad_for_this_month_in_your_timezone">The Molad for This Month (Your Time Zone)</string>
+   <string name="change_date">Change Date</string>
     <string name="the_molad_time_announced">Molad Time Announced</string>
     <string name="title_activity_shabbat">ShabbatActivity</string>
     <string name="dummy_button">Dummy Button</string>
@@ -261,8 +262,8 @@
     <string name="three_weeks">Three Weeks</string>
     <string name="nine_days">Nine Days</string>
     <string name="shevuah_shechal_bo">Shevuah Shechal Bo</string>
-    <string name="amudei_horaah">Amudei Horaah</string>
-    <string name="ohr_hachaim">Ohr HaChaim</string>
+    <string name="amudei_horaah">A\"H</string>
+    <string name="ohr_hachaim">O\"H</string>
     <string name="skip_setup_not_recommended">Skip Setup (Not recommended)</string>
     <string name="birchat_halevanah">Birchat Helavana</string>
     <string name="show_siddur">Daily Siddur</string>

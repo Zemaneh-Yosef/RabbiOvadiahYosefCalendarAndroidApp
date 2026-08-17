@@ -18,6 +18,7 @@ import android.content.pm.ServiceInfo;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
@@ -67,7 +68,7 @@ public class NextZmanCountdownNotification extends Service {
         super.onCreate();
         createNotificationChannel();// Always make the channel first!
         updateNotificationWithSkeleton();
-        handler = new Handler();
+        handler = new Handler(Looper.getMainLooper());
         mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         sharedPrefListener = (prefs, key) -> {
             if (key != null && (key.equals("isZmanimInHebrew") || key.equals("isZmanimEnglishTranslated"))) {
@@ -138,6 +139,7 @@ public class NextZmanCountdownNotification extends Service {
                 .setContentTitle(getString(R.string.updating))
                 .setSubText(getString(R.string.updating))
                 .setSilent(true)
+                .setOnlyAlertOnce(true)
                 .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
                 .setWhen(System.currentTimeMillis())
                 .setContentText(String.format(Locale.getDefault(),"%02dh:%02dm:%02ds", 0, 0, 0))
@@ -145,7 +147,6 @@ public class NextZmanCountdownNotification extends Service {
                 .setOngoing(true);
 
         Notification notification = builder.build();
-        notification.flags = Notification.FLAG_ONGOING_EVENT;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             try {
                 ServiceCompat.startForeground(this, NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
@@ -268,6 +269,7 @@ public class NextZmanCountdownNotification extends Service {
                 .setContentTitle(text)
                 .setSubText(mROZmanimCalendar.getGeoLocation().getLocationName())
                 .setSilent(true)
+                .setOnlyAlertOnce(true)
                 .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
                 .setWhen(System.currentTimeMillis())
                 .setContentText(String.format(Locale.getDefault(),"%02dh:%02dm:%02ds", hours, minutes, seconds))
@@ -279,7 +281,6 @@ public class NextZmanCountdownNotification extends Service {
         builder.setContentIntent(pendingIntent);
 
         Notification notification = builder.build();
-        notification.flags = Notification.FLAG_ONGOING_EVENT;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             try {
                 ServiceCompat.startForeground(this, NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);

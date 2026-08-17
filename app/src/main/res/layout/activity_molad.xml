@@ -61,10 +61,14 @@
                 android:layout_height="wrap_content"
                 android:padding="8dp"
                 android:gravity="center"
-                tools:text="September\n2021 "
+                tools:text="September\n2021"
                 android:textColor="@color/white"
                 android:textSize="22sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:autoSizeMinTextSize="11sp"
+                android:autoSizeMaxTextSize="22sp"
+                android:autoSizeTextType="uniform"
+                android:maxLines="2" />
 
             <ImageButton
                 android:id="@+id/molad_button"
@@ -84,7 +88,11 @@
                 tools:text="Elul\n5781"
                 android:textColor="@color/white"
                 android:textSize="22sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:autoSizeMinTextSize="11sp"
+                android:autoSizeMaxTextSize="22sp"
+                android:autoSizeTextType="uniform"
+                android:maxLines="2" />
 
         </LinearLayout>
 
@@ -104,17 +112,25 @@
                 android:text="@string/the_molad_time_announced"
                 android:textColor="@color/white"
                 android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:autoSizeMinTextSize="11sp"
+                android:autoSizeMaxTextSize="18sp"
+                android:autoSizeTextType="uniform"
+                android:maxLines="1" />
 
             <TextView
                 android:id="@+id/moladAnnouncementTime"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="start"
+                android:gravity="center"
+                android:layout_gravity="center"
                 android:padding="8dp"
                 tools:text="21h:20m and 6 chalakim"
                 android:textColor="@color/yellow"
                 android:textSize="22sp"
+                android:autoSizeMinTextSize="11sp"
+                android:autoSizeMaxTextSize="22sp"
+                android:autoSizeTextType="uniform"
                 android:textStyle="bold" />
 
         </LinearLayout>
@@ -130,11 +146,44 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="12dp"
-                android:text="@string/the_molad_for_this_month_in_your_timezone"
+                android:text="@string/the_molad_for_this_month_in_jer_timezone"
                 android:textColor="@color/white"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                android:gravity="center" />
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:autoSizeMinTextSize="11sp"
+                android:autoSizeMaxTextSize="18sp"
+                android:autoSizeTextType="uniform"
+                android:maxLines="1" />
+
+            <TextView
+                android:id="@+id/moladDateJer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:padding="4dp"
+                android:layout_gravity="center"
+                tools:text="Sun Aug 08 11:22:36 AM"
+                android:textColor="@color/yellow"
+                android:autoSizeMinTextSize="11sp"
+                android:autoSizeMaxTextSize="26sp"
+                android:autoSizeTextType="uniform"
+                android:textSize="26sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:text="@string/the_molad_for_this_month_in_your_timezone"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:autoSizeMinTextSize="11sp"
+                android:autoSizeMaxTextSize="18sp"
+                android:autoSizeTextType="uniform"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_gravity="center"/>
 
             <TextView
                 android:id="@+id/moladDate"
@@ -145,6 +194,9 @@
                 android:layout_gravity="center"
                 tools:text="Sun Aug 08 4:22:36 AM"
                 android:textColor="@color/yellow"
+                android:autoSizeMinTextSize="11sp"
+                android:autoSizeMaxTextSize="26sp"
+                android:autoSizeTextType="uniform"
                 android:textSize="26sp" />
 
         </LinearLayout>
@@ -164,6 +216,9 @@
                 android:text="@string/earliest_birchat_halevanah_7_days"
                 android:textColor="@color/white"
                 android:textSize="18sp"
+                android:autoSizeMinTextSize="11sp"
+                android:autoSizeMaxTextSize="18sp"
+                android:autoSizeTextType="uniform"
                 android:textStyle="bold" />
 
             <TextView
@@ -174,6 +229,9 @@
                 android:layout_gravity="center"
                 android:textColor="@color/yellow"
                 android:textSize="26sp"
+                android:autoSizeMinTextSize="11sp"
+                android:autoSizeMaxTextSize="26sp"
+                android:autoSizeTextType="uniform"
                 tools:text="Sun Aug 15 4:22:36 AM" />
 
             <View
@@ -189,6 +247,9 @@
                 android:text="@string/latest_birchat_halevanah_15_days"
                 android:textColor="@color/white"
                 android:textSize="18sp"
+                android:autoSizeMinTextSize="11sp"
+                android:autoSizeMaxTextSize="18sp"
+                android:autoSizeTextType="uniform"
                 android:textStyle="bold" />
 
             <TextView
@@ -198,7 +259,11 @@
                 android:padding="4dp"
                 android:text="@string/the_whole_night_of_the_15th_day_of_the_hebrew_month"
                 android:gravity="center"
+                android:layout_gravity="center"
                 android:textColor="@color/yellow"
+                android:autoSizeMinTextSize="11sp"
+                android:autoSizeMaxTextSize="26sp"
+                android:autoSizeTextType="uniform"
                 android:textSize="26sp" />
 
         </LinearLayout>

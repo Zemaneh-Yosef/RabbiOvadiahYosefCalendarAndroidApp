@@ -90,6 +90,7 @@
 
     <string name="earliest_birchat_halevanah_7_days">ברכת הלבנה המוקדמת ביותר (7 ימים)</string>
 
+    <string name="the_molad_for_this_month_in_jer_timezone">מולד החודש (לפי אזור הזמן של ירושלים)</string>
     <string name="the_molad_for_this_month_in_your_timezone">המולד לחודש זה (באזור הזמן שלך)</string>
 
     <string name="change_date">שנה תאריך</string>
@@ -473,8 +474,8 @@
     <string name="three_weeks">שלושה שבועות</string>
     <string name="nine_days">תשעה ימים</string>
     <string name="shevuah_shechal_bo">שבוע שחל בו</string>
-    <string name="amudei_horaah">עמודי הוראה</string>
-    <string name="ohr_hachaim">אור החיים</string>
+    <string name="amudei_horaah">ע\"ה</string>
+    <string name="ohr_hachaim">א\"ה</string>
     <string name="skip_setup_not_recommended">דלג על ההגדרות (לא מומלץ).</string>
     <string name="birchat_halevanah">ברכת הלבנה</string>
     <string name="show_siddur">סידור יומי</string>

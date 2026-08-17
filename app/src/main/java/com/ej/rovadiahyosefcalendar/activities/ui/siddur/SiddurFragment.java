@@ -270,11 +270,11 @@ public class SiddurFragment extends Fragment {
                 Date tzeit = currentZmanimCalendar.getTzeit();
                 Date solarMidnight = currentZmanimCalendar.getSolarMidnight();
                 Calendar midnightCal = Calendar.getInstance();
-                if (midnightCal.get(Calendar.HOUR_OF_DAY) < 3) {// i.e right now is after midnight
+                if (midnightCal.get(Calendar.HOUR_OF_DAY) < 3) {// i.e. right now is after midnight
                     if (solarMidnight != null) {
                         midnightCal.setTime(solarMidnight);
                     }
-                    if (midnightCal.get(Calendar.HOUR_OF_DAY) < 3) {// i.e halachic midnight is after 12AM
+                    if (midnightCal.get(Calendar.HOUR_OF_DAY) < 3) {// i.e. halachic midnight is after 12AM
                         ROZmanimCalendar yesterday = currentZmanimCalendar.getCopy();
                         yesterday.getCalendar().add(Calendar.DATE, -1);
                         tzeit = yesterday.getTzeit();
@@ -892,11 +892,7 @@ public class SiddurFragment extends Fragment {
                 return true;// show the prayer by default
             }
             return switch (key) {
-                case "siddur_selichot" -> {
-                    boolean isSelichotNotSaidNow = (new Date().after(currentZmanimCalendar.getSunset()) && currentZmanimCalendar.isNowBeforeSecondAshmora())
-                            || (!currentZmanimCalendar.isNowBeforeSecondAshmora() && !currentZmanimCalendar.isNowAfterHalachicSolarMidnight());// easier to check for the NOT case
-                    yield !isSelichotNotSaidNow;
-                }
+                case "siddur_selichot" -> !currentZmanimCalendar.isNowBeforeSecondAshmora();
                 case "siddur_shacharit" ->
                         new Date().after(currentZmanimCalendar.getAlotHashachar()) && new Date().before(currentZmanimCalendar.getChatzot());
                 case "siddur_mussaf" ->

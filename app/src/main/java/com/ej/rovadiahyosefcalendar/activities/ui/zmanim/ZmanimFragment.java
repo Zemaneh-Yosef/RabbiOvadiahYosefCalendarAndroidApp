@@ -23,6 +23,7 @@ import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivit
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sSharedPreferences;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sViewPager;
 import static com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar.MILLISECONDS_PER_MINUTE;
+import static com.ej.rovadiahyosefcalendar.classes.Utils.calculateInSampleSize;
 import static com.ej.rovadiahyosefcalendar.classes.Utils.getCurrentCalendarDrawableDark;
 import static com.ej.rovadiahyosefcalendar.classes.Utils.getCurrentCalendarDrawableLight;
 import static com.ej.rovadiahyosefcalendar.classes.Utils.inputStreamToString;
@@ -2342,9 +2343,26 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private void setCustomThemeColors() {
         if (mLayout != null && mCalendarButton != null && sSharedPreferences != null && binding != null) {
             if (sSharedPreferences.getBoolean("useImage", false)) {
-                Bitmap bitmap = BitmapFactory.decodeFile(sSharedPreferences.getString("imageLocation", ""));
-                Drawable drawable = new BitmapDrawable(getResources(), bitmap);
-                mLayout.setBackground(drawable);
+                String imagePath = sSharedPreferences.getString("imageLocation", "");
+                if (!imagePath.isEmpty()) {
+                    // Get screen dimensions to use as target width/height
+                    android.util.DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+                    int reqWidth = displayMetrics.widthPixels;
+                    int reqHeight = displayMetrics.heightPixels;
+
+                    // First decode with inJustDecodeBounds=true to check dimensions without loading into memory
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inJustDecodeBounds = true;
+                    BitmapFactory.decodeFile(imagePath, options);
+                    options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+                    options.inJustDecodeBounds = false;// Decode bitmap with inSampleSize set
+                    Bitmap bitmap = BitmapFactory.decodeFile(imagePath, options);
+
+                    if (bitmap != null) {
+                        Drawable drawable = new BitmapDrawable(getResources(), bitmap);
+                        mLayout.setBackground(drawable);
+                    }
+                }
             } else if (sSharedPreferences.getBoolean("customBackgroundColor", false) &&
                     !sSharedPreferences.getBoolean("useDefaultBackgroundColor", false)) {
                 int bgColor = sSharedPreferences.getInt("bColor", 0x32312C);
@@ -2541,11 +2559,13 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 sLatitude = Double.longBitsToDouble(sSharedPreferences.getLong("Lat", 0));
                 sLongitude = Double.longBitsToDouble(sSharedPreferences.getLong("Long", 0));
             }
-            mHandler.postDelayed(() -> {
-                if (binding != null) {
-                    requestDeviceLocation();
-                }
-            }, 500);
+            if (binding != null && binding.shimmerLayout.getVisibility() == View.VISIBLE) {
+                mHandler.postDelayed(() -> {
+                    if (binding != null) {
+                        requestDeviceLocation();
+                    }
+                }, 500);
+            }
         }
         if (mLocationResolver == null) {
             mLocationResolver = new LocationResolver(mContext, mActivity);

@@ -108,7 +108,7 @@ public class JerusalemDirectionMapsActivity extends FragmentActivity implements 
             mlp.bottomMargin = insets.bottom;
             mlp.rightMargin = insets.right;
             v.setLayoutParams(mlp);
-            // Return CONSUMED if you don't want want the window insets to keep passing
+            // Return CONSUMED if you don't want the window insets to keep passing
             // down to descendant views.
             return WindowInsetsCompat.CONSUMED;
         });

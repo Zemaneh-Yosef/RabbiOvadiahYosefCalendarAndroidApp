@@ -2,7 +2,6 @@ package com.ej.rovadiahyosefcalendar.activities;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -33,6 +32,7 @@ public class MoladActivity extends AppCompatActivity {
     private TextView mCurrentEnglishMonthYear;
     private TextView mCurrentHebrewMonthYear;
     private TextView mMoladAnnouncementTime;
+    private TextView mJerMoladDate;
     private TextView mMoladDate;
     private TextView mMoladDate7Days;
     private final Calendar mUserChosenDate = Calendar.getInstance();
@@ -61,6 +61,7 @@ public class MoladActivity extends AppCompatActivity {
         ImageButton moladButton = findViewById(R.id.molad_button);
         mCurrentHebrewMonthYear = findViewById(R.id.currentHebrewMonthYear);
         mMoladAnnouncementTime = findViewById(R.id.moladAnnouncementTime);
+        mJerMoladDate = findViewById(R.id.moladDateJer);
         mMoladDate = findViewById(R.id.moladDate);
         mMoladDate7Days = findViewById(R.id.moladDate7Days);
 
@@ -116,7 +117,7 @@ public class MoladActivity extends AppCompatActivity {
                 mlp.bottomMargin = insets.bottom;
                 mlp.rightMargin = insets.right;
                 v.setLayoutParams(mlp);
-                // Return CONSUMED if you don't want want the window insets to keep passing
+                // Return CONSUMED if you don't want the window insets to keep passing
                 // down to descendant views.
                 return WindowInsetsCompat.CONSUMED;
             });
@@ -148,13 +149,13 @@ public class MoladActivity extends AppCompatActivity {
         String moladTime = moladHours + getString(R.string.h) + moladMinutes + getString(R.string.m_and) + " " + moladChalakim + " " + getString(R.string.chalakim);
 
         if (Utils.isLocaleHebrew(this)) {
-            TextView m = findViewById(R.id.moladAnnouncement);
-            m.setGravity(Gravity.END);
-            mMoladAnnouncementTime.setGravity(Gravity.END);
             moladTime = moladMinutes + " : " + moladHours + " \n" + moladChalakim + " " + getString(R.string.chalakim);
         }
 
         mMoladAnnouncementTime.setText(moladTime);
+        mSDF.setTimeZone(TimeZone.getTimeZone("Asia/Jerusalem"));
+        mJerMoladDate.setText(mSDF.format(mJewishCalendar.getMoladAsDate()));
+        mSDF.setTimeZone(TimeZone.getDefault());
         mMoladDate.setText(mSDF.format(mJewishCalendar.getMoladAsDate()));
         mMoladDate7Days.setText(mSDF.format(mJewishCalendar.getTchilasZmanKidushLevana7Days()));
     }
