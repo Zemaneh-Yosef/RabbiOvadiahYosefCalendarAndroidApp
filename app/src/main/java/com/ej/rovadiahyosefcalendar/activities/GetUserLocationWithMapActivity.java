@@ -14,6 +14,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -647,6 +648,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
         EditText latInput = new EditText(this);
         latInput.setText(String.valueOf(sLatitude));
         latInput.setHint("ex: 73.09876543");
+        latInput.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED);
         latInput.setGravity(Gravity.CENTER);
 
         TextView longitude = new TextView(this);
@@ -656,6 +658,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
         EditText longInput = new EditText(this);
         longInput.setText(String.valueOf(sLongitude));
         longInput.setHint("ex: -103.098765");
+        longInput.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED);
         longInput.setGravity(Gravity.CENTER);
 
         TextView elevation = new TextView(this);
@@ -665,6 +668,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
         EditText elevationInput = new EditText(this);
         elevationInput.setText(String.valueOf(sElevation));
         elevationInput.setHint("ex: 805");
+        elevationInput.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
         elevationInput.setGravity(Gravity.CENTER);
 
         TextView timezone = new TextView(this);
@@ -710,6 +714,21 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                         Toast.makeText(this, R.string.please_enter_something, Toast.LENGTH_SHORT).show();
                         createZipcodeDialog();
                     } else {
+                        double advancedLat;
+                        double advancedLong;
+                        double advancedElevation;
+                        try {
+                            advancedLat = Double.parseDouble(latInput.getText().toString());
+                            advancedLong = Double.parseDouble(longInput.getText().toString());
+                            advancedElevation = Double.parseDouble(elevationInput.getText().toString());
+                        } catch (NumberFormatException e) {
+                            Toast.makeText(this, R.string.please_enter_a_valid_value_for_example_30_or_30_0, Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        if (advancedLat < -90 || advancedLat > 90 || advancedLong < -180 || advancedLong > 180 || advancedElevation < 0) {//GeoLocation rejects anything outside of these ranges
+                            Toast.makeText(this, R.string.please_enter_a_valid_value_for_example_30_or_30_0, Toast.LENGTH_SHORT).show();
+                            return;
+                        }
                         setUseLocations(false, false, false, false, false);
                         mSharedPreferences.edit()
                                 .putBoolean("useAdvanced", true)

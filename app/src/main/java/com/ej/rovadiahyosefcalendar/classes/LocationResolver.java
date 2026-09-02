@@ -621,8 +621,8 @@ public class LocationResolver {
     public GeoLocation getRealtimeNotificationData(Consumer<Location> consumer, boolean isForWidget) {
         if (mSharedPreferences.getBoolean("useAdvanced", false)) {
             mLocationName = mSharedPreferences.getString("advancedLN", "");
-            mLatitude = Double.parseDouble(mSharedPreferences.getString("advancedLat", "0"));
-            mLongitude = Double.parseDouble(mSharedPreferences.getString("advancedLong", "0"));
+            mLatitude = Utils.parseDoubleOrDefault(mSharedPreferences.getString("advancedLat", "0"), 0);
+            mLongitude = Utils.parseDoubleOrDefault(mSharedPreferences.getString("advancedLong", "0"), 0);
             setElevationFromSP();
             setTimeZoneID();
             return new GeoLocation(mLocationName, mLatitude, mLongitude, mElevation, mTimeZone);
