@@ -37,11 +37,10 @@ abstract class BaseZmanComplicationService : SuspendingComplicationDataSourceSer
         }
         mROZmanimCalendar = ROZmanimCalendar(LocationResolver.getLastGeoLocation(sharedPref), sharedPref)
         mROZmanimCalendar.candleLightingOffset =
-            (sharedPref.getString("CandleLightingOffset", "20")?.toDouble() ?: 0) as Double
-        mROZmanimCalendar.ateretTorahSunsetOffset = (sharedPref.getString(
-            "EndOfShabbatOffset",
-            if (sharedPref.getBoolean("inIsrael", false)) "30" else "40"
-        )?.toDouble() ?: 0) as Double
+            sharedPref.getString("CandleLightingOffset", "20")?.toDoubleOrNull() ?: 20.0
+        mROZmanimCalendar.ateretTorahSunsetOffset =
+            sharedPref.getString("EndOfShabbatOffset", null)?.toDoubleOrNull()
+                ?: if (sharedPref.getBoolean("inIsrael", false)) 30.0 else 40.0
         if (sharedPref.getBoolean("inIsrael", false) &&
             sharedPref.getString("EndOfShabbatOffset", "40") == "40") {
             mROZmanimCalendar.ateretTorahSunsetOffset = 30.0
