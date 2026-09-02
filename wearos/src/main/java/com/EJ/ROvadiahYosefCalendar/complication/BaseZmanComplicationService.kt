@@ -64,7 +64,7 @@ abstract class BaseZmanComplicationService : SuspendingComplicationDataSourceSer
                 ?.toDouble() ?: 0.0
         }
         if (!sharedPref.getBoolean("useElevation", true)) elevation = 0.0
-        mROZmanimCalendar.geoLocation.elevation = elevation
+        mROZmanimCalendar.geoLocation.elevation = elevation.coerceAtLeast(0.0) //GeoLocation.setElevation rejects negative values
 
         var secondFormatPattern = "H:mm:ss"
         if (!Utils.isLocaleHebrew(context)) secondFormatPattern = "h:mm:ss aa"

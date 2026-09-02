@@ -75,7 +75,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
         } else {
             elevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mSharedPreferences.getString("currentLN", ""), "0"));//lastKnownLocation
         }
-        return elevation;
+        return Math.max(elevation, 0);//GeoLocation.setElevation rejects negative values
     }
 
     /**

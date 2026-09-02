@@ -539,6 +539,7 @@ class MainActivity : ComponentActivity() {
         if (!sharedPref.getBoolean("useElevation", true)) { //if the user has disabled the elevation setting, set the elevation to 0
             sElevation = 0.0
         }
+        sElevation = sElevation.coerceAtLeast(0.0) //GeoLocation.setElevation rejects negative values
     }
 
     private fun setDateFormats() {

@@ -162,7 +162,7 @@ class MainTileService : TileService() {
         ) { //if the user has disabled the elevation setting, set the elevation to 0
             elevation = 0.0
         }
-        mROZmanimCalendar.geoLocation.elevation = elevation
+        mROZmanimCalendar.geoLocation.elevation = elevation.coerceAtLeast(0.0) //GeoLocation.setElevation rejects negative values
 
         var secondFormatPattern = "H:mm:ss"
         if (!Utils.isLocaleHebrew(context)) {
