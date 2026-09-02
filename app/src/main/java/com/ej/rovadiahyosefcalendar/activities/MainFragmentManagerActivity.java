@@ -291,7 +291,7 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     sJewishDateInfo.getJewishCalendar().setInIsrael(sSharedPreferences.getBoolean("inIsrael", false));
-                    sElevation = Double.parseDouble(sSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));
+                    sElevation = Utils.parseDoubleOrDefault(sSharedPreferences.getString("elevation" + sCurrentLocationName, "0"), 0);
                 }
         );
     }

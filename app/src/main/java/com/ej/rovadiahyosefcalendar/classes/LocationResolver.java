@@ -717,7 +717,7 @@ public class LocationResolver {
         if (!mSharedPreferences.getBoolean("useElevation", true)) {//if the user has disabled the elevation setting, set the elevation to 0
             mElevation = 0;
         } else {
-            mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mSharedPreferences.getString("name", ""), "0"));//lastKnownLocation
+            mElevation = Utils.parseDoubleOrDefault(mSharedPreferences.getString("elevation" + mSharedPreferences.getString("name", ""), "0"), 0);//lastKnownLocation
         }
         return new GeoLocation(
                 mSharedPreferences.getString("name", ""),
@@ -733,20 +733,20 @@ public class LocationResolver {
         if (mLocationName != null && mLocationName.contains("Lat:") && mLocationName.contains("Long:")
                 && PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean("SetElevationToLastKnownLocation", false)) {//only if the user has enabled the setting to set the elevation to the last known location
             sUserIsOffline = true;
-            mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mSharedPreferences.getString("name", ""), "0"));//lastKnownLocation
+            mElevation = Utils.parseDoubleOrDefault(mSharedPreferences.getString("elevation" + mSharedPreferences.getString("name", ""), "0"), 0);//lastKnownLocation
         } else {//user is online, get the elevation from the shared preferences for the current location
-            mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mLocationName, "0"));//get the last value of the current location or 0 if it doesn't exist
+            mElevation = Utils.parseDoubleOrDefault(mSharedPreferences.getString("elevation" + mLocationName, "0"), 0);//get the last value of the current location or 0 if it doesn't exist
         }
 
         if (!sUserIsOffline && mSharedPreferences.getBoolean("useElevation", true)
                 && !PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean("LuachAmudeiHoraah", false)) {//update if the user is online and the elevation setting is enabled
             if (!mSharedPreferences.contains("elevation" + mLocationName)) {//if the elevation for this location has never been set
                 Thread thread = new Thread(() -> getElevationFromWebService(new Handler(Looper.getMainLooper()),
-                        () -> mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mLocationName, "0")),
+                        () -> mElevation = Utils.parseDoubleOrDefault(mSharedPreferences.getString("elevation" + mLocationName, "0"), 0),
                         codeToRunAfter));
                 thread.start();
             } else {// use elevation that was set before
-                mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mLocationName, "0"));
+                mElevation = Utils.parseDoubleOrDefault(mSharedPreferences.getString("elevation" + mLocationName, "0"), 0);
                 codeToRunAfter.run();
             }
         } else {// user does not want elevation or is in Amudei Horaah mode
@@ -853,7 +853,7 @@ public class LocationResolver {
         if (!mSharedPreferences.getBoolean("useElevation", true)) {//if the user has disabled the elevation setting, set the elevation to 0
             mElevation = 0;
         } else {
-            mElevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mLocationName, "0"));//lastKnownLocation
+            mElevation = Utils.parseDoubleOrDefault(mSharedPreferences.getString("elevation" + mLocationName, "0"), 0);//lastKnownLocation
         }
     }
 
