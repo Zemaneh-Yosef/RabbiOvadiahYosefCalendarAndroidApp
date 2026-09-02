@@ -861,16 +861,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 TimeZone.getTimeZone(sCurrentTimeZoneID)));
         sROZmanimCalendar.setExternalFilesDir(mActivity.getExternalFilesDir(null));
         String candles = sSettingsPreferences.getString("CandleLightingOffset", "20");
-        if (candles.isEmpty()) {
-            candles = "20";
-        }
-        sROZmanimCalendar.setCandleLightingOffset(Double.parseDouble(candles));
+        sROZmanimCalendar.setCandleLightingOffset(Utils.parseDoubleOrDefault(candles, 20));
         String shabbat = sSettingsPreferences.getString("EndOfShabbatOffset", sSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40");
-        if (shabbat.isEmpty()) {// for some reason this is happening
-            sROZmanimCalendar.setAteretTorahSunsetOffset(sSharedPreferences.getBoolean("inIsrael", false) ? 30 : 40);
-        } else {
-            sROZmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(shabbat));
-        }
+        sROZmanimCalendar.setAteretTorahSunsetOffset(Utils.parseDoubleOrDefault(shabbat, sSharedPreferences.getBoolean("inIsrael", false) ? 30 : 40));
         if (sSharedPreferences.getBoolean("inIsrael", false) && shabbat.equals("40")) {
             sROZmanimCalendar.setAteretTorahSunsetOffset(30);
         }

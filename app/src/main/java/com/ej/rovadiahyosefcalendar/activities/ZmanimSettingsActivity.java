@@ -1,6 +1,7 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.ViewGroup;
 
 import androidx.activity.EdgeToEdge;
@@ -10,6 +11,7 @@ import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
@@ -62,6 +64,9 @@ public class ZmanimSettingsActivity extends AppCompatActivity {
             Preference overrideAHEndShabbatTime = findPreference("overrideAHEndShabbatTime");
             Preference endOfShabbatOpinion = findPreference("EndOfShabbatOpinion");
             Preference endOfShabbatOffset = findPreference("EndOfShabbatOffset");
+            if (endOfShabbatOffset instanceof EditTextPreference editTextPreference) {// the value is parsed as a number, so do not let the user type anything else
+                editTextPreference.setOnBindEditTextListener(editText -> editText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL));
+            }
             if (overrideAHEndShabbatTime != null && endOfShabbatOpinion != null && endOfShabbatOffset != null) {
                 endOfShabbatOpinion.setVisible(PreferenceManager.getDefaultSharedPreferences(requireContext()).getBoolean("overrideAHEndShabbatTime", false));
                 endOfShabbatOffset.setVisible(PreferenceManager.getDefaultSharedPreferences(requireContext()).getBoolean("overrideAHEndShabbatTime", false));

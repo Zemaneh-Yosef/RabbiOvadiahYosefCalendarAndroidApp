@@ -58,6 +58,21 @@ import java.util.concurrent.ExecutionException;
 public class Utils {
 
     /**
+     * This method parses a number that was stored as a string in the shared preferences. The preference screens let the user type freely, so a
+     * stored value can be empty or not a number at all, and every read of it happens on a path where throwing would crash the app.
+     * @param value the string to parse, possibly null, empty or not a number
+     * @param defaultValue the value to return if the string cannot be parsed
+     * @return the parsed value, or defaultValue if the string is null, empty or not a number
+     */
+    public static double parseDoubleOrDefault(String value, double defaultValue) {
+        try {
+            return Double.parseDouble(value);
+        } catch (NumberFormatException | NullPointerException e) {
+            return defaultValue;
+        }
+    }
+
+    /**
      * This method checks if the user is near Israel. The exact coordinate are hard to define, that is why I based the coordinates on what was shown
      * in the sefer, "טובה הארץ מאוד מאוד על גבולות ארץ ישראל" by Rav Chaim Yisrael Shteiner.
      * It is based on the opinion of the Maharikash on the Rambam, which is big enough to cover the other opinions except for one that included
