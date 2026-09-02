@@ -5,6 +5,8 @@ import android.content.res.TypedArray;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.Editable;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.View;
@@ -26,6 +28,12 @@ public class SliderPreference extends Preference {
 
   private static final Map<EditText, SliderPreference> cache = new HashMap<>();
   private static final int NO_ALERT = -1;
+
+  // These mirror the slider's android:valueFrom/android:valueTo in preference_slider.xml and MUST stay in sync with them.
+  // Every value is clamped to this range because the Material Slider throws (at draw time) if it is given a value
+  // outside of it, whereas the android.widget.SeekBar it replaced silently clamped instead.
+  private static final int MIN_ALERT_MINUTES = NO_ALERT;// -1 is the "no alert" sentinel, and is a legal value
+  private static final int MAX_ALERT_MINUTES = 60;
 
   private MaterialCheckBox enabled;
   private Slider slider;
@@ -111,7 +119,7 @@ public class SliderPreference extends Preference {
     super.onRestoreInstanceState(myState.getSuperState());
 
     // Set this Preference's widget to reflect the restored state
-    progress = myState.value;
+    progress = clamp(myState.value);
     initView();
   }
 
@@ -122,9 +130,13 @@ public class SliderPreference extends Preference {
     super.onBindViewHolder(holder);
 
     slider = (Slider) holder.findViewById(R.id.seekbar);
+    slider.setValueFrom(MIN_ALERT_MINUTES);
+    slider.setValueTo(MAX_ALERT_MINUTES);
     slider.setValue(progress);
 
     currentValueDisplay = (EditText) holder.findViewById(R.id.value);
+    // NOTE: this replaces the android:maxLength="2" filter declared in the layout, so it has to be re-added here.
+    currentValueDisplay.setFilters(new InputFilter[]{ new InputFilter.LengthFilter(2), new MaxValueInputFilter() });
     enabled = (MaterialCheckBox) holder.findViewById(R.id.enable);
 
     updateCache();
@@ -198,7 +210,13 @@ public class SliderPreference extends Preference {
     currentValueDisplay.setEnabled(isEnabled);
   }
 
+  private static int clamp(int value) {
+    return Math.max(MIN_ALERT_MINUTES, Math.min(MAX_ALERT_MINUTES, value));
+  }
+
   private void setValue(int value) {
+    value = clamp(value);
+
     if (value != progress) {
 
       persistInt(value);
@@ -299,6 +317,28 @@ public class SliderPreference extends Preference {
       ignoreChanges = true;
       updateSeekBar();
       ignoreChanges = false;
+    }
+  }
+
+  /**
+   * Reject any edit to the text box that would make the value larger than MAX_ALERT_MINUTES.
+   */
+  private static class MaxValueInputFilter implements InputFilter {
+
+    @Override
+    public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+      final String result = dest.subSequence(0, dstart) + source.subSequence(start, end).toString()
+          + dest.subSequence(dend, dest.length());
+
+      if (result.isEmpty()) {
+        return null;// An empty value means NO_ALERT, which is fine.
+      }
+
+      try {
+        return (Integer.parseInt(result) <= MAX_ALERT_MINUTES ? null : "");
+      } catch (NumberFormatException e) {
+        return "";
+      }
     }
   }
 
