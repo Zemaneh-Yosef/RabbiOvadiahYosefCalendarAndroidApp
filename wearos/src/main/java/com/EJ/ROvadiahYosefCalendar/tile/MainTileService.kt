@@ -182,6 +182,7 @@ class MainTileService : TileService() {
         noSecondFormat.timeZone = mROZmanimCalendar.geoLocation.timeZone
 
         mJewishDateInfo.resetLocale(context)
+        mJewishDateInfo.jewishCalendar.inIsrael = sharedPref.getBoolean("inIsrael", false)
 
         return ZmanimFactory.getNextUpcomingZman(Calendar.getInstance(), mROZmanimCalendar, mJewishDateInfo, sharedPref)
     }

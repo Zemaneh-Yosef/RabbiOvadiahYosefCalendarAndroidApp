@@ -80,6 +80,7 @@ abstract class BaseZmanComplicationService : SuspendingComplicationDataSourceSer
         noSecondFormat.timeZone = mROZmanimCalendar.geoLocation.timeZone
 
         mJewishDateInfo.resetLocale(baseContext)
+        mJewishDateInfo.jewishCalendar.inIsrael = sharedPref.getBoolean("inIsrael", false)
 
         return ZmanimFactory.getNextUpcomingZman(
             Calendar.getInstance(), mROZmanimCalendar, mJewishDateInfo, sharedPref

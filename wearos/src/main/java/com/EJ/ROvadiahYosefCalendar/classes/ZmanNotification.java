@@ -39,7 +39,9 @@ public class ZmanNotification extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         if (mSharedPreferences.getBoolean("zmanim_notifications", true)) {
-            notifyUser(context, new JewishCalendar(), intent.getStringExtra("zman"));
+            JewishCalendar jewishCalendar = new JewishCalendar();
+            jewishCalendar.setInIsrael(mSharedPreferences.getBoolean("inIsrael", false));
+            notifyUser(context, jewishCalendar, intent.getStringExtra("zman"));
         }
     }
 

@@ -34,6 +34,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
         if (mSharedPreferences.getBoolean("zmanim_notifications", true)) {
             new Thread(() -> {
                 JewishCalendar jewishCalendar = new JewishCalendar();
+                jewishCalendar.setInIsrael(mSharedPreferences.getBoolean("inIsrael", false));
                 ROZmanimCalendar zmanimCalendar = getROZmanimCalendar();
                 String candles = mSharedPreferences.getString("CandleLightingOffset", "20");
                 if (candles.isEmpty()) {

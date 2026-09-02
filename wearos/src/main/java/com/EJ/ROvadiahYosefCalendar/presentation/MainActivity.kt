@@ -442,6 +442,7 @@ class MainActivity : ComponentActivity() {
             locationResolver.acquireLatitudeAndLongitude()
             resolveElevation()
             initZmanimCalendar()
+            mJewishDateInfo.jewishCalendar.inIsrael = sharedPref.getBoolean("inIsrael", false) // the phone syncs this flag, apply it before anything reads the calendar
             sharedPref.edit { putString("name", sCurrentLocationName) }
             setDateFormats() // must happen after geolocation so the timezone is correct
             updateZmanimList()
