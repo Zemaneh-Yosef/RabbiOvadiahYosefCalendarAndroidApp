@@ -219,14 +219,14 @@ public class ZmanimNotifications extends BroadcastReceiver {
         if (jewishCalendar.isTaanis() && jewishCalendar.getYomTovIndex() != JewishCalendar.YOM_KIPPUR) {//only add if it's a taanit and not yom kippur
             minutesBefore = mSharedPreferences.getInt("FastEnd", 15);
             if (minutesBefore >= 0) {
-                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTzaitString() + zmanimNames.getTaanitString(), c.getTzaitTaanit(), minutesBefore));
+                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTzaitString() + zmanimNames.getTaanitString(), c.getTzeitLChumra(), minutesBefore));
             }
         }
 
         if (mSharedPreferences.getBoolean("alwaysShowTzeitLChumra", false)) {
             minutesBefore = mSharedPreferences.getInt("TzeitHacochavimLChumra", 15);
             if (minutesBefore >= 0) {
-                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTzaitHacochavimString() + " " + zmanimNames.getLChumraString(), c.getTzaitTaanit(), minutesBefore));
+                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTzaitHacochavimString() + " " + zmanimNames.getLChumraString(), c.getTzeitLChumra(), minutesBefore));
             }
         }
 
