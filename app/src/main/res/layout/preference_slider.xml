@@ -29,6 +29,7 @@
         android:layout_weight="10"
         android:layout_height="wrap_content" />
 
+    <!-- valueFrom/valueTo must match MIN_ALERT_MINUTES/MAX_ALERT_MINUTES in SliderPreference.java, which also sets them programmatically and clamps all values to this range. -->
     <com.google.android.material.slider.Slider
         android:id="@+id/seekbar"
         android:layout_width="0dp"
