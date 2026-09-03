@@ -165,6 +165,7 @@ public class NetzActivity extends AppCompatActivity {
     }
 
     private void startTimer() {
+        cancelCountDownTimers();
         Calendar calendar = Calendar.getInstance();
         mROZmanimCalendar.setCalendar(calendar);
         Date netz = mROZmanimCalendar.getHaNetz();
