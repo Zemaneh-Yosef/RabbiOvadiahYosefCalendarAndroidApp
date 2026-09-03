@@ -12,7 +12,6 @@ import android.content.SharedPreferences;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -189,12 +188,11 @@ public class SetupElevationActivity extends AppCompatActivity {
                         jewishYear++;
                     }
 
-                    Looper.prepare();
-                    Toast.makeText(getApplicationContext(), getString(R.string.success), Toast.LENGTH_SHORT).show();
+                    runOnUiThread(() -> Toast.makeText(getApplicationContext(), getString(R.string.success), Toast.LENGTH_SHORT).show());
                     sharedPreferences.edit().putString("chaitablesLink" + sCurrentLocationName, results[0].url()).apply(); //save the link for this location to automatically download again next time
 
                 } catch (Exception e) {
-                    Toast.makeText(getApplicationContext(), R.string.something_went_wrong_is_the_link_correct, Toast.LENGTH_SHORT).show();
+                    runOnUiThread(() -> Toast.makeText(getApplicationContext(), R.string.something_went_wrong_is_the_link_correct, Toast.LENGTH_SHORT).show());
                     new RuntimeException(e).printStackTrace();
                 } finally {
                     finish();
