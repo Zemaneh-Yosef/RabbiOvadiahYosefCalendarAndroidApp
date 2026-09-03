@@ -151,7 +151,7 @@ public class NetzActivity extends AppCompatActivity {
         binding.netzRefresh.setOnRefreshListener(() -> new Thread(() -> {
             Looper.prepare();
             startTimer();
-            binding.netzRefresh.setRefreshing(false);
+            runOnUiThread(() -> binding.netzRefresh.setRefreshing(false));
             Objects.requireNonNull(Looper.myLooper()).quit();
         }).start());
 
