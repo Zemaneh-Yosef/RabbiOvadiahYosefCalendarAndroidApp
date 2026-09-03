@@ -38,6 +38,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
 import com.kosherjava.zmanim.util.GeoLocation;
 
+import java.io.IOException;
 import java.util.TimeZone;
 
 public class SetupElevationActivity extends AppCompatActivity {
@@ -182,6 +183,9 @@ public class SetupElevationActivity extends AppCompatActivity {
             Thread thread = new Thread(() -> {
                 try {
                     ChaiTablesWebJava.ChaiTablesResult[] results = scraper.formatInterfacer(link);
+                    if (results == null || results[0] == null) {
+                        throw new IOException("ChaiTables did not return any data for " + link);// reaches the catch below, which shows the error toast instead of "Success!"
+                    }
                     int jewishYear = jDate.getJewishYear();
                     for (ChaiTablesWebJava.ChaiTablesResult r : results) {
                         ChaiTablesWebJava.saveResultsToFile(r, getExternalFilesDir(null), sCurrentLocationName, jewishYear);

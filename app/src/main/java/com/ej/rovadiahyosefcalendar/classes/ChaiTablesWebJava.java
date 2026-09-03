@@ -220,7 +220,7 @@ public final class ChaiTablesWebJava {
                 ctDoc = fetchChaiTablesDocument(ctLink);
 			}
 
-			if (ctDoc != null && findZmanTable(ctDoc) == null) {
+			if (ctDoc == null || findZmanTable(ctDoc) == null) {
 				continue;
 			}
 
@@ -257,7 +257,7 @@ public final class ChaiTablesWebJava {
                 URL ctLink = new URL(chaitablesURL);
 				Document ctDoc = fetchChaiTablesDocument(ctLink);
 
-				if (ctDoc != null && findZmanTable(ctDoc) == null) {
+				if (ctDoc == null || findZmanTable(ctDoc) == null) {
 					continue;
 				}
 
@@ -298,7 +298,7 @@ public final class ChaiTablesWebJava {
 				URL ctLink = new URL(chaitablesURL);
 				Document ctDoc = fetchChaiTablesDocument(ctLink);
 
-				if (ctDoc != null && findZmanTable(ctDoc) == null) {
+				if (ctDoc == null || findZmanTable(ctDoc) == null) {
 					continue;
 				}
 
