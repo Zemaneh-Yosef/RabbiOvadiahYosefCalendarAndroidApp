@@ -58,6 +58,7 @@ public class NextZmanCountdownNotification extends Service {
     private ROZmanimCalendar mROZmanimCalendar;
 
     private boolean shouldShowNotification = true;
+    private boolean mForegroundStarted;
     private ZmanListEntry nextZman;
     private DateFormat zmanimFormat;
     private SharedPreferences.OnSharedPreferenceChangeListener settingsPrefListener;
@@ -67,7 +68,7 @@ public class NextZmanCountdownNotification extends Service {
     public void onCreate() {
         super.onCreate();
         createNotificationChannel();// Always make the channel first!
-        updateNotificationWithSkeleton();
+        mForegroundStarted = updateNotificationWithSkeleton();
         handler = new Handler(Looper.getMainLooper());
         mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         sharedPrefListener = (prefs, key) -> {
@@ -127,7 +128,7 @@ public class NextZmanCountdownNotification extends Service {
         mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false));
     }
 
-    private void updateNotificationWithSkeleton() {
+    private boolean updateNotificationWithSkeleton() {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.baseline_av_timer_24)
                 .setContentTitle(getString(R.string.updating))
@@ -146,16 +147,19 @@ public class NextZmanCountdownNotification extends Service {
                 ServiceCompat.startForeground(this, NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
             } catch (Exception exception) {
                 exception.printStackTrace();
+                return false;
             }
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             try {
                 ServiceCompat.startForeground(this, NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
             } catch (Exception exception) {
                 exception.printStackTrace();
+                return false;
             }
         } else {
             startForeground(NOTIFICATION_ID, notification);
         }
+        return true;
     }
 
     private ROZmanimCalendar getROZmanimCalendar(Context context) {
@@ -194,8 +198,12 @@ public class NextZmanCountdownNotification extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent,flags,startId);
+        if (!mForegroundStarted) {
+            stopSelf();
+            return START_NOT_STICKY;
+        }
         startCountdown();
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     @Override
@@ -304,7 +312,9 @@ public class NextZmanCountdownNotification extends Service {
         super.onDestroy();
         mSharedPreferences.unregisterOnSharedPreferenceChangeListener(sharedPrefListener);
         mSettingsPreferences.unregisterOnSharedPreferenceChangeListener(settingsPrefListener);
-        handler.removeCallbacks(countdownRunnable);
+        if (countdownRunnable != null) {
+            handler.removeCallbacks(countdownRunnable);
+        }
         stopForeground(STOP_FOREGROUND_REMOVE);
     }
 }
