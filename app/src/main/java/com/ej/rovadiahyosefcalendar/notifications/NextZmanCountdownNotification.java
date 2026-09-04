@@ -118,15 +118,9 @@ public class NextZmanCountdownNotification extends Service {
         mROZmanimCalendar = getROZmanimCalendar(this);
         mROZmanimCalendar.setExternalFilesDir(getExternalFilesDir(null));
         String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
-        if (candles.isEmpty()) {
-            candles = "20";
-        }
-        mROZmanimCalendar.setCandleLightingOffset(Double.parseDouble(candles));
+        mROZmanimCalendar.setCandleLightingOffset(Utils.parseDoubleOrDefault(candles, 20));
         String shabbat = mSettingsPreferences.getString("EndOfShabbatOffset", mSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40");
-        if (shabbat.isEmpty()) {// for some reason this is happening
-            shabbat = "40";
-        }
-        mROZmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(shabbat));
+        mROZmanimCalendar.setAteretTorahSunsetOffset(Utils.parseDoubleOrDefault(shabbat, mSharedPreferences.getBoolean("inIsrael", false) ? 30 : 40));
         if (mSharedPreferences.getBoolean("inIsrael", false) && shabbat.equals("40")) {
             mROZmanimCalendar.setAteretTorahSunsetOffset(30);
         }
@@ -179,15 +173,9 @@ public class NextZmanCountdownNotification extends Service {
                                 mLocationResolver.getTimeZone()));
                         mROZmanimCalendar.setExternalFilesDir(getExternalFilesDir(null));
                         String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
-                        if (candles.isEmpty()) {
-                            candles = "20";
-                        }
-                        mROZmanimCalendar.setCandleLightingOffset(Double.parseDouble(candles));
+                        mROZmanimCalendar.setCandleLightingOffset(Utils.parseDoubleOrDefault(candles, 20));
                         String shabbat = mSettingsPreferences.getString("EndOfShabbatOffset", mSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40");
-                        if (shabbat.isEmpty()) {// for some reason this is happening
-                            shabbat = "40";
-                        }
-                        mROZmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(shabbat));
+                        mROZmanimCalendar.setAteretTorahSunsetOffset(Utils.parseDoubleOrDefault(shabbat, mSharedPreferences.getBoolean("inIsrael", false) ? 30 : 40));
                         if (mSharedPreferences.getBoolean("inIsrael", false) && shabbat.equals("40")) {
                             mROZmanimCalendar.setAteretTorahSunsetOffset(30);
                         }

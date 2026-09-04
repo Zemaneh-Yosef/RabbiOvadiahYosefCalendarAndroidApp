@@ -268,8 +268,8 @@ public class LocationResolver {
 
         if (mSharedPreferences.getBoolean("useAdvanced", false)) {
             locationName = mSharedPreferences.getString("advancedLN", "");
-            lat = Double.parseDouble(mSharedPreferences.getString("advancedLat", ""));
-            longitude = Double.parseDouble(mSharedPreferences.getString("advancedLong", ""));
+            lat = Double.parseDouble(mSharedPreferences.getString("advancedLat", "0"));
+            longitude = Double.parseDouble(mSharedPreferences.getString("advancedLong", "0"));
             timeZone = mSharedPreferences.getString("advancedTimezone", TimeZone.getDefault().getID());
         } else if (mSharedPreferences.getBoolean("useLocation1", false)) {
             locationName = mSharedPreferences.getString("location1", "");

@@ -19,6 +19,7 @@ import androidx.preference.PreferenceManager;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
+import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.ej.rovadiahyosefcalendar.classes.ZmanListEntry;
 import com.kosherjava.zmanim.util.GeoLocation;
 
@@ -57,17 +58,15 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
                         zmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
 
                         String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
-                        if (candles.isEmpty()) candles = "20";
 
-                        zmanimCalendar.setCandleLightingOffset(Double.parseDouble(candles));
+                        zmanimCalendar.setCandleLightingOffset(Utils.parseDoubleOrDefault(candles, 20));
 
                         String shabbat = mSettingsPreferences.getString(
                                 "EndOfShabbatOffset",
                                 mSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40"
                         );
-                        if (shabbat.isEmpty()) shabbat = "40";
 
-                        zmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(shabbat));
+                        zmanimCalendar.setAteretTorahSunsetOffset(Utils.parseDoubleOrDefault(shabbat, mSharedPreferences.getBoolean("inIsrael", false) ? 30 : 40));
 
                         if (mSharedPreferences.getBoolean("inIsrael", false) && shabbat.equals("40")) {
                             zmanimCalendar.setAteretTorahSunsetOffset(30);
@@ -172,15 +171,9 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
                         mLocationResolver.getTimeZone()));
                 zmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
                 String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
-                if (candles.isEmpty()) {
-                    candles = "20";
-                }
-                zmanimCalendar.setCandleLightingOffset(Double.parseDouble(candles));
+                zmanimCalendar.setCandleLightingOffset(Utils.parseDoubleOrDefault(candles, 20));
                 String shabbat = mSettingsPreferences.getString("EndOfShabbatOffset", mSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40");
-                if (shabbat.isEmpty()) {// for some reason this is happening
-                    shabbat = "40";
-                }
-                zmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(shabbat));
+                zmanimCalendar.setAteretTorahSunsetOffset(Utils.parseDoubleOrDefault(shabbat, mSharedPreferences.getBoolean("inIsrael", false) ? 30 : 40));
                 if (mSharedPreferences.getBoolean("inIsrael", false) && shabbat.equals("40")) {
                     zmanimCalendar.setAteretTorahSunsetOffset(30);
                 }
@@ -191,15 +184,9 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
             ROZmanimCalendar zmanimCalendar = new ROZmanimCalendar(mLocationResolver.getLastKnownGeoLocation());
             zmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
             String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
-            if (candles.isEmpty()) {
-                candles = "20";
-            }
-            zmanimCalendar.setCandleLightingOffset(Double.parseDouble(candles));
+            zmanimCalendar.setCandleLightingOffset(Utils.parseDoubleOrDefault(candles, 20));
             String shabbat = mSettingsPreferences.getString("EndOfShabbatOffset", mSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40");
-            if (shabbat.isEmpty()) {// for some reason this is happening
-                shabbat = "40";
-            }
-            zmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(shabbat));
+            zmanimCalendar.setAteretTorahSunsetOffset(Utils.parseDoubleOrDefault(shabbat, mSharedPreferences.getBoolean("inIsrael", false) ? 30 : 40));
             if (mSharedPreferences.getBoolean("inIsrael", false) && shabbat.equals("40")) {
                 zmanimCalendar.setAteretTorahSunsetOffset(30);
             }

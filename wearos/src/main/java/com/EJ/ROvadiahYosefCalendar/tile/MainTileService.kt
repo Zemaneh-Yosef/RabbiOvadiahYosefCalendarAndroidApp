@@ -117,11 +117,10 @@ class MainTileService : TileService() {
         }
         mROZmanimCalendar = ROZmanimCalendar(LocationResolver.getLastGeoLocation(sharedPref), sharedPref)
         mROZmanimCalendar.candleLightingOffset =
-            (sharedPref.getString("CandleLightingOffset", "20")?.toDouble() ?: 0) as Double
-        mROZmanimCalendar.ateretTorahSunsetOffset = (sharedPref.getString(
-            "EndOfShabbatOffset",
-            if (sharedPref.getBoolean("inIsrael", false)) "30" else "40"
-        )?.toDouble() ?: 0) as Double
+            sharedPref.getString("CandleLightingOffset", "20")?.toDoubleOrNull() ?: 20.0
+        mROZmanimCalendar.ateretTorahSunsetOffset =
+            sharedPref.getString("EndOfShabbatOffset", null)?.toDoubleOrNull()
+                ?: if (sharedPref.getBoolean("inIsrael", false)) 30.0 else 40.0
         if (sharedPref.getBoolean("inIsrael", false) && sharedPref.getString(
                 "EndOfShabbatOffset",
                 "40"
@@ -163,7 +162,7 @@ class MainTileService : TileService() {
         ) { //if the user has disabled the elevation setting, set the elevation to 0
             elevation = 0.0
         }
-        mROZmanimCalendar.geoLocation.elevation = elevation
+        mROZmanimCalendar.geoLocation.elevation = elevation.coerceAtLeast(0.0) //GeoLocation.setElevation rejects negative values
 
         var secondFormatPattern = "H:mm:ss"
         if (!Utils.isLocaleHebrew(context)) {
@@ -182,6 +181,7 @@ class MainTileService : TileService() {
         noSecondFormat.timeZone = mROZmanimCalendar.geoLocation.timeZone
 
         mJewishDateInfo.resetLocale(context)
+        mJewishDateInfo.jewishCalendar.inIsrael = sharedPref.getBoolean("inIsrael", false)
 
         return ZmanimFactory.getNextUpcomingZman(Calendar.getInstance(), mROZmanimCalendar, mJewishDateInfo, sharedPref)
     }

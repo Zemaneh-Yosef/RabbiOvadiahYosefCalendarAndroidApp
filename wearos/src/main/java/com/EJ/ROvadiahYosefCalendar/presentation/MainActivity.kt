@@ -442,6 +442,7 @@ class MainActivity : ComponentActivity() {
             locationResolver.acquireLatitudeAndLongitude()
             resolveElevation()
             initZmanimCalendar()
+            mJewishDateInfo.jewishCalendar.inIsrael = sharedPref.getBoolean("inIsrael", false) // the phone syncs this flag, apply it before anything reads the calendar
             sharedPref.edit { putString("name", sCurrentLocationName) }
             setDateFormats() // must happen after geolocation so the timezone is correct
             updateZmanimList()
@@ -506,11 +507,10 @@ class MainActivity : ComponentActivity() {
             sharedPref
         )
         mROZmanimCalendar.candleLightingOffset =
-            (sharedPref.getString("CandleLightingOffset", "20")?.toDouble() ?: 0) as Double
-        mROZmanimCalendar.ateretTorahSunsetOffset = (sharedPref.getString(
-            "EndOfShabbatOffset",
-            if (sharedPref.getBoolean("inIsrael", false)) "30" else "40"
-        )?.toDouble() ?: 0) as Double
+            sharedPref.getString("CandleLightingOffset", "20")?.toDoubleOrNull() ?: 20.0
+        mROZmanimCalendar.ateretTorahSunsetOffset =
+            sharedPref.getString("EndOfShabbatOffset", null)?.toDoubleOrNull()
+                ?: if (sharedPref.getBoolean("inIsrael", false)) 30.0 else 40.0
         if (sharedPref.getBoolean("inIsrael", false) && sharedPref.getString(
                 "EndOfShabbatOffset",
                 "40"
@@ -539,6 +539,7 @@ class MainActivity : ComponentActivity() {
         if (!sharedPref.getBoolean("useElevation", true)) { //if the user has disabled the elevation setting, set the elevation to 0
             sElevation = 0.0
         }
+        sElevation = sElevation.coerceAtLeast(0.0) //GeoLocation.setElevation rejects negative values
     }
 
     private fun setDateFormats() {
