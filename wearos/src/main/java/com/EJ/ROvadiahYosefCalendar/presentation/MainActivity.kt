@@ -708,7 +708,7 @@ class MainActivity : ComponentActivity() {
             zmanim.add(ZmanListEntry(getString(R.string.burn_your_ametz_today)))
         }
 
-        val tekufaOpinions: String? = sharedPref.getString("TekufaOpinions", "1")
+        val tekufaOpinions: String? = sharedPref.getString("tekufaOpinions", "1")
         when (tekufaOpinions) {
             "1" -> if (sharedPref.getBoolean("LuachAmudeiHoraah", false)) {
                 addAmudeiHoraahTekufaTime()

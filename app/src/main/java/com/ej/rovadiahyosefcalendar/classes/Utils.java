@@ -408,7 +408,7 @@ public class Utils {
                     .put("ShowElevation", sSettingsPreferences.getBoolean("ShowElevation", false))
                     .put("ShowElevatedSunrise", sSettingsPreferences.getBoolean("ShowElevatedSunrise", false))
                     .put("inIsrael", sSharedPreferences.getBoolean("inIsrael", false))
-                    .put("tekufaOpinions", sSettingsPreferences.getString("tekufaOpinions", "1"))
+                    .put("tekufaOpinions", sSettingsPreferences.getString("TekufaOpinions", "1"))
                     .put("RoundUpRT", sSettingsPreferences.getBoolean("RoundUpRT", false))
                     .put("showShabbatMevarchim", sSettingsPreferences.getBoolean("showShabbatMevarchim", false))
                     .put("ShowShmitaYear", sSettingsPreferences.getBoolean("ShowShmitaYear", false))
