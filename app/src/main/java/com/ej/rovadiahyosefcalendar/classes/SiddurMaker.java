@@ -1385,13 +1385,15 @@ public class SiddurMaker {
 							.replace("וְלֹ֣א יִדֹּ֑ם יְהֹוָ֥ה", "וְלֹ֣א יִדֹּ֑ם (יפסיק מעט) יְהֹוָ֥ה".replace(isHebrew ? "@" : "יפסיק מעט", "pause")));
 				}
 				break;
-			case JewishCalendar.PURIM:
 			case JewishCalendar.FAST_OF_ESTHER:
 				addOneWordToSiddurHighlighted(getTehilimChapterTextByIndex(22));
 				break;
 			case JewishCalendar.SEVENTEEN_OF_TAMMUZ:
 				addTwoWordToSiddurHighlighted(getTehilimChapterTextByIndex(79));
 				break;
+		}
+		if (jewishDateInfo.getJewishCalendar().isPurim()) {
+			addOneWordToSiddurHighlighted(getTehilimChapterTextByIndex(22));
 		}
 
 		if (jewishDateInfo.yesterday().getJewishCalendar().isYomKippur()) {
