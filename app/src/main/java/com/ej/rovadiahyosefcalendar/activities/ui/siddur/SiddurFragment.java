@@ -218,9 +218,7 @@ public class SiddurFragment extends Fragment {
             currentZmanimCalendar.setAmudehHoraah(PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean("LuachAmudeiHoraah", false));
             currentJewishDateInfo = new JewishDateInfo(sJewishDateInfo.getJewishCalendar().getInIsrael());
             currentJewishDateInfo.resetLocale(mContext);
-            if (currentZmanimCalendar.getSunset() != null && new Date().after(currentZmanimCalendar.getSunset())) {
-                isAfterSunset = true;
-            }
+            isAfterSunset = currentZmanimCalendar.getSunset() != null && new Date().after(currentZmanimCalendar.getSunset());
             Preference seeMoreTitle = findPreference("siddur_see_more_title");
             Preference seeMore = findPreference("siddur_see_more");
             if (seeMore != null) {
