@@ -63,6 +63,7 @@ public class BootNotifications extends BroadcastReceiver {
                 }
                 , false);
                 if (!geoLocation.equals(new GeoLocation())) {
+                    setDailyNotifications(context, new ROZmanimCalendar(geoLocation));
                     finishBroadcast();
                 }
             } else {
