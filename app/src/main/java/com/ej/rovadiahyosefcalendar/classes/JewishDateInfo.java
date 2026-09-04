@@ -644,7 +644,9 @@ public class JewishDateInfo {
                 return "Birkat Halevana starts tonight";
             }
         } else {// Special case for Tisha Beav, see Shulchan Aruch Orach Chaim 426:2
-            if (this.jewishCalendar.getJewishDayOfMonth() < 9) {
+            JewishCalendar ninthOfAv = (JewishCalendar) this.jewishCalendar.clone();
+            ninthOfAv.setJewishDayOfMonth(9);
+            if (this.jewishCalendar.getJewishDayOfMonth() < (ninthOfAv.getDayOfWeek() == Calendar.SATURDAY ? 10 : 9)) {// the fast is deferred to the 10th when the 9th is Shabbat
                 return "";
             }
             if (this.jewishCalendar.isTishaBav()) {
