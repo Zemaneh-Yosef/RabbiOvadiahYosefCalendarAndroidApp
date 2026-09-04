@@ -407,9 +407,12 @@ public class SiddurFragment extends Fragment {
                 if (title != null) {
                     hadlakatNeirotChanuka.setSummary(getSecondaryText(title));
                 }
+                boolean isErevShabbatChanuka = getSunsetBasedJewishDateInfo(false).getJewishCalendar().getDayOfWeek() == Calendar.FRIDAY
+                        && getSunsetBasedJewishDateInfo(false).tomorrow().getJewishCalendar().isChanukah();
                 hadlakatNeirotChanuka.setVisible((showAllPrayers ? getSunsetBasedJewishDateInfo().getJewishCalendar().getDayOfChanukah() != 8
                         && (getSunsetBasedJewishDateInfo().getJewishCalendar().isChanukah() || getSunsetBasedJewishDateInfo().tomorrow().getJewishCalendar().isChanukah())
-                        : isPrayerCurrentlySaid(hadlakatNeirotChanuka.getKey()) && getSunsetBasedJewishDateInfo().getJewishCalendar().isChanukah()));
+                        : isPrayerCurrentlySaid(hadlakatNeirotChanuka.getKey())
+                        && (getSunsetBasedJewishDateInfo().getJewishCalendar().isChanukah() || isErevShabbatChanuka)));
                 hadlakatNeirotChanuka.setForceLTRTextDirection(!Utils.isLocaleHebrew(mContext));
             }
 
@@ -899,8 +902,12 @@ public class SiddurFragment extends Fragment {
                         new Date().after(currentZmanimCalendar.getMinchaGedolaGreaterThan30()) && new Date().before(currentZmanimCalendar.getTzeit());
                 case "siddur_arvit" ->
                         new Date().after(currentZmanimCalendar.getPlagHamincha()) || new Date().before(currentZmanimCalendar.getAlotHashachar());
+                case "siddur_hadlakat_neirot_chanuka" ->
+                        new Date().after(currentZmanimCalendar.getSunset()) || new Date().before(currentZmanimCalendar.getAlotHashachar())
+                                || (getSunsetBasedJewishDateInfo(false).getJewishCalendar().getDayOfWeek() == Calendar.FRIDAY
+                                && new Date().after(currentZmanimCalendar.getPlagHamincha())
+                                && getSunsetBasedJewishDateInfo(false).tomorrow().getJewishCalendar().isChanukah());// candles are lit before sunset on erev Shabbat
                 case "siddur_sefirat_haomer",
-                     "siddur_hadlakat_neirot_chanuka",
                      "siddur_havdala",
                      "siddur_kriatShema" ->
                         new Date().after(currentZmanimCalendar.getSunset()) || new Date().before(currentZmanimCalendar.getAlotHashachar());
