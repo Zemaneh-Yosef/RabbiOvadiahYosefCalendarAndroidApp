@@ -30,6 +30,7 @@ import com.ej.rovadiahyosefcalendar.classes.ZmanListEntry;
 import com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType;
 import com.ej.rovadiahyosefcalendar.classes.ZmanimFactory;
 import com.ej.rovadiahyosefcalendar.classes.ZmanimNames;
+import com.ej.rovadiahyosefcalendar.notifications.NotificationUtils;
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
 import com.kosherjava.zmanim.util.GeoLocation;
 
@@ -288,11 +289,9 @@ public class ZmanimAppWidget extends AppWidgetProvider {
 
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             if (alarmManager != null) {
-                alarmManager.set(
-                        AlarmManager.RTC_WAKEUP,
+                NotificationUtils.setExactAndAllowWhileIdle(alarmManager,
                         getNextUpcomingZman(context, AppWidgetManager.getInstance(context), activeWidgetIds[0]).getZman().getTime() + 100,
-                        pendingIntent
-                );
+                        pendingIntent);
             }
         }
     }
