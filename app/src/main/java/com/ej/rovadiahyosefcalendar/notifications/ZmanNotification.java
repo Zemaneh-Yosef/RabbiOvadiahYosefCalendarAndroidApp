@@ -126,7 +126,7 @@ public class ZmanNotification extends BroadcastReceiver {
             if (mSettingsSharedPreferences.getInt("autoDismissNotifications", -1) != -1) {
                 builder.setTimeoutAfter((mSettingsSharedPreferences.getInt("autoDismissNotifications", -1) * MINUTE_MILLI) + 3000); // add 3 seconds because 0 milliseconds doesn't do anything
             } else {
-                builder.setTimeoutAfter(259_200_00);// remove the notification after 3 days (259,200,000 milliseconds)
+                builder.setTimeoutAfter(259_200_000);// remove the notification after 3 days (259,200,000 milliseconds)
             }
             if (mSharedPreferences.getString("lastNotifiedZman", "").equals(zman + notificationID)) {
                 return;// just in case, so we don't get two of the same zman
