@@ -2,7 +2,6 @@ package com.EJ.ROvadiahYosefCalendar.classes;
 
 import android.content.Context;
 import android.text.SpannableStringBuilder;
-import android.text.format.DateUtils;
 
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
@@ -615,7 +614,10 @@ public class JewishDateInfo {
         latest.setJewishDayOfMonth(14);
 
         if (this.jewishCalendar.getJewishMonth() != JewishDate.AV) {
-            if (DateUtils.isToday(sevenDays.getTime().getTime())) {
+            Calendar displayedDate = this.jewishCalendar.getGregorianCalendar();
+            if (displayedDate.get(Calendar.ERA) == sevenDays.get(Calendar.ERA)
+                    && displayedDate.get(Calendar.YEAR) == sevenDays.get(Calendar.YEAR)
+                    && displayedDate.get(Calendar.DAY_OF_YEAR) == sevenDays.get(Calendar.DAY_OF_YEAR)) {
                 if (isLocaleHebrew) {
                     return "ברכת הלבנה מתחילה הלילה";
                 }
