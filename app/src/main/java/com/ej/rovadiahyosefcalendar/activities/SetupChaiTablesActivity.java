@@ -13,7 +13,6 @@ import android.content.SharedPreferences;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -174,13 +173,12 @@ public class SetupChaiTablesActivity extends AppCompatActivity {
                 try {
                     ChaiTablesWebJava.ChaiTablesResult[] result = scraper.formatInterfacer();
                     int jewishYear = jDate.getJewishYear();
-                    Looper.prepare();
                     if (result != null && result[0] != null) {
                         for (ChaiTablesWebJava.ChaiTablesResult r : result) {
                             ChaiTablesWebJava.saveResultsToFile(r, getExternalFilesDir(null), sCurrentLocationName, jewishYear);
                             jewishYear++;
                         }
-                        Toast.makeText(getApplicationContext(), getString(R.string.success), Toast.LENGTH_SHORT).show();
+                        runOnUiThread(() -> Toast.makeText(getApplicationContext(), getString(R.string.success), Toast.LENGTH_SHORT).show());
                         mSharedPreferences.edit().putString("chaitablesLink" + sCurrentLocationName, result[0].url()).apply(); // save the link for this location to automatically download again next time
                         mSharedPreferences.edit().putBoolean("UseTable" + sCurrentLocationName, true)
                                 .putBoolean("showMishorSunrise" + sCurrentLocationName, false)
@@ -193,11 +191,15 @@ public class SetupChaiTablesActivity extends AppCompatActivity {
                         runOnUiThread(() -> {
                             mDownloadButton.setEnabled(true);
                             progressBar.setVisibility(View.GONE);
+                            Toast.makeText(getApplicationContext(), getString(R.string.error), Toast.LENGTH_SHORT).show();
                         });
-                        Toast.makeText(getApplicationContext(), getString(R.string.error), Toast.LENGTH_SHORT).show();
                     }
                 } catch (IOException e) {
-                    recreate();
+                    runOnUiThread(() -> {
+                        if (!isFinishing() && !isDestroyed()) {
+                            recreate();
+                        }
+                    });
                     e.printStackTrace();
                 }
             }).start();
