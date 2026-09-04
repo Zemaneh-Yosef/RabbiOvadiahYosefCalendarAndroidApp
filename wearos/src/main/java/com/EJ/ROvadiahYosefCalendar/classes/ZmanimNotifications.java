@@ -153,15 +153,13 @@ public class ZmanimNotifications extends BroadcastReceiver {
                                                 + zmanimOver3Days.get(i).getZmanDate().getTime()),
                                 PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
                         );
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                            if (am.canScheduleExactAlarms()) {
-                                am.setAlarmClock(
-                                        new AlarmManager.AlarmClockInfo(triggerTime, showIntent),
-                                        alarmPendingIntent
-                                );
-                            } else {
-                                am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, alarmPendingIntent);
-                            }
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || am.canScheduleExactAlarms()) {
+                            am.setAlarmClock(
+                                    new AlarmManager.AlarmClockInfo(triggerTime, showIntent),
+                                    alarmPendingIntent
+                            );
+                        } else {
+                            am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, alarmPendingIntent);
                         }
                     } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         if (am.canScheduleExactAlarms()) {
