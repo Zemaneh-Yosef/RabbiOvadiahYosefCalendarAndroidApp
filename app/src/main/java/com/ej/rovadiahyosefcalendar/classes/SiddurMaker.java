@@ -3444,6 +3444,11 @@ public class SiddurMaker {
 
 	public ArrayList<HighlightString> getMusafPrayers() {
 		siddur = new ArrayList<>();
+		if (jewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
+            addToSiddur(isHebrew ? "שבת ויום טוב כרגע אינם נתמכים" : "Shabbat and Yom Tov are currently not supported");
+            addToSiddurHighlighted(isHebrew ? "פתח את סידור ספריה" : "Open Sefaria Siddur");
+			return siddur;
+		}
 
 		addCategoryToSiddur("מוסף");
 		addToSiddur(
