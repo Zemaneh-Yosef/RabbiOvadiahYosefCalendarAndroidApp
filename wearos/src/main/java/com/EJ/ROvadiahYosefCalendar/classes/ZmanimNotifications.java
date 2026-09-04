@@ -125,7 +125,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
         int max = 5;
         int set = 0;//only set 5 zmanim an hour
         for (int i = 0; i < zmanimOver3Days.size(); i++) {
-            if (set < max) {
+            if (set < max && zmanimOver3Days.get(i).getZmanDate() != null) {
                 long triggerTime = zmanimOver3Days.get(i).getZmanDate().getTime()
                         - (60_000L * zmanimOver3Days.get(i).getNotificationDelay());
 
