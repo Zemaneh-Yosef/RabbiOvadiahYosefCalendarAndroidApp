@@ -34,6 +34,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
         if (mSharedPreferences.getBoolean("zmanim_notifications", true)) {
             new Thread(() -> {
                 JewishCalendar jewishCalendar = new JewishCalendar();
+                jewishCalendar.setInIsrael(mSharedPreferences.getBoolean("inIsrael", false));
                 ROZmanimCalendar zmanimCalendar = getROZmanimCalendar();
                 String candles = mSharedPreferences.getString("CandleLightingOffset", "20");
                 if (candles.isEmpty()) {
@@ -74,7 +75,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
         } else {
             elevation = Double.parseDouble(mSharedPreferences.getString("elevation" + mSharedPreferences.getString("currentLN", ""), "0"));//lastKnownLocation
         }
-        return elevation;
+        return Math.max(elevation, 0);//GeoLocation.setElevation rejects negative values
     }
 
     /**
@@ -218,14 +219,14 @@ public class ZmanimNotifications extends BroadcastReceiver {
         if (jewishCalendar.isTaanis() && jewishCalendar.getYomTovIndex() != JewishCalendar.YOM_KIPPUR) {//only add if it's a taanit and not yom kippur
             minutesBefore = mSharedPreferences.getInt("FastEnd", 15);
             if (minutesBefore >= 0) {
-                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTzaitString() + zmanimNames.getTaanitString(), c.getTzaitTaanit(), minutesBefore));
+                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTzaitString() + zmanimNames.getTaanitString(), c.getTzeitLChumra(), minutesBefore));
             }
         }
 
         if (mSharedPreferences.getBoolean("alwaysShowTzeitLChumra", false)) {
             minutesBefore = mSharedPreferences.getInt("TzeitHacochavimLChumra", 15);
             if (minutesBefore >= 0) {
-                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTzaitHacochavimString() + " " + zmanimNames.getLChumraString(), c.getTzaitTaanit(), minutesBefore));
+                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTzaitHacochavimString() + " " + zmanimNames.getLChumraString(), c.getTzeitLChumra(), minutesBefore));
             }
         }
 

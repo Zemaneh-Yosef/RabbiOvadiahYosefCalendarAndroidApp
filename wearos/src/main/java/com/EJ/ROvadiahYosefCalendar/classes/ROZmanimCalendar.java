@@ -271,15 +271,12 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     }
 
     /**
-     * This method returns the time for tzait hacochavim (nightfall) l'chumra calculated by the Ohr HaChaim calendar according to the opinion of Rabbi
-     * Ovadiah Yosef. This is calculated as 20 regular minutes after elevated sunset.
-     * Rabbi Ovadiah Yosef writes that the average fast ends around 20 minutes after sunset. Rabbi Shlomo Benizri is of the opinion that this time is
-     * calculated as 20 regular minutes after sunset. This is what the Ohr HaChaim refers to when it just writes that the fast ends at Tzait Hacochavim.
-     * It could mean 13.5 zmaniyot minutes after sunset, or 20 regular minutes after sunset.
-     * @return the time when the average fast ends based on the opinion of Rabbi Shlomo Benizri who holds that it is 20 regular minutes after sunset L'Chumra.
+     * This method returns a time for tzeit l'chumra (stringent) as shown on the Ohr HaChaim calendar. This time is calculated as 20
+     * zmaniyot minutes after sunset.
+     * @return the Date representing 20 zmaniyot minutes after sunset.
      */
-    public Date getTzaitTaanit() {
-        return getTimeOffset(getElevationAdjustedSunset(), (20 * MILLISECONDS_PER_MINUTE));
+    public Date getTzeitLChumra() {
+        return getTimeOffset(getElevationAdjustedSunset(), 20 * (getShaahZmanisGra() / MINUTES_PER_HOUR));// avoid using getZmanisOffset because of the trailing 33333
     }
 
     /**
@@ -461,8 +458,9 @@ public class ROZmanimCalendar extends ComplexZmanimCalendar {
     public Date getTzaitShabbatAmudeiHoraah() {
         Date tzait = getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 7.165);
         if (tzait != null) {
-            if (getTzaitTaanit() != null && getTzaitTaanit().after(tzait)) { // if shabbat ends before 20 minutes after sunset, use 20 minutes
-                return getTzaitTaanit();
+            Date tzait20 = getTimeOffset(getElevationAdjustedSunset(), (20 * MILLISECONDS_PER_MINUTE));
+            if (tzait20 != null && tzait20.after(tzait)) { // if shabbat ends before 20 minutes after sunset, use 20 minutes
+                return tzait20;
             }
             if (getSolarMidnight().before(tzait)) { // if chatzot is before when shabbat ends, just use chatzot
                 return getSolarMidnight();

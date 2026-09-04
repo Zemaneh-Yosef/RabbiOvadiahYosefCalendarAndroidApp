@@ -13,6 +13,7 @@ import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -95,6 +96,7 @@ public class SetupElevationActivity extends AppCompatActivity {
             manualButton.setEnabled(false);
             final EditText input = new EditText(this);
             input.setGravity(Gravity.CENTER_HORIZONTAL);
+            input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
             input.setHint(R.string.enter_elevation_in_meters);
 
             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
@@ -102,7 +104,7 @@ public class SetupElevationActivity extends AppCompatActivity {
             builder.setView(input);
             builder.setPositiveButton(R.string.ok, (dialog, which) -> {
                 if (input.getText().toString().isEmpty() ||
-                        !input.getText().toString().matches("[0-9]+.?[0-9]*")) {//regex to check for a proper number input
+                        !input.getText().toString().matches("[0-9]+(\\.[0-9]+)?")) {//regex to check for a proper number input, the dot has to be escaped
                     Toast.makeText(this, R.string.please_enter_a_valid_value_for_example_30_or_30_0, Toast.LENGTH_SHORT)
                             .show();
                 } else {

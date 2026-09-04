@@ -861,16 +861,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 TimeZone.getTimeZone(sCurrentTimeZoneID)));
         sROZmanimCalendar.setExternalFilesDir(mActivity.getExternalFilesDir(null));
         String candles = sSettingsPreferences.getString("CandleLightingOffset", "20");
-        if (candles.isEmpty()) {
-            candles = "20";
-        }
-        sROZmanimCalendar.setCandleLightingOffset(Double.parseDouble(candles));
+        sROZmanimCalendar.setCandleLightingOffset(Utils.parseDoubleOrDefault(candles, 20));
         String shabbat = sSettingsPreferences.getString("EndOfShabbatOffset", sSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40");
-        if (shabbat.isEmpty()) {// for some reason this is happening
-            sROZmanimCalendar.setAteretTorahSunsetOffset(sSharedPreferences.getBoolean("inIsrael", false) ? 30 : 40);
-        } else {
-            sROZmanimCalendar.setAteretTorahSunsetOffset(Double.parseDouble(shabbat));
-        }
+        sROZmanimCalendar.setAteretTorahSunsetOffset(Utils.parseDoubleOrDefault(shabbat, sSharedPreferences.getBoolean("inIsrael", false) ? 30 : 40));
         if (sSharedPreferences.getBoolean("inIsrael", false) && shabbat.equals("40")) {
             sROZmanimCalendar.setAteretTorahSunsetOffset(30);
         }
@@ -1932,21 +1925,21 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             if (sCurrentLocationName.contains("Lat:") && sCurrentLocationName.contains("Long:")
                     && sSettingsPreferences.getBoolean("SetElevationToLastKnownLocation", false)) {//only if the user has enabled the setting to set the elevation to the last known location
                 sUserIsOffline = true;
-                sElevation = Double.parseDouble(sSharedPreferences.getString("elevation" + sSharedPreferences.getString("name", ""), "0"));//lastKnownLocation
+                sElevation = Utils.parseDoubleOrDefault(sSharedPreferences.getString("elevation" + sSharedPreferences.getString("name", ""), "0"), 0);//lastKnownLocation
             } else {//user is online, get the elevation from the shared preferences for the current location
-                sElevation = Double.parseDouble(sSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));//get the last value of the current location or 0 if it doesn't exist
+                sElevation = Utils.parseDoubleOrDefault(sSharedPreferences.getString("elevation" + sCurrentLocationName, "0"), 0);//get the last value of the current location or 0 if it doesn't exist
             }
         }
 
         if (!sUserIsOffline && sSharedPreferences.getBoolean("useElevation", true)) {//update if the user is online and the elevation setting is enabled
             if (!sSharedPreferences.contains("elevation" + sCurrentLocationName)) {//if the elevation for this location has never been set
                 Thread thread = new Thread(() -> mLocationResolver.getElevationFromWebService(mHandler,
-                        () -> sElevation = Double.parseDouble(sSharedPreferences.getString("elevation" + sCurrentLocationName, "0")),
+                        () -> sElevation = Utils.parseDoubleOrDefault(sSharedPreferences.getString("elevation" + sCurrentLocationName, "0"), 0),
                         codeToRunOnMainThread));
                 thread.start();
                 seeIfTablesNeedToBeUpdated(false);
             } else {// use elevation that was set before
-                sElevation = Double.parseDouble(sSharedPreferences.getString("elevation" + sCurrentLocationName, "0"));
+                sElevation = Utils.parseDoubleOrDefault(sSharedPreferences.getString("elevation" + sCurrentLocationName, "0"), 0);
                 mActivity.runOnUiThread(codeToRunOnMainThread);
             }
         } else {// user does not want elevation

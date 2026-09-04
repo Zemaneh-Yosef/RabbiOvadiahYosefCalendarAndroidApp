@@ -109,19 +109,19 @@ public class ZmanimFactory {
         }
         zmanim.add(new ZmanListEntry(zmanimNames.getSunsetString(), mROZmanimCalendar.getSunset(), SecondTreatment.ROUND_EARLIER));
         zmanim.add(new ZmanListEntry(zmanimNames.getTzaitHacochavimString(), useAHZmanim ? mROZmanimCalendar.getTzeitAmudeiHoraah() : mROZmanimCalendar.getTzeit(), SecondTreatment.ROUND_LATER));
-        zmanim.add(new ZmanListEntry(zmanimNames.getTzaitHacochavimString() + " " + zmanimNames.getLChumraString(), useAHZmanim ? mROZmanimCalendar.getTzeitAmudeiHoraahLChumra() : mROZmanimCalendar.getTzaitTaanit(), SecondTreatment.ROUND_LATER));
+        zmanim.add(new ZmanListEntry(zmanimNames.getTzaitHacochavimString() + " " + zmanimNames.getLChumraString(), useAHZmanim ? mROZmanimCalendar.getTzeitAmudeiHoraahLChumra() : mROZmanimCalendar.getTzeitLChumra(), SecondTreatment.ROUND_LATER));
         if (mJewishDateInfo.getJewishCalendar().hasCandleLighting() &&
                 mJewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
             if (mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) != Calendar.FRIDAY) {// we already added Candles
                 if (mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {// Shabbat going into Yom Tov
                     addShabbatEndsZman(zmanim, mSharedPreferences, mROZmanimCalendar, mJewishDateInfo, mIsZmanimInHebrew, useAHZmanim, zmanimNames, true, false);
                 } else {// Yom Tov going into Yom Tov
-                    zmanim.add(new ZmanListEntry(zmanimNames.getCandleLightingString(), useAHZmanim ? mROZmanimCalendar.getTzeitAmudeiHoraahLChumra() : mROZmanimCalendar.getTzaitTaanit(), SecondTreatment.ROUND_LATER));
+                    zmanim.add(new ZmanListEntry(zmanimNames.getCandleLightingString(), useAHZmanim ? mROZmanimCalendar.getTzeitAmudeiHoraahLChumra() : mROZmanimCalendar.getTzeitLChumra(), SecondTreatment.ROUND_LATER));
                 }
             }
         }
         if (mJewishDateInfo.getJewishCalendar().isTaanis() && !mJewishDateInfo.getJewishCalendar().isYomKippur()) {
-            ZmanListEntry fastEnds = new ZmanListEntry(zmanimNames.getTzaitString() + zmanimNames.getTaanitString() + zmanimNames.getEndsString(), useAHZmanim ? mROZmanimCalendar.getTzeitAmudeiHoraahLChumra() : mROZmanimCalendar.getTzaitTaanit(), SecondTreatment.ROUND_LATER);
+            ZmanListEntry fastEnds = new ZmanListEntry(zmanimNames.getTzaitString() + zmanimNames.getTaanitString() + zmanimNames.getEndsString(), useAHZmanim ? mROZmanimCalendar.getTzeitAmudeiHoraahLChumra() : mROZmanimCalendar.getTzeitLChumra(), SecondTreatment.ROUND_LATER);
             fastEnds.setNoteworthyZman(true);
             zmanim.add(fastEnds);
         }
