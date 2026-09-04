@@ -358,12 +358,12 @@ public class Utils {
 
                                 StringBuilder chaiTableForThisYear = new StringBuilder();
                                 if (sCurrentLocationName != null && sCurrentLocationName.isEmpty()) {
-                                    return;
+                                    continue;
                                 }
 
                                 File vsFile = ChaiTablesWebJava.getVisibleSunriseFile(context.getExternalFilesDir(null), sCurrentLocationName, sJewishDateInfo.getJewishCalendar().getJewishYear());
                                 if (!vsFile.isFile()) {
-                                    return;
+                                    continue;
                                 }
 
                                 List<Long> vSunriseTimes = Collections.emptyList();
