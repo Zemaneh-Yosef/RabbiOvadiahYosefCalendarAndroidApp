@@ -1109,11 +1109,12 @@ public class SiddurFragment extends Fragment {
             if (mContext != null && prayer.equals(mContext.getString(R.string.arvit)) && isArvitAfterPlagBeforeSunset) {
                 currentJewishDateInfo.forward();// edge case for arvit after plag but before sunset so date hasn't changed
             }
+            JewishDateInfo intentDate = getSunsetBasedJewishDateInfo();// this method resets currentJewishDateInfo, so it may only be called once here
             Intent intent = new Intent(mContext, SiddurViewActivity.class)
                     .putExtra("prayer", prayer)
-                    .putExtra("JewishDay", getSunsetBasedJewishDateInfo().getJewishCalendar().getJewishDayOfMonth())
-                    .putExtra("JewishMonth", getSunsetBasedJewishDateInfo().getJewishCalendar().getJewishMonth())
-                    .putExtra("JewishYear", getSunsetBasedJewishDateInfo().getJewishCalendar().getJewishYear())
+                    .putExtra("JewishDay", intentDate.getJewishCalendar().getJewishDayOfMonth())
+                    .putExtra("JewishMonth", intentDate.getJewishCalendar().getJewishMonth())
+                    .putExtra("JewishYear", intentDate.getJewishCalendar().getJewishYear())
                     .putExtra("masechtas", selectedMasechtot)
                     .putExtra("itemsForMeyinShalosh", selectedShaloshItems)
                     .putExtra("isNightTikkunChatzot", isNightTikkunChatzot)
@@ -1129,8 +1130,8 @@ public class SiddurFragment extends Fragment {
                 currentJewishDateInfo.back();
             }
 
-            if ((getSunsetBasedJewishDateInfo().getJewishCalendar().getYomTovIndex() == JewishCalendar.PURIM ||
-                    getSunsetBasedJewishDateInfo().getJewishCalendar().getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM)
+            if ((intentDate.getJewishCalendar().getYomTovIndex() == JewishCalendar.PURIM ||
+                    intentDate.getJewishCalendar().getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM)
                     && !prayer.equals(mContext.getString(R.string.birchat_meyin_shalosh))// no text for purim in birchat meyin shalosh unlike birchat hamazon
                     && !prayer.equals(mContext.getString(R.string.birchat_levana))
                     && !prayer.equals(mContext.getString(R.string.tefilat_haderech))
