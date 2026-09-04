@@ -16,6 +16,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 
 import androidx.core.app.ActivityCompat;
+import androidx.preference.PreferenceManager;
 
 import com.ej.rovadiahyosefcalendar.activities.ZmanimAppWidget;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
@@ -95,6 +96,7 @@ public class BootNotifications extends BroadcastReceiver {
     private void setDailyNotifications(Context context, ROZmanimCalendar zmanimCalendar) {
         Calendar calendar = Calendar.getInstance();
         AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
+        zmanimCalendar.setAmudehHoraah(PreferenceManager.getDefaultSharedPreferences(context).getBoolean("LuachAmudeiHoraah", false));
 
         Date sunrise = zmanimCalendar.getSunrise();
         if (sunrise == null) {
@@ -108,11 +110,11 @@ public class BootNotifications extends BroadcastReceiver {
                 0, new Intent(context, DailyNotifications.class), PendingIntent.FLAG_IMMUTABLE);
         NotificationUtils.setExactAndAllowWhileIdle(am, calendar.getTimeInMillis(), dailyPendingIntent);
 
-        Date sunset = zmanimCalendar.getSunset();
-        if (sunset == null) {
-            sunset = new Date();
+        Date tzeit = zmanimCalendar.getTzeit();
+        if (tzeit == null) {
+            tzeit = new Date();
         }
-        calendar.setTimeInMillis(sunset.getTime());
+        calendar.setTimeInMillis(tzeit.getTime());
         if (calendar.getTime().compareTo(new Date()) < 0) {
             calendar.add(Calendar.DATE, 1);
         }
