@@ -50,7 +50,7 @@ public class HebrewDayMonthYearPickerDialog extends DialogFragment {
         super();
         this.materialDatePicker = materialDatePicker;
         this.fragmentManager = fragmentManager;
-        mJewishCalendar = jewishCalendar;
+        mJewishCalendar = (JewishCalendar) jewishCalendar.clone();// the pickers write to this on every tick, so it must not be the caller's instance
         MIN_YEAR = jewishCalendar.getJewishYear() - 100;
         MAX_YEAR = jewishCalendar.getJewishYear() + 100;
         if (Locale.getDefault().getDisplayLanguage(new Locale.Builder().setLanguage("en").setRegion("US").build()).equals("Hebrew")) {
