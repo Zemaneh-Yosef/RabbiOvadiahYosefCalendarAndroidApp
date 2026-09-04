@@ -81,13 +81,13 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
 
     private void init(JewishDateInfo jewishDateInfo, ROZmanimCalendar c) {
         jewishDateInfo.resetLocale(context);
+        c.setAmudehHoraah(PreferenceManager.getDefaultSharedPreferences(context).getBoolean("LuachAmudeiHoraah", false));
         int night = jewishDateInfo.tomorrow().getJewishCalendar().getDayOfOmer();//the count that is said tonight
         if (BuildConfig.DEBUG) {
             mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "init started with the Omer count for tonight as: " + night + "\n\n").apply();
         }
         if (night != -1) {//-1 outside the omer, and on erev shavuot there is no count to say
             long when = System.currentTimeMillis();
-            c.setAmudehHoraah(PreferenceManager.getDefaultSharedPreferences(context).getBoolean("LuachAmudeiHoraah", false));
             if (c.getTzeit() != null) {
                 when = c.getTzeit().getTime();
             }
