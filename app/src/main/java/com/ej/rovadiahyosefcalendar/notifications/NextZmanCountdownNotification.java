@@ -85,7 +85,11 @@ public class NextZmanCountdownNotification extends Service {
         mSettingsPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         settingsPrefListener = (prefs, key) -> {
             if (key != null && key.equals("showNextZmanNotification")) {
-                shouldShowNotification = !shouldShowNotification;
+                shouldShowNotification = prefs.getBoolean(key, false);
+                if (shouldShowNotification && countdownRunnable != null) {
+                    handler.removeCallbacks(countdownRunnable);
+                    handler.post(countdownRunnable);
+                }
             }
         };
         mSettingsPreferences.registerOnSharedPreferenceChangeListener(settingsPrefListener);
@@ -295,8 +299,8 @@ public class NextZmanCountdownNotification extends Service {
     }
 
     private void dismissNotification() {
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(NOTIFICATION_ID);
+        ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE);
+        stopSelf();
     }
 
     private void createNotificationChannel() {
