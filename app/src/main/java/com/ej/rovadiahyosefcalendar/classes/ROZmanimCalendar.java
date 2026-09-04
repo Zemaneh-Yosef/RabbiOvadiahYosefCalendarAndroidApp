@@ -607,23 +607,16 @@ public class ROZmanimCalendar extends ZmanimCalendar {
 
     public boolean isNowBeforeSecondAshmora() {
         Date now = new Date();
-        Date solarMidnight = getSolarMidnight();
-        Date secondAshmora = getSecondAshmora();
-        // Handle possible edge case when solarMidnight is "tomorrow"
-        Calendar midnightCal = Calendar.getInstance();
-        if (midnightCal.get(Calendar.HOUR_OF_DAY) < 3) {// now is before 3 AM
-            if (solarMidnight != null) {
-                midnightCal.setTime(solarMidnight);
-            }
-            // The calendar changes at 12 AM. If solarMidnight occurs between 12 AM–3 AM and now is after 12 AM, we need to go back to yesterday to get the correct solarMidnight.
-            // However, if solarMidnight occurs before 12 AM, there is no need to go back to yesterday because we are already checking for the correct solarMidnight.
-            if (midnightCal.get(Calendar.HOUR_OF_DAY) < 3) {
-                getCalendar().add(Calendar.DATE, -1);
-                secondAshmora = getSecondAshmora();
-                getCalendar().add(Calendar.DATE, 1);
-            }
+        Date chatzot = getChatzot();
+        Date secondAshmora;
+        if (chatzot != null && now.before(chatzot)) {// until chatzot, selichot belong to the night that began at yesterday's sunset
+            getCalendar().add(Calendar.DATE, -1);
+            secondAshmora = getSecondAshmora();
+            getCalendar().add(Calendar.DATE, 1);
+        } else {
+            secondAshmora = getSecondAshmora();
         }
-        return now.before(secondAshmora == null ? new Date() : secondAshmora);
+        return secondAshmora != null && now.before(secondAshmora);
     }
 
     public boolean isNowAfterHalachicSolarMidnight() {
