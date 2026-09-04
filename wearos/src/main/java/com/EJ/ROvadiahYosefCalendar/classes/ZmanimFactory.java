@@ -132,7 +132,8 @@ public class ZmanimFactory {
                 }
             }
         }
-        if (mSharedPreferences.getBoolean("AlwaysShowRT", false)) {
+        if (mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY // always add RT for shabbat
+                || mSharedPreferences.getBoolean("AlwaysShowRT", false)) {
             if (!(mJewishDateInfo.getJewishCalendar().isAssurBemelacha() && !mJewishDateInfo.getJewishCalendar().hasCandleLighting())) {//if we want to always show the zman for RT, we can just NOT the previous cases where we do show it
                 addRTZman(zmanim, mSharedPreferences, mROZmanimCalendar, zmanimNames, useAHZmanim, false);
             }
