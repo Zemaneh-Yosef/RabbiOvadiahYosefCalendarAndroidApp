@@ -756,7 +756,7 @@ public class JewishDateInfo {
                 return "No Music";
             }
         } else if (this.jewishCalendar.getJewishMonth() == JewishDate.AV) {
-            if (this.jewishCalendar.getJewishDayOfMonth() <= 9) {
+            if (this.jewishCalendar.getJewishDayOfMonth() <= 9 || this.jewishCalendar.isTishaBav()) {
                 if (isLocaleHebrew) {
                     return "לא שומעים מוזיקה";
                 }
