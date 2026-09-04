@@ -225,6 +225,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private LocationResolver mLocationResolver;
     private final ZmanimFormatter mZmanimFormatter = new ZmanimFormatter(TimeZone.getDefault());
     public static ActivityResultLauncher<Intent> sNotificationLauncher;
+    private ActivityResultLauncher<String> mBackgroundLocationLauncher;
     private SharedPreferences.OnSharedPreferenceChangeListener sSharedPrefListener;
     private static JSONArray makamNames;
 
@@ -319,6 +320,14 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         sNotificationLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> setNotifications()
+        );
+        mBackgroundLocationLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(),
+                granted -> {
+                    if (granted) {
+                        sSharedPreferences.edit().putBoolean("askedForRealtimeNotifications", true).apply();
+                    }
+                }
         );
     }
 
@@ -963,9 +972,10 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 builder.setCancelable(false);
                 builder.setPositiveButton(R.string.yes, (dialog, which) -> {
                     if (ActivityCompat.checkSelfPermission(mContext, ACCESS_BACKGROUND_LOCATION) != PERMISSION_GRANTED) {
-                        ActivityCompat.requestPermissions(mActivity, new String[]{ACCESS_BACKGROUND_LOCATION}, 1);
+                        mBackgroundLocationLauncher.launch(ACCESS_BACKGROUND_LOCATION);
+                    } else {
+                        sSharedPreferences.edit().putBoolean("askedForRealtimeNotifications", true).apply();
                     }
-                    sSharedPreferences.edit().putBoolean("askedForRealtimeNotifications", true).apply();
                 });
                 builder.setNegativeButton(R.string.no, (dialog, which) -> {
                     sSharedPreferences.edit().putBoolean("askedForRealtimeNotifications", true).apply();
