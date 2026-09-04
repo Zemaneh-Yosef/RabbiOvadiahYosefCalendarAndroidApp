@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 public class ZmanimFactory {
 
@@ -90,14 +89,11 @@ public class ZmanimFactory {
                 mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
                 mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
                 if (!mJewishDateInfo.getJewishCalendar().isTomorrowShabbosOrYomTov()) {//only add if shabbat/yom tov ends tomorrow
-                    Set<String> stringSet = mSharedPreferences.getStringSet("displayRTOrShabbatRegTime", null);
-                    if (stringSet != null) {
-                        if (stringSet.contains("Show Regular Minutes")) {
-                            addShabbatEndsZman(zmanim, mSharedPreferences, mROZmanimCalendar, mJewishDateInfo, mIsZmanimInHebrew, useAHZmanim, zmanimNames, false, true);
-                        }
-                        if (stringSet.contains("Show Rabbeinu Tam")) {
-                            addRTZman(zmanim, mSharedPreferences, mROZmanimCalendar, zmanimNames, useAHZmanim ,true);
-                        }
+                    if (mSharedPreferences.getBoolean("Show Regular Minutes", false)) {
+                        addShabbatEndsZman(zmanim, mSharedPreferences, mROZmanimCalendar, mJewishDateInfo, mIsZmanimInHebrew, useAHZmanim, zmanimNames, false, true);
+                    }
+                    if (mSharedPreferences.getBoolean("Show Rabbeinu Tam", false)) {
+                        addRTZman(zmanim, mSharedPreferences, mROZmanimCalendar, zmanimNames, useAHZmanim ,true);
                     }
                 }
                 mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);
