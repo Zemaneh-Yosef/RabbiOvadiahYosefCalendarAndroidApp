@@ -37,6 +37,7 @@ import com.kosherjava.zmanim.util.GeoLocation;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 public class OmerNotifications extends BroadcastReceiver implements Consumer<Location> {
@@ -44,9 +45,13 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
     private LocationResolver mLocationResolver;
     private SharedPreferences mSharedPreferences;
     private Context context;
+    private PendingResult mPendingResult;
+    private final AtomicBoolean mFinished = new AtomicBoolean();
+    private final AtomicBoolean mGotLocation = new AtomicBoolean();
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        mPendingResult = goAsync();
         this.context = context;
         mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         if (BuildConfig.DEBUG) {
@@ -61,7 +66,16 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
                     mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "Omer notifications init called with a saved location/zipcode" + "\n\n").apply();
                 }
                 init(jewishDateInfo, c);
+                finishBroadcast();
             }
+        } else {
+            finishBroadcast();
+        }
+    }
+
+    private void finishBroadcast() {
+        if (mFinished.compareAndSet(false, true)) {
+            mPendingResult.finish(); // REQUIRED TO AVOID ANR
         }
     }
 
@@ -207,6 +221,9 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
 
     @Override
     public void accept(Location location) {
+        if (!mGotLocation.compareAndSet(false, true)) {
+            return;
+        }
         if (BuildConfig.DEBUG) {
             mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "got a location object in OmerNotifications" + "\n\n").apply();
         }
@@ -215,18 +232,21 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
                 mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "location object in OmerNotifications was not null" + "\n\n").apply();
             }
             String locationName = mLocationResolver.getLocationAsName(location.getLatitude(), location.getLongitude());
-            mLocationResolver.resolveElevation(() ->
-                    init(new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false)), new ROZmanimCalendar(new GeoLocation(
-                            locationName,
-                            location.getLatitude(),
-                            location.getLongitude(),
-                            mLocationResolver.getElevation(),
-                            mLocationResolver.getTimeZone()))));
+            mLocationResolver.resolveElevation(() -> {
+                init(new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false)), new ROZmanimCalendar(new GeoLocation(
+                        locationName,
+                        location.getLatitude(),
+                        location.getLongitude(),
+                        mLocationResolver.getElevation(),
+                        mLocationResolver.getTimeZone())));
+                finishBroadcast();
+            });
         } else {
             if (BuildConfig.DEBUG) {
                 mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "location object in OmerNotifications WAS null" + "\n\n").apply();
             }
             init(new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false)), new ROZmanimCalendar(mLocationResolver.getLastKnownGeoLocation()));
+            finishBroadcast();
         }
     }
 }
