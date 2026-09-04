@@ -1310,9 +1310,8 @@ public class SiddurMaker {
 			// for purim meshulash
 			(jewishDateInfo.getJewishCalendar().getIsMukafChoma()
 				&& jewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.FRIDAY
-				&& jewishDateInfo.getJewishCalendar().getJewishDayOfMonth() == 14 &&
-					(jewishDateInfo.getJewishCalendar().getJewishMonth() == JewishDate.ADAR
-							|| jewishDateInfo.getJewishCalendar().getJewishMonth() == JewishDate.ADAR_II))) {
+				&& jewishDateInfo.getJewishCalendar().getJewishDayOfMonth() == 14
+				&& jewishDateInfo.getJewishCalendar().getJewishMonth() == (jewishDateInfo.getJewishCalendar().isJewishLeapYear() ? JewishDate.ADAR_II : JewishDate.ADAR))) {
 			addCategoryToSiddur("קריאת המגילה");
 			if (jewishDateInfo.getJewishCalendar().getIsSafekMukafChoma()) {
 				addToSiddur(lineBreak);
@@ -4002,7 +4001,7 @@ public class SiddurMaker {
 				(jewishDateInfo.getJewishCalendar().getIsMukafChoma() // edge case for purim meshulash when purim (the 15th) is on Shabbat in a Mukaf Choma (Jerusalem), the arvit of Thursday night will have megilah reading
 					&& jewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.FRIDAY
 					&& jewishDateInfo.getJewishCalendar().getJewishDayOfMonth() == 14
-					&& (jewishDateInfo.getJewishCalendar().getJewishMonth() == JewishDate.ADAR || jewishDateInfo.getJewishCalendar().getJewishMonth() == JewishDate.ADAR_II));
+					&& jewishDateInfo.getJewishCalendar().getJewishMonth() == (jewishDateInfo.getJewishCalendar().isJewishLeapYear() ? JewishDate.ADAR_II : JewishDate.ADAR));
 		boolean halfKaddish = !jewishDateInfo.getJewishCalendar().isTishaBav()
 				&& (jewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SUNDAY
 				|| purim);
