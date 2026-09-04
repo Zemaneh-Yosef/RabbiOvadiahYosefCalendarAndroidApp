@@ -41,11 +41,13 @@ public class ZmanNotification extends BroadcastReceiver {
         mSettingsSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         if (mSharedPreferences.getBoolean("isSetup",false)
                 && mSettingsSharedPreferences.getBoolean("zmanim_notifications", true)) {
-            notifyUser(context, new JewishCalendar(), intent.getStringExtra("zman"), intent.getIntExtra("secondsTreatment", 0));
+            JewishCalendar jewishCalendar = new JewishCalendar();
+            jewishCalendar.setInIsrael(mSharedPreferences.getBoolean("inIsrael", false));
+            notifyUser(context, jewishCalendar, intent.getStringExtra("zman"), intent.getStringExtra("zmanKey"), intent.getIntExtra("secondsTreatment", 0));
         }
     }
 
-    private void notifyUser(Context context, JewishCalendar jewishCalendar, String zman, int secondsTreatment) {
+    private void notifyUser(Context context, JewishCalendar jewishCalendar, String zman, String zmanKey, int secondsTreatment) {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationChannel channel = new NotificationChannel("Zmanim", "Daily Zemanim Notifications", NotificationManager.IMPORTANCE_HIGH);
         channel.setDescription("This notification will display when zmanim are about to begin.");
@@ -74,21 +76,16 @@ public class ZmanNotification extends BroadcastReceiver {
             String zmanTime = zmanSeparated[1];
 
             boolean notifyOnShabbatYomTov = mSettingsSharedPreferences.getBoolean("zmanim_notifications_on_shabbat", false);
+            boolean afterShabbatYomTovZman = "RT".equals(zmanKey) || "ShabbatEnd".equals(zmanKey) || "NightChatzot".equals(zmanKey);
+            boolean nightZman = afterShabbatYomTovZman || "TzeitHacochavim".equals(zmanKey) || "TzeitHacochavimLChumra".equals(zmanKey);
 
-            if ((jewishCalendar.isAssurBemelacha() && !notifyOnShabbatYomTov)) {
+            if ((jewishCalendar.isAssurBemelacha() && !afterShabbatYomTovZman && !notifyOnShabbatYomTov)) {
                 return;//if the user does not want to be notified on shabbat/yom tov, then return
             }
             jewishCalendar.forward(Calendar.DATE, 1);
             if ((jewishCalendar.isAssurBemelacha() && !notifyOnShabbatYomTov)) {
                 //if tomorrow is shabbat/yom tov, then return if the zman is Tzait, Rabbeinu Tam, or Chatzot Layla (since they are obviously after shabbat/yom tov has started)
-                if (zmanName.equals("חצות הלילה") ||
-                        zmanName.equals("Midnight") ||
-                        zmanName.equals("Ḥatzot Ha'Layla") ||
-                        zmanName.equals("צאת הכוכבים") ||
-                        zmanName.equals("Nightfall") ||
-                        zmanName.equals("Tzet Ha'Kokhavim") ||
-                        zmanName.equals("Rabbenu Tam") ||
-                        zmanName.equals("רבינו תם")) {
+                if (nightZman) {
                     return;
                 }
             }
