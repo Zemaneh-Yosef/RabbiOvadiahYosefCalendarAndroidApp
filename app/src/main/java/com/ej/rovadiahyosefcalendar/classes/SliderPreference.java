@@ -184,7 +184,8 @@ public class SliderPreference extends Preference {
 
   @Override
   protected void onSetInitialValue(@Nullable Object defaultValue) {
-    setValue(getPersistedInt(progress));
+    progress = clamp(getPersistedInt((defaultValue instanceof Integer) ? (Integer) defaultValue : this.defaultValue));
+    persistInt(progress);
     super.onSetInitialValue(defaultValue);
   }
 
