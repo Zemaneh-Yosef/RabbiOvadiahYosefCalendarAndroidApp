@@ -945,19 +945,13 @@ public class SiddurFragment extends Fragment {
                 }
                 String hallel = timeAdjustedJDI.getHallelOrChatziHallel();
                 if (hallel.isEmpty()) {
-                    String tachanun = timeAdjustedJDI.getIsTachanunSaid()
-                            .replace("צדקתך", "")
-                            .replace("לא אומרים תחנון", "יהי שם")
-                            .replace("אומרים תחנון רק בבוקר", "תחנון")
-                            .replace("יש אומרים תחנון בשחרית; אין תחנון במנחה", "יש אומרים תחנון")
-                            .replace("יש מדלגים תחנון במנחה", "תחנון")
-                            .replace("אומרים תחנון", "תחנון")
-                            .replace("No Tachanun today", "יהי שם")
-                            .replace("Tachanun only in the morning", "תחנון")
-                            .replace("Some say Tachanun in the morning; no Tachanun by mincha", "יש אומרים תחנון")
-                            .replace("Some say Tachanun today", "יש אומרים תחנון")
-                            .replace("Some skip Tachanun by mincha", "תחנון")
-                            .replace("There is Tachanun today", "תחנון");
+                    String tachanun = switch (timeAdjustedJDI.getIsTachanunSaid()) {
+                        case "צדקתך" -> "";
+                        case "לא אומרים תחנון", "No Tachanun today" -> "יהי שם";
+                        case "יש אומרים תחנון", "Some say Tachanun today",
+                             "יש אומרים תחנון בשחרית; אין תחנון במנחה", "Some say Tachanun in the morning; no Tachanun by mincha" -> "יש אומרים תחנון";
+                        default -> "תחנון";
+                    };
                     if (!tachanun.isEmpty()) entries.add(tachanun);
                 } else {
                     entries.add(hallel);
@@ -993,18 +987,15 @@ public class SiddurFragment extends Fragment {
                 if (timeAdjustedJDI.getJewishCalendar().isTaanis()) {
                     entries.add("ענינו");
                 }
-                String tachanun = timeAdjustedJDI.getIsTachanunSaid()
-                        .replace("לא אומרים תחנון", "יהי שם")
-                        .replace("אומרים תחנון רק בבוקר", "יהי שם")
-                        .replace("יש מדלגים תחנון במנחה", "יש אומרים תחנון")
-                        .replace("אומרים תחנון", "תחנון")
-                        .replace("יש אומרים תחנון בשחרית; אין תחנון במנחה", "יהי שם")
-                        .replace("Some say Tachanun in the morning; no Tachanun by mincha", "יהי שם")
-                        .replace("No Tachanun today", "יהי שם")
-                        .replace("Tachanun only in the morning", "יהי שם")
-                        .replace("Some say Tachanun today", "יש אומרים תחנון")
-                        .replace("Some skip Tachanun by mincha", "יש אומרים תחנון")
-                        .replace("There is Tachanun today", "תחנון");
+                String tachanun = switch (timeAdjustedJDI.getIsTachanunSaid()) {
+                    case "לא אומרים תחנון", "No Tachanun today",
+                         "אומרים תחנון רק בבוקר", "Tachanun only in the morning",
+                         "יש אומרים תחנון בשחרית; אין תחנון במנחה", "Some say Tachanun in the morning; no Tachanun by mincha" -> "יהי שם";
+                    case "יש מדלגים תחנון במנחה", "Some skip Tachanun by mincha",
+                         "יש אומרים תחנון", "Some say Tachanun today" -> "יש אומרים תחנון";
+                    case "צדקתך" -> "צדקתך";
+                    default -> "תחנון";
+                };
                 if (!tachanun.isEmpty()) entries.add(tachanun);
                 result = TextUtils.join(", ", entries);
                 if (isMinchaAfterSunsetBeforeTzeit) {
