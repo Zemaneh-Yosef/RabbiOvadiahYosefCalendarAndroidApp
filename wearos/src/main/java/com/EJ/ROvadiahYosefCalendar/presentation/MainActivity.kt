@@ -253,11 +253,17 @@ class MainActivity : ComponentActivity() {
                 .putBoolean("ShowSeconds", jsonPreferences.optBoolean("ShowSeconds", false))
                 .putBoolean("inIsrael", jsonPreferences.optBoolean("inIsrael", false))
                 .putBoolean("ShowElevation", jsonPreferences.optBoolean("ShowElevation", false))
+                .putBoolean("ShowElevatedSunrise", jsonPreferences.optBoolean("ShowElevatedSunrise", false))
                 .putString("tekufaOpinions", jsonPreferences.optString("tekufaOpinions", "1"))
                 .putBoolean("RoundUpRT", jsonPreferences.optBoolean("RoundUpRT", false))
+                .putBoolean("showShabbatMevarchim", jsonPreferences.optBoolean("showShabbatMevarchim", false))
+                .putBoolean("ShowShmitaYear", jsonPreferences.optBoolean("ShowShmitaYear", false))
+                .putBoolean("ShowLeapYear", jsonPreferences.optBoolean("ShowLeapYear", false))
+                .putBoolean("ShowDST", jsonPreferences.optBoolean("ShowDST", false))
                 .putBoolean("LuachAmudeiHoraah", jsonPreferences.optBoolean("LuachAmudeiHoraah", false))
                 .putBoolean("isZmanimInHebrew", jsonPreferences.optBoolean("isZmanimInHebrew", false))
                 .putBoolean("isZmanimEnglishTranslated", jsonPreferences.optBoolean("isZmanimEnglishTranslated", false))
+                .putBoolean("isZmanimAmericanized", jsonPreferences.optBoolean("isZmanimAmericanized", false))
                 .putBoolean("ShowMishorAlways", jsonPreferences.optBoolean("ShowMishorAlways", false))
                 .putString("plagOpinion", jsonPreferences.optString("plagOpinion", "1"))
                 .putString("CandleLightingOffset", jsonPreferences.optString("CandleLightingOffset", "20"))
@@ -606,7 +612,7 @@ class MainActivity : ComponentActivity() {
             zmanim.add(ZmanListEntry(haftorah))
         }
 
-        if (sharedPref.getBoolean("showShabbatMevarchim", true)) {
+        if (sharedPref.getBoolean("showShabbatMevarchim", false)) {
             if (mJewishDateInfo.tomorrow().jewishCalendar.isShabbosMevorchim) {
                 zmanim.add(ZmanListEntry("שבת מברכים"))
             }
