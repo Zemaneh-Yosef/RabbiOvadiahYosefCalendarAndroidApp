@@ -208,25 +208,26 @@ public class SiddurMaker {
 	 */
 	public SiddurMaker(JewishDateInfo jewishDateInfo, int textColor, Context context) {
 		this.jewishDateInfo = jewishDateInfo;
-		this.isTachanunSaidInTheMorning = jewishDateInfo.getIsTachanunSaid().equals("Tachanun only in the morning")
+		boolean noTachanunPurimMeshulash = jewishDateInfo.isPurimMeshulash()
+			&& (jewishDateInfo.getJewishCalendar().getIsSafekMukafChoma() || jewishDateInfo.getJewishCalendar().getIsMukafChoma());
+
+		this.isTachanunSaidInTheMorning = !noTachanunPurimMeshulash
+			&& (jewishDateInfo.getIsTachanunSaid().equals("Tachanun only in the morning")
             || jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון רק בבוקר")
 			|| jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun today")
 			|| jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון") || jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון בשחרית; אין תחנון במנחה")
 			|| jewishDateInfo.getIsTachanunSaid().equals("There is Tachanun today")
 			|| jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון")
 			|| jewishDateInfo.getIsTachanunSaid().equals("יש מדלגים תחנון במנחה")
-			|| jewishDateInfo.getIsTachanunSaid().equals("Some skip Tachanun by mincha") || jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun in the morning; no Tachanun by mincha")
-			|| jewishDateInfo.isPurimMeshulash() && (jewishDateInfo.getJewishCalendar().getIsSafekMukafChoma()
-				|| jewishDateInfo.getJewishCalendar().getIsMukafChoma());
+			|| jewishDateInfo.getIsTachanunSaid().equals("Some skip Tachanun by mincha") || jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun in the morning; no Tachanun by mincha"));
 
-		this.isTachanunSaidByMincha = jewishDateInfo.getIsTachanunSaid().equals("There is Tachanun today")
+		this.isTachanunSaidByMincha = !noTachanunPurimMeshulash
+			&& (jewishDateInfo.getIsTachanunSaid().equals("There is Tachanun today")
 			|| jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון")
 			|| jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun today")
 			|| jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון")
 			|| jewishDateInfo.getIsTachanunSaid().equals("יש מדלגים תחנון במנחה")
-			|| jewishDateInfo.getIsTachanunSaid().equals("Some skip Tachanun by mincha")
-			|| jewishDateInfo.isPurimMeshulash() && (jewishDateInfo.getJewishCalendar().getIsSafekMukafChoma()
-				|| jewishDateInfo.getJewishCalendar().getIsMukafChoma());
+			|| jewishDateInfo.getIsTachanunSaid().equals("Some skip Tachanun by mincha"));
 
 		this.halfOpaqueColor = Color.argb(170, Color.red(textColor), Color.green(textColor), Color.blue(textColor));
         this.context = context;
