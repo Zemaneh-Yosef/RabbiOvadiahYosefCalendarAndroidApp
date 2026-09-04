@@ -429,6 +429,8 @@ public class Utils {
             }
             jsonObject.put("EndOfShabbatOffset", sSettingsPreferences.getString("EndOfShabbatOffset", "40"))
                     .put("EndOfShabbatOpinion", sSettingsPreferences.getString("EndOfShabbatOpinion", "1"))
+                    .put("overrideAHEndShabbatTime", sSettingsPreferences.getBoolean("overrideAHEndShabbatTime", false))
+                    .put("overrideRTZman", sSettingsPreferences.getBoolean("overrideRTZman", false))
                     .put("alwaysShowTzeitLChumra", sSettingsPreferences.getBoolean("alwaysShowTzeitLChumra", false))
                     .put("AlwaysShowRT", sSettingsPreferences.getBoolean("AlwaysShowRT", false))
                     .put("useZipcode", sSharedPreferences.getBoolean("useZipcode", false))

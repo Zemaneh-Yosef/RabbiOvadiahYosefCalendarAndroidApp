@@ -270,6 +270,8 @@ class MainActivity : ComponentActivity() {
                 .putBoolean("ShowWhenShabbatChagEnds", jsonPreferences.optBoolean("ShowWhenShabbatChagEnds", false))
                 .putString("EndOfShabbatOffset", jsonPreferences.optString("EndOfShabbatOffset", "40"))
                 .putString("EndOfShabbatOpinion", jsonPreferences.optString("EndOfShabbatOpinion", "1"))
+                .putBoolean("overrideAHEndShabbatTime", jsonPreferences.optBoolean("overrideAHEndShabbatTime", false))
+                .putBoolean("overrideRTZman", jsonPreferences.optBoolean("overrideRTZman", false))
                 .putBoolean("alwaysShowTzeitLChumra", jsonPreferences.optBoolean("alwaysShowTzeitLChumra", false))
                 .putBoolean("AlwaysShowRT", jsonPreferences.optBoolean("AlwaysShowRT", false))
                 .putBoolean("useZipcode", jsonPreferences.optBoolean("useZipcode", false))
