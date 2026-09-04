@@ -354,9 +354,11 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
         ExceptionHandler.isAppFocused = true;
         stopService(new Intent(this, NextZmanCountdownNotification.class));
         if (sSettingsPreferences.getBoolean("showNextZmanNotification", false)) {
-            if (ContextCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED ||
-                    ContextCompat.checkSelfPermission(this, ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED ||
-                    ContextCompat.checkSelfPermission(this, FOREGROUND_SERVICE_LOCATION) != PERMISSION_GRANTED) {
+            boolean hasForegroundServiceLocation = Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE ||// the permission only exists on android 14 and up
+                    ContextCompat.checkSelfPermission(this, FOREGROUND_SERVICE_LOCATION) == PERMISSION_GRANTED;
+            if ((ContextCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED &&
+                    ContextCompat.checkSelfPermission(this, ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED) ||
+                    !hasForegroundServiceLocation) {
                 Toast.makeText(this, R.string.no_location_permission_for_next_zman_notification, Toast.LENGTH_SHORT).show();
             } else {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
