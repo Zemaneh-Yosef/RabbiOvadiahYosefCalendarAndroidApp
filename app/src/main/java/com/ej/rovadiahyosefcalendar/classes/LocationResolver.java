@@ -704,14 +704,17 @@ public class LocationResolver {
                 return getLastKnownGeoLocation();
             } else {// this code can only run in a service, broadcast receiver, or some other service that is in the foreground. Widgets can't use this while the app is not in the foreground
                 LocationManager locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+                boolean askedForLocation = false;
                 if (locationManager != null && consumer != null) {
                     List<String> providers = locationManager.getAllProviders();
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                         if (providers.contains(LocationManager.NETWORK_PROVIDER)) {
                             locationManager.getCurrentLocation(LocationManager.NETWORK_PROVIDER, null, Runnable::run, consumer);
+                            askedForLocation = true;
                         }
                         if (providers.contains(LocationManager.GPS_PROVIDER)) {
                             locationManager.getCurrentLocation(LocationManager.GPS_PROVIDER, null, Runnable::run, consumer);
+                            askedForLocation = true;
                         }
                     } else {
                         if (providers.contains(LocationManager.GPS_PROVIDER)) {
@@ -730,6 +733,9 @@ public class LocationResolver {
                             }
                         }
                     }
+                }
+                if (consumer != null && !askedForLocation) {
+                    consumer.accept(null);
                 }
             }
             return new GeoLocation();// the consumer should update with the actual location
