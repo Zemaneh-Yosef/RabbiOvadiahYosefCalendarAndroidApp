@@ -420,11 +420,9 @@ public class Utils {
                     .put("CandleLightingOffset", sSettingsPreferences.getString("CandleLightingOffset", "20"))
                     .put("ShowWhenShabbatChagEnds", sSettingsPreferences.getBoolean("ShowWhenShabbatChagEnds", false));
             if (jsonObject.getBoolean("ShowWhenShabbatChagEnds")) {
-                Set<String> stringSet = sSettingsPreferences.getStringSet("displayRTOrShabbatRegTime", null);
-                if (stringSet != null) {
-                    jsonObject.put("Show Regular Minutes", stringSet.contains("Show Regular Minutes"))
-                            .put("Show Rabbeinu Tam", stringSet.contains("Show Rabbeinu Tam"));
-                }
+                Set<String> stringSet = sSettingsPreferences.getStringSet("displayRTOrShabbatRegTime", Collections.emptySet());
+                jsonObject.put("Show Regular Minutes", stringSet.contains("Show Regular Minutes"))
+                        .put("Show Rabbeinu Tam", stringSet.contains("Show Rabbeinu Tam"));
             }
             jsonObject.put("EndOfShabbatOffset", sSettingsPreferences.getString("EndOfShabbatOffset", "40"))
                     .put("EndOfShabbatOpinion", sSettingsPreferences.getString("EndOfShabbatOpinion", "1"))

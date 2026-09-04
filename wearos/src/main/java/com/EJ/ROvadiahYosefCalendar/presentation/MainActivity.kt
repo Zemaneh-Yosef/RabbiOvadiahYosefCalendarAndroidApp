@@ -341,8 +341,8 @@ class MainActivity : ComponentActivity() {
                 .apply()
 
             if (sharedPref.getBoolean("ShowWhenShabbatChagEnds", false)) {
-                editor.putBoolean("Show Regular Minutes", jsonPreferences.getBoolean("Show Regular Minutes"))
-                    .putBoolean("Show Rabbeinu Tam", jsonPreferences.getBoolean("Show Rabbeinu Tam")).apply()
+                editor.putBoolean("Show Regular Minutes", jsonPreferences.optBoolean("Show Regular Minutes", false))
+                    .putBoolean("Show Rabbeinu Tam", jsonPreferences.optBoolean("Show Rabbeinu Tam", false)).apply()
             }
         } catch (e:JSONException) {
             e.printStackTrace()
