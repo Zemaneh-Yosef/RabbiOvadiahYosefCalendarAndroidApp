@@ -26,6 +26,7 @@ import com.kosherjava.zmanim.util.GeoLocation;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 public class ZmanimNotifications extends BroadcastReceiver implements Consumer<Location> {
@@ -34,10 +35,14 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
     private SharedPreferences mSettingsPreferences;
     private LocationResolver mLocationResolver;
     private Context context;
+    private PendingResult mPendingResult;
+    private final AtomicBoolean mFinished = new AtomicBoolean();
+    private final AtomicBoolean mGotLocation = new AtomicBoolean();
+    private boolean mWaitingForLocation;
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        final PendingResult pendingResult = goAsync();
+        mPendingResult = goAsync();
 
         new Thread(() -> {
             try {
@@ -77,13 +82,23 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
                                 .apply();
 
                         setAlarms(zmanimCalendar, jDateInfo);
+                    } else {
+                        mWaitingForLocation = true;
                     }
                 }
 
             } finally {
-                pendingResult.finish(); // REQUIRED TO AVOID ANR
+                if (!mWaitingForLocation) {
+                    finishBroadcast();
+                }
             }
         }).start();
+    }
+
+    private void finishBroadcast() {
+        if (mFinished.compareAndSet(false, true)) {
+            mPendingResult.finish(); // REQUIRED TO AVOID ANR
+        }
     }
 
     private ROZmanimCalendar getROZmanimCalendar() {
@@ -160,6 +175,9 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
 
     @Override
     public void accept(Location location) {
+        if (!mGotLocation.compareAndSet(false, true)) {
+            return;
+        }
         if (location != null) {
             mLocationResolver.getFullLocationName(location.getLatitude(), location.getLongitude(), false, locationName ->
                     mLocationResolver.resolveElevation(() -> {
@@ -179,6 +197,7 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
                 }
                 mSharedPreferences.edit().putString("locationNameFN", zmanimCalendar.getGeoLocation().getLocationName()).apply();
                 setAlarms(zmanimCalendar, new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false)));
+                finishBroadcast();
             }));
         } else {
             ROZmanimCalendar zmanimCalendar = new ROZmanimCalendar(mLocationResolver.getLastKnownGeoLocation());
@@ -192,6 +211,7 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
             }
             mSharedPreferences.edit().putString("locationNameFN", zmanimCalendar.getGeoLocation().getLocationName()).apply();
             setAlarms(zmanimCalendar, new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false)));
+            finishBroadcast();
         }
     }
 }
