@@ -887,14 +887,14 @@ class MainActivity : ComponentActivity() {
                                     " היום בשעה " + zmanimFormat.format(mJewishDateInfo.jewishCalendar.tekufaAsDate)
                         )
                     )
-                }
-            } else {
-                zmanim.add(
-                    ZmanListEntry(
-                        "Tekufa " + mJewishDateInfo.jewishCalendar.getTekufaName(Utils.isLocaleHebrew(baseContext)) + " is today at " +
-                                zmanimFormat.format(mJewishDateInfo.jewishCalendar.tekufaAsDate)
+                } else {
+                    zmanim.add(
+                        ZmanListEntry(
+                            "Tekufa " + mJewishDateInfo.jewishCalendar.getTekufaName(Utils.isLocaleHebrew(baseContext)) + " is today at " +
+                                    zmanimFormat.format(mJewishDateInfo.jewishCalendar.tekufaAsDate)
+                        )
                     )
-                )
+                }
             }
         }
     }
