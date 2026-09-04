@@ -15,7 +15,7 @@ public class NotificationUtils {
     public static void setExactAndAllowWhileIdle(AlarmManager am, long timeInMillis, PendingIntent pendingIntent) {
         am.cancel(pendingIntent);//cancel any previous alarms
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !am.canScheduleExactAlarms()) {
-            am.set(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
+            am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);// Doze will not hold this until the next maintenance window
         } else {// on lower android version, app will not crash by setting exact alarms
             am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
         }
