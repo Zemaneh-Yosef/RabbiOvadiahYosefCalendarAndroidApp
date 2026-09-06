@@ -211,6 +211,8 @@ public class LocationResolver {
     }
 
     public void getFullLocationName(double latitude, double longitude, boolean postalCode, @NonNull LocationNameCallback callback) {
+        mLatitude = latitude;
+        mLongitude = longitude;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             mGeocoder.getFromLocation(latitude, longitude, Utils.isLocaleHebrew(mContext) ? 5 : 1, addresses -> {
                 mLocationName = buildLocationString(addresses, postalCode);
@@ -353,6 +355,8 @@ public class LocationResolver {
                     sCurrentLocationName = locationName;
                 }
                 mLocationName = sCurrentLocationName;
+                mLatitude = sLatitude;
+                mLongitude = sLongitude;
                 mSharedPreferences.edit()
                         .putString("oldZipcode", zipcode)
                         .putString("oldLocationName", sCurrentLocationName)
@@ -381,6 +385,8 @@ public class LocationResolver {
             sLatitude = oldLat;
             sLongitude = oldLong;
         }
+        mLatitude = sLatitude;
+        mLongitude = sLongitude;
     }
 
     /**
@@ -558,18 +564,22 @@ public class LocationResolver {
      */
     public void getElevationFromWebService(Handler handler, Runnable codeToRunInBackground, Runnable codeToRunOnMainThread) {
         WebService.setUserName("Elyahu41");
+        boolean useResolvedLocation = mLocationName != null && !mLocationName.isEmpty();
+        double latitude = useResolvedLocation ? mLatitude : sLatitude;
+        double longitude = useResolvedLocation ? mLongitude : sLongitude;
+        String locationName = useResolvedLocation ? mLocationName : sCurrentLocationName;
         ArrayList<Integer> elevations = new ArrayList<>();
         int sum = 0;
         try {
-            int e1 = WebService.srtm3(sLatitude, sLongitude);
+            int e1 = WebService.srtm3(latitude, longitude);
             if (e1 > 0) {
                 elevations.add(e1);
             }
-            int e2 = WebService.astergdem(sLatitude, sLongitude);
+            int e2 = WebService.astergdem(latitude, longitude);
             if (e2 > 0) {
                 elevations.add(e2);
             }
-            int e3 = WebService.gtopo30(sLatitude, sLongitude);
+            int e3 = WebService.gtopo30(latitude, longitude);
             if (e3 > 0) {
                 elevations.add(e3);
             }
@@ -580,15 +590,15 @@ public class LocationResolver {
         } catch (GeoNamesException | NumberFormatException | IOException ex) {//an error occurred getting the elevation data, try again!
             try {
                 WebService.setUserName("graviton57");//another user api key that I found online, only used as a backup
-                int e1 = WebService.srtm3(sLatitude, sLongitude);
+                int e1 = WebService.srtm3(latitude, longitude);
                 if (e1 > 0) {
                     elevations.add(e1);
                 }
-                int e2 = WebService.astergdem(sLatitude, sLongitude);
+                int e2 = WebService.astergdem(latitude, longitude);
                 if (e2 > 0) {
                     elevations.add(e2);
                 }
-                int e3 = WebService.gtopo30(sLatitude, sLongitude);
+                int e3 = WebService.gtopo30(latitude, longitude);
                 if (e3 > 0) {
                     elevations.add(e3);
                 }
@@ -605,7 +615,7 @@ public class LocationResolver {
         if (size == 0) {
             size = 1;//edge case if no elevation data is available
         }
-        mSharedPreferences.edit().putString("elevation" + sCurrentLocationName, String.valueOf(sum / size)).apply();
+        mSharedPreferences.edit().putString("elevation" + locationName, String.valueOf(sum / size)).apply();
 
         if (codeToRunInBackground != null) {
             try (ExecutorService executor = Executors.newSingleThreadExecutor()) {
@@ -874,6 +884,8 @@ public class LocationResolver {
                     .getLocales()
                     .get(0), "%.3f", longitude);
         }
+        mLatitude = latitude;
+        mLongitude = longitude;
         mSharedPreferences.edit().putString("name", mLocationName).apply();
         return mLocationName;
     }
