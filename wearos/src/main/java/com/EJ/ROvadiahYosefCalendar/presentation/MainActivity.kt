@@ -103,7 +103,6 @@ import com.EJ.ROvadiahYosefCalendar.classes.HebrewDatePickerDialog
 import com.EJ.ROvadiahYosefCalendar.classes.JewishDateInfo
 import com.EJ.ROvadiahYosefCalendar.classes.LocationResolver
 import com.EJ.ROvadiahYosefCalendar.classes.OnChangeListener
-import com.EJ.ROvadiahYosefCalendar.classes.PreferenceListener
 import com.EJ.ROvadiahYosefCalendar.classes.ROZmanimCalendar
 import com.EJ.ROvadiahYosefCalendar.classes.SecondTreatment
 import com.EJ.ROvadiahYosefCalendar.classes.Utils
@@ -117,6 +116,7 @@ import com.EJ.ROvadiahYosefCalendar.complication.NextZmanTextComplicationService
 import com.EJ.ROvadiahYosefCalendar.presentation.theme.DarkGray
 import com.EJ.ROvadiahYosefCalendar.presentation.theme.RabbiOvadiahYosefCalendarTheme
 import com.EJ.ROvadiahYosefCalendar.tile.MainTileService
+import com.google.android.gms.wearable.MessageClient
 import com.google.android.gms.wearable.Wearable
 import com.kosherjava.zmanim.hebrewcalendar.Daf
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter
@@ -181,7 +181,7 @@ class MainActivity : ComponentActivity() {
     private val mHandler: Handler = Handler(Looper.getMainLooper())
     private val dafYomiStartDate: Calendar = GregorianCalendar(1923, Calendar.SEPTEMBER, 11)
     private val dafYomiYerushalmiStartDate: Calendar = GregorianCalendar(1980, Calendar.FEBRUARY, 2)
-    private val listener: PreferenceListener = PreferenceListener()
+    private lateinit var messageListener: MessageClient.OnMessageReceivedListener
     private var sNotificationLauncher: ActivityResultLauncher<Intent>? = null
     private var nextUpcomingZmanIndex = 0
 
@@ -194,7 +194,7 @@ class MainActivity : ComponentActivity() {
         mZmanimFormatter.setTimeFormat(ZmanimFormatter.SEXAGESIMAL_FORMAT)
         sharedPref = getSharedPreferences(SHARED_PREF, MODE_PRIVATE)
         locationResolver = LocationResolver(this, this)
-        listener.setOnMessageReceivedListener( { messageEvent ->
+        messageListener = MessageClient.OnMessageReceivedListener { messageEvent ->
             if (messageEvent.path == "prefs/") {
                 val message = String(messageEvent.data, StandardCharsets.UTF_8) // convert bytes to String
                 val jsonPreferences = JSONObject(message) // We can just pass that JSON string into the constructor! :)
@@ -212,7 +212,7 @@ class MainActivity : ComponentActivity() {
                 } // The location name should be set already from the previous message
             }
             updateAppContents() // with the new preferences
-        }, this)
+        }
 
         // If PreferenceListener received a prefs message while this app was not running
         // it saved the raw JSON to SharedPreferences. Process it now and clear it so
@@ -425,6 +425,16 @@ class MainActivity : ComponentActivity() {
             {  }//Do nothing the dismiss function will be called internally
         )
         englishDatePickerDialog.show()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Wearable.getMessageClient(this).addListener(messageListener)
+    }
+
+    override fun onStop() {
+        Wearable.getMessageClient(this).removeListener(messageListener)
+        super.onStop()
     }
 
     override fun onResume() {
