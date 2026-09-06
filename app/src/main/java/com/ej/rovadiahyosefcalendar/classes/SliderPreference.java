@@ -38,6 +38,7 @@ public class SliderPreference extends Preference {
   private MaterialCheckBox enabled;
   private Slider slider;
   private EditText currentValueDisplay;
+  private EditText cachedKey;
 
   private int defaultValue;
   private int progress;
@@ -153,12 +154,17 @@ public class SliderPreference extends Preference {
   }
 
   private void updateCache() {
+    if ((cachedKey != null) && (cachedKey != currentValueDisplay)) {
+      cache.remove(cachedKey, this);
+    }
+
     final SliderPreference other = cache.remove(currentValueDisplay);
     if ((other != null) && (other != this)) {
       other.cleanup();
     }
 
     cache.put(currentValueDisplay, this);
+    cachedKey = currentValueDisplay;
   }
 
   private void cleanup() {
