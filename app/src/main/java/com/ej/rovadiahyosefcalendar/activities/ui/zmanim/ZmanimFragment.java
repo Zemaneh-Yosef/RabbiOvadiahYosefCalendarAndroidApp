@@ -1902,10 +1902,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (sSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
             for (ZmanListEntry zman : zmanim) {
                 if (zman.isNoteworthyZman()) {
+                    String zmanTime = zman.getZman() == null ? "XX:XX" : Utils.formatZmanTime(mContext, zman);
                     if (!Utils.isLocaleHebrew(mContext)) {
-                        mZmanimForAnnouncements.add(Utils.formatZmanTime(mContext, zman) + " :" + zman.getTitle().replaceAll("\\(.*\\)", "").trim());
+                        mZmanimForAnnouncements.add(zmanTime + " :" + zman.getTitle().replaceAll("\\(.*\\)", "").trim());
                     } else {
-                        mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + ": " + Utils.formatZmanTime(mContext, zman));
+                        mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + ": " + zmanTime);
                     }
                     zmansToRemove.add(zman);
                 }
@@ -1913,7 +1914,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         } else {
             for (ZmanListEntry zman : zmanim) {
                 if (zman.isNoteworthyZman()) {
-                    mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + ": " + Utils.formatZmanTime(mContext, zman));
+                    String zmanTime = zman.getZman() == null ? "XX:XX" : Utils.formatZmanTime(mContext, zman);
+                    mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + ": " + zmanTime);
                     zmansToRemove.add(zman);
                 }
             }
@@ -1924,8 +1926,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         String[] shortZmanim = new String[zmanim.size()];
         if (sSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
             for (ZmanListEntry zman : zmanim) {
+                String zmanTime = zman.getZman() == null ? "XX:XX" : Utils.formatZmanTime(mContext, zman);
                 if (!Utils.isLocaleHebrew(mContext)) {
-                    shortZmanim[zmanim.indexOf(zman)] = Utils.formatZmanTime(mContext, zman) + " :" + zman.getTitle()
+                    shortZmanim[zmanim.indexOf(zman)] = zmanTime + " :" + zman.getTitle()
                             .replace("סוף זמן ", "")
                             .replace("(", "")
                             .replace(")", "");
@@ -1933,24 +1936,25 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     shortZmanim[zmanim.indexOf(zman)] = zman.getTitle()
                             .replace("סוף זמן ", "")
                             .replace("(", "")
-                            .replace(")", "") + ": " + Utils.formatZmanTime(mContext, zman);
+                            .replace(")", "") + ": " + zmanTime;
                 }
 
-                if (zman.getZman().equals(sNextUpcomingZman)) {
+                if (zman.getZman() != null && zman.getZman().equals(sNextUpcomingZman)) {
                     shortZmanim[zmanim.indexOf(zman)] = shortZmanim[zmanim.indexOf(zman)] +
                             (Utils.isLocaleHebrew(mContext) ? " ➤ " : " ◄ ");
                 }
             }
         } else {
             for (ZmanListEntry zman : zmanim) {
+                String zmanTime = zman.getZman() == null ? "XX:XX" : Utils.formatZmanTime(mContext, zman);
                 shortZmanim[zmanim.indexOf(zman)] = zman.getTitle()
                         .replace("Earliest ", "")
                         .replace("Sof Zeman ", "")
                         .replace("Latest ", "")
                         .replace("(", "")
                         .replace(")", "")
-                        + ": " + Utils.formatZmanTime(mContext, zman);
-                if (zman.getZman().equals(sNextUpcomingZman)) {
+                        + ": " + zmanTime;
+                if (zman.getZman() != null && zman.getZman().equals(sNextUpcomingZman)) {
                     shortZmanim[zmanim.indexOf(zman)] = shortZmanim[zmanim.indexOf(zman)] +
                             (Utils.isLocaleHebrew(mContext) ? " ➤ " : " ◄ ");
                 }
