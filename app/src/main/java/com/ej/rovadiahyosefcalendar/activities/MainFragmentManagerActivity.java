@@ -184,7 +184,6 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
             sSetupLauncher.launch(new Intent(this, WelcomeScreenActivity.class));
             initZmanimNotificationDefaults();
         }
-        updateWidget();
 
         setSupportActionBar(new MaterialToolbar(this));
         sViewPager = findViewById(R.id.viewPager);
