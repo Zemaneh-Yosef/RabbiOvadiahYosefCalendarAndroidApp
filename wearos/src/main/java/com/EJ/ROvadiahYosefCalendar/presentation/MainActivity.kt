@@ -179,6 +179,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var noSecondsDFormat: SimpleDateFormat
     private var showSeconds = false
     private val mHandler: Handler = Handler(Looper.getMainLooper())
+    private var mNextZmanUpdater: Runnable? = null
     private val dafYomiStartDate: Calendar = GregorianCalendar(1923, Calendar.SEPTEMBER, 11)
     private val dafYomiYerushalmiStartDate: Calendar = GregorianCalendar(1980, Calendar.FEBRUARY, 2)
     private lateinit var messageListener: MessageClient.OnMessageReceivedListener
@@ -435,6 +436,11 @@ class MainActivity : ComponentActivity() {
     override fun onStop() {
         Wearable.getMessageClient(this).removeListener(messageListener)
         super.onStop()
+    }
+
+    override fun onDestroy() {
+        mHandler.removeCallbacksAndMessages(null)
+        super.onDestroy()
     }
 
     override fun onResume() {
@@ -1128,11 +1134,16 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun createBackgroundThreadForNextUpcomingZman() {
+        mNextZmanUpdater?.let { mHandler.removeCallbacks(it) }
         val nextZmanUpdater = Runnable {
             updateZmanimList()
             setNextUpcomingZman()
+            setContent {
+                WearApp(zmanim)
+            }
             createBackgroundThreadForNextUpcomingZman() //start a new thread to update the next upcoming zman
         }
+        mNextZmanUpdater = nextZmanUpdater
         if (sNextUpcomingZman != null) {
             mHandler.postDelayed(
                 nextZmanUpdater,
