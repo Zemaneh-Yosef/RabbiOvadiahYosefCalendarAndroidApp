@@ -671,8 +671,10 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 }
             });
             if (sCurrentDateShown != null && sROZmanimCalendar != null && mMainRecyclerView != null) {
-                sCurrentDateShown.setTime(new Date());
-                sJewishDateInfo.setCalendar(new GregorianCalendar());
+                mActivity.runOnUiThread(() -> {
+                    sCurrentDateShown.setTime(new Date());
+                    sJewishDateInfo.setCalendar(new GregorianCalendar());
+                });
                 mLocationResolver.getFullLocationName(true, locationName -> {
                     if (locationName == null || locationName.isEmpty()) {//if it's still empty, use backup. NPE was thrown here for some reason
                         locationName = sROZmanimCalendar.getGeoLocation().getLocationName();
