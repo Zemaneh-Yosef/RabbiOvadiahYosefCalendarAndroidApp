@@ -57,6 +57,7 @@ public class LocationResolver {
     }
     private static final List<EngineInitializationCallback> callbacks = new ArrayList<>();
     public static TimeZoneEngine ENGINE = null;
+    private static final ExecutorService GEOCODER_EXECUTOR = Executors.newSingleThreadExecutor();
     private static boolean sTimeZoneEngineHasBeenInitialized = false;
     private final Context mContext;
     private final Activity mActivity;
@@ -196,7 +197,7 @@ public class LocationResolver {
                 callback.onResult(result);
             });
         } else { // older versions
-             Executors.newSingleThreadExecutor().execute(() -> {
+             GEOCODER_EXECUTOR.execute(() -> {
                 String result = null;
                 try {
                     List<Address> addresses = mGeocoder.getFromLocation(sLatitude, sLongitude, 1);
@@ -219,7 +220,7 @@ public class LocationResolver {
                 callback.onResult(mLocationName);
             });
         } else { // older versions
-            Executors.newSingleThreadExecutor().execute(() -> {
+            GEOCODER_EXECUTOR.execute(() -> {
                 try {
                     List<Address> addresses = mGeocoder.getFromLocation(latitude, longitude, 1);
                     mLocationName = buildLocationString(addresses, postalCode);
