@@ -628,6 +628,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         context.startActivity(new Intent(context, SiddurViewActivity.class).putExtra("prayer", context.getString(R.string.birchat_levana))))
                 .create();
         alertDialog.show();
+        resetDialogBuilder();
     }
 
     private void showElevationDialog() {
@@ -678,5 +679,6 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         .putExtra("JewishYear", sJewishDateInfo.getJewishCalendar().getJewishYear())))
                 .create();
         alertDialog.show();
+        resetDialogBuilder();
     }
 }
