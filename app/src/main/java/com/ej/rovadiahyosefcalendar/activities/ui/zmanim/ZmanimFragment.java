@@ -225,7 +225,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private static final long LOCATION_UPDATE_TIMEOUT_MS = 5000L;
     private LocationResolver mLocationResolver;
     private final ZmanimFormatter mZmanimFormatter = new ZmanimFormatter(TimeZone.getDefault());
-    public static ActivityResultLauncher<Intent> sNotificationLauncher;
+    private ActivityResultLauncher<Intent> mNotificationLauncher;
     private ActivityResultLauncher<String> mBackgroundLocationLauncher;
     private ActivityResultLauncher<String> mPostNotificationsLauncher;
     private SharedPreferences.OnSharedPreferenceChangeListener sSharedPrefListener;
@@ -319,7 +319,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     }
 
     private void initNotifResult() {
-        sNotificationLauncher = registerForActivityResult(
+        mNotificationLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> setNotifications()
         );
@@ -1054,7 +1054,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         .setTitle(R.string.zmanim_notifications_will_not_work)
                         .setMessage(R.string.if_you_would_like_to_receive_zmanim_notifications)
                         .setCancelable(false)
-                        .setPositiveButton(mContext.getString(R.string.yes), (dialog, which) -> sNotificationLauncher.launch(new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:" + mContext.getPackageName()))))
+                        .setPositiveButton(mContext.getString(R.string.yes), (dialog, which) -> mNotificationLauncher.launch(new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:" + mContext.getPackageName()))))
                         .setNegativeButton(mContext.getString(R.string.no), (dialog, which) -> dialog.dismiss());
                 if (!mActivity.isFinishing()) {
                     builder.show();
