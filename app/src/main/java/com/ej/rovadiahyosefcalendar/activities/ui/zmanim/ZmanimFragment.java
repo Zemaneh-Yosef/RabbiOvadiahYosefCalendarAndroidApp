@@ -185,6 +185,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private FragmentActivity mActivity;
     private Handler mHandler = null;
     private Runnable mZmanimUpdater;
+    private Runnable mNextZmanUpdater;
 
     //android views:
     private View mLayout;
@@ -1598,7 +1599,10 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     }
 
     private void createBackgroundThreadForNextUpcomingZman() {
-        Runnable nextZmanUpdater = () -> {
+        if (mNextZmanUpdater != null) {
+            mHandler.removeCallbacks(mNextZmanUpdater);
+        }
+        mNextZmanUpdater = () -> {
             setNextUpcomingZman();
             if (mNestedScrollView != null && !sSharedPreferences.getBoolean("weeklyMode", false)) {
                 mCurrentPosition = mNestedScrollView.getScrollY();
@@ -1610,7 +1614,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             createBackgroundThreadForNextUpcomingZman();//start a new thread to update the next upcoming zman
         };
         if (sNextUpcomingZman != null) {
-            mHandler.postDelayed(nextZmanUpdater, sNextUpcomingZman.getTime() - new Date().getTime() + 1_000);//add 1 second to make sure we don't get the same zman again
+            mHandler.postDelayed(mNextZmanUpdater, sNextUpcomingZman.getTime() - new Date().getTime() + 1_000);//add 1 second to make sure we don't get the same zman again
         }
     }
 
