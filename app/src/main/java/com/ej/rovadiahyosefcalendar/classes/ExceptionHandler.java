@@ -1,6 +1,6 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 
@@ -13,11 +13,11 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 public class ExceptionHandler implements java.lang.Thread.UncaughtExceptionHandler {
-    private final Activity myContext;
+    private final Context myContext;
     public static boolean isAppFocused;
 
-    public ExceptionHandler(Activity context) {
-        myContext = context;
+    public ExceptionHandler(Context context) {
+        myContext = context.getApplicationContext();
         isAppFocused = true;
     }
 
@@ -64,6 +64,7 @@ public class ExceptionHandler implements java.lang.Thread.UncaughtExceptionHandl
 
         Intent intent = new Intent(myContext, ShowErrorActivity.class);
         intent.putExtra("error", errorReport);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (isAppFocused) {
             myContext.startActivity(intent);
         }
