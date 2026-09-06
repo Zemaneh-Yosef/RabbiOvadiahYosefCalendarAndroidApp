@@ -9,6 +9,9 @@ import androidx.annotation.NonNull;
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.WearableListenerService;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.nio.charset.StandardCharsets;
 
 public class PreferenceListener extends WearableListenerService {
@@ -28,11 +31,14 @@ public class PreferenceListener extends WearableListenerService {
                     .putString("pendingPrefsJson", message)
                     .apply();
         } else if ("chaiTable/".equals(messageEvent.getPath())) {
-            // The location name will have been saved by the prefs message
-            // which always arrives first; use it as the key, same as MainActivity.
-            String locationName = Utils.removePostalCode(prefs.getString("locationName", ""));
+            String locationName = prefs.getString("locationName", "");
+            try {
+                locationName = new JSONObject(prefs.getString("pendingPrefsJson", "{}")).optString("locationName", locationName);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             prefs.edit()
-                    .putString("chaiTable" + locationName, message)
+                    .putString("chaiTable" + Utils.removePostalCode(locationName), message)
                     .apply();
         }
     }
