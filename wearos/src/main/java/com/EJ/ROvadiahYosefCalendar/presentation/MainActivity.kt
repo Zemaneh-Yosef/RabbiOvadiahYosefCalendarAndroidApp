@@ -102,7 +102,6 @@ import com.EJ.ROvadiahYosefCalendar.classes.EnglishDatePickerDialog
 import com.EJ.ROvadiahYosefCalendar.classes.HebrewDatePickerDialog
 import com.EJ.ROvadiahYosefCalendar.classes.JewishDateInfo
 import com.EJ.ROvadiahYosefCalendar.classes.LocationResolver
-import com.EJ.ROvadiahYosefCalendar.classes.OnChangeListener
 import com.EJ.ROvadiahYosefCalendar.classes.ROZmanimCalendar
 import com.EJ.ROvadiahYosefCalendar.classes.SecondTreatment
 import com.EJ.ROvadiahYosefCalendar.classes.Utils
@@ -140,6 +139,7 @@ import java.util.GregorianCalendar
 import java.util.Locale
 import java.util.TimeZone
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.Executors
 
 class MainActivity : ComponentActivity() {
 
@@ -180,6 +180,7 @@ class MainActivity : ComponentActivity() {
     private var showSeconds = false
     private val mHandler: Handler = Handler(Looper.getMainLooper())
     private var mNextZmanUpdater: Runnable? = null
+    private val refreshExecutor = Executors.newSingleThreadExecutor()
     private val dafYomiStartDate: Calendar = GregorianCalendar(1923, Calendar.SEPTEMBER, 11)
     private val dafYomiYerushalmiStartDate: Calendar = GregorianCalendar(1980, Calendar.FEBRUARY, 2)
     private lateinit var messageListener: MessageClient.OnMessageReceivedListener
@@ -440,6 +441,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         mHandler.removeCallbacksAndMessages(null)
+        refreshExecutor.shutdown()
         super.onDestroy()
     }
 
@@ -456,21 +458,8 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun updateAppContents() {
-        // Clear any previously registered listeners so that rapid successive calls
-        // (e.g. onCreate + onResume) do not accumulate callbacks and trigger
-        // duplicate setContent / setNotifications calls.
-        OnChangeListener.removeAllListeners()
-        OnChangeListener.addListener {
-            // Both UI operations MUST run on the main thread.
-            // setNotifications() can show an AlertDialog which requires the UI thread.
-            runOnUiThread {
-                setContent {
-                    WearApp(zmanim)
-                }
-                setNotifications()
-            }
-        }
-        Thread {
+        // One refresh at a time, so a second call cannot publish a half built list.
+        refreshExecutor.execute {
             locationResolver.acquireLatitudeAndLongitude()
             resolveElevation()
             initZmanimCalendar()
@@ -480,9 +469,15 @@ class MainActivity : ComponentActivity() {
             updateZmanimList()
             setNextUpcomingZman()
             createBackgroundThreadForNextUpcomingZman()
-            OnChangeListener.notifyListeners()
-            OnChangeListener.removeAllListeners()
-        }.start()
+            // Both UI operations MUST run on the main thread.
+            // setNotifications() can show an AlertDialog which requires the UI thread.
+            runOnUiThread {
+                setContent {
+                    WearApp(zmanim)
+                }
+                setNotifications()
+            }
+        }
     }
 
     private fun setNotifications() {
