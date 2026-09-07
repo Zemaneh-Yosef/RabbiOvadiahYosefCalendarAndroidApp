@@ -8,24 +8,28 @@ public class ZmanListEntry {
 
     private String title;
     private Date zman;
-    private final boolean isZman;
+    private final ZmanListEntryType zmanListEntryType;
     private boolean isNoteworthyZman;
     private boolean shouldBeDimmed;
     private SecondTreatment secondTreatment;
-    private boolean isBirchatHachamahZman;
-    private boolean is66MisheyakirZman;
     private String notificationKey;
 
     public ZmanListEntry(String title) {
         this.title = title;
         this.zman = null;
-        this.isZman = false;
+        this.zmanListEntryType = ZmanListEntryType.UNSPECIFIED;
     }
 
-    public ZmanListEntry(String title, Date zman, SecondTreatment secondTreatment, String notificationKey) {
+    public ZmanListEntry(String title, ZmanListEntryType zmanListEntryType) {
+        this.title = title;
+        this.zman = null;
+        this.zmanListEntryType = zmanListEntryType;
+    }
+
+    public ZmanListEntry(String title, Date zman, SecondTreatment secondTreatment, ZmanListEntryType zmanListEntryType, String notificationKey) {
         this.title = title;
         this.zman = zman;
-        this.isZman = true;
+        this.zmanListEntryType = zmanListEntryType;
         this.secondTreatment = secondTreatment;
         this.notificationKey = notificationKey;
     }
@@ -47,7 +51,11 @@ public class ZmanListEntry {
     }
 
     public boolean isZman() {
-        return isZman;
+        return zmanListEntryType.name().toLowerCase().endsWith("zman");
+    }
+
+    public ZmanListEntryType getZmanListEntryType() {
+        return zmanListEntryType;
     }
 
     public boolean isNoteworthyZman() {
@@ -72,21 +80,5 @@ public class ZmanListEntry {
 
     public int getNotificationDelay(SharedPreferences mSettingsPreferences) {
         return mSettingsPreferences.getInt(notificationKey, -1);
-    }
-
-    public void setBirchatHachamahZman(boolean birchatHachamahZman) {
-        isBirchatHachamahZman = birchatHachamahZman;
-    }
-
-    public boolean isBirchatHachamahZman() {
-        return isBirchatHachamahZman;
-    }
-
-    public boolean is66MisheyakirZman() {
-        return is66MisheyakirZman;
-    }
-
-    public void setIs66MisheyakirZman(boolean is66MisheyakirZman) {
-        this.is66MisheyakirZman = is66MisheyakirZman;
     }
 }

@@ -192,8 +192,6 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
     private void updateRecyclerView() {
         ZmanAdapter adapter = new ZmanAdapter(this, ZmanimFactory.getDemoZmanim(isHebrew, translated, americanized), null);
         adapter.isZmanimInHebrew = isHebrew;
-        adapter.isZmanimEnglishTranslated = translated;
-        adapter.isZmanimAmericanized = americanized;
         mRecyclerView.setAdapter(adapter);
     }
 }

@@ -27,6 +27,7 @@ import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
 import com.ej.rovadiahyosefcalendar.classes.SecondTreatment;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.ej.rovadiahyosefcalendar.classes.ZmanListEntry;
+import com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType;
 import com.ej.rovadiahyosefcalendar.classes.ZmanimFactory;
 import com.ej.rovadiahyosefcalendar.classes.ZmanimNames;
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
@@ -147,7 +148,7 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         }
         ZmanListEntry nextZman = ZmanimFactory.getNextUpcomingZman(new GregorianCalendar(), mROZmanimCalendar, mJewishDateInfo, mSettingsPreferences, mSharedPreferences);
         if (nextZman == null || nextZman.getZman() == null) {
-            nextZman = new ZmanListEntry("", new Date(System.currentTimeMillis() + 300_000), SecondTreatment.ROUND_EARLIER, "");// try again in 5 minutes
+            nextZman = new ZmanListEntry("", new Date(System.currentTimeMillis() + 300_000), SecondTreatment.ROUND_EARLIER, ZmanListEntryType.UNSPECIFIED, "");// try again in 5 minutes
         }
         return nextZman;
     }

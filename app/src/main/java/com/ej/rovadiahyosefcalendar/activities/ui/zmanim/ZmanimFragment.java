@@ -27,6 +27,7 @@ import static com.ej.rovadiahyosefcalendar.classes.Utils.calculateInSampleSize;
 import static com.ej.rovadiahyosefcalendar.classes.Utils.getCurrentCalendarDrawableDark;
 import static com.ej.rovadiahyosefcalendar.classes.Utils.getCurrentCalendarDrawableLight;
 import static com.ej.rovadiahyosefcalendar.classes.Utils.inputStreamToString;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.*;
 import static com.ej.rovadiahyosefcalendar.classes.ZmanimFactory.addZmanim;
 import static com.kosherjava.zmanim.AstronomicalCalendar.getTimeOffset;
 
@@ -1134,14 +1135,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private List<ZmanListEntry> getZmanimList(boolean add66MisheyakirZman) {
         List<ZmanListEntry> zmanim = new ArrayList<>();
 
-        if (BuildConfig.DEBUG) {
-            sSharedPreferences.edit().putString("debugNotifs", sSharedPreferences.getString("debugNotifs", "")
-                    + "getZmanimList() called with these dates:\n"
-                    + "userChosenDate= " + sCurrentDateShown.getTime() + "\n"
-            + "sROZmanimCale= " + sROZmanimCalendar.getCalendar().getTime() + "\n"
-            + "sJewishDateInfo= " + sJewishDateInfo.getJewishCalendar().getGregorianCalendar().getTime() + "\n\n").apply();
-        }
-
         // -- UPDATE TOP UI CODE --
         String engDate = sROZmanimCalendar.getCalendar().get(Calendar.DATE) +
                 " " +
@@ -1208,27 +1201,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             try {
                 Map<String, List<MakamJCal.Makam>> shabbatMakam = sJewishDateInfo.getThisWeeksMakam();
                 if (shabbatMakam.containsKey("GABRIEL A SHREM 1964 SUHV")) {
-                    List<MakamJCal.Makam> makamObj = shabbatMakam.get("GABRIEL A SHREM 1964 SUHV");
-                    StringBuilder makamText = new StringBuilder(mContext.getString(R.string.makam));
-                    if (makamObj != null) {
-                        for (int i = 0; i < makamObj.size(); i++) {
-                            makamText.append(makamNames.get(makamObj.get(i).ordinal())).append(" ");
-                        }
-                    }
-
-                    String finalMakamText = makamText.toString();
-
-                    binding.makam.setText(finalMakamText);
+                    setMakam(shabbatMakam, "GABRIEL A SHREM 1964 SUHV");
                 } else if (shabbatMakam.containsKey("ADES: 24793")) {
-                    List<MakamJCal.Makam> makamObj = shabbatMakam.get("ADES: 24793");
-                    StringBuilder makamText = new StringBuilder(mContext.getString(R.string.makam));
-                    if (makamObj != null) {
-                        for (int i = 0; i < makamObj.size(); i++) {
-                            makamText.append(makamNames.get(makamObj.get(i).ordinal())).append(" ");
-                        }
-                    }
-
-                    binding.makam.setText(makamText.toString().trim());
+                    setMakam(shabbatMakam, "ADES: 24793");
+                } else if (shabbatMakam.containsKey("Eliahou Yaaqob DWECK-KESAR")) {
+                    setMakam(shabbatMakam, "Eliahou Yaaqob DWECK-KESAR");
                 } else {
                     binding.makamLayout.setVisibility(View.GONE);
                 }
@@ -1271,64 +1248,64 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
         if (sSettingsPreferences.getBoolean("showShabbatMevarchim", false)) {
             if (sJewishDateInfo.getJewishCalendar().isShabbosMevorchim()) {
-                zmanim.add(new ZmanListEntry("שבת מברכים"));
+                zmanim.add(new ZmanListEntry("שבת מברכים", SHABBAT_MEVARCHIM));
             }
         }
 
         String day = sJewishDateInfo.getSpecialDay(false);
         if (!day.isEmpty()) {
-            zmanim.add(new ZmanListEntry(day));
+            zmanim.add(new ZmanListEntry(day, SPECIAL_DAY));
         }
 
         if (sJewishDateInfo.isEruvTavshilimMadeToday()) {
-            zmanim.add(new ZmanListEntry(mContext.getString(R.string.eruv_tavshilin)));
+            zmanim.add(new ZmanListEntry(mContext.getString(R.string.eruv_tavshilin), ERUV_TAVSHILIN));
         }
 
         String dayOfOmer = sJewishDateInfo.addDayOfOmer("");
         if (!dayOfOmer.isEmpty()) {
-            zmanim.add(new ZmanListEntry(dayOfOmer));
+            zmanim.add(new ZmanListEntry(dayOfOmer, DAY_OF_OMER));
         }
 
         if (sJewishDateInfo.getJewishCalendar().isRoshHashana() && sJewishDateInfo.isShmitaYear()) {
-            zmanim.add(new ZmanListEntry(mContext.getString(R.string.this_year_is_a_shmita_year)));
+            zmanim.add(new ZmanListEntry(mContext.getString(R.string.this_year_is_a_shmita_year), SHMITA_YEAR));
         }
 
         if (sJewishDateInfo.is3Weeks()) {
             if (sJewishDateInfo.is9Days()) {
                 if (sJewishDateInfo.isShevuahShechalBo()) {
-                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.shevuah_shechal_bo)));
+                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.shevuah_shechal_bo), SHEVUA_SHECHAL_BO));
                 } else {
-                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.nine_days)));
+                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.nine_days), NINE_DAYS));
                 }
             } else {
-                zmanim.add(new ZmanListEntry(mContext.getString(R.string.three_weeks)));
+                zmanim.add(new ZmanListEntry(mContext.getString(R.string.three_weeks), THREE_WEEKS));
             }
         }
 
         String isOKToListenToMusic = sJewishDateInfo.isOKToListenToMusic();
         if (!isOKToListenToMusic.isEmpty()) {
-            zmanim.add(new ZmanListEntry(isOKToListenToMusic));
+            zmanim.add(new ZmanListEntry(isOKToListenToMusic, MUSIC));
         }
 
         String hallel = sJewishDateInfo.getHallelOrChatziHallel();
         if (!hallel.isEmpty()) {
-            zmanim.add(new ZmanListEntry(hallel));
+            zmanim.add(new ZmanListEntry(hallel, HALELL_OR_CHATZI_HALLEL));
         }
 
         String ulChaparatPesha = sJewishDateInfo.getIsUlChaparatPeshaSaid();
         if (!ulChaparatPesha.isEmpty()) {
-            zmanim.add(new ZmanListEntry(ulChaparatPesha));
+            zmanim.add(new ZmanListEntry(ulChaparatPesha, ULCHAPARAT_PESHA));
         }
 
-        zmanim.add(new ZmanListEntry(sJewishDateInfo.getIsTachanunSaid()));
+        zmanim.add(new ZmanListEntry(sJewishDateInfo.getIsTachanunSaid(), TACHANUN));
 
         if (sJewishDateInfo.isPurimMeshulash()) {
-            zmanim.add(new ZmanListEntry(mContext.getString(R.string.no_tachanun_in_yerushalayim)));
+            zmanim.add(new ZmanListEntry(mContext.getString(R.string.no_tachanun_in_yerushalayim), PURIM_MESHULASH));
         }
 
         String birchatLevana = sJewishDateInfo.getBirchatLevana();
         if (!birchatLevana.isEmpty()) {
-            zmanim.add(new ZmanListEntry(birchatLevana));
+            zmanim.add(new ZmanListEntry(birchatLevana, BIRCHAT_HALEVANA));
             MoonTimes moonTimes = MoonTimes.compute()
                     .on(sCurrentDateShown.getTime())
                     .at(sLatitude, sLongitude)
@@ -1337,9 +1314,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     .oneDay() // since we want to only show the moon times for the current day, set it to one day with this call. In V2 the default was one day, but in V3 the default is fullCycle (i.e. 365 days).
                     .execute();
             if (moonTimes.isAlwaysUp()) {
-                zmanim.add(new ZmanListEntry(mContext.getString(R.string.the_moon_is_up_all_night)));
+                zmanim.add(new ZmanListEntry(mContext.getString(R.string.the_moon_is_up_all_night), MOON_STATUS));
             } else if (moonTimes.isAlwaysDown()) {
-                zmanim.add(new ZmanListEntry(mContext.getString(R.string.there_is_no_moon_tonight)));
+                zmanim.add(new ZmanListEntry(mContext.getString(R.string.there_is_no_moon_tonight), MOON_STATUS));
             } else {
                 DateTimeFormatter moonFormat = DateTimeFormatter.ofPattern((Utils.isLocaleHebrew(mContext) ? "H:mm" : "h:mm a"));
                 String moonRiseSet = "";
@@ -1353,18 +1330,18 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     moonRiseSet += mContext.getString(R.string.moonset) + moonTimes.getSet().format(moonFormat);
                 }
                 if (!moonRiseSet.isEmpty()) {
-                    zmanim.add(new ZmanListEntry(moonRiseSet));
+                    zmanim.add(new ZmanListEntry(moonRiseSet, MOON_STATUS));
                 }
             }
         }
 
         if (sJewishDateInfo.getJewishCalendar().isBirkasHachamah()) {
-            zmanim.add(new ZmanListEntry(mContext.getString(R.string.birchat_hachamah_is_said_today)));
+            zmanim.add(new ZmanListEntry(mContext.getString(R.string.birchat_hachamah_is_said_today), BIRKAT_HACHAMAH));
         }
 
         if (sJewishDateInfo.tomorrow().getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY
                 && sJewishDateInfo.tomorrow().getJewishCalendar().getYomTovIndex() == JewishCalendar.EREV_PESACH) {
-            zmanim.add(new ZmanListEntry(mContext.getString(R.string.burn_your_ametz_today)));
+            zmanim.add(new ZmanListEntry(mContext.getString(R.string.burn_your_ametz_today), BURN_CHAMETZ));
         }
 
         String tekufaOpinions = sSettingsPreferences.getString("TekufaOpinions", "1");
@@ -1387,56 +1364,70 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
         addZmanim(zmanim, false, sSettingsPreferences, sSharedPreferences, sROZmanimCalendar, sJewishDateInfo, add66MisheyakirZman);
 
-        zmanim.add(new ZmanListEntry(getSeasonalPrayerChanges()));
+        zmanim.add(new ZmanListEntry(getSeasonalPrayerChanges(), SEASONAL_PRAYER_CHANGES));
 
-        zmanim.add(new ZmanListEntry(mContext.getString(R.string.shaah_zmanit_gr_a) + " " + mZmanimFormatter.format(sROZmanimCalendar.getShaahZmanisGra())));
+        zmanim.add(new ZmanListEntry(mContext.getString(R.string.shaah_zmanit_gr_a) + " " + mZmanimFormatter.format(sROZmanimCalendar.getShaahZmanisGra()), SHAAH_ZMANIT_GRA));
         zmanim.add(new ZmanListEntry(mContext.getString(R.string.mg_a)
                 + " (" + mContext.getString(sROZmanimCalendar.isUseAmudehHoraah() ? R.string.amudei_horaah : R.string.ohr_hachaim) + ") "
-                + mZmanimFormatter.format(sROZmanimCalendar.getShaahZmanis72MinutesZmanis())));
+                + mZmanimFormatter.format(sROZmanimCalendar.getShaahZmanis72MinutesZmanis()), SHAAH_ZMANIT_MGA));
 
         if (sSettingsPreferences.getBoolean("ShowLeapYear", false)) {
-            zmanim.add(new ZmanListEntry(sJewishDateInfo.isJewishLeapYear()));
+            zmanim.add(new ZmanListEntry(sJewishDateInfo.isJewishLeapYear(), LEAP_YEAR));
         }
 
         if (sSettingsPreferences.getBoolean("ShowDST", false)) {
             if (sROZmanimCalendar.getGeoLocation().getTimeZone().inDaylightTime(sROZmanimCalendar.getSeaLevelSunrise())) {
-                zmanim.add(new ZmanListEntry(mContext.getString(R.string.daylight_savings_time_is_on)));
+                zmanim.add(new ZmanListEntry(mContext.getString(R.string.daylight_savings_time_is_on), DST));
             } else {
-                zmanim.add(new ZmanListEntry(mContext.getString(R.string.daylight_savings_time_is_off)));
+                zmanim.add(new ZmanListEntry(mContext.getString(R.string.daylight_savings_time_is_off), DST));
             }
         }
 
         if (sSettingsPreferences.getBoolean("ShowShmitaYear", false)) {
             switch (sJewishDateInfo.getYearOfShmitaCycle()) {
                 case 1:
-                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.first_year_of_shmita)));
+                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.first_year_of_shmita), SHMITA_YEAR));
                     break;
                 case 2:
-                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.second_year_of_shmita)));
+                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.second_year_of_shmita), SHMITA_YEAR));
                     break;
                 case 3:
-                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.third_year_of_shmita)));
+                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.third_year_of_shmita), SHMITA_YEAR));
                     break;
                 case 4:
-                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.fourth_year_of_shmita)));
+                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.fourth_year_of_shmita), SHMITA_YEAR));
                     break;
                 case 5:
-                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.fifth_year_of_shmita)));
+                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.fifth_year_of_shmita), SHMITA_YEAR));
                     break;
                 case 6:
-                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.sixth_year_of_shmita)));
+                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.sixth_year_of_shmita), SHMITA_YEAR));
                     break;
                 default:
-                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.this_year_is_a_shmita_year)));
+                    zmanim.add(new ZmanListEntry(mContext.getString(R.string.this_year_is_a_shmita_year), SHMITA_YEAR));
                     break;
             }
         }
 
         if (sSettingsPreferences.getBoolean("ShowElevation", false)) {
-            zmanim.add(new ZmanListEntry(mContext.getString(R.string.elevation) + " " + sElevation + " " + mContext.getString(R.string.meters)));
+            zmanim.add(new ZmanListEntry(mContext.getString(R.string.elevation) + " " + sElevation + " " + mContext.getString(R.string.meters), ELEVATION_VALUE));
         }
 
         return zmanim;
+    }
+
+    private void setMakam(Map<String, List<MakamJCal.Makam>> shabbatMakam, String book) throws JSONException {
+        List<MakamJCal.Makam> makamObj = shabbatMakam.get(book);
+        StringBuilder makamText = new StringBuilder(mContext.getString(R.string.makam));
+        if (makamObj != null) {
+            for (int i = 0; i < makamObj.size(); i++) {
+                makamText.append(makamNames.get(makamObj.get(i).ordinal())).append(" ");
+            }
+        }
+
+        String finalMakamText = makamText.toString();
+
+        binding.makam.setText(finalMakamText);
     }
 
     @NonNull
@@ -1476,7 +1467,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     public void setNextUpcomingZman() {
         ZmanListEntry nextZman = ZmanimFactory.getNextUpcomingZman(sCurrentDateShown, sROZmanimCalendar, sJewishDateInfo, sSettingsPreferences, sSharedPreferences);
         if (nextZman == null || nextZman.getZman() == null) {
-            nextZman = new ZmanListEntry("", new Date(System.currentTimeMillis() + 30_000), SecondTreatment.ROUND_EARLIER, "");// try again in 30 seconds
+            nextZman = new ZmanListEntry("", new Date(System.currentTimeMillis() + 30_000), SecondTreatment.ROUND_EARLIER, UNSPECIFIED,"");// try again in 30 seconds
         }
         sNextUpcomingZman = nextZman.getZman();
     }
@@ -1588,6 +1579,16 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 announcements.append(makamText).append("\n");
             } else if (makamData.containsKey("ADES: 24793")) {
                 List<MakamJCal.Makam> makamObj = makamData.get("ADES: 24793");
+                StringBuilder makamText = new StringBuilder(mContext.getString(R.string.makam));
+                if (makamObj != null) {
+                    for (int i = 0; i < makamObj.size(); i++) {
+                        makamText.append(makamNames.get(makamObj.get(i).ordinal())).append(" ");
+                    }
+                }
+
+                announcements.append(makamText.toString().trim()).append("\n");
+            } else if (makamData.containsKey("Eliahou Yaaqob DWECK-KESAR")) {
+                List<MakamJCal.Makam> makamObj = makamData.get("Eliahou Yaaqob DWECK-KESAR");
                 StringBuilder makamText = new StringBuilder(mContext.getString(R.string.makam));
                 if (makamObj != null) {
                     for (int i = 0; i < makamObj.size(); i++) {
@@ -1857,7 +1858,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     + (shortStyle ? " : " : " היום בשעה ") + zmanimFormat.format(tekufaDate);
             String labelEn = "Tekufa " + jc.getTekufaName(Utils.isLocaleHebrew(mContext))
                     + (shortStyle ? " : " : " is today at ") + zmanimFormat.format(tekufaDate);
-            list.add(new ZmanListEntry(Utils.isLocaleHebrew(mContext) ? label : labelEn));
+            list.add(new ZmanListEntry(Utils.isLocaleHebrew(mContext) ? label : labelEn, TEKUFA_TIME));
         }
     }
 
@@ -1892,9 +1893,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 break;
         }
         if (Utils.isLocaleHebrew(mContext)) {
-            zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourAfter) + " - " + zmanimFormat.format(halfHourBefore)));
+            zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourAfter) + " - " + zmanimFormat.format(halfHourBefore), TEKUFA_LENGTH));
         } else {
-            zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfter)));
+            zmanim.add(new ZmanListEntry(mContext.getString(R.string.tekufa_length) + zmanimFormat.format(halfHourBefore) + " - " + zmanimFormat.format(halfHourAfter), TEKUFA_LENGTH));
         }
     }
 

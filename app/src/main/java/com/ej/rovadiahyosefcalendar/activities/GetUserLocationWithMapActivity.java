@@ -26,6 +26,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.SearchView;
 import android.widget.Spinner;
@@ -93,8 +94,6 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        LocationResolver.getTimeshapeEngine();// need to init as soon as possible
 
         binding = ActivityGetUserLocationWithMapBinding.inflate(getLayoutInflater());
         EdgeToEdge.enable(this);
@@ -215,6 +214,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                 binding.searchView.clearFocus();
                 mLocationResolver = new LocationResolver(GetUserLocationWithMapActivity.this, GetUserLocationWithMapActivity.this);
                 mLocationResolver.getLatitudeAndLongitudeFromSearchQuery();
+                showProgressDialogIfTimeshapeNull();
                 mLocationResolver.setTimeZoneID();
                 chosenLocation = new LatLng(sLatitude, sLongitude);
                 if (mMap != null) {
@@ -440,6 +440,36 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                     .setBackgroundTint(Color.RED)
                     .show();
         });
+    }
+
+    private void showProgressDialogIfTimeshapeNull() {
+        if (LocationResolver.getTimeshapeEngine() == null) {
+            LinearLayout layout = new LinearLayout(this);
+            layout.setOrientation(LinearLayout.HORIZONTAL);
+            layout.setGravity(Gravity.CENTER_VERTICAL);
+            int pad = dpToPx(24);
+            layout.setPadding(pad, pad, pad, pad);
+
+            ProgressBar progressBar = new ProgressBar(this);
+            layout.addView(progressBar);
+
+            TextView textView = new TextView(this);
+            textView.setText(R.string.determining_time_zone_this_can_take_up_to_20_seconds_the_first_time);
+            textView.setPadding(dpToPx(16), 0, 0, 0);
+            layout.addView(textView);
+
+            AlertDialog dialog = new MaterialAlertDialogBuilder(this)
+                    .setView(layout)
+                    .setCancelable(false)
+                    .create();
+            dialog.show();
+
+            LocationResolver.getTimeshapeEngineAsync(() -> runOnUiThread(dialog::dismiss));
+        }
+    }
+
+    private int dpToPx(int dp) {
+        return (int) (dp * getResources().getDisplayMetrics().density);
     }
 
     private void createZipcodeDialog() {

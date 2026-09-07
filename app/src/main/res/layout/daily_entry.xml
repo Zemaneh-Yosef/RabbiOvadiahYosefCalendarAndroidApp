@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- This xml file will be used for each day to show information about the day-->
+<!-- This XML file will be used for each day to show information about the day-->
 <androidx.constraintlayout.widget.ConstraintLayout
     android:id="@+id/daily_entry"
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -24,11 +24,29 @@
         android:textSize="22sp"
         android:textDirection="firstStrong"
         android:fontFamily="sans-serif-light"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/zmanLeftTextViewSmall"
         app:layout_constraintEnd_toStartOf="@+id/zmanRightTextView"
-        app:layout_constraintHorizontal_bias="0.000"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="UnusedAttribute" />
+
+    <TextView
+        android:id="@+id/zmanLeftTextViewSmall"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="start"
+        android:maxLines="1"
+        android:paddingStart="4dp"
+        android:paddingEnd="0dp"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="18sp"
+        android:textDirection="firstStrong"
+        android:fontFamily="sans-serif-light"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/zmanRightTextView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/zmanLeftTextView"
         tools:ignore="UnusedAttribute" />
 
     <TextView
@@ -61,8 +79,23 @@
         android:textColor="?android:attr/textColorPrimary"
         android:textSize="22sp"
         android:fontFamily="sans-serif-light"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/zmanRightTextViewSmall" />
+
+    <TextView
+        android:id="@+id/zmanRightTextViewSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:paddingEnd="4dp"
+        android:paddingStart="0dp"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="18sp"
+        android:fontFamily="sans-serif-light"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/zmanRightTextView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

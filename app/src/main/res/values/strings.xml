@@ -136,7 +136,7 @@
     <string name="YOM_KIPPUR">YOM KIPPUR</string>
     <string name="MODE">MODE</string>
     <string name="SHABBAT_MODE">SHABBAT MODE</string>
-    <string name="birchat_hachamah_is_said_today">Birchat HaChamah is said today</string>
+    <string name="birchat_hachamah_is_said_today">Birkat HaChamah is said today</string>
     <string name="no_daf_yomi_yerushalmi">No Daf Yomi Yerushalmi</string>
     <string name="daf_yomi">Daf Yomi:</string>
     <string name="yerushalmi_yomi">Yerushalmi Vilna Yomi:</string>
@@ -352,7 +352,7 @@
     <string name="the_application_will_not_track_your_location">The application will NOT track your location</string>
     <string name="the_application_will_keep_requesting_your_location">The application will keep requesting your location</string>
     <string name="share">Share</string>
-    <string name="birchat_halevana_">Birchat Halevana, also known as Kiddush Levana and \"The blessing for the new moon\", is a beracha we say once a month on the moon a few days after it reaches it\'s new waning phase. (שולחן ערוך אורח חיים סימן תכו)\n\nIt is ideal to say this blessing with a minyan on Saturday night with a nice suit on. (מעם לועז בראשית א:יד)\n\nThe time period for this blessing starts from 3 days after the Molad (new moon), however, Rabbi Ovadiah Yosef ZT\"L (and sephardim in general) recommend to wait until 7 days after the molad to make the beracha. This time period ends on the 15th of every hebrew month according to Rabbi Ovadiah Yosef. (הליכות עולם חלק ה אות ט\"ז)</string>
+    <string name="birchat_halevana_">Birchat Halevana, also known as Kiddush Levana and \"The blessing for the new moon\", is a beracha we say once a month on the moon a few days after it reaches it\'s new waxing phase. (שולחן ערוך אורח חיים סימן תכו)\n\nIt is ideal to say this blessing with a minyan on Saturday night with a nice suit on. (מעם לועז בראשית א:יד)\n\nThe time period for this blessing starts from 3 days after the Molad (new moon), however, Rabbi Ovadiah Yosef ZT\"L (and sephardim in general) recommend to wait until 7 days after the molad to make the beracha. This time period ends on the 15th of every hebrew month according to Rabbi Ovadiah Yosef. (הליכות עולם חלק ה אות ט\"ז)</string>
     <string name="birchat_levana">ברכת הלבנה</string>
     <string name="override_the_time_for_when_shabbat_ends_to_use_the_below_settings">Override the time for when shabbat ends to use the below settings</string>
     <string name="use_regular_minutes_for_shabbat_end">Override The Time For Shabbat End</string>
@@ -483,4 +483,9 @@
     <string name="no_sensor_found">No Sensor Found</string>
     <string name="eruv_tavshilin">Eruv Tavshilin</string>
     <string name="hold_for_more_options">Hold for more options</string>
+    <string name="fast_start_dialog">On Tisha B\'Av and Yom Kippur, due to their stringency, the fast starts at sunset the day before. Every other fast (The 17th of Tammuz, Tzom Gedalya, 10th of Tevet, and Taanit Ester) starts at Alot HaShachar (Dawn) on the day of the fast. (Shulchan Aruch Siman 550)\n\nIf you plan to wake up before Dawn in order to eat something before the fast, you are required to set a \'condition\' before going to sleep that you will wake up before the fast begins in order to eat something. (Yabia Omer 5 Siman 22:5)</string>
+    <string name="choose_which_dialog_to_view">Choose which dialog to view</string>
+    <string name="sunset">Sunset</string>
+    <string name="fast_starts">Fast Starts</string>
+    <string name="determining_time_zone_this_can_take_up_to_20_seconds_the_first_time">Determining time zone… this can take up to 20 seconds the first time</string>
 </resources>

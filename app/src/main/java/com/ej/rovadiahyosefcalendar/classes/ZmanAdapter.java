@@ -7,6 +7,7 @@ import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivit
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sSetupLauncher;
 import static com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment.sNextUpcomingZman;
 import static com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment.sShabbatMode;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.*;
 
 import android.content.Context;
 import android.content.Intent;
@@ -55,8 +56,6 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     private final Context context;
     private MaterialAlertDialogBuilder dialogBuilder;
     public boolean isZmanimInHebrew;
-    public boolean isZmanimEnglishTranslated;
-    public boolean isZmanimAmericanized;
     private boolean wasTalitTefilinZmanClicked;
 
     public ZmanAdapter(Context context, List<ZmanListEntry> zmanim,
@@ -66,8 +65,6 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         this.context = context;
         mSharedPreferences = this.context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         isZmanimInHebrew = mSharedPreferences.getBoolean("isZmanimInHebrew", false);
-        isZmanimEnglishTranslated = mSharedPreferences.getBoolean("isZmanimEnglishTranslated", false);
-        isZmanimAmericanized = mSharedPreferences.getBoolean("isZmanimAmericanized", false);
         dialogBuilder = new MaterialAlertDialogBuilder(context);
         dialogBuilder.setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
         dialogBuilder.create();
@@ -86,10 +83,12 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull @NotNull ZmanViewHolder holder, int position) {
-        holder.itemView.setOnFocusChangeListener((view, b) -> {// support for tv
+        holder.itemView.setOnFocusChangeListener((view, b) -> {// support for TV
             view.setBackgroundColor(b ? context.getColor(R.color.dark_gold) : 0);
         });
         holder.setIsRecyclable(false);
+        holder.mLeftTextViewSmall.setVisibility(View.GONE);
+        holder.mRightTextViewSmall.setVisibility(View.GONE);
         String title = zmanim.get(position).getTitle();
         Date zman = zmanim.get(position).getZman();
         if (zmanim.get(position) != null) {
@@ -100,6 +99,18 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                 zmanTime = Utils.formatZmanTime(context, zmanim.get(position));
             }
             if (zmanim.get(position).isZman()) {
+                if (zmanim.get(position).getZmanListEntryType() == FAST_ENDS_ZMAN ||
+                        zmanim.get(position).getZmanListEntryType() == FAST_STARTS_NON_TISHA_BAV_ZMAN ||
+                        zmanim.get(position).getZmanListEntryType() == FAST_STARTS_TISHA_BAV_ZMAN) {
+                    holder.itemView.setVisibility(View.GONE);
+                    holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(0, 0));
+                } else {
+                    holder.itemView.setVisibility(View.VISIBLE);
+                    holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                    ));
+                }
                 if (isZmanimInHebrew) {
                     holder.mRightTextView.setTypeface(Typeface.DEFAULT_BOLD);
                     holder.mRightTextView.setText(title);//zman name
@@ -117,7 +128,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     }
                     holder.mRightTextView.setText(zmanTime);
                 }
-                if (zmanim.get(position).is66MisheyakirZman()) {
+                if (zmanim.get(position).getZmanListEntryType() == MISHEYAKIR_66_ZMAN) {
                     holder.itemView.setAlpha(0f);
                     holder.itemView.setTranslationY(holder.itemView.getHeight());
                     holder.itemView.animate()
@@ -134,7 +145,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                     holder.mRightTextView.setTextSize(18);
                     holder.mLeftTextView.setTextSize(18);
                 }
-                if (title.contains(new ZmanimNames(isZmanimInHebrew, isZmanimEnglishTranslated, isZmanimAmericanized).getPlagHaminchaString())) {
+                if (zmanim.get(position).getZmanListEntryType() == PLAG_HAMINCHA_HB_ZMAN ||
+                        zmanim.get(position).getZmanListEntryType() == PLAG_HAMINCHA_YY_ZMAN) {
                     SpannableStringBuilder spannable = new SpannableStringBuilder(title);
                     int startIndex = title.indexOf("(");
                     if (startIndex != -1) {// Set smaller font size for the text inside parenthesis
@@ -153,38 +165,107 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             holder.itemView.setOnClickListener(v -> {
                 if (!sShabbatMode && PreferenceManager.getDefaultSharedPreferences(context).getBoolean("showZmanDialogs", true)) {
 
-                    checkZmanimForDialog(position);
-
-                    if (title.contains(context.getString(R.string.three_weeks))
-                            || title.contains(context.getString(R.string.nine_days))
-                            || title.contains(context.getString(R.string.shevuah_shechal_bo))) {
-                        showThreeWeeksDialog(title);
-                    }
-
-                    if (title.contains("וּלְכַפָּרַת פֶּשַׁע")) {
-                        showUlChaparatPeshaDialog();
-                    }
-
-                    if (title.contains("ברכת הלבנה") || title.contains("Birkat Halevana")) {
-                        showBirchatLevanaDialog();
-                    }
-
-                    if (title.contains(context.getString(R.string.elevation))) {
-                        showElevationDialog();
-                    }
-
-                    if (title.contains("Tekufa") || title.contains("תקופת")) {
-                        showTekufaDialog();
-                    }
-
-                    if (title.contains("Tachanun") || title.contains("תחנון") || title.contains("צדקתך")) {
-                        showTachanunDialog();
-                    }
-                    if (title.contains("Shemita") || title.contains("שמיטה")) {
-                        showShmitaDialog();
-                    }
-                    if (title.contains("day of Omer") || title.contains("ימים לעומר")) {
-                        showOmerDialog();
+                    switch (zmanim.get(position).getZmanListEntryType()) {
+                        case THREE_WEEKS:
+                        case NINE_DAYS:
+                        case SHEVUA_SHECHAL_BO:
+                            showThreeWeeksDialog(title);
+                            break;
+                        case ULCHAPARAT_PESHA:
+                            showUlChaparatPeshaDialog();
+                            break;
+                        case BIRCHAT_HALEVANA:
+                            showBirchatLevanaDialog();
+                            break;
+                        case TEKUFA_TIME:
+                        case TEKUFA_LENGTH:
+                            showTekufaDialog();
+                            break;
+                        case DAY_OF_OMER:
+                            showOmerDialog();
+                            break;
+                        case TACHANUN:
+                            showTachanunDialog();
+                            break;
+                        case SHMITA_YEAR:
+                            showShmitaDialog();
+                            break;
+                        case ELEVATION_VALUE:
+                            showElevationDialog();
+                            break;
+                            //Zmanim start here
+                        case ALOT_HASHACHAR_ZMAN:
+                            showDawnDialog();
+                            break;
+                        case MISHEYAKIR_60_ZMAN:
+                        case MISHEYAKIR_66_ZMAN:
+                            if (wasTalitTefilinZmanClicked) {
+                                showEarliestTalitTefilinDialog();
+                            } else {
+                                wasTalitTefilinZmanClicked = true;
+                                if (onZmanClickListener != null) {
+                                    onZmanClickListener.onItemClick();// request a new set of data
+                                }
+                            }
+                            break;
+                        case HANETZ_ZMAN:
+                            showSunriseDialog();
+                            break;
+                        case SOF_ZMAN_ACHILAT_CHAMETZ_ZMAN:
+                            showAchilatChametzDialog();
+                            break;
+                        case SOF_ZMAN_BIUR_CHAMETZ_ZMAN:
+                            showBiurChametzDialog();
+                            break;
+                        case SOF_ZMAN_SHMA_MGA_ZMAN:
+                            showShemaMGADialog();
+                            break;
+                        case SOF_ZMAN_SHMA_GRA_ZMAN:
+                            showShmaGRADialog();
+                            break;
+                        case BIRKAT_HACHMAH_ZMAN:
+                            showBirchatHachamahDialog();
+                            break;
+                        case SOF_ZMAN_BERACHOT_SHMA_ZMAN:
+                            showBrachotShmaDialog();
+                            break;
+                        case CHATZOT_ZMAN:
+                            showChatzotDialog();
+                            break;
+                        case MINCHA_GEDOLAH_ZMAN:
+                            showMinchaGedolaDialog();
+                            break;
+                        case MINCHA_KETANA_ZMAN:
+                            showMinchaKetanaDialog();
+                            break;
+                        case PLAG_HAMINCHA_HB_ZMAN:
+                        case PLAG_HAMINCHA_YY_ZMAN:
+                            showPlagDialog();
+                            break;
+                        case CANDLELIGHTING_ZMAN:
+                            showCandleLightingDialog();
+                            break;
+                        case SUNSET_ZMAN:
+                            showShkiaDialog();
+                            break;
+                        case TZET_HAKOKHAVIM_ZMAN:
+                            showTzaitDialog();
+                            break;
+                        case TZET_HAKOKHAVIM_LCHUMRA_ZMAN:
+                            showTzaitLChumraDialog();
+                            break;
+                        case FAST_ENDS_ZMAN:
+                            showTzaitTaanitDialog();
+                            break;
+                        case SHABBAT_CHAG_ENDS_ZMAN:
+                            showTzaitShabbatDialog();
+                            break;
+                        case RABBENU_TAM_ZMAN:
+                            showRTDialog();
+                            break;
+                        case CHATZOT_LAYLA_ZMAN:
+                            showChatzotLaylaDialog();
+                            break;
                     }
                 }
             });
@@ -207,7 +288,58 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                 holder.mRightTextView.setTextColor(context.getResources().getColor(R.color.disabled_gray, context.getTheme()));
             }
 
-            if (zmanim.get(position).isBirchatHachamahZman()) {// it only happens every twenty eight years, so we should highlight it
+            if (zmanim.get(position).getZmanListEntryType() == ALOT_HASHACHAR_ZMAN) {
+                View.OnClickListener onClickListener = (v -> showFastStartsChooserDialog(false));
+                for (ZmanListEntry listEntry : zmanim) {
+                    if (listEntry.getZmanListEntryType() == FAST_STARTS_NON_TISHA_BAV_ZMAN) {
+                        if (isZmanimInHebrew) {
+                            holder.mRightTextViewSmall.setText(listEntry.getTitle());
+                            holder.mRightTextViewSmall.setVisibility(View.VISIBLE);
+                        } else {//switch the views for english
+                            holder.mLeftTextViewSmall.setText(listEntry.getTitle());
+                            holder.mLeftTextViewSmall.setVisibility(View.VISIBLE);
+                        }
+                        holder.itemView.setOnClickListener(onClickListener);
+                        break;
+                    }
+                }
+            }
+
+            if (zmanim.get(position).getZmanListEntryType() == SUNSET_ZMAN) {
+                View.OnClickListener onClickListener = (v -> showFastStartsChooserDialog(true));
+                for (ZmanListEntry listEntry : zmanim) {
+                    if (listEntry.getZmanListEntryType() == FAST_STARTS_TISHA_BAV_ZMAN) {
+                        if (isZmanimInHebrew) {
+                            holder.mRightTextViewSmall.setText(listEntry.getTitle());
+                            holder.mRightTextViewSmall.setVisibility(View.VISIBLE);
+                        } else {//switch the views for english
+                            holder.mLeftTextViewSmall.setText(listEntry.getTitle());
+                            holder.mLeftTextViewSmall.setVisibility(View.VISIBLE);
+                        }
+                        holder.itemView.setOnClickListener(onClickListener);
+                        break;
+                    }
+                }
+            }
+
+            if (zmanim.get(position).getZmanListEntryType() == TZET_HAKOKHAVIM_LCHUMRA_ZMAN) {
+                View.OnClickListener onClickListener = (v -> showFastEndsChooserDialog());
+                for (ZmanListEntry listEntry : zmanim) {
+                    if (listEntry.getZmanListEntryType() == FAST_ENDS_ZMAN) {
+                        if (isZmanimInHebrew) {
+                            holder.mRightTextViewSmall.setText(listEntry.getTitle());
+                            holder.mRightTextViewSmall.setVisibility(View.VISIBLE);
+                        } else {//switch the views for english
+                            holder.mLeftTextViewSmall.setText(listEntry.getTitle());
+                            holder.mLeftTextViewSmall.setVisibility(View.VISIBLE);
+                        }
+                        holder.itemView.setOnClickListener(onClickListener);
+                        break;
+                    }
+                }
+            }
+
+            if (zmanim.get(position).getZmanListEntryType() == ZmanListEntryType.BIRKAT_HACHMAH_ZMAN) {// it only happens every twenty-eight years, so we should highlight it
                 holder.itemView.setBackground(AppCompatResources.getDrawable(context, R.drawable.colorful_gradient_square));
                 holder.mLeftTextView.setTextColor(context.getResources().getColor(R.color.black, context.getTheme()));
                 holder.mRightTextView.setTextColor(context.getResources().getColor(R.color.black, context.getTheme()));
@@ -223,15 +355,19 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     public static class ZmanViewHolder extends RecyclerView.ViewHolder {
 
         TextView mRightTextView;
+        TextView mRightTextViewSmall;
         TextView mMiddleTextView;
         TextView mLeftTextView;
+        TextView mLeftTextViewSmall;
 
         public ZmanViewHolder(@NonNull @NotNull View itemView) {
             super(itemView);
             setIsRecyclable(false);
             mLeftTextView = itemView.findViewById(R.id.zmanLeftTextView);
+            mLeftTextViewSmall = itemView.findViewById(R.id.zmanLeftTextViewSmall);
             mMiddleTextView = itemView.findViewById(R.id.zmanMiddleTextView);
             mRightTextView = itemView.findViewById(R.id.zmanRightTextView);
+            mRightTextViewSmall = itemView.findViewById(R.id.zmanRightTextViewSmall);
         }
     }
 
@@ -241,73 +377,13 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         dialogBuilder.create();
     }
 
-    private void checkZmanimForDialog(int position) {
-        ZmanimNames zmanimNames = new ZmanimNames(isZmanimInHebrew, isZmanimEnglishTranslated, isZmanimAmericanized);
-        if (zmanim.get(position).getTitle().contains(zmanimNames.getAlotString())) {
-            showDawnDialog();
-        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getTalitTefilinString())) {
-            if (wasTalitTefilinZmanClicked) {
-                showEarliestTalitTefilinDialog();
-            } else {
-                wasTalitTefilinZmanClicked = true;
-                if (onZmanClickListener != null) {
-                    onZmanClickListener.onItemClick();// request a new set of data
-                }
-            }
-        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getHaNetzString())) {
-            showSunriseDialog();
-        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getAchilatChametzString())) {
-            showAchilatChametzDialog();
-        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getBiurChametzString())) {
-            showBiurChametzDialog();
-        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getShmaMgaString())) {
-            showShemaMGADialog();
-        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getShmaGraString())) {
-            showShmaGRADialog();
-        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getBirkatHachamaString())) {
-            showBirchatHachamahDialog();
-        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getBrachotShmaString())) {
-            showBrachotShmaDialog();
-        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getChatzotLaylaString())) {
-            showChatzotLaylaDialog();
-        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getMinchaGedolaString())) {
-            showMinchaGedolaDialog();
-        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getMinchaKetanaString())) {
-            showMinchaKetanaDialog();
-        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getPlagHaminchaString())) {
-            showPlagDialog();
-        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getCandleLightingString())) {
-            showCandleLightingDialog();
-        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getSunsetString()) && !zmanim.get(position).getTitle().contains("לפני השקיעה")) {
-            showShkiaDialog();
-        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getTzaitHacochavimString() + " " + zmanimNames.getLChumraString())) {
-            showTzaitLChumraDialog();
-        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getTzaitHacochavimString())) {
-            showTzaitDialog();
-        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getTzaitString() + zmanimNames.getTaanitString() + zmanimNames.getEndsString() + " " + zmanimNames.getLChumraString())) {
-            showTzaitTaanitLChumraDialog();
-        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getTzaitString() + zmanimNames.getTaanitString() + zmanimNames.getEndsString())) {
-            showTzaitTaanitDialog();
-        } else if (zmanim.get(position).getTitle().contains("צאת שבת/חג")
-                || zmanim.get(position).getTitle().contains("צאת שבת")
-                || zmanim.get(position).getTitle().contains("צאת חג")
-                || zmanim.get(position).getTitle().contains("Shabbat/Chag Ends")
-                || zmanim.get(position).getTitle().contains("Shabbat Ends")
-                || zmanim.get(position).getTitle().contains("Chag Ends")) {
-            showTzaitShabbatDialog();
-        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getRTString())) {
-            showRTDialog();
-        } else if (zmanim.get(position).getTitle().contains(zmanimNames.getChatzotString())) {
-            showChatzotDialog();
-        }
-    }
-
     private Spanned loadContentFromFile(String path) {
         AssetManager am = context.getAssets();
         try {
             InputStream is = am.open(path);
             int size = is.available();
             byte[] buffer = new byte[size];
+            //noinspection ResultOfMethodCallIgnored
             is.read(buffer);
             is.close();
             return HtmlCompat.fromHtml(HtmlRenderer.builder()
@@ -319,6 +395,39 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             ex.printStackTrace();
             return new SpannableString("");
         }
+    }
+
+    private void showFastStartsChooserDialog(boolean isForSunset) {
+        AlertDialog alertDialog = dialogBuilder.setTitle(R.string.choose_which_dialog_to_view)
+                .setMessage(null)
+                .setPositiveButton(R.string.fast_starts, (dialogInterface, i) -> showTaanitStartDialog())
+                .setNegativeButton(isForSunset ? R.string.sunset : R.string.alot_hashachar, (dialogInterface, i) -> {
+                    if (isForSunset) {
+                        showShkiaDialog();
+                    } else {
+                        showDawnDialog();
+                    }
+                })
+                .create();
+        alertDialog.show();
+        resetDialogBuilder();
+    }
+
+    private void showFastEndsChooserDialog() {
+        AlertDialog alertDialog = dialogBuilder.setTitle(R.string.choose_which_dialog_to_view)
+                .setMessage(null)
+                .setPositiveButton(R.string.fast_ends, (dialogInterface, i) -> showTzaitTaanitDialog())
+                .setNegativeButton(R.string.tzeit_hacochavim_l_chumra, (dialogInterface, i) -> showTzaitLChumraDialog())
+                .create();
+        alertDialog.show();
+        resetDialogBuilder();
+    }
+
+    private void showTaanitStartDialog() {
+        AlertDialog alertDialog = dialogBuilder.setTitle("Fast Starts - תענית מתחיל")
+                .setMessage(R.string.fast_start_dialog)
+                .create();
+        alertDialog.show();
     }
 
     private void showDawnDialog() {
@@ -462,13 +571,6 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         alertDialog.show();
     }
 
-    private void showTzaitTaanitLChumraDialog() {
-        AlertDialog alertDialog = dialogBuilder.setTitle("Fast Ends (Stringent) - צאת תענית לחומרא")
-                .setMessage(R.string.taanit_ends_lchumra_dialog)
-                .create();
-        alertDialog.show();
-    }
-
     private void showTzaitShabbatDialog() {
         String shabbatSetting = "7.165°";
         if (sROZmanimCalendar != null && !sROZmanimCalendar.isUseAmudehHoraah()) {
@@ -487,7 +589,12 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                 case "3" -> shabbatSetting = "";// don't show anything if we're using the lesser than the 2 options
             }
         }
-        AlertDialog alertDialog = dialogBuilder.setTitle("Shabbat/Chag Ends (%) - (%) צאת שבת/חג".replace("%", shabbatSetting))
+
+        String title = shabbatSetting.isEmpty()
+                ? "Shabbat/Chag Ends - צאת שבת/חג"
+                : "Shabbat/Chag Ends (%) - (%) צאת שבת/חג".replace("%", shabbatSetting);
+
+        AlertDialog alertDialog = dialogBuilder.setTitle(title)
                 .setMessage(Utils.isLocaleHebrew(context) ? loadContentFromFile("tzetShabbatHB.md") : loadContentFromFile("tzetShabbat.md"))
                 .create();
         alertDialog.show();
@@ -524,7 +631,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     }
 
     private void showElevationDialog() {
-        AlertDialog alertDialog = dialogBuilder.setTitle(context.getString(R.string.elevation))
+        AlertDialog alertDialog = dialogBuilder.setTitle(context.getString(R.string.elevation).replace(":", ""))
                 .setMessage(R.string.elevation_dialog)
                 .setPositiveButton(context.getString(R.string.setup_elevation), (dialog, which) -> context.startActivity(new Intent(context, SetupElevationActivity.class)
                         .putExtra("loneActivity", true)))

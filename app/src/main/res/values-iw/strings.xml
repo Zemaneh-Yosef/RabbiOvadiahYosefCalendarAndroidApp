@@ -694,4 +694,9 @@
     <string name="no_sensor_found">לא נמצא חיישן</string>
     <string name="eruv_tavshilin">עירוב תבשילין</string>
     <string name="hold_for_more_options">לחץ והחזק לאפשרויות נוספות</string>
+    <string name="fast_start_dialog">בתשעה באב וביום הכיפורים, מפני חומרתם, מתחיל הצום כבר בשקיעת החמה של היום שלפניו. שאר הצומות — שבעה עשר בתמוז, צום גדליה, עשרה בטבת ותענית אסתר — מתחילים בעלות השחר ביום הצום (שולחן ערוך, סימן תק״נ).\n\nאם מתכננים לקום לפני עלות השחר כדי לאכול לפני תחילת הצום, יש להתנות לפני השינה שיקומו לפני תחילת הצום כדי לאכול (יביע אומר, חלק ה׳, סימן כ״ב, אות ה׳).</string>
+    <string name="choose_which_dialog_to_view">בחר איזה דיאלוג להציג</string>
+    <string name="sunset">שקיעה</string>
+    <string name="fast_starts">תענית מתחיל</string>
+    <string name="determining_time_zone_this_can_take_up_to_20_seconds_the_first_time">קובע את אזור הזמן… פעולה זו עשויה להימשך עד 20 שניות בפעם הראשונה</string>
 </resources>

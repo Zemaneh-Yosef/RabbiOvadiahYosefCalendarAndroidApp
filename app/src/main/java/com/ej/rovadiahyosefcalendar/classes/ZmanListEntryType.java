@@ -1,0 +1,62 @@
+package com.ej.rovadiahyosefcalendar.classes;
+
+/**
+ * These enums represent what type of information is sent inside the {@link ZmanListEntry} object.
+ * Zmanim are all set with "ZMAN" as the last word in order for the {@link ZmanListEntry#isZman()}
+ * method to work properly.
+ */
+public enum ZmanListEntryType {
+    UNSPECIFIED,
+    SHABBAT_MEVARCHIM,
+    SPECIAL_DAY,
+    ERUV_TAVSHILIN,
+    DAY_OF_OMER,
+    THREE_WEEKS,
+    NINE_DAYS,
+    SHEVUA_SHECHAL_BO,
+    MUSIC,
+    HALELL_OR_CHATZI_HALLEL,
+    ULCHAPARAT_PESHA,
+    TACHANUN,
+    PURIM_MESHULASH,
+    BIRCHAT_HALEVANA,
+    MOON_STATUS,
+    BIRKAT_HACHAMAH,
+    BURN_CHAMETZ,
+    TEKUFA_TIME,
+    TEKUFA_LENGTH,
+    // Zmanim start here
+    FAST_STARTS_NON_TISHA_BAV_ZMAN,
+    ALOT_HASHACHAR_ZMAN,
+    MISHEYAKIR_66_ZMAN,
+    MISHEYAKIR_60_ZMAN,
+    HANETZ_ZMAN,
+    SOF_ZMAN_SHMA_MGA_ZMAN,
+    SOF_ZMAN_SHMA_GRA_ZMAN,
+    BIRKAT_HACHMAH_ZMAN,
+    SOF_ZMAN_ACHILAT_CHAMETZ_ZMAN,
+    SOF_ZMAN_BERACHOT_SHMA_ZMAN,
+    SOF_ZMAN_BIUR_CHAMETZ_ZMAN,
+    CHATZOT_ZMAN,
+    MINCHA_GEDOLAH_ZMAN,
+    MINCHA_KETANA_ZMAN,
+    PLAG_HAMINCHA_HB_ZMAN,
+    PLAG_HAMINCHA_YY_ZMAN,
+    CANDLELIGHTING_ZMAN,
+    FAST_STARTS_TISHA_BAV_ZMAN,
+    SUNSET_ZMAN,
+    TZET_HAKOKHAVIM_ZMAN,
+    TZET_HAKOKHAVIM_LCHUMRA_ZMAN,
+    FAST_ENDS_ZMAN,
+    SHABBAT_CHAG_ENDS_ZMAN,
+    RABBENU_TAM_ZMAN,
+    CHATZOT_LAYLA_ZMAN,
+    // Zmanim end here
+    SEASONAL_PRAYER_CHANGES,
+    SHAAH_ZMANIT_GRA,
+    SHAAH_ZMANIT_MGA,
+    LEAP_YEAR,
+    DST,
+    SHMITA_YEAR,
+    ELEVATION_VALUE
+}

@@ -80,7 +80,7 @@ public class ZmanimNames {
         if (mIsZmanimInHebrew) {
             return " (מחר) ";
         } else {
-            return " (Tom) ";
+            return " (Tmrw) ";
         }
     }
 
