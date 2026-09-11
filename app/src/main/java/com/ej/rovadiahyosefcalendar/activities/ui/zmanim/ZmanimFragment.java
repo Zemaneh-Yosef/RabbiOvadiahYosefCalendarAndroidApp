@@ -27,7 +27,32 @@ import static com.ej.rovadiahyosefcalendar.classes.Utils.calculateInSampleSize;
 import static com.ej.rovadiahyosefcalendar.classes.Utils.getCurrentCalendarDrawableDark;
 import static com.ej.rovadiahyosefcalendar.classes.Utils.getCurrentCalendarDrawableLight;
 import static com.ej.rovadiahyosefcalendar.classes.Utils.inputStreamToString;
-import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.*;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.BIRCHAT_HALEVANA;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.BIRKAT_HACHAMAH;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.BURN_CHAMETZ;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.DAY_OF_OMER;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.DST;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.ELEVATION_VALUE;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.ERUV_TAVSHILIN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.HALELL_OR_CHATZI_HALLEL;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.LEAP_YEAR;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.MOON_STATUS;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.MUSIC;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.NINE_DAYS;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.PURIM_MESHULASH;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.SEASONAL_PRAYER_CHANGES;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.SHAAH_ZMANIT_GRA;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.SHAAH_ZMANIT_MGA;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.SHABBAT_MEVARCHIM;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.SHEVUA_SHECHAL_BO;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.SHMITA_YEAR;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.SPECIAL_DAY;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.TACHANUN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.TEKUFA_LENGTH;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.TEKUFA_TIME;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.THREE_WEEKS;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.ULCHAPARAT_PESHA;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.UNSPECIFIED;
 import static com.ej.rovadiahyosefcalendar.classes.ZmanimFactory.addZmanim;
 import static com.kosherjava.zmanim.AstronomicalCalendar.getTimeOffset;
 
@@ -127,7 +152,11 @@ import org.shredzone.commons.suncalc.MoonTimes;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.zone.ZoneOffsetTransition;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -491,13 +520,61 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 }
             });
 
-            binding.dailyCard.setOnClickListener(l -> {
-                if (mCalendarButton != null) {
-                    mCalendarButton.performClick();
-                }
-            });
+            binding.dailyCard.setOnClickListener(l -> new MaterialAlertDialogBuilder(mContext)
+                    .setTitle(sJewishDateInfo.hebrewDateFormatter.formatMonth(sJewishDateInfo.getJewishCalendar()))
+                    .setMessage(getMonthMessage())
+                    .setPositiveButton(R.string.change_date, ((dialogInterface, i) -> mCalendarButton.performClick()))
+                    .setNegativeButton(R.string.dismiss, (dialogInterface, i) -> dialogInterface.dismiss())
+                    .show());
 
             mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
+        }
+    }
+
+    private String getMonthMessage() {
+        switch (sJewishDateInfo.getJewishCalendar().getJewishMonth()) {
+            case JewishCalendar.TISHREI -> {
+                return getString(R.string.tishri_desc);
+            }
+            case JewishCalendar.CHESHVAN -> {
+                return getString(R.string.cheshvan_desc);
+            }
+            case JewishCalendar.KISLEV -> {
+                return getString(R.string.kislev_desc);
+            }
+            case JewishCalendar.TEVES -> {
+                return getString(R.string.tevet_desc);
+            }
+            case JewishCalendar.SHEVAT -> {
+                return getString(R.string.shevat_desc);
+            }
+            case JewishCalendar.ADAR -> {
+                return getString(R.string.adar_desc);
+            }
+            case JewishCalendar.ADAR_II -> {
+                return getString(R.string.adar_ii_desc);
+            }
+            case JewishCalendar.NISSAN -> {
+                return getString(R.string.nissan_desc);
+            }
+            case JewishCalendar.IYAR -> {
+                return getString(R.string.iyar_desc);
+            }
+            case JewishCalendar.SIVAN -> {
+                return getString(R.string.sivan_desc);
+            }
+            case JewishCalendar.TAMMUZ -> {
+                return getString(R.string.tammuz_desc);
+            }
+            case JewishCalendar.AV -> {
+                return getString(R.string.av_desc);
+            }
+            case JewishCalendar.ELUL -> {
+                return getString(R.string.elul_desc);
+            }
+            default -> {
+                return "I don't know how you got here... There should be no new Hebrew months...";
+            }
         }
     }
 
@@ -514,7 +591,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (!ChaiTablesWebJava.checkIfFileDoesNotExist(mActivity.getExternalFilesDir(null), sCurrentLocationName, sJewishDateInfo.getJewishCalendar().getJewishYear()))
 			return;
 
-		if (mUpdateTablesDialogShown)
+        if (mUpdateTablesDialogShown)
 			return;
 
 		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext);
@@ -1376,11 +1453,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
 
         if (sSettingsPreferences.getBoolean("ShowDST", false)) {
-            if (sROZmanimCalendar.getGeoLocation().getTimeZone().inDaylightTime(sROZmanimCalendar.getSeaLevelSunrise())) {
-                zmanim.add(new ZmanListEntry(mContext.getString(R.string.daylight_savings_time_is_on), DST));
-            } else {
-                zmanim.add(new ZmanListEntry(mContext.getString(R.string.daylight_savings_time_is_off), DST));
-            }
+            zmanim.add(new ZmanListEntry(getDSTStatus(), DST));
         }
 
         if (sSettingsPreferences.getBoolean("ShowShmitaYear", false)) {
@@ -1414,6 +1487,43 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
 
         return zmanim;
+    }
+
+    @NonNull
+    private String getDSTStatus() {
+        ZoneId zoneId = sROZmanimCalendar.getGeoLocation().getTimeZone().toZoneId();
+        LocalDate currentDate = sROZmanimCalendar.getCalendar().toInstant().atZone(zoneId).toLocalDate();
+
+        // atStartOfDay() safely handles edge cases where 00:00 is skipped due to a DST gap
+        ZonedDateTime startOfDay = currentDate.atStartOfDay(zoneId);
+        ZonedDateTime endOfDay = startOfDay.plusDays(1);
+
+        boolean isDSTAtStartOfDay = zoneId.getRules().isDaylightSavings(startOfDay.toInstant());
+
+        String dstStatus = isDSTAtStartOfDay
+                ? mContext.getString(R.string.daylight_savings_time_is_on)
+                : mContext.getString(R.string.daylight_savings_time_is_off);
+
+        // Find the next transition starting from just before the start of the day
+        ZoneOffsetTransition transition = zoneId.getRules().nextTransition(startOfDay.toInstant().minusNanos(1));
+
+        // If a transition exists and occurs before the next day begins, it happens today
+        if (transition != null && transition.getInstant().isBefore(endOfDay.toInstant())) {
+            String transitionTime = DateTimeFormatter
+                    .ofPattern(Utils.dateFormatPattern(mContext, sSettingsPreferences.getBoolean("ShowSeconds", false)))
+                    .withZone(zoneId)
+                    .format(transition.getInstant());
+
+            String transitionText = Utils.isLocaleHebrew(mContext) ? " ב " : " at ";
+
+            // Update the base string to reflect the transition
+            dstStatus = (isDSTAtStartOfDay
+                    ? mContext.getString(R.string.daylight_savings_time_is_off)
+                    : mContext.getString(R.string.daylight_savings_time_is_on))
+                    + transitionText + transitionTime;
+        }
+
+        return dstStatus;
     }
 
     private void setMakam(Map<String, List<MakamJCal.Makam>> shabbatMakam, String book) throws JSONException {

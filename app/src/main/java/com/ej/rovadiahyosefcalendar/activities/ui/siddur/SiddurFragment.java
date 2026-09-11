@@ -218,9 +218,7 @@ public class SiddurFragment extends Fragment {
             currentZmanimCalendar.setAmudehHoraah(PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean("LuachAmudeiHoraah", false));
             currentJewishDateInfo = new JewishDateInfo(sJewishDateInfo.getJewishCalendar().getInIsrael());
             currentJewishDateInfo.resetLocale(mContext);
-            if (currentZmanimCalendar.getSunset() != null && new Date().after(currentZmanimCalendar.getSunset())) {
-                isAfterSunset = true;
-            }
+            isAfterSunset = currentZmanimCalendar.getSunset() != null && new Date().after(currentZmanimCalendar.getSunset());
             Preference seeMoreTitle = findPreference("siddur_see_more_title");
             Preference seeMore = findPreference("siddur_see_more");
             if (seeMore != null) {
@@ -267,21 +265,21 @@ public class SiddurFragment extends Fragment {
             CustomPreferenceView selichot = findPreference("siddur_selichot");
             if (selichot != null) {
                 selichot.setVisible(showAllPrayers ? sJewishDateInfo.isSelichotSaid() : getSunsetBasedJewishDateInfo().isSelichotSaid() && isPrayerCurrentlySaid(selichot.getKey()));
-                Date tzeit = currentZmanimCalendar.getTzeit();
+                Date secondAshmora = currentZmanimCalendar.getSecondAshmora();
                 Date solarMidnight = currentZmanimCalendar.getSolarMidnight();
                 Calendar midnightCal = Calendar.getInstance();
-                if (midnightCal.get(Calendar.HOUR_OF_DAY) < 3) {// i.e. right now is after midnight
+                if (midnightCal.get(Calendar.HOUR_OF_DAY) <= 3) {// i.e. right now is after midnight
                     if (solarMidnight != null) {
                         midnightCal.setTime(solarMidnight);
                     }
-                    if (midnightCal.get(Calendar.HOUR_OF_DAY) < 3) {// i.e. halachic midnight is after 12AM
+                    if (midnightCal.get(Calendar.HOUR_OF_DAY) <= 3) {// i.e. halachic midnight is after 12AM
                         ROZmanimCalendar yesterday = currentZmanimCalendar.getCopy();
                         yesterday.getCalendar().add(Calendar.DATE, -1);
-                        tzeit = yesterday.getTzeit();
+                        secondAshmora = yesterday.getSecondAshmora();
                         solarMidnight = yesterday.getSolarMidnight();
                     }
                 }
-                selichot.setDimmed((tzeit != null && new Date().after(tzeit)) &&
+                selichot.setDimmed((secondAshmora != null && new Date().after(secondAshmora)) &&
                         (solarMidnight != null && new Date().before(solarMidnight)));
                 selichot.setOnPreferenceClickListener(v -> {
                     startSiddurActivity(mContext.getString(R.string.selichot));
@@ -409,9 +407,12 @@ public class SiddurFragment extends Fragment {
                 if (title != null) {
                     hadlakatNeirotChanuka.setSummary(getSecondaryText(title));
                 }
+                boolean isErevShabbatChanuka = getSunsetBasedJewishDateInfo(false).getJewishCalendar().getDayOfWeek() == Calendar.FRIDAY
+                        && getSunsetBasedJewishDateInfo(false).tomorrow().getJewishCalendar().isChanukah();
+
                 hadlakatNeirotChanuka.setVisible((showAllPrayers ? getSunsetBasedJewishDateInfo().getJewishCalendar().getDayOfChanukah() != 8
                         && (getSunsetBasedJewishDateInfo().getJewishCalendar().isChanukah() || getSunsetBasedJewishDateInfo().tomorrow().getJewishCalendar().isChanukah())
-                        : isPrayerCurrentlySaid(hadlakatNeirotChanuka.getKey()) && getSunsetBasedJewishDateInfo().getJewishCalendar().isChanukah()));
+                        : isPrayerCurrentlySaid(hadlakatNeirotChanuka.getKey()) && (getSunsetBasedJewishDateInfo().getJewishCalendar().isChanukah() || isErevShabbatChanuka)));
                 hadlakatNeirotChanuka.setForceLTRTextDirection(!Utils.isLocaleHebrew(mContext));
             }
 
@@ -892,7 +893,7 @@ public class SiddurFragment extends Fragment {
                 return true;// show the prayer by default
             }
             return switch (key) {
-                case "siddur_selichot" -> !currentZmanimCalendar.isNowBeforeSecondAshmora();
+                case "siddur_selichot" -> !(new Date().after(currentZmanimCalendar.getSunset()) && currentZmanimCalendar.isNowBeforeSecondAshmora());
                 case "siddur_shacharit" ->
                         new Date().after(currentZmanimCalendar.getAlotHashachar()) && new Date().before(currentZmanimCalendar.getChatzot());
                 case "siddur_mussaf" ->
@@ -901,15 +902,19 @@ public class SiddurFragment extends Fragment {
                         new Date().after(currentZmanimCalendar.getMinchaGedolaGreaterThan30()) && new Date().before(currentZmanimCalendar.getTzeit());
                 case "siddur_arvit" ->
                         new Date().after(currentZmanimCalendar.getPlagHamincha()) || new Date().before(currentZmanimCalendar.getAlotHashachar());
+                case "siddur_hadlakat_neirot_chanuka" ->
+                        new Date().after(currentZmanimCalendar.getSunset()) || new Date().before(currentZmanimCalendar.getAlotHashachar())
+                                || (getSunsetBasedJewishDateInfo(false).getJewishCalendar().getDayOfWeek() == Calendar.FRIDAY
+                                && new Date().after(currentZmanimCalendar.getPlagHamincha())
+                                && getSunsetBasedJewishDateInfo(false).tomorrow().getJewishCalendar().isChanukah());// candles are lit before sunset on erev Shabbat
                 case "siddur_sefirat_haomer",
-                     "siddur_hadlakat_neirot_chanuka",
                      "siddur_havdala",
                      "siddur_kriatShema" ->
                         new Date().after(currentZmanimCalendar.getSunset()) || new Date().before(currentZmanimCalendar.getAlotHashachar());
                 case "siddur_tikkun_chatzot" ->
-                        !getSunsetBasedJewishDateInfo().is3Weeks() && currentZmanimCalendar.isNowAfterHalachicSolarMidnight() && new Date().before(currentZmanimCalendar.getAlotHashachar());
+                        !getSunsetBasedJewishDateInfo().is3Weeks() && (currentZmanimCalendar.isNowAfterHalachicSolarMidnight() || new Date().before(currentZmanimCalendar.getAlotHashachar()));
                 case "siddur_tikkun_chatzot_3_weeks" -> getSunsetBasedJewishDateInfo().is3Weeks() &&
-                        ((currentZmanimCalendar.isNowAfterHalachicSolarMidnight() && new Date().before(currentZmanimCalendar.getAlotHashachar())) // night tikkun chatzot
+                        ((currentZmanimCalendar.isNowAfterHalachicSolarMidnight() || new Date().before(currentZmanimCalendar.getAlotHashachar())) // night tikkun chatzot
                                 || (new Date().after(currentZmanimCalendar.getChatzot()) && new Date().before(currentZmanimCalendar.getSunset()) && getSunsetBasedJewishDateInfo().getJewishCalendar().getDayOfWeek() != Calendar.SATURDAY)); // day tikkun chatzot, even though beki'im behalacha says to NOT say it after mincha ketana. However, that is not brought down by Rabbi Ovadiah and his sons
                 default -> true;
             };
@@ -940,19 +945,13 @@ public class SiddurFragment extends Fragment {
                 }
                 String hallel = timeAdjustedJDI.getHallelOrChatziHallel();
                 if (hallel.isEmpty()) {
-                    String tachanun = timeAdjustedJDI.getIsTachanunSaid()
-                            .replace("צדקתך", "")
-                            .replace("לא אומרים תחנון", "יהי שם")
-                            .replace("אומרים תחנון רק בבוקר", "תחנון")
-                            .replace("יש אומרים תחנון בשחרית; אין תחנון במנחה", "יש אומרים תחנון")
-                            .replace("יש מדלגים תחנון במנחה", "תחנון")
-                            .replace("אומרים תחנון", "תחנון")
-                            .replace("No Tachanun today", "יהי שם")
-                            .replace("Tachanun only in the morning", "תחנון")
-                            .replace("Some say Tachanun in the morning; no Tachanun by mincha", "יש אומרים תחנון")
-                            .replace("Some say Tachanun today", "יש אומרים תחנון")
-                            .replace("Some skip Tachanun by mincha", "תחנון")
-                            .replace("There is Tachanun today", "תחנון");
+                    String tachanun = switch (timeAdjustedJDI.getIsTachanunSaid()) {
+                        case "צדקתך" -> "";
+                        case "לא אומרים תחנון", "No Tachanun today" -> "יהי שם";
+                        case "יש אומרים תחנון", "Some say Tachanun today",
+                             "יש אומרים תחנון בשחרית; אין תחנון במנחה", "Some say Tachanun in the morning; no Tachanun by mincha" -> "יש אומרים תחנון";
+                        default -> "תחנון";
+                    };
                     if (!tachanun.isEmpty()) entries.add(tachanun);
                 } else {
                     entries.add(hallel);
@@ -988,19 +987,16 @@ public class SiddurFragment extends Fragment {
                 if (timeAdjustedJDI.getJewishCalendar().isTaanis()) {
                     entries.add("ענינו");
                 }
-                String tachanun = timeAdjustedJDI.getIsTachanunSaid()
-                        .replace("לא אומרים תחנון", "יהי שם")
-                        .replace("אומרים תחנון רק בבוקר", "יהי שם")
-                        .replace("יש מדלגים תחנון במנחה", "יש אומרים תחנון")
-                        .replace("אומרים תחנון", "תחנון")
-                        .replace("יש אומרים תחנון בשחרית; אין תחנון במנחה", "יהי שם")
-                        .replace("Some say Tachanun in the morning; no Tachanun by mincha", "יהי שם")
-                        .replace("No Tachanun today", "יהי שם")
-                        .replace("Tachanun only in the morning", "יהי שם")
-                        .replace("Some say Tachanun today", "יש אומרים תחנון")
-                        .replace("Some skip Tachanun by mincha", "יש אומרים תחנון")
-                        .replace("There is Tachanun today", "תחנון");
-                if (!tachanun.isEmpty()) entries.add(tachanun);
+                String tachanun = switch (timeAdjustedJDI.getIsTachanunSaid()) {
+                    case "לא אומרים תחנון", "No Tachanun today",
+                         "אומרים תחנון רק בבוקר", "Tachanun only in the morning",
+                         "יש אומרים תחנון בשחרית; אין תחנון במנחה", "Some say Tachanun in the morning; no Tachanun by mincha" -> "יהי שם";
+                    case "יש מדלגים תחנון במנחה", "Some skip Tachanun by mincha",
+                         "יש אומרים תחנון", "Some say Tachanun today" -> "יש אומרים תחנון";
+                    case "צדקתך" -> "צדקתך";
+                    default -> "תחנון";
+                };
+                entries.add(tachanun);
                 result = TextUtils.join(", ", entries);
                 if (isMinchaAfterSunsetBeforeTzeit) {
                     timeAdjustedJDI.forward();
@@ -1111,11 +1107,12 @@ public class SiddurFragment extends Fragment {
             if (mContext != null && prayer.equals(mContext.getString(R.string.arvit)) && isArvitAfterPlagBeforeSunset) {
                 currentJewishDateInfo.forward();// edge case for arvit after plag but before sunset so date hasn't changed
             }
+            JewishDateInfo intentDate = getSunsetBasedJewishDateInfo();
             Intent intent = new Intent(mContext, SiddurViewActivity.class)
                     .putExtra("prayer", prayer)
-                    .putExtra("JewishDay", getSunsetBasedJewishDateInfo().getJewishCalendar().getJewishDayOfMonth())
-                    .putExtra("JewishMonth", getSunsetBasedJewishDateInfo().getJewishCalendar().getJewishMonth())
-                    .putExtra("JewishYear", getSunsetBasedJewishDateInfo().getJewishCalendar().getJewishYear())
+                    .putExtra("JewishDay", intentDate.getJewishCalendar().getJewishDayOfMonth())
+                    .putExtra("JewishMonth", intentDate.getJewishCalendar().getJewishMonth())
+                    .putExtra("JewishYear", intentDate.getJewishCalendar().getJewishYear())
                     .putExtra("masechtas", selectedMasechtot)
                     .putExtra("itemsForMeyinShalosh", selectedShaloshItems)
                     .putExtra("isNightTikkunChatzot", isNightTikkunChatzot)
@@ -1131,14 +1128,14 @@ public class SiddurFragment extends Fragment {
                 currentJewishDateInfo.back();
             }
 
-            if ((getSunsetBasedJewishDateInfo().getJewishCalendar().getYomTovIndex() == JewishCalendar.PURIM ||
-                    getSunsetBasedJewishDateInfo().getJewishCalendar().getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM)
+            if ((intentDate.getJewishCalendar().getYomTovIndex() == JewishCalendar.PURIM ||
+                    intentDate.getJewishCalendar().getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM)
                     && !prayer.equals(mContext.getString(R.string.birchat_meyin_shalosh))// no text for purim in birchat meyin shalosh unlike birchat hamazon
                     && !prayer.equals(mContext.getString(R.string.birchat_levana))
                     && !prayer.equals(mContext.getString(R.string.tefilat_haderech))
                     && !prayer.equals(mContext.getString(R.string.seder_siyum_masechet))
                     && !prayer.equals(mContext.getString(R.string.tikkun_chatzot))
-                    && !prayer.equals(mContext.getString(R.string.kriatShema))) {// if the prayer is dependant on isMukafChoma, we ask the user
+                    && !prayer.equals(mContext.getString(R.string.kriatShema))) {// if the prayer is dependent on isMukafChoma, we ask the user
                 SharedPreferences.Editor sharedPreferences = mContext.getSharedPreferences(SHARED_PREF, MODE_PRIVATE).edit();
                 new MaterialAlertDialogBuilder(mContext)
                         .setTitle(R.string.are_you_in_a_walled_mukaf_choma_city)

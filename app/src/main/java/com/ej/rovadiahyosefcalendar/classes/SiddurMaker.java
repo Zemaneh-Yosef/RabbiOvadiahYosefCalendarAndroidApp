@@ -208,28 +208,31 @@ public class SiddurMaker {
 	 */
 	public SiddurMaker(JewishDateInfo jewishDateInfo, int textColor, Context context) {
 		this.jewishDateInfo = jewishDateInfo;
-		this.isTachanunSaidInTheMorning = jewishDateInfo.getIsTachanunSaid().equals("Tachanun only in the morning")
-            || jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון רק בבוקר")
-			|| jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun today")
-			|| jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון") || jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון בשחרית; אין תחנון במנחה")
-			|| jewishDateInfo.getIsTachanunSaid().equals("There is Tachanun today")
-			|| jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון")
-			|| jewishDateInfo.getIsTachanunSaid().equals("יש מדלגים תחנון במנחה")
-			|| jewishDateInfo.getIsTachanunSaid().equals("Some skip Tachanun by mincha") || jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun in the morning; no Tachanun by mincha")
-			|| jewishDateInfo.isPurimMeshulash() && (jewishDateInfo.getJewishCalendar().getIsSafekMukafChoma()
-				|| jewishDateInfo.getJewishCalendar().getIsMukafChoma());
 
-		this.isTachanunSaidByMincha = jewishDateInfo.getIsTachanunSaid().equals("There is Tachanun today")
-			|| jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון")
-			|| jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun today")
-			|| jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון")
-			|| jewishDateInfo.getIsTachanunSaid().equals("יש מדלגים תחנון במנחה")
-			|| jewishDateInfo.getIsTachanunSaid().equals("Some skip Tachanun by mincha")
-			|| jewishDateInfo.isPurimMeshulash() && (jewishDateInfo.getJewishCalendar().getIsSafekMukafChoma()
-				|| jewishDateInfo.getJewishCalendar().getIsMukafChoma());
+		boolean noTachanunPurimMeshulash = jewishDateInfo.isPurimMeshulash()
+				&& (jewishDateInfo.getJewishCalendar().getIsSafekMukafChoma() || jewishDateInfo.getJewishCalendar().getIsMukafChoma());
+
+		this.isTachanunSaidInTheMorning = !noTachanunPurimMeshulash
+				&& (jewishDateInfo.getIsTachanunSaid().equals("Tachanun only in the morning")
+				|| jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון רק בבוקר")
+				|| jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun today")
+				|| jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון") || jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון בשחרית; אין תחנון במנחה")
+				|| jewishDateInfo.getIsTachanunSaid().equals("There is Tachanun today")
+				|| jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון")
+				|| jewishDateInfo.getIsTachanunSaid().equals("יש מדלגים תחנון במנחה")
+				|| jewishDateInfo.getIsTachanunSaid().equals("Some skip Tachanun by mincha")
+				|| jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun in the morning; no Tachanun by mincha"));
+
+		this.isTachanunSaidByMincha = !noTachanunPurimMeshulash
+				&& (jewishDateInfo.getIsTachanunSaid().equals("There is Tachanun today")
+				|| jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון")
+				|| jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun today")
+				|| jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון")
+				|| jewishDateInfo.getIsTachanunSaid().equals("יש מדלגים תחנון במנחה")
+				|| jewishDateInfo.getIsTachanunSaid().equals("Some skip Tachanun by mincha"));
 
 		this.halfOpaqueColor = Color.argb(170, Color.red(textColor), Color.green(textColor), Color.blue(textColor));
-        this.context = context;
+		this.context = context;
 		this.isHebrew = Utils.isLocaleHebrew(context);// check locale once and save it as a boolean in order to avoid mutilple .equals calls
 	}
 
@@ -1310,9 +1313,8 @@ public class SiddurMaker {
 			// for purim meshulash
 			(jewishDateInfo.getJewishCalendar().getIsMukafChoma()
 				&& jewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.FRIDAY
-				&& jewishDateInfo.getJewishCalendar().getJewishDayOfMonth() == 14 &&
-					(jewishDateInfo.getJewishCalendar().getJewishMonth() == JewishDate.ADAR
-							|| jewishDateInfo.getJewishCalendar().getJewishMonth() == JewishDate.ADAR_II))) {
+					&& jewishDateInfo.getJewishCalendar().getJewishDayOfMonth() == 14
+					&& jewishDateInfo.getJewishCalendar().getJewishMonth() == (jewishDateInfo.getJewishCalendar().isJewishLeapYear() ? JewishDate.ADAR_II : JewishDate.ADAR))) {
 			addCategoryToSiddur("קריאת המגילה");
 			if (jewishDateInfo.getJewishCalendar().getIsSafekMukafChoma()) {
 				addToSiddur(lineBreak);
@@ -1385,13 +1387,16 @@ public class SiddurMaker {
 							.replace("וְלֹ֣א יִדֹּ֑ם יְהֹוָ֥ה", "וְלֹ֣א יִדֹּ֑ם (יפסיק מעט) יְהֹוָ֥ה".replace(isHebrew ? "@" : "יפסיק מעט", "pause")));
 				}
 				break;
-			case JewishCalendar.PURIM:
 			case JewishCalendar.FAST_OF_ESTHER:
 				addOneWordToSiddurHighlighted(getTehilimChapterTextByIndex(22));
 				break;
 			case JewishCalendar.SEVENTEEN_OF_TAMMUZ:
 				addTwoWordToSiddurHighlighted(getTehilimChapterTextByIndex(79));
 				break;
+		}
+
+		if (jewishDateInfo.getJewishCalendar().isPurim()) {
+			addOneWordToSiddurHighlighted(getTehilimChapterTextByIndex(22));
 		}
 
 		if (jewishDateInfo.yesterday().getJewishCalendar().isYomKippur()) {
@@ -3445,6 +3450,12 @@ public class SiddurMaker {
 	public ArrayList<HighlightString> getMusafPrayers() {
 		siddur = new ArrayList<>();
 
+		if (jewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
+			addToSiddur(isHebrew ? "שבת ויום טוב כרגע אינם נתמכים" : "Shabbat and Yom Tov are currently not supported");
+			addToSiddurHighlighted(isHebrew ? "פתח את סידור ספריה" : "Open Sefaria Siddur");
+			return siddur;
+		}
+
 		addCategoryToSiddur("מוסף");
 		addToSiddur(
 			"אֲ֭דֹנָי שְׂפָתַ֣י תִּפְתָּ֑ח וּ֝פִ֗י יַגִּ֥יד תְּהִלָּתֶֽךָ׃ \n\n" +
@@ -3997,7 +4008,7 @@ public class SiddurMaker {
 				(jewishDateInfo.getJewishCalendar().getIsMukafChoma() // edge case for purim meshulash when purim (the 15th) is on Shabbat in a Mukaf Choma (Jerusalem), the arvit of Thursday night will have megilah reading
 					&& jewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.FRIDAY
 					&& jewishDateInfo.getJewishCalendar().getJewishDayOfMonth() == 14
-					&& (jewishDateInfo.getJewishCalendar().getJewishMonth() == JewishDate.ADAR || jewishDateInfo.getJewishCalendar().getJewishMonth() == JewishDate.ADAR_II));
+						&& jewishDateInfo.getJewishCalendar().getJewishMonth() == (jewishDateInfo.getJewishCalendar().isJewishLeapYear() ? JewishDate.ADAR_II : JewishDate.ADAR));
 		boolean halfKaddish = !jewishDateInfo.getJewishCalendar().isTishaBav()
 				&& (jewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SUNDAY
 				|| purim);

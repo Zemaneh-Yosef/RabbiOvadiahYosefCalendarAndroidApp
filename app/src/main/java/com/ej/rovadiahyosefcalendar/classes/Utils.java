@@ -115,7 +115,7 @@ public class Utils {
         return (Utils.isLocaleHebrew(context) ? "H" : "h")
             + ":mm"
             + (showSeconds ? ":ss" : "")
-            + (Utils.isLocaleHebrew(context) ? "" : " aa");
+            + (Utils.isLocaleHebrew(context) ? "" : " a");
     }
 
     public static String formatZmanTime(Context context, ZmanListEntry zmanListEntry) {

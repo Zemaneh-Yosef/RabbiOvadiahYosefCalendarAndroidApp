@@ -27,7 +27,6 @@ import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
-import java.util.Locale;
 import java.util.Objects;
 
 public class HebrewDayMonthYearPickerDialog extends DialogFragment {
@@ -50,10 +49,10 @@ public class HebrewDayMonthYearPickerDialog extends DialogFragment {
         super();
         this.materialDatePicker = materialDatePicker;
         this.fragmentManager = fragmentManager;
-        mJewishCalendar = jewishCalendar;
+        mJewishCalendar = (JewishCalendar) jewishCalendar.clone();// the pickers write to this on every tick, so it must not be the caller's instance
         MIN_YEAR = jewishCalendar.getJewishYear() - 100;
         MAX_YEAR = jewishCalendar.getJewishYear() + 100;
-        if (Locale.getDefault().getDisplayLanguage(new Locale.Builder().setLanguage("en").setRegion("US").build()).equals("Hebrew")) {
+        if (getContext() != null && Utils.isLocaleHebrew(getContext())) {
             mHebrewMonths = new String[]{"ניסן", "אייר", "סיון", "תמוז", "אב", "אלול", "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר"};
             mHebrewMonthsLeap = new String[]{"ניסן", "אייר", "סיון", "תמוז", "אב", "אלול", "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר א׳", "אדר ב׳"};
         }

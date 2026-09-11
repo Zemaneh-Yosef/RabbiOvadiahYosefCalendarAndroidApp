@@ -637,7 +637,7 @@ public class ROZmanimCalendar extends ZmanimCalendar {
             solarMidnight = new Date();
         }
         // V2: figure out if it is after solar midnight based on alot hashachar
-        if (now.after(alotHashachar) && now.before(solarMidnight)) {// this takes care of majority of cases except for when now is after 12 AM and solar midnight is after 12 AM
+        if (now.after(alotHashachar) && now.before(solarMidnight)) {// this takes care of the majority of cases except for when now is after 12 AM and solar midnight is after 12 AM
             return false;
         } else if (now.before(alotHashachar)) {// if it is before alot hashachar, the date has changed, solar midnight will be shown yesterday and now could still be before solar midnight
             getCalendar().add(Calendar.DATE, -1);
