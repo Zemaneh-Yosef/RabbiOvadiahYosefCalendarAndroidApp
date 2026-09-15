@@ -35,6 +35,7 @@ import com.kosherjava.zmanim.util.GeoLocation;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 public class DailyNotifications extends BroadcastReceiver implements Consumer<Location> {
@@ -42,9 +43,13 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
     private LocationResolver mLocationResolver;
     private SharedPreferences mSharedPreferences;
     private Context context;
+    private PendingResult mPendingResult;
+    private final AtomicBoolean mFinished = new AtomicBoolean();
+    private final AtomicBoolean mGotLocation = new AtomicBoolean();
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        mPendingResult = goAsync();
         this.context = context;
         mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         if (BuildConfig.DEBUG) {
@@ -59,7 +64,16 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
                     mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "Daily notifications init called with a saved location/zipcode" + "\n\n").apply();
                 }
                 init(jewishDateInfo, calendar);
+                finishBroadcast();
             }
+        } else {
+            finishBroadcast();
+        }
+    }
+
+    private void finishBroadcast() {
+        if (mFinished.compareAndSet(false, true)) {
+            mPendingResult.finish(); // REQUIRED TO AVOID ANR
         }
     }
 
@@ -121,7 +135,7 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
                     .setColor(context.getColor(R.color.dark_gold))
                     .setAutoCancel(true)
                     .setWhen(when)
-                    .setTimeoutAfter(259_200_00)// remove the notification after 3 days (259,200,000 milliseconds)
+                    .setTimeoutAfter(259_200_000)// remove the notification after 3 days (259,200,000 milliseconds)
                     .setContentIntent(pendingIntent);
             notificationManager.notify(50, mNotifyBuilder.build());// keep the notification ID the same as it will just overwrite the last sent daily notification.
             // This is overall a better solution instead of keeping track of the date (like we used to) to ensure one notification per day.
@@ -215,6 +229,9 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
 
     @Override
     public void accept(Location location) {
+        if (!mGotLocation.compareAndSet(false, true)) {
+            return;
+        }
         if (BuildConfig.DEBUG) {
             mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "got a location object in DailyNotifications" + "\n\n").apply();
         }
@@ -223,18 +240,21 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
                 mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "location object in DailyNotifications was not null" + "\n\n").apply();
             }
             String locationName = mLocationResolver.getLocationAsName(location.getLatitude(), location.getLongitude());
-            mLocationResolver.resolveElevation(() ->
-                    init(new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false)), new ROZmanimCalendar(new GeoLocation(
-                            locationName,
-                            location.getLatitude(),
-                            location.getLongitude(),
-                            mLocationResolver.getElevation(),
-                            mLocationResolver.getTimeZone()))));
+            mLocationResolver.resolveElevation(() -> {
+                init(new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false)), new ROZmanimCalendar(new GeoLocation(
+                        locationName,
+                        location.getLatitude(),
+                        location.getLongitude(),
+                        mLocationResolver.getElevation(),
+                        mLocationResolver.getTimeZone())));
+                finishBroadcast();
+            });
         } else {
             if (BuildConfig.DEBUG) {
                 mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "location object in DailyNotifications WAS null" + "\n\n").apply();
             }
             init(new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false)), new ROZmanimCalendar(mLocationResolver.getLastKnownGeoLocation()));
+            finishBroadcast();
         }
     }
 }

@@ -24,20 +24,31 @@ import com.kosherjava.zmanim.util.GeoLocation;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BootNotifications extends BroadcastReceiver {
 
+    private PendingResult mPendingResult;
+    private final AtomicBoolean mFinished = new AtomicBoolean();
+    private final AtomicBoolean mGotLocation = new AtomicBoolean();
+
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (Objects.equals(intent.getAction(), Intent.ACTION_BOOT_COMPLETED)) {
+        String action = intent.getAction();
+        if (Intent.ACTION_BOOT_COMPLETED.equals(action) || Intent.ACTION_MY_PACKAGE_REPLACED.equals(action)) {
+            mPendingResult = goAsync();
             SharedPreferences mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
             LocationResolver mLocationResolver = new LocationResolver(context, null);
-            if (!mSharedPreferences.getBoolean("isSetup", false))
+            if (!mSharedPreferences.getBoolean("isSetup", false)) {
+                finishBroadcast();
                 return;
+            }
 
             if (ActivityCompat.checkSelfPermission(context, ACCESS_BACKGROUND_LOCATION) == PERMISSION_GRANTED) {
-                mLocationResolver.getRealtimeNotificationData(location -> {
+                GeoLocation geoLocation = mLocationResolver.getRealtimeNotificationData(location -> {
+                    if (!mGotLocation.compareAndSet(false, true)) {
+                        return;
+                    }
                     if (location != null) {
                         setDailyNotifications(context, new ROZmanimCalendar(new GeoLocation(
                                 "",// not needed
@@ -48,10 +59,16 @@ public class BootNotifications extends BroadcastReceiver {
                     } else {
                         setDailyNotifications(context, new ROZmanimCalendar(mLocationResolver.getLastKnownGeoLocation()));
                     }
+                    finishBroadcast();
                 }
                 , false);
+                if (!geoLocation.equals(new GeoLocation())) {
+                    setDailyNotifications(context, new ROZmanimCalendar(geoLocation));
+                    finishBroadcast();
+                }
             } else {
                 setDailyNotifications(context, new ROZmanimCalendar(mLocationResolver.getRealtimeNotificationData(null, false)));
+                finishBroadcast();
             }
 
             PendingIntent zmanimPendingIntent = PendingIntent.getBroadcast(context, 0, new Intent(context, ZmanimNotifications.class), PendingIntent.FLAG_IMMUTABLE);
@@ -66,6 +83,12 @@ public class BootNotifications extends BroadcastReceiver {
             int[] ids = AppWidgetManager.getInstance(context).getAppWidgetIds(new ComponentName(context, ZmanimAppWidget.class));
             widgetIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
             context.sendBroadcast(widgetIntent);
+        }
+    }
+
+    private void finishBroadcast() {
+        if (mFinished.compareAndSet(false, true)) {
+            mPendingResult.finish(); // REQUIRED TO AVOID ANR
         }
     }
 

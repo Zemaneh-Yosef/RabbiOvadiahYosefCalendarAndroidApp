@@ -99,6 +99,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuCompat;
 import androidx.core.widget.NestedScrollView;
@@ -225,6 +226,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private LocationResolver mLocationResolver;
     private final ZmanimFormatter mZmanimFormatter = new ZmanimFormatter(TimeZone.getDefault());
     public static ActivityResultLauncher<Intent> sNotificationLauncher;
+    private ActivityResultLauncher<String> mBackgroundLocationLauncher;
+    private ActivityResultLauncher<String> mPostNotificationsLauncher;
     private SharedPreferences.OnSharedPreferenceChangeListener sSharedPrefListener;
     private static JSONArray makamNames;
 
@@ -319,6 +322,22 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         sNotificationLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> setNotifications()
+        );
+        mBackgroundLocationLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(),
+                granted -> {
+                    if (granted) {
+                        sSharedPreferences.edit().putBoolean("askedForRealtimeNotifications", true).apply();
+                    }
+                }
+        );
+        mPostNotificationsLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(),
+                granted -> {
+                    if (!granted) {
+                        showNotificationsAreOffDialog();
+                    }
+                }
         );
     }
 
@@ -963,9 +982,10 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 builder.setCancelable(false);
                 builder.setPositiveButton(R.string.yes, (dialog, which) -> {
                     if (ActivityCompat.checkSelfPermission(mContext, ACCESS_BACKGROUND_LOCATION) != PERMISSION_GRANTED) {
-                        ActivityCompat.requestPermissions(mActivity, new String[]{ACCESS_BACKGROUND_LOCATION}, 1);
+                        mBackgroundLocationLauncher.launch(ACCESS_BACKGROUND_LOCATION);
+                    } else {
+                        sSharedPreferences.edit().putBoolean("askedForRealtimeNotifications", true).apply();
                     }
-                    sSharedPreferences.edit().putBoolean("askedForRealtimeNotifications", true).apply();
                 });
                 builder.setNegativeButton(R.string.no, (dialog, which) -> {
                     sSharedPreferences.edit().putBoolean("askedForRealtimeNotifications", true).apply();
@@ -984,9 +1004,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      */
     private void setNotifications() {
         if (sSettingsPreferences.getBoolean("zmanim_notifications", true)) {//if the user wants notifications
+            boolean waitingForNotificationPermission = false;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {// ask for permission to send notifications for newer versions of android ughhhh...
                 if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.POST_NOTIFICATIONS) != PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(mActivity, new String[]{Manifest.permission.POST_NOTIFICATIONS, Manifest.permission.SCHEDULE_EXACT_ALARM}, 1);
+                    mPostNotificationsLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+                    waitingForNotificationPermission = true;
                 } else {
                     if (!sSharedPreferences.getBoolean("hasShownVSNotification", false)) {
                         Utils.showVisibleSunriseNotification(mContext);
@@ -1036,8 +1058,24 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     builder.show();
                 }
             }
+
+            if (!waitingForNotificationPermission && !NotificationManagerCompat.from(mContext).areNotificationsEnabled()) {
+                showNotificationsAreOffDialog();
+            }
         }
         setAllNotifications();
+    }
+
+    private void showNotificationsAreOffDialog() {
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext)
+                .setTitle(R.string.zmanim_notifications_will_not_work)
+                .setMessage(R.string.if_you_would_like_to_receive_zmanim_notifications)
+                .setPositiveButton(mContext.getString(R.string.yes), (dialog, which) -> mContext.startActivity(new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                        .putExtra(Settings.EXTRA_APP_PACKAGE, mContext.getPackageName())))
+                .setNegativeButton(mContext.getString(R.string.no), (dialog, which) -> dialog.dismiss());
+        if (!mActivity.isFinishing()) {
+            builder.show();
+        }
     }
 
     private void setAllNotifications() {
