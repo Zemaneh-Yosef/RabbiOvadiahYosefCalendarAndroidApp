@@ -207,7 +207,7 @@ public class NextZmanCountdownNotification extends Service {
             return START_NOT_STICKY;
         }
         startCountdown();
-        return START_NOT_STICKY;
+        return START_STICKY;
     }
 
     @Override
