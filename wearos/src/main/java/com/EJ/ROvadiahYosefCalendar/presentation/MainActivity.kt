@@ -198,8 +198,9 @@ class MainActivity : ComponentActivity() {
             if (messageEvent.path == "prefs/") {
                 val message = String(messageEvent.data, StandardCharsets.UTF_8) // convert bytes to String
                 val jsonPreferences = JSONObject(message) // We can just pass that JSON string into the constructor! :)
-                savePreferencesToLocalDevice(jsonPreferences)
-                sharedPref.edit { putBoolean("hasGottenDataFromApp", true) }
+                if (savePreferencesToLocalDevice(jsonPreferences)) {
+                    sharedPref.edit { putBoolean("hasGottenDataFromApp", true) }
+                }
             }
             if (messageEvent.path == "chaiTable/") {
                 val message = String(messageEvent.data, StandardCharsets.UTF_8) // convert bytes to String
@@ -219,7 +220,9 @@ class MainActivity : ComponentActivity() {
         val pendingJson = sharedPref.getString("pendingPrefsJson", null)
         if (!pendingJson.isNullOrEmpty()) {
             try {
-                savePreferencesToLocalDevice(JSONObject(pendingJson))
+                if (savePreferencesToLocalDevice(JSONObject(pendingJson))) {
+                    sharedPref.edit { putBoolean("hasGottenDataFromApp", true) }
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -239,111 +242,123 @@ class MainActivity : ComponentActivity() {
 //        }
     }
 
-    private fun savePreferencesToLocalDevice(jsonPreferences: JSONObject) {
+    private fun SharedPreferences.Editor.putIntIfPresent(json: JSONObject, key: String): SharedPreferences.Editor =
+        if (json.has(key)) putInt(key, json.getInt(key)) else this // an absent key must not overwrite the watch's own default
+
+    private fun savePreferencesToLocalDevice(jsonPreferences: JSONObject): Boolean {
         val editor = sharedPref.edit()
 
         try {
-            editor.putBoolean("useElevation", jsonPreferences.getBoolean("useElevation"))
-                .putBoolean("ShowSeconds", jsonPreferences.getBoolean("ShowSeconds"))
-                .putBoolean("inIsrael", jsonPreferences.getBoolean("inIsrael"))
-                .putBoolean("ShowElevation", jsonPreferences.getBoolean("ShowElevation"))
-                .putString("tekufaOpinions", jsonPreferences.getString("tekufaOpinions"))
-                .putBoolean("RoundUpRT", jsonPreferences.getBoolean("RoundUpRT"))
-                .putBoolean("LuachAmudeiHoraah", jsonPreferences.getBoolean("LuachAmudeiHoraah"))
-                .putBoolean("isZmanimInHebrew", jsonPreferences.getBoolean("isZmanimInHebrew"))
-                .putBoolean("isZmanimEnglishTranslated", jsonPreferences.getBoolean("isZmanimEnglishTranslated"))
-                .putBoolean("ShowMishorAlways", jsonPreferences.getBoolean("ShowMishorAlways"))
-                .putString("plagOpinion", jsonPreferences.getString("plagOpinion"))
-                .putString("CandleLightingOffset", jsonPreferences.getString("CandleLightingOffset"))
-                .putBoolean("ShowWhenShabbatChagEnds", jsonPreferences.getBoolean("ShowWhenShabbatChagEnds"))
-                .putString("EndOfShabbatOffset", jsonPreferences.getString("EndOfShabbatOffset"))
-                .putString("EndOfShabbatOpinion", jsonPreferences.getString("EndOfShabbatOpinion"))
-                .putBoolean("alwaysShowTzeitLChumra", jsonPreferences.getBoolean("alwaysShowTzeitLChumra"))
-                .putBoolean("AlwaysShowRT", jsonPreferences.getBoolean("AlwaysShowRT"))
-                .putBoolean("useZipcode", jsonPreferences.getBoolean("useZipcode"))
-                .putString("Zipcode", jsonPreferences.getString("Zipcode"))
-                .putString("oldZipcode", jsonPreferences.getString("oldZipcode"))
-                .putString("oldLocationName", jsonPreferences.getString("oldLocationName"))
-                .putLong("oldLat", jsonPreferences.getLong("oldLat"))
-                .putLong("oldLong", jsonPreferences.getLong("oldLong"))
-                .putString("locationName", jsonPreferences.getString("locationName"))
+            editor.putBoolean("useElevation", jsonPreferences.optBoolean("useElevation", false))
+                .putBoolean("ShowSeconds", jsonPreferences.optBoolean("ShowSeconds", false))
+                .putBoolean("inIsrael", jsonPreferences.optBoolean("inIsrael", false))
+                .putBoolean("ShowElevation", jsonPreferences.optBoolean("ShowElevation", false))
+                .putBoolean("ShowElevatedSunrise", jsonPreferences.optBoolean("ShowElevatedSunrise", false))
+                .putString("tekufaOpinions", jsonPreferences.optString("tekufaOpinions", "1"))
+                .putBoolean("RoundUpRT", jsonPreferences.optBoolean("RoundUpRT", false))
+                .putBoolean("showShabbatMevarchim", jsonPreferences.optBoolean("showShabbatMevarchim", false))
+                .putBoolean("ShowShmitaYear", jsonPreferences.optBoolean("ShowShmitaYear", false))
+                .putBoolean("ShowLeapYear", jsonPreferences.optBoolean("ShowLeapYear", false))
+                .putBoolean("ShowDST", jsonPreferences.optBoolean("ShowDST", false))
+                .putBoolean("LuachAmudeiHoraah", jsonPreferences.optBoolean("LuachAmudeiHoraah", false))
+                .putBoolean("isZmanimInHebrew", jsonPreferences.optBoolean("isZmanimInHebrew", false))
+                .putBoolean("isZmanimEnglishTranslated", jsonPreferences.optBoolean("isZmanimEnglishTranslated", false))
+                .putBoolean("isZmanimAmericanized", jsonPreferences.optBoolean("isZmanimAmericanized", false))
+                .putBoolean("ShowMishorAlways", jsonPreferences.optBoolean("ShowMishorAlways", false))
+                .putString("plagOpinion", jsonPreferences.optString("plagOpinion", "1"))
+                .putString("CandleLightingOffset", jsonPreferences.optString("CandleLightingOffset", "20"))
+                .putBoolean("ShowWhenShabbatChagEnds", jsonPreferences.optBoolean("ShowWhenShabbatChagEnds", false))
+                .putString("EndOfShabbatOffset", jsonPreferences.optString("EndOfShabbatOffset", "40"))
+                .putString("EndOfShabbatOpinion", jsonPreferences.optString("EndOfShabbatOpinion", "1"))
+                .putBoolean("overrideAHEndShabbatTime", jsonPreferences.optBoolean("overrideAHEndShabbatTime", false))
+                .putBoolean("overrideRTZman", jsonPreferences.optBoolean("overrideRTZman", false))
+                .putBoolean("alwaysShowTzeitLChumra", jsonPreferences.optBoolean("alwaysShowTzeitLChumra", false))
+                .putBoolean("AlwaysShowRT", jsonPreferences.optBoolean("AlwaysShowRT", false))
+                .putBoolean("useZipcode", jsonPreferences.optBoolean("useZipcode", false))
+                .putString("Zipcode", jsonPreferences.optString("Zipcode", ""))
+                .putString("oldZipcode", jsonPreferences.optString("oldZipcode", "None"))
+                .putString("oldLocationName", jsonPreferences.optString("oldLocationName", ""))
+                .putLong("oldLat", jsonPreferences.optLong("oldLat", 0))
+                .putLong("oldLong", jsonPreferences.optLong("oldLong", 0))
+                .putString("locationName", jsonPreferences.optString("locationName", ""))
                 .putString(
-                    "elevation" + jsonPreferences.getString("locationName"),
-                    jsonPreferences.getString("elevation" + jsonPreferences.getString("locationName"))
+                    "elevation" + jsonPreferences.optString("locationName", ""),
+                    jsonPreferences.optString("elevation" + jsonPreferences.optString("locationName", ""), "0")
                 )//use the locationName in JSON since we do not know if the location name is the same in the watch
-                .putBoolean("SetElevationToLastKnownLocation", jsonPreferences.getBoolean("SetElevationToLastKnownLocation"))
+                .putBoolean("SetElevationToLastKnownLocation", jsonPreferences.optBoolean("SetElevationToLastKnownLocation", false))
 
-                .putString("currentLN", jsonPreferences.getString("currentLN"))
-                .putString("currentLat", jsonPreferences.getString("currentLat"))
-                .putString("currentLong", jsonPreferences.getString("currentLong"))
-                .putString("currentTimezone", jsonPreferences.getString("currentTimezone"))
+                .putString("currentLN", jsonPreferences.optString("currentLN", ""))
+                .putString("currentLat", jsonPreferences.optString("currentLat", "0"))
+                .putString("currentLong", jsonPreferences.optString("currentLong", "0"))
+                .putString("currentTimezone", jsonPreferences.optString("currentTimezone", TimeZone.getDefault().id))
 
-                .putBoolean("useAdvanced", jsonPreferences.getBoolean("useAdvanced"))
-                .putString("advancedLN", jsonPreferences.getString("advancedLN"))
-                .putString("advancedLat", jsonPreferences.getString("advancedLat"))
-                .putString("advancedLong", jsonPreferences.getString("advancedLong"))
-                .putString("advancedTimezone", jsonPreferences.getString("advancedTimezone"))
+                .putBoolean("useAdvanced", jsonPreferences.optBoolean("useAdvanced", false))
+                .putString("advancedLN", jsonPreferences.optString("advancedLN", ""))
+                .putString("advancedLat", jsonPreferences.optString("advancedLat", "0"))
+                .putString("advancedLong", jsonPreferences.optString("advancedLong", "0"))
+                .putString("advancedTimezone", jsonPreferences.optString("advancedTimezone", TimeZone.getDefault().id))
 
-                .putBoolean("useLocation1", jsonPreferences.getBoolean("useLocation1"))
-                .putString("location1", jsonPreferences.getString("location1"))
-                .putLong("location1Lat", jsonPreferences.getLong("location1Lat"))
-                .putLong("location1Long", jsonPreferences.getLong("location1Long"))
-                .putString("location1Timezone", jsonPreferences.getString("location1Timezone"))
+                .putBoolean("useLocation1", jsonPreferences.optBoolean("useLocation1", false))
+                .putString("location1", jsonPreferences.optString("location1", ""))
+                .putLong("location1Lat", jsonPreferences.optLong("location1Lat", 0))
+                .putLong("location1Long", jsonPreferences.optLong("location1Long", 0))
+                .putString("location1Timezone", jsonPreferences.optString("location1Timezone", ""))
 
-                .putBoolean("useLocation2", jsonPreferences.getBoolean("useLocation2"))
-                .putString("location2", jsonPreferences.getString("location2"))
-                .putLong("location2Lat", jsonPreferences.getLong("location2Lat"))
-                .putLong("location2Long", jsonPreferences.getLong("location2Long"))
-                .putString("location2Timezone", jsonPreferences.getString("location2Timezone"))
+                .putBoolean("useLocation2", jsonPreferences.optBoolean("useLocation2", false))
+                .putString("location2", jsonPreferences.optString("location2", ""))
+                .putLong("location2Lat", jsonPreferences.optLong("location2Lat", 0))
+                .putLong("location2Long", jsonPreferences.optLong("location2Long", 0))
+                .putString("location2Timezone", jsonPreferences.optString("location2Timezone", ""))
 
-                .putBoolean("useLocation3", jsonPreferences.getBoolean("useLocation3"))
-                .putString("location3", jsonPreferences.getString("location3"))
-                .putLong("location3Lat", jsonPreferences.getLong("location3Lat"))
-                .putLong("location3Long", jsonPreferences.getLong("location3Long"))
-                .putString("location3Timezone", jsonPreferences.getString("location3Timezone"))
+                .putBoolean("useLocation3", jsonPreferences.optBoolean("useLocation3", false))
+                .putString("location3", jsonPreferences.optString("location3", ""))
+                .putLong("location3Lat", jsonPreferences.optLong("location3Lat", 0))
+                .putLong("location3Long", jsonPreferences.optLong("location3Long", 0))
+                .putString("location3Timezone", jsonPreferences.optString("location3Timezone", ""))
 
-                .putBoolean("useLocation4", jsonPreferences.getBoolean("useLocation4"))
-                .putString("location4", jsonPreferences.getString("location4"))
-                .putLong("location4Lat", jsonPreferences.getLong("location4Lat"))
-                .putLong("location4Long", jsonPreferences.getLong("location4Long"))
-                .putString("location4Timezone", jsonPreferences.getString("location4Timezone"))
+                .putBoolean("useLocation4", jsonPreferences.optBoolean("useLocation4", false))
+                .putString("location4", jsonPreferences.optString("location4", ""))
+                .putLong("location4Lat", jsonPreferences.optLong("location4Lat", 0))
+                .putLong("location4Long", jsonPreferences.optLong("location4Long", 0))
+                .putString("location4Timezone", jsonPreferences.optString("location4Timezone", ""))
 
-                .putBoolean("useLocation5", jsonPreferences.getBoolean("useLocation5"))
-                .putString("location5", jsonPreferences.getString("location5"))
-                .putLong("location5Lat", jsonPreferences.getLong("location5Lat"))
-                .putLong("location5Long", jsonPreferences.getLong("location5Long"))
-                .putString("location5Timezone", jsonPreferences.getString("location5Timezone"))
+                .putBoolean("useLocation5", jsonPreferences.optBoolean("useLocation5", false))
+                .putString("location5", jsonPreferences.optString("location5", ""))
+                .putLong("location5Lat", jsonPreferences.optLong("location5Lat", 0))
+                .putLong("location5Long", jsonPreferences.optLong("location5Long", 0))
+                .putString("location5Timezone", jsonPreferences.optString("location5Timezone", ""))
 
-                .putBoolean("zmanim_notifications", jsonPreferences.getBoolean("zmanim_notifications"))
-                .putInt("NightChatzot", jsonPreferences.getInt("NightChatzot"))
-                .putInt("RT", jsonPreferences.getInt("RT"))
-                .putInt("ShabbatEnd", jsonPreferences.getInt("ShabbatEnd"))
-                .putInt("FastEnd", jsonPreferences.getInt("FastEnd"))
-                .putInt("TzeitHacochavimLChumra", jsonPreferences.getInt("TzeitHacochavimLChumra"))
-                .putInt("TzeitHacochavim", jsonPreferences.getInt("TzeitHacochavim"))
-                .putInt("Shkia", jsonPreferences.getInt("Shkia"))
-                .putInt("CandleLighting", jsonPreferences.getInt("CandleLighting"))
-                .putInt("PlagHaMinchaYY", jsonPreferences.getInt("PlagHaMinchaYY"))
-                .putInt("PlagHaMinchaHB", jsonPreferences.getInt("PlagHaMinchaHB"))
-                .putInt("MinchaKetana", jsonPreferences.getInt("MinchaKetana"))
-                .putInt("MinchaGedola", jsonPreferences.getInt("MinchaGedola"))
-                .putInt("Chatzot", jsonPreferences.getInt("Chatzot"))
-                .putInt("SofZmanBiurChametz", jsonPreferences.getInt("SofZmanBiurChametz"))
-                .putInt("SofZmanTefila", jsonPreferences.getInt("SofZmanTefila"))
-                .putInt("SofZmanAchilatChametz", jsonPreferences.getInt("SofZmanAchilatChametz"))
-                .putInt("SofZmanShmaGRA", jsonPreferences.getInt("SofZmanShmaGRA"))
-                .putInt("SofZmanShmaMGA", jsonPreferences.getInt("SofZmanShmaMGA"))
-                .putInt("HaNetz", jsonPreferences.getInt("HaNetz"))
-                .putInt("TalitTefilin", jsonPreferences.getInt("TalitTefilin"))
-                .putInt("Alot", jsonPreferences.getInt("Alot"))
-                .putBoolean("zmanim_notifications_on_shabbat", jsonPreferences.getBoolean("zmanim_notifications_on_shabbat"))
-                .putInt("autoDismissNotifications", jsonPreferences.getInt("autoDismissNotifications"))
+                .putBoolean("zmanim_notifications", jsonPreferences.optBoolean("zmanim_notifications", false))
+                .putIntIfPresent(jsonPreferences, "NightChatzot")
+                .putIntIfPresent(jsonPreferences, "RT")
+                .putIntIfPresent(jsonPreferences, "ShabbatEnd")
+                .putIntIfPresent(jsonPreferences, "FastEnd")
+                .putIntIfPresent(jsonPreferences, "TzeitHacochavimLChumra")
+                .putIntIfPresent(jsonPreferences, "TzeitHacochavim")
+                .putIntIfPresent(jsonPreferences, "Shkia")
+                .putIntIfPresent(jsonPreferences, "CandleLighting")
+                .putIntIfPresent(jsonPreferences, "PlagHaMinchaYY")
+                .putIntIfPresent(jsonPreferences, "PlagHaMinchaHB")
+                .putIntIfPresent(jsonPreferences, "MinchaKetana")
+                .putIntIfPresent(jsonPreferences, "MinchaGedola")
+                .putIntIfPresent(jsonPreferences, "Chatzot")
+                .putIntIfPresent(jsonPreferences, "SofZmanBiurChametz")
+                .putIntIfPresent(jsonPreferences, "SofZmanTefila")
+                .putIntIfPresent(jsonPreferences, "SofZmanAchilatChametz")
+                .putIntIfPresent(jsonPreferences, "SofZmanShmaGRA")
+                .putIntIfPresent(jsonPreferences, "SofZmanShmaMGA")
+                .putIntIfPresent(jsonPreferences, "HaNetz")
+                .putIntIfPresent(jsonPreferences, "TalitTefilin")
+                .putIntIfPresent(jsonPreferences, "Alot")
+                .putBoolean("zmanim_notifications_on_shabbat", jsonPreferences.optBoolean("zmanim_notifications_on_shabbat", false))
+                .putIntIfPresent(jsonPreferences, "autoDismissNotifications")
                 .apply()
 
             if (sharedPref.getBoolean("ShowWhenShabbatChagEnds", false)) {
-                editor.putBoolean("Show Regular Minutes", jsonPreferences.getBoolean("Show Regular Minutes"))
-                    .putBoolean("Show Rabbeinu Tam", jsonPreferences.getBoolean("Show Rabbeinu Tam")).apply()
+                editor.putBoolean("Show Regular Minutes", jsonPreferences.optBoolean("Show Regular Minutes", false))
+                    .putBoolean("Show Rabbeinu Tam", jsonPreferences.optBoolean("Show Rabbeinu Tam", false)).apply()
             }
+            return true
         } catch (e:JSONException) {
             e.printStackTrace()
             runOnUiThread {
@@ -358,6 +373,7 @@ class MainActivity : ComponentActivity() {
                         .show()
                 }
             }
+            return false
         }
     }
 
@@ -598,7 +614,7 @@ class MainActivity : ComponentActivity() {
             zmanim.add(ZmanListEntry(haftorah))
         }
 
-        if (sharedPref.getBoolean("showShabbatMevarchim", true)) {
+        if (sharedPref.getBoolean("showShabbatMevarchim", false)) {
             if (mJewishDateInfo.tomorrow().jewishCalendar.isShabbosMevorchim) {
                 zmanim.add(ZmanListEntry("שבת מברכים"))
             }
@@ -692,7 +708,7 @@ class MainActivity : ComponentActivity() {
             zmanim.add(ZmanListEntry(getString(R.string.burn_your_ametz_today)))
         }
 
-        val tekufaOpinions: String? = sharedPref.getString("TekufaOpinions", "1")
+        val tekufaOpinions: String? = sharedPref.getString("tekufaOpinions", "1")
         when (tekufaOpinions) {
             "1" -> if (sharedPref.getBoolean("LuachAmudeiHoraah", false)) {
                 addAmudeiHoraahTekufaTime()
@@ -871,14 +887,14 @@ class MainActivity : ComponentActivity() {
                                     " היום בשעה " + zmanimFormat.format(mJewishDateInfo.jewishCalendar.tekufaAsDate)
                         )
                     )
-                }
-            } else {
-                zmanim.add(
-                    ZmanListEntry(
-                        "Tekufa " + mJewishDateInfo.jewishCalendar.getTekufaName(Utils.isLocaleHebrew(baseContext)) + " is today at " +
-                                zmanimFormat.format(mJewishDateInfo.jewishCalendar.tekufaAsDate)
+                } else {
+                    zmanim.add(
+                        ZmanListEntry(
+                            "Tekufa " + mJewishDateInfo.jewishCalendar.getTekufaName(Utils.isLocaleHebrew(baseContext)) + " is today at " +
+                                    zmanimFormat.format(mJewishDateInfo.jewishCalendar.tekufaAsDate)
+                        )
                     )
-                )
+                }
             }
         }
     }

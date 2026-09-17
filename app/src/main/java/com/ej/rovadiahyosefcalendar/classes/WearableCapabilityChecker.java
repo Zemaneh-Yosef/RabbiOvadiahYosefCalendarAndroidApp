@@ -1,6 +1,7 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.wearable.Node;
@@ -17,11 +18,11 @@ public class WearableCapabilityChecker {
 
     public void checkIfWatchExists(final OnWatchCheckListener listener) {
         Task<List<Node>> nodesTask = Wearable.getNodeClient(context).getConnectedNodes();
-        nodesTask.addOnSuccessListener(nodes -> {
-            if (!nodes.isEmpty()) {
-                listener.onWatchCheckResult(true);
-            }
-        });
+        nodesTask.addOnSuccessListener(nodes -> listener.onWatchCheckResult(!nodes.isEmpty()))
+                .addOnFailureListener(e -> {
+                    Log.e("From main app", "Failed to get the connected nodes: " + e);
+                    listener.onWatchCheckResult(false);
+                });
     }
 
     public interface OnWatchCheckListener {

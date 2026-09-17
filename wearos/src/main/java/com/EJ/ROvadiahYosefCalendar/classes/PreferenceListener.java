@@ -55,7 +55,6 @@ public class PreferenceListener extends WearableListenerService {
             if ("prefs/".equals(messageEvent.getPath())) {
                 prefs.edit()
                         .putString("pendingPrefsJson", message)
-                        .putBoolean("hasGottenDataFromApp", true)
                         .apply();
             } else if ("chaiTable/".equals(messageEvent.getPath())) {
                 // The location name will have been saved by the prefs message

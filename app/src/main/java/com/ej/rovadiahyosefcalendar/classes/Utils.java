@@ -358,12 +358,12 @@ public class Utils {
 
                                 StringBuilder chaiTableForThisYear = new StringBuilder();
                                 if (sCurrentLocationName != null && sCurrentLocationName.isEmpty()) {
-                                    return;
+                                    continue;
                                 }
 
                                 File vsFile = ChaiTablesWebJava.getVisibleSunriseFile(context.getExternalFilesDir(null), sCurrentLocationName, sJewishDateInfo.getJewishCalendar().getJewishYear());
                                 if (!vsFile.isFile()) {
-                                    return;
+                                    continue;
                                 }
 
                                 List<Long> vSunriseTimes = Collections.emptyList();
@@ -408,9 +408,12 @@ public class Utils {
                     .put("ShowElevation", sSettingsPreferences.getBoolean("ShowElevation", false))
                     .put("ShowElevatedSunrise", sSettingsPreferences.getBoolean("ShowElevatedSunrise", false))
                     .put("inIsrael", sSharedPreferences.getBoolean("inIsrael", false))
-                    .put("tekufaOpinions", sSettingsPreferences.getString("tekufaOpinions", "1"))
+                    .put("tekufaOpinions", sSettingsPreferences.getString("TekufaOpinions", "1"))
                     .put("RoundUpRT", sSettingsPreferences.getBoolean("RoundUpRT", false))
                     .put("showShabbatMevarchim", sSettingsPreferences.getBoolean("showShabbatMevarchim", false))
+                    .put("ShowShmitaYear", sSettingsPreferences.getBoolean("ShowShmitaYear", false))
+                    .put("ShowLeapYear", sSettingsPreferences.getBoolean("ShowLeapYear", false))
+                    .put("ShowDST", sSettingsPreferences.getBoolean("ShowDST", false))
                     .put("LuachAmudeiHoraah", sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false))
                     .put("isZmanimInHebrew", sSharedPreferences.getBoolean("isZmanimInHebrew", false))
                     .put("isZmanimEnglishTranslated", sSharedPreferences.getBoolean("isZmanimEnglishTranslated", false))
@@ -420,14 +423,14 @@ public class Utils {
                     .put("CandleLightingOffset", sSettingsPreferences.getString("CandleLightingOffset", "20"))
                     .put("ShowWhenShabbatChagEnds", sSettingsPreferences.getBoolean("ShowWhenShabbatChagEnds", false));
             if (jsonObject.getBoolean("ShowWhenShabbatChagEnds")) {
-                Set<String> stringSet = sSettingsPreferences.getStringSet("displayRTOrShabbatRegTime", null);
-                if (stringSet != null) {
-                    jsonObject.put("Show Regular Minutes", stringSet.contains("Show Regular Minutes"))
-                            .put("Show Rabbeinu Tam", stringSet.contains("Show Rabbeinu Tam"));
-                }
+                Set<String> stringSet = sSettingsPreferences.getStringSet("displayRTOrShabbatRegTime", Collections.emptySet());
+                jsonObject.put("Show Regular Minutes", stringSet.contains("Show Regular Minutes"))
+                        .put("Show Rabbeinu Tam", stringSet.contains("Show Rabbeinu Tam"));
             }
             jsonObject.put("EndOfShabbatOffset", sSettingsPreferences.getString("EndOfShabbatOffset", "40"))
                     .put("EndOfShabbatOpinion", sSettingsPreferences.getString("EndOfShabbatOpinion", "1"))
+                    .put("overrideAHEndShabbatTime", sSettingsPreferences.getBoolean("overrideAHEndShabbatTime", false))
+                    .put("overrideRTZman", sSettingsPreferences.getBoolean("overrideRTZman", false))
                     .put("alwaysShowTzeitLChumra", sSettingsPreferences.getBoolean("alwaysShowTzeitLChumra", false))
                     .put("AlwaysShowRT", sSettingsPreferences.getBoolean("AlwaysShowRT", false))
                     .put("useZipcode", sSharedPreferences.getBoolean("useZipcode", false))
