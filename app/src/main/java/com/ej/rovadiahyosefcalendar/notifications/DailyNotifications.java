@@ -151,7 +151,6 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
         Calendar cal = Calendar.getInstance();
         AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
         Class<?> notifClass = TekufaNotifications.class;
-        Date tekufaDate = jewishDateInfo.getJewishCalendar().getTekufaAsDate(false);
         String tekufaOpinions = PreferenceManager.getDefaultSharedPreferences(context).getString("TekufaOpinions", "1");
         switch (tekufaOpinions) {
             case "1" -> {
@@ -163,16 +162,11 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
             case "3" -> notifClass = AmudeiHoraahTekufaNotifications.class;
             case "4" -> notifClass = CombinedTekufaNotifications.class;
         }
-        if (notifClass.equals(AmudeiHoraahTekufaNotifications.class) || notifClass.equals(CombinedTekufaNotifications.class)) {
-            while (tekufaDate == null) {
-                jewishDateInfo.getJewishCalendar().forward(Calendar.DATE, 1);
-                tekufaDate = jewishDateInfo.getJewishCalendar().getTekufaAsDate(true);
-            }
-        } else {
-            while (tekufaDate == null) {
-                jewishDateInfo.getJewishCalendar().forward(Calendar.DATE, 1);
-                tekufaDate = jewishDateInfo.getJewishCalendar().getTekufaAsDate(false);
-            }
+        boolean luachAmudeiHoraah = notifClass.equals(AmudeiHoraahTekufaNotifications.class) || notifClass.equals(CombinedTekufaNotifications.class);
+        Date tekufaDate = jewishDateInfo.getJewishCalendar().getTekufaAsDate(luachAmudeiHoraah);
+        while (tekufaDate == null) {
+            jewishDateInfo.getJewishCalendar().forward(Calendar.DATE, 1);
+            tekufaDate = jewishDateInfo.getJewishCalendar().getTekufaAsDate(luachAmudeiHoraah);
         }
         cal.setTime(tekufaDate);
         cal.add(Calendar.HOUR_OF_DAY, -1);// set reminder to go off one hour before the tekufa occurs. I.E. half an hour before the prohibition

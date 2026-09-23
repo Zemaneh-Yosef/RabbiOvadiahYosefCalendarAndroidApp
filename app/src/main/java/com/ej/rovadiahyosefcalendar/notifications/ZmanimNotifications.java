@@ -154,6 +154,7 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
                                     .setAction(String.valueOf(set))
                                     .putExtra("zman",
                                             zmanimOver3Days.get(i).getTitle() + ":" + zmanimOver3Days.get(i).getZman().getTime()) //save the zman name and time for the notification e.g. "Chatzot Layla:1331313311"
+                                    .putExtra("zmanKey", zmanimOver3Days.get(i).getNotificationKey())
                                     .putExtra("secondsTreatment", zmanimOver3Days.get(i).getSecondTreatment().getValue()),
                             PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
 

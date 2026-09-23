@@ -81,13 +81,13 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
 
     private void init(JewishDateInfo jewishDateInfo, ROZmanimCalendar c) {
         jewishDateInfo.resetLocale(context);
-        int day = jewishDateInfo.getJewishCalendar().getDayOfOmer();
+        c.setAmudehHoraah(PreferenceManager.getDefaultSharedPreferences(context).getBoolean("LuachAmudeiHoraah", false));
+        int night = jewishDateInfo.tomorrow().getJewishCalendar().getDayOfOmer();//the count that is said tonight
         if (BuildConfig.DEBUG) {
-            mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "init started with Omer day as: " + day + "\n\n").apply();
+            mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "init started with the Omer count for tonight as: " + night + "\n\n").apply();
         }
-        if (day != -1 && day != 49) {//we don't want to send a notification right before shavuot
+        if (night != -1) {//-1 outside the omer, and on erev shavuot there is no count to say
             long when = System.currentTimeMillis();
-            c.setAmudehHoraah(PreferenceManager.getDefaultSharedPreferences(context).getBoolean("LuachAmudeiHoraah", false));
             if (c.getTzeit() != null) {
                 when = c.getTzeit().getTime();
             }
@@ -124,12 +124,12 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
                     .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
                     .setSmallIcon(R.drawable.omer_wheat)
                     .setContentTitle(Utils.isLocaleHebrew(context) ? "יום בעומר" : "Day of Omer")
-                    .setContentText(omerList.get(day))
+                    .setContentText(omerList.get(night - 1))
                     .setStyle(new NotificationCompat
                             .BigTextStyle()
                             .setBigContentTitle(nextJewishDay)
                             .setSummaryText(Utils.isLocaleHebrew(context) ? "אל תשכח לספור!" : "Don't forget to count!")
-                            .bigText("בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם, אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ עַל סְפִירַת הָעֹמֶר:" + "\n\n" + omerList.get(day) + "\n\nהָרַחֲמָן הוּא יַחֲזִיר עֲבוֹדַת בֵּית הַמִּקְדָּשׁ לִמְקוֹמָהּ בִּמְהֵרָה בְיָמֵינוּ אָמֵן:"))
+                            .bigText("בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם, אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ עַל סְפִירַת הָעֹמֶר:" + "\n\n" + omerList.get(night - 1) + "\n\nהָרַחֲמָן הוּא יַחֲזִיר עֲבוֹדַת בֵּית הַמִּקְדָּשׁ לִמְקוֹמָהּ בִּמְהֵרָה בְיָמֵינוּ אָמֵן:"))
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     .setCategory(NotificationCompat.CATEGORY_REMINDER)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -140,7 +140,7 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
                     .setTimeoutAfter(259_200_000)// remove the notification after 3 days (259,200,000 milliseconds)
                     .setContentIntent(pendingIntent)
                     .addAction(new NotificationCompat.Action(0, context.getString(R.string.see_full_text), pendingIntent));
-            notificationManager.notify(day, mNotifyBuilder.build());
+            notificationManager.notify(night - 1, mNotifyBuilder.build());
         }
         if (new TefilaRules().isVeseinTalUmatarStartDate(jewishDateInfo.tomorrow().getJewishCalendar())) {// we need to know if user is in Israel or not
             notifyBarechAleinu();

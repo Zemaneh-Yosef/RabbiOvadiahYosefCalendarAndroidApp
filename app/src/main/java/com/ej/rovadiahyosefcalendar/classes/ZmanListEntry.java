@@ -81,4 +81,8 @@ public class ZmanListEntry {
     public int getNotificationDelay(SharedPreferences mSettingsPreferences) {
         return mSettingsPreferences.getInt(notificationKey, -1);
     }
+
+    public String getNotificationKey() {
+        return notificationKey;
+    }
 }
