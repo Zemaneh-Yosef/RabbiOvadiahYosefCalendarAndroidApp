@@ -185,6 +185,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private FragmentActivity mActivity;
     private Handler mHandler = null;
     private Runnable mZmanimUpdater;
+    private Runnable mNextZmanUpdater;
 
     //android views:
     private View mLayout;
@@ -225,7 +226,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private static final long LOCATION_UPDATE_TIMEOUT_MS = 5000L;
     private LocationResolver mLocationResolver;
     private final ZmanimFormatter mZmanimFormatter = new ZmanimFormatter(TimeZone.getDefault());
-    public static ActivityResultLauncher<Intent> sNotificationLauncher;
+    private ActivityResultLauncher<Intent> mNotificationLauncher;
     private ActivityResultLauncher<String> mBackgroundLocationLauncher;
     private ActivityResultLauncher<String> mPostNotificationsLauncher;
     private SharedPreferences.OnSharedPreferenceChangeListener sSharedPrefListener;
@@ -319,7 +320,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     }
 
     private void initNotifResult() {
-        sNotificationLauncher = registerForActivityResult(
+        mNotificationLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> setNotifications()
         );
@@ -671,8 +672,10 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 }
             });
             if (sCurrentDateShown != null && sROZmanimCalendar != null && mMainRecyclerView != null) {
-                sCurrentDateShown.setTime(new Date());
-                sJewishDateInfo.setCalendar(new GregorianCalendar());
+                mActivity.runOnUiThread(() -> {
+                    sCurrentDateShown.setTime(new Date());
+                    sJewishDateInfo.setCalendar(new GregorianCalendar());
+                });
                 mLocationResolver.getFullLocationName(true, locationName -> {
                     if (locationName == null || locationName.isEmpty()) {//if it's still empty, use backup. NPE was thrown here for some reason
                         locationName = sROZmanimCalendar.getGeoLocation().getLocationName();
@@ -1052,7 +1055,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         .setTitle(R.string.zmanim_notifications_will_not_work)
                         .setMessage(R.string.if_you_would_like_to_receive_zmanim_notifications)
                         .setCancelable(false)
-                        .setPositiveButton(mContext.getString(R.string.yes), (dialog, which) -> sNotificationLauncher.launch(new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:" + mContext.getPackageName()))))
+                        .setPositiveButton(mContext.getString(R.string.yes), (dialog, which) -> mNotificationLauncher.launch(new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:" + mContext.getPackageName()))))
                         .setNegativeButton(mContext.getString(R.string.no), (dialog, which) -> dialog.dismiss());
                 if (!mActivity.isFinishing()) {
                     builder.show();
@@ -1596,7 +1599,10 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     }
 
     private void createBackgroundThreadForNextUpcomingZman() {
-        Runnable nextZmanUpdater = () -> {
+        if (mNextZmanUpdater != null) {
+            mHandler.removeCallbacks(mNextZmanUpdater);
+        }
+        mNextZmanUpdater = () -> {
             setNextUpcomingZman();
             if (mNestedScrollView != null && !sSharedPreferences.getBoolean("weeklyMode", false)) {
                 mCurrentPosition = mNestedScrollView.getScrollY();
@@ -1608,7 +1614,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             createBackgroundThreadForNextUpcomingZman();//start a new thread to update the next upcoming zman
         };
         if (sNextUpcomingZman != null) {
-            mHandler.postDelayed(nextZmanUpdater, sNextUpcomingZman.getTime() - new Date().getTime() + 1_000);//add 1 second to make sure we don't get the same zman again
+            mHandler.postDelayed(mNextZmanUpdater, sNextUpcomingZman.getTime() - new Date().getTime() + 1_000);//add 1 second to make sure we don't get the same zman again
         }
     }
 
@@ -1902,10 +1908,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (sSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
             for (ZmanListEntry zman : zmanim) {
                 if (zman.isNoteworthyZman()) {
+                    String zmanTime = zman.getZman() == null ? "XX:XX" : Utils.formatZmanTime(mContext, zman);
                     if (!Utils.isLocaleHebrew(mContext)) {
-                        mZmanimForAnnouncements.add(Utils.formatZmanTime(mContext, zman) + " :" + zman.getTitle().replaceAll("\\(.*\\)", "").trim());
+                        mZmanimForAnnouncements.add(zmanTime + " :" + zman.getTitle().replaceAll("\\(.*\\)", "").trim());
                     } else {
-                        mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + ": " + Utils.formatZmanTime(mContext, zman));
+                        mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + ": " + zmanTime);
                     }
                     zmansToRemove.add(zman);
                 }
@@ -1913,7 +1920,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         } else {
             for (ZmanListEntry zman : zmanim) {
                 if (zman.isNoteworthyZman()) {
-                    mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + ": " + Utils.formatZmanTime(mContext, zman));
+                    String zmanTime = zman.getZman() == null ? "XX:XX" : Utils.formatZmanTime(mContext, zman);
+                    mZmanimForAnnouncements.add(zman.getTitle().replaceAll("\\(.*\\)", "").trim() + ": " + zmanTime);
                     zmansToRemove.add(zman);
                 }
             }
@@ -1924,8 +1932,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         String[] shortZmanim = new String[zmanim.size()];
         if (sSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
             for (ZmanListEntry zman : zmanim) {
+                String zmanTime = zman.getZman() == null ? "XX:XX" : Utils.formatZmanTime(mContext, zman);
                 if (!Utils.isLocaleHebrew(mContext)) {
-                    shortZmanim[zmanim.indexOf(zman)] = Utils.formatZmanTime(mContext, zman) + " :" + zman.getTitle()
+                    shortZmanim[zmanim.indexOf(zman)] = zmanTime + " :" + zman.getTitle()
                             .replace("סוף זמן ", "")
                             .replace("(", "")
                             .replace(")", "");
@@ -1933,24 +1942,25 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     shortZmanim[zmanim.indexOf(zman)] = zman.getTitle()
                             .replace("סוף זמן ", "")
                             .replace("(", "")
-                            .replace(")", "") + ": " + Utils.formatZmanTime(mContext, zman);
+                            .replace(")", "") + ": " + zmanTime;
                 }
 
-                if (zman.getZman().equals(sNextUpcomingZman)) {
+                if (zman.getZman() != null && zman.getZman().equals(sNextUpcomingZman)) {
                     shortZmanim[zmanim.indexOf(zman)] = shortZmanim[zmanim.indexOf(zman)] +
                             (Utils.isLocaleHebrew(mContext) ? " ➤ " : " ◄ ");
                 }
             }
         } else {
             for (ZmanListEntry zman : zmanim) {
+                String zmanTime = zman.getZman() == null ? "XX:XX" : Utils.formatZmanTime(mContext, zman);
                 shortZmanim[zmanim.indexOf(zman)] = zman.getTitle()
                         .replace("Earliest ", "")
                         .replace("Sof Zeman ", "")
                         .replace("Latest ", "")
                         .replace("(", "")
                         .replace(")", "")
-                        + ": " + Utils.formatZmanTime(mContext, zman);
-                if (zman.getZman().equals(sNextUpcomingZman)) {
+                        + ": " + zmanTime;
+                if (zman.getZman() != null && zman.getZman().equals(sNextUpcomingZman)) {
                     shortZmanim[zmanim.indexOf(zman)] = shortZmanim[zmanim.indexOf(zman)] +
                             (Utils.isLocaleHebrew(mContext) ? " ➤ " : " ◄ ");
                 }

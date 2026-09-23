@@ -105,6 +105,7 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
     public static Date sLastTimeUserWasInApp;
     public static BottomNavigationView sNavView;
     public static ViewPager2 sViewPager;
+    private ViewPager2 mViewPager;
 
     @Override
     protected void attachBaseContext(Context base) {
@@ -184,10 +185,10 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
             sSetupLauncher.launch(new Intent(this, WelcomeScreenActivity.class));
             initZmanimNotificationDefaults();
         }
-        updateWidget();
 
         setSupportActionBar(new MaterialToolbar(this));
         sViewPager = findViewById(R.id.viewPager);
+        mViewPager = sViewPager;
         ViewPagerAdapter adapter = new ViewPagerAdapter(this);
         sViewPager.setAdapter(adapter);
         sNavView = findViewById(R.id.nav_view);
@@ -384,6 +385,17 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         updateWidget();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (sViewPager == mViewPager) {// on a recreate the new instance has already replaced these
+            materialToolbar = null;
+            sNavView = null;
+            sViewPager = null;
+            sSetupLauncher = null;
+        }
+        super.onDestroy();
     }
 
     private void updateWidget() {

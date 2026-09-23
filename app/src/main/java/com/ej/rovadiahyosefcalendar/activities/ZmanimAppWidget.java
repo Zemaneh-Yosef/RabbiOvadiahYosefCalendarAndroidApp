@@ -49,7 +49,7 @@ public class ZmanimAppWidget extends AppWidgetProvider {
     private static JewishDateInfo mJewishDateInfo;
     private static ROZmanimCalendar mROZmanimCalendar;
 
-    static void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
+    static synchronized void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
         mLocationResolver = new LocationResolver(context, null);
         mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         mSettingsPreferences = PreferenceManager.getDefaultSharedPreferences(context);
@@ -133,7 +133,7 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         }
     }
 
-    public static ZmanListEntry getNextUpcomingZman(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
+    public static synchronized ZmanListEntry getNextUpcomingZman(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
         if (mROZmanimCalendar == null || mJewishDateInfo == null) {
             mLocationResolver = new LocationResolver(context, null);
             mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);

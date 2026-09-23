@@ -1302,5 +1302,6 @@ public class SiddurFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+        dateButtons = null;
     }
 }
