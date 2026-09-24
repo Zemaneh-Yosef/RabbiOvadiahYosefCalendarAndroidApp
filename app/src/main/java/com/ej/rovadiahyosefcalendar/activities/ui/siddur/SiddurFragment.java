@@ -912,9 +912,9 @@ public class SiddurFragment extends Fragment {
                      "siddur_kriatShema" ->
                         new Date().after(currentZmanimCalendar.getSunset()) || new Date().before(currentZmanimCalendar.getAlotHashachar());
                 case "siddur_tikkun_chatzot" ->
-                        !getSunsetBasedJewishDateInfo().is3Weeks() && (currentZmanimCalendar.isNowAfterHalachicSolarMidnight() || new Date().before(currentZmanimCalendar.getAlotHashachar()));
+                        !getSunsetBasedJewishDateInfo().is3Weeks() && currentZmanimCalendar.isNowAfterHalachicSolarMidnight();
                 case "siddur_tikkun_chatzot_3_weeks" -> getSunsetBasedJewishDateInfo().is3Weeks() &&
-                        ((currentZmanimCalendar.isNowAfterHalachicSolarMidnight() || new Date().before(currentZmanimCalendar.getAlotHashachar())) // night tikkun chatzot
+                        (currentZmanimCalendar.isNowAfterHalachicSolarMidnight() // night tikkun chatzot
                                 || (new Date().after(currentZmanimCalendar.getChatzot()) && new Date().before(currentZmanimCalendar.getSunset()) && getSunsetBasedJewishDateInfo().getJewishCalendar().getDayOfWeek() != Calendar.SATURDAY)); // day tikkun chatzot, even though beki'im behalacha says to NOT say it after mincha ketana. However, that is not brought down by Rabbi Ovadiah and his sons
                 default -> true;
             };
