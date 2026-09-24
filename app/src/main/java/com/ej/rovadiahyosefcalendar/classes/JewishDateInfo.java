@@ -317,6 +317,8 @@ public class JewishDateInfo {
         if (dayOfChanukah != -1) {
             if (!isLocaleHebrew) {
                 result = result.replace("Chanukah", getOrdinal(dayOfChanukah) + " day of Chanukah");
+            } else {
+                result = result.replace("חנוכה", hebrewDateFormatter.formatHebrewNumber(dayOfChanukah) + " חנוכה");
             }
         }
         return result;
@@ -358,6 +360,9 @@ public class JewishDateInfo {
                 .replace("פורים שושן", "שושן פורים")
                 .replace("פורים שושן קטן", "שושן פורים קטן")
                 .replace("ל״ג בעומר", "ל״ג לעומר");
+        if (this.jewishCalendar.getYomTovIndex() == JewishCalendar.CHANUKAH) {
+            result = isLocaleHebrew ? "חנוכה" : "Chanukah";
+        }
         if (result.contains("Shemini Atzeret")) {
             if (getJewishCalendar().getInIsrael()) {
                 result = "Shemini Atzeret & Simchat Torah";
