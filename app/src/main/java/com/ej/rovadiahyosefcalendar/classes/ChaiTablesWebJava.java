@@ -190,7 +190,6 @@ public final class ChaiTablesWebJava {
 	public ChaiTablesResult[] formatInterfacer() {
 		JewishDate calendar = (JewishDate) baseCalendar.clone();
 		ChaiTablesResult[] results = new ChaiTablesResult[2];
-		int i = 0;
 
 		Map<String, Document> radiusData = new LinkedHashMap<>();
 
@@ -220,8 +219,7 @@ public final class ChaiTablesWebJava {
 			}
 
 			List<Long> times = new ArrayList<>(Objects.requireNonNull(extractTimes(ctDoc, yearLoop)));
-			results[i] = new ChaiTablesResult(Objects.requireNonNull(getChaiTablesLink(smallestRadius, 0, yearLoop, 413)).toString(), times);
-			i++;
+			results[yearLoop.getJewishYear() - calendar.getJewishYear()] = new ChaiTablesResult(Objects.requireNonNull(getChaiTablesLink(smallestRadius, 0, yearLoop, 413)).toString(), times);
 		}
 
 		return results;
@@ -230,7 +228,6 @@ public final class ChaiTablesWebJava {
 	public ChaiTablesResult[] formatInterfacer(String customURL) {
 		JewishDate calendar = (JewishDate) baseCalendar.clone();
 		ChaiTablesResult[] results = new ChaiTablesResult[2];
-		int i = 0;
 
 		for (JewishDate yearLoop = (JewishDate) calendar.clone();
 			 yearLoop.getJewishYear() != calendar.getJewishYear() + 2;
@@ -252,8 +249,7 @@ public final class ChaiTablesWebJava {
 				}
 
 				List<Long> times = new ArrayList<>(Objects.requireNonNull(extractTimes(ctDoc, yearLoop)));
-				results[i] = new ChaiTablesResult(chaitablesURL, times);
-				i++;
+				results[yearLoop.getJewishYear() - calendar.getJewishYear()] = new ChaiTablesResult(chaitablesURL, times);
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }
@@ -265,7 +261,6 @@ public final class ChaiTablesWebJava {
 	public ChaiTablesResult[] getChaitableTimesWithLatLong() {
 		JewishDate calendar = (JewishDate) baseCalendar.clone();
 		ChaiTablesResult[] results = new ChaiTablesResult[2];
-		int i = 0;
 
 		for (JewishDate yearLoop = (JewishDate) calendar.clone();
 			 yearLoop.getJewishYear() != calendar.getJewishYear() + 2;
@@ -288,8 +283,7 @@ public final class ChaiTablesWebJava {
 				}
 
 				List<Long> times = new ArrayList<>(Objects.requireNonNull(extractTimes(ctDoc, yearLoop)));
-				results[i] = new ChaiTablesResult(chaitablesURL, times);
-				i++;
+				results[yearLoop.getJewishYear() - calendar.getJewishYear()] = new ChaiTablesResult(chaitablesURL, times);
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
 			}
