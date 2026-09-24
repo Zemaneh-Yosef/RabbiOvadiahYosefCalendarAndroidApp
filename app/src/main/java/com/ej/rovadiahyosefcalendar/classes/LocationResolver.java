@@ -191,6 +191,11 @@ public class LocationResolver {
     }
 
     public void getFullLocationName(boolean postalCode, @NonNull LocationNameCallback callback) {
+        String advancedLocationName = mSharedPreferences.getString("advancedLN", "");
+        if (mSharedPreferences.getBoolean("useAdvanced", false) && !advancedLocationName.isEmpty()) {// the advanced elevation is saved under this name, so do not replace it
+            new Handler(Looper.getMainLooper()).post(() -> callback.onResult(advancedLocationName));
+            return;
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             mGeocoder.getFromLocation(sLatitude, sLongitude, Utils.isLocaleHebrew(mContext) ? 5 : 1, addresses -> {
                 String result = buildLocationString(addresses, postalCode);
