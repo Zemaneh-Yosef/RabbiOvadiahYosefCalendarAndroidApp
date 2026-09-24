@@ -361,8 +361,13 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                     @Override
                     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
                         int position = viewHolder.getAbsoluteAdapterPosition();
-                        mLocationList.remove(position);
-                        mSharedPreferences.edit().putString("location" + (position + 1), "").apply();
+                        String locationName = mLocationList.remove(position);
+                        for (int i = 1; i <= 5; i++) {
+                            if (locationName.equals(mSharedPreferences.getString("location" + i, ""))) {
+                                mSharedPreferences.edit().putString("location" + i, "").apply();
+                                break;
+                            }
+                        }
                         itemAdapter.notifyItemRemoved(position);
                         Snackbar.make(GetUserLocationWithMapActivity.this, viewHolder.itemView, getString(R.string.location_deleted), Snackbar.LENGTH_SHORT).show();
                     }
