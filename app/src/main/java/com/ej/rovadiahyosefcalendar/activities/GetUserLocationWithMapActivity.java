@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.InputType;
@@ -21,7 +22,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -43,12 +43,12 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ej.rovadiahyosefcalendar.R;
-import com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.ej.rovadiahyosefcalendar.databinding.ActivityGetUserLocationWithMapBinding;
@@ -65,8 +65,10 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.maps.android.SphericalUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GetUserLocationWithMapActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -158,32 +160,21 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                         .apply();
 
                 mLocationResolver = new LocationResolver(this, this);
-                mLocationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
-                Thread thread = new Thread(() -> {
-                    while (sLatitude == 0 && sLongitude == 0) {
-                        try {
-                            Thread.sleep(0);
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
+                acquireDeviceLocation(mLocationResolver, () -> {
+                    chosenLocation = new LatLng(sLatitude, sLongitude);
+                    mLocationResolver.getFullLocationName(true, locationName -> {
+                        if (locationName != null) {
+                            runOnUiThread(() -> currentLocation = mMap.addMarker(new MarkerOptions().position(chosenLocation).draggable(true).title(locationName)));
                         }
-                    }
-                    runOnUiThread(() -> {
-                        chosenLocation = new LatLng(sLatitude, sLongitude);
-                        mLocationResolver.getFullLocationName(true, locationName -> {
-                            if (locationName != null) {
-                                runOnUiThread(() -> currentLocation = mMap.addMarker(new MarkerOptions().position(chosenLocation).draggable(true).title(locationName)));
-                            }
-                        });
-                        LatLng northEastCorner = SphericalUtil.computeOffset(chosenLocation, 950000.0 / 100, 45.0);
-                        LatLng southWestCorner = SphericalUtil.computeOffset(chosenLocation, 950000.0 / 100, 225.0);
-                        mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(new LatLngBounds(southWestCorner, northEastCorner), 0));
-                        Snackbar.make(GetUserLocationWithMapActivity.this, binding.getRoot(), getString(R.string.the_application_will_keep_requesting_your_location), Snackbar.LENGTH_SHORT)
-                                .setBackgroundTint(getColor(R.color.green))
-                                .setTextColor(getColor(R.color.black))
-                                .show();
                     });
+                    LatLng northEastCorner = SphericalUtil.computeOffset(chosenLocation, 950000.0 / 100, 45.0);
+                    LatLng southWestCorner = SphericalUtil.computeOffset(chosenLocation, 950000.0 / 100, 225.0);
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(new LatLngBounds(southWestCorner, northEastCorner), 0));
+                    Snackbar.make(GetUserLocationWithMapActivity.this, binding.getRoot(), getString(R.string.the_application_will_keep_requesting_your_location), Snackbar.LENGTH_SHORT)
+                            .setBackgroundTint(getColor(R.color.green))
+                            .setTextColor(getColor(R.color.black))
+                            .show();
                 });
-                thread.start();
             }
         });
 
@@ -323,9 +314,8 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                 startActivity(new Intent(this, InIsraelActivity.class));
             }
         } else if (!Utils.isLocaleHebrew(this)) {
-            mSharedPreferences.edit()
-                    .putBoolean("LuachAmudeiHoraah", true)
-                    .putBoolean("useElevation", false).apply();
+            mSharedPreferences.edit().putBoolean("useElevation", false).apply();
+            PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("LuachAmudeiHoraah", true).apply();
             if (!getIntent().getBooleanExtra("loneActivity", false)) {
                 mSharedPreferences.edit().putBoolean("inIsrael", false).apply();
                 startActivity(new Intent(this, ZmanimLanguageActivity.class));
@@ -335,8 +325,8 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
             if (!getIntent().getBooleanExtra("loneActivity", false)) {
                 mSharedPreferences.edit().putBoolean("inIsrael", false).apply();
             }
+            PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("LuachAmudeiHoraah", true).apply();
             mSharedPreferences.edit()
-                    .putBoolean("LuachAmudeiHoraah", true)
                     .putBoolean("isZmanimInHebrew", true)
                     .putBoolean("isZmanimEnglishTranslated", false)
                     .putBoolean("isSetup", true).apply();
@@ -371,8 +361,13 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                     @Override
                     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
                         int position = viewHolder.getAbsoluteAdapterPosition();
-                        mLocationList.remove(position);
-                        mSharedPreferences.edit().putString("location" + (position + 1), "").apply();
+                        String locationName = mLocationList.remove(position);
+                        for (int i = 1; i <= 5; i++) {
+                            if (locationName.equals(mSharedPreferences.getString("location" + i, ""))) {
+                                mSharedPreferences.edit().putString("location" + i, "").apply();
+                                break;
+                            }
+                        }
                         itemAdapter.notifyItemRemoved(position);
                         Snackbar.make(GetUserLocationWithMapActivity.this, viewHolder.itemView, getString(R.string.location_deleted), Snackbar.LENGTH_SHORT).show();
                     }
@@ -422,17 +417,18 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
 
             sLatitude = latLng.latitude;
             sLongitude = latLng.longitude;
+            sCurrentLocationName = String.format(getResources().getConfiguration().getLocales().get(0), "Lat: %.3f, Long: %.3f", sLatitude, sLongitude);
+            mSharedPreferences.edit()
+                    .putString("advancedLN", sCurrentLocationName)
+                    .putString("advancedLat", String.valueOf(sLatitude))
+                    .putString("advancedLong", String.valueOf(sLongitude)).apply();
             mLocationResolver = new LocationResolver(GetUserLocationWithMapActivity.this, GetUserLocationWithMapActivity.this);
 
-            mLocationResolver.getFullLocationName(true, locationName -> {
+            mLocationResolver.getFullLocationName(latLng.latitude, latLng.longitude, true, locationName -> {
                 if (locationName != null) {
                     runOnUiThread(() -> currentLocation = mMap.addMarker(new MarkerOptions().position(latLng).draggable(true).title(locationName)));
                     sCurrentLocationName = locationName;
-
-                    mSharedPreferences.edit()
-                            .putString("advancedLN", sCurrentLocationName)
-                            .putString("advancedLat", String.valueOf(sLatitude))
-                            .putString("advancedLong", String.valueOf(sLongitude)).apply();
+                    mSharedPreferences.edit().putString("advancedLN", sCurrentLocationName).apply();
                 }
             });
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
@@ -592,21 +588,22 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                             .putBoolean("useZipcode", false)
                             .apply();
                     mLocationResolver = new LocationResolver(this, this);
-                    mLocationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
-                    mLocationResolver.setTimeZoneID();
-                    Runnable finish = () -> {
-                        configureSettingsBasedOnLocation();
-                        finish();
-                    };
-                    if (mSharedPreferences.getBoolean("useElevation", true)) {
-                        if (mSharedPreferences.contains("elevation" + sCurrentLocationName)) {
-                            finish.run();
+                    acquireDeviceLocation(mLocationResolver, () -> {
+                        mLocationResolver.setTimeZoneID();
+                        Runnable finish = () -> {
+                            configureSettingsBasedOnLocation();
+                            finish();
+                        };
+                        if (mSharedPreferences.getBoolean("useElevation", true)) {
+                            if (mSharedPreferences.contains("elevation" + sCurrentLocationName)) {
+                                finish.run();
+                            } else {
+                                new Thread(() -> mLocationResolver.getElevationFromWebService(new Handler(getMainLooper()), null, finish)).start();
+                            }
                         } else {
-                            new Thread(() -> mLocationResolver.getElevationFromWebService(new Handler(getMainLooper()), null, finish)).start();
+                            finish.run();
                         }
-                    } else {
-                        finish.run();
-                    }
+                    });
                 });
 
         AlertDialog ad = alertDialog.create();
@@ -706,17 +703,9 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
         timezone.setGravity(Gravity.CENTER);
 
         Spinner timezones = new Spinner(this);
-        timezones.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, TimeZone.getAvailableIDs()));
-        timezones.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String s = (String) parent.getItemAtPosition(position);
-                mSharedPreferences.edit().putString("advancedTimezone", s).apply();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
-        });
+        String[] timeZoneIDs = TimeZone.getAvailableIDs();
+        timezones.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, timeZoneIDs));
+        timezones.setSelection(Arrays.asList(timeZoneIDs).indexOf(sCurrentTimeZoneID));
 
         linearLayout.addView(locationName);
         linearLayout.addView(locationInput);
@@ -765,11 +754,12 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                                 .putString("advancedLN", locationInput.getText().toString())
                                 .putString("advancedLat", latInput.getText().toString())
                                 .putString("advancedLong", longInput.getText().toString())
+                                .putString("advancedTimezone", (String) timezones.getSelectedItem())
                                 .putString("elevation" + locationInput.getText().toString(),
                                 elevationInput.getText().toString()).apply();
 
                         mLocationResolver = new LocationResolver(this, this);
-                        mLocationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
+                        mLocationResolver.acquireLatitudeAndLongitude(location -> {});
                         configureSettingsBasedOnLocation();
                         finish();
                     }
@@ -853,7 +843,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                         .putBoolean("useLocation5", location5)
                         .apply();
                 mLocationResolver = new LocationResolver(GetUserLocationWithMapActivity.this, GetUserLocationWithMapActivity.this);
-                mLocationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
+                mLocationResolver.acquireLatitudeAndLongitude(location -> {});
                 mLocationResolver.setTimeZoneID();
                 Runnable finish = () -> {
                     chosenLocation = new LatLng(sLatitude, sLongitude);
@@ -908,32 +898,36 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                 currentLocation = null;
             }
             LocationResolver locationResolver = new LocationResolver(this, this);
-            locationResolver.acquireLatitudeAndLongitude(new ZmanimFragment());
-            Thread thread = new Thread(() -> {
-                while (sLatitude == 0 && sLongitude == 0) {
-                    try {
-                        Thread.sleep(0);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
+            acquireDeviceLocation(locationResolver, () -> {
+                chosenLocation = new LatLng(sLatitude, sLongitude);
+                locationResolver.getFullLocationName(true, locationName -> {
+                    if (locationName != null) {
+                        runOnUiThread(() -> currentLocation = mMap.addMarker(new MarkerOptions().position(chosenLocation).draggable(true).title(locationName)));
                     }
-                }
-                runOnUiThread(() -> {
-                    chosenLocation = new LatLng(sLatitude, sLongitude);
-                    locationResolver.getFullLocationName(true, locationName -> {
-                        if (locationName != null) {
-                            runOnUiThread(() -> currentLocation = mMap.addMarker(new MarkerOptions().position(chosenLocation).draggable(true).title(locationName)));
-                        }
-                    });
-                    LatLng northEastCorner = SphericalUtil.computeOffset(chosenLocation, 950000.0 / 100, 45.0);
-                    LatLng southWestCorner = SphericalUtil.computeOffset(chosenLocation, 950000.0 / 100, 225.0);
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(new LatLngBounds(southWestCorner, northEastCorner), 0));
-                    Snackbar.make(GetUserLocationWithMapActivity.this, binding.getRoot(), getString(R.string.the_application_will_keep_requesting_your_location), Snackbar.LENGTH_SHORT)
-                            .setBackgroundTint(getColor(R.color.green))
-                            .setTextColor(getColor(R.color.black))
-                            .show();
                 });
+                LatLng northEastCorner = SphericalUtil.computeOffset(chosenLocation, 950000.0 / 100, 45.0);
+                LatLng southWestCorner = SphericalUtil.computeOffset(chosenLocation, 950000.0 / 100, 225.0);
+                mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(new LatLngBounds(southWestCorner, northEastCorner), 0));
+                Snackbar.make(GetUserLocationWithMapActivity.this, binding.getRoot(), getString(R.string.the_application_will_keep_requesting_your_location), Snackbar.LENGTH_SHORT)
+                        .setBackgroundTint(getColor(R.color.green))
+                        .setTextColor(getColor(R.color.black))
+                        .show();
             });
-            thread.start();
+        }
+    }
+
+    private void acquireDeviceLocation(LocationResolver locationResolver, Runnable codeToRunOnMainThread) {
+        AtomicBoolean hasReceivedLocation = new AtomicBoolean(false);
+        locationResolver.acquireLatitudeAndLongitude(location -> {
+            if (location != null && !hasReceivedLocation.getAndSet(true)) {
+                sLatitude = location.getLatitude();
+                sLongitude = location.getLongitude();
+                locationResolver.resolveCurrentLocationName();
+                runOnUiThread(codeToRunOnMainThread);
+            }
+        });
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R && (sLatitude != 0 || sLongitude != 0)) {// below R the last known location was already read and the consumer is never called
+            codeToRunOnMainThread.run();
         }
     }
 }

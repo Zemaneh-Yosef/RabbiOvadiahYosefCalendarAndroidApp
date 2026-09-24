@@ -888,6 +888,11 @@ public class SiddurFragment extends Fragment {
             return getSunsetBasedJewishDateInfo(true);
         }
 
+        private boolean isNoTachanunPurimMeshulash(JewishDateInfo jewishDateInfo) {
+            SharedPreferences sharedPreferences = mContext.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
+            return jewishDateInfo.isPurimMeshulash() && (sharedPreferences.getBoolean("isSafekMukafChoma", false) || sharedPreferences.getBoolean("isMukafChoma", false));
+        }
+
         private boolean isPrayerCurrentlySaid(String key) {
             if (currentZmanimCalendar.getSunset() == null || currentZmanimCalendar.getSunrise() == null) {
                 return true;// show the prayer by default
@@ -912,9 +917,9 @@ public class SiddurFragment extends Fragment {
                      "siddur_kriatShema" ->
                         new Date().after(currentZmanimCalendar.getSunset()) || new Date().before(currentZmanimCalendar.getAlotHashachar());
                 case "siddur_tikkun_chatzot" ->
-                        !getSunsetBasedJewishDateInfo().is3Weeks() && (currentZmanimCalendar.isNowAfterHalachicSolarMidnight() || new Date().before(currentZmanimCalendar.getAlotHashachar()));
+                        !getSunsetBasedJewishDateInfo().is3Weeks() && currentZmanimCalendar.isNowAfterHalachicSolarMidnight();
                 case "siddur_tikkun_chatzot_3_weeks" -> getSunsetBasedJewishDateInfo().is3Weeks() &&
-                        ((currentZmanimCalendar.isNowAfterHalachicSolarMidnight() || new Date().before(currentZmanimCalendar.getAlotHashachar())) // night tikkun chatzot
+                        (currentZmanimCalendar.isNowAfterHalachicSolarMidnight() // night tikkun chatzot
                                 || (new Date().after(currentZmanimCalendar.getChatzot()) && new Date().before(currentZmanimCalendar.getSunset()) && getSunsetBasedJewishDateInfo().getJewishCalendar().getDayOfWeek() != Calendar.SATURDAY)); // day tikkun chatzot, even though beki'im behalacha says to NOT say it after mincha ketana. However, that is not brought down by Rabbi Ovadiah and his sons
                 default -> true;
             };
@@ -945,7 +950,7 @@ public class SiddurFragment extends Fragment {
                 }
                 String hallel = timeAdjustedJDI.getHallelOrChatziHallel();
                 if (hallel.isEmpty()) {
-                    String tachanun = switch (timeAdjustedJDI.getIsTachanunSaid()) {
+                    String tachanun = isNoTachanunPurimMeshulash(timeAdjustedJDI) ? "יהי שם" : switch (timeAdjustedJDI.getIsTachanunSaid()) {
                         case "צדקתך" -> "";
                         case "לא אומרים תחנון", "No Tachanun today" -> "יהי שם";
                         case "יש אומרים תחנון", "Some say Tachanun today",
@@ -987,7 +992,7 @@ public class SiddurFragment extends Fragment {
                 if (timeAdjustedJDI.getJewishCalendar().isTaanis()) {
                     entries.add("ענינו");
                 }
-                String tachanun = switch (timeAdjustedJDI.getIsTachanunSaid()) {
+                String tachanun = isNoTachanunPurimMeshulash(timeAdjustedJDI) ? "יהי שם" : switch (timeAdjustedJDI.getIsTachanunSaid()) {
                     case "לא אומרים תחנון", "No Tachanun today",
                          "אומרים תחנון רק בבוקר", "Tachanun only in the morning",
                          "יש אומרים תחנון בשחרית; אין תחנון במנחה", "Some say Tachanun in the morning; no Tachanun by mincha" -> "יהי שם";
@@ -1302,5 +1307,6 @@ public class SiddurFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+        dateButtons = null;
     }
 }

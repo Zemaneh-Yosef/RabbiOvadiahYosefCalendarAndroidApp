@@ -57,6 +57,7 @@ public class LocationResolver {
     }
     private static final List<EngineInitializationCallback> callbacks = new ArrayList<>();
     public static TimeZoneEngine ENGINE = null;
+    private static final ExecutorService GEOCODER_EXECUTOR = Executors.newSingleThreadExecutor();
     private static boolean sTimeZoneEngineHasBeenInitialized = false;
     private final Context mContext;
     private final Activity mActivity;
@@ -190,13 +191,18 @@ public class LocationResolver {
     }
 
     public void getFullLocationName(boolean postalCode, @NonNull LocationNameCallback callback) {
+        String advancedLocationName = mSharedPreferences.getString("advancedLN", "");
+        if (mSharedPreferences.getBoolean("useAdvanced", false) && !advancedLocationName.isEmpty()) {// the advanced elevation is saved under this name, so do not replace it
+            new Handler(Looper.getMainLooper()).post(() -> callback.onResult(advancedLocationName));
+            return;
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             mGeocoder.getFromLocation(sLatitude, sLongitude, Utils.isLocaleHebrew(mContext) ? 5 : 1, addresses -> {
                 String result = buildLocationString(addresses, postalCode);
                 callback.onResult(result);
             });
         } else { // older versions
-             Executors.newSingleThreadExecutor().execute(() -> {
+             GEOCODER_EXECUTOR.execute(() -> {
                 String result = null;
                 try {
                     List<Address> addresses = mGeocoder.getFromLocation(sLatitude, sLongitude, 1);
@@ -211,13 +217,15 @@ public class LocationResolver {
     }
 
     public void getFullLocationName(double latitude, double longitude, boolean postalCode, @NonNull LocationNameCallback callback) {
+        mLatitude = latitude;
+        mLongitude = longitude;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             mGeocoder.getFromLocation(latitude, longitude, Utils.isLocaleHebrew(mContext) ? 5 : 1, addresses -> {
                 mLocationName = buildLocationString(addresses, postalCode);
                 callback.onResult(mLocationName);
             });
         } else { // older versions
-            Executors.newSingleThreadExecutor().execute(() -> {
+            GEOCODER_EXECUTOR.execute(() -> {
                 try {
                     List<Address> addresses = mGeocoder.getFromLocation(latitude, longitude, 1);
                     mLocationName = buildLocationString(addresses, postalCode);
@@ -353,6 +361,8 @@ public class LocationResolver {
                     sCurrentLocationName = locationName;
                 }
                 mLocationName = sCurrentLocationName;
+                mLatitude = sLatitude;
+                mLongitude = sLongitude;
                 mSharedPreferences.edit()
                         .putString("oldZipcode", zipcode)
                         .putString("oldLocationName", sCurrentLocationName)
@@ -381,6 +391,8 @@ public class LocationResolver {
             sLatitude = oldLat;
             sLongitude = oldLong;
         }
+        mLatitude = sLatitude;
+        mLongitude = sLongitude;
     }
 
     /**
@@ -558,18 +570,22 @@ public class LocationResolver {
      */
     public void getElevationFromWebService(Handler handler, Runnable codeToRunInBackground, Runnable codeToRunOnMainThread) {
         WebService.setUserName("Elyahu41");
+        boolean useResolvedLocation = mLocationName != null && !mLocationName.isEmpty();
+        double latitude = useResolvedLocation ? mLatitude : sLatitude;
+        double longitude = useResolvedLocation ? mLongitude : sLongitude;
+        String locationName = useResolvedLocation ? mLocationName : sCurrentLocationName;
         ArrayList<Integer> elevations = new ArrayList<>();
         int sum = 0;
         try {
-            int e1 = WebService.srtm3(sLatitude, sLongitude);
+            int e1 = WebService.srtm3(latitude, longitude);
             if (e1 > 0) {
                 elevations.add(e1);
             }
-            int e2 = WebService.astergdem(sLatitude, sLongitude);
+            int e2 = WebService.astergdem(latitude, longitude);
             if (e2 > 0) {
                 elevations.add(e2);
             }
-            int e3 = WebService.gtopo30(sLatitude, sLongitude);
+            int e3 = WebService.gtopo30(latitude, longitude);
             if (e3 > 0) {
                 elevations.add(e3);
             }
@@ -580,15 +596,15 @@ public class LocationResolver {
         } catch (GeoNamesException | NumberFormatException | IOException ex) {//an error occurred getting the elevation data, try again!
             try {
                 WebService.setUserName("graviton57");//another user api key that I found online, only used as a backup
-                int e1 = WebService.srtm3(sLatitude, sLongitude);
+                int e1 = WebService.srtm3(latitude, longitude);
                 if (e1 > 0) {
                     elevations.add(e1);
                 }
-                int e2 = WebService.astergdem(sLatitude, sLongitude);
+                int e2 = WebService.astergdem(latitude, longitude);
                 if (e2 > 0) {
                     elevations.add(e2);
                 }
-                int e3 = WebService.gtopo30(sLatitude, sLongitude);
+                int e3 = WebService.gtopo30(latitude, longitude);
                 if (e3 > 0) {
                     elevations.add(e3);
                 }
@@ -605,7 +621,7 @@ public class LocationResolver {
         if (size == 0) {
             size = 1;//edge case if no elevation data is available
         }
-        mSharedPreferences.edit().putString("elevation" + sCurrentLocationName, String.valueOf(sum / size)).apply();
+        mSharedPreferences.edit().putString("elevation" + locationName, String.valueOf(sum / size)).apply();
 
         if (codeToRunInBackground != null) {
             try (ExecutorService executor = Executors.newSingleThreadExecutor()) {
@@ -874,6 +890,8 @@ public class LocationResolver {
                     .getLocales()
                     .get(0), "%.3f", longitude);
         }
+        mLatitude = latitude;
+        mLongitude = longitude;
         mSharedPreferences.edit().putString("name", mLocationName).apply();
         return mLocationName;
     }

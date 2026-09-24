@@ -102,8 +102,6 @@ import com.EJ.ROvadiahYosefCalendar.classes.EnglishDatePickerDialog
 import com.EJ.ROvadiahYosefCalendar.classes.HebrewDatePickerDialog
 import com.EJ.ROvadiahYosefCalendar.classes.JewishDateInfo
 import com.EJ.ROvadiahYosefCalendar.classes.LocationResolver
-import com.EJ.ROvadiahYosefCalendar.classes.OnChangeListener
-import com.EJ.ROvadiahYosefCalendar.classes.PreferenceListener
 import com.EJ.ROvadiahYosefCalendar.classes.ROZmanimCalendar
 import com.EJ.ROvadiahYosefCalendar.classes.SecondTreatment
 import com.EJ.ROvadiahYosefCalendar.classes.Utils
@@ -117,6 +115,7 @@ import com.EJ.ROvadiahYosefCalendar.complication.NextZmanTextComplicationService
 import com.EJ.ROvadiahYosefCalendar.presentation.theme.DarkGray
 import com.EJ.ROvadiahYosefCalendar.presentation.theme.RabbiOvadiahYosefCalendarTheme
 import com.EJ.ROvadiahYosefCalendar.tile.MainTileService
+import com.google.android.gms.wearable.MessageClient
 import com.google.android.gms.wearable.Wearable
 import com.kosherjava.zmanim.hebrewcalendar.Daf
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter
@@ -140,6 +139,7 @@ import java.util.GregorianCalendar
 import java.util.Locale
 import java.util.TimeZone
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.Executors
 
 class MainActivity : ComponentActivity() {
 
@@ -179,9 +179,11 @@ class MainActivity : ComponentActivity() {
     private lateinit var noSecondsDFormat: SimpleDateFormat
     private var showSeconds = false
     private val mHandler: Handler = Handler(Looper.getMainLooper())
+    private var mNextZmanUpdater: Runnable? = null
+    private val refreshExecutor = Executors.newSingleThreadExecutor()
     private val dafYomiStartDate: Calendar = GregorianCalendar(1923, Calendar.SEPTEMBER, 11)
     private val dafYomiYerushalmiStartDate: Calendar = GregorianCalendar(1980, Calendar.FEBRUARY, 2)
-    private val listener: PreferenceListener = PreferenceListener()
+    private lateinit var messageListener: MessageClient.OnMessageReceivedListener
     private var sNotificationLauncher: ActivityResultLauncher<Intent>? = null
     private var nextUpcomingZmanIndex = 0
 
@@ -194,7 +196,7 @@ class MainActivity : ComponentActivity() {
         mZmanimFormatter.setTimeFormat(ZmanimFormatter.SEXAGESIMAL_FORMAT)
         sharedPref = getSharedPreferences(SHARED_PREF, MODE_PRIVATE)
         locationResolver = LocationResolver(this, this)
-        listener.setOnMessageReceivedListener( { messageEvent ->
+        messageListener = MessageClient.OnMessageReceivedListener { messageEvent ->
             if (messageEvent.path == "prefs/") {
                 val message = String(messageEvent.data, StandardCharsets.UTF_8) // convert bytes to String
                 val jsonPreferences = JSONObject(message) // We can just pass that JSON string into the constructor! :)
@@ -212,7 +214,7 @@ class MainActivity : ComponentActivity() {
                 } // The location name should be set already from the previous message
             }
             updateAppContents() // with the new preferences
-        }, this)
+        }
 
         // If PreferenceListener received a prefs message while this app was not running
         // it saved the raw JSON to SharedPreferences. Process it now and clear it so
@@ -427,6 +429,22 @@ class MainActivity : ComponentActivity() {
         englishDatePickerDialog.show()
     }
 
+    override fun onStart() {
+        super.onStart()
+        Wearable.getMessageClient(this).addListener(messageListener)
+    }
+
+    override fun onStop() {
+        Wearable.getMessageClient(this).removeListener(messageListener)
+        super.onStop()
+    }
+
+    override fun onDestroy() {
+        mHandler.removeCallbacksAndMessages(null)
+        refreshExecutor.shutdown()
+        super.onDestroy()
+    }
+
     override fun onResume() {
         TileService.getUpdater(applicationContext).requestUpdate(MainTileService::class.java)
         if (System.currentTimeMillis() - mLastTimeUserWasInApp.time > 120_000) {
@@ -440,21 +458,8 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun updateAppContents() {
-        // Clear any previously registered listeners so that rapid successive calls
-        // (e.g. onCreate + onResume) do not accumulate callbacks and trigger
-        // duplicate setContent / setNotifications calls.
-        OnChangeListener.removeAllListeners()
-        OnChangeListener.addListener {
-            // Both UI operations MUST run on the main thread.
-            // setNotifications() can show an AlertDialog which requires the UI thread.
-            runOnUiThread {
-                setContent {
-                    WearApp(zmanim)
-                }
-                setNotifications()
-            }
-        }
-        Thread {
+        // One refresh at a time, so a second call cannot publish a half built list.
+        refreshExecutor.execute {
             locationResolver.acquireLatitudeAndLongitude()
             resolveElevation()
             initZmanimCalendar()
@@ -464,9 +469,15 @@ class MainActivity : ComponentActivity() {
             updateZmanimList()
             setNextUpcomingZman()
             createBackgroundThreadForNextUpcomingZman()
-            OnChangeListener.notifyListeners()
-            OnChangeListener.removeAllListeners()
-        }.start()
+            // Both UI operations MUST run on the main thread.
+            // setNotifications() can show an AlertDialog which requires the UI thread.
+            runOnUiThread {
+                setContent {
+                    WearApp(zmanim)
+                }
+                setNotifications()
+            }
+        }
     }
 
     private fun setNotifications() {
@@ -1118,11 +1129,16 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun createBackgroundThreadForNextUpcomingZman() {
+        mNextZmanUpdater?.let { mHandler.removeCallbacks(it) }
         val nextZmanUpdater = Runnable {
             updateZmanimList()
             setNextUpcomingZman()
+            setContent {
+                WearApp(zmanim)
+            }
             createBackgroundThreadForNextUpcomingZman() //start a new thread to update the next upcoming zman
         }
+        mNextZmanUpdater = nextZmanUpdater
         if (sNextUpcomingZman != null) {
             mHandler.postDelayed(
                 nextZmanUpdater,

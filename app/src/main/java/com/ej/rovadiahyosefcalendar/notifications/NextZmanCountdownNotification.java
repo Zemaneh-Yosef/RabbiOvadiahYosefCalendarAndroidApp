@@ -172,7 +172,7 @@ public class NextZmanCountdownNotification extends Service {
             mLocationResolver.getRealtimeNotificationData(location -> {
                 if (location != null) {
                     mLocationResolver.getFullLocationName(location.getLatitude(), location.getLongitude(), true, locationName ->
-                            mLocationResolver.resolveElevation(() -> {
+                            mLocationResolver.resolveElevation(() -> handler.post(() -> {
                         mROZmanimCalendar = new ROZmanimCalendar(new GeoLocation(
                                 locationName,
                                 location.getLatitude(),
@@ -191,7 +191,7 @@ public class NextZmanCountdownNotification extends Service {
                         nextZman = null;
                         remainingTime = 0;
                         // startCountdown will already be called, just make it re-get the correct time
-                    }));
+                    })));
                 }
             }, false);
             // no need to worry about returning null here because the above code will reset everything
@@ -222,10 +222,10 @@ public class NextZmanCountdownNotification extends Service {
                 public void run() {
                     if (shouldShowNotification) {
                         long currentTime = new Date().getTime();
-                        if (nextZman != null) {
+                        if (nextZman != null && nextZman.getZman() != null) {
                             remainingTime = nextZman.getZman().getTime() - currentTime;
                         }
-                        if (remainingTime <= 0) {
+                        if (nextZman == null || nextZman.getZman() == null || remainingTime <= 0) {
                             // If countdown is finished, get the next zman
                             nextZman = ZmanimFactory.getNextUpcomingZman(
                                     new GregorianCalendar(),
@@ -234,6 +234,10 @@ public class NextZmanCountdownNotification extends Service {
                                     mSettingsPreferences,
                                     mSharedPreferences
                             );
+                            if (nextZman == null || nextZman.getZman() == null) {// nothing left to count down to, try again next second
+                                handler.postDelayed(this, COUNTDOWN_INTERVAL);
+                                return;
+                            }
                             timeTillNextZman = nextZman.getZman().getTime() - currentTime;
                             remainingTime = timeTillNextZman;
                         }
