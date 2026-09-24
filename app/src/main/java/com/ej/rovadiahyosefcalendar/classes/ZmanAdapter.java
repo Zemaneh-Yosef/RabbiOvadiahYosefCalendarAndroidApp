@@ -196,7 +196,11 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                             break;
                             //Zmanim start here
                         case ALOT_HASHACHAR_ZMAN:
-                            showDawnDialog();
+                            if (zmanim.stream().anyMatch(entry -> entry.getZmanListEntryType() == FAST_STARTS_NON_TISHA_BAV_ZMAN)) {
+                                showFastStartsChooserDialog(false);
+                            } else {
+                                showDawnDialog();
+                            }
                             break;
                         case MISHEYAKIR_60_ZMAN:
                         case MISHEYAKIR_66_ZMAN:
@@ -247,13 +251,21 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                             showCandleLightingDialog();
                             break;
                         case SUNSET_ZMAN:
-                            showShkiaDialog();
+                            if (zmanim.stream().anyMatch(entry -> entry.getZmanListEntryType() == FAST_STARTS_TISHA_BAV_ZMAN)) {
+                                showFastStartsChooserDialog(true);
+                            } else {
+                                showShkiaDialog();
+                            }
                             break;
                         case TZET_HAKOKHAVIM_ZMAN:
                             showTzaitDialog();
                             break;
                         case TZET_HAKOKHAVIM_LCHUMRA_ZMAN:
-                            showTzaitLChumraDialog();
+                            if (zmanim.stream().anyMatch(entry -> entry.getZmanListEntryType() == FAST_ENDS_ZMAN)) {
+                                showFastEndsChooserDialog();
+                            } else {
+                                showTzaitLChumraDialog();
+                            }
                             break;
                         case FAST_ENDS_ZMAN:
                             showTzaitTaanitDialog();
@@ -290,7 +302,6 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
             }
 
             if (zmanim.get(position).getZmanListEntryType() == ALOT_HASHACHAR_ZMAN) {
-                View.OnClickListener onClickListener = (v -> showFastStartsChooserDialog(false));
                 for (ZmanListEntry listEntry : zmanim) {
                     if (listEntry.getZmanListEntryType() == FAST_STARTS_NON_TISHA_BAV_ZMAN) {
                         if (isZmanimInHebrew) {
@@ -300,14 +311,12 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                             holder.mLeftTextViewSmall.setText(listEntry.getTitle());
                             holder.mLeftTextViewSmall.setVisibility(View.VISIBLE);
                         }
-                        holder.itemView.setOnClickListener(onClickListener);
                         break;
                     }
                 }
             }
 
             if (zmanim.get(position).getZmanListEntryType() == SUNSET_ZMAN) {
-                View.OnClickListener onClickListener = (v -> showFastStartsChooserDialog(true));
                 for (ZmanListEntry listEntry : zmanim) {
                     if (listEntry.getZmanListEntryType() == FAST_STARTS_TISHA_BAV_ZMAN) {
                         if (isZmanimInHebrew) {
@@ -317,14 +326,12 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                             holder.mLeftTextViewSmall.setText(listEntry.getTitle());
                             holder.mLeftTextViewSmall.setVisibility(View.VISIBLE);
                         }
-                        holder.itemView.setOnClickListener(onClickListener);
                         break;
                     }
                 }
             }
 
             if (zmanim.get(position).getZmanListEntryType() == TZET_HAKOKHAVIM_LCHUMRA_ZMAN) {
-                View.OnClickListener onClickListener = (v -> showFastEndsChooserDialog());
                 for (ZmanListEntry listEntry : zmanim) {
                     if (listEntry.getZmanListEntryType() == FAST_ENDS_ZMAN) {
                         if (isZmanimInHebrew) {
@@ -334,7 +341,6 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                             holder.mLeftTextViewSmall.setText(listEntry.getTitle());
                             holder.mLeftTextViewSmall.setVisibility(View.VISIBLE);
                         }
-                        holder.itemView.setOnClickListener(onClickListener);
                         break;
                     }
                 }
