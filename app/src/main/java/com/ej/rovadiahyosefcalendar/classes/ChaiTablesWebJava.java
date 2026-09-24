@@ -205,12 +205,7 @@ public final class ChaiTablesWebJava {
 
 		for (JewishDate yearLoop = (JewishDate) calendar.clone();
 			 yearLoop.getJewishYear() != calendar.getJewishYear() + 2;
-			 yearLoop.setJewishYear(yearLoop.getJewishYear() + 1)) {
-
-			if (calendar.getJewishYear() != yearLoop.getJewishYear()) {
-				yearLoop.setJewishMonth(JewishDate.TISHREI);
-				yearLoop.setJewishDayOfMonth(1);
-			}
+			 yearLoop.setJewishDate(yearLoop.getJewishYear() + 1, JewishDate.TISHREI, 1)) {
 
 			String cacheKey = smallestRadius + "-" + yearLoop.getJewishYear();
 			Document ctDoc = radiusData.get(cacheKey);
@@ -239,12 +234,7 @@ public final class ChaiTablesWebJava {
 
 		for (JewishDate yearLoop = (JewishDate) calendar.clone();
 			 yearLoop.getJewishYear() != calendar.getJewishYear() + 2;
-			 yearLoop.setJewishYear(yearLoop.getJewishYear() + 1)) {
-
-			if (calendar.getJewishYear() != yearLoop.getJewishYear()) {
-				yearLoop.setJewishMonth(JewishDate.TISHREI);
-				yearLoop.setJewishDayOfMonth(1);
-			}
+			 yearLoop.setJewishDate(yearLoop.getJewishYear() + 1, JewishDate.TISHREI, 1)) {
 
             try {
 				String chaitablesURL = customURL;
@@ -279,12 +269,7 @@ public final class ChaiTablesWebJava {
 
 		for (JewishDate yearLoop = (JewishDate) calendar.clone();
 			 yearLoop.getJewishYear() != calendar.getJewishYear() + 2;
-			 yearLoop.setJewishYear(yearLoop.getJewishYear() + 1)) {
-
-			if (calendar.getJewishYear() != yearLoop.getJewishYear()) {
-				yearLoop.setJewishMonth(JewishDate.TISHREI);
-				yearLoop.setJewishDayOfMonth(1);
-			}
+			 yearLoop.setJewishDate(yearLoop.getJewishYear() + 1, JewishDate.TISHREI, 1)) {
 
 			try {
 				//                      https://chaitables.com/cgi-bin/ChaiTables.cgi/?cgi_country=USA&cgi_USAcities2=0&cgi_eroshgt=0.0&cgi_geotz=-5.0&cgi_DST=ON&cgi_exactcoord=OFF&cgi_types=0&cgi_RoundSecond=1&cgi_AddCushion=2&cgi_24hr=&cgi_typezman=-1&cgi_yrheb=5786&cgi_optionheb=1&cgi_UserNumber=413&cgi_Language=English&cgi_AllowShaving=OFF&cgi_searchradius=1.3&cgi_TableType=Chai&cgi_USAcities1=31&cgi_eroslatitude=40.808548&cgi_eroslongitude=73.741425&cgi_MetroArea=jerusalem
