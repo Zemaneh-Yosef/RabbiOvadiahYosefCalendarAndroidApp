@@ -185,6 +185,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                             showOmerDialog();
                             break;
                         case TACHANUN:
+                        case PURIM_MESHULASH:
                             showTachanunDialog();
                             break;
                         case SHMITA_YEAR:
