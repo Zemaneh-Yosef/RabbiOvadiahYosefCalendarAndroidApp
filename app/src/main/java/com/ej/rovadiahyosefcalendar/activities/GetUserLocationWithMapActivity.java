@@ -412,17 +412,18 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
 
             sLatitude = latLng.latitude;
             sLongitude = latLng.longitude;
+            sCurrentLocationName = String.format(getResources().getConfiguration().getLocales().get(0), "Lat: %.3f, Long: %.3f", sLatitude, sLongitude);
+            mSharedPreferences.edit()
+                    .putString("advancedLN", sCurrentLocationName)
+                    .putString("advancedLat", String.valueOf(sLatitude))
+                    .putString("advancedLong", String.valueOf(sLongitude)).apply();
             mLocationResolver = new LocationResolver(GetUserLocationWithMapActivity.this, GetUserLocationWithMapActivity.this);
 
             mLocationResolver.getFullLocationName(true, locationName -> {
                 if (locationName != null) {
                     runOnUiThread(() -> currentLocation = mMap.addMarker(new MarkerOptions().position(latLng).draggable(true).title(locationName)));
                     sCurrentLocationName = locationName;
-
-                    mSharedPreferences.edit()
-                            .putString("advancedLN", sCurrentLocationName)
-                            .putString("advancedLat", String.valueOf(sLatitude))
-                            .putString("advancedLong", String.valueOf(sLongitude)).apply();
+                    mSharedPreferences.edit().putString("advancedLN", sCurrentLocationName).apply();
                 }
             });
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
