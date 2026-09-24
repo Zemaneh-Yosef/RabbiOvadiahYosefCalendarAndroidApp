@@ -888,6 +888,11 @@ public class SiddurFragment extends Fragment {
             return getSunsetBasedJewishDateInfo(true);
         }
 
+        private boolean isNoTachanunPurimMeshulash(JewishDateInfo jewishDateInfo) {
+            SharedPreferences sharedPreferences = mContext.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
+            return jewishDateInfo.isPurimMeshulash() && (sharedPreferences.getBoolean("isSafekMukafChoma", false) || sharedPreferences.getBoolean("isMukafChoma", false));
+        }
+
         private boolean isPrayerCurrentlySaid(String key) {
             if (currentZmanimCalendar.getSunset() == null || currentZmanimCalendar.getSunrise() == null) {
                 return true;// show the prayer by default
@@ -945,7 +950,7 @@ public class SiddurFragment extends Fragment {
                 }
                 String hallel = timeAdjustedJDI.getHallelOrChatziHallel();
                 if (hallel.isEmpty()) {
-                    String tachanun = switch (timeAdjustedJDI.getIsTachanunSaid()) {
+                    String tachanun = isNoTachanunPurimMeshulash(timeAdjustedJDI) ? "יהי שם" : switch (timeAdjustedJDI.getIsTachanunSaid()) {
                         case "צדקתך" -> "";
                         case "לא אומרים תחנון", "No Tachanun today" -> "יהי שם";
                         case "יש אומרים תחנון", "Some say Tachanun today",
@@ -987,7 +992,7 @@ public class SiddurFragment extends Fragment {
                 if (timeAdjustedJDI.getJewishCalendar().isTaanis()) {
                     entries.add("ענינו");
                 }
-                String tachanun = switch (timeAdjustedJDI.getIsTachanunSaid()) {
+                String tachanun = isNoTachanunPurimMeshulash(timeAdjustedJDI) ? "יהי שם" : switch (timeAdjustedJDI.getIsTachanunSaid()) {
                     case "לא אומרים תחנון", "No Tachanun today",
                          "אומרים תחנון רק בבוקר", "Tachanun only in the morning",
                          "יש אומרים תחנון בשחרית; אין תחנון במנחה", "Some say Tachanun in the morning; no Tachanun by mincha" -> "יהי שם";
