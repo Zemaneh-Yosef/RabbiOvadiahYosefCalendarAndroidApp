@@ -419,7 +419,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                     .putString("advancedLong", String.valueOf(sLongitude)).apply();
             mLocationResolver = new LocationResolver(GetUserLocationWithMapActivity.this, GetUserLocationWithMapActivity.this);
 
-            mLocationResolver.getFullLocationName(true, locationName -> {
+            mLocationResolver.getFullLocationName(latLng.latitude, latLng.longitude, true, locationName -> {
                 if (locationName != null) {
                     runOnUiThread(() -> currentLocation = mMap.addMarker(new MarkerOptions().position(latLng).draggable(true).title(locationName)));
                     sCurrentLocationName = locationName;
