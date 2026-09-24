@@ -43,6 +43,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -313,9 +314,8 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                 startActivity(new Intent(this, InIsraelActivity.class));
             }
         } else if (!Utils.isLocaleHebrew(this)) {
-            mSharedPreferences.edit()
-                    .putBoolean("LuachAmudeiHoraah", true)
-                    .putBoolean("useElevation", false).apply();
+            mSharedPreferences.edit().putBoolean("useElevation", false).apply();
+            PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("LuachAmudeiHoraah", true).apply();
             if (!getIntent().getBooleanExtra("loneActivity", false)) {
                 mSharedPreferences.edit().putBoolean("inIsrael", false).apply();
                 startActivity(new Intent(this, ZmanimLanguageActivity.class));
@@ -325,8 +325,8 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
             if (!getIntent().getBooleanExtra("loneActivity", false)) {
                 mSharedPreferences.edit().putBoolean("inIsrael", false).apply();
             }
+            PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("LuachAmudeiHoraah", true).apply();
             mSharedPreferences.edit()
-                    .putBoolean("LuachAmudeiHoraah", true)
                     .putBoolean("isZmanimInHebrew", true)
                     .putBoolean("isZmanimEnglishTranslated", false)
                     .putBoolean("isSetup", true).apply();

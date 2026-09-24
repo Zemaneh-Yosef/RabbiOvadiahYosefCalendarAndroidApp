@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.preference.PreferenceManager;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
@@ -90,8 +91,8 @@ public class InIsraelActivity extends AppCompatActivity {
 
     private void saveInfoAndStartActivity(boolean b) {
         mSharedPreferences.edit().putBoolean("inIsrael", b)
-                .putBoolean("LuachAmudeiHoraah", !b)
                 .putBoolean("useElevation", !b).apply();
+        PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("LuachAmudeiHoraah", !b).apply();
         if (Utils.isLocaleHebrew(this)) {
             mSharedPreferences.edit().putBoolean("isZmanimInHebrew", true)
                     .putBoolean("isZmanimEnglishTranslated", false)
