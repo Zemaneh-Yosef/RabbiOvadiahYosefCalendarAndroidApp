@@ -21,7 +21,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -65,6 +64,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.maps.android.SphericalUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -706,17 +706,9 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
         timezone.setGravity(Gravity.CENTER);
 
         Spinner timezones = new Spinner(this);
-        timezones.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, TimeZone.getAvailableIDs()));
-        timezones.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String s = (String) parent.getItemAtPosition(position);
-                mSharedPreferences.edit().putString("advancedTimezone", s).apply();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
-        });
+        String[] timeZoneIDs = TimeZone.getAvailableIDs();
+        timezones.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, timeZoneIDs));
+        timezones.setSelection(Arrays.asList(timeZoneIDs).indexOf(sCurrentTimeZoneID));
 
         linearLayout.addView(locationName);
         linearLayout.addView(locationInput);
@@ -765,6 +757,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                                 .putString("advancedLN", locationInput.getText().toString())
                                 .putString("advancedLat", latInput.getText().toString())
                                 .putString("advancedLong", longInput.getText().toString())
+                                .putString("advancedTimezone", (String) timezones.getSelectedItem())
                                 .putString("elevation" + locationInput.getText().toString(),
                                 elevationInput.getText().toString()).apply();
 
