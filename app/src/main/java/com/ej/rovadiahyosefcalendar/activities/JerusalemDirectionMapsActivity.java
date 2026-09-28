@@ -8,6 +8,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -59,6 +60,7 @@ public class JerusalemDirectionMapsActivity extends FragmentActivity implements 
     private final float[] orientationAngles = new float[3];
     private final LinkedList<Double> m_window = new LinkedList<>();
     private float smoothedAzimuthDegrees = 0.0f;
+    private float declination;
     private Marker triMarker;
     private final LatLng jer = new LatLng(31.778015, 35.235413);
     private final LatLng currentLocation = new LatLng(sLatitude, sLongitude);
@@ -94,6 +96,7 @@ public class JerusalemDirectionMapsActivity extends FragmentActivity implements 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        declination = new GeomagneticField((float) currentLocation.latitude, (float) currentLocation.longitude, 0f, System.currentTimeMillis()).getDeclination();
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
@@ -275,7 +278,7 @@ public class JerusalemDirectionMapsActivity extends FragmentActivity implements 
         if (SensorManager.getRotationMatrix(rotationMatrix, null, accelerometerReading, magnetometerReading)) {
             SensorManager.getOrientation(rotationMatrix, orientationAngles);
 
-            smoothedAzimuthDegrees = filtrate(orientationAngles[0] / (2 * Math.PI) * 360);
+            smoothedAzimuthDegrees = (filtrate(orientationAngles[0] / (2 * Math.PI) * 360) + declination + 360) % 360;
 
             if (triMarker != null) {
                 triMarker.setRotation(smoothedAzimuthDegrees);
@@ -290,7 +293,7 @@ public class JerusalemDirectionMapsActivity extends FragmentActivity implements 
 
         double bearing = current.getRhumbLineBearing(jerusalemLocation);// Specifically use the Rhumb Line method as instructed by Rav Elbaz as Rabbi Ovadia would always pray eastward when traveling
 
-        double directionDifference = Math.abs((smoothedAzimuthDegrees - bearing));
+        double directionDifference = Math.abs(((smoothedAzimuthDegrees - bearing) % 360 + 540) % 360 - 180);
 
         double threshold = 10.0; // Adjust this threshold as needed
 
