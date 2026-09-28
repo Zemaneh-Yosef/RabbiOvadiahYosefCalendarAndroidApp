@@ -154,7 +154,7 @@ private fun SiddurScreen(
 	var showCategoryMenu by remember { mutableStateOf(false) }
 
 	val defaultBackgroundColor = getThemeColor(android.R.attr.colorBackground)
-    val defaultTextColor: Color = getThemeColor(android.R.attr.textColorPrimary)
+	val defaultTextColor: Color = getThemeColor(android.R.attr.textColorPrimary)
 
 	Scaffold(
 		containerColor = defaultBackgroundColor,
@@ -306,128 +306,129 @@ private fun SiddurBottomBar(
 
 @Composable
 private fun Compass(instructionalText: String) {
-    val context = LocalContext.current
-    val sensorManager = remember {
-        context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-    }
-    val accelerometer = remember {
-        sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-    }
-    val magnetometer = remember {
-        sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
-    }
+	val context = LocalContext.current
+	val sensorManager = remember {
+		context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+	}
+	val accelerometer = remember {
+		sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+	}
+	val magnetometer = remember {
+		sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
+	}
 
-    var degree by remember { mutableFloatStateOf(0f) }
+	// Unwrapped heading: may go below 0 / above 360 so the animation always
+	// takes the shortest path across the 359° -> 0° boundary.
+	var unwrappedDegree by remember { mutableFloatStateOf(0f) }
 
-    // --- Track smoothed rotation between readings ---
-    var previousDegree by remember { mutableFloatStateOf(0f) }
-    var smoothDegree by remember { mutableFloatStateOf(0f) }
+	DisposableEffect(Unit) {
+		val accelerometerReading = FloatArray(3)
+		val magnetometerReading = FloatArray(3)
+		val rotationMatrix = FloatArray(9)
+		val orientationAngles = FloatArray(3)
+		val window = LinkedList<Double>()
+		var lastFilteredDegree = Float.NaN // previous raw (0..360) heading
 
-    DisposableEffect(Unit) {
-        val accelerometerReading = FloatArray(3)
-        val magnetometerReading = FloatArray(3)
-        val rotationMatrix = FloatArray(9)
-        val orientationAngles = FloatArray(3)
-        val window = LinkedList<Double>()
+		fun filtrate(value: Double): Float {
+			window.add(value)
+			if (window.size > 50) {
+				window.remove()
+			}
+			var sumx = 0.0
+			var sumy = 0.0
+			for (d in window) {
+				sumx += cos(d / 360 * (2 * Math.PI))
+				sumy += sin(d / 360 * (2 * Math.PI))
+			}
+			val avgx = sumx / window.size
+			val avgy = sumy / window.size
+			val temp = atan2(avgy, avgx) / (2 * Math.PI) * 360
+			return if (temp < 0) (temp + 360).toFloat() % 360 else temp.toFloat()
+		}
 
-        fun filtrate(value: Double): Float {
-            window.add(value)
-            if (window.size > 50) {
-                window.remove()
-            }
-            var sumx = 0.0
-            var sumy = 0.0
-            for (d in window) {
-                sumx += cos(d / 360 * (2 * Math.PI))
-                sumy += sin(d / 360 * (2 * Math.PI))
-            }
-            val avgx = sumx / window.size
-            val avgy = sumy / window.size
-            val temp = atan2(avgy, avgx) / (2 * Math.PI) * 360
-            return if (temp < 0) (temp + 360).toFloat() % 360 else temp.toFloat()
-        }
+		val sensorListener = object : SensorEventListener {
+			override fun onSensorChanged(event: SensorEvent?) {
+				if (event == null) return
 
-        val sensorListener = object : SensorEventListener {
-            override fun onSensorChanged(event: SensorEvent?) {
-                if (event == null) return
+				if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) {
+					System.arraycopy(event.values, 0, accelerometerReading, 0, accelerometerReading.size)
+				} else if (event.sensor.type == Sensor.TYPE_MAGNETIC_FIELD) {
+					System.arraycopy(event.values, 0, magnetometerReading, 0, magnetometerReading.size)
+				}
 
-                if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) {
-                    System.arraycopy(event.values, 0, accelerometerReading, 0, accelerometerReading.size)
-                } else if (event.sensor.type == Sensor.TYPE_MAGNETIC_FIELD) {
-                    System.arraycopy(event.values, 0, magnetometerReading, 0, magnetometerReading.size)
-                }
+				if (SensorManager.getRotationMatrix(rotationMatrix, null, accelerometerReading, magnetometerReading)) {
+					SensorManager.getOrientation(rotationMatrix, orientationAngles)
+					val azimuthDegrees = Math.toDegrees(orientationAngles[0].toDouble())
+					val filtered = filtrate(azimuthDegrees)
 
-                if (SensorManager.getRotationMatrix(rotationMatrix, null, accelerometerReading, magnetometerReading)) {
-                    SensorManager.getOrientation(rotationMatrix, orientationAngles)
-                    val azimuthDegrees = Math.toDegrees(orientationAngles[0].toDouble())
-                    degree = filtrate(azimuthDegrees)
-                }
-            }
+					if (lastFilteredDegree.isNaN()) {
+						unwrappedDegree = filtered
+					} else {
+						// Shortest signed difference between the two headings
+						var delta = filtered - lastFilteredDegree
+						if (delta > 180f) delta -= 360f
+						if (delta < -180f) delta += 360f
+						unwrappedDegree += delta
+					}
+					lastFilteredDegree = filtered
+				}
+			}
 
-            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-                when (accuracy) {
-                    SensorManager.SENSOR_STATUS_UNRELIABLE, SensorManager.SENSOR_STATUS_ACCURACY_LOW -> {
-                        Toast.makeText(context, AppR.string.sensor_accuracy_is_low, Toast.LENGTH_SHORT).show()
-                    }
-                    SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM, SensorManager.SENSOR_STATUS_ACCURACY_HIGH -> {
-                        Toast.makeText(context, AppR.string.sensor_accuracy_is_okay, Toast.LENGTH_SHORT).show()
-                    }
-                    SensorManager.SENSOR_STATUS_NO_CONTACT -> {
-                        Toast.makeText(context, AppR.string.no_sensor_found, Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-        }
+			override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+				when (accuracy) {
+					SensorManager.SENSOR_STATUS_UNRELIABLE, SensorManager.SENSOR_STATUS_ACCURACY_LOW -> {
+						Toast.makeText(context, AppR.string.sensor_accuracy_is_low, Toast.LENGTH_SHORT).show()
+					}
+					SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM, SensorManager.SENSOR_STATUS_ACCURACY_HIGH -> {
+						Toast.makeText(context, AppR.string.sensor_accuracy_is_okay, Toast.LENGTH_SHORT).show()
+					}
+					SensorManager.SENSOR_STATUS_NO_CONTACT -> {
+						Toast.makeText(context, AppR.string.no_sensor_found, Toast.LENGTH_SHORT).show()
+					}
+				}
+			}
+		}
 
-        sensorManager.registerListener(sensorListener, accelerometer, SensorManager.SENSOR_DELAY_UI)
-        sensorManager.registerListener(sensorListener, magnetometer, SensorManager.SENSOR_DELAY_UI)
+		sensorManager.registerListener(sensorListener, accelerometer, SensorManager.SENSOR_DELAY_UI)
+		sensorManager.registerListener(sensorListener, magnetometer, SensorManager.SENSOR_DELAY_UI)
 
-        onDispose {
-            sensorManager.unregisterListener(sensorListener)
-        }
-    }
+		onDispose {
+			sensorManager.unregisterListener(sensorListener)
+		}
+	}
 
-    // --- Handle wraparound smoothing ---
-    val displayDegree = remember(degree) {
-        var delta = degree - previousDegree
-        if (delta > 180f) delta -= 360f
-        if (delta < -180f) delta += 360f
-        smoothDegree += delta
-        smoothDegree
-    }
+	val animatedDegree by animateFloatAsState(
+		targetValue = -unwrappedDegree,
+		animationSpec = spring(
+			dampingRatio = Spring.DampingRatioMediumBouncy,
+			stiffness = Spring.StiffnessLow
+		),
+		label = "CompassRotation"
+	)
 
-    val animatedDegree by animateFloatAsState(
-        targetValue = -displayDegree,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow // try StiffnessMedium for snappier movement
-        ),
-        label = "CompassRotation"
-    )
-
-    if (accelerometer != null || magnetometer != null) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.Black)
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = instructionalText,
-                color = Color.Yellow,
-                textAlign = TextAlign.Center
-            )
-            Image(
-                painter = painterResource(id = AppR.drawable.compass),
-                contentDescription = "Compass",
-                modifier = Modifier
-                    .fillMaxWidth(0.8f) // take 80% of screen width
-                    .aspectRatio(1f)
-                    .rotate(animatedDegree)
-            )
-        }
-    }
+	if (accelerometer != null && magnetometer != null) {// need both
+		Column(
+			modifier = Modifier
+				.fillMaxWidth()
+				.background(Color.Black)
+				.padding(16.dp),
+			horizontalAlignment = Alignment.CenterHorizontally
+		) {
+			Text(
+				text = instructionalText,
+				color = Color.Yellow,
+				textAlign = TextAlign.Center
+			)
+			Image(
+				painter = painterResource(id = AppR.drawable.compass),
+				contentDescription = "Compass",
+				modifier = Modifier
+					.fillMaxWidth(0.8f)
+					.aspectRatio(1f)
+					.rotate(animatedDegree)
+			)
+		}
+	}
 }
 
 @Composable
