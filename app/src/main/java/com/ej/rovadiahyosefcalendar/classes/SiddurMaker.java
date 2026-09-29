@@ -216,7 +216,8 @@ public class SiddurMaker {
 				&& (jewishDateInfo.getIsTachanunSaid().equals("Tachanun only in the morning")
 				|| jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון רק בבוקר")
 				|| jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun today")
-				|| jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון") || jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון בשחרית; אין תחנון במנחה")
+				|| jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון")
+				|| jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון בשחרית; אין תחנון במנחה")
 				|| jewishDateInfo.getIsTachanunSaid().equals("There is Tachanun today")
 				|| jewishDateInfo.getIsTachanunSaid().equals("אומרים תחנון")
 				|| jewishDateInfo.getIsTachanunSaid().equals("יש מדלגים תחנון במנחה")
@@ -2042,6 +2043,7 @@ public class SiddurMaker {
 				"כִּ֖י (למעלה)\n".replace(isHebrew ? "@" : "למעלה", "Up") +
 				"לְעוֹלָ֣ם (למטה)\n".replace(isHebrew ? "@" : "למטה", "Down") +
 				"חַסְדּֽוֹ (מערב)׃".replace(isHebrew ? "@" : "מערב", "West"));
+			addToSiddurHighlighted("הוֹד֣וּ לַיהֹוָ֣ה כִּי־ט֑וֹב כִּ֖י לְעוֹלָ֣ם חַסְדּֽוֹ׃");
 		} else {
 			addOneWordToSiddurHighlighted("הוֹד֣וּ לַיהֹוָ֣ה כִּי־ט֑וֹב כִּ֖י לְעוֹלָ֣ם חַסְדּֽוֹ׃");
 			addToSiddurHighlighted(
@@ -4615,6 +4617,14 @@ public class SiddurMaker {
 		addOneWordToSiddur(getTehilimChapterTextByIndex(42));
 		addTwoWordToSiddur(getTehilimChapterTextByIndex(43));
 		if (isTachanunSaid) {
+			if (jewishDateInfo.getIsTachanunSaid().equals("Some skip Tachanun by mincha")
+					|| jewishDateInfo.getIsTachanunSaid().equals("יש מדלגים תחנון במנחה")
+					|| jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun today")
+					|| jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון בשחרית; אין תחנון במנחה")
+					|| jewishDateInfo.getIsTachanunSaid().equals("Some say Tachanun in the morning; no Tachanun by mincha")
+					|| jewishDateInfo.getIsTachanunSaid().equals("יש אומרים תחנון")) {
+				addToSiddur("[" + jewishDateInfo.getIsTachanunSaid() + "]");
+			}
 			addOneWordToSiddurHighlighted(getTehilimChapterTextByIndex(20));
 		}
 		addOneWordToSiddur(getTehilimChapterTextByIndex(24));

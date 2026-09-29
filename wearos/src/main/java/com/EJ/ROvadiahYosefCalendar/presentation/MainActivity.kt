@@ -3,10 +3,8 @@ package com.EJ.ROvadiahYosefCalendar.presentation
 import android.Manifest
 import android.app.AlarmManager
 import android.app.AlertDialog
-import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.PendingIntent.CanceledException
-import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Context
 import android.content.DialogInterface
@@ -847,7 +845,7 @@ class MainActivity : ComponentActivity() {
 
     private fun addTekufaTime() {
         val zmanimFormat: DateFormat =
-            if (Locale.getDefault().getDisplayLanguage(Locale.Builder().setLanguage("en").setRegion("US").build()) == "Hebrew") {
+            if (Utils.isLocaleHebrew(baseContext)) {
                 SimpleDateFormat("H:mm", Locale.getDefault())
             } else {
                 SimpleDateFormat("h:mm aa", Locale.getDefault())
@@ -865,7 +863,7 @@ class MainActivity : ComponentActivity() {
             cal2.time =
                 mJewishDateInfo.jewishCalendar.tekufaAsDate // should not be null in this if block
             if (cal1[Calendar.ERA] == cal2[Calendar.ERA] && cal1[Calendar.YEAR] == cal2[Calendar.YEAR] && cal1[Calendar.DAY_OF_YEAR] == cal2[Calendar.DAY_OF_YEAR]) {
-                if (Locale.getDefault().getDisplayLanguage(Locale.Builder().setLanguage("en").setRegion("US").build()) == "Hebrew") {
+                if (Utils.isLocaleHebrew(baseContext)) {
                     zmanim.add(
                         ZmanListEntry(
                             "תקופת " + mJewishDateInfo.jewishCalendar.getTekufaName(Utils.isLocaleHebrew(baseContext)) +
@@ -891,7 +889,7 @@ class MainActivity : ComponentActivity() {
             cal2.time =
                 mJewishDateInfo.jewishCalendar.tekufaAsDate // should not be null in this if block
             if (cal1[Calendar.ERA] == cal2[Calendar.ERA] && cal1[Calendar.YEAR] == cal2[Calendar.YEAR] && cal1[Calendar.DAY_OF_YEAR] == cal2[Calendar.DAY_OF_YEAR]) {
-                if (Locale.getDefault().getDisplayLanguage(Locale.Builder().setLanguage("en").setRegion("US").build()) == "Hebrew") {
+                if (Utils.isLocaleHebrew(baseContext)) {
                     zmanim.add(
                         ZmanListEntry(
                             "תקופת " + mJewishDateInfo.jewishCalendar.getTekufaName(Utils.isLocaleHebrew(baseContext)) +
@@ -912,7 +910,7 @@ class MainActivity : ComponentActivity() {
 
     private fun addAmudeiHoraahTekufaTime() {
         val zmanimFormat: DateFormat =
-            if (Locale.getDefault().getDisplayLanguage(Locale.Builder().setLanguage("en").setRegion("US").build()) == "Hebrew") {
+            if (Utils.isLocaleHebrew(baseContext)) {
                 SimpleDateFormat("H:mm", Locale.getDefault())
             } else {
                 SimpleDateFormat("h:mm aa", Locale.getDefault())
@@ -924,13 +922,13 @@ class MainActivity : ComponentActivity() {
         ) //check next day for tekufa, because the tekufa time can go back a day
         mJewishDateInfo.setCalendar(mROZmanimCalendar.calendar)
         mROZmanimCalendar.calendar.add(Calendar.DATE, -1) //reset the calendar
-        if (mJewishDateInfo.jewishCalendar.tekufa != null) {
+        if (mJewishDateInfo.jewishCalendar.amudeiHoraahTekufaAsDate != null) {
             val cal1 = mROZmanimCalendar.calendar.clone() as Calendar
             val cal2 = mROZmanimCalendar.calendar.clone() as Calendar
             cal2.time =
                 mJewishDateInfo.jewishCalendar.amudeiHoraahTekufaAsDate // should not be null in this if block
             if (cal1[Calendar.ERA] == cal2[Calendar.ERA] && cal1[Calendar.YEAR] == cal2[Calendar.YEAR] && cal1[Calendar.DAY_OF_YEAR] == cal2[Calendar.DAY_OF_YEAR]) {
-                if (Locale.getDefault().getDisplayLanguage(Locale.Builder().setLanguage("en").setRegion("US").build()) == "Hebrew") {
+                if (Utils.isLocaleHebrew(baseContext)) {
                     zmanim.add(
                         ZmanListEntry(
                             "תקופת " + mJewishDateInfo.jewishCalendar.getTekufaName(Utils.isLocaleHebrew(baseContext)) +
@@ -950,13 +948,13 @@ class MainActivity : ComponentActivity() {
         mJewishDateInfo.setCalendar(mROZmanimCalendar.calendar) //reset
 
         //else the tekufa time is on the same day as the current date, so we can add it normally
-        if (mJewishDateInfo.jewishCalendar.tekufa != null) {
+        if (mJewishDateInfo.jewishCalendar.amudeiHoraahTekufaAsDate != null) {
             val cal1 = mROZmanimCalendar.calendar.clone() as Calendar
             val cal2 = mROZmanimCalendar.calendar.clone() as Calendar
             cal2.time =
                 mJewishDateInfo.jewishCalendar.amudeiHoraahTekufaAsDate // should not be null in this if block
             if (cal1[Calendar.ERA] == cal2[Calendar.ERA] && cal1[Calendar.YEAR] == cal2[Calendar.YEAR] && cal1[Calendar.DAY_OF_YEAR] == cal2[Calendar.DAY_OF_YEAR]) {
-                if (Locale.getDefault().getDisplayLanguage(Locale.Builder().setLanguage("en").setRegion("US").build()) == "Hebrew") {
+                if (Utils.isLocaleHebrew(baseContext)) {
                     zmanim.add(
                         ZmanListEntry(
                             "תקופת " + mJewishDateInfo.jewishCalendar.getTekufaName(Utils.isLocaleHebrew(baseContext)) +
@@ -977,7 +975,7 @@ class MainActivity : ComponentActivity() {
 
     private fun addTekufaLength(zmanim: MutableList<ZmanListEntry>, opinion: String?) {
         val millisPerHour = 3_600_000
-        val zmanimFormat: DateFormat = if (Locale.getDefault().getDisplayLanguage(Locale.Builder().setLanguage("en").setRegion("US").build()) == "Hebrew") {
+        val zmanimFormat: DateFormat = if (Utils.isLocaleHebrew(baseContext)) {
             SimpleDateFormat("H:mm", Locale.getDefault())
         } else {
             SimpleDateFormat("h:mm aa", Locale.getDefault())
@@ -1116,7 +1114,12 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun setNextUpcomingZman() {
-        sNextUpcomingZman = ZmanimFactory.getNextUpcomingZman(Calendar.getInstance(), mROZmanimCalendar, mJewishDateInfo, sharedPref).zman
+        val nextZman = ZmanimFactory.getNextUpcomingZman(Calendar.getInstance(), mROZmanimCalendar, mJewishDateInfo, sharedPref)
+        if (nextZman == null || nextZman.zman == null) {
+            sNextUpcomingZman = Date(System.currentTimeMillis() + 30000) // try again in 30 seconds
+        } else {
+            sNextUpcomingZman = nextZman.zman
+        }
         setNextUpcomingZmanIndex()
     }
 

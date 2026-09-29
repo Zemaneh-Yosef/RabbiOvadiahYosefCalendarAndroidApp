@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import android.content.Intent
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationType
+import androidx.wear.watchface.complications.data.LongTextComplicationData
 import androidx.wear.watchface.complications.data.PlainComplicationText
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.complications.datasource.ComplicationRequest
@@ -24,30 +25,50 @@ class MainComplicationService : SuspendingComplicationDataSourceService() {
         val hebrewDateFormatter = HebrewDateFormatter()
         hebrewDateFormatter.isHebrewFormat = true
         if (type == ComplicationType.SHORT_TEXT) {
-            return createComplicationData(hebrewDateFormatter.formatDayOfWeek(jewishDateInfo.jewishCalendar), jewishDateInfo.jewishDayOfWeek)
+            return createShortComplicationData(hebrewDateFormatter.formatDayOfWeek(jewishDateInfo.jewishCalendar), jewishDateInfo.jewishDayOfWeek)
         } else if (type == ComplicationType.LONG_TEXT) {
-            return createComplicationData(jewishDateInfo.jewishCalendar.toString(), jewishDateInfo.jewishCalendar.toString())
+            return createLongComplicationData(jewishDateInfo.jewishCalendar.toString(), jewishDateInfo.jewishCalendar.toString())
         }
         return null
     }
 
-    override suspend fun onComplicationRequest(request: ComplicationRequest): ComplicationData {
+    override suspend fun onComplicationRequest(request: ComplicationRequest): ComplicationData? {
         val jewishDateInfo = JewishDateInfo(false)// in Israel should not matter
         jewishDateInfo.resetLocale(baseContext)
         val hebrewDateFormatter = HebrewDateFormatter()
         hebrewDateFormatter.isHebrewFormat = true
-        return if (request.complicationType == ComplicationType.SHORT_TEXT) {
-            createComplicationData(hebrewDateFormatter.formatDayOfWeek(jewishDateInfo.jewishCalendar), jewishDateInfo.jewishDayOfWeek)
-        } else {
-            return createComplicationData(jewishDateInfo.jewishCalendar.toString(), jewishDateInfo.jewishCalendar.toString())
+        return when (request.complicationType) {
+            ComplicationType.SHORT_TEXT -> {
+                createShortComplicationData(
+                    hebrewDateFormatter.formatDayOfWeek(jewishDateInfo.jewishCalendar),
+                    jewishDateInfo.jewishDayOfWeek
+                )
+            }
+            ComplicationType.LONG_TEXT -> {
+                createLongComplicationData(
+                    jewishDateInfo.jewishCalendar.toString(),
+                    jewishDateInfo.jewishCalendar.toString()
+                )
+            }
+            else -> {
+                null
+            }
         }
     }
 
-    private fun createComplicationData(text: String, contentDescription: String) =
-            ShortTextComplicationData.Builder(
-                    text = PlainComplicationText.Builder(text).build(),
-                    contentDescription = PlainComplicationText.Builder(contentDescription).build()
-            )
-                .setTapAction(PendingIntent.getActivity(this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
-                .build()
+    private fun createShortComplicationData(text: String, contentDescription: String) =
+        ShortTextComplicationData.Builder(
+            text = PlainComplicationText.Builder(text).build(),
+            contentDescription = PlainComplicationText.Builder(contentDescription).build()
+        )
+            .setTapAction(PendingIntent.getActivity(this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
+            .build()
+
+    private fun createLongComplicationData(text: String, contentDescription: String) =
+        LongTextComplicationData.Builder(
+            text = PlainComplicationText.Builder(text).build(),
+            contentDescription = PlainComplicationText.Builder(contentDescription).build()
+        )
+            .setTapAction(PendingIntent.getActivity(this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
+            .build()
 }

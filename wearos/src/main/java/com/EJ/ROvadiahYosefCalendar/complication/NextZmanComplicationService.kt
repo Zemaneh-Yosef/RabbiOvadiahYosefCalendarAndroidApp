@@ -24,7 +24,7 @@ class NextZmanComplicationService : BaseZmanComplicationService() {
         private val COLOR_RED = "#F44336".toColorInt()
     }
 
-    override fun getPreviewData(type: ComplicationType): ComplicationData =
+    override fun getPreviewData(type: ComplicationType): ComplicationData? =
         getComplicationData()
 
     override suspend fun onComplicationRequest(request: ComplicationRequest): ComplicationData? {
@@ -34,10 +34,13 @@ class NextZmanComplicationService : BaseZmanComplicationService() {
         return getComplicationData()
     }
 
-    private fun getComplicationData(): ComplicationData {
+    private fun getComplicationData(): ComplicationData? {
         val currentTime = Date().time
         val zman = getNextUpcomingZman(applicationContext)  // single call; sets up formatters
-        val msLeft = (zman?.zman?.time ?: 0L) - currentTime
+        if (zman?.zman == null) {
+            return null
+        }
+        val msLeft = (zman.zman?.time ?: 0L) - currentTime
         val minutesLeft = (msLeft / 60_000L).toInt()
 
         val arcValue: Float
@@ -70,7 +73,7 @@ class NextZmanComplicationService : BaseZmanComplicationService() {
             text = getString(R.string.complete_until_next_zman, minutesLeft.coerceAtLeast(0))
         ).build()
 
-        val timeStr = zman?.let { formatZmanTime(it) } ?: ""
+        val timeStr = formatZmanTime(zman)
 
         val builder = RangedValueComplicationData.Builder(
             value = arcValue,
@@ -84,7 +87,7 @@ class NextZmanComplicationService : BaseZmanComplicationService() {
                 ).build()
             )
             .setMonochromaticImage(monochromaticImage)
-            .setTitle(zman?.let {
+            .setTitle(zman.let {
                 PlainComplicationText.Builder(text = shortenTitle(it.title)).build()
             })
             .setTapAction(
