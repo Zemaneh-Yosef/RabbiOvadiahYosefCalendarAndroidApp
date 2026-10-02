@@ -589,10 +589,10 @@ public class LocationResolver {
      */
     public void getElevationFromWebService(Handler handler, Runnable codeToRunInBackground, Runnable codeToRunOnMainThread) {
         WebService.setUserName("Elyahu41");
-        boolean useResolvedLocation = mLocationName != null && !mLocationName.isEmpty();
+        boolean useResolvedLocation = mLatitude != 0 || mLongitude != 0;
         double latitude = useResolvedLocation ? mLatitude : sLatitude;
         double longitude = useResolvedLocation ? mLongitude : sLongitude;
-        String locationName = useResolvedLocation ? mLocationName : sCurrentLocationName;
+        String locationName = mLocationName != null && !mLocationName.isEmpty() ? mLocationName : sCurrentLocationName;
         ArrayList<Integer> elevations = new ArrayList<>();
         int sum = 0;
         try {
