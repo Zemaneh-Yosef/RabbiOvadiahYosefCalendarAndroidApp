@@ -209,14 +209,18 @@ public class ZmanimNotifications extends BroadcastReceiver {
 
         minutesBefore = mSharedPreferences.getInt("RT", -1);
         if (minutesBefore >= 0) {
-            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getRTString(), c.getTzais72Zmanis(), minutesBefore));//always add
+            if ((jewishCalendar.isAssurBemelacha() && !jewishCalendar.hasCandleLighting())
+                    || jewishCalendar.getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY
+                    || mSharedPreferences.getBoolean("AlwaysShowRT", false)) {
+                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getRTString(), c.getTzais72Zmanis(), minutesBefore));
+            }
         }
 
         minutesBefore = mSharedPreferences.getInt("ShabbatEnd", -1);
         if (minutesBefore >= 0) {
             if (jewishCalendar.isAssurBemelacha() && !jewishCalendar.hasCandleLighting()) {
                 pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTzaitString() + getShabbatAndOrChag(jewishCalendar),
-                        c.getTzaisAteretTorah(), minutesBefore));//only add if it's shabbat or yom tov
+                        getShabbatEnd(c, c.getTzaisAteretTorah()), minutesBefore));//only add if it's shabbat or yom tov
             }
         }
 
@@ -340,7 +344,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
 
         minutesBefore = mSharedPreferences.getInt("TalitTefilin", 15);
         if (minutesBefore >= 0) {
-            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTalitTefilinString(), c.getMisheyakir66ZmaniyotMinutes(), minutesBefore));//always add
+            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTalitTefilinString(), c.getMisheyakir60ZmaniyotMinutes(), minutesBefore));//always add
         }
 
         minutesBefore = mSharedPreferences.getInt("Alot", -1);
@@ -367,13 +371,25 @@ public class ZmanimNotifications extends BroadcastReceiver {
 
         minutesBefore = mSharedPreferences.getInt("RT", -1);
         if (minutesBefore >= 0) {
-            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getRTString(), c.getTzais72ZmanisAmudeiHoraahLkulah(), minutesBefore));//always add
+            if ((jewishCalendar.isAssurBemelacha() && !jewishCalendar.hasCandleLighting())
+                    || jewishCalendar.getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY
+                    || mSharedPreferences.getBoolean("AlwaysShowRT", false)) {
+                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getRTString(),
+                        mSharedPreferences.getBoolean("overrideRTZman", false) ? c.getTzais72Zmanis() : c.getTzais72ZmanisAmudeiHoraahLkulah(), minutesBefore));
+            }
         }
 
         minutesBefore = mSharedPreferences.getInt("ShabbatEnd", -1);
         if (minutesBefore >= 0) {
             if (jewishCalendar.isAssurBemelacha() && !jewishCalendar.hasCandleLighting()) {//only add if it's shabbat or yom tov
-                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTzaitString() + getShabbatAndOrChag(jewishCalendar), c.getTzaitShabbatAmudeiHoraah(), minutesBefore));
+                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTzaitString() + getShabbatAndOrChag(jewishCalendar), getShabbatEnd(c, c.getTzaitShabbatAmudeiHoraah()), minutesBefore));
+            }
+        }
+
+        if (jewishCalendar.isTaanis() && jewishCalendar.getYomTovIndex() != JewishCalendar.YOM_KIPPUR) {//only add if it's a taanit and not yom kippur
+            minutesBefore = mSharedPreferences.getInt("FastEnd", 15);
+            if (minutesBefore >= 0) {
+                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTzaitString() + zmanimNames.getTaanitString(), c.getTzeitAmudeiHoraahLChumra(), minutesBefore));
             }
         }
 
@@ -474,7 +490,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
 
         minutesBefore = mSharedPreferences.getInt("TalitTefilin", 15);
         if (minutesBefore >= 0) {
-            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTalitTefilinString(), c.getMisheyakir66AmudeiHoraah(), minutesBefore));//always add
+            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTalitTefilinString(), c.getMisheyakir60AmudeiHoraah(), minutesBefore));//always add
         }
 
         minutesBefore = mSharedPreferences.getInt("Alot", -1);
@@ -484,6 +500,17 @@ public class ZmanimNotifications extends BroadcastReceiver {
 
         Collections.reverse(pairArrayList);
         return pairArrayList;
+    }
+
+    private Date getShabbatEnd(ROZmanimCalendar c, Date shabbatEnd) {
+        if (mSharedPreferences.getBoolean("overrideAHEndShabbatTime", false)) {
+            switch (mSharedPreferences.getString("EndOfShabbatOpinion", "1")) {
+                case "1" -> shabbatEnd = c.getTzaisAteretTorah();
+                case "2" -> shabbatEnd = c.getTzaitShabbatAmudeiHoraah();
+                case "3" -> shabbatEnd = c.getTzaitShabbatAmudeiHoraahLesserThan40();
+            }
+        }
+        return shabbatEnd;
     }
 
     private String getShabbatAndOrChag(JewishCalendar jewishCalendar) {
