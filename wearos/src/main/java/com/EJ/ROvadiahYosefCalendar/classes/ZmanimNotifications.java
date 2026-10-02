@@ -235,11 +235,9 @@ public class ZmanimNotifications extends BroadcastReceiver {
             }
         }
 
-        if (mSharedPreferences.getBoolean("alwaysShowTzeitLChumra", false)) {
-            minutesBefore = mSharedPreferences.getInt("TzeitHacochavimLChumra", 15);
-            if (minutesBefore >= 0) {
-                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTzaitHacochavimString() + " " + zmanimNames.getLChumraString(), c.getTzeitLChumra(), minutesBefore, "TzeitHacochavimLChumra", SecondTreatment.ROUND_LATER));
-            }
+        minutesBefore = mSharedPreferences.getInt("TzeitHacochavimLChumra", 15);
+        if (minutesBefore >= 0) {
+            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTzaitHacochavimString() + " " + zmanimNames.getLChumraString(), c.getTzeitLChumra(), minutesBefore, "TzeitHacochavimLChumra", SecondTreatment.ROUND_LATER));//always add
         }
 
         minutesBefore = mSharedPreferences.getInt("TzeitHacochavim", 15);
