@@ -9,11 +9,13 @@ public class ZmanInformationHolder {
     private final String zmanName;
     private final Date zmanDate;
     private final int notificationDelay;
+    private final String notificationKey;
 
-    public ZmanInformationHolder(String zmanName, Date zmanDate, int notificationDelay) {
+    public ZmanInformationHolder(String zmanName, Date zmanDate, int notificationDelay, String notificationKey) {
         this.zmanName = zmanName;
         this.zmanDate = zmanDate;
         this.notificationDelay = notificationDelay;
+        this.notificationKey = notificationKey;
     }
 
     public String getZmanName() {
@@ -26,6 +28,10 @@ public class ZmanInformationHolder {
 
     public int getNotificationDelay() {
         return notificationDelay;
+    }
+
+    public String getNotificationKey() {
+        return notificationKey;
     }
 
     @NonNull
