@@ -146,7 +146,7 @@ public class ZmanNotification extends BroadcastReceiver {
                 alarmIntent.putExtra("zmanTime", zmanTime);
                 alarmIntent.putExtra("secondsTreatment", secondsTreatment);
                 alarmIntent.putExtra("notificationId", (int) (notificationID % Integer.MAX_VALUE));
-                contentIntent = PendingIntent.getActivity(context, 1, alarmIntent,
+                contentIntent = PendingIntent.getActivity(context, (int) (notificationID % Integer.MAX_VALUE), alarmIntent,
                         PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
             } else {
                 contentIntent = PendingIntent.getActivity(context, 0,
