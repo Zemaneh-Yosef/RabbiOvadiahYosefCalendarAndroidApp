@@ -197,9 +197,17 @@ public class LocationResolver {
             return;
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            mGeocoder.getFromLocation(sLatitude, sLongitude, Utils.isLocaleHebrew(mContext) ? 5 : 1, addresses -> {
-                String result = buildLocationString(addresses, postalCode);
-                callback.onResult(result);
+            mGeocoder.getFromLocation(sLatitude, sLongitude, Utils.isLocaleHebrew(mContext) ? 5 : 1, new Geocoder.GeocodeListener() {
+                @Override
+                public void onGeocode(@NonNull List<Address> addresses) {
+                    String result = buildLocationString(addresses, postalCode);
+                    callback.onResult(result);
+                }
+
+                @Override
+                public void onError(@Nullable String errorMessage) {
+                    callback.onResult(null);
+                }
             });
         } else { // older versions
              GEOCODER_EXECUTOR.execute(() -> {
@@ -219,10 +227,19 @@ public class LocationResolver {
     public void getFullLocationName(double latitude, double longitude, boolean postalCode, @NonNull LocationNameCallback callback) {
         mLatitude = latitude;
         mLongitude = longitude;
+        mLocationName = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            mGeocoder.getFromLocation(latitude, longitude, Utils.isLocaleHebrew(mContext) ? 5 : 1, addresses -> {
-                mLocationName = buildLocationString(addresses, postalCode);
-                callback.onResult(mLocationName);
+            mGeocoder.getFromLocation(latitude, longitude, Utils.isLocaleHebrew(mContext) ? 5 : 1, new Geocoder.GeocodeListener() {
+                @Override
+                public void onGeocode(@NonNull List<Address> addresses) {
+                    mLocationName = buildLocationString(addresses, postalCode);
+                    callback.onResult(mLocationName);
+                }
+
+                @Override
+                public void onError(@Nullable String errorMessage) {
+                    callback.onResult(null);
+                }
             });
         } else { // older versions
             GEOCODER_EXECUTOR.execute(() -> {
