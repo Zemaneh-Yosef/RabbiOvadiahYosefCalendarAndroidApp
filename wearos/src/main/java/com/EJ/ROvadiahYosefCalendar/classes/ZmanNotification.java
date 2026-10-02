@@ -41,11 +41,11 @@ public class ZmanNotification extends BroadcastReceiver {
         if (mSharedPreferences.getBoolean("zmanim_notifications", true)) {
             JewishCalendar jewishCalendar = new JewishCalendar();
             jewishCalendar.setInIsrael(mSharedPreferences.getBoolean("inIsrael", false));
-            notifyUser(context, jewishCalendar, intent.getStringExtra("zman"), intent.getStringExtra("zmanKey"));
+            notifyUser(context, jewishCalendar, intent.getStringExtra("zman"), intent.getStringExtra("zmanKey"), intent.getIntExtra("secondsTreatment", 0));
         }
     }
 
-    private void notifyUser(Context context, JewishCalendar jewishCalendar, String zman, String zmanKey) {
+    private void notifyUser(Context context, JewishCalendar jewishCalendar, String zman, String zmanKey, int secondsTreatment) {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationChannel channel = new NotificationChannel("Zmanim", "Daily Zmanim Notifications", NotificationManager.IMPORTANCE_HIGH);
         channel.setDescription("This notification will display when zmanim are about to begin.");
@@ -112,7 +112,14 @@ public class ZmanNotification extends BroadcastReceiver {
             }
             //no need to reset the jewish calendar since we are only using it to check if tomorrow is shabbat/yom tov, but keep in mind that the date is set to tomorrow
 
-            String dateFormatPattern = "H:mm" + (mSharedPreferences.getBoolean("ShowSeconds", false) ? ":ss" : "");
+            SecondTreatment secondTreatment = SecondTreatment.values()[secondsTreatment];
+            boolean showSeconds = mSharedPreferences.getBoolean("ShowSeconds", false) || secondTreatment == SecondTreatment.ALWAYS_DISPLAY;
+            Calendar zmanCalendar = Calendar.getInstance();
+            zmanCalendar.setTime(zmanAsDate);
+            if (!showSeconds && (zmanCalendar.get(Calendar.SECOND) > 40 || (zmanCalendar.get(Calendar.SECOND) > 20 && secondTreatment == SecondTreatment.ROUND_LATER))) {
+                zmanAsDate = Utils.addMinuteToZman(zmanAsDate);
+            }
+            String dateFormatPattern = "H:mm" + (showSeconds ? ":ss" : "");
             if (!Utils.isLocaleHebrew(context))
                 dateFormatPattern = dateFormatPattern.toLowerCase() + " aa";
             DateFormat zmanimFormat = new SimpleDateFormat(dateFormatPattern, context
@@ -137,6 +144,7 @@ public class ZmanNotification extends BroadcastReceiver {
                 Intent alarmIntent = new Intent(context, ZmanAlarmActivity.class);
                 alarmIntent.putExtra("zmanName", zmanName);
                 alarmIntent.putExtra("zmanTime", zmanTime);
+                alarmIntent.putExtra("secondsTreatment", secondsTreatment);
                 alarmIntent.putExtra("notificationId", (int) (notificationID % Integer.MAX_VALUE));
                 contentIntent = PendingIntent.getActivity(context, 1, alarmIntent,
                         PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);

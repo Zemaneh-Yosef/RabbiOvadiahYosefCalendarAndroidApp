@@ -138,7 +138,8 @@ public class ZmanimNotifications extends BroadcastReceiver {
                                     .putExtra("zman",
                                             zmanimOver3Days.get(i).getZmanName() + ":"
                                                     + zmanimOver3Days.get(i).getZmanDate().getTime())
-                                    .putExtra("zmanKey", zmanimOver3Days.get(i).getNotificationKey()),
+                                    .putExtra("zmanKey", zmanimOver3Days.get(i).getNotificationKey())
+                                    .putExtra("secondsTreatment", zmanimOver3Days.get(i).getSecondTreatment().ordinal()),
                             PendingIntent.FLAG_IMMUTABLE
                                     | PendingIntent.FLAG_UPDATE_CURRENT
                                     | PendingIntent.FLAG_ONE_SHOT
@@ -152,7 +153,8 @@ public class ZmanimNotifications extends BroadcastReceiver {
                                         .setAction(String.valueOf(set))
                                         .putExtra("zman", zmanimOver3Days.get(i).getZmanName() + ":"
                                                 + zmanimOver3Days.get(i).getZmanDate().getTime())
-                                        .putExtra("zmanKey", zmanimOver3Days.get(i).getNotificationKey()),
+                                        .putExtra("zmanKey", zmanimOver3Days.get(i).getNotificationKey())
+                                        .putExtra("secondsTreatment", zmanimOver3Days.get(i).getSecondTreatment().ordinal()),
                                 PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
                         );
                         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || am.canScheduleExactAlarms()) {
@@ -206,7 +208,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
 
         int minutesBefore = mSharedPreferences.getInt("NightChatzot", -1);
         if (minutesBefore >= 0) {
-            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getChatzotLaylaString(), c.getSolarMidnight(), minutesBefore, "NightChatzot"));//always add
+            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getChatzotLaylaString(), c.getSolarMidnight(), minutesBefore, "NightChatzot", SecondTreatment.ROUND_LATER));//always add
         }
 
         minutesBefore = mSharedPreferences.getInt("RT", -1);
@@ -214,7 +216,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
             if ((jewishCalendar.isAssurBemelacha() && !jewishCalendar.hasCandleLighting())
                     || jewishCalendar.getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY
                     || mSharedPreferences.getBoolean("AlwaysShowRT", false)) {
-                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getRTString(), c.getTzais72Zmanis(), minutesBefore, "RT"));
+                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getRTString(), c.getTzais72Zmanis(), minutesBefore, "RT", SecondTreatment.ROUND_LATER));
             }
         }
 
@@ -222,32 +224,32 @@ public class ZmanimNotifications extends BroadcastReceiver {
         if (minutesBefore >= 0) {
             if (jewishCalendar.isAssurBemelacha() && !jewishCalendar.hasCandleLighting()) {
                 pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTzaitString() + getShabbatAndOrChag(jewishCalendar),
-                        getShabbatEnd(c, c.getTzaisAteretTorah()), minutesBefore, "ShabbatEnd"));//only add if it's shabbat or yom tov
+                        getShabbatEnd(c, c.getTzaisAteretTorah()), minutesBefore, "ShabbatEnd", SecondTreatment.ROUND_LATER));//only add if it's shabbat or yom tov
             }
         }
 
         if (jewishCalendar.isTaanis() && jewishCalendar.getYomTovIndex() != JewishCalendar.YOM_KIPPUR) {//only add if it's a taanit and not yom kippur
             minutesBefore = mSharedPreferences.getInt("FastEnd", 15);
             if (minutesBefore >= 0) {
-                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTzaitString() + zmanimNames.getTaanitString(), c.getTzeitLChumra(), minutesBefore, "FastEnd"));
+                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTzaitString() + zmanimNames.getTaanitString(), c.getTzeitLChumra(), minutesBefore, "FastEnd", SecondTreatment.ROUND_LATER));
             }
         }
 
         if (mSharedPreferences.getBoolean("alwaysShowTzeitLChumra", false)) {
             minutesBefore = mSharedPreferences.getInt("TzeitHacochavimLChumra", 15);
             if (minutesBefore >= 0) {
-                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTzaitHacochavimString() + " " + zmanimNames.getLChumraString(), c.getTzeitLChumra(), minutesBefore, "TzeitHacochavimLChumra"));
+                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTzaitHacochavimString() + " " + zmanimNames.getLChumraString(), c.getTzeitLChumra(), minutesBefore, "TzeitHacochavimLChumra", SecondTreatment.ROUND_LATER));
             }
         }
 
         minutesBefore = mSharedPreferences.getInt("TzeitHacochavim", 15);
         if (minutesBefore >= 0) {
-            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTzaitHacochavimString(), c.getTzeit(), minutesBefore, "TzeitHacochavim"));//always add
+            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTzaitHacochavimString(), c.getTzeit(), minutesBefore, "TzeitHacochavim", SecondTreatment.ROUND_LATER));//always add
         }
 
         minutesBefore = mSharedPreferences.getInt("Shkia", 15);
         if (minutesBefore >= 0) {
-            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getSunsetString(), c.getSunset(), minutesBefore, "Shkia"));//always add
+            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getSunsetString(), c.getSunset(), minutesBefore, "Shkia", SecondTreatment.ROUND_EARLIER));//always add
         }
 
         if ((jewishCalendar.hasCandleLighting() &&
@@ -255,7 +257,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
                 jewishCalendar.getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY) {//only add if it's a day before shabbat/yom tov and not a 2 day yom tov or shabbat
             minutesBefore = mSharedPreferences.getInt("CandleLighting", 15);
             if (minutesBefore >= 0) {
-                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getCandleLightingString(), c.getCandleLighting(), minutesBefore, "CandleLighting"));
+                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getCandleLightingString(), c.getCandleLighting(), minutesBefore, "CandleLighting", SecondTreatment.ROUND_EARLIER));
             }
         }
 
@@ -263,95 +265,95 @@ public class ZmanimNotifications extends BroadcastReceiver {
         if (plagOpinions.equals("1")) {
             minutesBefore = mSharedPreferences.getInt("PlagHaMinchaYY", -1);
             if (minutesBefore >= 0) {
-                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getPlagHaminchaString(), c.getPlagHaminchaYalkutYosef(), minutesBefore, "PlagHaMinchaYY"));//always add
+                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getPlagHaminchaString(), c.getPlagHaminchaYalkutYosef(), minutesBefore, "PlagHaMinchaYY", SecondTreatment.ROUND_LATER));//always add
             }
         }
         if (plagOpinions.equals("2")) {
             minutesBefore = mSharedPreferences.getInt("PlagHaMinchaHB", -1);
             if (minutesBefore >= 0) {
                 pairArrayList.add(new ZmanInformationHolder(zmanimNames.getPlagHaminchaString() + " " + zmanimNames.getAbbreviatedHalachaBerurahString(),
-                        c.getPlagHamincha(), minutesBefore, "PlagHaMinchaHB"));//always add
+                        c.getPlagHamincha(), minutesBefore, "PlagHaMinchaHB", SecondTreatment.ROUND_LATER));//always add
             }
         }
         if (plagOpinions.equals("3")) {
             minutesBefore = mSharedPreferences.getInt("PlagHaMinchaYY", -1);
             if (minutesBefore >= 0) {
-                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getPlagHaminchaString(), c.getPlagHaminchaYalkutYosef(), minutesBefore, "PlagHaMinchaYY"));//always add
+                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getPlagHaminchaString(), c.getPlagHaminchaYalkutYosef(), minutesBefore, "PlagHaMinchaYY", SecondTreatment.ROUND_LATER));//always add
             }
             minutesBefore = mSharedPreferences.getInt("PlagHaMinchaHB", -1);
             if (minutesBefore >= 0) {
                 pairArrayList.add(new ZmanInformationHolder(zmanimNames.getPlagHaminchaString() + " " + zmanimNames.getAbbreviatedHalachaBerurahString(),
-                        c.getPlagHamincha(), minutesBefore, "PlagHaMinchaHB"));//always add
+                        c.getPlagHamincha(), minutesBefore, "PlagHaMinchaHB", SecondTreatment.ROUND_LATER));//always add
             }
         }
 
         minutesBefore = mSharedPreferences.getInt("MinchaKetana", -1);
         if (minutesBefore >= 0) {
-            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getMinchaKetanaString(), c.getMinchaKetana(), minutesBefore, "MinchaKetana"));//always add
+            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getMinchaKetanaString(), c.getMinchaKetana(), minutesBefore, "MinchaKetana", SecondTreatment.ROUND_LATER));//always add
         }
 
         minutesBefore = mSharedPreferences.getInt("MinchaGedola", -1);
         if (minutesBefore >= 0) {
-            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getMinchaGedolaString(), c.getMinchaGedolaGreaterThan30(), minutesBefore, "MinchaGedola"));//always add
+            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getMinchaGedolaString(), c.getMinchaGedolaGreaterThan30(), minutesBefore, "MinchaGedola", SecondTreatment.ROUND_LATER));//always add
         }
 
         minutesBefore = mSharedPreferences.getInt("Chatzot", -1);
         if (minutesBefore >= 0) {
-            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getChatzotString(), c.getChatzot(), minutesBefore, "Chatzot"));//always add
+            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getChatzotString(), c.getChatzot(), minutesBefore, "Chatzot", SecondTreatment.ROUND_EARLIER));//always add
         }
 
         if (jewishCalendar.getYomTovIndex() == JewishCalendar.EREV_PESACH) {
             minutesBefore = mSharedPreferences.getInt("SofZmanBiurChametz", 15);
             if (minutesBefore >= 0) {
-                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getBiurChametzString(), c.getSofZmanBiurChametzMGA(), minutesBefore, "SofZmanBiurChametz"));//only add if it's erev pesach
+                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getBiurChametzString(), c.getSofZmanBiurChametzMGA(), minutesBefore, "SofZmanBiurChametz", SecondTreatment.ROUND_EARLIER));//only add if it's erev pesach
             }
 
             minutesBefore = mSharedPreferences.getInt("SofZmanTefila", 15);
             if (minutesBefore >= 0) {
-                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getBrachotShmaString(), c.getSofZmanTfilaGRA(), minutesBefore, "SofZmanTefila"));//always add
+                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getBrachotShmaString(), c.getSofZmanTfilaGRA(), minutesBefore, "SofZmanTefila", SecondTreatment.ROUND_EARLIER));//always add
             }
 
             minutesBefore = mSharedPreferences.getInt("SofZmanAchilatChametz", 15);
             if (minutesBefore >= 0) {
-                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getAchilatChametzString(), c.getSofZmanTfilaMGA72MinutesZmanis(), minutesBefore, "SofZmanAchilatChametz"));//Achilat Chametz
+                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getAchilatChametzString(), c.getSofZmanTfilaMGA72MinutesZmanis(), minutesBefore, "SofZmanAchilatChametz", SecondTreatment.ROUND_EARLIER));//Achilat Chametz
             }
         } else {
             minutesBefore = mSharedPreferences.getInt("SofZmanTefila", 15);
             if (minutesBefore >= 0) {
-                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getBrachotShmaString(), c.getSofZmanTfilaGRA(), minutesBefore, "SofZmanTefila"));//always add
+                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getBrachotShmaString(), c.getSofZmanTfilaGRA(), minutesBefore, "SofZmanTefila", SecondTreatment.ROUND_EARLIER));//always add
             }
         }
 
         minutesBefore = mSharedPreferences.getInt("SofZmanShmaGRA", -1);
         if (minutesBefore >= 0) {
-            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getShmaGraString(), c.getSofZmanShmaGRA(), minutesBefore, "SofZmanShmaGRA"));//always add
+            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getShmaGraString(), c.getSofZmanShmaGRA(), minutesBefore, "SofZmanShmaGRA", SecondTreatment.ROUND_EARLIER));//always add
         }
 
         minutesBefore = mSharedPreferences.getInt("SofZmanShmaMGA", 15);
         if (minutesBefore >= 0) {
-            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getShmaMgaString(), c.getSofZmanShmaMGA72MinutesZmanis(), minutesBefore, "SofZmanShmaMGA"));//always add
+            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getShmaMgaString(), c.getSofZmanShmaMGA72MinutesZmanis(), minutesBefore, "SofZmanShmaMGA", SecondTreatment.ROUND_EARLIER));//always add
         }
 
         minutesBefore = mSharedPreferences.getInt("HaNetz", -1);
         if (minutesBefore >= 0) {
             Date sunrise = c.getHaNetz();
             if (sunrise != null) {
-                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getHaNetzString(), sunrise, minutesBefore, "HaNetz"));//always add
+                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getHaNetzString(), sunrise, minutesBefore, "HaNetz", SecondTreatment.ALWAYS_DISPLAY));//always add
             } else {
                 pairArrayList.add(new ZmanInformationHolder(zmanimNames.getHaNetzString() + " " + zmanimNames.getMishorString(),
-                        c.getSeaLevelSunrise(), minutesBefore, "HaNetz"));//always add
+                        c.getSeaLevelSunrise(), minutesBefore, "HaNetz", SecondTreatment.ROUND_LATER));//always add
             }
 
         }
 
         minutesBefore = mSharedPreferences.getInt("TalitTefilin", 15);
         if (minutesBefore >= 0) {
-            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTalitTefilinString(), c.getMisheyakir60ZmaniyotMinutes(), minutesBefore, "TalitTefilin"));//always add
+            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTalitTefilinString(), c.getMisheyakir60ZmaniyotMinutes(), minutesBefore, "TalitTefilin", SecondTreatment.ROUND_LATER));//always add
         }
 
         minutesBefore = mSharedPreferences.getInt("Alot", -1);
         if (minutesBefore >= 0) {
-            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getAlotString(), c.getAlos72Zmanis(), minutesBefore, "Alot"));//always add
+            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getAlotString(), c.getAlos72Zmanis(), minutesBefore, "Alot", SecondTreatment.ROUND_EARLIER));//always add
         }
 
         Collections.reverse(pairArrayList);
@@ -368,7 +370,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
 
         int minutesBefore = mSharedPreferences.getInt("NightChatzot", -1);
         if (minutesBefore >= 0) {
-            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getChatzotLaylaString(), c.getSolarMidnight(), minutesBefore, "NightChatzot"));//always add
+            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getChatzotLaylaString(), c.getSolarMidnight(), minutesBefore, "NightChatzot", SecondTreatment.ROUND_LATER));//always add
         }
 
         minutesBefore = mSharedPreferences.getInt("RT", -1);
@@ -377,37 +379,37 @@ public class ZmanimNotifications extends BroadcastReceiver {
                     || jewishCalendar.getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY
                     || mSharedPreferences.getBoolean("AlwaysShowRT", false)) {
                 pairArrayList.add(new ZmanInformationHolder(zmanimNames.getRTString(),
-                        mSharedPreferences.getBoolean("overrideRTZman", false) ? c.getTzais72Zmanis() : c.getTzais72ZmanisAmudeiHoraahLkulah(), minutesBefore, "RT"));
+                        mSharedPreferences.getBoolean("overrideRTZman", false) ? c.getTzais72Zmanis() : c.getTzais72ZmanisAmudeiHoraahLkulah(), minutesBefore, "RT", SecondTreatment.ROUND_LATER));
             }
         }
 
         minutesBefore = mSharedPreferences.getInt("ShabbatEnd", -1);
         if (minutesBefore >= 0) {
             if (jewishCalendar.isAssurBemelacha() && !jewishCalendar.hasCandleLighting()) {//only add if it's shabbat or yom tov
-                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTzaitString() + getShabbatAndOrChag(jewishCalendar), getShabbatEnd(c, c.getTzaitShabbatAmudeiHoraah()), minutesBefore, "ShabbatEnd"));
+                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTzaitString() + getShabbatAndOrChag(jewishCalendar), getShabbatEnd(c, c.getTzaitShabbatAmudeiHoraah()), minutesBefore, "ShabbatEnd", SecondTreatment.ROUND_LATER));
             }
         }
 
         if (jewishCalendar.isTaanis() && jewishCalendar.getYomTovIndex() != JewishCalendar.YOM_KIPPUR) {//only add if it's a taanit and not yom kippur
             minutesBefore = mSharedPreferences.getInt("FastEnd", 15);
             if (minutesBefore >= 0) {
-                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTzaitString() + zmanimNames.getTaanitString(), c.getTzeitAmudeiHoraahLChumra(), minutesBefore, "FastEnd"));
+                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTzaitString() + zmanimNames.getTaanitString(), c.getTzeitAmudeiHoraahLChumra(), minutesBefore, "FastEnd", SecondTreatment.ROUND_LATER));
             }
         }
 
         minutesBefore = mSharedPreferences.getInt("TzeitHacochavimLChumra", 15);
         if (minutesBefore >= 0) {
-            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTzaitHacochavimString() + " " + zmanimNames.getLChumraString(), c.getTzeitAmudeiHoraahLChumra(), minutesBefore, "TzeitHacochavimLChumra"));//always add
+            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTzaitHacochavimString() + " " + zmanimNames.getLChumraString(), c.getTzeitAmudeiHoraahLChumra(), minutesBefore, "TzeitHacochavimLChumra", SecondTreatment.ROUND_LATER));//always add
         }
 
         minutesBefore = mSharedPreferences.getInt("TzeitHacochavim", 15);
         if (minutesBefore >= 0) {
-            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTzaitHacochavimString(), c.getTzeitAmudeiHoraah(), minutesBefore, "TzeitHacochavim"));//always add
+            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTzaitHacochavimString(), c.getTzeitAmudeiHoraah(), minutesBefore, "TzeitHacochavim", SecondTreatment.ROUND_LATER));//always add
         }
 
         minutesBefore = mSharedPreferences.getInt("Shkia", 15);
         if (minutesBefore >= 0) {
-            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getSunsetString(), c.getSeaLevelSunset(), minutesBefore, "Shkia"));//always add
+            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getSunsetString(), c.getSeaLevelSunset(), minutesBefore, "Shkia", SecondTreatment.ROUND_EARLIER));//always add
         }
 
         if ((jewishCalendar.hasCandleLighting() &&
@@ -415,89 +417,89 @@ public class ZmanimNotifications extends BroadcastReceiver {
                 jewishCalendar.getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY) {//only add if it's a day before shabbat/yom tov and not a 2 day yom tov or shabbat
             minutesBefore = mSharedPreferences.getInt("CandleLighting", 15);
             if (minutesBefore >= 0) {
-                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getCandleLightingString(), c.getCandleLighting(), minutesBefore, "CandleLighting"));
+                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getCandleLightingString(), c.getCandleLighting(), minutesBefore, "CandleLighting", SecondTreatment.ROUND_EARLIER));
             }
         }
 
         minutesBefore = mSharedPreferences.getInt("PlagHaMinchaYY", 15);
         if (minutesBefore >= 0) {
             pairArrayList.add(new ZmanInformationHolder(zmanimNames.getPlagHaminchaString()
-                    + " " + zmanimNames.getAbbreviatedYalkutYosefString(), c.getPlagHaminchaYalkutYosefAmudeiHoraah(), minutesBefore, "PlagHaMinchaYY"));//always add
+                    + " " + zmanimNames.getAbbreviatedYalkutYosefString(), c.getPlagHaminchaYalkutYosefAmudeiHoraah(), minutesBefore, "PlagHaMinchaYY", SecondTreatment.ROUND_LATER));//always add
         }
 
         minutesBefore = mSharedPreferences.getInt("PlagHaMinchaHB", 15);
         if (minutesBefore >= 0) {
             pairArrayList.add(new ZmanInformationHolder(zmanimNames.getPlagHaminchaString()
-                    + " " + zmanimNames.getAbbreviatedHalachaBerurahString(), c.getPlagHamincha(), minutesBefore, "PlagHaMinchaHB"));//always add
+                    + " " + zmanimNames.getAbbreviatedHalachaBerurahString(), c.getPlagHamincha(), minutesBefore, "PlagHaMinchaHB", SecondTreatment.ROUND_LATER));//always add
         }
 
         minutesBefore = mSharedPreferences.getInt("MinchaKetana", -1);
         if (minutesBefore >= 0) {
-            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getMinchaKetanaString(), c.getMinchaKetana(), minutesBefore, "MinchaKetana"));//always add
+            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getMinchaKetanaString(), c.getMinchaKetana(), minutesBefore, "MinchaKetana", SecondTreatment.ROUND_LATER));//always add
         }
 
         minutesBefore = mSharedPreferences.getInt("MinchaGedola", -1);
         if (minutesBefore >= 0) {
-            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getMinchaGedolaString(), c.getMinchaGedolaGreaterThan30(), minutesBefore, "MinchaGedola"));//always add
+            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getMinchaGedolaString(), c.getMinchaGedolaGreaterThan30(), minutesBefore, "MinchaGedola", SecondTreatment.ROUND_LATER));//always add
         }
 
         minutesBefore = mSharedPreferences.getInt("Chatzot", -1);
         if (minutesBefore >= 0) {
-            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getChatzotString(), c.getChatzos(), minutesBefore, "Chatzot"));//always add
+            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getChatzotString(), c.getChatzos(), minutesBefore, "Chatzot", SecondTreatment.ROUND_EARLIER));//always add
         }
 
         if (jewishCalendar.getYomTovIndex() == JewishCalendar.EREV_PESACH) {
             minutesBefore = mSharedPreferences.getInt("SofZmanBiurChametz", 15);
             if (minutesBefore >= 0) {
-                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getBiurChametzString(), c.getSofZmanBiurChametzMGAAmudeiHoraah(), minutesBefore, "SofZmanBiurChametz"));//only add if it's erev pesach
+                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getBiurChametzString(), c.getSofZmanBiurChametzMGAAmudeiHoraah(), minutesBefore, "SofZmanBiurChametz", SecondTreatment.ROUND_EARLIER));//only add if it's erev pesach
             }
 
             minutesBefore = mSharedPreferences.getInt("SofZmanTefila", 15);
             if (minutesBefore >= 0) {
-                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getBrachotShmaString(), c.getSofZmanTfilaGRA(), minutesBefore, "SofZmanTefila"));//always add
+                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getBrachotShmaString(), c.getSofZmanTfilaGRA(), minutesBefore, "SofZmanTefila", SecondTreatment.ROUND_EARLIER));//always add
             }
 
             minutesBefore = mSharedPreferences.getInt("SofZmanAchilatChametz", 15);
             if (minutesBefore >= 0) {
-                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getAchilatChametzString(), c.getSofZmanAchilatChametzAmudeiHoraah(), minutesBefore, "SofZmanAchilatChametz"));//Achilat Chametz
+                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getAchilatChametzString(), c.getSofZmanAchilatChametzAmudeiHoraah(), minutesBefore, "SofZmanAchilatChametz", SecondTreatment.ROUND_EARLIER));//Achilat Chametz
             }
         } else {
             minutesBefore = mSharedPreferences.getInt("SofZmanTefila", 15);
             if (minutesBefore >= 0) {
-                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getBrachotShmaString(), c.getSofZmanTfilaGRA(), minutesBefore, "SofZmanTefila"));//always add
+                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getBrachotShmaString(), c.getSofZmanTfilaGRA(), minutesBefore, "SofZmanTefila", SecondTreatment.ROUND_EARLIER));//always add
             }
         }
 
         minutesBefore = mSharedPreferences.getInt("SofZmanShmaGRA", -1);
         if (minutesBefore >= 0) {
-            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getShmaGraString(), c.getSofZmanShmaGRA(), minutesBefore, "SofZmanShmaGRA"));//always add
+            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getShmaGraString(), c.getSofZmanShmaGRA(), minutesBefore, "SofZmanShmaGRA", SecondTreatment.ROUND_EARLIER));//always add
         }
 
         minutesBefore = mSharedPreferences.getInt("SofZmanShmaMGA", 15);
         if (minutesBefore >= 0) {
-            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getShmaMgaString(), c.getSofZmanShmaMGA72MinutesZmanisAmudeiHoraah(), minutesBefore, "SofZmanShmaMGA"));//always add
+            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getShmaMgaString(), c.getSofZmanShmaMGA72MinutesZmanisAmudeiHoraah(), minutesBefore, "SofZmanShmaMGA", SecondTreatment.ROUND_EARLIER));//always add
         }
 
         minutesBefore = mSharedPreferences.getInt("HaNetz", -1);
         if (minutesBefore >= 0) {
             Date sunrise = c.getHaNetz();
             if (sunrise != null) {
-                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getHaNetzString(), sunrise, minutesBefore, "HaNetz"));//always add
+                pairArrayList.add(new ZmanInformationHolder(zmanimNames.getHaNetzString(), sunrise, minutesBefore, "HaNetz", SecondTreatment.ALWAYS_DISPLAY));//always add
             } else {
                 pairArrayList.add(new ZmanInformationHolder(zmanimNames.getHaNetzString() + " (" + zmanimNames.getMishorString() + ")",
-                        c.getSeaLevelSunrise(), minutesBefore, "HaNetz"));//always add
+                        c.getSeaLevelSunrise(), minutesBefore, "HaNetz", SecondTreatment.ROUND_LATER));//always add
             }
 
         }
 
         minutesBefore = mSharedPreferences.getInt("TalitTefilin", 15);
         if (minutesBefore >= 0) {
-            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTalitTefilinString(), c.getMisheyakir60AmudeiHoraah(), minutesBefore, "TalitTefilin"));//always add
+            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getTalitTefilinString(), c.getMisheyakir60AmudeiHoraah(), minutesBefore, "TalitTefilin", SecondTreatment.ROUND_LATER));//always add
         }
 
         minutesBefore = mSharedPreferences.getInt("Alot", -1);
         if (minutesBefore >= 0) {
-            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getAlotString(), c.getAlotAmudeiHoraah(), minutesBefore, "Alot"));//always add
+            pairArrayList.add(new ZmanInformationHolder(zmanimNames.getAlotString(), c.getAlotAmudeiHoraah(), minutesBefore, "Alot", SecondTreatment.ROUND_EARLIER));//always add
         }
 
         Collections.reverse(pairArrayList);
