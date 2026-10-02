@@ -31,7 +31,7 @@ public class ZmanimNotifications extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
-        if (mSharedPreferences.getBoolean("zmanim_notifications", true)) {
+        if (mSharedPreferences.getBoolean("zmanim_notifications", false)) {
             new Thread(() -> {
                 JewishCalendar jewishCalendar = new JewishCalendar();
                 jewishCalendar.setInIsrael(mSharedPreferences.getBoolean("inIsrael", false));

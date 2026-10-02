@@ -38,7 +38,7 @@ public class ZmanNotification extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
-        if (mSharedPreferences.getBoolean("zmanim_notifications", true)) {
+        if (mSharedPreferences.getBoolean("zmanim_notifications", false)) {
             JewishCalendar jewishCalendar = new JewishCalendar();
             jewishCalendar.setInIsrael(mSharedPreferences.getBoolean("inIsrael", false));
             notifyUser(context, jewishCalendar, intent.getStringExtra("zman"), intent.getStringExtra("zmanKey"), intent.getIntExtra("secondsTreatment", 0));
@@ -90,7 +90,7 @@ public class ZmanNotification extends BroadcastReceiver {
             String zmanTime = zmanSeparated[1];
 
             Date zmanAsDate = new Date(Long.parseLong(zmanTime));
-            boolean notifyOnShabbatYomTov = mSharedPreferences.getBoolean("zmanim_notifications_on_shabbat", true);
+            boolean notifyOnShabbatYomTov = mSharedPreferences.getBoolean("zmanim_notifications_on_shabbat", false);
             boolean afterShabbatYomTovZman = "RT".equals(zmanKey) || "ShabbatEnd".equals(zmanKey) || "NightChatzot".equals(zmanKey);
             boolean nightZman = afterShabbatYomTovZman || "TzeitHacochavim".equals(zmanKey) || "TzeitHacochavimLChumra".equals(zmanKey);
 
