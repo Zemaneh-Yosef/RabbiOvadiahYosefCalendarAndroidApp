@@ -388,6 +388,8 @@ public class LocationResolver {
                         .apply();
             });
         } else {
+            mSharedPreferences.edit().putString("Zipcode", mSharedPreferences.getString("oldZipcode", "None")).apply();
+            new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(mContext, R.string.error, Toast.LENGTH_SHORT).show());
             getOldSearchLocation();
         }
     }
