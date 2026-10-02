@@ -511,8 +511,8 @@ public class LocationResolver {
      * Convenience method to get the timezone of a place when the user selects a place on the map. AKA advancedLocation
      */
     public void acquireTimeZoneID() {
-        try {
-            getTimeshapeEngineAsync(() -> {
+        getTimeshapeEngineAsync(() -> {
+            try {
                 String zoneID = TimeZone.getDefault().getID();
                 List<ZoneId> allZones = getTimeshapeEngine().queryAll(sLatitude, sLongitude);// first query all possible time zones in the area. There could be multiple due to border disputes
                 if (allZones.size() > 1) {// if there are multiple
@@ -526,15 +526,15 @@ public class LocationResolver {
                     zoneID = allZones.get(0).toString();
                 }
                 mTimeZone = TimeZone.getTimeZone(zoneID);
-            });
-        } catch (IllegalArgumentException e) {
-            mTimeZone = TimeZone.getDefault();
-        }
-        if (mTimeZone.getID().equals("Asia/Gaza") || mTimeZone.getID().equals("Asia/Hebron")) {
-            mTimeZone = TimeZone.getTimeZone("Asia/Jerusalem");
-        }
-        sCurrentTimeZoneID = mTimeZone.getID();
-        mSharedPreferences.edit().putString("advancedTimezone", sCurrentTimeZoneID).apply();
+            } catch (IllegalArgumentException e) {
+                mTimeZone = TimeZone.getDefault();
+            }
+            if (mTimeZone.getID().equals("Asia/Gaza") || mTimeZone.getID().equals("Asia/Hebron")) {
+                mTimeZone = TimeZone.getTimeZone("Asia/Jerusalem");
+            }
+            sCurrentTimeZoneID = mTimeZone.getID();
+            mSharedPreferences.edit().putString("advancedTimezone", sCurrentTimeZoneID).apply();
+        });
     }
 
     private void saveLocationInformation() {

@@ -239,12 +239,17 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                 binding.confirmLocation.setEnabled(false);
                 Runnable finish = () -> {
                     if (mSharedPreferences.getBoolean("useAdvanced", false)) {
+                        showProgressDialogIfTimeshapeNull();
                         mLocationResolver.acquireTimeZoneID();
+                        LocationResolver.getTimeshapeEngineAsync(() -> runOnUiThread(() -> {
+                            configureSettingsBasedOnLocation();
+                            finish();
+                        }));
                     } else {// using regular location services, or zipcode
                         mLocationResolver.setTimeZoneID();
+                        configureSettingsBasedOnLocation();
+                        finish();
                     }
-                    configureSettingsBasedOnLocation();
-                    finish();
                 };
                 if (mSharedPreferences.getBoolean("useElevation", true)) {
                     if (mSharedPreferences.contains("elevation" + sCurrentLocationName)) {
