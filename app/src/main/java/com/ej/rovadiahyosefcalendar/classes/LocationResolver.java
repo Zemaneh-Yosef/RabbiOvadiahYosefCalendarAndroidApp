@@ -475,10 +475,12 @@ public class LocationResolver {
                     sCurrentTimeZoneID = mTimeZone.getID();
                 } else {// we never set a timezone for this zipcode before
                     try {
-                        if (sLatitude != 0.0 && sLongitude != 0.0) {
+                        double latitude = sLatitude != 0.0 && sLongitude != 0.0 ? sLatitude : mLatitude;
+                        double longitude = sLatitude != 0.0 && sLongitude != 0.0 ? sLongitude : mLongitude;
+                        if (latitude != 0.0 && longitude != 0.0) {
                             getTimeshapeEngineAsync(() -> {
                                 String zoneID = TimeZone.getDefault().getID();
-                                List<ZoneId> allZones = getTimeshapeEngine().queryAll(sLatitude, sLongitude);// first query all possible time zones in the area. There could be multiple due to border disputes
+                                List<ZoneId> allZones = getTimeshapeEngine().queryAll(latitude, longitude);// first query all possible time zones in the area. There could be multiple due to border disputes
                                 if (allZones.size() > 1) {// if there are multiple
                                     for (ZoneId zone : allZones) {
                                         zoneID = zone.toString();
