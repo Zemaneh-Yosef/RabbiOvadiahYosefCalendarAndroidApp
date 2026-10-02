@@ -362,15 +362,13 @@ public class Utils {
                                 }
 
                                 File vsFile = ChaiTablesWebJava.getVisibleSunriseFile(context.getExternalFilesDir(null), sCurrentLocationName, sJewishDateInfo.getJewishCalendar().getJewishYear());
-                                if (!vsFile.isFile()) {
-                                    continue;
-                                }
-
                                 List<Long> vSunriseTimes = Collections.emptyList();
-                                try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(vsFile))) {
-                                    vSunriseTimes = (List<Long>) ois.readObject();
-                                } catch (IOException | ClassNotFoundException e) {
-                                    e.printStackTrace();
+                                if (vsFile.isFile() && !sSharedPreferences.getBoolean("showMishorSunrise" + sCurrentLocationName, true)) {
+                                    try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(vsFile))) {
+                                        vSunriseTimes = (List<Long>) ois.readObject();
+                                    } catch (IOException | ClassNotFoundException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
 
                                 for (Long seconds : vSunriseTimes) {
