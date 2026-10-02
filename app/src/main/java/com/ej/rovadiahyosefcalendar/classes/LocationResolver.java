@@ -718,9 +718,7 @@ public class LocationResolver {
             setTimeZoneID();
             return new GeoLocation(mLocationName, mLatitude, mLongitude, mElevation, mTimeZone);
         }
-        if ((ActivityCompat.checkSelfPermission(mContext, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED
-        && ActivityCompat.checkSelfPermission(mContext, ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED) ||
-                mSharedPreferences.getBoolean("useZipcode", false)) {
+        if (mSharedPreferences.getBoolean("useZipcode", false)) {
             mLocationName = mSharedPreferences.getString("oldLocationName", "");
             double oldLat = Double.longBitsToDouble(mSharedPreferences.getLong("oldLat", 0));
             double oldLong = Double.longBitsToDouble(mSharedPreferences.getLong("oldLong", 0));
