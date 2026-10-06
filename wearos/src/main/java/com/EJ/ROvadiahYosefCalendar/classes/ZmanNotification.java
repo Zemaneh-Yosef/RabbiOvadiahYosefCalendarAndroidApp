@@ -38,14 +38,14 @@ public class ZmanNotification extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
-        if (mSharedPreferences.getBoolean("zmanim_notifications", true)) {
+        if (mSharedPreferences.getBoolean("zmanim_notifications", false)) {
             JewishCalendar jewishCalendar = new JewishCalendar();
             jewishCalendar.setInIsrael(mSharedPreferences.getBoolean("inIsrael", false));
-            notifyUser(context, jewishCalendar, intent.getStringExtra("zman"));
+            notifyUser(context, jewishCalendar, intent.getStringExtra("zman"), intent.getStringExtra("zmanKey"), intent.getIntExtra("secondsTreatment", 0));
         }
     }
 
-    private void notifyUser(Context context, JewishCalendar jewishCalendar, String zman) {
+    private void notifyUser(Context context, JewishCalendar jewishCalendar, String zman, String zmanKey, int secondsTreatment) {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationChannel channel = new NotificationChannel("Zmanim", "Daily Zmanim Notifications", NotificationManager.IMPORTANCE_HIGH);
         channel.setDescription("This notification will display when zmanim are about to begin.");
@@ -90,28 +90,36 @@ public class ZmanNotification extends BroadcastReceiver {
             String zmanTime = zmanSeparated[1];
 
             Date zmanAsDate = new Date(Long.parseLong(zmanTime));
-            if ((jewishCalendar.isAssurBemelacha() && !mSharedPreferences.getBoolean("zmanim_notifications_on_shabbat", true))) {
+            boolean notifyOnShabbatYomTov = mSharedPreferences.getBoolean("zmanim_notifications_on_shabbat", false);
+            boolean afterShabbatYomTovZman = "RT".equals(zmanKey) || "ShabbatEnd".equals(zmanKey) || "NightChatzot".equals(zmanKey);
+            boolean nightZman = afterShabbatYomTovZman || "TzeitHacochavim".equals(zmanKey) || "TzeitHacochavimLChumra".equals(zmanKey);
+
+            Calendar calendar = Calendar.getInstance();
+            if ("NightChatzot".equals(zmanKey)) {
+                calendar.setTimeInMillis(zmanAsDate.getTime() - 43_200_000L);// chatzot layla after 00:00 belongs to the night before
+                jewishCalendar.setDate(calendar);
+            }
+            if ((jewishCalendar.isAssurBemelacha() && !afterShabbatYomTovZman && !notifyOnShabbatYomTov)) {
                 return;//if the user does not want to be notified on shabbat/yom tov, then return
             }
-            Calendar calendar = Calendar.getInstance();
             calendar.add(Calendar.DATE, 1);
             jewishCalendar.setDate(calendar);
-            if ((jewishCalendar.isAssurBemelacha() && !mSharedPreferences.getBoolean("zmanim_notifications_on_shabbat", true))) {
+            if ((jewishCalendar.isAssurBemelacha() && !notifyOnShabbatYomTov)) {
                 //if tomorrow is shabbat/yom tov, then return if the zman is Tzait, Rabbeinu Tam, or Chatzot Layla (since they are obviously after shabbat/yom tov has started)
-                if (zmanName.equals("חצות הלילה") ||
-                        zmanName.equals("Midnight") ||
-                        zmanName.equals("Ḥatzot Ha'Layla") ||
-                        zmanName.equals("צאת הכוכבים") ||
-                        zmanName.equals("Nightfall") ||
-                        zmanName.equals("Tzet Ha'Kokhavim") ||
-                        zmanName.equals("Rabbenu Tam") ||
-                        zmanName.equals("רבינו תם")) {
+                if (nightZman) {
                     return;
                 }
             }
             //no need to reset the jewish calendar since we are only using it to check if tomorrow is shabbat/yom tov, but keep in mind that the date is set to tomorrow
 
-            String dateFormatPattern = "H:mm" + (mSharedPreferences.getBoolean("ShowSeconds", false) ? ":ss" : "");
+            SecondTreatment secondTreatment = SecondTreatment.values()[secondsTreatment];
+            boolean showSeconds = mSharedPreferences.getBoolean("ShowSeconds", false) || secondTreatment == SecondTreatment.ALWAYS_DISPLAY;
+            Calendar zmanCalendar = Calendar.getInstance();
+            zmanCalendar.setTime(zmanAsDate);
+            if (!showSeconds && (zmanCalendar.get(Calendar.SECOND) > 40 || (zmanCalendar.get(Calendar.SECOND) > 20 && secondTreatment == SecondTreatment.ROUND_LATER))) {
+                zmanAsDate = Utils.addMinuteToZman(zmanAsDate);
+            }
+            String dateFormatPattern = "H:mm" + (showSeconds ? ":ss" : "");
             if (!Utils.isLocaleHebrew(context))
                 dateFormatPattern = dateFormatPattern.toLowerCase() + " aa";
             DateFormat zmanimFormat = new SimpleDateFormat(dateFormatPattern, context
@@ -136,8 +144,9 @@ public class ZmanNotification extends BroadcastReceiver {
                 Intent alarmIntent = new Intent(context, ZmanAlarmActivity.class);
                 alarmIntent.putExtra("zmanName", zmanName);
                 alarmIntent.putExtra("zmanTime", zmanTime);
+                alarmIntent.putExtra("secondsTreatment", secondsTreatment);
                 alarmIntent.putExtra("notificationId", (int) (notificationID % Integer.MAX_VALUE));
-                contentIntent = PendingIntent.getActivity(context, 1, alarmIntent,
+                contentIntent = PendingIntent.getActivity(context, (int) (notificationID % Integer.MAX_VALUE), alarmIntent,
                         PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
             } else {
                 contentIntent = PendingIntent.getActivity(context, 0,
