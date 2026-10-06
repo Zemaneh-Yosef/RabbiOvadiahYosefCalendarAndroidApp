@@ -1114,7 +1114,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun setNextUpcomingZman() {
-        val nextZman = ZmanimFactory.getNextUpcomingZman(Calendar.getInstance(), mROZmanimCalendar, mJewishDateInfo, sharedPref)
+        val nextZman = ZmanimFactory.getNextUpcomingZman(mCurrentDateShown, mROZmanimCalendar, mJewishDateInfo, sharedPref)
         if (nextZman == null || nextZman.zman == null) {
             sNextUpcomingZman = Date(System.currentTimeMillis() + 30000) // try again in 30 seconds
         } else {
