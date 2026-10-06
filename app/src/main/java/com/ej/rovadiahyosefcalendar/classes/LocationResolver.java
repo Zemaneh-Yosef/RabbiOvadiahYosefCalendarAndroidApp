@@ -197,9 +197,17 @@ public class LocationResolver {
             return;
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            mGeocoder.getFromLocation(sLatitude, sLongitude, Utils.isLocaleHebrew(mContext) ? 5 : 1, addresses -> {
-                String result = buildLocationString(addresses, postalCode);
-                callback.onResult(result);
+            mGeocoder.getFromLocation(sLatitude, sLongitude, Utils.isLocaleHebrew(mContext) ? 5 : 1, new Geocoder.GeocodeListener() {
+                @Override
+                public void onGeocode(@NonNull List<Address> addresses) {
+                    String result = buildLocationString(addresses, postalCode);
+                    callback.onResult(result);
+                }
+
+                @Override
+                public void onError(@Nullable String errorMessage) {
+                    callback.onResult(null);
+                }
             });
         } else { // older versions
              GEOCODER_EXECUTOR.execute(() -> {
@@ -219,10 +227,19 @@ public class LocationResolver {
     public void getFullLocationName(double latitude, double longitude, boolean postalCode, @NonNull LocationNameCallback callback) {
         mLatitude = latitude;
         mLongitude = longitude;
+        mLocationName = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            mGeocoder.getFromLocation(latitude, longitude, Utils.isLocaleHebrew(mContext) ? 5 : 1, addresses -> {
-                mLocationName = buildLocationString(addresses, postalCode);
-                callback.onResult(mLocationName);
+            mGeocoder.getFromLocation(latitude, longitude, Utils.isLocaleHebrew(mContext) ? 5 : 1, new Geocoder.GeocodeListener() {
+                @Override
+                public void onGeocode(@NonNull List<Address> addresses) {
+                    mLocationName = buildLocationString(addresses, postalCode);
+                    callback.onResult(mLocationName);
+                }
+
+                @Override
+                public void onError(@Nullable String errorMessage) {
+                    callback.onResult(null);
+                }
             });
         } else { // older versions
             GEOCODER_EXECUTOR.execute(() -> {
@@ -371,6 +388,8 @@ public class LocationResolver {
                         .apply();
             });
         } else {
+            mSharedPreferences.edit().putString("Zipcode", mSharedPreferences.getString("oldZipcode", "None")).apply();
+            new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(mContext, R.string.error, Toast.LENGTH_SHORT).show());
             getOldSearchLocation();
         }
     }
@@ -456,10 +475,12 @@ public class LocationResolver {
                     sCurrentTimeZoneID = mTimeZone.getID();
                 } else {// we never set a timezone for this zipcode before
                     try {
-                        if (sLatitude != 0.0 && sLongitude != 0.0) {
+                        double latitude = sLatitude != 0.0 && sLongitude != 0.0 ? sLatitude : mLatitude;
+                        double longitude = sLatitude != 0.0 && sLongitude != 0.0 ? sLongitude : mLongitude;
+                        if (latitude != 0.0 && longitude != 0.0) {
                             getTimeshapeEngineAsync(() -> {
                                 String zoneID = TimeZone.getDefault().getID();
-                                List<ZoneId> allZones = getTimeshapeEngine().queryAll(sLatitude, sLongitude);// first query all possible time zones in the area. There could be multiple due to border disputes
+                                List<ZoneId> allZones = getTimeshapeEngine().queryAll(latitude, longitude);// first query all possible time zones in the area. There could be multiple due to border disputes
                                 if (allZones.size() > 1) {// if there are multiple
                                     for (ZoneId zone : allZones) {
                                         zoneID = zone.toString();
@@ -494,8 +515,8 @@ public class LocationResolver {
      * Convenience method to get the timezone of a place when the user selects a place on the map. AKA advancedLocation
      */
     public void acquireTimeZoneID() {
-        try {
-            getTimeshapeEngineAsync(() -> {
+        getTimeshapeEngineAsync(() -> {
+            try {
                 String zoneID = TimeZone.getDefault().getID();
                 List<ZoneId> allZones = getTimeshapeEngine().queryAll(sLatitude, sLongitude);// first query all possible time zones in the area. There could be multiple due to border disputes
                 if (allZones.size() > 1) {// if there are multiple
@@ -509,15 +530,15 @@ public class LocationResolver {
                     zoneID = allZones.get(0).toString();
                 }
                 mTimeZone = TimeZone.getTimeZone(zoneID);
-            });
-        } catch (IllegalArgumentException e) {
-            mTimeZone = TimeZone.getDefault();
-        }
-        if (mTimeZone.getID().equals("Asia/Gaza") || mTimeZone.getID().equals("Asia/Hebron")) {
-            mTimeZone = TimeZone.getTimeZone("Asia/Jerusalem");
-        }
-        sCurrentTimeZoneID = mTimeZone.getID();
-        mSharedPreferences.edit().putString("advancedTimezone", sCurrentTimeZoneID).apply();
+            } catch (IllegalArgumentException e) {
+                mTimeZone = TimeZone.getDefault();
+            }
+            if (mTimeZone.getID().equals("Asia/Gaza") || mTimeZone.getID().equals("Asia/Hebron")) {
+                mTimeZone = TimeZone.getTimeZone("Asia/Jerusalem");
+            }
+            sCurrentTimeZoneID = mTimeZone.getID();
+            mSharedPreferences.edit().putString("advancedTimezone", sCurrentTimeZoneID).apply();
+        });
     }
 
     private void saveLocationInformation() {
@@ -570,10 +591,10 @@ public class LocationResolver {
      */
     public void getElevationFromWebService(Handler handler, Runnable codeToRunInBackground, Runnable codeToRunOnMainThread) {
         WebService.setUserName("Elyahu41");
-        boolean useResolvedLocation = mLocationName != null && !mLocationName.isEmpty();
+        boolean useResolvedLocation = mLatitude != 0 || mLongitude != 0;
         double latitude = useResolvedLocation ? mLatitude : sLatitude;
         double longitude = useResolvedLocation ? mLongitude : sLongitude;
-        String locationName = useResolvedLocation ? mLocationName : sCurrentLocationName;
+        String locationName = mLocationName != null && !mLocationName.isEmpty() ? mLocationName : sCurrentLocationName;
         ArrayList<Integer> elevations = new ArrayList<>();
         int sum = 0;
         try {
@@ -701,9 +722,7 @@ public class LocationResolver {
             setTimeZoneID();
             return new GeoLocation(mLocationName, mLatitude, mLongitude, mElevation, mTimeZone);
         }
-        if ((ActivityCompat.checkSelfPermission(mContext, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED
-        && ActivityCompat.checkSelfPermission(mContext, ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED) ||
-                mSharedPreferences.getBoolean("useZipcode", false)) {
+        if (mSharedPreferences.getBoolean("useZipcode", false)) {
             mLocationName = mSharedPreferences.getString("oldLocationName", "");
             double oldLat = Double.longBitsToDouble(mSharedPreferences.getLong("oldLat", 0));
             double oldLong = Double.longBitsToDouble(mSharedPreferences.getLong("oldLong", 0));
