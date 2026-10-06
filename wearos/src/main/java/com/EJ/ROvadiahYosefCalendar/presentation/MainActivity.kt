@@ -1134,12 +1134,17 @@ class MainActivity : ComponentActivity() {
     private fun createBackgroundThreadForNextUpcomingZman() {
         mNextZmanUpdater?.let { mHandler.removeCallbacks(it) }
         val nextZmanUpdater = Runnable {
-            updateZmanimList()
-            setNextUpcomingZman()
-            setContent {
-                WearApp(zmanim)
+            if (refreshExecutor.isShutdown) return@Runnable // a refresh running during onDestroy can still post this
+            refreshExecutor.execute {
+                updateZmanimList()
+                setNextUpcomingZman()
+                runOnUiThread {
+                    setContent {
+                        WearApp(zmanim)
+                    }
+                }
+                createBackgroundThreadForNextUpcomingZman() //start a new thread to update the next upcoming zman
             }
-            createBackgroundThreadForNextUpcomingZman() //start a new thread to update the next upcoming zman
         }
         mNextZmanUpdater = nextZmanUpdater
         if (sNextUpcomingZman != null) {
