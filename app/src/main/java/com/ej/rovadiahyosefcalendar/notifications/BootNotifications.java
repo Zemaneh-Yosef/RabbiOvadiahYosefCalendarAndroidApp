@@ -97,6 +97,8 @@ public class BootNotifications extends BroadcastReceiver {
         Calendar calendar = Calendar.getInstance();
         AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
         zmanimCalendar.setAmudehHoraah(PreferenceManager.getDefaultSharedPreferences(context).getBoolean("LuachAmudeiHoraah", false));
+        ROZmanimCalendar tomorrow = (ROZmanimCalendar) zmanimCalendar.clone();
+        tomorrow.getCalendar().add(Calendar.DATE, 1);
 
         Date sunrise = zmanimCalendar.getSunrise();
         if (sunrise == null) {
@@ -104,7 +106,11 @@ public class BootNotifications extends BroadcastReceiver {
         }
         calendar.setTimeInMillis(sunrise.getTime());
         if (calendar.getTime().compareTo(new Date()) < 0) {
-            calendar.add(Calendar.DATE, 1);
+            if (tomorrow.getSunrise() != null) {
+                calendar.setTimeInMillis(tomorrow.getSunrise().getTime());
+            } else {
+                calendar.add(Calendar.DATE, 1);
+            }
         }
         PendingIntent dailyPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
                 0, new Intent(context, DailyNotifications.class), PendingIntent.FLAG_IMMUTABLE);
@@ -116,7 +122,11 @@ public class BootNotifications extends BroadcastReceiver {
         }
         calendar.setTimeInMillis(tzeit.getTime());
         if (calendar.getTime().compareTo(new Date()) < 0) {
-            calendar.add(Calendar.DATE, 1);
+            if (tomorrow.getTzeit() != null) {
+                calendar.setTimeInMillis(tomorrow.getTzeit().getTime());
+            } else {
+                calendar.add(Calendar.DATE, 1);
+            }
         }
         PendingIntent omerPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
                 0, new Intent(context, OmerNotifications.class), PendingIntent.FLAG_IMMUTABLE);

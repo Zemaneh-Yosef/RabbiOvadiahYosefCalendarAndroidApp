@@ -203,7 +203,9 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
     private void updateAlarm(ROZmanimCalendar c) {
         Calendar calendar = Calendar.getInstance();
         AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
-        Date tzeit = c.getTzeit();
+        ROZmanimCalendar tomorrow = (ROZmanimCalendar) c.clone();
+        tomorrow.getCalendar().add(Calendar.DATE, 1);// only our alarm starts this receiver, so tonight's count was just sent
+        Date tzeit = tomorrow.getTzeit();
         if (tzeit == null) {
             tzeit = new Date();
         }

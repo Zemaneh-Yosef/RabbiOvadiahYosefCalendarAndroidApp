@@ -205,7 +205,9 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
 
     private void updateAlarm(AlarmManager am, AstronomicalCalendar c) {
         Calendar cal = Calendar.getInstance();
-        Date sunrise = c.getSunrise();
+        AstronomicalCalendar tomorrow = (AstronomicalCalendar) c.clone();
+        tomorrow.getCalendar().add(Calendar.DATE, 1);// only our alarm starts this receiver, so today's notification was just sent
+        Date sunrise = tomorrow.getSunrise();
         if (sunrise == null) {
             sunrise = new Date();
         }
