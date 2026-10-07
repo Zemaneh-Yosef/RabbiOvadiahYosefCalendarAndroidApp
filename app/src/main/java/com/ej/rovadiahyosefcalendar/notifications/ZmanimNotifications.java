@@ -26,6 +26,7 @@ import com.kosherjava.zmanim.util.GeoLocation;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -143,10 +144,12 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
         }
 
         int set = 0;// only set 5 zmanim an hour
+        HashSet<String> scheduled = new HashSet<>();
         for (int i = 0; i < zmanimOver3Days.size(); i++) {
             if (set < max) {
                 if (zmanimOver3Days.get(i).getZman() != null &&
-                        (zmanimOver3Days.get(i).getZman().getTime() - (60_000L * zmanimOver3Days.get(i).getNotificationDelay(mSettingsPreferences)) > new Date().getTime())) {
+                        (zmanimOver3Days.get(i).getZman().getTime() - (60_000L * zmanimOver3Days.get(i).getNotificationDelay(mSettingsPreferences)) > new Date().getTime()) &&
+                        scheduled.add(zmanimOver3Days.get(i).getNotificationKey() + zmanimOver3Days.get(i).getZman().getTime())) {
                     PendingIntent zmanPendingIntent = PendingIntent.getBroadcast(
                             context.getApplicationContext(),
                             set,
