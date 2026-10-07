@@ -196,7 +196,7 @@ public class NextZmanCountdownNotification extends Service {
             }, false);
             // no need to worry about returning null here because the above code will reset everything
         }
-        return new ROZmanimCalendar(mLocationResolver.getRealtimeNotificationData(null, false));
+        return new ROZmanimCalendar(mLocationResolver.getRealtimeNotificationData(null, true));
     }
 
     @Override
