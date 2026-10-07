@@ -79,6 +79,11 @@ public class ZmanNotification extends BroadcastReceiver {
             boolean afterShabbatYomTovZman = "RT".equals(zmanKey) || "ShabbatEnd".equals(zmanKey) || "NightChatzot".equals(zmanKey);
             boolean nightZman = afterShabbatYomTovZman || "TzeitHacochavim".equals(zmanKey) || "TzeitHacochavimLChumra".equals(zmanKey);
 
+            if ("NightChatzot".equals(zmanKey)) {
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(Long.parseLong(zmanTime) - 43_200_000L);// chatzot layla after 00:00 belongs to the night before
+                jewishCalendar.setDate(calendar);
+            }
             if ((jewishCalendar.isAssurBemelacha() && !afterShabbatYomTovZman && !notifyOnShabbatYomTov)) {
                 return;//if the user does not want to be notified on shabbat/yom tov, then return
             }
