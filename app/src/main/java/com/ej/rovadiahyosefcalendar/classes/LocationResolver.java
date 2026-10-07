@@ -48,6 +48,8 @@ import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 public class LocationResolver {
@@ -743,12 +745,19 @@ public class LocationResolver {
                 if (locationManager != null && consumer != null) {
                     List<String> providers = locationManager.getAllProviders();
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        AtomicInteger pendingRequests = new AtomicInteger((providers.contains(LocationManager.NETWORK_PROVIDER) ? 1 : 0) + (providers.contains(LocationManager.GPS_PROVIDER) ? 1 : 0));
+                        AtomicBoolean forwarded = new AtomicBoolean();
+                        Consumer<Location> firstFix = location -> {
+                            if ((location != null || pendingRequests.decrementAndGet() == 0) && forwarded.compareAndSet(false, true)) {
+                                consumer.accept(location);// a null only once every provider has answered
+                            }
+                        };
                         if (providers.contains(LocationManager.NETWORK_PROVIDER)) {
-                            locationManager.getCurrentLocation(LocationManager.NETWORK_PROVIDER, null, Runnable::run, consumer);
+                            locationManager.getCurrentLocation(LocationManager.NETWORK_PROVIDER, null, Runnable::run, firstFix);
                             askedForLocation = true;
                         }
                         if (providers.contains(LocationManager.GPS_PROVIDER)) {
-                            locationManager.getCurrentLocation(LocationManager.GPS_PROVIDER, null, Runnable::run, consumer);
+                            locationManager.getCurrentLocation(LocationManager.GPS_PROVIDER, null, Runnable::run, firstFix);
                             askedForLocation = true;
                         }
                     } else {
