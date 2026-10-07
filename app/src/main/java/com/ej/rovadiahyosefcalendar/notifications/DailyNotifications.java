@@ -162,6 +162,11 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
             case "3" -> notifClass = AmudeiHoraahTekufaNotifications.class;
             case "4" -> notifClass = CombinedTekufaNotifications.class;
         }
+        for (Class<?> tekufaClass : new Class<?>[] {TekufaNotifications.class, AmudeiHoraahTekufaNotifications.class, CombinedTekufaNotifications.class}) {
+            if (!tekufaClass.equals(notifClass)) {
+                am.cancel(PendingIntent.getBroadcast(context.getApplicationContext(), 0, new Intent(context.getApplicationContext(), tekufaClass), PendingIntent.FLAG_IMMUTABLE));
+            }
+        }
         boolean luachAmudeiHoraah = notifClass.equals(AmudeiHoraahTekufaNotifications.class) || notifClass.equals(CombinedTekufaNotifications.class);
         Date tekufaDate = jewishDateInfo.getJewishCalendar().getTekufaAsDate(luachAmudeiHoraah);
         while (tekufaDate == null) {
