@@ -148,6 +148,13 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
             // ID Integer.MAX_VALUE is designated to the Visible sunrise notification due to chatGPT recommendation, we could make it 53... but what's done is done
             // The zemanim notifications are based on the timestamp of the zeman (which is bigger than Integer.MAX_VALUE so we remainder it, either way they should never overwrite each other)
         }
+        setTekufaNotification(context, jewishDateInfo);
+        AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
+        updateAlarm(am, calendar);// for next day
+        startUpDailyZmanim();//we need to start the zmanim service every day because there might be a person who will just want to see candle lighting time every week or once a year for pesach zmanim.
+    }
+
+    static void setTekufaNotification(Context context, JewishDateInfo jewishDateInfo) {
         Calendar cal = Calendar.getInstance();
         AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
         Class<?> notifClass = TekufaNotifications.class;
@@ -183,12 +190,10 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
                     PendingIntent.FLAG_IMMUTABLE);
             NotificationUtils.setExactAndAllowWhileIdle(am, cal.getTimeInMillis(), tekufaPendingIntent);
             if (BuildConfig.DEBUG) {
-                mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "Tekufa notification was set for: " + cal.getTime() + "\n\n").apply();
+                SharedPreferences sharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
+                sharedPreferences.edit().putString("debugNotifs", sharedPreferences.getString("debugNotifs", "") + "Tekufa notification was set for: " + cal.getTime() + "\n\n").apply();
             }
         }
-
-        updateAlarm(am, calendar);// for next day
-        startUpDailyZmanim();//we need to start the zmanim service every day because there might be a person who will just want to see candle lighting time every week or once a year for pesach zmanim.
     }
 
     private ROZmanimCalendar getROZmanimCalendar() {

@@ -19,6 +19,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.preference.PreferenceManager;
 
 import com.ej.rovadiahyosefcalendar.activities.ZmanimAppWidget;
+import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
 import com.kosherjava.zmanim.util.GeoLocation;
@@ -131,5 +132,6 @@ public class BootNotifications extends BroadcastReceiver {
         PendingIntent omerPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
                 0, new Intent(context, OmerNotifications.class), PendingIntent.FLAG_IMMUTABLE);
         NotificationUtils.setExactAndAllowWhileIdle(am, calendar.getTimeInMillis(), omerPendingIntent);
+        DailyNotifications.setTekufaNotification(context, new JewishDateInfo(context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE).getBoolean("inIsrael", false)));
     }
 }
