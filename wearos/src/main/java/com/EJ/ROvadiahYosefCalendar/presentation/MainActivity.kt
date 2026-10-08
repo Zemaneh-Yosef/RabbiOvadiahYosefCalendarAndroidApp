@@ -462,7 +462,9 @@ class MainActivity : ComponentActivity() {
             resolveElevation()
             initZmanimCalendar()
             mJewishDateInfo.jewishCalendar.inIsrael = sharedPref.getBoolean("inIsrael", false) // the phone syncs this flag, apply it before anything reads the calendar
-            sharedPref.edit { putString("name", sCurrentLocationName) }
+            if (!(sCurrentLocationName.contains("Lat:") && sCurrentLocationName.contains("Long:"))) {
+                sharedPref.edit { putString("name", sCurrentLocationName) }
+            }
             setDateFormats() // must happen after geolocation so the timezone is correct
             updateZmanimList()
             setNextUpcomingZman()
@@ -1114,7 +1116,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun setNextUpcomingZman() {
-        val nextZman = ZmanimFactory.getNextUpcomingZman(Calendar.getInstance(), mROZmanimCalendar, mJewishDateInfo, sharedPref)
+        val nextZman = ZmanimFactory.getNextUpcomingZman(mCurrentDateShown, mROZmanimCalendar, mJewishDateInfo, sharedPref)
         if (nextZman == null || nextZman.zman == null) {
             sNextUpcomingZman = Date(System.currentTimeMillis() + 30000) // try again in 30 seconds
         } else {
@@ -1134,12 +1136,17 @@ class MainActivity : ComponentActivity() {
     private fun createBackgroundThreadForNextUpcomingZman() {
         mNextZmanUpdater?.let { mHandler.removeCallbacks(it) }
         val nextZmanUpdater = Runnable {
-            updateZmanimList()
-            setNextUpcomingZman()
-            setContent {
-                WearApp(zmanim)
+            if (refreshExecutor.isShutdown) return@Runnable // a refresh running during onDestroy can still post this
+            refreshExecutor.execute {
+                updateZmanimList()
+                setNextUpcomingZman()
+                runOnUiThread {
+                    setContent {
+                        WearApp(zmanim)
+                    }
+                }
+                createBackgroundThreadForNextUpcomingZman() //start a new thread to update the next upcoming zman
             }
-            createBackgroundThreadForNextUpcomingZman() //start a new thread to update the next upcoming zman
         }
         mNextZmanUpdater = nextZmanUpdater
         if (sNextUpcomingZman != null) {

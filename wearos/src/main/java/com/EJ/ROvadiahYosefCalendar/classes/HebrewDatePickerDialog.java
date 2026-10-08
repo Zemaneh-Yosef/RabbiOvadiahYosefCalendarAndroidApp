@@ -49,7 +49,7 @@ public class HebrewDatePickerDialog extends Dialog {
 
         mDayPicker = pickers.findViewById(R.id.picker_day);
         mDayPicker.setMinValue(1);
-        mJewishCalendar = jewishCalendar;
+        mJewishCalendar = (JewishCalendar) jewishCalendar.clone();
         int month = mJewishCalendar.getJewishMonth();
         if ((month == IYAR) || (month == TAMMUZ) || (month == ELUL) || ((month == CHESHVAN) && !(isCheshvanLong(jewishCalendar.getJewishYear())))
                 || ((month == KISLEV) && isKislevShort(jewishCalendar.getJewishYear())) || (month == TEVES)
