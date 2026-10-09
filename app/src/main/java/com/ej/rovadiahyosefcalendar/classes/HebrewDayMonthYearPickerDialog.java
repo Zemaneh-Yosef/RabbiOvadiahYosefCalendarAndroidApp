@@ -52,10 +52,6 @@ public class HebrewDayMonthYearPickerDialog extends DialogFragment {
         mJewishCalendar = (JewishCalendar) jewishCalendar.clone();// the pickers write to this on every tick, so it must not be the caller's instance
         MIN_YEAR = jewishCalendar.getJewishYear() - 100;
         MAX_YEAR = jewishCalendar.getJewishYear() + 100;
-        if (getContext() != null && Utils.isLocaleHebrew(getContext())) {
-            mHebrewMonths = new String[]{"ניסן", "אייר", "סיון", "תמוז", "אב", "אלול", "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר"};
-            mHebrewMonthsLeap = new String[]{"ניסן", "אייר", "סיון", "תמוז", "אב", "אלול", "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר א׳", "אדר ב׳"};
-        }
     }
 
     public void setListener(DatePickerDialog.OnDateSetListener listener) {
@@ -65,6 +61,10 @@ public class HebrewDayMonthYearPickerDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        if (Utils.isLocaleHebrew(requireContext())) {
+            mHebrewMonths = new String[]{"ניסן", "אייר", "סיון", "תמוז", "אב", "אלול", "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר"};
+            mHebrewMonthsLeap = new String[]{"ניסן", "אייר", "סיון", "תמוז", "אב", "אלול", "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר א׳", "אדר ב׳"};
+        }
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireActivity());
 
         LayoutInflater inflater = requireActivity().getLayoutInflater();// Get the layout inflater
