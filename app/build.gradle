@@ -11,8 +11,8 @@ android {
         minSdk 26
         compileSdk 37
         targetSdk 37
-        versionCode 265
-        versionName "28.1"
+        versionCode 266
+        versionName "28.2"
         multiDexEnabled true
 
         ndk { debugSymbolLevel 'FULL' }
