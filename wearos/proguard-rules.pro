@@ -19,10 +19,3 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
-
-# Keep Zstd JNI classes and their fields/methods intact for native code
--keep class com.github.luben.zstd.** { *; }
--keepclassmembers class com.github.luben.zstd.** { *; }
-
-# Geonames local JAR
--keep class org.geonames.** { *; }

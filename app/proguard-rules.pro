@@ -21,3 +21,29 @@
 #-renamesourcefileattribute SourceFile
 -dontwarn edu.umd.cs.findbugs.annotations.Nullable
 -dontwarn org.slf4j.impl.StaticLoggerBinder
+-dontwarn org.jdom.Document
+-dontwarn org.jdom.Element
+-dontwarn org.jdom.input.SAXBuilder
+# Keep Zstd JNI classes and their fields/methods intact for native code
+-keep class com.github.luben.zstd.** { *; }
+-keepclassmembers class com.github.luben.zstd.** { *; }
+# Also preserve the actual attributes and native method bindings
+-keepclasseswithmembernames class com.github.luben.zstd.** {
+    native <methods>;
+}
+-keepclassmembers class com.github.luben.zstd.ZstdInputStreamNoFinalizer {
+    long srcPos;
+    long dstPos;
+}
+
+# Geonames local JAR
+-keep class org.geonames.** { *; }
+-keep class org.jdom.** { *; }
+
+# Esri geometry (Timeshape dependency): Wkid loads .txt resources relative to its package
+-keep class com.esri.core.geometry.** { *; }
+-dontwarn com.esri.core.geometry.**
+
+# Timeshape and its protobuf-generated GeoJSON classes
+-keep class net.iakovlev.timeshape.** { *; }
+-dontwarn net.iakovlev.timeshape.**

@@ -90,11 +90,14 @@ public class InIsraelActivity extends AppCompatActivity {
     }
 
     private void saveInfoAndStartActivity(boolean b) {
-        mSharedPreferences.edit().putBoolean("inIsrael", b)
-                .putBoolean("useElevation", !b).apply();
-        PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("LuachAmudeiHoraah", !b).apply();
+        mSharedPreferences.edit()
+                .putBoolean("inIsrael", b)
+                .putBoolean("useElevation", b).apply();
+        PreferenceManager.getDefaultSharedPreferences(this).edit()
+                .putBoolean("LuachAmudeiHoraah", !b).apply();
         if (Utils.isLocaleHebrew(this)) {
-            mSharedPreferences.edit().putBoolean("isZmanimInHebrew", true)
+            mSharedPreferences.edit()
+                    .putBoolean("isZmanimInHebrew", true)
                     .putBoolean("isZmanimEnglishTranslated", false)
                     .putBoolean("isSetup", true).apply();
             if (mSharedPreferences.getBoolean("hasNotShownTipScreen", true)) {

@@ -433,7 +433,12 @@ public class LocationResolver {
         if (!sTimeZoneEngineHasBeenInitialized) {
             sTimeZoneEngineHasBeenInitialized = true;
             new Thread(() -> {
-                ENGINE = TimeZoneEngine.initialize();
+                try {
+                    ENGINE = TimeZoneEngine.initialize();
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                    sTimeZoneEngineHasBeenInitialized = false; // allow a retry
+                }
 
                 // Notify all listeners once initialization is complete
                 synchronized (callbacks) {
@@ -450,6 +455,7 @@ public class LocationResolver {
      * Returns the TimeZoneEngine object. It is by default null until it is initialized.
      * @return The TimeZoneEngine or null if it has not been initialized.
      */
+    @Nullable
     public static TimeZoneEngine getTimeshapeEngine() {
         return ENGINE;
     }
@@ -482,21 +488,26 @@ public class LocationResolver {
                         if (latitude != 0.0 && longitude != 0.0) {
                             getTimeshapeEngineAsync(() -> {
                                 String zoneID = TimeZone.getDefault().getID();
-                                List<ZoneId> allZones = getTimeshapeEngine().queryAll(latitude, longitude);// first query all possible time zones in the area. There could be multiple due to border disputes
-                                if (allZones.size() > 1) {// if there are multiple
-                                    for (ZoneId zone : allZones) {
-                                        zoneID = zone.toString();
-                                        if (zone.toString().equals(TimeZone.getDefault().getID())) {// if the zone is the device default, assumingly use that
-                                            break;
+                                if (getTimeshapeEngine() != null) {
+                                    List<ZoneId> allZones = getTimeshapeEngine().queryAll(latitude, longitude);// first query all possible time zones in the area. There could be multiple due to border disputes
+                                    if (allZones.size() > 1) {// if there are multiple
+                                        for (ZoneId zone : allZones) {
+                                            zoneID = zone.toString();
+                                            if (zone.toString().equals(TimeZone.getDefault().getID())) {// if the zone is the device default, assumingly use that
+                                                break;
+                                            }
                                         }
+                                    } else if (allZones.size() == 1) {// if there is only one
+                                        zoneID = allZones.get(0).toString();
                                     }
-                                } else if (allZones.size() == 1) {// if there is only one
-                                    zoneID = allZones.get(0).toString();
+                                    mTimeZone = TimeZone.getTimeZone(zoneID);
+                                    sCurrentTimeZoneID = mTimeZone.getID();// need to set this for the saveLocationInformation method
+                                    mSharedPreferences.edit().putString("savedZipcodeTimezone" + mSharedPreferences.getString("Zipcode", ""), zoneID).apply();
+                                    saveLocationInformation();// only want to use this when people search their location
+                                } else {
+                                    mTimeZone = TimeZone.getDefault();
+                                    sCurrentTimeZoneID = mTimeZone.getID();
                                 }
-                                mTimeZone = TimeZone.getTimeZone(zoneID);
-                                sCurrentTimeZoneID = mTimeZone.getID();// need to set this for the saveLocationInformation method
-                                mSharedPreferences.edit().putString("savedZipcodeTimezone" + mSharedPreferences.getString("Zipcode", ""), zoneID).apply();
-                                saveLocationInformation();// only want to use this when people search their location
                             });
                         }
                     } catch (IllegalArgumentException e) {
@@ -518,21 +529,25 @@ public class LocationResolver {
      */
     public void acquireTimeZoneID() {
         getTimeshapeEngineAsync(() -> {
-            try {
-                String zoneID = TimeZone.getDefault().getID();
-                List<ZoneId> allZones = getTimeshapeEngine().queryAll(sLatitude, sLongitude);// first query all possible time zones in the area. There could be multiple due to border disputes
-                if (allZones.size() > 1) {// if there are multiple
-                    for (ZoneId zone : allZones) {
-                        zoneID = zone.toString();
-                        if (zone.toString().equals(TimeZone.getDefault().getID())) {// if the zone is the device default, assumingly use that
-                            break;
+            if (getTimeshapeEngine() != null) {
+                try {
+                    String zoneID = TimeZone.getDefault().getID();
+                    List<ZoneId> allZones = getTimeshapeEngine().queryAll(sLatitude, sLongitude);// first query all possible time zones in the area. There could be multiple due to border disputes
+                    if (allZones.size() > 1) {// if there are multiple
+                        for (ZoneId zone : allZones) {
+                            zoneID = zone.toString();
+                            if (zone.toString().equals(TimeZone.getDefault().getID())) {// if the zone is the device default, assumingly use that
+                                break;
+                            }
                         }
+                    } else if (allZones.size() == 1) {// if there is only one
+                        zoneID = allZones.get(0).toString();
                     }
-                } else if (allZones.size() == 1) {// if there is only one
-                    zoneID = allZones.get(0).toString();
+                    mTimeZone = TimeZone.getTimeZone(zoneID);
+                } catch (IllegalArgumentException e) {
+                    mTimeZone = TimeZone.getDefault();
                 }
-                mTimeZone = TimeZone.getTimeZone(zoneID);
-            } catch (IllegalArgumentException e) {
+            } else {
                 mTimeZone = TimeZone.getDefault();
             }
             if (mTimeZone.getID().equals("Asia/Gaza") || mTimeZone.getID().equals("Asia/Hebron")) {

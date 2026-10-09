@@ -42,8 +42,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentActivity;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.preference.PreferenceManager;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -334,6 +334,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
             mSharedPreferences.edit()
                     .putBoolean("isZmanimInHebrew", true)
                     .putBoolean("isZmanimEnglishTranslated", false)
+                    .putBoolean("isZmanimAmericanized", false)
                     .putBoolean("isSetup", true).apply();
             if (mSharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
                 startActivity(new Intent(getBaseContext(), TipScreenActivity.class));
