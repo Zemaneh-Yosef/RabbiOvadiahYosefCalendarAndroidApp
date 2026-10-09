@@ -148,6 +148,13 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
             // ID Integer.MAX_VALUE is designated to the Visible sunrise notification due to chatGPT recommendation, we could make it 53... but what's done is done
             // The zemanim notifications are based on the timestamp of the zeman (which is bigger than Integer.MAX_VALUE so we remainder it, either way they should never overwrite each other)
         }
+        setTekufaNotification(context, jewishDateInfo);
+        AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
+        updateAlarm(am, calendar);// for next day
+        startUpDailyZmanim();//we need to start the zmanim service every day because there might be a person who will just want to see candle lighting time every week or once a year for pesach zmanim.
+    }
+
+    static void setTekufaNotification(Context context, JewishDateInfo jewishDateInfo) {
         Calendar cal = Calendar.getInstance();
         AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
         Class<?> notifClass = TekufaNotifications.class;
@@ -161,6 +168,11 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
             // 2, just leave it alone
             case "3" -> notifClass = AmudeiHoraahTekufaNotifications.class;
             case "4" -> notifClass = CombinedTekufaNotifications.class;
+        }
+        for (Class<?> tekufaClass : new Class<?>[] {TekufaNotifications.class, AmudeiHoraahTekufaNotifications.class, CombinedTekufaNotifications.class}) {
+            if (!tekufaClass.equals(notifClass)) {
+                am.cancel(PendingIntent.getBroadcast(context.getApplicationContext(), 0, new Intent(context.getApplicationContext(), tekufaClass), PendingIntent.FLAG_IMMUTABLE));
+            }
         }
         boolean luachAmudeiHoraah = notifClass.equals(AmudeiHoraahTekufaNotifications.class) || notifClass.equals(CombinedTekufaNotifications.class);
         Date tekufaDate = jewishDateInfo.getJewishCalendar().getTekufaAsDate(luachAmudeiHoraah);
@@ -178,12 +190,10 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
                     PendingIntent.FLAG_IMMUTABLE);
             NotificationUtils.setExactAndAllowWhileIdle(am, cal.getTimeInMillis(), tekufaPendingIntent);
             if (BuildConfig.DEBUG) {
-                mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "Tekufa notification was set for: " + cal.getTime() + "\n\n").apply();
+                SharedPreferences sharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
+                sharedPreferences.edit().putString("debugNotifs", sharedPreferences.getString("debugNotifs", "") + "Tekufa notification was set for: " + cal.getTime() + "\n\n").apply();
             }
         }
-
-        updateAlarm(am, calendar);// for next day
-        startUpDailyZmanim();//we need to start the zmanim service every day because there might be a person who will just want to see candle lighting time every week or once a year for pesach zmanim.
     }
 
     private ROZmanimCalendar getROZmanimCalendar() {
@@ -205,7 +215,9 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
 
     private void updateAlarm(AlarmManager am, AstronomicalCalendar c) {
         Calendar cal = Calendar.getInstance();
-        Date sunrise = c.getSunrise();
+        AstronomicalCalendar tomorrow = (AstronomicalCalendar) c.clone();
+        tomorrow.getCalendar().add(Calendar.DATE, 1);// only our alarm starts this receiver, so today's notification was just sent
+        Date sunrise = tomorrow.getSunrise();
         if (sunrise == null) {
             sunrise = new Date();
         }

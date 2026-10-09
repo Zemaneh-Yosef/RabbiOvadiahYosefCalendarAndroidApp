@@ -1091,13 +1091,19 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         Calendar calendar = Calendar.getInstance();
         ROZmanimCalendar roZmanimCalendar = sROZmanimCalendar.getCopy();
         roZmanimCalendar.setCalendar(Calendar.getInstance()); // do this in order to always set the notifications on the current date
+        ROZmanimCalendar tomorrow = (ROZmanimCalendar) roZmanimCalendar.clone();
+        tomorrow.getCalendar().add(Calendar.DATE, 1);
         Date sunrise = roZmanimCalendar.getSunrise();
         if (sunrise == null) {
             sunrise = new Date();
         }
         calendar.setTimeInMillis(sunrise.getTime());
         if (calendar.getTime().compareTo(new Date()) < 0) {
-            calendar.add(Calendar.DATE, 1);
+            if (tomorrow.getSunrise() != null) {
+                calendar.setTimeInMillis(tomorrow.getSunrise().getTime());
+            } else {
+                calendar.add(Calendar.DATE, 1);
+            }
         }
         PendingIntent dailyPendingIntent = PendingIntent.getBroadcast(mContext, 0,
                 new Intent(mContext, DailyNotifications.class), PendingIntent.FLAG_IMMUTABLE);
@@ -1116,7 +1122,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
         calendar.setTimeInMillis(tzeit.getTime());
         if (calendar.getTime().compareTo(new Date()) < 0) {
-            calendar.add(Calendar.DATE, 1);
+            if (tomorrow.getTzeit() != null) {
+                calendar.setTimeInMillis(tomorrow.getTzeit().getTime());
+            } else {
+                calendar.add(Calendar.DATE, 1);
+            }
         }
         PendingIntent omerPendingIntent = PendingIntent.getBroadcast(mContext, 0, new Intent(mContext, OmerNotifications.class), PendingIntent.FLAG_IMMUTABLE);
         if (BuildConfig.DEBUG) {
