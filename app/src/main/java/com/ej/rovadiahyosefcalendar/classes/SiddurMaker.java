@@ -604,7 +604,7 @@ public class SiddurMaker {
 			return siddur;
 		}
 		addCategoryToSiddur("ברכות השחר");
-		addInstructionToSiddur(isHebrew ? "יתגבר כארי לעמוד בבוקר לעבודת בוראו. בעת קימתו יביע הכרת הטוב באמירת נוסח זה של מודה אני." : "Arise in the morning for the servitude of G-d - brazen like a lion. As you're doing so, declare gratitude by reciting this text of Modeh Ani");
+		addInstructionToSiddur(isHebrew ? "יתגבר כארי לעמוד בבוקר לעבודת בוראו. בעת קימתו יביע הכרת הטוב באמירת נוסח זה של מודה אני." : "Arise in the morning for the servitude of God - brazen like a lion. As you're doing so, declare gratitude by reciting this text of Modeh Ani");
 		addToSiddur("מוֹדֶה (האשה אומרת: מוֹדָה) אֲנִי לְפָנֶיךָ מֶלֶךְ חַי וְקַיָּם, שֶהֶחֱזַרְתָּ בִּי נִשְׁמָתִי בְחֶמְלָה, רַבָּה אֱמוּנָתֶךָ:".replace(isHebrew ? "@" : "האשה אומרת", "women say"));
 
 		HighlightString netilatYadaim = new HighlightString("\n\nבָּרוּךְ אַתָּה יְהוָֹה, אֱלֹהֵֽינוּ מֶֽלֶךְ הָעוֹלָם, אֲשֶׁר קִדְּשָֽׁנוּ בְּמִצְוֹתָיו וִצִוָּֽנוּ עַל נְטִילַת יָדָֽיִם:",
@@ -617,7 +617,7 @@ public class SiddurMaker {
 			"בָּרוּךְ אַתָּה יְהוָֹה, אֱלֹהֵֽינוּ מֶֽלֶךְ הָעוֹלָם, אֲשֶׁר יָצַר אֶת הָאָדָם בְּחָכְמָה, וּבָרָא בוֹ נְקָבִים נְקָבִים, חֲלוּלִים חֲלוּלִים, גָּלוּי וְיָדוּעַ לִפְנֵי כִסֵּא כְבוֹדֶךָ, שֶׁאִם יִסָּתֵם אֶחָד מֵהֶם, אוֹ אִם יִפָּתֵח אֶחָד מֵהֶם, אֵי אֶפְשָׁר לְהִתְקַיֵּם אַפִלּוּ שָׁעָה אֶחָת. בָּרוּךְ אַתָּה יְהֹוָה, רוֹפֵא כָל־בָּשָׂר וּמַפְלִיא לַעֲשׂוֹת:");
 		addInstructionToSiddur((isHebrew ? "טוב לסמוך \"אלהי נשמה\" לברכת \"אשר יצר\"" : "It is preferable to juxtapose \"אלהי נשמה\" with \"אשר יצר\"") + " (הליכות עולם א, נא)");
 		addToSiddur("אֱלֹהַי (יפסיק מעט) נְשָׁמָה שֶׁנָּתַתָּ בִּי טְהוֹרָה, אַתָּה בְרָאתָהּ, אַתָּה יְצַרְתָּהּ, אַתָּה נְפַחְתָּהּ בִּי, וְאַתָּה מְשַׁמְּרָהּ בְּקִרְבִּי, וְאַתָּה עָתִיד לִטְּלָהּ מִמֶּנִּי, וּלְהַחֲזִירָהּ בִּי לֶעָתִיד לָבוֹא, כָּל־זְמַן שֶׁהַנְּשָׁמָה בְקִרְבִּי, מוֹדֶה (האשה אומרת: מוֹדָה) אֲנִי לְפָנֶיךָ יְהֹוָה אֱלֹהַי וֵאלֹהֵי אֲבוֹתַי, רִבּוֹן כָּל־הַמַּעֲשִׂים אֲדוֹן כָּל־הַנְּשָׁמוֹת. בָּרוּךְ אַתָּה יְהֹוָה, הַמַּחֲזִיר נְשָׁמוֹת לִפְגָרִים מֵתִים:".replace(isHebrew ? "@" : "יפסיק מעט", "pause").replace(isHebrew ? "@" : "האשה אומרת", "women say"));
-		addInstructionToSiddur((isHebrew ? "קודם שיברך איזה ברכה, צריך הוא לדעת איזה ברכה שהוא צריך לברך, כדי שבשעה שהוא מזכיר את השם יתברך שהוא עיקר הברכה, ידע מה שיסיים." : "Before a person recites a blessing, they must know which blessing they are reciting when they mention G-d's name as G-d's name is the main part of the blessing.") + " (קיצור שלחן ערוך ו:א)");
+		addInstructionToSiddur((isHebrew ? "קודם שיברך איזה ברכה, צריך הוא לדעת איזה ברכה שהוא צריך לברך, כדי שבשעה שהוא מזכיר את השם יתברך שהוא עיקר הברכה, ידע מה שיסיים." : "Before a person recites a blessing, they must know which blessing they are reciting when they mention God's name as God's name is the main part of the blessing.") + " (קיצור שלחן ערוך ו:א)");
 		addToSiddur(
 			"בָּרוּךְ אַתָּה יְהוָֹה, אֱלֹהֵֽינוּ מֶֽלֶךְ הָעוֹלָם, הַנוֹתֵן לַשֶּׂכְוִי בִינָה, לְהַבְחִין בֵּין יוֹם וּבֵין לָיְלָה: \n" +
 			"בָּרוּךְ אַתָּה יְהוָֹה, אֱלֹהֵֽינוּ מֶֽלֶךְ הָעוֹלָם, פּוֹקֵחַ עִוְרִים: \n" +
@@ -3994,7 +3994,7 @@ public class SiddurMaker {
 
 		addTwoWordToSiddur("וְה֤וּא רַח֨וּם ׀ יְכַפֵּ֥ר עָוֺן֮ וְֽלֹא־יַֽ֫שְׁחִ֥ית וְ֭הִרְבָּה לְהָשִׁ֣יב אַפּ֑וֹ וְלֹא־יָ֝עִ֗יר כׇּל־חֲמָתֽוֹ׃ יְהֹוָ֥ה הוֹשִׁ֑יעָה הַ֝מֶּ֗לֶךְ יַעֲנֵ֥נוּ בְיוֹם־קׇרְאֵֽנוּ:");
 		if (jewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SUNDAY) {
-			addInstructionToSiddur((isHebrew ? "המאריך במוצ\"ש באמירת \"ברוך ה' המברך\", זוכה להצלחה, וניצול מהיזק." : "One who lengthens the line, \"ברוך ה' המברך\" on Motzeh Shabbat, merits succes and will be saved from harm.") + " (חזון עובדיה שבת ב, שעט)");
+			addInstructionToSiddur((isHebrew ? "המאריך במוצ\"ש באמירת \"ברוך ה' המברך\", זוכה להצלחה, וניצול מהיזק." : "One who lengthens the line, \"ברוך ה' המברך\" on Motzaeh Shabbat, merits success and will be saved from harm.") + " (חזון עובדיה שבת ב, שעט)");
 		}
 		addBarchu(true);
 
