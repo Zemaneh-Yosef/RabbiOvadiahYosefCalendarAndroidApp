@@ -24,6 +24,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -50,13 +51,11 @@ import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.ej.rovadiahyosefcalendar.databinding.ActivityMainFragmentManagerBinding;
 import com.ej.rovadiahyosefcalendar.notifications.NextZmanCountdownNotification;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.shape.MaterialShapeDrawable;
-import com.google.android.play.core.appupdate.AppUpdateInfo;
 import com.google.android.play.core.appupdate.AppUpdateManager;
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
 import com.google.android.play.core.appupdate.AppUpdateOptions;
@@ -106,6 +105,12 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
     public static BottomNavigationView sNavView;
     public static ViewPager2 sViewPager;
     private ViewPager2 mViewPager;
+    private static boolean sUpdateChecked = false;
+
+    private final ActivityResultLauncher<IntentSenderRequest> updateLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartIntentSenderForResult(), result -> {
+                // RESULT_OK = accepted, RESULT_CANCELED = declined; nothing to do for a flexible update
+            });
 
     @Override
     protected void attachBaseContext(Context base) {
@@ -433,15 +438,14 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
     }
 
     private void askToUpdateApp() {
+        if (sUpdateChecked) return;// don't re-prompt on every recreate
+        sUpdateChecked = true;
         AppUpdateManager appUpdateManager = AppUpdateManagerFactory.create(this);
-
-        // Returns an intent object that you use to check for an update.
-        Task<AppUpdateInfo> appUpdateInfoTask = appUpdateManager.getAppUpdateInfo();
-
-        // Checks that the platform will allow the specified type of update.
-        appUpdateInfoTask.addOnSuccessListener(appUpdateInfo -> {
-            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
-                appUpdateManager.startUpdateFlow(appUpdateInfo, this, AppUpdateOptions.newBuilder(AppUpdateType.FLEXIBLE).build());
+        appUpdateManager.getAppUpdateInfo().addOnSuccessListener(appUpdateInfo -> {
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
+                    && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
+                appUpdateManager.startUpdateFlowForResult(appUpdateInfo, updateLauncher,
+                        AppUpdateOptions.newBuilder(AppUpdateType.FLEXIBLE).build());
             }
         });
     }

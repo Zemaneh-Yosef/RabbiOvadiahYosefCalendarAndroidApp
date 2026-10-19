@@ -27,32 +27,7 @@ import static com.ej.rovadiahyosefcalendar.classes.Utils.calculateInSampleSize;
 import static com.ej.rovadiahyosefcalendar.classes.Utils.getCurrentCalendarDrawableDark;
 import static com.ej.rovadiahyosefcalendar.classes.Utils.getCurrentCalendarDrawableLight;
 import static com.ej.rovadiahyosefcalendar.classes.Utils.inputStreamToString;
-import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.BIRCHAT_HALEVANA;
-import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.BIRKAT_HACHAMAH;
-import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.BURN_CHAMETZ;
-import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.DAY_OF_OMER;
-import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.DST;
-import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.ELEVATION_VALUE;
-import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.ERUV_TAVSHILIN;
-import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.HALELL_OR_CHATZI_HALLEL;
-import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.LEAP_YEAR;
-import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.MOON_STATUS;
-import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.MUSIC;
-import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.NINE_DAYS;
-import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.PURIM_MESHULASH;
-import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.SEASONAL_PRAYER_CHANGES;
-import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.SHAAH_ZMANIT_GRA;
-import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.SHAAH_ZMANIT_MGA;
-import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.SHABBAT_MEVARCHIM;
-import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.SHEVUA_SHECHAL_BO;
-import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.SHMITA_YEAR;
-import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.SPECIAL_DAY;
-import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.TACHANUN;
-import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.TEKUFA_LENGTH;
-import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.TEKUFA_TIME;
-import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.THREE_WEEKS;
-import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.ULCHAPARAT_PESHA;
-import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.UNSPECIFIED;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.*;
 import static com.ej.rovadiahyosefcalendar.classes.ZmanimFactory.addZmanim;
 import static com.kosherjava.zmanim.AstronomicalCalendar.getTimeOffset;
 
@@ -88,7 +63,6 @@ import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TextClock;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -1417,7 +1391,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
         String hallel = sJewishDateInfo.getHallelOrChatziHallel();
         if (!hallel.isEmpty()) {
-            zmanim.add(new ZmanListEntry(hallel, HALELL_OR_CHATZI_HALLEL));
+            zmanim.add(new ZmanListEntry(hallel, HALLEL_OR_CHATZI_HALLEL));
         }
 
         String ulChaparatPesha = sJewishDateInfo.getIsUlChaparatPeshaSaid();
@@ -2121,6 +2095,24 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
     }
 
+    private final Runnable mClockTicker = new Runnable() {
+        @Override
+        public void run() {
+            if (binding == null) return;
+            String pattern = android.text.format.DateFormat.is24HourFormat(mContext) ? "H:mm:ss" : "h:mm:ss a";
+            long now = System.currentTimeMillis();
+            binding.clock.setText(android.text.format.DateFormat.format(pattern, now));
+            mHandler.postDelayed(this, 1000 - now % 1000);// next tick on the second boundary
+        }
+    };
+
+    private void showClock(boolean show) {
+        if (binding == null) return;
+        mHandler.removeCallbacks(mClockTicker);
+        binding.clock.setVisibility(show ? View.VISIBLE : View.GONE);
+        if (show) mClockTicker.run();
+    }
+
     /**
      * This method initializes the shabbat mode banner and sets up the functionality of hiding the banner when the user taps on it.
      */
@@ -2157,16 +2149,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 mActivity.getWindow().setHideOverlayWindows(true);
             }
-            Configuration configuration = getResources().getConfiguration();
-            if (binding != null) {
-                TextClock clock = binding.clock;
-                if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                    clock.setVisibility(View.VISIBLE);
-                    if (Utils.isLocaleHebrew(mContext)) {
-                        clock.setFormat24Hour("hh:mm:ss");
-                    }
-                }
-            }
+            showClock(true);// always show the clock in shabbat mode
             mNextDate.setVisibility(View.GONE);
             mPreviousDate.setVisibility(View.GONE);
             Calendar calendar = Calendar.getInstance();
@@ -2393,12 +2376,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sROZmanimCalendar.getCalendar()));
         mNextDate.setVisibility(View.VISIBLE);
         mPreviousDate.setVisibility(View.VISIBLE);
-        if (binding != null) {
-            TextClock clock = binding.clock;
-            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-                clock.setVisibility(View.GONE);
-            }
-        }
+        showClock(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE);
     }
 
     @Override
@@ -2406,6 +2384,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (mNestedScrollView != null) {
             mCurrentPosition = mNestedScrollView.getScrollY();
         }
+        mHandler.removeCallbacks(mClockTicker);
         super.onPause();
     }
 
@@ -2418,19 +2397,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
         resetSystemTheme();
         setCustomThemeColors();
-        if (binding != null) {
-            TextClock clock = binding.clock;
-            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                clock.setVisibility(View.VISIBLE);
-                if (Utils.isLocaleHebrew(mContext)) {
-                    clock.setFormat24Hour("H:mm:ss");
-                }
-            } else {
-                if (sShabbatMode) {
-                    clock.setVisibility(View.VISIBLE);
-                }
-            }
-        }
+        showClock(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE || sShabbatMode);
         if (mMainRecyclerView == null) {
             super.onResume();
             return;

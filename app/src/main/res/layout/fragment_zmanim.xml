@@ -9,17 +9,15 @@
     android:orientation="vertical"
     tools:context=".activities.MainFragmentManagerActivity">
 
-    <TextClock
+    <TextView
         android:id="@+id/clock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:format12Hour="h:mm:ss a"
-        android:format24Hour="H:mm:ss"
         android:layout_gravity="center"
         android:textSize="20sp"
         android:gravity="center"
         android:visibility="gone"
-        tools:text="4:15 PM"/>
+        tools:text="4:15:00 PM"/>
 
     <TextView
         android:id="@+id/shabbat_mode"

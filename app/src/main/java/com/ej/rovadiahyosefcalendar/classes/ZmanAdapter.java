@@ -229,6 +229,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                             showShmaGRADialog();
                             break;
                         case BIRKAT_HACHMAH_ZMAN:
+                        case BIRKAT_HACHAMAH:
                             showBirchatHachamahDialog();
                             break;
                         case SOF_ZMAN_BERACHOT_SHMA_ZMAN:
