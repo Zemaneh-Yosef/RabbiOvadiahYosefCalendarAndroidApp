@@ -11,8 +11,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.Icon;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
@@ -82,7 +82,7 @@ public class AmudeiHoraahTekufaNotifications extends BroadcastReceiver {
         }
         mNotifyBuilder = new NotificationCompat.Builder(context,
                 "Amudei Horaah Tekufa Notifications")
-                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
+                .setLargeIcon(Icon.createWithResource(context, R.mipmap.ic_launcher))
                 .setSmallIcon(getSeasonalIcon(jewishDateInfo.getJewishCalendar().getTekufaName(Utils.isLocaleHebrew(context))))
                 .setContentTitle(contentTitle)
                 .setContentText(contentText)

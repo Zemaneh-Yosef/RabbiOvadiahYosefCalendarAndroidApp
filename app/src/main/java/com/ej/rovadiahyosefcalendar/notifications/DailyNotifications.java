@@ -13,8 +13,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.Icon;
 import android.location.Location;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -120,7 +120,7 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
             String content = (Utils.isLocaleHebrew(context) ? "היום הוא " : "Today is ") + specialDay;
 
             NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "Jewish Special Day")
-                    .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
+                    .setLargeIcon(Icon.createWithResource(context, R.mipmap.ic_launcher))
                     .setSmallIcon(R.drawable.calendar_foreground)
                     .setContentTitle(title)
                     .setContentText(content)

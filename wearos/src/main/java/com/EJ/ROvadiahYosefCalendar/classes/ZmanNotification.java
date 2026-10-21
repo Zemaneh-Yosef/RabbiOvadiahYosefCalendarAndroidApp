@@ -11,8 +11,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.Icon;
 import android.media.AudioAttributes;
 import android.media.RingtoneManager;
 import android.os.Build;
@@ -155,7 +155,7 @@ public class ZmanNotification extends BroadcastReceiver {
             }
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context, isAlarmMode ? "ZmanimAlarms" : "Zmanim")
-                    .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
+                    .setLargeIcon(Icon.createWithResource(context, R.mipmap.ic_launcher))
                     .setSmallIcon(R.drawable.baseline_av_timer_24)
                     .setContentTitle(zmanName)
                     .setContentText(text)
