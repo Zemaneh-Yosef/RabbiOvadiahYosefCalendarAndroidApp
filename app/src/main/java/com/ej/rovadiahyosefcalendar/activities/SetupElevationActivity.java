@@ -40,7 +40,7 @@ import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
 import com.kosherjava.zmanim.util.GeoLocation;
 
 import java.io.IOException;
-import java.util.TimeZone;
+import java.time.ZoneId;
 
 public class SetupElevationActivity extends AppCompatActivity {
 
@@ -179,7 +179,7 @@ public class SetupElevationActivity extends AppCompatActivity {
         if (sharedPreferences.getBoolean("UseTable" + sCurrentLocationName, true)) {
             String link = sharedPreferences.getString("chaitablesLink" + sCurrentLocationName, "");
             JewishDate jDate = new JewishDate();
-            GeoLocation geoLocation = new GeoLocation("", sLatitude, sLongitude, TimeZone.getTimeZone(sCurrentTimeZoneID));
+            GeoLocation geoLocation = new GeoLocation("", sLatitude, sLongitude, ZoneId.of(sCurrentTimeZoneID));
             ChaiTablesWebJava scraper = new ChaiTablesWebJava(geoLocation, jDate);
 
             Thread thread = new Thread(() -> {

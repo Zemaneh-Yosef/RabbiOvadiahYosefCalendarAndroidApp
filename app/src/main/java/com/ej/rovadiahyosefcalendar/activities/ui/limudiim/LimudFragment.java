@@ -42,7 +42,6 @@ import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
 import com.kosherjava.zmanim.hebrewcalendar.YerushalmiYomiCalculator;
 import com.kosherjava.zmanim.hebrewcalendar.YomiCalculator;
 
-import org.apache.commons.lang3.time.DateUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -50,14 +49,14 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.Month;
+import java.time.ZoneOffset;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.TimeZone;
 
 public class LimudFragment extends Fragment {
 
@@ -72,8 +71,8 @@ public class LimudFragment extends Fragment {
     /**
      * These calendars are used to know when daf/yerushalmi yomi started
      */
-    public final static Calendar dafYomiStartDate = new GregorianCalendar(1923, Calendar.SEPTEMBER, 11);
-    public final static Calendar dafYomiYerushalmiStartDate = new GregorianCalendar(1980, Calendar.FEBRUARY, 2);
+    public final static LocalDate dafYomiStartDate = LocalDate.of(1923, Month.SEPTEMBER, 11);
+    public final static LocalDate dafYomiYerushalmiStartDate = LocalDate.of(1980, Month.FEBRUARY, 2);
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -86,7 +85,7 @@ public class LimudFragment extends Fragment {
         binding = FragmentLimudBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         if (sCurrentDateShown == null) {
-            sCurrentDateShown = Calendar.getInstance();
+            sCurrentDateShown = LocalDate.now();
         }
         setDate();
         setupRecyclerViews();
@@ -96,11 +95,11 @@ public class LimudFragment extends Fragment {
     }
 
     private boolean isToday() {
-        return DateUtils.isSameDay(sCurrentDateShown.getTime(), new Date());
+        return sCurrentDateShown.equals(LocalDate.now());
     }
 
     private boolean isAfterSunset() {
-        return sROZmanimCalendar.getSunset() != null && new Date().after(sROZmanimCalendar.getSunset());
+        return sROZmanimCalendar.getSunset() != null && Instant.now().isAfter(sROZmanimCalendar.getSunset());
     }
 
     private void setDate() {
@@ -109,14 +108,12 @@ public class LimudFragment extends Fragment {
 
         if (!Utils.isLocaleHebrew(mContext)) {// if not hebrew, show the date in english
             StringBuilder engDate = new StringBuilder()
-				.append(sCurrentDateShown.get(Calendar.DATE))
+				.append(sCurrentDateShown.getDayOfMonth())
 				.append(" ")
-				.append(sCurrentDateShown.getDisplayName(
-						Calendar.MONTH,
-						Calendar.SHORT,
-						mContext.getResources().getConfiguration().getLocales().get(0)))
+				.append(sCurrentDateShown.getMonth().getDisplayName(TextStyle.SHORT,
+                        mContext.getResources().getConfiguration().getLocales().get(0)))
 				.append(", ")
-				.append(sCurrentDateShown.get(Calendar.YEAR));
+				.append(sCurrentDateShown.getYear());
 
 			if (binding != null) {
                 if (binding.englishDateTextView != null) {
@@ -191,8 +188,8 @@ public class LimudFragment extends Fragment {
     private void updateLists() {
         boolean isNowAdjustable = isToday() && mAdjustDate && isAfterSunset();
         if (isNowAdjustable && mAdjustDate) {
-            sCurrentDateShown.add(Calendar.DATE, 1);
-            sJewishDateInfo.setCalendar(sCurrentDateShown);
+            sCurrentDateShown = sCurrentDateShown.plusDays(1);
+            sJewishDateInfo.setLocalDate(sCurrentDateShown);
         }
         limudRV.setAdapter(new LimudAdapter(mContext, getLimudList(), sJewishDateInfo.getCopy(), v -> {
             mSeeMore = false;
@@ -206,20 +203,20 @@ public class LimudFragment extends Fragment {
             hillulotRV.setVisibility(View.VISIBLE);
         }
         if (isNowAdjustable && mAdjustDate) {// reset
-            sCurrentDateShown.add(Calendar.DATE, -1);
-            sJewishDateInfo.setCalendar(sCurrentDateShown);
+            sCurrentDateShown = sCurrentDateShown.minusDays(1);
+            sJewishDateInfo.setLocalDate(sCurrentDateShown);
         }
     }
 
     private List<LimudListEntry> getLimudList() {
         List<LimudListEntry> limudim = new ArrayList<>();
 
-        if (!sCurrentDateShown.before(dafYomiStartDate)) {
+        if (!sCurrentDateShown.isBefore(dafYomiStartDate)) {
             limudim.add(new LimudListEntry(mContext.getString(R.string.daf_yomi)  + " " + YomiCalculator.getDafYomiBavli(sJewishDateInfo.getJewishCalendar()).getMasechta()
                     + " " + sHebrewDateFormatter.formatHebrewNumber(YomiCalculator.getDafYomiBavli(sJewishDateInfo.getJewishCalendar()).getDaf())));
         }
 
-        if (!sCurrentDateShown.before(dafYomiYerushalmiStartDate)) {
+        if (!sCurrentDateShown.isBefore(dafYomiYerushalmiStartDate)) {
             Daf dafYomiYerushalmi = YerushalmiYomiCalculator.getDafYomiYerushalmi(sJewishDateInfo.getJewishCalendar());
             if (dafYomiYerushalmi != null) {
                 String masechta = dafYomiYerushalmi.getYerushalmiMasechta();
@@ -235,12 +232,7 @@ public class LimudFragment extends Fragment {
             limudim.add(new LimudListEntry(getString(R.string.mishna_yomi) + " " + mishnaYomi));
         }
 
-        LocalDate currentDate = LocalDate.of(
-                sCurrentDateShown.get(Calendar.YEAR),
-                sCurrentDateShown.get(Calendar.MONTH) + 1,
-                sCurrentDateShown.get(Calendar.DATE));
-
-        List<HalachaSegment> halachaSegments = HalachaYomi.INSTANCE.getDailyLearning(currentDate);
+        List<HalachaSegment> halachaSegments = HalachaYomi.INSTANCE.getDailyLearning(sCurrentDateShown);
         if (halachaSegments != null) {
             StringBuilder halacha = new StringBuilder();
             halacha.append(halachaSegments.get(0).getBookName()).append(" ");// book name shouldn't change on the same day
@@ -353,12 +345,12 @@ public class LimudFragment extends Fragment {
 
         DailyMishnehTorah dailyMishnehTorah = DailyMishnehTorah.INSTANCE;
 
-        RambamReading rambamYomi = dailyMishnehTorah.getDailyLearning(currentDate);
+        RambamReading rambamYomi = dailyMishnehTorah.getDailyLearning(sCurrentDateShown);
         if (rambamYomi != null) {
             limudim.add(new LimudListEntry(getString(R.string.rambam_yomi) + rambamYomi.getBookName() + " " + rambamYomi.getChapter()));
         }
 
-        List<RambamReading> rambamYomi3 = dailyMishnehTorah.getDailyLearning3(currentDate);
+        List<RambamReading> rambamYomi3 = dailyMishnehTorah.getDailyLearning3(sCurrentDateShown);
 
         if (rambamYomi3 != null) {
             StringBuilder rambam3Learnings = new StringBuilder();
@@ -454,10 +446,10 @@ public class LimudFragment extends Fragment {
                 if (isToday() && isAfterSunset() && mAdjustDate) {
                     mAdjustDate = false; // disable adjust date logic on today if after sunset
                 } else {
-                    sCurrentDateShown.add(Calendar.DATE, -1);
+                    sCurrentDateShown = sCurrentDateShown.minusDays(1);
                 }
-                sROZmanimCalendar.setCalendar(sCurrentDateShown);
-                sJewishDateInfo.setCalendar(sCurrentDateShown);
+                sROZmanimCalendar.setLocalDate(sCurrentDateShown);
+                sJewishDateInfo.setLocalDate(sCurrentDateShown);
                 setDate();
                 updateLists();
                 mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
@@ -471,9 +463,9 @@ public class LimudFragment extends Fragment {
     private void setupNextDayButton() {
         if (binding != null) {
             binding.nextDay.setOnClickListener(v -> {
-                sCurrentDateShown.add(Calendar.DATE, 1);// add one day
-                sROZmanimCalendar.setCalendar(sCurrentDateShown);
-                sJewishDateInfo.setCalendar(sCurrentDateShown);
+                sCurrentDateShown = sCurrentDateShown.plusDays(1);
+                sROZmanimCalendar.setLocalDate(sCurrentDateShown);
+                sJewishDateInfo.setLocalDate(sCurrentDateShown);
                 setDate();
                 updateLists();
                 mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
@@ -496,39 +488,32 @@ public class LimudFragment extends Fragment {
                 MaterialDatePicker<Long> materialDatePicker = builder
                         .setPositiveButtonText(R.string.ok)
                         .setNegativeButtonText(R.string.switch_calendar)
-                        .setSelection(sCurrentDateShown.getTimeInMillis())// can be in local timezone
+                        .setSelection(sCurrentDateShown.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli())
                         .build();
                 materialDatePicker.addOnPositiveButtonClickListener(selection -> {
-                    Calendar epoch = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-                    epoch.setTimeInMillis(selection);
-                    sCurrentDateShown.set(
-                            epoch.get(Calendar.YEAR),
-                            epoch.get(Calendar.MONTH),
-                            epoch.get(Calendar.DATE),
-                            epoch.get(Calendar.HOUR_OF_DAY),
-                            epoch.get(Calendar.MINUTE)
-                    );
-                    sROZmanimCalendar.setCalendar(sCurrentDateShown);
-                    sJewishDateInfo.setCalendar(sCurrentDateShown);
+                    // Convert the UTC milliseconds selection directly to a LocalDate
+                    sCurrentDateShown = Instant.ofEpochMilli(selection)
+                            .atZone(ZoneOffset.UTC)
+                            .toLocalDate();
+                    sROZmanimCalendar.setLocalDate(sCurrentDateShown);
+                    sJewishDateInfo.setLocalDate(sCurrentDateShown);
                     setDate();
                     updateLists();
-                    mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
+                    mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown)
+                    );
                 });
                 DatePickerDialog.OnDateSetListener onDateSetListener = (view, year, month, day) -> {
-                    Calendar mUserChosenDate = Calendar.getInstance();
-                    mUserChosenDate.set(year, month, day);
-                    sROZmanimCalendar.setCalendar(mUserChosenDate);
-                    sJewishDateInfo.setCalendar(mUserChosenDate);
-                    sCurrentDateShown = (Calendar) sROZmanimCalendar.getCalendar().clone();
+                    LocalDate userChosenDate = LocalDate.of(year, month, day);
+                    sROZmanimCalendar.setLocalDate(userChosenDate);
+                    sJewishDateInfo.setLocalDate(userChosenDate);
+                    sCurrentDateShown = userChosenDate;
                     setDate();
                     updateLists();
                     mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
                 };
                 materialDatePicker.addOnNegativeButtonClickListener(selection -> {
                     HebrewDayMonthYearPickerDialog hdmypd = new HebrewDayMonthYearPickerDialog(materialDatePicker, mActivity.getSupportFragmentManager(), sJewishDateInfo.getJewishCalendar());
-                    hdmypd.updateDate(sJewishDateInfo.getJewishCalendar().getGregorianYear(),
-                            sJewishDateInfo.getJewishCalendar().getGregorianMonth(),
-                            sJewishDateInfo.getJewishCalendar().getGregorianDayOfMonth());
+                    hdmypd.updateDate(sJewishDateInfo.getJewishCalendar().getLocalDate());
                     hdmypd.setListener(onDateSetListener);
                     hdmypd.show(mActivity.getSupportFragmentManager(), null);
                 });

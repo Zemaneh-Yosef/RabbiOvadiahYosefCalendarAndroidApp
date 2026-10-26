@@ -35,8 +35,8 @@ import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.kosherjava.zmanim.hebrewcalendar.TefilaRules;
 import com.kosherjava.zmanim.util.GeoLocation;
 
-import java.util.Calendar;
-import java.util.Date;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -55,7 +55,7 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
         this.context = context;
         mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         if (BuildConfig.DEBUG) {
-            mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "Omer notifications called at: " + new Date() + "\n\n").apply();
+            mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "Omer notifications called at: " + Instant.now() + "\n\n").apply();
         }
         JewishDateInfo jewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false));
         mLocationResolver = new LocationResolver(context, null);
@@ -87,9 +87,11 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
             mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "init started with the Omer count for tonight as: " + night + "\n\n").apply();
         }
         if (night != -1) {//-1 outside the omer, and on erev shavuot there is no count to say
-            long when = System.currentTimeMillis();
+            long when;
             if (c.getTzeit() != null) {
-                when = c.getTzeit().getTime();
+                when = c.getTzeit().toEpochMilli();
+            } else {
+                when = System.currentTimeMillis();
             }
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -201,23 +203,25 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
     }
 
     private void updateAlarm(ROZmanimCalendar c) {
-        Calendar calendar = Calendar.getInstance();
         AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
-        ROZmanimCalendar tomorrow = (ROZmanimCalendar) c.clone();
-        tomorrow.getCalendar().add(Calendar.DATE, 1);// only our alarm starts this receiver, so tonight's count was just sent
-        Date tzeit = tomorrow.getTzeit();
+        ROZmanimCalendar tomorrow = c.getCopy();
+        tomorrow.setLocalDate(tomorrow.getLocalDate().plusDays(1));// only our alarm starts this receiver, so tonight's count was just sent
+        Instant tzeit = tomorrow.getTzeit();
         if (tzeit == null) {
-            tzeit = new Date();
+            tzeit = Instant.now();
         }
-        calendar.setTimeInMillis(tzeit.getTime());
-        if (calendar.getTime().compareTo(new Date()) < 0) {
-            calendar.add(Calendar.DATE, 1);
+        if (tzeit.compareTo(Instant.now()) < 0) {
+            if (tomorrow.getTzeit() != null) {
+                tzeit = tomorrow.getTzeit();
+            } else {
+                tzeit = tzeit.plus(1, ChronoUnit.DAYS);
+            }
         }
         PendingIntent omerPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
                 0, new Intent(context.getApplicationContext(), OmerNotifications.class), PendingIntent.FLAG_IMMUTABLE);
-        NotificationUtils.setExactAndAllowWhileIdle(am, calendar.getTimeInMillis(), omerPendingIntent);
+        NotificationUtils.setExactAndAllowWhileIdle(am, tzeit.toEpochMilli(), omerPendingIntent);
         if (BuildConfig.DEBUG) {
-            mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "Omer notifications alarm was updated to: " + calendar.getTime() + "\n\n").apply();
+            mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "Omer notifications alarm was updated to: " + tzeit + "\n\n").apply();
         }
     }
 
@@ -240,7 +244,7 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
                         location.getLatitude(),
                         location.getLongitude(),
                         mLocationResolver.getElevation(),
-                        mLocationResolver.getTimeZone())));
+                        mLocationResolver.getZoneID())));
                 finishBroadcast();
             });
         } else {

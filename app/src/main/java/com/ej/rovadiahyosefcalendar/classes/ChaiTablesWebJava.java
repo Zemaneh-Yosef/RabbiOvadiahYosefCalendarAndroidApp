@@ -26,6 +26,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -82,7 +83,7 @@ public final class ChaiTablesWebJava {
 		urlParams.put("USAcities2", "0");
 		urlParams.put("eroshgt", "0.0");
 
-		double geoTz = geoLocation.getTimeZone().getRawOffset() / (1000d * 60d * 60d);
+		double geoTz = TimeZone.getTimeZone(geoLocation.getZoneId()).getRawOffset() / (1000d * 60d * 60d);
 		urlParams.put("geotz", Double.toString(geoTz));
 		urlParams.put("DST", "ON");
 		urlParams.put("exactcoord", "OFF");
@@ -135,7 +136,7 @@ public final class ChaiTablesWebJava {
 		}
 
 		JewishDate loopCal = (JewishDate) jDate.clone();
-		ZoneId zoneId = geoLocation.getTimeZone().toZoneId();
+		ZoneId zoneId = geoLocation.getZoneId();
 
 		ZonedDateTime gregorianMonthStart = startOfMonth(loopCal, zoneId);
 		JewishDate jewishMonthStartDate = (JewishDate) loopCal.clone();
@@ -369,28 +370,17 @@ public final class ChaiTablesWebJava {
 		int minute = parts.length > 1 ? Integer.parseInt(parts[1]) : 0;
 		int second = parts.length > 2 ? Integer.parseInt(parts[2]) : 0;
 
-		LocalDate localDate = LocalDate.of(
-			date.getGregorianYear(),
-			date.getGregorianMonth() + 1,
-			date.getGregorianDayOfMonth()
-		);
-
-		return ZonedDateTime.of(localDate, LocalTime.of(hour, minute, second), zoneId);
+		return ZonedDateTime.of(date.getLocalDate(), LocalTime.of(hour, minute, second), zoneId);
 	}
 
 	private ZonedDateTime startOfDay(JewishDate date, ZoneId zoneId) {
-		LocalDate localDate = LocalDate.of(
-			date.getGregorianYear(),
-			date.getGregorianMonth() + 1,
-			date.getGregorianDayOfMonth()
-		);
-		return localDate.atStartOfDay(zoneId);
+		return date.getLocalDate().atStartOfDay(zoneId);
 	}
 
 	private ZonedDateTime startOfMonth(JewishDate date, ZoneId zoneId) {
 		LocalDate localDate = LocalDate.of(
-			date.getGregorianYear(),
-			date.getGregorianMonth() + 1,
+			date.getLocalDate().getYear(),
+			date.getLocalDate().getMonthValue(),
 			1
 		);
 		return localDate.atStartOfDay(zoneId);

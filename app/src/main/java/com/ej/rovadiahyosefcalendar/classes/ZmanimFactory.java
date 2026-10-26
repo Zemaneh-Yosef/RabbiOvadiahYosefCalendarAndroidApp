@@ -1,15 +1,42 @@
 package com.ej.rovadiahyosefcalendar.classes;
 
-import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.*;
-import static com.ej.rovadiahyosefcalendar.classes.SecondTreatment.*;
+import static com.ej.rovadiahyosefcalendar.classes.SecondTreatment.ALWAYS_DISPLAY;
+import static com.ej.rovadiahyosefcalendar.classes.SecondTreatment.ROUND_EARLIER;
+import static com.ej.rovadiahyosefcalendar.classes.SecondTreatment.ROUND_LATER;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.ALOT_HASHACHAR_ZMAN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.BIRKAT_HACHMAH_ZMAN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.CANDLELIGHTING_ZMAN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.CHATZOT_LAYLA_ZMAN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.CHATZOT_ZMAN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.FAST_ENDS_ZMAN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.FAST_STARTS_NON_TISHA_BAV_ZMAN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.FAST_STARTS_TISHA_BAV_ZMAN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.HANETZ_ZMAN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.MINCHA_GEDOLAH_ZMAN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.MINCHA_KETANA_ZMAN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.MISHEYAKIR_60_ZMAN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.MISHEYAKIR_66_ZMAN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.PLAG_HAMINCHA_HB_ZMAN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.PLAG_HAMINCHA_YY_ZMAN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.RABBENU_TAM_ZMAN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.SHABBAT_CHAG_ENDS_ZMAN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.SOF_ZMAN_ACHILAT_CHAMETZ_ZMAN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.SOF_ZMAN_BERACHOT_SHMA_ZMAN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.SOF_ZMAN_BIUR_CHAMETZ_ZMAN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.SOF_ZMAN_SHMA_GRA_ZMAN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.SOF_ZMAN_SHMA_MGA_ZMAN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.SUNSET_ZMAN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.TZET_HAKOKHAVIM_LCHUMRA_ZMAN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.TZET_HAKOKHAVIM_ZMAN;
 
 import android.content.SharedPreferences;
 
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -150,12 +177,12 @@ public class ZmanimFactory {
                 MINCHA_GEDOLAH_ZMAN,
                 "MinchaGedola"));
         zmanim.add(new ZmanListEntry(zmanimNames.getMinchaKetanaString(),
-                mROZmanimCalendar.getMinchaKetana(),
+                mROZmanimCalendar.getMinchaKetanaGRA(),
                 ROUND_LATER,
                 MINCHA_KETANA_ZMAN,
                 "MinchaKetana"));
         zmanim.add(new ZmanListEntry(zmanimNames.getPlagHaminchaString() + " (" + zmanimNames.getHalachaBerurahString() + ")",
-                mROZmanimCalendar.getPlagHamincha(),
+                mROZmanimCalendar.getPlagHaminchaGRA(),
                 ROUND_LATER,
                 PLAG_HAMINCHA_HB_ZMAN,
                 "PlagHaMinchaHB"));
@@ -166,7 +193,7 @@ public class ZmanimFactory {
                 "PlagHaMinchaYY"));
         if ((mJewishDateInfo.getJewishCalendar().hasCandleLighting() &&
                 !mJewishDateInfo.getJewishCalendar().isAssurBemelacha()) ||
-                mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY) {
+                mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.FRIDAY) {
             ZmanListEntry candleLightingZman = new ZmanListEntry(
                     zmanimNames.getCandleLightingString() + " (" + (int) mROZmanimCalendar.getCandleLightingOffset() + ")",
                     mROZmanimCalendar.getCandleLighting(),
@@ -178,8 +205,9 @@ public class ZmanimFactory {
         }
         if (mSettingsPreferences.getBoolean("ShowWhenShabbatChagEnds", false) && !isForWeeklyZmanim) {
             if (mJewishDateInfo.getJewishCalendar().isTomorrowShabbosOrYomTov()) {
-                mROZmanimCalendar.getCalendar().add(Calendar.DATE, 1);
-                mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
+                LocalDate localDate = mROZmanimCalendar.getLocalDate();
+                mROZmanimCalendar.setLocalDate(localDate.plusDays(1));
+                mJewishDateInfo.setLocalDate(mROZmanimCalendar.getLocalDate());
                 if (!mJewishDateInfo.getJewishCalendar().isTomorrowShabbosOrYomTov()) {//only add if shabbat/yom tov ends tomorrow
                     Set<String> stringSet = mSettingsPreferences.getStringSet("displayRTOrShabbatRegTime", null);
                     if (stringSet != null) {
@@ -191,19 +219,19 @@ public class ZmanimFactory {
                         }
                     }
                 }
-                mROZmanimCalendar.getCalendar().add(Calendar.DATE, -1);
-                mJewishDateInfo.setCalendar(mROZmanimCalendar.getCalendar());
+                mROZmanimCalendar.setLocalDate(localDate.minusDays(1));
+                mJewishDateInfo.setLocalDate(mROZmanimCalendar.getLocalDate());
             }
         }
         if (mJewishDateInfo.tomorrow().getJewishCalendar().isTishaBav()) {
             zmanim.add(new ZmanListEntry(zmanimNames.getTaanitString() + zmanimNames.getStartsString(),
-                    mROZmanimCalendar.getElevationAdjustedSunset(),
+                    mROZmanimCalendar.getSunsetBasedOnElevationSetting(),
                     ROUND_EARLIER,
                     FAST_STARTS_TISHA_BAV_ZMAN,
                     "Shkia"));
         }
         zmanim.add(new ZmanListEntry(zmanimNames.getSunsetString(),
-                mROZmanimCalendar.getElevationAdjustedSunset(),
+                mROZmanimCalendar.getSunsetBasedOnElevationSetting(),
                 ROUND_EARLIER,
                 SUNSET_ZMAN,
                 "Shkia"));
@@ -229,8 +257,8 @@ public class ZmanimFactory {
 
         if (mJewishDateInfo.getJewishCalendar().hasCandleLighting() &&
                 mJewishDateInfo.getJewishCalendar().isAssurBemelacha()) {
-            if (mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) != Calendar.FRIDAY) {// we already added Candles
-                if (mJewishDateInfo.getJewishCalendar().getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {// Shabbat going into Yom Tov
+            if (mJewishDateInfo.getJewishCalendar().getDayOfWeek() != Calendar.FRIDAY) {// we already added Candles
+                if (mJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY) {// Shabbat going into Yom Tov
                     addShabbatEndsZman(zmanim, mSettingsPreferences, mROZmanimCalendar, mJewishDateInfo, zmanimNames, true, false);
                 } else {// Yom Tov going into Yom Tov
                     zmanim.add(new ZmanListEntry(zmanimNames.getCandleLightingString(),
@@ -266,13 +294,13 @@ public class ZmanimFactory {
     }
 
     private static void addRTZman(List<ZmanListEntry> zmanim, SharedPreferences mSettingsPreferences, ROZmanimCalendar mROZmanimCalendar, ZmanimNames zmanimNames, boolean isForTomorrow) {
-        Date rtZman = mSettingsPreferences.getBoolean("overrideRTZman", false) ?
+        Instant rtZman = mSettingsPreferences.getBoolean("overrideRTZman", false) ?
                 mROZmanimCalendar.getTzais72ForceRegZmanis() : mROZmanimCalendar.isUseAmudehHoraah() ?
                 mROZmanimCalendar.getTzais72ZmanisAmudeiHoraahLkulah() : mROZmanimCalendar.getTzais72Zmanis();
 
         boolean isFixed = true;
         if (rtZman != null) {
-            isFixed = rtZman.equals(mROZmanimCalendar.getTzais72());
+            isFixed = rtZman.equals(mROZmanimCalendar.getTzais72Minutes());
         }
         ZmanListEntry rt = new ZmanListEntry(zmanimNames.getRTString() +
                 zmanimNames.getRTType(isFixed) +
@@ -326,33 +354,33 @@ public class ZmanimFactory {
         }
     }
 
-    public static ZmanListEntry getNextUpcomingZman(Calendar mCurrentDateShown, ROZmanimCalendar roZmanimCalendar, JewishDateInfo mJewishDateInfo, SharedPreferences mSettingsPreferences, SharedPreferences mSharedPreferences) {
+    public static ZmanListEntry getNextUpcomingZman(LocalDate mCurrentDateShown, ROZmanimCalendar roZmanimCalendar, JewishDateInfo mJewishDateInfo, SharedPreferences mSettingsPreferences, SharedPreferences mSharedPreferences) {
         ZmanListEntry theZman = null;
         List<ZmanListEntry> zmanim = new ArrayList<>();
-        Calendar today = Calendar.getInstance();
+        LocalDate today = LocalDate.now();
         ROZmanimCalendar mROZmanimCalendar = roZmanimCalendar.getCopy();
 
-        today.add(Calendar.DATE, -1);
-        mROZmanimCalendar.setCalendar(today);
-        mJewishDateInfo.setCalendar(today);
+        today = today.minusDays(1);
+        mROZmanimCalendar.setLocalDate(today);
+        mJewishDateInfo.setLocalDate(today);
         // we only care about the date
         addZmanim(zmanim, false, mSettingsPreferences, mSharedPreferences, mROZmanimCalendar, mJewishDateInfo, true);//for the previous day
 
-        today.add(Calendar.DATE, 1);
-        mROZmanimCalendar.setCalendar(today);
-        mJewishDateInfo.setCalendar(today);
+        today = today.plusDays(1);
+        mROZmanimCalendar.setLocalDate(today);
+        mJewishDateInfo.setLocalDate(today);
         addZmanim(zmanim, false, mSettingsPreferences, mSharedPreferences, mROZmanimCalendar, mJewishDateInfo, true);//for the current day
 
-        today.add(Calendar.DATE, 1);
-        mROZmanimCalendar.setCalendar(today);
-        mJewishDateInfo.setCalendar(today);
+        today = today.plusDays(1);
+        mROZmanimCalendar.setLocalDate(today);
+        mJewishDateInfo.setLocalDate(today);
         addZmanim(zmanim, false, mSettingsPreferences, mSharedPreferences, mROZmanimCalendar, mJewishDateInfo, true);//for the next day
 
-        mROZmanimCalendar.setCalendar(mCurrentDateShown);
-        mJewishDateInfo.setCalendar(mCurrentDateShown);//reset
+        mROZmanimCalendar.setLocalDate(mCurrentDateShown);
+        mJewishDateInfo.setLocalDate(mCurrentDateShown);//reset
         //find the next upcoming zman that is after the current time and before all the other zmanim
         for (ZmanListEntry zmanListEntry: zmanim) {
-            if (zmanListEntry.getZman() != null && zmanListEntry.getZman().after(new Date()) && (theZman == null || zmanListEntry.getZman().before(theZman.getZman()))) {
+            if (zmanListEntry.getZman() != null && zmanListEntry.getZman().isAfter(Instant.now()) && (theZman == null || zmanListEntry.getZman().isBefore(theZman.getZman()))) {
                 theZman = zmanListEntry;
             }
         }

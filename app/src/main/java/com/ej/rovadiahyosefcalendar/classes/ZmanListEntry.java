@@ -2,12 +2,12 @@ package com.ej.rovadiahyosefcalendar.classes;
 
 import android.content.SharedPreferences;
 
-import java.util.Date;
+import java.time.Instant;
 
 public class ZmanListEntry {
 
     private String title;
-    private Date zman;
+    private Instant zman;
     private final ZmanListEntryType zmanListEntryType;
     private boolean isNoteworthyZman;
     private boolean shouldBeDimmed;
@@ -26,7 +26,7 @@ public class ZmanListEntry {
         this.zmanListEntryType = zmanListEntryType;
     }
 
-    public ZmanListEntry(String title, Date zman, SecondTreatment secondTreatment, ZmanListEntryType zmanListEntryType, String notificationKey) {
+    public ZmanListEntry(String title, Instant zman, SecondTreatment secondTreatment, ZmanListEntryType zmanListEntryType, String notificationKey) {
         this.title = title;
         this.zman = zman;
         this.zmanListEntryType = zmanListEntryType;
@@ -42,11 +42,11 @@ public class ZmanListEntry {
         this.title = title;
     }
 
-    public Date getZman() {
+    public Instant getZman() {
         return zman;
     }
 
-    public void setZman(Date zman) {
+    public void setZman(Instant zman) {
         this.zman = zman;
     }
 

@@ -27,6 +27,7 @@ import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
+import java.time.LocalDate;
 import java.util.Objects;
 
 public class HebrewDayMonthYearPickerDialog extends DialogFragment {
@@ -129,8 +130,9 @@ public class HebrewDayMonthYearPickerDialog extends DialogFragment {
         builder.setView(dialog)
                 .setPositiveButton(R.string.ok, (dialog1, id) -> {
                     mJewishCalendar.setJewishDate(mYearPicker.getValue(), mMonthPicker.getValue(), mDayPicker.getValue());
+                    LocalDate localDate = mJewishCalendar.getLocalDate();
                     listener.onDateSet(null,
-                            mJewishCalendar.getGregorianYear(), mJewishCalendar.getGregorianMonth(), mJewishCalendar.getGregorianDayOfMonth());
+                            localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth());
                 })
                 .setNegativeButton(requireContext().getString(R.string.cancel), (dialog2, id) -> Objects.requireNonNull(HebrewDayMonthYearPickerDialog.this.getDialog()).cancel())
                 .setNeutralButton(requireContext().getString(R.string.switch_calendar), (dialog3, which) -> {
@@ -173,7 +175,7 @@ public class HebrewDayMonthYearPickerDialog extends DialogFragment {
         }
     }
 
-    public void updateDate(int year, int month, int dayOfMonth) {
-        mJewishCalendar.setGregorianDate(year, month, dayOfMonth);
+    public void updateDate(LocalDate localDate) {
+        mJewishCalendar.setGregorianDate(localDate);
     }
 }

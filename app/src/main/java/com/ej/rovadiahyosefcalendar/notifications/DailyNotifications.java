@@ -30,11 +30,10 @@ import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
-import com.kosherjava.zmanim.AstronomicalCalendar;
 import com.kosherjava.zmanim.util.GeoLocation;
 
-import java.util.Calendar;
-import java.util.Date;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -89,9 +88,11 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
             if (BuildConfig.DEBUG) {
                 mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "special day was not empty" + "\n\n").apply();
             }
-            long when = System.currentTimeMillis();
-            if (calendar.getSunrise() != null) {
-                when = calendar.getSunrise().getTime();
+            long when;
+            if (calendar.getSunsetBasedOnElevationSetting() != null) {
+                when = calendar.getSunsetBasedOnElevationSetting().toEpochMilli();
+            } else {
+                when = System.currentTimeMillis();
             }
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -143,9 +144,9 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
             // For reference:
             // IDs 0-49 are designated for Omer Notifications
             // ID 50 is designated for Daily Notifications (the ID will not iterate anymore, IT WILL OVERWRITE THE LAST DAILY NOTIFICATION)
-            // ID 51 is designated to tekufa notifications (the ID will not iterate anymore as it only occurs 4 times a year and it's unlikely to ever overwrite the last tekufa notification)
+            // ID 51 is designated to tekufa notifications (the ID will not iterate anymore as it only occurs 4 times a year, and it's unlikely to ever overwrite the last tekufa notification)
             // ID 52 is designated to the Barech Aleinu notification
-            // ID Integer.MAX_VALUE is designated to the Visible sunrise notification due to chatGPT recommendation, we could make it 53... but what's done is done
+            // ID Integer.MAX_VALUE is designated to the Visible sunrise notification due to ChatGPT recommendation, we could make it 53... but what's done is done
             // The zemanim notifications are based on the timestamp of the zeman (which is bigger than Integer.MAX_VALUE so we remainder it, either way they should never overwrite each other)
         }
         setTekufaNotification(context, jewishDateInfo);
@@ -155,7 +156,6 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
     }
 
     static void setTekufaNotification(Context context, JewishDateInfo jewishDateInfo) {
-        Calendar cal = Calendar.getInstance();
         AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
         Class<?> notifClass = TekufaNotifications.class;
         String tekufaOpinions = PreferenceManager.getDefaultSharedPreferences(context).getString("TekufaOpinions", "1");
@@ -175,23 +175,22 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
             }
         }
         boolean luachAmudeiHoraah = notifClass.equals(AmudeiHoraahTekufaNotifications.class) || notifClass.equals(CombinedTekufaNotifications.class);
-        Date tekufaDate = jewishDateInfo.getJewishCalendar().getTekufaAsDate(luachAmudeiHoraah);
-        while (tekufaDate == null) {
-            jewishDateInfo.getJewishCalendar().forward(Calendar.DATE, 1);
-            tekufaDate = jewishDateInfo.getJewishCalendar().getTekufaAsDate(luachAmudeiHoraah);
+        Instant tekufaInstant = jewishDateInfo.getJewishCalendar().getTekufaAsInstant(luachAmudeiHoraah);
+        while (tekufaInstant == null) {
+            jewishDateInfo.setLocalDate(jewishDateInfo.getJewishCalendar().getLocalDate().plusDays(1));
+            tekufaInstant = jewishDateInfo.getJewishCalendar().getTekufaAsInstant(luachAmudeiHoraah);
         }
-        cal.setTime(tekufaDate);
-        cal.add(Calendar.HOUR_OF_DAY, -1);// set reminder to go off one hour before the tekufa occurs. I.E. half an hour before the prohibition
-        if (cal.compareTo(Calendar.getInstance()) > 0) {// only do this code if the tekufa hasn't passed
+        // set reminder to go off one hour before the tekufa occurs. I.E. half an hour before the prohibition
+        if (tekufaInstant.compareTo(Instant.now()) > 0) {// only do this code if the tekufa hasn't passed
             PendingIntent tekufaPendingIntent = PendingIntent.getBroadcast(
                     context.getApplicationContext(),
                     0,
                     new Intent(context.getApplicationContext(), notifClass),
                     PendingIntent.FLAG_IMMUTABLE);
-            NotificationUtils.setExactAndAllowWhileIdle(am, cal.getTimeInMillis(), tekufaPendingIntent);
+            NotificationUtils.setExactAndAllowWhileIdle(am, tekufaInstant.toEpochMilli(), tekufaPendingIntent);
             if (BuildConfig.DEBUG) {
                 SharedPreferences sharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
-                sharedPreferences.edit().putString("debugNotifs", sharedPreferences.getString("debugNotifs", "") + "Tekufa notification was set for: " + cal.getTime() + "\n\n").apply();
+                sharedPreferences.edit().putString("debugNotifs", sharedPreferences.getString("debugNotifs", "") + "Tekufa notification was set for: " + tekufaInstant + "\n\n").apply();
             }
         }
     }
@@ -213,23 +212,25 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
         }
     }
 
-    private void updateAlarm(AlarmManager am, AstronomicalCalendar c) {
-        Calendar cal = Calendar.getInstance();
-        AstronomicalCalendar tomorrow = (AstronomicalCalendar) c.clone();
-        tomorrow.getCalendar().add(Calendar.DATE, 1);// only our alarm starts this receiver, so today's notification was just sent
-        Date sunrise = tomorrow.getSunrise();
+    private void updateAlarm(AlarmManager am, ROZmanimCalendar c) {
+        ROZmanimCalendar tomorrow = c.getCopy();
+        tomorrow.setLocalDate(tomorrow.getLocalDate().plusDays(1));// only our alarm starts this receiver, so today's notification was just sent
+        Instant sunrise = tomorrow.getSunriseBasedOnElevationSetting();
         if (sunrise == null) {
-            sunrise = new Date();
+            sunrise = Instant.now();
         }
-        cal.setTimeInMillis(sunrise.getTime());
-        if (cal.getTime().compareTo(new Date()) < 0) {
-            cal.add(Calendar.DATE, 1);
+        if (sunrise.compareTo(Instant.now()) < 0) {
+            if (tomorrow.getSunriseBasedOnElevationSetting() != null) {
+                sunrise = tomorrow.getSunriseBasedOnElevationSetting();
+            } else {
+                sunrise = sunrise.plus(1, ChronoUnit.DAYS);
+            }
         }
         PendingIntent dailyPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
                 0, new Intent(context.getApplicationContext(), DailyNotifications.class), PendingIntent.FLAG_IMMUTABLE);
-        NotificationUtils.setExactAndAllowWhileIdle(am, cal.getTimeInMillis(), dailyPendingIntent);
+        NotificationUtils.setExactAndAllowWhileIdle(am, sunrise.toEpochMilli(), dailyPendingIntent);
         if (BuildConfig.DEBUG) {
-            mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "Daily notifications alarm was updated to: " + cal.getTime() + "\n\n").apply();
+            mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "Daily notifications alarm was updated to: " + sunrise.toEpochMilli() + "\n\n").apply();
         }
     }
 
@@ -252,7 +253,7 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
                         location.getLatitude(),
                         location.getLongitude(),
                         mLocationResolver.getElevation(),
-                        mLocationResolver.getTimeZone())));
+                        mLocationResolver.getZoneID())));
                 finishBroadcast();
             });
         } else {

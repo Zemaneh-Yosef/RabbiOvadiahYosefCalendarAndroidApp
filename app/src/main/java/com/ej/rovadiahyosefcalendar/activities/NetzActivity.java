@@ -26,16 +26,15 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.ej.rovadiahyosefcalendar.R;
-import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
 import com.ej.rovadiahyosefcalendar.classes.ZmanimNames;
 import com.ej.rovadiahyosefcalendar.databinding.ActivityNetzBinding;
 import com.kosherjava.zmanim.util.GeoLocation;
 
-import java.util.Calendar;
-import java.util.Date;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Objects;
-import java.util.TimeZone;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -118,7 +117,6 @@ public class NetzActivity extends AppCompatActivity {
     private ActivityNetzBinding binding;
 
     private static SharedPreferences mSharedPreferences;
-    private static LocationResolver mLocationResolver;
     private static ROZmanimCalendar mROZmanimCalendar;
     private static boolean mIsZmanimInHebrew;
     private static boolean mIsZmanimEnglishTranslated;
@@ -155,7 +153,6 @@ public class NetzActivity extends AppCompatActivity {
             Objects.requireNonNull(Looper.myLooper()).quit();
         }).start());
 
-        mLocationResolver = new LocationResolver(this, null);
         mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         setZmanimLanguageBools();
         mROZmanimCalendar = getROZmanimCalendar();
@@ -166,9 +163,8 @@ public class NetzActivity extends AppCompatActivity {
 
     private void startTimer() {
         cancelCountDownTimers();
-        Calendar calendar = Calendar.getInstance();
-        mROZmanimCalendar.setCalendar(calendar);
-        Date netz = mROZmanimCalendar.getHaNetz();
+        mROZmanimCalendar.setLocalDate(LocalDate.now());
+        Instant netz = mROZmanimCalendar.getHaNetz();
         boolean isMishor = false;
 
         if (netz == null) {
@@ -176,9 +172,8 @@ public class NetzActivity extends AppCompatActivity {
             isMishor = true;
         }
 
-        if (netz.before(new Date())) {
-            calendar.add(Calendar.DATE, 1);
-            mROZmanimCalendar.setCalendar(calendar);
+        if (netz.isBefore(Instant.now())) {
+            mROZmanimCalendar.setLocalDate(mROZmanimCalendar.getLocalDate().plusDays(1));
 
             netz = mROZmanimCalendar.getHaNetz();
             isMishor = false;
@@ -187,18 +182,17 @@ public class NetzActivity extends AppCompatActivity {
                 netz = mROZmanimCalendar.getSeaLevelSunrise();
                 isMishor = true;
             }
-            calendar.add(Calendar.DATE, -1);
-            mROZmanimCalendar.setCalendar(calendar);
+            mROZmanimCalendar.setLocalDate(mROZmanimCalendar.getLocalDate().minusDays(1));
         }
 
         ZmanimNames netzName = new ZmanimNames(mIsZmanimInHebrew, mIsZmanimEnglishTranslated, mIsZmanimAmericanized);
 
         boolean finalIsMishor = isMishor;
-        Date finalNetz = netz;
+        Instant finalNetz = netz;
         mCountDownRunnable = new Runnable() {
             @Override
             public void run() {
-                long millisUntilFinished = finalNetz.getTime() - new Date().getTime();
+                long millisUntilFinished = finalNetz.toEpochMilli() - Instant.now().toEpochMilli();
 
                 if (millisUntilFinished > 0) {
                     long totalSeconds = millisUntilFinished / 1000;
@@ -223,7 +217,7 @@ public class NetzActivity extends AppCompatActivity {
                 } else {
                     // Timer finished
                     binding.fullscreenContent.setText(getString(R.string.netz_message));
-                    mROZmanimCalendar.setCalendar(Calendar.getInstance());
+                    mROZmanimCalendar.setLocalDate(LocalDate.now());
                     startCountDownTimerTillSunset(); // Start the sunset countdown
                 }
             }
@@ -234,8 +228,8 @@ public class NetzActivity extends AppCompatActivity {
 
     // Method to start the countdown timer till sunset
     private void startCountDownTimerTillSunset() {
-        final long sunsetTime = mROZmanimCalendar.getSunset().getTime(); // The end time for the sunset countdown
-        long millisUntilFinished = sunsetTime - new Date().getTime();
+        final long sunsetTime = mROZmanimCalendar.getSunset().toEpochMilli(); // The end time for the sunset countdown
+        long millisUntilFinished = sunsetTime - Instant.now().toEpochMilli();
 
         mCountDownTillSunsetRunnable = this::startTimer;
         mHideHandler.postDelayed(mCountDownTillSunsetRunnable, millisUntilFinished); // Re-run this Runnable in 1 second
@@ -259,7 +253,7 @@ public class NetzActivity extends AppCompatActivity {
                         sLatitude,
                         sLongitude,
                         0,// elevation doesn't matter here
-                        TimeZone.getTimeZone(sCurrentTimeZoneID == null ? TimeZone.getDefault().getID() : sCurrentTimeZoneID)));
+                        ZoneId.of(sCurrentTimeZoneID)));
     }
 
     private static void setZmanimLanguageBools() {

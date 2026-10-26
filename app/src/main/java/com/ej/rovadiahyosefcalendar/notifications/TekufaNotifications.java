@@ -25,10 +25,9 @@ import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.SecondTreatment;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
 
-import org.apache.commons.lang3.time.DateUtils;
-
-import java.util.Calendar;
-import java.util.Date;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
 
 public class TekufaNotifications extends BroadcastReceiver {
 
@@ -60,10 +59,11 @@ public class TekufaNotifications extends BroadcastReceiver {
 
         Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
-        Date tekufaTime = findTekufaTime(jewishDateInfo);
+        Instant tekufaTime = findTekufaTime(jewishDateInfo);
         if (tekufaTime == null) {return;}// it should never be null, but just in case
-        Date halfHourBefore = new Date(tekufaTime.getTime() - DateUtils.MILLIS_PER_HOUR / 2);
-        Date halfHourAfter = new Date(tekufaTime.getTime() + DateUtils.MILLIS_PER_HOUR / 2);
+        Duration HALF_HOUR = Duration.ofMinutes(30);
+        Instant halfHourBefore = tekufaTime.minus(HALF_HOUR);
+        Instant halfHourAfter = tekufaTime.plus(HALF_HOUR);
 
         NotificationCompat.Builder mNotifyBuilder;
         String contentText;
@@ -93,7 +93,7 @@ public class TekufaNotifications extends BroadcastReceiver {
                 .setSound(alarmSound)
                 .setColor(context.getColor(R.color.dark_gold))
                 .setAutoCancel(true)
-                .setWhen(tekufaTime.getTime())
+                .setWhen(tekufaTime.toEpochMilli())
                 .setTimeoutAfter(259_200_000)// remove the notification after 3 days (259,200,000 milliseconds)
                 .setContentIntent(pendingIntent);
         notificationManager.notify(51, mNotifyBuilder.build());
@@ -108,16 +108,13 @@ public class TekufaNotifications extends BroadcastReceiver {
         };
     }
 
-    private Date findTekufaTime(JewishDateInfo jewishDateInfo) {
+    private Instant findTekufaTime(JewishDateInfo jewishDateInfo) {
         // this code should be called on the day that the tekufa falls out, however, since the tekufa could be on a different gregorian date, go back 2 days and keep going forward until you find the tekufa.
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DATE, -2);
-        jewishDateInfo.setCalendar(cal);
-        Date result = jewishDateInfo.getJewishCalendar().getTekufaAsDate(false);
+        jewishDateInfo.setLocalDate(LocalDate.now().minusDays(2));
+        Instant result = jewishDateInfo.getJewishCalendar().getTekufaAsInstant(false);
         while (result == null) {
-            cal.add(Calendar.DATE, 1);
-            jewishDateInfo.setCalendar(cal);
-            result = jewishDateInfo.getJewishCalendar().getTekufaAsDate(false);
+            jewishDateInfo.setLocalDate(jewishDateInfo.getJewishCalendar().getLocalDate().plusDays(1));
+            result = jewishDateInfo.getJewishCalendar().getTekufaAsInstant(false);
         }// Do not reset the date
         return result;
     }

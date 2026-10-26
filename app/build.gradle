@@ -84,12 +84,12 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui-ktx:2.10.2'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.2.0'
-    implementation "com.kosherjava:zmanim:2.5.0"
+    implementation "com.kosherjava:zmanim:3.0.0"
     implementation "org.shredzone.commons:commons-suncalc:3.11"
     implementation('net.iakovlev:timeshape:2025b.28') {
         exclude group: 'com.github.luben', module: 'zstd-jni'
     }
-    implementation 'com.github.luben:zstd-jni:1.5.7-20@aar'
+    implementation 'com.github.luben:zstd-jni:1.5.7-24@aar'
     implementation 'org.jsoup:jsoup:1.23.2'
     implementation 'com.facebook.shimmer:shimmer:0.5.0'
     implementation 'androidx.preference:preference-ktx:1.2.1'
@@ -99,8 +99,8 @@ dependencies {
     implementation 'com.atlassian.commonmark:commonmark:0.17.0'
     implementation 'com.google.android.gms:play-services-wearable:20.0.1'
     implementation 'com.google.code.gson:gson:2.14.0'
-    implementation 'com.google.android.gms:play-services-maps:20.0.0'
-    implementation 'com.google.maps.android:android-maps-utils:6.0.0'
+    implementation 'com.google.android.gms:play-services-maps:20.1.0'
+    implementation 'com.google.maps.android:android-maps-utils:6.1.0'
     implementation 'com.google.android.material:material:1.14.0'
     implementation 'androidx.activity:activity-ktx:1.13.0'
     implementation 'com.google.android.play:app-update:2.1.0'

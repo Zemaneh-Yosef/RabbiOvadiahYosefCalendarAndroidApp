@@ -34,8 +34,8 @@ import com.ej.rovadiahyosefcalendar.notifications.NotificationUtils;
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
 import com.kosherjava.zmanim.util.GeoLocation;
 
-import java.util.Date;
-import java.util.GregorianCalendar;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Map;
 
 /**
@@ -61,7 +61,7 @@ public class ZmanimAppWidget extends AppWidgetProvider {
             mJewishDateInfo.resetLocale(context);
 
             String jewishDate = mJewishDateInfo.getJewishCalendar().currentToString(mROZmanimCalendar);
-            if (mROZmanimCalendar.getSunset() != null && new Date().after(mROZmanimCalendar.getSunset())) {
+            if (mROZmanimCalendar.getSunset() != null && Instant.now().isAfter(mROZmanimCalendar.getSunset())) {
                 jewishDate = "\uD83C\uDF19 " + jewishDate;
             } else {
                 jewishDate = "☀️ " + jewishDate;
@@ -147,9 +147,9 @@ public class ZmanimAppWidget extends AppWidgetProvider {
             mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
             mSettingsPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         }
-        ZmanListEntry nextZman = ZmanimFactory.getNextUpcomingZman(new GregorianCalendar(), mROZmanimCalendar, mJewishDateInfo, mSettingsPreferences, mSharedPreferences);
+        ZmanListEntry nextZman = ZmanimFactory.getNextUpcomingZman(LocalDate.now(), mROZmanimCalendar, mJewishDateInfo, mSettingsPreferences, mSharedPreferences);
         if (nextZman == null || nextZman.getZman() == null) {
-            nextZman = new ZmanListEntry("", new Date(System.currentTimeMillis() + 300_000), SecondTreatment.ROUND_EARLIER, ZmanListEntryType.UNSPECIFIED, "");// try again in 5 minutes
+            nextZman = new ZmanListEntry("", Instant.now().plusSeconds(300), SecondTreatment.ROUND_EARLIER, ZmanListEntryType.UNSPECIFIED, "");// try again in 5 minutes
         }
         return nextZman;
     }
@@ -290,7 +290,7 @@ public class ZmanimAppWidget extends AppWidgetProvider {
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             if (alarmManager != null) {
                 NotificationUtils.setExactAndAllowWhileIdle(alarmManager,
-                        getNextUpcomingZman(context, AppWidgetManager.getInstance(context), activeWidgetIds[0]).getZman().getTime() + 100,
+                        getNextUpcomingZman(context, AppWidgetManager.getInstance(context), activeWidgetIds[0]).getZman().toEpochMilli() + 100,
                         pendingIntent);
             }
         }

@@ -21,7 +21,6 @@ import com.kosherjava.zmanim.hebrewcalendar.YomiCalculator;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.time.LocalDate;
 import java.util.List;
 
 public class LimudAdapter extends RecyclerView.Adapter<LimudAdapter.ZmanViewHolder> {
@@ -146,10 +145,7 @@ public class LimudAdapter extends RecyclerView.Adapter<LimudAdapter.ZmanViewHold
                             .setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss())
                             .show();
                 } else if (limudim.get(position).getLimudTitle().contains(context.getString(R.string.daily_halacha))) {
-                    List<HalachaSegment> halachaYomi = HalachaYomi.INSTANCE.getDailyLearning(LocalDate.of(
-                            mJewishDateInfo.getJewishCalendar().getGregorianYear(),
-                            mJewishDateInfo.getJewishCalendar().getGregorianMonth() + 1,
-                            mJewishDateInfo.getJewishCalendar().getGregorianDayOfMonth()));
+                    List<HalachaSegment> halachaYomi = HalachaYomi.INSTANCE.getDailyLearning(mJewishDateInfo.getJewishCalendar().getLocalDate());
                     if (halachaYomi != null) {
                         String halachaYomiLink = "https://www.sefaria.org/" +
                                 (halachaYomi.get(0).getBookName().equals("שו\"ע - או\"ח") ?

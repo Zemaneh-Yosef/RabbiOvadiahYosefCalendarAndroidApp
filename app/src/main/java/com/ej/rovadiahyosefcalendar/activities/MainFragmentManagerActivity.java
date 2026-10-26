@@ -66,8 +66,9 @@ import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
 import com.kosherjava.zmanim.util.GeoLocation;
 
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
@@ -100,8 +101,8 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
     /**
      * The current date shown in all activities.
      */
-    public static Calendar sCurrentDateShown = Calendar.getInstance();
-    public static Date sLastTimeUserWasInApp;
+    public static LocalDate sCurrentDateShown = LocalDate.now();
+    public static Instant sLastTimeUserWasInApp;
     public static BottomNavigationView sNavView;
     public static ViewPager2 sViewPager;
     private ViewPager2 mViewPager;
@@ -179,7 +180,7 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
             sSharedPreferences.edit().putBoolean("RYYHaskamaNotShown", false).apply();// do not check again
         }
 
-        sJewishDateInfo.setCalendar(Calendar.getInstance());
+        sJewishDateInfo.setLocalDate(LocalDate.now());
         sJewishDateInfo.resetLocale(this);
         sJewishDateInfo.getJewishCalendar().setInIsrael(sSharedPreferences.getBoolean("inIsrael", false));
         initSetupResult();
@@ -207,7 +208,7 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
            sNavView.getOrCreateBadge(R.id.navigation_siddur).setText("תפילה לאתרוג");
         }
 
-        if (sJewishDateInfo.getJewishCalendar().getUpcomingParshah() == JewishCalendar.Parsha.BESHALACH &&
+        if (sJewishDateInfo.getJewishCalendar().getUpcomingParshah() == JewishCalendar.Parshah.BESHALACH &&
                 sJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.TUESDAY) {
             sNavView.getOrCreateBadge(R.id.navigation_siddur).setText("פרשת המן");
         }

@@ -35,10 +35,8 @@ import com.ej.rovadiahyosefcalendar.classes.ZmanListEntry;
 import com.ej.rovadiahyosefcalendar.classes.ZmanimFactory;
 import com.kosherjava.zmanim.util.GeoLocation;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.Locale;
 
 public class NextZmanCountdownNotification extends Service {
@@ -60,7 +58,6 @@ public class NextZmanCountdownNotification extends Service {
     private boolean shouldShowNotification = true;
     private boolean mForegroundStarted;
     private ZmanListEntry nextZman;
-    private DateFormat zmanimFormat;
     private SharedPreferences.OnSharedPreferenceChangeListener settingsPrefListener;
     private SharedPreferences.OnSharedPreferenceChangeListener sharedPrefListener;
 
@@ -74,7 +71,7 @@ public class NextZmanCountdownNotification extends Service {
         sharedPrefListener = (prefs, key) -> {
             if (key != null && (key.equals("isZmanimInHebrew") || key.equals("isZmanimEnglishTranslated"))) {
                 nextZman = ZmanimFactory.getNextUpcomingZman(
-                        new GregorianCalendar(),
+                        LocalDate.now(),
                         mROZmanimCalendar,
                         mJewishDateInfo,
                         mSettingsPreferences,
@@ -93,33 +90,7 @@ public class NextZmanCountdownNotification extends Service {
             }
         };
         mSettingsPreferences.registerOnSharedPreferenceChangeListener(settingsPrefListener);
-        if (Utils.isLocaleHebrew(this)) {
-            if (mSettingsPreferences.getBoolean("ShowSeconds", false)) {
-                zmanimFormat = new SimpleDateFormat("H:mm:ss", getResources()
-                        .getConfiguration()
-                        .getLocales()
-                        .get(0));
-            } else {
-                zmanimFormat = new SimpleDateFormat("H:mm", getResources()
-                        .getConfiguration()
-                        .getLocales()
-                        .get(0));
-            }
-        } else {
-            if (mSettingsPreferences.getBoolean("ShowSeconds", false)) {
-                zmanimFormat = new SimpleDateFormat("h:mm:ss aa", getResources()
-                        .getConfiguration()
-                        .getLocales()
-                        .get(0));
-            } else {
-                zmanimFormat = new SimpleDateFormat("h:mm aa", getResources()
-                        .getConfiguration()
-                        .getLocales()
-                        .get(0));
-            }
-        }
         mLocationResolver = new LocationResolver(this, null);
-        zmanimFormat.setTimeZone(mLocationResolver.getTimeZone()); //set the formatters time zone
         mROZmanimCalendar = getROZmanimCalendar(this);
         mROZmanimCalendar.setExternalFilesDir(getExternalFilesDir(null));
         String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
@@ -178,7 +149,7 @@ public class NextZmanCountdownNotification extends Service {
                                 location.getLatitude(),
                                 location.getLongitude(),
                                 mLocationResolver.getElevation(),
-                                mLocationResolver.getTimeZone()));
+                                mLocationResolver.getZoneID()));
                         mROZmanimCalendar.setExternalFilesDir(getExternalFilesDir(null));
                         String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
                         mROZmanimCalendar.setCandleLightingOffset(Utils.parseDoubleOrDefault(candles, 20));
@@ -223,12 +194,12 @@ public class NextZmanCountdownNotification extends Service {
                     if (shouldShowNotification) {
                         long currentTime = new Date().getTime();
                         if (nextZman != null && nextZman.getZman() != null) {
-                            remainingTime = nextZman.getZman().getTime() - currentTime;
+                            remainingTime = nextZman.getZman().toEpochMilli() - currentTime;
                         }
                         if (nextZman == null || nextZman.getZman() == null || remainingTime <= 0) {
                             // If countdown is finished, get the next zman
                             nextZman = ZmanimFactory.getNextUpcomingZman(
-                                    new GregorianCalendar(),
+                                    LocalDate.now(),
                                     mROZmanimCalendar,
                                     mJewishDateInfo,
                                     mSettingsPreferences,
@@ -238,7 +209,7 @@ public class NextZmanCountdownNotification extends Service {
                                 handler.postDelayed(this, COUNTDOWN_INTERVAL);
                                 return;
                             }
-                            timeTillNextZman = nextZman.getZman().getTime() - currentTime;
+                            timeTillNextZman = nextZman.getZman().toEpochMilli() - currentTime;
                             remainingTime = timeTillNextZman;
                         }
                         updateNotification(nextZman);
@@ -263,9 +234,9 @@ public class NextZmanCountdownNotification extends Service {
 
         String text;
         if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
-            text = String.format("%s : %s", zmanimFormat.format(zman.getZman()), zman.getTitle());
+            text = String.format("%s : %s", Utils.formatZmanTime(this, zman), zman.getTitle());
         } else {
-            text = zman.getTitle() + " is at " + zmanimFormat.format(zman.getZman());
+            text = zman.getTitle() + " is at " + Utils.formatZmanTime(this, zman);
         }
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)

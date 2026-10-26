@@ -4171,7 +4171,7 @@ public class SiddurMaker {
 				"אַחֵינוּ בֵּית יִשְׂרָאֵל. שְׁמָעוּ, כִּי בַּעֲוֹנוֹתֵינוּ. אֲנַחְנוּ מוֹנִים לְחֻרְבַּן בֵּית מִקְדָּשֵׁנוּ. וְלִשְׂרֵיפַת הֵיכָלֵנוּ. וּלְגָלוּת שְׁכִינַת עֻזֵּנוּ. וְלִנְפִלַת עֲטֶרֶת רֹאשֵׁנוּ. וּלְפִזּוּר עַם הַקֹּדֶשׁ מִירוּשָׁלַיִם עִיר הַקֹּדֶשׁ.");
 			addInstructionToSiddur(isHebrew ? "ואומר את מנין השנים לחרבן בית המקדש והמספר הוא ס״ח שנים פחות ממניינם של העמים" : "Here we say the number of years from the destruction of the temple. It is the secular year minus 68 years");
 			addToSiddurHighlighted("הַיּוֹם "
-				+ Utils.NumberToHebrew.numberToHebrew(jewishDateInfo.getJewishCalendar().getGregorianYear() - 68)
+				+ Utils.NumberToHebrew.numberToHebrew(jewishDateInfo.getJewishCalendar().getLocalDate().getYear() - 68)
 				+ " שָנָה לְחֻרְבַּן בֵּית מִקְדָשֵׁנוּ");// current year - 68 years
 			addToSiddur(
 				"אוֹי לָנוּ עַל גָּלוּת הַשְּׁכִינָה. אוֹי לָנוּ עַל חָרְבַּן בֵּית הַמִּקְדָּשׁ. אוֹי לָנוּ עַל שְׂרֵיפַת הַתּוֹרָה. אוֹי לָנוּ עַל הַרִיגַת הַצַּדִּיקִים. אוֹי לָנוּ עַל צַעֲרוֹ שֶׁל מָשִׁיחַ");

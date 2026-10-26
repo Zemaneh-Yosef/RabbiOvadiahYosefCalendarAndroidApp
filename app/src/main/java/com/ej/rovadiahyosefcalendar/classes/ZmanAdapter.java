@@ -7,7 +7,15 @@ import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivit
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sSetupLauncher;
 import static com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment.sNextUpcomingZman;
 import static com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment.sShabbatMode;
-import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.*;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.ALOT_HASHACHAR_ZMAN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.FAST_ENDS_ZMAN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.FAST_STARTS_NON_TISHA_BAV_ZMAN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.FAST_STARTS_TISHA_BAV_ZMAN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.MISHEYAKIR_66_ZMAN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.PLAG_HAMINCHA_HB_ZMAN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.PLAG_HAMINCHA_YY_ZMAN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.SUNSET_ZMAN;
+import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.TZET_HAKOKHAVIM_LCHUMRA_ZMAN;
 
 import android.content.Context;
 import android.content.Intent;
@@ -45,7 +53,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder> {
@@ -90,7 +98,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         holder.mLeftTextViewSmall.setVisibility(View.GONE);
         holder.mRightTextViewSmall.setVisibility(View.GONE);
         String title = zmanim.get(position).getTitle();
-        Date zman = zmanim.get(position).getZman();
+        Instant zman = zmanim.get(position).getZman();
         if (zmanim.get(position) != null) {
             String zmanTime;
             if (zman == null) {

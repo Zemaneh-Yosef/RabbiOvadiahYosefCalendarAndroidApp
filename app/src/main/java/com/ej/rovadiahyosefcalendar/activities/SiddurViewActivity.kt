@@ -36,7 +36,7 @@ class SiddurViewActivity : AppCompatActivity() {
 				intent.getIntExtra("JewishMonth", jewishCalendar.jewishMonth),
 				intent.getIntExtra("JewishDay", jewishCalendar.jewishDayOfMonth)
 			)
-			setCalendar(jewishCalendar.gregorianCalendar)
+			setLocalDate(jewishCalendar.localDate)
 			jewishCalendar.isMukafChoma = sharedPreferences.getBoolean("isMukafChoma", false)
 			jewishCalendar.isSafekMukafChoma = sharedPreferences.getBoolean("isSafekMukafChoma", false)
 		}

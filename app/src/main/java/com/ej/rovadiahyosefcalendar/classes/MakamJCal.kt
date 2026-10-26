@@ -1,7 +1,9 @@
 package com.ej.rovadiahyosefcalendar.classes
 
+import android.icu.util.LocaleData
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar
-import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar.Parsha
+import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar.Parshah
+import java.time.LocalDate
 import java.util.Calendar
 
 class MakamJCal {
@@ -611,21 +613,21 @@ class MakamJCal {
 
             // Combine the two Parashiot entries into one
             val mergeParashaMap = mapOf(
-                Parsha.VAYAKHEL_PEKUDEI to Parsha.VAYAKHEL,
-                Parsha.TAZRIA_METZORA to Parsha.TAZRIA,
-                Parsha.ACHREI_MOS_KEDOSHIM to Parsha.ACHREI_MOS,
-                Parsha.BEHAR_BECHUKOSAI to Parsha.BEHAR,
-                Parsha.CHUKAS_BALAK to Parsha.CHUKAS,
-                Parsha.MATOS_MASEI to Parsha.MATOS,
-                Parsha.NITZAVIM_VAYEILECH to Parsha.NITZAVIM
+                Parshah.VAYAKHEL_PEKUDEI to Parshah.VAYAKHEL,
+                Parshah.TAZRIA_METZORA to Parshah.TAZRIA,
+                Parshah.ACHREI_MOS_KEDOSHIM to Parshah.ACHREI_MOS,
+                Parshah.BEHAR_BECHUKOSAI to Parshah.BEHAR,
+                Parshah.CHUKAS_BALAK to Parshah.CHUKAS,
+                Parshah.MATOS_MASEI to Parshah.MATOS,
+                Parshah.NITZAVIM_VAYEILECH to Parshah.NITZAVIM
             )
-            val thisWeekParsha = if (mergeParashaMap.contains(jCal.parshah))
+            val thisWeekParshah = if (mergeParashaMap.contains(jCal.parshah))
                 mergeParashaMap[jCal.parshah]
             else
                 jCal.parshah
 
-            val data = when (thisWeekParsha) {
-                Parsha.BERESHIS ->
+            val data = when (thisWeekParshah) {
+                Parshah.BERESHIS ->
                     generateUniformMap(
                         getAllBooks(AllBooks.BERESHIT),
                         listOf(Makam.RAST),
@@ -648,7 +650,7 @@ class MakamJCal {
                         )
                     )
 
-                Parsha.NOACH ->
+                Parshah.NOACH ->
                     mapOf(
                         "TABBUSH Ms NLI 8*7622, Aleppo" to listOf(Makam.IRAQ),
                         "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" to listOf(
@@ -685,8 +687,8 @@ class MakamJCal {
                         "Izak Alaluf, Izmir List" to listOf(Makam.HICAZ),
                         //"Hallel VeZimrah, Salonika, 1928": "Nibah"
                     )
-                // Parsha.VZOS_HABERACHA is unused
-                Parsha.LECH_LECHA -> generateUniformMap(
+                // Parshah.VZOS_HABERACHA is unused
+                Parshah.LECH_LECHA -> generateUniformMap(
                     getAllBooks(AllBooks.BERESHIT),
                     listOf(Makam.SABA),
                     mapOf(
@@ -699,7 +701,7 @@ class MakamJCal {
                     )
                 )
 
-                Parsha.VAYERA ->
+                Parshah.VAYERA ->
                     mapOf(
                         "TABBUSH Ms NLI 8*7622, Aleppo" to listOf(Makam.NAWAH),
                         "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" to listOf(Makam.NAWAH),
@@ -737,7 +739,7 @@ class MakamJCal {
                         "Hallel VeZimrah, Salonika, 1928" to listOf(Makam.HIJAZ),
                     )
 
-                Parsha.CHAYEI_SARA -> generateUniformMap(
+                Parshah.CHAYEI_SARA -> generateUniformMap(
                     getAllBooks(AllBooks.BERESHIT),
                     listOf(Makam.HIJAZ),
                     mapOf(
@@ -757,7 +759,7 @@ class MakamJCal {
                     )
                 )
 
-                Parsha.TOLDOS -> generateUniformMap(
+                Parshah.TOLDOS -> generateUniformMap(
                     getAllBooks(AllBooks.BERESHIT),
                     listOf(Makam.MAHOUR),
                     mapOf(
@@ -772,7 +774,7 @@ class MakamJCal {
                     )
                 )
 
-                Parsha.VAYETZEI ->
+                Parshah.VAYETZEI ->
                     mapOf(
                         //"TABBUSH Ms NLI 8*7622, Aleppo": ["Sharga"],
                         "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" to listOf(Makam.GIRKA),
@@ -807,7 +809,7 @@ class MakamJCal {
                         "Hallel VeZimrah, Salonika, 1928" to listOf(Makam.SABA),
                     )
 
-                Parsha.VAYISHLACH ->
+                Parshah.VAYISHLACH ->
                     mapOf(
                         "TABBUSH Ms NLI 8*7622, Aleppo" to listOf(Makam.IRAQ),
                         "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" to listOf(
@@ -845,7 +847,7 @@ class MakamJCal {
                         "Hallel VeZimrah, Salonika, 1928" to listOf(Makam.HUZAM),
                     )
 
-                Parsha.VAYESHEV ->
+                Parshah.VAYESHEV ->
                     mapOf(
                         "TABBUSH Ms NLI 8*7622, Aleppo" to listOf(Makam.RAHAWI),
                         "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" to listOf(Makam.RAHAWI),
@@ -879,7 +881,7 @@ class MakamJCal {
                         "Hallel VeZimrah, Salonika, 1928" to listOf(Makam.SIGAH),
                     )
 
-                Parsha.MIKETZ -> generateUniformMap(
+                Parshah.MIKETZ -> generateUniformMap(
                     getAllBooks(AllBooks.BERESHIT) - "Victor Afya, Istanbul List",
                     listOf(Makam.SIGAH),
                     mapOf(
@@ -891,7 +893,7 @@ class MakamJCal {
                     )
                 )
 
-                Parsha.VAYIGASH ->
+                Parshah.VAYIGASH ->
                     mapOf(
                         "TABBUSH Ms NLI 8*7622, Aleppo" to listOf(Makam.BAYAT),
                         "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" to listOf(Makam.BAYAT),
@@ -930,7 +932,7 @@ class MakamJCal {
                         "Hallel VeZimrah, Salonika, 1928" to listOf(Makam.MUHAYER),
                     )
 
-                Parsha.VAYECHI -> generateUniformMap(
+                Parshah.VAYECHI -> generateUniformMap(
                     getAllBooks(AllBooks.BERESHIT),
                     listOf(Makam.HIJAZ),
                     mapOf(
@@ -947,7 +949,7 @@ class MakamJCal {
                     )
                 )
 
-                Parsha.SHEMOS ->
+                Parshah.SHEMOS ->
                     mapOf(
                         "TABBUSH Ms NLI 8*7622, Aleppo" to listOf(Makam.RAST),
                         "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" to listOf(
@@ -985,7 +987,7 @@ class MakamJCal {
                         "Hallel VeZimrah, Greece List, 1926" to listOf(Makam.BAYATI),
                     )
 
-                Parsha.VAERA ->
+                Parshah.VAERA ->
                     mapOf(
                         "TABBUSH Ms NLI 8*7622, Aleppo" to listOf(Makam.SABA),
                         "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" to listOf(
@@ -1030,7 +1032,7 @@ class MakamJCal {
                         "Hallel VeZimrah, Greece List, 1926" to listOf(Makam.BUSALIQ),
                     )
 
-                Parsha.BO ->
+                Parshah.BO ->
                     mapOf(
                         "TABBUSH Ms NLI 8*7622, Aleppo" to listOf(Makam.IRAQ),
                         "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" to listOf(
@@ -1068,7 +1070,7 @@ class MakamJCal {
                         "Hallel VeZimrah, Greece List, 1926" to listOf(Makam.QARGIGAR),
                     )
 
-                Parsha.BESHALACH -> generateUniformMap(
+                Parshah.BESHALACH -> generateUniformMap(
                     getAllBooks(AllBooks.SHEMOT),
                     listOf(Makam.AJAM),
                     mapOf(
@@ -1078,7 +1080,7 @@ class MakamJCal {
                     )
                 )
 
-                Parsha.YISRO -> generateUniformMap(
+                Parshah.YISRO -> generateUniformMap(
                     getAllBooks(AllBooks.SHEMOT),
                     listOf(Makam.HOSENI),
                     mapOf(
@@ -1101,7 +1103,7 @@ class MakamJCal {
                     )
                 )
 
-                Parsha.MISHPATIM ->
+                Parshah.MISHPATIM ->
                     mapOf(
                         "TABBUSH Ms NLI 8*7622, Aleppo" to listOf(Makam.NAWAH),
                         "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" to listOf(
@@ -1139,7 +1141,7 @@ class MakamJCal {
                         //"Hallel VeZimrah, Greece List, 1926": "Nibah"
                     )
 
-                Parsha.TERUMAH -> generateUniformMap(
+                Parshah.TERUMAH -> generateUniformMap(
                     getAllBooks(AllBooks.SHEMOT),
                     listOf(Makam.SABA),
                     mapOf(
@@ -1168,7 +1170,7 @@ class MakamJCal {
                     )
                 )
 
-                Parsha.TETZAVEH -> generateUniformMap(
+                Parshah.TETZAVEH -> generateUniformMap(
                     getAllBooks(AllBooks.SHEMOT) - "Hallel VeZimrah, Greece List, 1926",
                     listOf(Makam.SIGAH),
                     mapOf(
@@ -1184,7 +1186,7 @@ class MakamJCal {
                     )
                 )
 
-                Parsha.KI_SISA -> generateUniformMap(
+                Parshah.KI_SISA -> generateUniformMap(
                     getAllBooks(AllBooks.SHEMOT) - "Hallel VeZimrah, Greece List, 1926",
                     listOf(Makam.HIJAZ),
                     mapOf(
@@ -1200,7 +1202,7 @@ class MakamJCal {
                     )
                 )
 
-                Parsha.VAYAKHEL -> generateUniformMap(
+                Parshah.VAYAKHEL -> generateUniformMap(
                     getAllBooks(AllBooks.SHEMOT)
                             - "M H Elias, SHIR HADASH, Jerusalem, 1930"
                             - "YOSEF YEHEZKEL Jerusalem 1975"
@@ -1221,7 +1223,7 @@ class MakamJCal {
                     )
                 )
 
-                Parsha.PEKUDEI -> generateUniformMap(
+                Parshah.PEKUDEI -> generateUniformMap(
                     getAllBooks(AllBooks.SHEMOT)
                             - "YOSEF YEHEZKEL Jerusalem 1975"
                             - "Victor Afya, Istanbul List"
@@ -1240,7 +1242,7 @@ class MakamJCal {
                     )
                 )
 
-                Parsha.VAYIKRA ->
+                Parshah.VAYIKRA ->
                     mapOf(
                         "TABBUSH Ms NLI 8*7622, Aleppo" to listOf(Makam.RAST),
                         "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" to listOf(Makam.RAST),
@@ -1273,7 +1275,7 @@ class MakamJCal {
                         "Hallel VeZimrah, Greece List, 1926" to listOf(Makam.SABA),
                     )
 
-                Parsha.TZAV ->
+                Parshah.TZAV ->
                     mapOf(
                         "TABBUSH Ms NLI 8*7622, Aleppo" to listOf(Makam.IRAQ),
                         "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" to listOf(Makam.IRAQ),
@@ -1307,7 +1309,7 @@ class MakamJCal {
                         "Hallel VeZimrah, Greece List, 1926" to listOf(Makam.Q_HOSENI)
                     )
 
-                Parsha.SHMINI ->
+                Parshah.SHMINI ->
                     mapOf(
                         "TABBUSH Ms NLI 8*7622, Aleppo" to listOf(Makam.HOSENI),
                         "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" to listOf(Makam.HOSENI),
@@ -1339,7 +1341,7 @@ class MakamJCal {
                         "Hallel VeZimrah, Greece List, 1926" to listOf(Makam.BAYATI),
                     )
 
-                Parsha.TAZRIA ->
+                Parshah.TAZRIA ->
                     mapOf(
                         "TABBUSH Ms NLI 8*7622, Aleppo" to listOf(Makam.BAYAT),
                         "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" to listOf(Makam.BAYAT),
@@ -1373,7 +1375,7 @@ class MakamJCal {
                         "Hallel VeZimrah, Greece List, 1926" to listOf(Makam.SUZNIQ),
                     )
 
-                Parsha.METZORA ->
+                Parshah.METZORA ->
                     mapOf(
                         "TABBUSH Ms NLI 8*7622, Aleppo" to listOf(Makam.IRAQ),
                         "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" to listOf(Makam.IRAQ),
@@ -1402,7 +1404,7 @@ class MakamJCal {
                         "Hallel VeZimrah, Greece List, 1926" to listOf(Makam.Q_SIGAH)
                     )
 
-                Parsha.ACHREI_MOS -> generateUniformMap(
+                Parshah.ACHREI_MOS -> generateUniformMap(
                     getAllBooks(AllBooks.VAYIKRA)
                             - "Izak Alaluf, Izmir List"
                             - "Victor Afya, Istanbul List",
@@ -1417,7 +1419,7 @@ class MakamJCal {
                     )
                 )
 
-                Parsha.KEDOSHIM ->
+                Parshah.KEDOSHIM ->
                     mapOf(
                         "TABBUSH Ms NLI 8*7622, Aleppo" to listOf(Makam.SABA),
                         "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" to listOf(Makam.SABA),
@@ -1447,7 +1449,7 @@ class MakamJCal {
                         "Hallel VeZimrah, Greece List, 1926" to listOf(Makam.HIJAZ),
                     )
 
-                Parsha.EMOR ->
+                Parshah.EMOR ->
                     mapOf(
                         "TABBUSH Ms NLI 8*7622, Aleppo" to listOf(Makam.ASHIRAN),
                         "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" to listOf(Makam.ASHIRAN),
@@ -1481,7 +1483,7 @@ class MakamJCal {
                         "Hallel VeZimrah, Greece List, 1926" to listOf(Makam.BUSALIQ),
                     )
 
-                Parsha.BEHAR ->
+                Parshah.BEHAR ->
                     mapOf(
                         "TABBUSH Ms NLI 8*7622, Aleppo" to listOf(Makam.NAWAH),
                         "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" to listOf(Makam.NAWAH),
@@ -1510,7 +1512,7 @@ class MakamJCal {
                         "Hallel VeZimrah, Greece List, 1926" to listOf(Makam.Q_QARGIGAR)
                     )
 
-                Parsha.BECHUKOSAI ->
+                Parshah.BECHUKOSAI ->
                     mapOf(
                         "TABBUSH Ms NLI 8*7622, Aleppo" to listOf(Makam.NAWAH),
                         "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" to listOf(Makam.NAWAH),
@@ -1538,7 +1540,7 @@ class MakamJCal {
                         "Hallel VeZimrah, Greece List, 1926" to listOf(Makam.IRAQ),
                     )
 
-                Parsha.BAMIDBAR ->
+                Parshah.BAMIDBAR ->
                     mapOf(
                         "TABBUSH Ms NLI 8*7622, Aleppo" to listOf(Makam.MEHAYAR),
                         "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" to listOf(Makam.MEHAYAR),
@@ -1570,7 +1572,7 @@ class MakamJCal {
                         //"Hallel VeZimrah, Greece List, 1926": "Haqqordo?"
                     )
 
-                Parsha.NASSO -> generateUniformMap(
+                Parshah.NASSO -> generateUniformMap(
                     getAllBooks(AllBooks.BAMIDBAR) - "M H Elias, SHIR HADASH, Jerusalem, 1930",
                     listOf(Makam.SABA),
                     mapOf(
@@ -1590,7 +1592,7 @@ class MakamJCal {
                     )
                 )
 
-                Parsha.BEHAALOSCHA ->
+                Parshah.BEHAALOSCHA ->
                     mapOf(
                         "TABBUSH Ms NLI 8*7622, Aleppo" to listOf(Makam.HOSENI),
                         "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" to listOf(Makam.OJ),
@@ -1623,7 +1625,7 @@ class MakamJCal {
                         // "Hallel VeZimrah, Greece List, 1926": "Ushaq"
                     )
 
-                Parsha.SHLACH ->
+                Parshah.SHLACH ->
                     mapOf(
                         "TABBUSH Ms NLI 8*7622, Aleppo" to listOf(Makam.IRAQ),
                         "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" to listOf(
@@ -1659,7 +1661,7 @@ class MakamJCal {
                         "Hallel VeZimrah, Greece List, 1926" to listOf(Makam.HUZAM),
                     )
 
-                Parsha.KORACH ->
+                Parshah.KORACH ->
                     mapOf(
                         //"TABBUSH Ms NLI 8*7622, Aleppo": "Ḥoseni combined",
                         "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" to listOf(Makam.HOSENI),
@@ -1692,7 +1694,7 @@ class MakamJCal {
                         "Hallel VeZimrah, Greece List, 1926" to listOf(Makam.IRAQ),
                     )
 
-                Parsha.CHUKAS ->
+                Parshah.CHUKAS ->
                     mapOf(
                         //"TABBUSH Ms NLI 8*7622, Aleppo": "Ḥoseni combined",
                         "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" to listOf(Makam.HOSENI),
@@ -1718,7 +1720,7 @@ class MakamJCal {
                         "Hallel VeZimrah, Greece List, 1926" to listOf(Makam.SUZNIQ),
                     )
 
-                Parsha.BALAK ->
+                Parshah.BALAK ->
                     mapOf(
                         "TABBUSH Ms NLI 8*7622, Aleppo" to listOf(Makam.BAYAT),
                         "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" to listOf(Makam.BAYAT),
@@ -1749,7 +1751,7 @@ class MakamJCal {
                         "Hallel VeZimrah, Greece List, 1926" to listOf(Makam.SIGAH),
                     )
 
-                Parsha.PINCHAS -> generateUniformMap(
+                Parshah.PINCHAS -> generateUniformMap(
                     getAllBooks(AllBooks.BAMIDBAR),
                     listOf(Makam.SABA),
                     mapOf(
@@ -1760,7 +1762,7 @@ class MakamJCal {
                     )
                 )
 
-                Parsha.MATOS ->
+                Parshah.MATOS ->
                     mapOf(
                         "TABBUSH Ms NLI 8*7622, Aleppo" to listOf(Makam.NAWAH),
                         "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" to listOf(Makam.NAWAH),
@@ -1796,7 +1798,7 @@ class MakamJCal {
                         "Hallel VeZimrah, Greece List, 1926" to listOf(Makam.SABA),
                     )
 
-                Parsha.MASEI ->
+                Parshah.MASEI ->
                     mapOf(
                         "TABBUSH Ms NLI 8*7622, Aleppo" to listOf(Makam.SABA),
                         "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" to listOf(Makam.SABA),
@@ -1828,7 +1830,7 @@ class MakamJCal {
                         "Hallel VeZimrah, Greece List, 1926" to listOf(Makam.NAHWAND),
                     )
 
-                Parsha.DEVARIM -> generateUniformMap(
+                Parshah.DEVARIM -> generateUniformMap(
                     getAllBooks(AllBooks.DEVARIM),
                     listOf(Makam.HIJAZ),
                     mapOf(
@@ -1837,7 +1839,7 @@ class MakamJCal {
                     )
                 )
 
-                Parsha.VAESCHANAN -> generateUniformMap(
+                Parshah.VAESCHANAN -> generateUniformMap(
                     getAllBooks(AllBooks.DEVARIM),
                     listOf(Makam.HOSENI),
                     mapOf(
@@ -1856,7 +1858,7 @@ class MakamJCal {
                     )
                 )
 
-                Parsha.EIKEV -> generateUniformMap(
+                Parshah.EIKEV -> generateUniformMap(
                     getAllBooks(AllBooks.DEVARIM),
                     listOf(Makam.SIGAH),
                     mapOf(
@@ -1869,7 +1871,7 @@ class MakamJCal {
                     )
                 )
 
-                Parsha.REEH ->
+                Parshah.REEH ->
                     mapOf(
                         "TABBUSH Ms NLI 8*7622, Aleppo" to listOf(Makam.IRAQ),
                         "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" to listOf(
@@ -1905,7 +1907,7 @@ class MakamJCal {
                         "Hallel VeZimrah, Greece List, 1926" to listOf(Makam.Q_HOSENI)
                     )
 
-                Parsha.SHOFTIM ->
+                Parshah.SHOFTIM ->
                     mapOf(
                         "TABBUSH Ms NLI 8*7622, Aleppo" to listOf(Makam.SABA),
                         "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" to listOf(
@@ -1941,7 +1943,7 @@ class MakamJCal {
                         "Hallel VeZimrah, Greece List, 1926" to listOf(Makam.HIJAZ),
                     )
 
-                Parsha.KI_SEITZEI ->
+                Parshah.KI_SEITZEI ->
                     mapOf(
                         "TABBUSH Ms NLI 8*7622, Aleppo" to listOf(Makam.SABA),
                         "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" to listOf(
@@ -1981,7 +1983,7 @@ class MakamJCal {
                         "Hallel VeZimrah, Greece List, 1926" to listOf(Makam.BAYATI),
                     )
 
-                Parsha.KI_SAVO ->
+                Parshah.KI_SAVO ->
                     mapOf(
                         "TABBUSH Ms NLI 8*7622, Aleppo" to listOf(Makam.IRAQ),
                         "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" to listOf(Makam.IRAQ),
@@ -2013,7 +2015,7 @@ class MakamJCal {
                         "Hallel VeZimrah, Greece List, 1926" to listOf(Makam.Q_SIGAH)
                     )
 
-                Parsha.NITZAVIM ->
+                Parshah.NITZAVIM ->
                     mapOf(
                         "TABBUSH Ms NLI 8*7622, Aleppo" to listOf(Makam.NAWAH),
                         "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" to listOf(Makam.NAWAH),
@@ -2046,7 +2048,7 @@ class MakamJCal {
                         "Hallel VeZimrah, Greece List, 1926" to listOf(Makam.SABA),
                     )
 
-                Parsha.VAYEILECH ->
+                Parshah.VAYEILECH ->
                     mapOf(
                         "TABBUSH Ms NLI 8*7622, Aleppo" to listOf(Makam.NAWAH),
                         "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" to listOf(Makam.NAWAH),
@@ -2071,7 +2073,7 @@ class MakamJCal {
                         "Hallel VeZimrah, Greece List, 1926" to listOf(Makam.HOSENI),
                     )
 
-                Parsha.HAAZINU -> generateUniformMap(
+                Parshah.HAAZINU -> generateUniformMap(
                     getAllBooks(AllBooks.DEVARIM) - "M H Elias, SHIR HADASH, Jerusalem, 1930" - "ASHEAR NOTES 1936-1940",
                     listOf(Makam.HOSENI),
                     mapOf(
@@ -2093,19 +2095,19 @@ class MakamJCal {
             }
 
             var currentData = when (jCal.parshah) {
-                Parsha.VAYAKHEL_PEKUDEI -> data + mapOf("GABRIEL A SHREM 1964 SUHV" to listOf(Makam.BAYAT))
-                Parsha.TAZRIA_METZORA -> data + mapOf("GABRIEL A SHREM 1964 SUHV" to listOf(Makam.SABA))
-                Parsha.ACHREI_MOS_KEDOSHIM -> data + mapOf(
+                Parshah.VAYAKHEL_PEKUDEI -> data + mapOf("GABRIEL A SHREM 1964 SUHV" to listOf(Makam.BAYAT))
+                Parshah.TAZRIA_METZORA -> data + mapOf("GABRIEL A SHREM 1964 SUHV" to listOf(Makam.SABA))
+                Parshah.ACHREI_MOS_KEDOSHIM -> data + mapOf(
                     "GABRIEL A SHREM 1964 SUHV" to listOf(
                         Makam.BAYAT,
                         Makam.HIJAZ
                     )
                 )
 
-                Parsha.BEHAR_BECHUKOSAI -> data + mapOf("GABRIEL A SHREM 1964 SUHV" to listOf(Makam.SABA))
-                Parsha.CHUKAS_BALAK -> data + mapOf("GABRIEL A SHREM 1964 SUHV" to listOf(Makam.HOSENI))
-                Parsha.MATOS_MASEI -> data + mapOf("GABRIEL A SHREM 1964 SUHV" to listOf(Makam.SABA))
-                Parsha.NITZAVIM_VAYEILECH -> data + mapOf(
+                Parshah.BEHAR_BECHUKOSAI -> data + mapOf("GABRIEL A SHREM 1964 SUHV" to listOf(Makam.SABA))
+                Parshah.CHUKAS_BALAK -> data + mapOf("GABRIEL A SHREM 1964 SUHV" to listOf(Makam.HOSENI))
+                Parshah.MATOS_MASEI -> data + mapOf("GABRIEL A SHREM 1964 SUHV" to listOf(Makam.SABA))
+                Parshah.NITZAVIM_VAYEILECH -> data + mapOf(
                     "GABRIEL A SHREM 1964 SUHV" to listOf(
                         Makam.HOSENI
                     )
@@ -2114,21 +2116,21 @@ class MakamJCal {
                 else -> data
             }
 
-            if (jCal.jewishMonth == JewishCalendar.TISHREI && jCal.jewishDayOfMonth > 10 && jCal.parshah == Parsha.HAAZINU) {
+            if (jCal.jewishMonth == JewishCalendar.TISHREI && jCal.jewishDayOfMonth > 10 && jCal.parshah == Parshah.HAAZINU) {
                 currentData = currentData + mapOf("ASHEAR NOTES 1936-1940" to listOf(Makam.HOSENI))
             }
 
             if (jCal.dayOfWeek == Calendar.SATURDAY) {
                 var shavuotInUpcoming = false
-                val restoreDate = jCal.getGregorianCalendar()
+                val restoreDate = jCal.localDate
                 for (i in 1..7) {
-                    jCal.forward(Calendar.DATE, 1)
+                    jCal.plusDays(1)
                     if (jCal.isShavuos()) {
                         shavuotInUpcoming = true
                         break
                     }
                 }
-                jCal.setDate(restoreDate)
+                jCal.setGregorianDate(restoreDate)
 
                 if (shavuotInUpcoming)
                     currentData =

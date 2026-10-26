@@ -1,5 +1,7 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentDateShown;
+
 import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.View;
@@ -22,10 +24,12 @@ import com.google.android.material.datepicker.MaterialDatePicker;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
 
 public class MoladActivity extends AppCompatActivity {
 
@@ -35,9 +39,9 @@ public class MoladActivity extends AppCompatActivity {
     private TextView mJerMoladDate;
     private TextView mMoladDate;
     private TextView mMoladDate7Days;
-    private final Calendar mUserChosenDate = Calendar.getInstance();
+    private final LocalDate mUserChosenDate = LocalDate.now();
     private final JewishCalendar mJewishCalendar = new JewishCalendar();
-    private SimpleDateFormat mSDF = new SimpleDateFormat("EEE MMM d h:mm:ss aa", Locale.getDefault());
+    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM d H:mm:ss a").withZone(ZoneId.systemDefault());
     private String[] mHebrewMonths = { "Nissan", "Iyar", "Sivan", "Tammuz", "Av",
             "Elul", "Tishri", "Ḥeshvan", "Kislev", "Tevet", "Shevat", "Adar", "Adar II", "Adar I"};
 
@@ -50,10 +54,8 @@ public class MoladActivity extends AppCompatActivity {
         materialToolbar.setNavigationIcon(AppCompatResources.getDrawable(this, R.drawable.baseline_arrow_back_24));
         materialToolbar.setNavigationOnClickListener(v -> finish());
         if (Utils.isLocaleHebrew(this)) {
-            mSDF = new SimpleDateFormat("EEE MMM d H:mm:ss", getResources()
-                    .getConfiguration()
-                    .getLocales()
-                    .get(0));
+            formatter = DateTimeFormatter.ofPattern("EEE MMM d H:mm:ss a")
+                    .withZone(ZoneId.systemDefault());
             mHebrewMonths = new String[]{ "ניסן", "אייר", "סיון", "תמוז", "אב", "אלול", "תשרי", "חשון", "כסלו", "טבת", "שבט", "אדר", "אדר ב", "אדר א" };
         }
 
@@ -72,32 +74,22 @@ public class MoladActivity extends AppCompatActivity {
             MaterialDatePicker<Long> materialDatePicker = builder
                     .setPositiveButtonText(R.string.ok)
                     .setNegativeButtonText(R.string.switch_calendar)
-                    .setSelection(mUserChosenDate.getTimeInMillis())// can be in local timezone
+                    .setSelection(mUserChosenDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli())
                     .build();
             materialDatePicker.addOnPositiveButtonClickListener(selection -> {
-                Calendar epoch = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-                epoch.setTimeInMillis(selection);
-                mUserChosenDate.set(
-                        epoch.get(Calendar.YEAR),
-                        epoch.get(Calendar.MONTH),
-                        epoch.get(Calendar.DATE),
-                        epoch.get(Calendar.HOUR_OF_DAY),
-                        epoch.get(Calendar.MINUTE)
-                );
-                mJewishCalendar.setDate(mUserChosenDate);
+                sCurrentDateShown = Instant.ofEpochMilli(selection)
+                        .atZone(ZoneOffset.UTC)
+                        .toLocalDate();
+                mJewishCalendar.setGregorianDate(mUserChosenDate);
                 MoladActivity.this.updateMoladDates();
             });
             DatePickerDialog.OnDateSetListener onDateSetListener = (view, year, month, day) -> {
-                Calendar mUserChosenDate = Calendar.getInstance();
-                mUserChosenDate.set(year, month, day);
-                mJewishCalendar.setDate(mUserChosenDate);
+                mJewishCalendar.setGregorianDate(LocalDate.of(year, month, day));
                 MoladActivity.this.updateMoladDates();
             };
             materialDatePicker.addOnNegativeButtonClickListener(selection -> {
                 HebrewDayMonthYearPickerDialog hdmypd = new HebrewDayMonthYearPickerDialog(materialDatePicker, MoladActivity.this.getSupportFragmentManager(), mJewishCalendar);
-                hdmypd.updateDate(mJewishCalendar.getGregorianYear(),
-                        mJewishCalendar.getGregorianMonth(),
-                        mJewishCalendar.getGregorianDayOfMonth());
+                hdmypd.updateDate(mJewishCalendar.getLocalDate());
                 hdmypd.setListener(onDateSetListener);
                 hdmypd.show(MoladActivity.this.getSupportFragmentManager(), null);
             });
@@ -131,11 +123,11 @@ public class MoladActivity extends AppCompatActivity {
         } else {
             currentHebrewMonth = mHebrewMonths[mJewishCalendar.getJewishMonth() - 1];
         }
-        String currentEnglishMonthYear = mJewishCalendar.getGregorianCalendar().getDisplayName(Calendar.MONTH, Calendar.LONG, getResources()
+        String currentEnglishMonthYear = mJewishCalendar.getLocalDate().getMonth().getDisplayName(TextStyle.FULL, getResources()
                 .getConfiguration()
                 .getLocales()
                 .get(0)) + "\n"
-                + mJewishCalendar.getGregorianYear();
+                + mJewishCalendar.getLocalDate().getYear();
         mCurrentEnglishMonthYear.setText(currentEnglishMonthYear);
 
         String currentHebrewMonthYear = currentHebrewMonth + "\n" + mJewishCalendar.getJewishYear();
@@ -153,10 +145,8 @@ public class MoladActivity extends AppCompatActivity {
         }
 
         mMoladAnnouncementTime.setText(moladTime);
-        mSDF.setTimeZone(TimeZone.getTimeZone("Asia/Jerusalem"));
-        mJerMoladDate.setText(mSDF.format(mJewishCalendar.getMoladAsDate()));
-        mSDF.setTimeZone(TimeZone.getDefault());
-        mMoladDate.setText(mSDF.format(mJewishCalendar.getMoladAsDate()));
-        mMoladDate7Days.setText(mSDF.format(mJewishCalendar.getTchilasZmanKidushLevana7Days()));
+        mJerMoladDate.setText(formatter.withZone(ZoneId.of("Asia/Jerusalem")).format(mJewishCalendar.getMoladAsInstant()));
+        mMoladDate.setText(formatter.withZone(ZoneId.systemDefault()).format(mJewishCalendar.getMoladAsInstant()));
+        mMoladDate7Days.setText(formatter.withZone(ZoneId.systemDefault()).format(mJewishCalendar.getTchilasZmanKidushLevana7Days()));
     }
 }

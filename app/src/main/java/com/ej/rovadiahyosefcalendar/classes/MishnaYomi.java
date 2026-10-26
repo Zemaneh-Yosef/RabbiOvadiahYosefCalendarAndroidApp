@@ -3,19 +3,19 @@ package com.ej.rovadiahyosefcalendar.classes;
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class MishnaYomi {
 
     /** The start date of the Mishna Yomi Cycle. */
-    private static final Calendar CYCLE_START_DATE = new GregorianCalendar(1947, Calendar.MAY, 20);
+    private static final LocalDate CYCLE_START_DATE = LocalDate.of(1947, Month.MAY, 20);
     /** The number of mishnas in a day. */
     private static final int MISHNAS_PER_DAY = 2;
     /** The number of milliseconds in a day. */
-    private final static int DAY_MILIS = 1000 * 60 * 60 * 24;
     private static final int NUM_MISHNAS = 4192;
     private static final int CYCLE_LENGTH = NUM_MISHNAS / 2;  // 2075 mishnas
 
@@ -98,22 +98,19 @@ public class MishnaYomi {
     }
 
     public String getMishnaForDate(JewishCalendar calendar, boolean useHebrewText) {
-        Calendar nextCycle = new GregorianCalendar();
-        Calendar prevCycle = new GregorianCalendar();
-        Calendar requested = calendar.getGregorianCalendar();
+        LocalDate nextCycle = CYCLE_START_DATE;// Start to calculate current cycle. init the start day
+        LocalDate prevCycle = LocalDate.now();
+        LocalDate requested = calendar.getLocalDate();
 
-        if (requested.before(CYCLE_START_DATE)) {
+        if (requested.isBefore(CYCLE_START_DATE)) {
             return null;
         }
 
-        // Start to calculate current cycle. init the start day
-        nextCycle.setTime(CYCLE_START_DATE.getTime());
-
         // Go cycle by cycle, until we get the next cycle
-        while (requested.after(nextCycle)) {
-            prevCycle.setTime(nextCycle.getTime());
+        while (requested.isAfter(nextCycle)) {
+            prevCycle = nextCycle;
             // Adds the number of whole mishna cycles.
-            nextCycle.add(Calendar.DAY_OF_MONTH, CYCLE_LENGTH);
+            nextCycle = nextCycle.plusDays(CYCLE_LENGTH);
         }
 
         // Get the number of days from cycle start until request.
@@ -210,8 +207,8 @@ public class MishnaYomi {
      * @param end the end date
      * @return the number of days between the start and end dates
      */
-    private long getDiffBetweenDays(Calendar start, Calendar end) {
-        return (end.getTimeInMillis() - start.getTimeInMillis()) / DAY_MILIS;
+    private long getDiffBetweenDays(LocalDate start, LocalDate end) {
+        return ChronoUnit.DAYS.between(start, end);
     }
 
     private String replaceEnglishWithHebrew(String input) {

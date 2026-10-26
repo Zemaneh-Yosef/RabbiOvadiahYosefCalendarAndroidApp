@@ -45,12 +45,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TimeZone;
 
 public class SetupChaiTablesActivity extends AppCompatActivity {
 
@@ -170,7 +170,7 @@ public class SetupChaiTablesActivity extends AppCompatActivity {
             progressBar.setVisibility(View.VISIBLE);
 
             JewishDate jDate = new JewishDate();
-            ChaiTablesWebJava scraper = new ChaiTablesWebJava(new GeoLocation("", sLatitude, sLongitude, TimeZone.getTimeZone(sCurrentTimeZoneID)), jDate);
+            ChaiTablesWebJava scraper = new ChaiTablesWebJava(new GeoLocation("", sLatitude, sLongitude, ZoneId.of(sCurrentTimeZoneID)), jDate);
             scraper.setOtherData(mCountry, mMetroACTV.getText().toString(), mMetroIndex);
 
             new Thread(() -> {

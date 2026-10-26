@@ -69,7 +69,7 @@ public class LocationResolver {
     private double mLatitude;
     private double mLongitude;
     private double mElevation;
-    private TimeZone mTimeZone = TimeZone.getDefault();
+    private ZoneId mTimeZone = ZoneId.systemDefault();
     private boolean hasShownToast;
 
     public LocationResolver(Context context, Activity activity) {
@@ -465,22 +465,22 @@ public class LocationResolver {
      */
     public void setTimeZoneID() {
         if (mSharedPreferences.getBoolean("useAdvanced", false)) {
-            mTimeZone = TimeZone.getTimeZone(mSharedPreferences.getString("advancedTimezone", TimeZone.getDefault().getID()));
+            mTimeZone = ZoneId.of(mSharedPreferences.getString("advancedTimezone", TimeZone.getDefault().getID()));
         } else if (mSharedPreferences.getBoolean("useLocation1", false)) {
-            mTimeZone = TimeZone.getTimeZone(mSharedPreferences.getString("location1Timezone", TimeZone.getDefault().getID()));
+            mTimeZone = ZoneId.of(mSharedPreferences.getString("location1Timezone", TimeZone.getDefault().getID()));
         } else if (mSharedPreferences.getBoolean("useLocation2", false)) {
-            mTimeZone = TimeZone.getTimeZone(mSharedPreferences.getString("location2Timezone", TimeZone.getDefault().getID()));
+            mTimeZone = ZoneId.of(mSharedPreferences.getString("location2Timezone", TimeZone.getDefault().getID()));
         } else if (mSharedPreferences.getBoolean("useLocation3", false)) {
-            mTimeZone = TimeZone.getTimeZone(mSharedPreferences.getString("location3Timezone", TimeZone.getDefault().getID()));
+            mTimeZone = ZoneId.of(mSharedPreferences.getString("location3Timezone", TimeZone.getDefault().getID()));
         } else if (mSharedPreferences.getBoolean("useLocation4", false)) {
-            mTimeZone = TimeZone.getTimeZone(mSharedPreferences.getString("location4Timezone", TimeZone.getDefault().getID()));
+            mTimeZone = ZoneId.of(mSharedPreferences.getString("location4Timezone", TimeZone.getDefault().getID()));
         } else if (mSharedPreferences.getBoolean("useLocation5", false)) {
-            mTimeZone = TimeZone.getTimeZone(mSharedPreferences.getString("location5Timezone", TimeZone.getDefault().getID()));
+            mTimeZone = ZoneId.of(mSharedPreferences.getString("location5Timezone", TimeZone.getDefault().getID()));
         } else {
             if (mSharedPreferences.getBoolean("useZipcode", false)) {
                 if (!mSharedPreferences.getString("savedZipcodeTimezone" + mSharedPreferences.getString("Zipcode", ""), "").isEmpty()) {
-                    mTimeZone = TimeZone.getTimeZone(mSharedPreferences.getString("savedZipcodeTimezone" + mSharedPreferences.getString("Zipcode", ""), TimeZone.getDefault().getID()));
-                    sCurrentTimeZoneID = mTimeZone.getID();
+                    mTimeZone = ZoneId.of(mSharedPreferences.getString("savedZipcodeTimezone" + mSharedPreferences.getString("Zipcode", ""), TimeZone.getDefault().getID()));
+                    sCurrentTimeZoneID = mTimeZone.getId();
                 } else {// we never set a timezone for this zipcode before
                     try {
                         double latitude = sLatitude != 0.0 && sLongitude != 0.0 ? sLatitude : mLatitude;
@@ -500,28 +500,28 @@ public class LocationResolver {
                                     } else if (allZones.size() == 1) {// if there is only one
                                         zoneID = allZones.get(0).toString();
                                     }
-                                    mTimeZone = TimeZone.getTimeZone(zoneID);
-                                    sCurrentTimeZoneID = mTimeZone.getID();// need to set this for the saveLocationInformation method
+                                    mTimeZone = ZoneId.of(zoneID);
+                                    sCurrentTimeZoneID = mTimeZone.getId();// need to set this for the saveLocationInformation method
                                     mSharedPreferences.edit().putString("savedZipcodeTimezone" + mSharedPreferences.getString("Zipcode", ""), zoneID).apply();
                                     saveLocationInformation();// only want to use this when people search their location
                                 } else {
-                                    mTimeZone = TimeZone.getDefault();
-                                    sCurrentTimeZoneID = mTimeZone.getID();
+                                    mTimeZone = ZoneId.systemDefault();
+                                    sCurrentTimeZoneID = mTimeZone.getId();
                                 }
                             });
                         }
                     } catch (IllegalArgumentException e) {
-                        mTimeZone = TimeZone.getDefault();
+                        mTimeZone = ZoneId.systemDefault();
                     }
                 }
             } else {// using device location
-                mTimeZone = TimeZone.getDefault();
+                mTimeZone = ZoneId.systemDefault();
             }
         }
-        if (mTimeZone.getID().equals("Asia/Gaza") || mTimeZone.getID().equals("Asia/Hebron")) {
-            mTimeZone = TimeZone.getTimeZone("Asia/Jerusalem");
+        if (mTimeZone.getId().equals("Asia/Gaza") || mTimeZone.getId().equals("Asia/Hebron")) {
+            mTimeZone = ZoneId.of("Asia/Jerusalem");
         }
-        sCurrentTimeZoneID = mTimeZone.getID();
+        sCurrentTimeZoneID = mTimeZone.getId();
     }
 
     /**
@@ -543,17 +543,17 @@ public class LocationResolver {
                     } else if (allZones.size() == 1) {// if there is only one
                         zoneID = allZones.get(0).toString();
                     }
-                    mTimeZone = TimeZone.getTimeZone(zoneID);
+                    mTimeZone = ZoneId.of(zoneID);
                 } catch (IllegalArgumentException e) {
-                    mTimeZone = TimeZone.getDefault();
+                    mTimeZone = ZoneId.systemDefault();
                 }
             } else {
-                mTimeZone = TimeZone.getDefault();
+                mTimeZone = ZoneId.systemDefault();
             }
-            if (mTimeZone.getID().equals("Asia/Gaza") || mTimeZone.getID().equals("Asia/Hebron")) {
-                mTimeZone = TimeZone.getTimeZone("Asia/Jerusalem");
+            if (mTimeZone.getId().equals("Asia/Gaza") || mTimeZone.getId().equals("Asia/Hebron")) {
+                mTimeZone = ZoneId.of("Asia/Jerusalem");
             }
-            sCurrentTimeZoneID = mTimeZone.getID();
+            sCurrentTimeZoneID = mTimeZone.getId();
             mSharedPreferences.edit().putString("advancedTimezone", sCurrentTimeZoneID).apply();
         });
     }
@@ -812,7 +812,7 @@ public class LocationResolver {
                 Double.longBitsToDouble(mSharedPreferences.getLong("Lat", 0)),
                 Double.longBitsToDouble(mSharedPreferences.getLong("Long", 0)),
                 mElevation,
-                TimeZone.getDefault()
+                ZoneId.systemDefault()
         );
     }
 
@@ -951,7 +951,7 @@ public class LocationResolver {
         return mElevation;
     }
 
-    public TimeZone getTimeZone() {
+    public ZoneId getZoneID() {
         setTimeZoneID();
         return mTimeZone;
     }

@@ -7,9 +7,7 @@ import androidx.annotation.NonNull;
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
+import java.time.Instant;
 
 public class JewishCalendarWithExtraMethods extends JewishCalendar {
 
@@ -42,20 +40,6 @@ public class JewishCalendarWithExtraMethods extends JewishCalendar {
                 || holidayIndex == FAST_OF_GEDALYAH || holidayIndex == TENTH_OF_TEVES || holidayIndex == FAST_OF_ESTHER;
     }
 
-    public Double getTekufa() {
-        double INITIAL_TEKUFA_OFFSET = 12.625;  // the number of days Tekufas Tishrei occurs before JEWISH_EPOCH
-
-        double days = getJewishCalendarElapsedDays(getJewishYear()) + getDaysSinceStartOfJewishYear() + INITIAL_TEKUFA_OFFSET - 1;  // total days since first Tekufas Tishrei event
-
-        double solarDaysElapsed = days % 365.25;  // total days elapsed since start of solar year
-        double tekufaDaysElapsed = solarDaysElapsed % 91.3125;  // the number of days that have passed since a tekufa event
-        if (tekufaDaysElapsed > 0 && tekufaDaysElapsed <= 1) {  // if the tekufa happens in the upcoming 24 hours
-            return ((1.0 - tekufaDaysElapsed) * 24.0) % 24;// rationalize the tekufa event to number of hours since start of jewish day
-        } else {
-            return null;
-        }
-    }
-
     public String getTekufaName(boolean isLocaleHebrew) {
         String[] tekufaNames;
         if (isLocaleHebrew) {
@@ -77,28 +61,6 @@ public class JewishCalendarWithExtraMethods extends JewishCalendar {
         }
     }
 
-    public Date getTekufaAsDate(boolean luachAmudeiHoraah) {// TODO THIS IS TEMPORARY. WILL BE REMOVED WHEN WE UPDATE TO KOSHERJAVA 3.0.0
-        // The tekufa Date (point in time) must be generated using standard time. Using "Asia/Jerusalem" timezone will result in the time
-        // being incorrectly off by an hour in the summer due to DST. Proper adjustment for the actual time in DST will be done by the date
-        // formatter class used to display the Date.
-        TimeZone yerushalayimStandardTZ = TimeZone.getTimeZone("GMT+2");
-        Calendar cal = Calendar.getInstance(yerushalayimStandardTZ);
-        cal.clear();
-        if (getTekufa() == null) {
-            return null;
-        }
-        double hours = getTekufa() - 6;
-        int minutes = (int) ((hours - (int) hours) * 60);
-        if (luachAmudeiHoraah) {
-            minutes -= 21; //minus 21 minutes to get to local midday
-        }
-        cal.set(getGregorianYear(), getGregorianMonth(), getGregorianDayOfMonth(), 0, 0, 0);
-        cal.add(Calendar.HOUR_OF_DAY, (int) hours);
-        cal.add(Calendar.MINUTE, minutes);
-
-        return cal.getTime();
-    }
-
     /**
      * This method is used to get the current date of the jewish calendar based on sunset. The start of the hebrew date is based on the night time.
      * Therefore, the date changes after sunset. However, the Gregorian date is based on Midnight. Internally, the JewishCalendar uses the Gregorian
@@ -111,9 +73,9 @@ public class JewishCalendarWithExtraMethods extends JewishCalendar {
     public String currentToString(ROZmanimCalendar zmanimCalendar) {
         JewishCalendarWithExtraMethods jewishCalendar = new JewishCalendarWithExtraMethods();
         jewishCalendar.mContext = this.mContext;
-        jewishCalendar.setDate(zmanimCalendar.getCalendar());// set the date to the date of the zmanim calendar, because we are going based on that sunset
-        if (zmanimCalendar.getSunset() != null && new Date().after(zmanimCalendar.getSunset())) {
-            jewishCalendar.forward(Calendar.DATE, 1);
+        jewishCalendar.setGregorianDate(zmanimCalendar.getLocalDate());// set the date to the date of the zmanim calendar, because we are going based on that sunset
+        if (zmanimCalendar.getSunset() != null && Instant.now().isAfter(zmanimCalendar.getSunsetBasedOnElevationSetting())) {
+            jewishCalendar.setGregorianDate(jewishCalendar.getLocalDate().plusDays(1));
         }
         return jewishCalendar.toString();
     }
@@ -130,9 +92,9 @@ public class JewishCalendarWithExtraMethods extends JewishCalendar {
 	public String currentToShortString(ROZmanimCalendar zmanimCalendar) {
 		JewishCalendarWithExtraMethods jewishCalendar = new JewishCalendarWithExtraMethods();
 		jewishCalendar.mContext = this.mContext;
-		jewishCalendar.setDate(zmanimCalendar.getCalendar());// set the date to the date of the zmanim calendar, because we are going based on that sunset
-		if (zmanimCalendar.getSunset() != null && new Date().after(zmanimCalendar.getSunset())) {
-			jewishCalendar.forward(Calendar.DATE, 1);
+		jewishCalendar.setGregorianDate(zmanimCalendar.getLocalDate());// set the date to the date of the zmanim calendar, because we are going based on that sunset
+		if (zmanimCalendar.getSunset() != null && Instant.now().isAfter(zmanimCalendar.getSunset())) {
+            jewishCalendar.setGregorianDate(jewishCalendar.getLocalDate().plusDays(1));
 		}
 		return jewishCalendar.toShortString();
 	}

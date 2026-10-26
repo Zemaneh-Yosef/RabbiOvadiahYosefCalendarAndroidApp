@@ -54,14 +54,16 @@ import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
 import com.kosherjava.zmanim.hebrewcalendar.TefilaRules;
 import com.kosherjava.zmanim.hebrewcalendar.YomiCalculator;
 
-import org.apache.commons.lang3.time.DateUtils;
-
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 public class SiddurFragment extends Fragment {
 
@@ -212,19 +214,19 @@ public class SiddurFragment extends Fragment {
         private void initView() {
             if (mActivity == null || mContext == null) return;
             currentZmanimCalendar = new ROZmanimCalendar(new LocationResolver(mContext, mActivity).getRealtimeNotificationData(null, true));// the logic here is that because isForWidget returns right away. It is better than getting a callback for the current location and therefore causing the UI to delay. Besides, the location was already gotten by the Zmanim Fragment and saved when the user started the app, so there is no need to get it again.
-            currentZmanimCalendar.setCalendar(Calendar.getInstance());// make sure the date is for right now when the user gets back to the page
+            currentZmanimCalendar.setLocalDate(LocalDate.now());// make sure the date is for right now when the user gets back to the page
             currentZmanimCalendar.setAmudehHoraah(PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean("LuachAmudeiHoraah", false));
             currentJewishDateInfo = new JewishDateInfo(sJewishDateInfo.getJewishCalendar().getInIsrael());
             currentJewishDateInfo.resetLocale(mContext);
-            isAfterSunset = currentZmanimCalendar.getSunset() != null && new Date().after(currentZmanimCalendar.getSunset());
+            isAfterSunset = currentZmanimCalendar.getSunsetBasedOnElevationSetting() != null && Instant.now().isAfter(currentZmanimCalendar.getSunsetBasedOnElevationSetting());
             Preference seeMoreTitle = findPreference("siddur_see_more_title");
             Preference seeMore = findPreference("siddur_see_more");
             if (seeMore != null) {
                 seeMore.setOnPreferenceClickListener(v -> {
                     showAllPrayers = !showAllPrayers;
-                    sCurrentDateShown.setTime(new Date());
-                    sROZmanimCalendar.setCalendar(sCurrentDateShown);
-                    sJewishDateInfo.setCalendar(sCurrentDateShown);
+                    sCurrentDateShown = LocalDate.now();
+                    sROZmanimCalendar.setLocalDate(sCurrentDateShown);
+                    sJewishDateInfo.setLocalDate(sCurrentDateShown);
                     initView();
                     return true;
                 });
@@ -238,12 +240,12 @@ public class SiddurFragment extends Fragment {
             }
 
             Preference specialDay = findPreference("siddur_day_text");
-            String dateAndSpecialDay = sJewishDateInfo.getJewishCalendar().getGregorianCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG,
+            String dateAndSpecialDay = sJewishDateInfo.getJewishCalendar().getLocalDate().getDayOfWeek().getDisplayName(TextStyle.FULL,
                     getResources()
                     .getConfiguration()
                     .getLocales()
                     .get(0));
-            if (DateUtils.isSameDay(new Date(), sJewishDateInfo.getJewishCalendar().getGregorianCalendar().getTime())) {
+            if (sJewishDateInfo.getJewishCalendar().getLocalDate().equals(LocalDate.now())) {
                 dateAndSpecialDay += " (" + mContext.getString(R.string.today) + ")";
             }
             dateAndSpecialDay += "\n" + sJewishDateInfo.getJewishCalendar().toString();
@@ -263,22 +265,19 @@ public class SiddurFragment extends Fragment {
             CustomPreferenceView selichot = findPreference("siddur_selichot");
             if (selichot != null) {
                 selichot.setVisible(showAllPrayers ? sJewishDateInfo.isSelichotSaid() : getSunsetBasedJewishDateInfo().isSelichotSaid() && isPrayerCurrentlySaid(selichot.getKey()));
-                Date secondAshmora = currentZmanimCalendar.getSecondAshmora();
-                Date solarMidnight = currentZmanimCalendar.getSolarMidnight();
-                Calendar midnightCal = Calendar.getInstance();
-                if (midnightCal.get(Calendar.HOUR_OF_DAY) <= 3) {// i.e. right now is after midnight
-                    if (solarMidnight != null) {
-                        midnightCal.setTime(solarMidnight);
-                    }
-                    if (midnightCal.get(Calendar.HOUR_OF_DAY) <= 3) {// i.e. halachic midnight is after 12AM
-                        ROZmanimCalendar yesterday = currentZmanimCalendar.getCopy();
-                        yesterday.getCalendar().add(Calendar.DATE, -1);
-                        secondAshmora = yesterday.getSecondAshmora();
-                        solarMidnight = yesterday.getSolarMidnight();
-                    }
+                ZoneId zone = currentZmanimCalendar.getGeoLocation().getZoneId();
+                Instant now = Instant.now();
+                Instant secondAshmora = currentZmanimCalendar.getSecondAshmora();
+                Instant solarMidnight = currentZmanimCalendar.getSolarMidnight();
+                if (ZonedDateTime.ofInstant(now, zone).getHour() <= 3 && // i.e. right now is after midnight
+                        solarMidnight != null && ZonedDateTime.ofInstant(solarMidnight, zone).getHour() <= 3) {// i.e. halachic midnight is after 12AM
+                    ROZmanimCalendar yesterday = currentZmanimCalendar.getCopy();
+                    yesterday.setLocalDate(yesterday.getLocalDate().minusDays(1));
+                    secondAshmora = yesterday.getSecondAshmora();
+                    solarMidnight = yesterday.getSolarMidnight();
                 }
-                selichot.setDimmed((secondAshmora != null && new Date().after(secondAshmora)) &&
-                        (solarMidnight != null && new Date().before(solarMidnight)));
+                selichot.setDimmed((secondAshmora != null && now.isAfter(secondAshmora)) &&
+                        (solarMidnight != null && now.isBefore(solarMidnight)));
                 selichot.setOnPreferenceClickListener(v -> {
                     startSiddurActivity(mContext.getString(R.string.selichot));
                     return true;
@@ -321,10 +320,10 @@ public class SiddurFragment extends Fragment {
 
             CustomPreferenceView mincha = findPreference("siddur_mincha");
             if (mincha != null) {
-                Date sunset = currentZmanimCalendar.getSunset();
-                Date tzeit = currentZmanimCalendar.getTzeit();
+                Instant sunset = currentZmanimCalendar.getSunset();
+                Instant tzeit = currentZmanimCalendar.getTzeit();
                 if (sunset != null && tzeit != null) {
-                    isMinchaAfterSunsetBeforeTzeit = new Date().after(sunset) && new Date().before(tzeit);
+                    isMinchaAfterSunsetBeforeTzeit = Instant.now().isAfter(sunset) && Instant.now().isBefore(tzeit);
                 }
                 mincha.setOnPreferenceClickListener(v -> {
                     startSiddurActivity(mContext.getString(R.string.mincha));
@@ -340,11 +339,11 @@ public class SiddurFragment extends Fragment {
             }
 
             Preference nightDayOfWeek = findPreference("siddur_night_text");
-            String nextDateAndSpecialDay = sJewishDateInfo.getJewishCalendar().getGregorianCalendar().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, getResources()
+            String nextDateAndSpecialDay = sJewishDateInfo.getJewishCalendar().getLocalDate().getDayOfWeek().getDisplayName(TextStyle.FULL, getResources()
                     .getConfiguration()
                     .getLocales()
                     .get(0));
-            if (DateUtils.isSameDay(new Date(), sJewishDateInfo.getJewishCalendar().getGregorianCalendar().getTime())) {
+            if (sJewishDateInfo.getJewishCalendar().getLocalDate().equals(LocalDate.now())) {
                 nextDateAndSpecialDay += " (" + mContext.getString(R.string.today) + ")";
             }
             nextDateAndSpecialDay += "\n" + mContext.getString(R.string.after_sunset) + "\n" + sJewishDateInfo.tomorrow().getJewishCalendar().toString();
@@ -360,10 +359,10 @@ public class SiddurFragment extends Fragment {
 
             CustomPreferenceView arvit = findPreference("siddur_arvit");
             if (arvit != null) {
-                Date plag = currentZmanimCalendar.getPlagHamincha();
-                Date sunset = currentZmanimCalendar.getSunset();
+                Instant plag = currentZmanimCalendar.getPlagHaminchaGRA();
+                Instant sunset = currentZmanimCalendar.getSunset();
                 if (plag != null && sunset != null) {
-                    isArvitAfterPlagBeforeSunset = new Date().after(plag) && new Date().before(sunset);
+                    isArvitAfterPlagBeforeSunset = Instant.now().isAfter(plag) && Instant.now().isBefore(sunset);
                 }
                 arvit.setOnPreferenceClickListener(v -> {
                     startSiddurActivity(mContext.getString(R.string.arvit), true);
@@ -481,8 +480,8 @@ public class SiddurFragment extends Fragment {
                     return true;
                 });
                 tehilim.setForceLTRTextDirection(!Utils.isLocaleHebrew(mContext));
-                tehilim.setDimmed((currentZmanimCalendar.getTzeit() != null && new Date().after(currentZmanimCalendar.getTzeit()))
-                        || (currentZmanimCalendar.getAlotHashachar() != null && new Date().before(currentZmanimCalendar.getAlotHashachar())));
+                tehilim.setDimmed((currentZmanimCalendar.getTzeit() != null && Instant.now().isAfter(currentZmanimCalendar.getTzeit()))
+                        || (currentZmanimCalendar.getAlotHashachar() != null && Instant.now().isBefore(currentZmanimCalendar.getAlotHashachar())));
             }
 
             CustomPreferenceView tikkunChatzot = findPreference("siddur_tikkun_chatzot");
@@ -539,8 +538,8 @@ public class SiddurFragment extends Fragment {
                     if (getSunsetBasedJewishDateInfo().is3Weeks()) {
                         boolean isNightTikkunSaid = getSunsetBasedJewishDateInfo().isNightTikkunChatzotSaid();
                         boolean isDayTikkunSaid = getSunsetBasedJewishDateInfo().isDayTikkunChatzotSaid();
-                        boolean isNowForDayTikkun = (currentZmanimCalendar.getChatzot() != null && new Date().after(currentZmanimCalendar.getChatzot()))
-                                && (currentZmanimCalendar.getSunset() != null && new Date().before(currentZmanimCalendar.getSunset()));
+                        boolean isNowForDayTikkun = (currentZmanimCalendar.getChatzot() != null && Instant.now().isAfter(currentZmanimCalendar.getChatzot()))
+                                && (currentZmanimCalendar.getSunset() != null && Instant.now().isBefore(currentZmanimCalendar.getSunset()));
                         if (isNightTikkunSaid && isDayTikkunSaid) {// figure out which it is by the time
                             isNightTikkunChatzot = !isNowForDayTikkun;
                             startSiddurActivity(mContext.getString(R.string.tikkun_chatzot), isNightTikkunChatzot);
@@ -613,7 +612,7 @@ public class SiddurFragment extends Fragment {
             }
             // end of dimming code
 
-            String sunset = Utils.formatZmanTime(mContext, currentZmanimCalendar.getSunset() != null ? currentZmanimCalendar.getSunset() : new Date(), SecondTreatment.ROUND_EARLIER);
+            String sunset = Utils.formatZmanTime(mContext, currentZmanimCalendar.getSunset() != null ? currentZmanimCalendar.getSunset() : Instant.now(), SecondTreatment.ROUND_EARLIER);
 
             CustomPreferenceView bh = findPreference("siddur_birchat_hamazon");
             if (bh != null) {
@@ -629,7 +628,7 @@ public class SiddurFragment extends Fragment {
                         if (showAllPrayers) {
                             builder.show();
                         } else {
-                            if (currentZmanimCalendar.getSunset() != null && new Date().after(currentZmanimCalendar.getSunset())) {
+                            if (currentZmanimCalendar.getSunset() != null && Instant.now().isAfter(currentZmanimCalendar.getSunset())) {
                                 builder.setPositiveButton(mContext.getString(R.string.yes), (dialog, which) -> {// it is after sunset and the user started before sunset, go back to yesterday
                                     currentJewishDateInfo.back();
                                     startSiddurActivity(mContext.getString(R.string.birchat_hamazon));
@@ -681,7 +680,7 @@ public class SiddurFragment extends Fragment {
                                         if (showAllPrayers) {
                                             builder.show();
                                         } else {
-                                            if (currentZmanimCalendar.getSunset() != null && new Date().after(currentZmanimCalendar.getSunset())) {
+                                            if (currentZmanimCalendar.getSunset() != null && Instant.now().isAfter(currentZmanimCalendar.getSunset())) {
                                                 builder.setPositiveButton(mContext.getString(R.string.yes), (dialog2, which2) -> {// it is after sunset and the user started before sunset, go back to yesterday
                                                             currentJewishDateInfo.back();
                                                             startSiddurActivity(mContext.getString(R.string.birchat_meyin_shalosh));
@@ -713,7 +712,7 @@ public class SiddurFragment extends Fragment {
                         if (showAllPrayers) {
                             builder.show();
                         } else {
-                            if (currentZmanimCalendar.getSunset() != null && new Date().after(currentZmanimCalendar.getSunset())) {
+                            if (currentZmanimCalendar.getSunset() != null && Instant.now().isAfter(currentZmanimCalendar.getSunset())) {
                                 builder.setPositiveButton(mContext.getString(R.string.yes), (dialog2, which2) -> {// it is after sunset and the user started before sunset, go back to yesterday
                                             currentJewishDateInfo.back();
                                             startSiddurActivity(mContext.getString(R.string.birchat_meyin_shalosh));
@@ -741,8 +740,8 @@ public class SiddurFragment extends Fragment {
                     startSiddurActivity(mContext.getString(R.string.tefilat_haderech));
                     return true;
                 });
-                tefilatHaderech.setVisible(!(getSunsetBasedJewishDateInfo().getJewishCalendar().isAssurBemelacha() && currentZmanimCalendar.getTzeit() != null && new Date().before(currentZmanimCalendar.getTzeit()) // if today is Assur Bemelacha and it is before tzeit, don't show the button
-                        || (getSunsetBasedJewishDateInfo().getJewishCalendar().hasCandleLighting() && currentZmanimCalendar.getSunset() != null && new Date().after(currentZmanimCalendar.getSunset()))));
+                tefilatHaderech.setVisible(!(getSunsetBasedJewishDateInfo().getJewishCalendar().isAssurBemelacha() && currentZmanimCalendar.getTzeit() != null && Instant.now().isBefore(currentZmanimCalendar.getTzeit()) // if today is Assur Bemelacha and it is before tzeit, don't show the button
+                        || (getSunsetBasedJewishDateInfo().getJewishCalendar().hasCandleLighting() && currentZmanimCalendar.getSunset() != null && Instant.now().isAfter(currentZmanimCalendar.getSunset()))));
                 CharSequence title = tefilatHaderech.getTitle();
                 if (title != null) {
                     tefilatHaderech.setSummary(getSecondaryText(title));
@@ -801,7 +800,7 @@ public class SiddurFragment extends Fragment {
                     startSiddurActivity(mContext.getString(R.string.birchat_levana));
                     return true;
                 });
-                birchatLevana.setVisible(!getSunsetBasedJewishDateInfo().getBirchatLevana().isEmpty());// hide the button if there's no status text returned
+                birchatLevana.setVisible(!getSunsetBasedJewishDateInfo().getBirchatLevana(currentZmanimCalendar.getGeoLocation().getZoneId()).isEmpty());// hide the button if there's no status text returned
                 CharSequence title = birchatLevana.getTitle();
                 if (title != null) {
                     birchatLevana.setSummary(getSecondaryText(title));
@@ -815,7 +814,7 @@ public class SiddurFragment extends Fragment {
                 String title = "";
                 String summary = "";
                 boolean isTefilatEtrogSaid = getSunsetBasedJewishDateInfo().getJewishCalendar().getYomTovIndex() == JewishCalendar.TU_BESHVAT;
-                boolean isParshatHamanSaid = getSunsetBasedJewishDateInfo().getJewishCalendar().getUpcomingParshah() == JewishCalendar.Parsha.BESHALACH &&
+                boolean isParshatHamanSaid = getSunsetBasedJewishDateInfo().getJewishCalendar().getUpcomingParshah() == JewishCalendar.Parshah.BESHALACH &&
                         getSunsetBasedJewishDateInfo().getJewishCalendar().getDayOfWeek() == Calendar.TUESDAY;
                 boolean isTefilatHaShelahSaid = getSunsetBasedJewishDateInfo().getJewishCalendar().isErevRoshChodesh() &&
                         getSunsetBasedJewishDateInfo().getJewishCalendar().getJewishMonth() == JewishDate.IYAR;
@@ -878,7 +877,7 @@ public class SiddurFragment extends Fragment {
                 currentJewishDateInfo.forward();
             }
             JewishDateInfo jdi = showAllPrayers ? sJewishDateInfo.getCopy() : currentJewishDateInfo.getCopy();
-            currentJewishDateInfo.setCalendar(Calendar.getInstance());
+            currentJewishDateInfo.setLocalDate(LocalDate.now());
             return jdi;
         }
 
@@ -900,29 +899,29 @@ public class SiddurFragment extends Fragment {
                 return true;// show the prayer by default
             }
             return switch (key) {
-                case "siddur_selichot" -> !(new Date().after(currentZmanimCalendar.getSunset()) && currentZmanimCalendar.isNowBeforeSecondAshmora());
+                case "siddur_selichot" -> !(Instant.now().isAfter(currentZmanimCalendar.getSunset()) && currentZmanimCalendar.isNowBeforeSecondAshmora());
                 case "siddur_shacharit" ->
-                        new Date().after(currentZmanimCalendar.getAlotHashachar()) && new Date().before(currentZmanimCalendar.getChatzot());
+                        Instant.now().isAfter(currentZmanimCalendar.getAlotHashachar()) && Instant.now().isBefore(currentZmanimCalendar.getChatzot());
                 case "siddur_mussaf" ->
-                        new Date().after(currentZmanimCalendar.getAlotHashachar()) && new Date().before(currentZmanimCalendar.getSunset());
+                        Instant.now().isAfter(currentZmanimCalendar.getAlotHashachar()) && Instant.now().isBefore(currentZmanimCalendar.getSunset());
                 case "siddur_mincha" ->
-                        new Date().after(currentZmanimCalendar.getMinchaGedolaGreaterThan30()) && new Date().before(currentZmanimCalendar.getTzeit());
+                        Instant.now().isAfter(currentZmanimCalendar.getMinchaGedolaGreaterThan30()) && Instant.now().isBefore(currentZmanimCalendar.getTzeit());
                 case "siddur_arvit" ->
-                        new Date().after(currentZmanimCalendar.getPlagHamincha()) || new Date().before(currentZmanimCalendar.getAlotHashachar());
+                        Instant.now().isAfter(currentZmanimCalendar.getPlagHaminchaGRA()) || Instant.now().isBefore(currentZmanimCalendar.getAlotHashachar());
                 case "siddur_hadlakat_neirot_chanuka" ->
-                        new Date().after(currentZmanimCalendar.getSunset()) || new Date().before(currentZmanimCalendar.getAlotHashachar())
+                        Instant.now().isAfter(currentZmanimCalendar.getSunset()) || Instant.now().isBefore(currentZmanimCalendar.getAlotHashachar())
                                 || (getSunsetBasedJewishDateInfo(false).getJewishCalendar().getDayOfWeek() == Calendar.FRIDAY
-                                && new Date().after(currentZmanimCalendar.getPlagHamincha())
+                                && Instant.now().isAfter(currentZmanimCalendar.getPlagHaminchaGRA())
                                 && getSunsetBasedJewishDateInfo(false).tomorrow().getJewishCalendar().isChanukah());// candles are lit before sunset on erev Shabbat
                 case "siddur_sefirat_haomer",
                      "siddur_havdala",
                      "siddur_kriatShema" ->
-                        new Date().after(currentZmanimCalendar.getSunset()) || new Date().before(currentZmanimCalendar.getAlotHashachar());
+                        Instant.now().isAfter(currentZmanimCalendar.getSunset()) || Instant.now().isBefore(currentZmanimCalendar.getAlotHashachar());
                 case "siddur_tikkun_chatzot" ->
                         !getSunsetBasedJewishDateInfo().is3Weeks() && currentZmanimCalendar.isNowAfterHalachicSolarMidnight();
                 case "siddur_tikkun_chatzot_3_weeks" -> getSunsetBasedJewishDateInfo().is3Weeks() &&
                         (currentZmanimCalendar.isNowAfterHalachicSolarMidnight() // night tikkun chatzot
-                                || (new Date().after(currentZmanimCalendar.getChatzot()) && new Date().before(currentZmanimCalendar.getSunset()) && getSunsetBasedJewishDateInfo().getJewishCalendar().getDayOfWeek() != Calendar.SATURDAY)); // day tikkun chatzot, even though beki'im behalacha says to NOT say it after mincha ketana. However, that is not brought down by Rabbi Ovadiah and his sons
+                                || (Instant.now().isAfter(currentZmanimCalendar.getChatzot()) && Instant.now().isBefore(currentZmanimCalendar.getSunset()) && getSunsetBasedJewishDateInfo().getJewishCalendar().getDayOfWeek() != Calendar.SATURDAY)); // day tikkun chatzot, even though beki'im behalacha says to NOT say it after mincha ketana. However, that is not brought down by Rabbi Ovadiah and his sons
                 default -> true;
             };
         }
@@ -1052,7 +1051,7 @@ public class SiddurFragment extends Fragment {
                     entries.add("על הניסים");
                 }
                 if (showAllPrayers && timeAdjustedJDI.getJewishCalendar().getDayOfWeek() == 7 &&
-                        currentZmanimCalendar.getTzeit() != null && !new Date().before(currentZmanimCalendar.getTzeit())) {
+                        currentZmanimCalendar.getTzeit() != null && !Instant.now().isBefore(currentZmanimCalendar.getTzeit())) {
                     entries.add("[רצה]");
                 }
                 if (timeAdjustedJDI.getJewishCalendar().isRoshChodesh() || timeAdjustedJDI.getJewishCalendar().isCholHamoed()
@@ -1123,7 +1122,7 @@ public class SiddurFragment extends Fragment {
                     .putExtra("masechtas", selectedMasechtot)
                     .putExtra("itemsForMeyinShalosh", selectedShaloshItems)
                     .putExtra("isNightTikkunChatzot", isNightTikkunChatzot)
-                    .putExtra("isAfterSunrise", new Date().after(currentZmanimCalendar.getSunrise()))// only used for selichot
+                    .putExtra("isAfterSunrise", Instant.now().isAfter(currentZmanimCalendar.getSunrise()))// only used for selichot
                     .putExtra("isAfterChatzot", currentZmanimCalendar.isNowAfterHalachicSolarMidnight());// used for kriat shema she'al hamita and selichot
             if (forNextDay) {
                 sJewishDateInfo.back();
@@ -1220,9 +1219,9 @@ public class SiddurFragment extends Fragment {
         if (binding != null) {
             Button previousDate = binding.prevDay;
             previousDate.setOnClickListener(v -> {
-                sCurrentDateShown.add(Calendar.DATE, -1);//subtract one day
-                sROZmanimCalendar.setCalendar(sCurrentDateShown);
-                sJewishDateInfo.setCalendar(sCurrentDateShown);
+                sCurrentDateShown = sCurrentDateShown.minusDays(1);
+                sROZmanimCalendar.setLocalDate(sCurrentDateShown);
+                sJewishDateInfo.setLocalDate(sCurrentDateShown);
                 updateView();
                 mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
             });
@@ -1236,9 +1235,9 @@ public class SiddurFragment extends Fragment {
         if (binding != null) {
             Button nextDate = binding.nextDay;
             nextDate.setOnClickListener(v -> {
-                sCurrentDateShown.add(Calendar.DATE, 1);//add one day
-                sROZmanimCalendar.setCalendar(sCurrentDateShown);
-                sJewishDateInfo.setCalendar(sCurrentDateShown);
+                sCurrentDateShown = sCurrentDateShown.plusDays(1);
+                sROZmanimCalendar.setLocalDate(sCurrentDateShown);
+                sJewishDateInfo.setLocalDate(sCurrentDateShown);
                 updateView();
                 mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
             });
@@ -1257,29 +1256,25 @@ public class SiddurFragment extends Fragment {
                 MaterialDatePicker<Long> materialDatePicker = builder
                         .setPositiveButtonText(R.string.ok)
                         .setNegativeButtonText(R.string.switch_calendar)
-                        .setSelection(sCurrentDateShown.getTimeInMillis())// can be in local timezone
+                        .setSelection(sCurrentDateShown.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli())
                         .build();
                 materialDatePicker.addOnPositiveButtonClickListener(selection -> {
-                    Calendar epoch = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-                    epoch.setTimeInMillis(selection);
-                    sCurrentDateShown.set(
-                        epoch.get(Calendar.YEAR),
-                        epoch.get(Calendar.MONTH),
-                        epoch.get(Calendar.DATE),
-                        epoch.get(Calendar.HOUR_OF_DAY),
-                        epoch.get(Calendar.MINUTE)
-                    );
-                    sROZmanimCalendar.setCalendar(sCurrentDateShown);
-                    sJewishDateInfo.setCalendar(sCurrentDateShown);
+                    // Convert the UTC milliseconds selection directly to a LocalDate
+                    sCurrentDateShown = Instant.ofEpochMilli(selection)
+                            .atZone(ZoneOffset.UTC)
+                            .toLocalDate();
+                    sROZmanimCalendar.setLocalDate(sCurrentDateShown);
+                    sJewishDateInfo.setLocalDate(sCurrentDateShown);
+                    sROZmanimCalendar.setLocalDate(sCurrentDateShown);
+                    sJewishDateInfo.setLocalDate(sCurrentDateShown);
                     updateView();
                     mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
                 });
                 DatePickerDialog.OnDateSetListener onDateSetListener = (view, year, month, day) -> {
-                    Calendar mUserChosenDate = Calendar.getInstance();
-                    mUserChosenDate.set(year, month, day);
-                    sROZmanimCalendar.setCalendar(mUserChosenDate);
-                    sJewishDateInfo.setCalendar(mUserChosenDate);
-                    sCurrentDateShown = (Calendar) sROZmanimCalendar.getCalendar().clone();
+                    LocalDate userChosenDate = LocalDate.of(year, month, day);
+                    sROZmanimCalendar.setLocalDate(userChosenDate);
+                    sJewishDateInfo.setLocalDate(userChosenDate);
+                    sCurrentDateShown = userChosenDate;
                     updateView();
                     mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
                 };
@@ -1289,9 +1284,7 @@ public class SiddurFragment extends Fragment {
                         hdmypd = new HebrewDayMonthYearPickerDialog(materialDatePicker, mActivity.getSupportFragmentManager(), MainFragmentManagerActivity.sJewishDateInfo.getJewishCalendar());
                     }
                     if (hdmypd != null) {
-                        hdmypd.updateDate(sJewishDateInfo.getJewishCalendar().getGregorianYear(),
-                            sJewishDateInfo.getJewishCalendar().getGregorianMonth(),
-                            sJewishDateInfo.getJewishCalendar().getGregorianDayOfMonth());
+                        hdmypd.updateDate(sJewishDateInfo.getJewishCalendar().getLocalDate());
                         hdmypd.setListener(onDateSetListener);
                         hdmypd.show(mActivity.getSupportFragmentManager(), null);
                     }

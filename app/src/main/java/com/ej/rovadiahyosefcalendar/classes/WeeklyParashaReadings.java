@@ -50,7 +50,7 @@ public class WeeklyParashaReadings {
 
     /**
      * This method returns a list containing the weekly torah reading for the
-     * {@link com.kosherjava.zmanim.hebrewcalendar.JewishCalendar.Parsha} passed into the parameter.
+     * {@link com.kosherjava.zmanim.hebrewcalendar.JewishCalendar.Parshah} passed into the parameter.
      * Taaniyot/Fasts and Purim can change the result of this method and should be set accordingly.
      * @param jewishCalendar the current jewish calendar
      * @param isForShacharit if the reading is for shacharit or mincha

@@ -40,16 +40,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.nio.charset.StandardCharsets;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -132,35 +132,31 @@ public class Utils {
      * @param secondTreatment how to handle seconds
      * @return the formatted time as a string
      */
-    public static String formatZmanTime(Context context, Date zman, SecondTreatment secondTreatment) {
+    public static String formatZmanTime(Context context, Instant zman, SecondTreatment secondTreatment) {
         boolean showSeconds = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ShowSeconds", false);
-        DateFormat noSecondDateFormat = new SimpleDateFormat(dateFormatPattern(context,false), context
+        ZoneId timezone = new LocationResolver(context, null).getZoneID();
+        Locale contextLocale = context
                 .getResources()
                 .getConfiguration()
                 .getLocales()
-                .get(0));
-        DateFormat yesSecondDateFormat = new SimpleDateFormat(dateFormatPattern(context,true), context
-                .getResources()
-                .getConfiguration()
-                .getLocales()
-                .get(0));
-        TimeZone timezone = new LocationResolver(context, null).getTimeZone();
-        noSecondDateFormat.setTimeZone(timezone);
-        yesSecondDateFormat.setTimeZone(timezone);
+                .get(0);
+        DateTimeFormatter noSecondDateFormat = DateTimeFormatter.ofPattern(dateFormatPattern(context,false))
+                .withLocale(contextLocale)
+                .withZone(timezone);
+        DateTimeFormatter yesSecondDateFormat = DateTimeFormatter.ofPattern(dateFormatPattern(context,true))
+                .withLocale(contextLocale)
+                .withZone(timezone);
 
         String zmanTime;
         if (secondTreatment == SecondTreatment.ALWAYS_DISPLAY || showSeconds) {
             zmanTime = yesSecondDateFormat.format(zman);
         } else {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(zman);
-
-            Date zmanDate = zman;
-            if ((calendar.get(Calendar.SECOND) > 40) || (calendar.get(Calendar.SECOND) > 20 && secondTreatment == SecondTreatment.ROUND_LATER)) {
-                zmanDate = Utils.addMinuteToZman(zman);
+            Instant zmanInstant = zman;
+            if ((zman.getEpochSecond() > 40) || (zman.getEpochSecond() > 20 && secondTreatment == SecondTreatment.ROUND_LATER)) {
+                zmanInstant = Utils.addMinuteToZman(zman);
             }
 
-            zmanTime = noSecondDateFormat.format(zmanDate);
+            zmanTime = noSecondDateFormat.format(zmanInstant);
         }
         return zmanTime;
     }
@@ -170,14 +166,14 @@ public class Utils {
      * it will return the same date with a minute added to it. Otherwise, if the date is null, it will return null.
      * It is important NOT to use the Calendar class because it takes into account the time zones and leap seconds. If you would like to
      * simply add a minute to a date, use this method.
-     * @param date the date object to add a minute to
+     * @param instant the date object to add a minute to
      * @return the given date a minute ahead if not null
      */
-    public static Date addMinuteToZman(Date date) {
-        if (date == null) {
+    public static Instant addMinuteToZman(Instant instant) {
+        if (instant == null) {
             return null;
         }
-        return new Date(date.getTime() + 60_000);
+        return instant.plusSeconds(60);
     }
 
     public static void showVisibleSunriseNotification(Context context) {
@@ -239,16 +235,16 @@ public class Utils {
     /**
      * Returns the current calendar drawable depending on the current day of the month.
      */
-    public static int getCurrentCalendarDrawable(SharedPreferences mSettingsPreferences, Calendar calendar) {
+    public static int getCurrentCalendarDrawable(SharedPreferences mSettingsPreferences, LocalDate localDate) {
         if (!mSettingsPreferences.getBoolean("useDarkCalendarIcon", false)) {
-            return getCurrentCalendarDrawableLight(calendar);
+            return getCurrentCalendarDrawableLight(localDate);
         } else {
-            return getCurrentCalendarDrawableDark(calendar);
+            return getCurrentCalendarDrawableDark(localDate);
         }
     }
 
-    public static int getCurrentCalendarDrawableLight(Calendar calendar) {
-        return switch (calendar.get(Calendar.DATE)) {
+    public static int getCurrentCalendarDrawableLight(LocalDate localDate) {
+        return switch (localDate.getDayOfMonth()) {
             case (1) -> R.drawable.calendar1;
             case (2) -> R.drawable.calendar2;
             case (3) -> R.drawable.calendar3;
@@ -283,8 +279,8 @@ public class Utils {
         };
     }
 
-    public static int getCurrentCalendarDrawableDark(Calendar calendar) {
-        return switch (calendar.get(Calendar.DATE)) {
+    public static int getCurrentCalendarDrawableDark(LocalDate localDate) {
+        return switch (localDate.getDayOfMonth()) {
             case (1) -> R.drawable.calendar_1_dark;
             case (2) -> R.drawable.calendar_2_dark;
             case (3) -> R.drawable.calendar_3_dark;
@@ -365,6 +361,7 @@ public class Utils {
                                 List<Long> vSunriseTimes = Collections.emptyList();
                                 if (vsFile.isFile() && !sSharedPreferences.getBoolean("showMishorSunrise" + sCurrentLocationName, true)) {
                                     try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(vsFile))) {
+                                        //noinspection unchecked
                                         vSunriseTimes = (List<Long>) ois.readObject();
                                     } catch (IOException | ClassNotFoundException e) {
                                         e.printStackTrace();

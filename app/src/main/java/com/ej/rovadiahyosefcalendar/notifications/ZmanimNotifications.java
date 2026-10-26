@@ -24,7 +24,6 @@ import com.ej.rovadiahyosefcalendar.classes.ZmanListEntry;
 import com.kosherjava.zmanim.util.GeoLocation;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -57,8 +56,7 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
                     ROZmanimCalendar zmanimCalendar = getROZmanimCalendar();
 
                     if (!zmanimCalendar.getGeoLocation().equals(new GeoLocation())) {// if equal, we will get the user's location in the accept method
-                        JewishDateInfo jDateInfo =
-                                new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false));
+                        JewishDateInfo jDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false));
 
                         zmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
 
@@ -111,23 +109,17 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
      * there are zmanim already set to be notified, it removes them all and reschedules them.
      */
     private void setAlarms(ROZmanimCalendar c, JewishDateInfo jDateInfo) {
-        Calendar calendar = c.getCalendar();
-
-        calendar.add(Calendar.DATE, -1);
-        c.setCalendar(calendar);
-        jDateInfo.setCalendar(calendar);//set the calendars to the previous day
-
+        jDateInfo.setLocalDate(jDateInfo.getJewishCalendar().getLocalDate().minusDays(1));
+        c.setLocalDate(jDateInfo.getJewishCalendar().getLocalDate());// set the calendars to the previous day
         ArrayList<ZmanListEntry> zmanimOver3Days = new ArrayList<>();
         addZmanim(zmanimOver3Days, false, mSettingsPreferences, mSharedPreferences, c, jDateInfo, false);
 
-        calendar.add(Calendar.DATE, 1);
-        c.setCalendar(calendar);
-        jDateInfo.setCalendar(calendar);//set the calendars to the current day
+        jDateInfo.setLocalDate(jDateInfo.getJewishCalendar().getLocalDate().plusDays(1));
+        c.setLocalDate(jDateInfo.getJewishCalendar().getLocalDate());// set the calendars to the current day
         addZmanim(zmanimOver3Days, false, mSettingsPreferences, mSharedPreferences, c, jDateInfo, false);
 
-        calendar.add(Calendar.DATE, 1);
-        c.setCalendar(calendar);
-        jDateInfo.setCalendar(calendar);//set the calendars to the next day
+        jDateInfo.setLocalDate(jDateInfo.getJewishCalendar().getLocalDate().plusDays(1));
+        c.setLocalDate(jDateInfo.getJewishCalendar().getLocalDate());// set the calendars to the next day
         addZmanim(zmanimOver3Days, false, mSettingsPreferences, mSharedPreferences, c, jDateInfo, false);
 
         AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
@@ -146,7 +138,7 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
         for (int i = 0; i < zmanimOver3Days.size(); i++) {
             if (set < max) {
                 if (zmanimOver3Days.get(i).getZman() != null &&
-                        (zmanimOver3Days.get(i).getZman().getTime() - (60_000L * zmanimOver3Days.get(i).getNotificationDelay(mSettingsPreferences)) > new Date().getTime()) &&
+                        (zmanimOver3Days.get(i).getZman().toEpochMilli() - (60_000L * zmanimOver3Days.get(i).getNotificationDelay(mSettingsPreferences)) > new Date().getTime()) &&
                         !zmanimOver3Days.get(i).getNotificationKey().isEmpty()) {
                     PendingIntent zmanPendingIntent = PendingIntent.getBroadcast(
                             context.getApplicationContext(),
@@ -154,13 +146,13 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
                             new Intent(context, ZmanNotification.class)
                                     .setAction(String.valueOf(set))
                                     .putExtra("zman",
-                                            zmanimOver3Days.get(i).getTitle() + ":" + zmanimOver3Days.get(i).getZman().getTime()) //save the zman name and time for the notification e.g. "Chatzot Layla:1331313311"
+                                            zmanimOver3Days.get(i).getTitle() + ":" + zmanimOver3Days.get(i).getZman().toEpochMilli()) //save the zman name and time for the notification e.g. "Chatzot Layla:1331313311"
                                     .putExtra("zmanKey", zmanimOver3Days.get(i).getNotificationKey())
                                     .putExtra("secondsTreatment", zmanimOver3Days.get(i).getSecondTreatment().getValue()),
                             PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
 
                     if (zmanimOver3Days.get(i).getNotificationDelay(mSettingsPreferences) != -1) {// only notify if the user wants to be notified i.e. anything greater than -1
-                        setExactAndAllowWhileIdle(am, zmanimOver3Days.get(i).getZman().getTime() - (60_000L * zmanimOver3Days.get(i).getNotificationDelay(mSettingsPreferences)), zmanPendingIntent);
+                        setExactAndAllowWhileIdle(am, zmanimOver3Days.get(i).getZman().toEpochMilli() - (60_000L * zmanimOver3Days.get(i).getNotificationDelay(mSettingsPreferences)), zmanPendingIntent);
                         set++;
                     }
                 }
@@ -188,7 +180,7 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
                         location.getLatitude(),
                         location.getLongitude(),
                         mLocationResolver.getElevation(),
-                        mLocationResolver.getTimeZone()));
+                        mLocationResolver.getZoneID()));
                 zmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
                 String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
                 zmanimCalendar.setCandleLightingOffset(Utils.parseDoubleOrDefault(candles, 20));

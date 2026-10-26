@@ -24,8 +24,8 @@ import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
 import com.kosherjava.zmanim.util.GeoLocation;
 
-import java.util.Calendar;
-import java.util.Date;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BootNotifications extends BroadcastReceiver {
@@ -57,7 +57,7 @@ public class BootNotifications extends BroadcastReceiver {
                                 location.getLatitude(),
                                 location.getLongitude(),
                                 0,// it barely makes a difference on when the notification sends, not worth the network call IMO
-                                mLocationResolver.getTimeZone())));
+                                mLocationResolver.getZoneID())));
                     } else {
                         setDailyNotifications(context, new ROZmanimCalendar(mLocationResolver.getLastKnownGeoLocation()));
                     }
@@ -95,43 +95,39 @@ public class BootNotifications extends BroadcastReceiver {
     }
 
     private void setDailyNotifications(Context context, ROZmanimCalendar zmanimCalendar) {
-        Calendar calendar = Calendar.getInstance();
         AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
         zmanimCalendar.setAmudehHoraah(PreferenceManager.getDefaultSharedPreferences(context).getBoolean("LuachAmudeiHoraah", false));
-        ROZmanimCalendar tomorrow = (ROZmanimCalendar) zmanimCalendar.clone();
-        tomorrow.getCalendar().add(Calendar.DATE, 1);
-
-        Date sunrise = zmanimCalendar.getSunrise();
+        ROZmanimCalendar tomorrow = zmanimCalendar.getCopy();
+        tomorrow.setLocalDate(tomorrow.getLocalDate().plusDays(1));
+        Instant sunrise = zmanimCalendar.getSunriseBasedOnElevationSetting();
         if (sunrise == null) {
-            sunrise = new Date();
+            sunrise = Instant.now();
         }
-        calendar.setTimeInMillis(sunrise.getTime());
-        if (calendar.getTime().compareTo(new Date()) < 0) {
-            if (tomorrow.getSunrise() != null) {
-                calendar.setTimeInMillis(tomorrow.getSunrise().getTime());
+        if (sunrise.compareTo(Instant.now()) < 0) {
+            if (tomorrow.getSunriseBasedOnElevationSetting() != null) {
+                sunrise = tomorrow.getSunriseBasedOnElevationSetting();
             } else {
-                calendar.add(Calendar.DATE, 1);
+                sunrise = sunrise.plus(1, ChronoUnit.DAYS);
             }
         }
         PendingIntent dailyPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
                 0, new Intent(context, DailyNotifications.class), PendingIntent.FLAG_IMMUTABLE);
-        NotificationUtils.setExactAndAllowWhileIdle(am, calendar.getTimeInMillis(), dailyPendingIntent);
+        NotificationUtils.setExactAndAllowWhileIdle(am, sunrise.toEpochMilli(), dailyPendingIntent);
 
-        Date tzeit = zmanimCalendar.getTzeit();
+        Instant tzeit = zmanimCalendar.getTzeit();
         if (tzeit == null) {
-            tzeit = new Date();
+            tzeit = Instant.now();
         }
-        calendar.setTimeInMillis(tzeit.getTime());
-        if (calendar.getTime().compareTo(new Date()) < 0) {
+        if (tzeit.compareTo(Instant.now()) < 0) {
             if (tomorrow.getTzeit() != null) {
-                calendar.setTimeInMillis(tomorrow.getTzeit().getTime());
+                tzeit = tomorrow.getTzeit();
             } else {
-                calendar.add(Calendar.DATE, 1);
+                tzeit = tzeit.plus(1, ChronoUnit.DAYS);
             }
         }
         PendingIntent omerPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
                 0, new Intent(context, OmerNotifications.class), PendingIntent.FLAG_IMMUTABLE);
-        NotificationUtils.setExactAndAllowWhileIdle(am, calendar.getTimeInMillis(), omerPendingIntent);
+        NotificationUtils.setExactAndAllowWhileIdle(am, tzeit.toEpochMilli(), omerPendingIntent);
         DailyNotifications.setTekufaNotification(context, new JewishDateInfo(context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE).getBoolean("inIsrael", false)));
     }
 }
