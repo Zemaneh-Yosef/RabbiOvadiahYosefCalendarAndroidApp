@@ -27,6 +27,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
@@ -35,6 +36,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.preference.PreferenceManager;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
@@ -215,6 +217,25 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
         mViewPager = sViewPager;
         ViewPagerAdapter adapter = new ViewPagerAdapter(this);
         sViewPager.setAdapter(adapter);
+        // Only the tab on screen (the resumed one) can take the D-pad focus. ViewPager2 keeps the tabs next to it laid out off
+        // screen, and Android's focus search would otherwise move into them (e.g. pressing left towards the rail from the zmanim
+        // went into the limudim).
+        getSupportFragmentManager().registerFragmentLifecycleCallbacks(new FragmentManager.FragmentLifecycleCallbacks() {
+            @Override
+            public void onFragmentViewCreated(@NonNull FragmentManager fm, @NonNull Fragment tab, @NonNull View view, @Nullable Bundle savedInstanceState) {
+                setTabFocusable(tab, view, false);// until it is the tab on screen
+            }
+
+            @Override
+            public void onFragmentResumed(@NonNull FragmentManager fm, @NonNull Fragment tab) {
+                setTabFocusable(tab, tab.getView(), true);
+            }
+
+            @Override
+            public void onFragmentPaused(@NonNull FragmentManager fm, @NonNull Fragment tab) {
+                setTabFocusable(tab, tab.getView(), false);
+            }
+        }, false);// only the tabs themselves, not the fragments inside them
         mBottomNav = binding.navView;
         mNavRail = binding.navRail;
         mNavViews.add(mBottomNav);
@@ -459,6 +480,13 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
             sSharedPreferences.unregisterOnSharedPreferenceChangeListener(mWeeklyModeListener);
         }
         super.onDestroy();
+    }
+
+    private static void setTabFocusable(Fragment fragment, @Nullable View tabView, boolean focusable) {
+        boolean isTab = fragment instanceof ZmanimFragment || fragment instanceof LimudFragment || fragment instanceof SiddurFragment;// not e.g. the date pickers
+        if (isTab && tabView instanceof ViewGroup tabRoot) {
+            tabRoot.setDescendantFocusability(focusable ? ViewGroup.FOCUS_BEFORE_DESCENDANTS : ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+        }
     }
 
     /**
