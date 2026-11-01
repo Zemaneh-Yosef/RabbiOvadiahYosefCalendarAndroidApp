@@ -9,10 +9,12 @@
     android:layout_height="wrap_content"
     android:padding="2dp">
 
+    <!-- Its height matches the time's line on the other side, so that the auto-sizing below only shrinks the name when it is
+         too wide. With wrap_content, auto-sizing has no height to work with and picks inconsistent sizes. -->
     <TextView
         android:id="@+id/zmanLeftTextView"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:autoSizeMaxTextSize="22sp"
         android:autoSizeMinTextSize="8sp"
         android:autoSizeTextType="uniform"
@@ -24,10 +26,10 @@
         android:textSize="22sp"
         android:textDirection="firstStrong"
         android:fontFamily="sans-serif-light"
-        app:layout_constraintBottom_toTopOf="@id/zmanLeftTextViewSmall"
+        app:layout_constraintBottom_toBottomOf="@id/zmanRightTextView"
         app:layout_constraintEnd_toStartOf="@+id/zmanRightTextView"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toTopOf="@id/zmanRightTextView"
         tools:ignore="UnusedAttribute" />
 
     <TextView
