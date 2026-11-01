@@ -17,6 +17,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.FocusFinder;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -487,6 +489,41 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
         if (isTab && tabView instanceof ViewGroup tabRoot) {
             tabRoot.setDescendantFocusability(focusable ? ViewGroup.FOCUS_BEFORE_DESCENDANTS : ViewGroup.FOCUS_BLOCK_DESCENDANTS);
         }
+    }
+
+    /**
+     * Lets the D-pad leave the tab sideways, e.g. from the first day of the week to the navigation rail, or to the sidebar.
+     * The ViewPager2 swallows left/right itself: it looks for the next page in that direction, and since that page isn't
+     * focusable it keeps the focus where it is, so nothing outside the pager is ever reached.
+     */
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (super.dispatchKeyEvent(event)) {
+            return true;
+        }
+        int keyCode = event.getKeyCode();
+        if (event.getAction() != KeyEvent.ACTION_DOWN || (keyCode != KeyEvent.KEYCODE_DPAD_LEFT && keyCode != KeyEvent.KEYCODE_DPAD_RIGHT)) {
+            return false;
+        }
+        View focused = getCurrentFocus();
+        if (focused == null || mViewPager == null || !isInside(mViewPager, focused)) {
+            return false;
+        }
+        int direction = keyCode == KeyEvent.KEYCODE_DPAD_LEFT ? View.FOCUS_LEFT : View.FOCUS_RIGHT;
+        View next = FocusFinder.getInstance().findNextFocus((ViewGroup) getWindow().getDecorView(), focused, direction);
+        if (next != null && !isInside(mViewPager, next)) {
+            return next.requestFocus(direction);
+        }
+        return false;
+    }
+
+    private static boolean isInside(View parent, View view) {
+        for (View v = view; v != null; v = v.getParent() instanceof View p ? p : null) {
+            if (v == parent) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
