@@ -56,6 +56,8 @@ import com.ej.rovadiahyosefcalendar.notifications.NextZmanCountdownNotification;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
+import com.google.android.material.navigationrail.NavigationRailView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.play.core.appupdate.AppUpdateManager;
@@ -70,7 +72,9 @@ import com.kosherjava.zmanim.util.GeoLocation;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
@@ -105,7 +109,15 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
      */
     public static LocalDate sCurrentDateShown = LocalDate.now();
     public static Instant sLastTimeUserWasInApp;
-    public static BottomNavigationView sNavView;
+    /**
+     * The control used to switch tabs: the bottom bar, or on wide screens in weekly mode, the navigation rail.
+     */
+    public static NavigationBarView sNavView;
+    private final List<NavigationBarView> mNavViews = new ArrayList<>();// every tab control in the layout (the rail only exists on wide screens)
+    private BottomNavigationView mBottomNav;
+    private NavigationRailView mNavRail;
+    private View mSidebarScroll;
+    private SharedPreferences.OnSharedPreferenceChangeListener mWeeklyModeListener;
     public static ViewPager2 sViewPager;
     private ViewPager2 mViewPager;
     /**
@@ -203,12 +215,20 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
         mViewPager = sViewPager;
         ViewPagerAdapter adapter = new ViewPagerAdapter(this);
         sViewPager.setAdapter(adapter);
-        sNavView = findViewById(R.id.nav_view);
+        mBottomNav = binding.navView;
+        mNavRail = binding.navRail;
+        mNavViews.add(mBottomNav);
+        if (mNavRail != null) {
+            mNavViews.add(mNavRail);
+        }
+        sNavView = mBottomNav;
         // Set initial page to ZmanimFragment (index 1)
         sViewPager.setCurrentItem(1, false);  // Set to page 1 without smooth scroll
 
         // Set initial selection on BottomNavigationView to the corresponding menu item
-        sNavView.setSelectedItemId(R.id.navigation_zmanim);
+        for (NavigationBarView navView : mNavViews) {
+            navView.setSelectedItemId(R.id.navigation_zmanim);
+        }
 
         if (binding.sidebarSummary != null) {// only in the wide-screen layout (layout-w600dp-h480dp)
             setupSidebar(binding);
@@ -217,23 +237,31 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
         }
 
         if (sJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.TU_BESHVAT) {
-           sNavView.getOrCreateBadge(R.id.navigation_siddur).setText("תפילה לאתרוג");
+           for (NavigationBarView navView : mNavViews) {
+               navView.getOrCreateBadge(R.id.navigation_siddur).setText("תפילה לאתרוג");
+           }
         }
 
         if (sJewishDateInfo.getJewishCalendar().getUpcomingParshah() == JewishCalendar.Parshah.BESHALACH &&
                 sJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.TUESDAY) {
-            sNavView.getOrCreateBadge(R.id.navigation_siddur).setText("פרשת המן");
+            for (NavigationBarView navView : mNavViews) {
+                navView.getOrCreateBadge(R.id.navigation_siddur).setText("פרשת המן");
+            }
         }
 
         if (sJewishDateInfo.getJewishCalendar().isErevRoshChodesh() &&
                 sJewishDateInfo.getJewishCalendar().getJewishMonth() == JewishDate.IYAR) {
-            sNavView.getOrCreateBadge(R.id.navigation_siddur).setText("תפילת השל\"ה");
+            for (NavigationBarView navView : mNavViews) {
+                navView.getOrCreateBadge(R.id.navigation_siddur).setText("תפילת השל\"ה");
+            }
         }
 
         if (sJewishDateInfo.getJewishCalendar().getJewishMonth() == JewishDate.NISSAN) {
             String title = NisanLimudYomi.getNisanLimudYomiTitle(sJewishDateInfo.getJewishCalendar().getJewishDayOfMonth());
             if (!title.isEmpty()) {
-                sNavView.getOrCreateBadge(R.id.navigation_limud).setText(title);
+                for (NavigationBarView navView : mNavViews) {
+                    navView.getOrCreateBadge(R.id.navigation_limud).setText(title);
+                }
             }
         }
 
@@ -260,12 +288,15 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
                         materialToolbar.setSubtitle(getString(R.string.short_app_name));
                     }
                 }
-                sNavView.getMenu().getItem(position).setChecked(true);
+                for (NavigationBarView navView : mNavViews) {
+                    navView.getMenu().getItem(position).setChecked(true);
+                }
+                applyWideMode();
             }
         });
 
         // Set up the BottomNavigationView to change ViewPager2 page on item click
-        sNavView.setOnItemSelectedListener(item -> {
+        NavigationBarView.OnItemSelectedListener onTabSelected = item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.navigation_limud) {
                 sViewPager.setCurrentItem(0, false);
@@ -278,7 +309,11 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
                 return true;
             }
             return false;
-        });
+        };
+        for (NavigationBarView navView : mNavViews) {
+            navView.setOnItemSelectedListener(onTabSelected);
+        }
+        applyWideMode();
 
         askToUpdateApp();
 
@@ -420,6 +455,9 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
             sSidebar = null;
             sSetupLauncher = null;
         }
+        if (mWeeklyModeListener != null) {
+            sSharedPreferences.unregisterOnSharedPreferenceChangeListener(mWeeklyModeListener);
+        }
         super.onDestroy();
     }
 
@@ -428,6 +466,7 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
      */
     private void setupSidebar(ActivityMainFragmentManagerBinding binding) {
         sSidebar = new DailySummaryController(this, Objects.requireNonNull(binding.sidebarSummary), true);
+        mSidebarScroll = binding.sidebarScroll;
         // "Change date" in the date card's dialog opens the date picker of the tab that is currently shown
         sSidebar.setOnChangeDateListener(() -> {
             Fragment currentTab = getSupportFragmentManager().findFragmentByTag("f" + mViewPager.getCurrentItem());// FragmentStateAdapter's tag for each page
@@ -444,6 +483,41 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
                 v.setPadding(insets.left, 0, insets.right, insets.bottom);
                 return windowInsets;
             });
+            // the row's padding above already keeps the tab controls clear of the system bars, so they shouldn't add their own
+            for (NavigationBarView navView : mNavViews) {
+                ViewCompat.setOnApplyWindowInsetsListener(navView, (v, windowInsets) -> WindowInsetsCompat.CONSUMED);
+            }
+        }
+        mWeeklyModeListener = (prefs, key) -> {
+            if ("weeklyMode".equals(key)) {
+                applyWideMode();
+            }
+        };
+        sSharedPreferences.registerOnSharedPreferenceChangeListener(mWeeklyModeListener);
+    }
+
+    /**
+     * On wide screens, weekly mode shows a whole week in the zmanim and limudim tabs, so the one-day sidebar is only shown next
+     * to the siddur, and the tabs move to the navigation rail to leave more height for the week. Daily mode uses the sidebar and
+     * the tab bar on top of the content. Does nothing on phones.
+     */
+    private void applyWideMode() {
+        if (sSidebar == null || mNavRail == null || mSidebarScroll == null) {
+            return;
+        }
+        boolean weekly = sSharedPreferences.getBoolean("weeklyMode", false);
+        boolean wasHidden = sNavView != null && sNavView.getVisibility() != View.VISIBLE;// hidden by Shabbat mode or the "hide bottom bar" setting
+        NavigationBarView active = weekly ? mNavRail : mBottomNav;
+        NavigationBarView inactive = weekly ? mBottomNav : mNavRail;
+        inactive.setVisibility(View.GONE);
+        active.setVisibility(wasHidden ? View.GONE : View.VISIBLE);
+        sNavView = active;
+
+        boolean showSidebar = !weekly || mViewPager.getCurrentItem() == 2;// the siddur is always for one day
+        boolean sidebarWasShown = mSidebarScroll.getVisibility() == View.VISIBLE;
+        mSidebarScroll.setVisibility(showSidebar ? View.VISIBLE : View.GONE);
+        if (showSidebar && !sidebarWasShown) {
+            refreshSidebar();
         }
     }
 

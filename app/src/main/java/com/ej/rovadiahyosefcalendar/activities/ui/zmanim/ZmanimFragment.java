@@ -687,90 +687,90 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
     private void setWeeklyViewVisibility(boolean showWeekly) {
         if (showWeekly) {
-            binding.mainWeeklyLayout.setVisibility(View.VISIBLE);
+            binding.mainWeeklyLayout.getRoot().setVisibility(View.VISIBLE);
             binding.swipeRefreshLayout.setVisibility(View.GONE);
 
             // 800dp is perfect for the weekly view. However, smaller screens have less space, so we need to shrink it
             float screenHeight = getResources().getDisplayMetrics().heightPixels / getResources().getDisplayMetrics().density;
             if (screenHeight < 750) {
-                binding.hebrewDay.setTextSize(12);
-                binding.hebrewDay2.setTextSize(12);
-                binding.hebrewDay3.setTextSize(12);
-                binding.hebrewDay4.setTextSize(12);
-                binding.hebrewDay5.setTextSize(12);
-                binding.hebrewDay6.setTextSize(12);
-                binding.hebrewDay7.setTextSize(12);
+                binding.mainWeeklyLayout.hebrewDay.setTextSize(12);
+                binding.mainWeeklyLayout.hebrewDay2.setTextSize(12);
+                binding.mainWeeklyLayout.hebrewDay3.setTextSize(12);
+                binding.mainWeeklyLayout.hebrewDay4.setTextSize(12);
+                binding.mainWeeklyLayout.hebrewDay5.setTextSize(12);
+                binding.mainWeeklyLayout.hebrewDay6.setTextSize(12);
+                binding.mainWeeklyLayout.hebrewDay7.setTextSize(12);
 
-                binding.hebrewDate.setTextSize(16);
-                binding.hebrewDate2.setTextSize(16);
-                binding.hebrewDate3.setTextSize(16);
-                binding.hebrewDate4.setTextSize(16);
-                binding.hebrewDate5.setTextSize(16);
-                binding.hebrewDate6.setTextSize(16);
-                binding.hebrewDate7.setTextSize(16);
+                binding.mainWeeklyLayout.hebrewDate.setTextSize(16);
+                binding.mainWeeklyLayout.hebrewDate2.setTextSize(16);
+                binding.mainWeeklyLayout.hebrewDate3.setTextSize(16);
+                binding.mainWeeklyLayout.hebrewDate4.setTextSize(16);
+                binding.mainWeeklyLayout.hebrewDate5.setTextSize(16);
+                binding.mainWeeklyLayout.hebrewDate6.setTextSize(16);
+                binding.mainWeeklyLayout.hebrewDate7.setTextSize(16);
             }
         } else {
-            binding.mainWeeklyLayout.setVisibility(View.GONE);
+            binding.mainWeeklyLayout.getRoot().setVisibility(View.GONE);
             binding.swipeRefreshLayout.setVisibility(View.VISIBLE);
         }
     }
 
     private void findAllWeeklyViews() {
-        mLocationName = binding.locationName;
-        mEnglishMonthYear = binding.englishMonthYear;
-        mHebrewMonthYear = binding.hebrewMonthYear;
+        mLocationName = binding.mainWeeklyLayout.locationName;
+        mEnglishMonthYear = binding.mainWeeklyLayout.englishMonthYear;
+        mHebrewMonthYear = binding.mainWeeklyLayout.hebrewMonthYear;
         //there are 7 of these sets of views
-        mListViews[0] = binding.zmanim1;
-        mSunday[1] = binding.announcements;
-        mSunday[2] = binding.hebrewDay;
-        mSunday[3] = binding.hebrewDate;
-        mSunday[4] = binding.englishDay;
-        mSunday[5] = binding.englishDateNumber;
+        mListViews[0] = binding.mainWeeklyLayout.zmanim1;
+        mSunday[1] = binding.mainWeeklyLayout.announcements;
+        mSunday[2] = binding.mainWeeklyLayout.hebrewDay;
+        mSunday[3] = binding.mainWeeklyLayout.hebrewDate;
+        mSunday[4] = binding.mainWeeklyLayout.englishDay;
+        mSunday[5] = binding.mainWeeklyLayout.englishDateNumber;
 
-        mListViews[1] = binding.zmanim2;
-        mMonday[1] = binding.announcements2;
-        mMonday[2] = binding.hebrewDay2;
-        mMonday[3] = binding.hebrewDate2;
-        mMonday[4] = binding.englishDay2;
-        mMonday[5] = binding.englishDateNumber2;
+        mListViews[1] = binding.mainWeeklyLayout.zmanim2;
+        mMonday[1] = binding.mainWeeklyLayout.announcements2;
+        mMonday[2] = binding.mainWeeklyLayout.hebrewDay2;
+        mMonday[3] = binding.mainWeeklyLayout.hebrewDate2;
+        mMonday[4] = binding.mainWeeklyLayout.englishDay2;
+        mMonday[5] = binding.mainWeeklyLayout.englishDateNumber2;
 
-        mListViews[2] = binding.zmanim3;
-        mTuesday[1] = binding.announcements3;
-        mTuesday[2] = binding.hebrewDay3;
-        mTuesday[3] = binding.hebrewDate3;
-        mTuesday[4] = binding.englishDay3;
-        mTuesday[5] = binding.englishDateNumber3;
+        mListViews[2] = binding.mainWeeklyLayout.zmanim3;
+        mTuesday[1] = binding.mainWeeklyLayout.announcements3;
+        mTuesday[2] = binding.mainWeeklyLayout.hebrewDay3;
+        mTuesday[3] = binding.mainWeeklyLayout.hebrewDate3;
+        mTuesday[4] = binding.mainWeeklyLayout.englishDay3;
+        mTuesday[5] = binding.mainWeeklyLayout.englishDateNumber3;
 
-        mListViews[3] = binding.zmanim4;
-        mWednesday[1] = binding.announcements4;
-        mWednesday[2] = binding.hebrewDay4;
-        mWednesday[3] = binding.hebrewDate4;
-        mWednesday[4] = binding.englishDay4;
-        mWednesday[5] = binding.englishDateNumber4;
+        mListViews[3] = binding.mainWeeklyLayout.zmanim4;
+        mWednesday[1] = binding.mainWeeklyLayout.announcements4;
+        mWednesday[2] = binding.mainWeeklyLayout.hebrewDay4;
+        mWednesday[3] = binding.mainWeeklyLayout.hebrewDate4;
+        mWednesday[4] = binding.mainWeeklyLayout.englishDay4;
+        mWednesday[5] = binding.mainWeeklyLayout.englishDateNumber4;
 
-        mListViews[4] = binding.zmanim5;
-        mThursday[1] = binding.announcements5;
-        mThursday[2] = binding.hebrewDay5;
-        mThursday[3] = binding.hebrewDate5;
-        mThursday[4] = binding.englishDay5;
-        mThursday[5] = binding.englishDateNumber5;
+        mListViews[4] = binding.mainWeeklyLayout.zmanim5;
+        mThursday[1] = binding.mainWeeklyLayout.announcements5;
+        mThursday[2] = binding.mainWeeklyLayout.hebrewDay5;
+        mThursday[3] = binding.mainWeeklyLayout.hebrewDate5;
+        mThursday[4] = binding.mainWeeklyLayout.englishDay5;
+        mThursday[5] = binding.mainWeeklyLayout.englishDateNumber5;
 
-        mListViews[5] = binding.zmanim6;
-        mFriday[1] = binding.announcements6;
-        mFriday[2] = binding.hebrewDay6;
-        mFriday[3] = binding.hebrewDate6;
-        mFriday[4] = binding.englishDay6;
-        mFriday[5] = binding.englishDateNumber6;
+        mListViews[5] = binding.mainWeeklyLayout.zmanim6;
+        mFriday[1] = binding.mainWeeklyLayout.announcements6;
+        mFriday[2] = binding.mainWeeklyLayout.hebrewDay6;
+        mFriday[3] = binding.mainWeeklyLayout.hebrewDate6;
+        mFriday[4] = binding.mainWeeklyLayout.englishDay6;
+        mFriday[5] = binding.mainWeeklyLayout.englishDateNumber6;
 
-        mListViews[6] = binding.zmanim7;
-        mSaturday[1] = binding.announcements7;
-        mSaturday[2] = binding.hebrewDay7;
-        mSaturday[3] = binding.hebrewDate7;
-        mSaturday[4] = binding.englishDay7;
-        mSaturday[5] = binding.englishDateNumber7;
+        mListViews[6] = binding.mainWeeklyLayout.zmanim7;
+        mSaturday[1] = binding.mainWeeklyLayout.announcements7;
+        mSaturday[2] = binding.mainWeeklyLayout.hebrewDay7;
+        mSaturday[3] = binding.mainWeeklyLayout.hebrewDate7;
+        mSaturday[4] = binding.mainWeeklyLayout.englishDay7;
+        mSaturday[5] = binding.mainWeeklyLayout.englishDateNumber7;
 
-        mWeeklyParsha = binding.weeklyParsha;
-        mWeeklyHaftorah = binding.weeklyHaftorah;
+        mWeeklyParsha = binding.mainWeeklyLayout.weeklyParsha;
+        mWeeklyHaftorah = binding.mainWeeklyLayout.weeklyHaftorah;
         updateWeeklyTextViewTextColor();
     }
 
