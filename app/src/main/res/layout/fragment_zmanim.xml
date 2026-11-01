@@ -9,9 +9,11 @@
     android:orientation="vertical"
     tools:context=".activities.MainFragmentManagerActivity">
 
+    <!-- match_parent: with wrap_content, the text changing every second would lay out the whole screen again, which takes the
+         D-pad focus off the list -->
     <TextView
         android:id="@+id/clock"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:textSize="20sp"

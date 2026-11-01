@@ -621,7 +621,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         RecyclerView list = mMainRecyclerView;
         if (list == null || list.getAdapter() == null || list.getLayoutManager() == null
                 || newFocus == null || newFocus.getParent() != list// focus didn't go to a row
-                || (oldFocus != null && oldFocus.getParent() == list)) {// moving between rows
+                || isInside(oldFocus, list)) {// moving between rows, or the list moving the focus around while it lays itself out
             return;
         }
         for (int position = 0; position < list.getAdapter().getItemCount(); position++) {
@@ -634,6 +634,16 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             }
         }
     };
+
+    /** @return true if the view is the given parent or one of its descendants */
+    private static boolean isInside(@Nullable View view, View parent) {
+        for (View current = view; current != null; current = current.getParent() instanceof View next ? next : null) {
+            if (current == parent) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private void checkIfUserIsInIsraelOrNot() {
         if (sSharedPreferences.getBoolean("neverAskInIsraelOrNot", false)) {
