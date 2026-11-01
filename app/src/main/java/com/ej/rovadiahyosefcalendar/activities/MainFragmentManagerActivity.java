@@ -40,10 +40,12 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.ej.rovadiahyosefcalendar.R;
+import com.ej.rovadiahyosefcalendar.activities.ui.DailySummaryController;
 import com.ej.rovadiahyosefcalendar.activities.ui.limudiim.LimudFragment;
 import com.ej.rovadiahyosefcalendar.activities.ui.siddur.SiddurFragment;
 import com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesWebJava;
+import com.ej.rovadiahyosefcalendar.classes.DailyEntriesBuilder;
 import com.ej.rovadiahyosefcalendar.classes.ExceptionHandler;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.NisanLimudYomi;
@@ -106,6 +108,10 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
     public static BottomNavigationView sNavView;
     public static ViewPager2 sViewPager;
     private ViewPager2 mViewPager;
+    /**
+     * The day summary shown as a sidebar next to the tabs on wide screens (tablets, unfolded foldables). Null on phones.
+     */
+    private static DailySummaryController sSidebar;
     private static boolean sUpdateChecked = false;
 
     private final ActivityResultLauncher<IntentSenderRequest> updateLauncher =
@@ -203,6 +209,12 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
 
         // Set initial selection on BottomNavigationView to the corresponding menu item
         sNavView.setSelectedItemId(R.id.navigation_zmanim);
+
+        if (binding.sidebarSummary != null) {// only in the wide-screen layout (layout-w600dp-h480dp)
+            setupSidebar(binding);
+        } else {
+            sSidebar = null;
+        }
 
         if (sJewishDateInfo.getJewishCalendar().getYomTovIndex() == JewishCalendar.TU_BESHVAT) {
            sNavView.getOrCreateBadge(R.id.navigation_siddur).setText("תפילה לאתרוג");
@@ -336,17 +348,19 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
         if (sNavView != null && sViewPager != null) {
             if (sSettingsPreferences != null && sSettingsPreferences.getBoolean("hideBottomBar", false)) {
                 sNavView.setVisibility(View.GONE);
-                ViewCompat.setOnApplyWindowInsetsListener(sViewPager, (v, windowInsets) -> {
-                    Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
-                    ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
-                    mlp.leftMargin = insets.left;
-                    mlp.bottomMargin = insets.bottom;
-                    mlp.rightMargin = insets.right;
-                    v.setLayoutParams(mlp);
-                    // Return CONSUMED if you don't want want the window insets to keep passing
-                    // down to descendant views.
-                    return WindowInsetsCompat.CONSUMED;
-                });
+                if (sSidebar == null) {// on wide screens, the row holding the sidebar and the tabs already handles the insets
+                    ViewCompat.setOnApplyWindowInsetsListener(sViewPager, (v, windowInsets) -> {
+                        Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+                        ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+                        mlp.leftMargin = insets.left;
+                        mlp.bottomMargin = insets.bottom;
+                        mlp.rightMargin = insets.right;
+                        v.setLayoutParams(mlp);
+                        // Return CONSUMED if you don't want want the window insets to keep passing
+                        // down to descendant views.
+                        return WindowInsetsCompat.CONSUMED;
+                    });
+                }
             } else {
                 if (!sShabbatMode) {
                     sNavView.setVisibility(View.VISIBLE);
@@ -391,6 +405,10 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         updateWidget();
+        if (sSidebar != null) {
+            sSidebar.reloadMakamNames();// in case the language changed
+        }
+        refreshSidebar();// in case the location or settings changed in another screen
     }
 
     @Override
@@ -399,9 +417,47 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
             materialToolbar = null;
             sNavView = null;
             sViewPager = null;
+            sSidebar = null;
             sSetupLauncher = null;
         }
         super.onDestroy();
+    }
+
+    /**
+     * Sets up the day summary sidebar of the wide-screen layout, and keeps it clear of the system bars.
+     */
+    private void setupSidebar(ActivityMainFragmentManagerBinding binding) {
+        sSidebar = new DailySummaryController(this, Objects.requireNonNull(binding.sidebarSummary), true);
+        // "Change date" in the date card's dialog opens the date picker of the tab that is currently shown
+        sSidebar.setOnChangeDateListener(() -> {
+            Fragment currentTab = getSupportFragmentManager().findFragmentByTag("f" + mViewPager.getCurrentItem());// FragmentStateAdapter's tag for each page
+            if (currentTab != null && currentTab.getView() != null) {
+                View calendarButton = currentTab.getView().findViewById(R.id.calendar);
+                if (calendarButton != null) {
+                    calendarButton.performClick();
+                }
+            }
+        });
+        if (binding.twoPaneRow != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(binding.twoPaneRow, (v, windowInsets) -> {
+                Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
+                v.setPadding(insets.left, 0, insets.right, insets.bottom);
+                return windowInsets;
+            });
+        }
+    }
+
+    /**
+     * Redraws the day summary sidebar (wide screens only) for the date currently shown. Every tab calls this after it changes
+     * the shared date (sCurrentDateShown), so that the sidebar always matches the tab next to it.
+     */
+    public static void refreshSidebar() {
+        if (sSidebar == null || (sLatitude == 0 && sLongitude == 0)) {// no sidebar, or the location is not known yet
+            return;
+        }
+        sSidebar.setLocationName(sCurrentLocationName);
+        sSidebar.refresh(DailyEntriesBuilder.infoOnly(DailyEntriesBuilder.build(sSidebar.getContext(), false)));
+        sSidebar.applyThemeColors();
     }
 
     private void updateWidget() {

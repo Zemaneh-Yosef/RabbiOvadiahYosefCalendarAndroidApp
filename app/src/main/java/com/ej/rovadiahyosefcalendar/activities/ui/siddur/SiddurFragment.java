@@ -228,6 +228,7 @@ public class SiddurFragment extends Fragment {
                     sROZmanimCalendar.setLocalDate(sCurrentDateShown);
                     sJewishDateInfo.setLocalDate(sCurrentDateShown);
                     initView();
+                    MainFragmentManagerActivity.refreshSidebar();
                     return true;
                 });
                 if (seeMoreTitle != null) {
@@ -1223,6 +1224,7 @@ public class SiddurFragment extends Fragment {
                 sROZmanimCalendar.setLocalDate(sCurrentDateShown);
                 sJewishDateInfo.setLocalDate(sCurrentDateShown);
                 updateView();
+                MainFragmentManagerActivity.refreshSidebar();
                 mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
             });
         }
@@ -1239,6 +1241,7 @@ public class SiddurFragment extends Fragment {
                 sROZmanimCalendar.setLocalDate(sCurrentDateShown);
                 sJewishDateInfo.setLocalDate(sCurrentDateShown);
                 updateView();
+                MainFragmentManagerActivity.refreshSidebar();
                 mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
             });
         }
@@ -1268,6 +1271,7 @@ public class SiddurFragment extends Fragment {
                     sROZmanimCalendar.setLocalDate(sCurrentDateShown);
                     sJewishDateInfo.setLocalDate(sCurrentDateShown);
                     updateView();
+                    MainFragmentManagerActivity.refreshSidebar();
                     mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
                 });
                 DatePickerDialog.OnDateSetListener onDateSetListener = (view, year, month, day) -> {
@@ -1276,6 +1280,7 @@ public class SiddurFragment extends Fragment {
                     sJewishDateInfo.setLocalDate(userChosenDate);
                     sCurrentDateShown = userChosenDate;
                     updateView();
+                    MainFragmentManagerActivity.refreshSidebar();
                     mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
                 };
                 materialDatePicker.addOnNegativeButtonClickListener(selection -> {

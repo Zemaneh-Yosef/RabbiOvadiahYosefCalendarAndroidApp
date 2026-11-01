@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ej.rovadiahyosefcalendar.R;
+import com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity;
 import com.ej.rovadiahyosefcalendar.classes.ChafetzChayimYomiCalculator;
 import com.ej.rovadiahyosefcalendar.classes.DailyMishnehTorah;
 import com.ej.rovadiahyosefcalendar.classes.HalachaSegment;
@@ -452,6 +453,7 @@ public class LimudFragment extends Fragment {
                 sJewishDateInfo.setLocalDate(sCurrentDateShown);
                 setDate();
                 updateLists();
+                MainFragmentManagerActivity.refreshSidebar();
                 mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
             });
         }
@@ -468,6 +470,7 @@ public class LimudFragment extends Fragment {
                 sJewishDateInfo.setLocalDate(sCurrentDateShown);
                 setDate();
                 updateLists();
+                MainFragmentManagerActivity.refreshSidebar();
                 mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
                 if (isToday()) {
                     mAdjustDate = true;
@@ -499,6 +502,7 @@ public class LimudFragment extends Fragment {
                     sJewishDateInfo.setLocalDate(sCurrentDateShown);
                     setDate();
                     updateLists();
+                    MainFragmentManagerActivity.refreshSidebar();
                     mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown)
                     );
                 });
@@ -509,6 +513,7 @@ public class LimudFragment extends Fragment {
                     sCurrentDateShown = userChosenDate;
                     setDate();
                     updateLists();
+                    MainFragmentManagerActivity.refreshSidebar();
                     mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
                 };
                 materialDatePicker.addOnNegativeButtonClickListener(selection -> {
