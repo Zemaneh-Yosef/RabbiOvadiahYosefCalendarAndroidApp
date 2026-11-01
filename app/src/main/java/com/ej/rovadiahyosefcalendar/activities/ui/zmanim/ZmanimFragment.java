@@ -1272,9 +1272,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
     private void updateWeeklyZmanim() {
         LocalDate backup = sCurrentDateShown;
-        LocalDate nextSunday = sCurrentDateShown.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
-        sROZmanimCalendar.setLocalDate(nextSunday);//set the calendar to the sunday of that week
-        sJewishDateInfo.setLocalDate(nextSunday);
+        LocalDate sunday = sCurrentDateShown.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+        sROZmanimCalendar.setLocalDate(sunday);//set the calendar to the sunday of that week
+        sJewishDateInfo.setLocalDate(sunday);
 
         HebrewDateFormatter hebrewDateFormatter = new HebrewDateFormatter();
         if (Utils.isLocaleHebrew(mContext)) {
@@ -1282,12 +1282,12 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
         List<TextView[]> weeklyInfo = Arrays.asList(mSunday, mMonday, mTuesday, mWednesday, mThursday, mFriday, mSaturday);
 
-        String month = sCurrentDateShown.getMonth().getDisplayName(TextStyle.FULL, mContext
+        String month = sunday.getMonth().getDisplayName(TextStyle.FULL, mContext
                 .getResources()
                 .getConfiguration()
                 .getLocales()
                 .get(0));
-        String year = String.valueOf(sCurrentDateShown.getYear());
+        String year = String.valueOf(sunday.getYear());
 
         String hebrewMonth = hebrewDateFormatter.formatMonth(sJewishDateInfo.getJewishCalendar())
                 .replace("Tishrei", "Tishri")

@@ -120,7 +120,7 @@ public class LimudFragment extends Fragment {
      * @return the Sunday of the week shown in weekly mode, the same week as the weekly zmanim
      */
     private LocalDate getWeekStart() {
-        return sCurrentDateShown.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+        return sCurrentDateShown.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
     }
 
     private boolean isAfterSunset() {
