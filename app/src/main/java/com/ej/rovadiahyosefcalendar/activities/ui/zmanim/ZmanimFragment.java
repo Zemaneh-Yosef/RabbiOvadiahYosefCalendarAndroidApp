@@ -146,7 +146,6 @@ import com.kosherjava.zmanim.util.ZmanimFormatter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.shredzone.commons.suncalc.MoonTimes;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -1423,35 +1422,27 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             zmanim.add(new ZmanListEntry(mContext.getString(R.string.no_tachanun_in_yerushalayim), PURIM_MESHULASH));
         }
 
-        String birchatLevana = sJewishDateInfo.getBirchatLevana(ZoneId.of(sCurrentTimeZoneID));
+        String birchatLevana = sJewishDateInfo.getBirchatLevana(sROZmanimCalendar.getGeoLocation().getZoneId());
         if (!birchatLevana.isEmpty()) {
             zmanim.add(new ZmanListEntry(birchatLevana, BIRCHAT_HALEVANA));
-            MoonTimes moonTimes = MoonTimes.compute()
-                    .on(sCurrentDateShown)
-                    .at(sLatitude, sLongitude)
-                    .timezone(sCurrentTimeZoneID == null ? TimeZone.getDefault().getID() : sCurrentTimeZoneID)
-                    .midnight()
-                    .oneDay() // since we want to only show the moon times for the current day, set it to one day with this call. In V2 the default was one day, but in V3 the default is fullCycle (i.e. 365 days).
-                    .execute();
-            if (moonTimes.isAlwaysUp()) {
-                zmanim.add(new ZmanListEntry(mContext.getString(R.string.the_moon_is_up_all_night), MOON_STATUS));
-            } else if (moonTimes.isAlwaysDown()) {
-                zmanim.add(new ZmanListEntry(mContext.getString(R.string.there_is_no_moon_tonight), MOON_STATUS));
-            } else {
-                DateTimeFormatter moonFormat = DateTimeFormatter.ofPattern((Utils.isLocaleHebrew(mContext) ? "H:mm" : "h:mm a"));
-                String moonRiseSet = "";
-                if (moonTimes.getRise() != null) {
-                    moonRiseSet += mContext.getString(R.string.moonrise) + moonTimes.getRise().format(moonFormat);
-                }
-                if (moonTimes.getSet() != null) {
-                    if (!moonRiseSet.isEmpty()) {
-                        moonRiseSet += " - ";
-                    }
-                    moonRiseSet += mContext.getString(R.string.moonset) + moonTimes.getSet().format(moonFormat);
-                }
-                if (!moonRiseSet.isEmpty()) {
-                    zmanim.add(new ZmanListEntry(moonRiseSet, MOON_STATUS));
-                }
+
+            ZoneId zone = sROZmanimCalendar.getGeoLocation().getZoneId();
+            Instant nightStart = sROZmanimCalendar.getTzeit();
+            if (nightStart == null) {
+                nightStart = sROZmanimCalendar.getSunset();
+            }
+            if (nightStart == null) {// no sunset at this latitude
+                nightStart = sCurrentDateShown.atTime(18, 0).atZone(zone).toInstant();
+            }
+            ROZmanimCalendar tomorrow = sROZmanimCalendar.getCopy();
+            tomorrow.setLocalDate(sCurrentDateShown.plusDays(1));
+            Instant dawn = tomorrow.getAlotHashachar();
+            if (dawn == null || !dawn.isAfter(nightStart)) {
+                dawn = nightStart.plus(12, ChronoUnit.HOURS);
+            }
+            String moonSummary = Utils.getMoonSummary(mContext, sROZmanimCalendar.getGeoLocation(), nightStart, dawn);
+            if (!moonSummary.isEmpty()) {
+                zmanim.add(new ZmanListEntry(moonSummary, MOON_STATUS));
             }
         }
 

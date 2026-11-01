@@ -45,6 +45,7 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
     private PendingResult mPendingResult;
     private final AtomicBoolean mFinished = new AtomicBoolean();
     private final AtomicBoolean mGotLocation = new AtomicBoolean();
+    private static volatile boolean channelCreated = false;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -94,20 +95,8 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
             } else {
                 when = System.currentTimeMillis();
             }
-            NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-            NotificationChannel channel = new NotificationChannel("Jewish Special Day",
-                    "Daily Special Day Notifications",
-                    NotificationManager.IMPORTANCE_HIGH);
-            channel.setDescription("This notification will check daily if there is a special jewish day and display it at sunrise.");
-            channel.enableLights(true);
-            channel.enableVibration(true);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                channel.setAllowBubbles(true);
-            }
-            channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
-            channel.setLightColor(Color.BLUE);
-            notificationManager.createNotificationChannel(channel);
+            NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
+            ensureChannel(context);
 
             Intent notificationIntent = new Intent(context, MainFragmentManagerActivity.class);
             notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -146,6 +135,7 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
             // ID 50 is designated for Daily Notifications (the ID will not iterate anymore, IT WILL OVERWRITE THE LAST DAILY NOTIFICATION)
             // ID 51 is designated to tekufa notifications (the ID will not iterate anymore as it only occurs 4 times a year, and it's unlikely to ever overwrite the last tekufa notification)
             // ID 52 is designated to the Barech Aleinu notification
+            // ID 53 is designated to the Birkat Halevana notification
             // ID Integer.MAX_VALUE is designated to the Visible sunrise notification due to ChatGPT recommendation, we could make it 53... but what's done is done
             // The zemanim notifications are based on the timestamp of the zeman (which is bigger than Integer.MAX_VALUE so we remainder it, either way they should never overwrite each other)
         }
@@ -197,6 +187,27 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
 
     private ROZmanimCalendar getROZmanimCalendar() {
         return new ROZmanimCalendar(mLocationResolver.getRealtimeNotificationData(this, false));// we will continue in the accept method
+    }
+
+    /**
+     * This method makes sure to only create the channel once per process to avoid unneeded computation.
+     * @param context the context
+     */
+    static void ensureChannel(Context context) {
+        if (channelCreated) return;
+        NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
+        NotificationChannel channel = new NotificationChannel(
+                "Jewish Special Day", "Daily Special Day Notifications", NotificationManager.IMPORTANCE_HIGH);
+        channel.setDescription("This notification will check daily if there is a special jewish day and display it at sunrise.");
+        channel.enableLights(true);
+        channel.enableVibration(true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            channel.setAllowBubbles(true);
+        }
+        channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+        channel.setLightColor(Color.BLUE);
+        notificationManager.createNotificationChannel(channel);
+        channelCreated = true;
     }
 
     private void startUpDailyZmanim() {

@@ -35,7 +35,7 @@ public class ZmanListEntry {
     }
 
     public String getTitle() {
-        return title;
+        return this.title;
     }
 
     public void setTitle(String title) {
@@ -43,7 +43,7 @@ public class ZmanListEntry {
     }
 
     public Instant getZman() {
-        return zman;
+        return this.zman;
     }
 
     public void setZman(Instant zman) {
@@ -51,23 +51,23 @@ public class ZmanListEntry {
     }
 
     public boolean isZman() {
-        return zmanListEntryType.name().toLowerCase().endsWith("zman");
+        return this.zmanListEntryType.name().toLowerCase().endsWith("zman");
     }
 
     public ZmanListEntryType getZmanListEntryType() {
-        return zmanListEntryType;
+        return this.zmanListEntryType;
     }
 
     public boolean isNoteworthyZman() {
-        return isNoteworthyZman;
+        return this.isNoteworthyZman;
     }
 
     public void setNoteworthyZman(boolean b) {
-        isNoteworthyZman = b;
+        this.isNoteworthyZman = b;
     }
 
     public boolean isShouldBeDimmed() {
-        return shouldBeDimmed;
+        return this.shouldBeDimmed;
     }
 
     public void setShouldBeDimmed(boolean shouldBeDimmed) {
@@ -75,14 +75,18 @@ public class ZmanListEntry {
     }
 
     public SecondTreatment getSecondTreatment() {
-        return secondTreatment;
+        return this.secondTreatment;
     }
 
     public int getNotificationDelay(SharedPreferences mSettingsPreferences) {
-        return mSettingsPreferences.getInt(notificationKey, -1);
+        return mSettingsPreferences.getInt(this.notificationKey, -1);
     }
 
     public String getNotificationKey() {
-        return notificationKey;
+        return this.notificationKey;
+    }
+
+    public void setNotificationKey(String s) {
+        this.notificationKey = s;
     }
 }
