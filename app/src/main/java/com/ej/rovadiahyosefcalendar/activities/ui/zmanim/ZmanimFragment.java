@@ -56,6 +56,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -601,11 +602,38 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (sSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
             mMainRecyclerView.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         }
+        ViewTreeObserver viewTreeObserver = mMainRecyclerView.getViewTreeObserver();
+        if (viewTreeObserver.isAlive()) {
+            viewTreeObserver.removeOnGlobalFocusChangeListener(mFocusFirstZmanOnEntry);// in case the views were set up before
+            viewTreeObserver.addOnGlobalFocusChangeListener(mFocusFirstZmanOnEntry);
+        }
         RecyclerView dummyRecyclerView = binding.dummyRV;
         dummyRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
         dummyRecyclerView.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
         dummyRecyclerView.setAdapter(new DummyZmanAdapter(30));
     }
+
+    /**
+     * With a D-pad (e.g. on a TV), focus that comes into the zmanim list from outside it (the sidebar, the tabs or the date buttons)
+     * starts at the first zman, instead of wherever Android's search for the nearest row happens to land.
+     */
+    private final ViewTreeObserver.OnGlobalFocusChangeListener mFocusFirstZmanOnEntry = (oldFocus, newFocus) -> {
+        RecyclerView list = mMainRecyclerView;
+        if (list == null || list.getAdapter() == null || list.getLayoutManager() == null
+                || newFocus == null || newFocus.getParent() != list// focus didn't go to a row
+                || (oldFocus != null && oldFocus.getParent() == list)) {// moving between rows
+            return;
+        }
+        for (int position = 0; position < list.getAdapter().getItemCount(); position++) {
+            View row = list.getLayoutManager().findViewByPosition(position);
+            if (row != null && row.getVisibility() == View.VISIBLE && row.isFocusable()) {// hidden rows (e.g. merged fast times) are skipped
+                if (row != newFocus) {
+                    row.requestFocus();
+                }
+                return;
+            }
+        }
+    };
 
     private void checkIfUserIsInIsraelOrNot() {
         if (sSharedPreferences.getBoolean("neverAskInIsraelOrNot", false)) {
@@ -1982,6 +2010,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        if (binding != null && binding.getRoot().getViewTreeObserver().isAlive()) {
+            binding.getRoot().getViewTreeObserver().removeOnGlobalFocusChangeListener(mFocusFirstZmanOnEntry);
+        }
         binding = null;
         mDailySummary = null;
         sSharedPreferences.unregisterOnSharedPreferenceChangeListener(sSharedPrefListener);
