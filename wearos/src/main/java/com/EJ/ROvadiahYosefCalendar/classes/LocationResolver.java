@@ -16,6 +16,7 @@ import com.EJ.ROvadiahYosefCalendar.presentation.MainActivity;
 import com.kosherjava.zmanim.util.GeoLocation;
 
 import java.io.IOException;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -312,7 +313,7 @@ public class LocationResolver {
             longitude = Double.parseDouble(mSharedPreferences.getString("currentLong", "0"));
             timeZone = mSharedPreferences.getString("currentTimezone", TimeZone.getDefault().getID());
         }
-        return new GeoLocation(locationName,lat,longitude, TimeZone.getTimeZone(timeZone
+        return new GeoLocation(locationName, lat, longitude, ZoneId.of(timeZone
                 .replace("Asia/Gaza", "Asia/Jerusalem")
                 .replace("Asia/Hebron", "Asia/Jerusalem")
         ));

@@ -171,11 +171,13 @@ public class ROZmanimCalendar extends ZmanimCalendar {
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
+        List<Instant> fresh = new ArrayList<>(vSunriseTimes.size());
 
         // Convert each seconds-since-midnight long into a Calendar
         for (Long seconds : vSunriseTimes) {
-            vSunriseDates.add(Instant.ofEpochSecond(seconds));
+            fresh.add(Instant.ofEpochSecond(seconds));
         }
+        vSunriseDates = fresh; // swap, never append
     }
 
     public boolean isUseAmudehHoraah() {
@@ -208,7 +210,7 @@ public class ROZmanimCalendar extends ZmanimCalendar {
         if (!amudehHoraah) {
             return getZmanisBasedOffset(-1.2);
         }
-        return getAmudeiHoraahBeforeSunrise(16.04, 1);
+        return getAmudeiHoraahBeforeSunrise(1);
     }
 
     /**
@@ -223,7 +225,7 @@ public class ROZmanimCalendar extends ZmanimCalendar {
         if (!amudehHoraah) {
             return getZmanisBasedOffset(-1.1);
         }
-        return getAmudeiHoraahBeforeSunrise(16.04, 11.0 / 12.0);// 11 / 12 == 66 / 72
+        return getAmudeiHoraahBeforeSunrise(11.0 / 12.0);// 11 / 12 == 66 / 72
     }
 
     /**
@@ -237,7 +239,7 @@ public class ROZmanimCalendar extends ZmanimCalendar {
         if (!amudehHoraah) {
             return getZmanisBasedOffset(-1);
         }
-        return getAmudeiHoraahBeforeSunrise(16.04, 5.0 / 6.0);// 5 / 6 == 60 / 72
+        return getAmudeiHoraahBeforeSunrise(5.0 / 6.0);// 5 / 6 == 60 / 72
     }
 
     /**
@@ -380,7 +382,7 @@ public class ROZmanimCalendar extends ZmanimCalendar {
         if (!amudehHoraah) {
             return getZmanisBasedOffset(0.225); // 13.5 / 60
         }
-        return getAmudeiHoraahAfterSunset(3.7, 1);
+        return getAmudeiHoraahAfterSunset(3.7);
     }
 
     /**
@@ -398,7 +400,7 @@ public class ROZmanimCalendar extends ZmanimCalendar {
             }
             return getTimeOffset(getSunsetBasedOnElevationSetting(), shaahZmanis.dividedBy(MINUTES_PER_HOUR).multipliedBy(20));// avoid using getZmanisOffset because of the trailing 33333
         }
-        return getAmudeiHoraahAfterSunset(5.075, 1);
+        return getAmudeiHoraahAfterSunset(5.075);
     }
 
     /**
@@ -470,7 +472,7 @@ public class ROZmanimCalendar extends ZmanimCalendar {
         if (!amudehHoraah) {
             return getTzais72ForceRegZmanis();
         }
-        return getAmudeiHoraahAfterSunset(16.04, 1);
+        return getAmudeiHoraahAfterSunset(16.04);
     }
 
     public Instant getTzais72ForceRegZmanis() {
@@ -666,13 +668,13 @@ public class ROZmanimCalendar extends ZmanimCalendar {
         return Duration.ofNanos(Math.round(shaahZmanis.toNanos() * percentage * fraction));
     }
 
-    private Instant getAmudeiHoraahBeforeSunrise(double degrees, double fraction) {
-        Duration offset = getAmudeiHoraahOffset(degrees, false, fraction);
+    private Instant getAmudeiHoraahBeforeSunrise(double fraction) {
+        Duration offset = getAmudeiHoraahOffset(16.04, false, fraction);
         return offset == null ? null : getTimeOffset(getSunriseBasedOnElevationSetting(), offset.negated());
     }
 
-    private Instant getAmudeiHoraahAfterSunset(double degrees, double fraction) {
-        Duration offset = getAmudeiHoraahOffset(degrees, true, fraction);
+    private Instant getAmudeiHoraahAfterSunset(double degrees) {
+        Duration offset = getAmudeiHoraahOffset(degrees, true, 1);
         return offset == null ? null : getTimeOffset(getSunsetBasedOnElevationSetting(), offset);
     }
 

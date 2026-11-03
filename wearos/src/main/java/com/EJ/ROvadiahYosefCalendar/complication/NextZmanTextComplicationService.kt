@@ -11,6 +11,7 @@ import androidx.wear.watchface.complications.data.PlainComplicationText
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.complications.datasource.ComplicationRequest
 import com.EJ.ROvadiahYosefCalendar.R
+import com.EJ.ROvadiahYosefCalendar.classes.Utils
 import com.EJ.ROvadiahYosefCalendar.presentation.MainActivity
 
 class NextZmanTextComplicationService : BaseZmanComplicationService() {
@@ -31,7 +32,7 @@ class NextZmanTextComplicationService : BaseZmanComplicationService() {
 
     private fun buildLongTextData(): LongTextComplicationData {
         val zman = getNextUpcomingZman(applicationContext)
-        val timeStr = zman?.let { formatZmanTime(it) } ?: ""
+        val timeStr = zman?.let { Utils.formatZmanTime(baseContext, it) } ?: ""
         val zmanName = zman?.title ?: ""
 
         return LongTextComplicationData.Builder(
@@ -60,7 +61,7 @@ class NextZmanTextComplicationService : BaseZmanComplicationService() {
 
     private fun buildShortTextData(): ShortTextComplicationData {
         val zman = getNextUpcomingZman(applicationContext)
-        val timeStr = zman?.let { formatZmanTime(it) } ?: ""
+        val timeStr = zman?.let { Utils.formatZmanTime(baseContext, it) } ?: ""
         val shortName = zman?.let { shortenTitle(it.title) } ?: ""
 
         return ShortTextComplicationData.Builder(

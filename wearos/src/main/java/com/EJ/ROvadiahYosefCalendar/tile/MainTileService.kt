@@ -25,6 +25,8 @@ import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import com.kosherjava.zmanim.util.GeoLocation
 import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.LocalDate
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -35,9 +37,6 @@ class MainTileService : TileService() {
     private lateinit var sharedPref: SharedPreferences
     private var mROZmanimCalendar = ROZmanimCalendar(GeoLocation(), null)
     private var mJewishDateInfo = JewishDateInfo(false)
-    private lateinit var noSecondFormat: SimpleDateFormat
-    private lateinit var yesSecondFormat: SimpleDateFormat
-    private var showSeconds = false
 
     override fun onCreate() {
         super.onCreate()
@@ -48,7 +47,7 @@ class MainTileService : TileService() {
         getNextUpcomingZman(applicationContext)?.zman?.let {
             Tile.Builder()
                 .setResourcesVersion(RESOURCES_VERSION)
-                .setFreshnessIntervalMillis(it.time - Date().time + 100) // add 100 just in case
+                .setFreshnessIntervalMillis(it.toEpochMilli() - Instant.now().toEpochMilli() + 100) // add 100 just in case
                 .setTileTimeline(Timeline.fromLayoutElement(
                     Text.Builder(applicationContext, getNextUpcomingZmanAsString(applicationContext))
                         .setModifiers(
@@ -88,20 +87,7 @@ class MainTileService : TileService() {
         val theZman: ZmanListEntry? = getNextUpcomingZman(context)
 
         if (theZman != null) {
-            val zmanTime: String
-            if (showSeconds || theZman.secondTreatment == SecondTreatment.ALWAYS_DISPLAY) {
-                zmanTime = yesSecondFormat.format(theZman.zman)
-            } else {
-                val calendar = Calendar.getInstance()
-                calendar.time = theZman.zman
-
-                var zmanDate: Date = theZman.zman
-                if (calendar[Calendar.SECOND] > 40 || calendar[Calendar.SECOND] > 20 && theZman.secondTreatment === SecondTreatment.ROUND_LATER) {
-                    zmanDate = Utils.addMinuteToZman(theZman.zman)
-                }
-
-                zmanTime = noSecondFormat.format(zmanDate)
-            }
+            val zmanTime = Utils.formatZmanTime(baseContext, theZman)
 
             if (Locale.getDefault().getDisplayLanguage(Locale.Builder().setLanguage("en").setRegion("US").build()) == "Hebrew") {
                 return theZman.title + "\n\n" + zmanTime
@@ -164,26 +150,10 @@ class MainTileService : TileService() {
         }
         mROZmanimCalendar.geoLocation.elevation = elevation.coerceAtLeast(0.0) //GeoLocation.setElevation rejects negative values
 
-        var secondFormatPattern = "H:mm:ss"
-        if (!Utils.isLocaleHebrew(context)) {
-            secondFormatPattern = "h:mm:ss aa"
-        }
-        yesSecondFormat = SimpleDateFormat(secondFormatPattern, Locale.getDefault())
-        yesSecondFormat.timeZone = mROZmanimCalendar.geoLocation.timeZone
-
-        showSeconds = sharedPref.getBoolean("ShowSeconds", false)
-
-        var noSecondFormatPattern = "H:mm"
-        if (!Utils.isLocaleHebrew(context)) {
-            noSecondFormatPattern = "h:mm aa"
-        }
-        noSecondFormat = SimpleDateFormat(noSecondFormatPattern, Locale.getDefault())
-        noSecondFormat.timeZone = mROZmanimCalendar.geoLocation.timeZone
-
         mJewishDateInfo.resetLocale(context)
         mJewishDateInfo.jewishCalendar.inIsrael = sharedPref.getBoolean("inIsrael", false)
 
-        return ZmanimFactory.getNextUpcomingZman(Calendar.getInstance(), mROZmanimCalendar, mJewishDateInfo, sharedPref)
+        return ZmanimFactory.getNextUpcomingZman(LocalDate.now(), mROZmanimCalendar, mJewishDateInfo, sharedPref)
     }
 
 }

@@ -102,6 +102,7 @@ public class Utils {
     public static String inputStreamToString(InputStream inputStream) {
         try {
             byte[] bytes = new byte[inputStream.available()];
+            //noinspection ResultOfMethodCallIgnored
             inputStream.read(bytes, 0, bytes.length);
             return new String(bytes);
         } catch (IOException e) {

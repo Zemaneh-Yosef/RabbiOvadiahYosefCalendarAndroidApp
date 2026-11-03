@@ -47,6 +47,7 @@ import com.EJ.ROvadiahYosefCalendar.R
 import com.EJ.ROvadiahYosefCalendar.classes.SecondTreatment
 import com.EJ.ROvadiahYosefCalendar.classes.Utils
 import java.text.SimpleDateFormat
+import java.time.Instant
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -160,32 +161,7 @@ class ZmanAlarmActivity : ComponentActivity() {
 
         notificationId = (timeLong % Int.MAX_VALUE).toInt()
         zmanName.value = name
-        zmanTime.value = formatZmanTime(Date(timeLong), SecondTreatment.values()[intent.getIntExtra("secondsTreatment", 0)])
-    }
-
-    // ── Formatting ────────────────────────────────────────────────────────────
-
-    private fun formatZmanTime(date: Date, secondTreatment: SecondTreatment): String {
-        val showSeconds = sharedPref.getBoolean("ShowSeconds", false) || secondTreatment == SecondTreatment.ALWAYS_DISPLAY
-        val timezone    = sharedPref.getString("currentTimezone", "") ?: ""
-        val isHebrew    = Utils.isLocaleHebrew(this)
-
-        val pattern = buildString {
-            append(if (isHebrew) "H:mm" else "h:mm")
-            if (showSeconds) append(":ss")
-            if (!isHebrew) append(" aa")
-        }
-
-        val calendar = Calendar.getInstance()
-        calendar.time = date
-        var zmanDate = date
-        if (!showSeconds && (calendar[Calendar.SECOND] > 40 || calendar[Calendar.SECOND] > 20 && secondTreatment == SecondTreatment.ROUND_LATER)) {
-            zmanDate = Utils.addMinuteToZman(date)
-        }
-
-        return SimpleDateFormat(pattern, Locale.getDefault()).apply {
-            if (timezone.isNotEmpty()) timeZone = TimeZone.getTimeZone(timezone)
-        }.format(zmanDate)
+        zmanTime.value = Utils.formatZmanTime(applicationContext,Instant.ofEpochMilli(timeLong), SecondTreatment.entries[intent.getIntExtra("secondsTreatment", 0)])
     }
 
     // ── Dismiss ───────────────────────────────────────────────────────────────

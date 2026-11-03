@@ -82,7 +82,7 @@ public class HebrewDatePickerDialog extends Dialog {
         Button ok = pickers.findViewById(R.id.OK);
         ok.setOnClickListener(l -> {
             dismiss();
-            listener.onDateSet(null, mJewishCalendar.getGregorianYear(), mJewishCalendar.getGregorianMonth(), mJewishCalendar.getGregorianDayOfMonth());
+            listener.onDateSet(null, mJewishCalendar.getLocalDate().getYear(), mJewishCalendar.getLocalDate().getMonthValue(), mJewishCalendar.getLocalDate().getDayOfMonth());
             okOnClick.onClick(ok);
         });
         Button switch_calendars = pickers.findViewById(R.id.Switch_Calendar);

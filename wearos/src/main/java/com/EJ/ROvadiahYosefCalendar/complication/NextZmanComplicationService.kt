@@ -12,6 +12,7 @@ import androidx.wear.watchface.complications.data.PlainComplicationText
 import androidx.wear.watchface.complications.data.RangedValueComplicationData
 import androidx.wear.watchface.complications.datasource.ComplicationRequest
 import com.EJ.ROvadiahYosefCalendar.R
+import com.EJ.ROvadiahYosefCalendar.classes.Utils
 import com.EJ.ROvadiahYosefCalendar.presentation.MainActivity
 import java.util.Date
 
@@ -40,7 +41,7 @@ class NextZmanComplicationService : BaseZmanComplicationService() {
         if (zman?.zman == null) {
             return null
         }
-        val msLeft = (zman.zman?.time ?: 0L) - currentTime
+        val msLeft = (zman.zman?.toEpochMilli() ?: 0L) - currentTime
         val minutesLeft = (msLeft / 60_000L).toInt()
 
         val arcValue: Float
@@ -73,7 +74,7 @@ class NextZmanComplicationService : BaseZmanComplicationService() {
             text = getString(R.string.complete_until_next_zman, minutesLeft.coerceAtLeast(0))
         ).build()
 
-        val timeStr = formatZmanTime(zman)
+        val timeStr = Utils.formatZmanTime(baseContext, zman)
 
         val builder = RangedValueComplicationData.Builder(
             value = arcValue,
