@@ -232,6 +232,16 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private static final Duration AWAY_THRESHOLD = Duration.ofHours(2);
     private static LocalDate sLastTodayDate;// what "today" was the last time the user was in the app
 
+    public ZmanimFragment() {}
+
+    public static ZmanimFragment newInstance(String data) {
+        ZmanimFragment fragment = new ZmanimFragment();
+        Bundle args = new Bundle();
+        args.putString("key", data);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -1959,8 +1969,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         return shortZmanim;
     }
 
-// ZmanimFragment.java
-
     /**
      * True if the tekufa (checked via the given accessor) falls on the same calendar day as
      * zmanimCalendarCopy's current date. Tekufa can land a day earlier than expected, so callers
@@ -2002,9 +2010,14 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             Instant tekufaDate = jc.getTekufaAsInstant(amudeiHoraah);
             if (!isTekufaToday(zmanimCalendarCopy, tekufaDate)) continue;
 
-            String label = "תקופת " + jc.getTekufaName(Utils.isLocaleHebrew(mContext))
-                    + (shortStyle ? " : " : " היום בשעה ") + noSecondDateFormat.format(tekufaDate);
-            String labelEn = "Tekufa " + jc.getTekufaName(Utils.isLocaleHebrew(mContext))
+            HebrewDateFormatter hebrewDateFormatter = new HebrewDateFormatter();
+            hebrewDateFormatter.setHebrewFormat(Utils.isLocaleHebrew(mContext));
+
+            String label = hebrewDateFormatter.formatTekufaName(jc) + (shortStyle ? " : " : " היום בשעה ") + noSecondDateFormat.format(tekufaDate);
+            String labelEn = hebrewDateFormatter.formatTekufaName(jc)
+                    .replace("Tekufas", "Tekufa")
+                    .replace("Tishrei", "Tishri")
+                    .replace("Teves", "Tevet")
                     + (shortStyle ? " : " : " is today at ") + noSecondDateFormat.format(tekufaDate);
             list.add(new ZmanListEntry(Utils.isLocaleHebrew(mContext) ? label : labelEn, TEKUFA_TIME));
         }

@@ -74,6 +74,17 @@ public class LimudFragment extends Fragment {
     public final static LocalDate dafYomiStartDate = LocalDate.of(1923, Month.SEPTEMBER, 11);
     public final static LocalDate dafYomiYerushalmiStartDate = LocalDate.of(1980, Month.FEBRUARY, 2);
 
+    public LimudFragment() {}
+
+    public static LimudFragment newInstance(String data) {
+        LimudFragment fragment = new LimudFragment();
+        Bundle args = new Bundle();
+        args.putString("key", data);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);

@@ -1,6 +1,16 @@
 package com.EJ.ROvadiahYosefCalendar.classes;
 
-public record ZmanimNames(boolean mIsZmanimInHebrew, boolean mIsZmanimEnglishTranslated, boolean mIsZmanimAmericanized) {
+public class ZmanimNames {
+
+    private final boolean mIsZmanimInHebrew;
+    private final boolean mIsZmanimEnglishTranslated;
+    private final boolean mIsZmanimAmericanized;
+
+    public ZmanimNames(boolean mIsZmanimInHebrew, boolean mIsZmanimEnglishTranslated, boolean mIsZmanimAmericanized) {
+        this.mIsZmanimInHebrew = mIsZmanimInHebrew;
+        this.mIsZmanimEnglishTranslated = mIsZmanimEnglishTranslated;
+        this.mIsZmanimAmericanized = mIsZmanimAmericanized;
+    }
 
     public String getChatzotLaylaString() {
         if (mIsZmanimInHebrew) {
@@ -70,7 +80,7 @@ public record ZmanimNames(boolean mIsZmanimInHebrew, boolean mIsZmanimEnglishTra
         if (mIsZmanimInHebrew) {
             return " (מחר) ";
         } else {
-            return " (Tom) ";
+            return " (Tmrw) ";
         }
     }
 

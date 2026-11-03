@@ -24,11 +24,9 @@ import com.EJ.ROvadiahYosefCalendar.presentation.MainActivity;
 import com.EJ.ROvadiahYosefCalendar.presentation.ZmanAlarmActivity;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Date;
-import java.util.TimeZone;
 
 public class ZmanNotification extends BroadcastReceiver {
 
@@ -94,16 +92,14 @@ public class ZmanNotification extends BroadcastReceiver {
             boolean afterShabbatYomTovZman = "RT".equals(zmanKey) || "ShabbatEnd".equals(zmanKey) || "NightChatzot".equals(zmanKey);
             boolean nightZman = afterShabbatYomTovZman || "TzeitHacochavim".equals(zmanKey) || "TzeitHacochavimLChumra".equals(zmanKey);
 
-            Calendar calendar = Calendar.getInstance();
-            if ("NightChatzot".equals(zmanKey)) {
-                calendar.setTimeInMillis(zmanAsDate.getTime() - 43_200_000L);// chatzot layla after 00:00 belongs to the night before
-                jewishCalendar.setDate(calendar);
+            if ("NightChatzot".equals(zmanKey)) {// chatzot layla after 00:00 belongs to the night before
+                jewishCalendar.setGregorianDate(Instant.ofEpochMilli(Long.parseLong(zmanTime) - 43_200_000L)
+                        .atZone(ZoneId.of(mSharedPreferences.getString("currentTimezone", ZoneId.systemDefault().getId()))));
             }
             if ((jewishCalendar.isAssurBemelacha() && !afterShabbatYomTovZman && !notifyOnShabbatYomTov)) {
                 return;//if the user does not want to be notified on shabbat/yom tov, then return
             }
-            calendar.add(Calendar.DATE, 1);
-            jewishCalendar.setDate(calendar);
+            jewishCalendar.plusDays(1);
             if ((jewishCalendar.isAssurBemelacha() && !notifyOnShabbatYomTov)) {
                 //if tomorrow is shabbat/yom tov, then return if the zman is Tzait, Rabbeinu Tam, or Chatzot Layla (since they are obviously after shabbat/yom tov has started)
                 if (nightZman) {
@@ -112,31 +108,17 @@ public class ZmanNotification extends BroadcastReceiver {
             }
             //no need to reset the jewish calendar since we are only using it to check if tomorrow is shabbat/yom tov, but keep in mind that the date is set to tomorrow
 
-            SecondTreatment secondTreatment = SecondTreatment.values()[secondsTreatment];
-            boolean showSeconds = mSharedPreferences.getBoolean("ShowSeconds", false) || secondTreatment == SecondTreatment.ALWAYS_DISPLAY;
-            Calendar zmanCalendar = Calendar.getInstance();
-            zmanCalendar.setTime(zmanAsDate);
-            if (!showSeconds && (zmanCalendar.get(Calendar.SECOND) > 40 || (zmanCalendar.get(Calendar.SECOND) > 20 && secondTreatment == SecondTreatment.ROUND_LATER))) {
-                zmanAsDate = Utils.addMinuteToZman(zmanAsDate);
+            Instant zmanAsInstant = Instant.ofEpochMilli(Long.parseLong(zmanTime));
+            String time = Utils.formatZmanTime(context, zmanAsInstant, SecondTreatment.values()[secondsTreatment]);
+            String displayedText;
+            if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
+                displayedText = String.format("%s : %s", time, zmanName);
+            } else {
+                displayedText = zmanName + " is at " + time;
             }
-            String dateFormatPattern = "H:mm" + (showSeconds ? ":ss" : "");
-            if (!Utils.isLocaleHebrew(context))
-                dateFormatPattern = dateFormatPattern.toLowerCase() + " aa";
-            DateFormat zmanimFormat = new SimpleDateFormat(dateFormatPattern, context
-                    .getResources()
-                    .getConfiguration()
-                    .getLocales()
-                    .get(0));
-            zmanimFormat.setTimeZone(TimeZone.getTimeZone(mSharedPreferences.getString("currentTimezone", ""))); //set the formatters time zone
 
             boolean isAlarmMode = mSharedPreferences.getBoolean("zmanim_alarm_mode", false);
 
-            String text;
-            if (mSharedPreferences.getBoolean("isZmanimInHebrew", false)) {
-                text = String.format("%s : %s", zmanimFormat.format(zmanAsDate), zmanName);
-            } else {
-                text = zmanName + " is at " + zmanimFormat.format(zmanAsDate);
-            }
             long notificationID = Long.parseLong(zmanTime);//the notification ID is the time of the zman
             
             PendingIntent contentIntent;// Build the tap/content intent based on mode
@@ -158,11 +140,11 @@ public class ZmanNotification extends BroadcastReceiver {
                     .setLargeIcon(Icon.createWithResource(context, R.mipmap.ic_launcher))
                     .setSmallIcon(R.drawable.baseline_av_timer_24)
                     .setContentTitle(zmanName)
-                    .setContentText(text)
+                    .setContentText(displayedText)
                     .setStyle(new NotificationCompat.BigTextStyle()
                             .setBigContentTitle(zmanName)
                             .setSummaryText(mSharedPreferences.getString("locationNameFN", ""))
-                            .bigText(text))
+                            .bigText(displayedText))
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     .setCategory(isAlarmMode
                             ? NotificationCompat.CATEGORY_ALARM

@@ -76,6 +76,16 @@ public class SiddurFragment extends Fragment {
     private Button mCalendarButton;
     private static boolean showAllPrayers = false;
 
+    public SiddurFragment() {}
+
+    public static SiddurFragment newInstance(String data) {
+        SiddurFragment fragment = new SiddurFragment();
+        Bundle args = new Bundle();
+        args.putString("key", data);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);

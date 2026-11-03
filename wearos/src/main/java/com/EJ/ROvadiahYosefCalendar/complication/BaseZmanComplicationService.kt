@@ -13,6 +13,7 @@ import com.EJ.ROvadiahYosefCalendar.classes.ZmanimFactory
 import com.EJ.ROvadiahYosefCalendar.presentation.MainActivity
 import com.kosherjava.zmanim.util.GeoLocation
 import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -22,10 +23,6 @@ abstract class BaseZmanComplicationService : SuspendingComplicationDataSourceSer
     protected lateinit var sharedPref: SharedPreferences
     protected var mROZmanimCalendar = ROZmanimCalendar(GeoLocation(), null)
     protected var mJewishDateInfo = JewishDateInfo(false)
-    // Default values prevent crashes if formatZmanTime is somehow called before getNextUpcomingZman
-    protected var noSecondFormat: SimpleDateFormat = SimpleDateFormat("H:mm", Locale.getDefault())
-    protected var yesSecondFormat: SimpleDateFormat = SimpleDateFormat("H:mm:ss", Locale.getDefault())
-    protected var showSeconds = false
 
     /**
      * Returns the next upcoming zman. Also initializes noSecondFormat, yesSecondFormat,
@@ -66,39 +63,10 @@ abstract class BaseZmanComplicationService : SuspendingComplicationDataSourceSer
         if (!sharedPref.getBoolean("useElevation", true)) elevation = 0.0
         mROZmanimCalendar.geoLocation.elevation = elevation.coerceAtLeast(0.0) //GeoLocation.setElevation rejects negative values
 
-        var secondFormatPattern = "H:mm:ss"
-        if (!Utils.isLocaleHebrew(context)) secondFormatPattern = "h:mm:ss aa"
-        yesSecondFormat = SimpleDateFormat(secondFormatPattern, Locale.getDefault())
-        yesSecondFormat.timeZone = mROZmanimCalendar.geoLocation.timeZone
-
-        showSeconds = sharedPref.getBoolean("ShowSeconds", false)
-
-        var noSecondFormatPattern = "H:mm"
-        if (!Utils.isLocaleHebrew(context)) noSecondFormatPattern = "h:mm aa"
-        noSecondFormat = SimpleDateFormat(noSecondFormatPattern, Locale.getDefault())
-        noSecondFormat.timeZone = mROZmanimCalendar.geoLocation.timeZone
-
         mJewishDateInfo.resetLocale(baseContext)
         mJewishDateInfo.jewishCalendar.inIsrael = sharedPref.getBoolean("inIsrael", false)
 
-        return ZmanimFactory.getNextUpcomingZman(
-            Calendar.getInstance(), mROZmanimCalendar, mJewishDateInfo, sharedPref
-        )
-    }
-
-    /** Call AFTER getNextUpcomingZman() so the formatters are initialized. */
-    protected fun formatZmanTime(zman: ZmanListEntry): String {
-        if (showSeconds || zman.secondTreatment == SecondTreatment.ALWAYS_DISPLAY) {
-            return yesSecondFormat.format(zman.zman)
-        }
-        val cal = Calendar.getInstance()
-        cal.time = zman.zman
-        var zmanDate: Date = zman.zman
-        if (cal[Calendar.SECOND] > 40 ||
-            (cal[Calendar.SECOND] > 20 && zman.secondTreatment === SecondTreatment.ROUND_LATER)) {
-            zmanDate = Utils.addMinuteToZman(zman.zman)
-        }
-        return noSecondFormat.format(zmanDate)
+        return ZmanimFactory.getNextUpcomingZman(LocalDate.now(), mROZmanimCalendar, mJewishDateInfo, sharedPref)
     }
 
     fun shortenTitle(raw: String): String {

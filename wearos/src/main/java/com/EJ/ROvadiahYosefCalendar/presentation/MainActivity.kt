@@ -17,7 +17,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
-import android.text.format.DateUtils
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -98,10 +97,10 @@ import androidx.wear.watchface.complications.datasource.ComplicationDataSourceUp
 import com.EJ.ROvadiahYosefCalendar.R
 import com.EJ.ROvadiahYosefCalendar.classes.EnglishDatePickerDialog
 import com.EJ.ROvadiahYosefCalendar.classes.HebrewDatePickerDialog
+import com.EJ.ROvadiahYosefCalendar.classes.JewishCalendarWithExtraMethods
 import com.EJ.ROvadiahYosefCalendar.classes.JewishDateInfo
 import com.EJ.ROvadiahYosefCalendar.classes.LocationResolver
 import com.EJ.ROvadiahYosefCalendar.classes.ROZmanimCalendar
-import com.EJ.ROvadiahYosefCalendar.classes.SecondTreatment
 import com.EJ.ROvadiahYosefCalendar.classes.Utils
 import com.EJ.ROvadiahYosefCalendar.classes.ZmanListEntry
 import com.EJ.ROvadiahYosefCalendar.classes.ZmanimFactory
@@ -118,6 +117,7 @@ import com.google.android.gms.wearable.Wearable
 import com.kosherjava.zmanim.hebrewcalendar.Daf
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar
+import com.kosherjava.zmanim.hebrewcalendar.TefilaRules
 import com.kosherjava.zmanim.hebrewcalendar.YerushalmiYomiCalculator
 import com.kosherjava.zmanim.hebrewcalendar.YomiCalculator
 import com.kosherjava.zmanim.util.GeoLocation
@@ -129,8 +129,12 @@ import kotlinx.coroutines.withContext
 import org.json.JSONException
 import org.json.JSONObject
 import java.nio.charset.StandardCharsets
-import java.text.DateFormat
-import java.text.SimpleDateFormat
+import java.time.Duration
+import java.time.LocalDate
+import java.time.Month
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
 import java.util.Calendar
 import java.util.Date
 import java.util.GregorianCalendar
@@ -138,6 +142,8 @@ import java.util.Locale
 import java.util.TimeZone
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Executors
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 class MainActivity : ComponentActivity() {
 
@@ -158,29 +164,26 @@ class MainActivity : ComponentActivity() {
         var sElevation: Double = 0.0
 
         @JvmField
-        var sCurrentTimeZoneID: String = ""
+        var sCurrentTimeZoneID: String = TimeZone.getDefault().id
 
         @JvmField
-        var sNextUpcomingZman: Date? = Date()
+        var sNextUpcomingZman: Instant? = Clock.System.now()
     }
 
     private lateinit var sharedPref: SharedPreferences
-    private var mCurrentDateShown = Calendar.getInstance()
+    private var mCurrentDateShown = LocalDate.now()
     private lateinit var locationResolver: LocationResolver
     private var zmanim: CopyOnWriteArrayList<ZmanListEntry> = CopyOnWriteArrayList()
     private var mROZmanimCalendar = ROZmanimCalendar(GeoLocation(), null)
     private var mJewishDateInfo = JewishDateInfo(false)
     private var mLastTimeUserWasInApp: Date = Date()
     private val mHebrewDateFormatter = HebrewDateFormatter()
-    private val mZmanimFormatter = ZmanimFormatter(TimeZone.getDefault())
-    private lateinit var yesSecondsDFormat: SimpleDateFormat
-    private lateinit var noSecondsDFormat: SimpleDateFormat
-    private var showSeconds = false
+    private val mZmanimFormatter = ZmanimFormatter(ZoneId.systemDefault())
     private val mHandler: Handler = Handler(Looper.getMainLooper())
     private var mNextZmanUpdater: Runnable? = null
     private val refreshExecutor = Executors.newSingleThreadExecutor()
-    private val dafYomiStartDate: Calendar = GregorianCalendar(1923, Calendar.SEPTEMBER, 11)
-    private val dafYomiYerushalmiStartDate: Calendar = GregorianCalendar(1980, Calendar.FEBRUARY, 2)
+    private val dafYomiStartDate: LocalDate = LocalDate.of(1923, Month.SEPTEMBER, 11)
+    private val dafYomiYerushalmiStartDate: LocalDate = LocalDate.of(1980, Month.FEBRUARY, 2)
     private lateinit var messageListener: MessageClient.OnMessageReceivedListener
     private var sNotificationLauncher: ActivityResultLauncher<Intent>? = null
     private var nextUpcomingZmanIndex = 0
@@ -396,7 +399,7 @@ class MainActivity : ComponentActivity() {
         val hebrewDatePickerDialog = HebrewDatePickerDialog(
             this, this,
             { _, selectedYear, selectedMonth, selectedDay ->
-                mCurrentDateShown = GregorianCalendar(selectedYear, selectedMonth, selectedDay)
+                mCurrentDateShown = LocalDate.of(selectedYear, selectedMonth, selectedDay)
             },
             mJewishDateInfo.jewishCalendar,
             {
@@ -415,9 +418,9 @@ class MainActivity : ComponentActivity() {
         val englishDatePickerDialog = EnglishDatePickerDialog(
             this, this,
             { _, selectedYear, selectedMonth, selectedDay ->
-                mCurrentDateShown = GregorianCalendar(selectedYear, selectedMonth, selectedDay)
+                mCurrentDateShown = LocalDate.of(selectedYear, selectedMonth, selectedDay)
             },
-            mCurrentDateShown,
+            GregorianCalendar(mCurrentDateShown.year, mCurrentDateShown.monthValue - 1, mCurrentDateShown.dayOfMonth),
             {
                 syncCalendars()
                 updateAppContents() },
@@ -446,7 +449,7 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         TileService.getUpdater(applicationContext).requestUpdate(MainTileService::class.java)
         if (System.currentTimeMillis() - mLastTimeUserWasInApp.time > 120_000) {
-            mCurrentDateShown.time = Date()
+            mCurrentDateShown = LocalDate.now()
             sharedPref = getSharedPreferences(SHARED_PREF, MODE_PRIVATE) //sharedPref could be null if the app was not used for a while
             syncCalendars()
             updateAppContents()
@@ -465,7 +468,6 @@ class MainActivity : ComponentActivity() {
             if (!(sCurrentLocationName.contains("Lat:") && sCurrentLocationName.contains("Long:"))) {
                 sharedPref.edit { putString("name", sCurrentLocationName) }
             }
-            setDateFormats() // must happen after geolocation so the timezone is correct
             updateZmanimList()
             setNextUpcomingZman()
             createBackgroundThreadForNextUpcomingZman()
@@ -529,8 +531,7 @@ class MainActivity : ComponentActivity() {
                 sLatitude,
                 sLongitude,
                 sElevation,
-                TimeZone.getTimeZone(if (sCurrentTimeZoneID != "") sCurrentTimeZoneID else TimeZone.getDefault().id)
-            ),
+                ZoneId.of(sCurrentTimeZoneID)),
             sharedPref
         )
         mROZmanimCalendar.candleLightingOffset =
@@ -545,7 +546,7 @@ class MainActivity : ComponentActivity() {
         ) {
             mROZmanimCalendar.ateretTorahSunsetOffset = 30.0
         }
-        mROZmanimCalendar.calendar = mCurrentDateShown
+        mROZmanimCalendar.localDate = mCurrentDateShown
     }
 
     private fun resolveElevation() {
@@ -569,24 +570,6 @@ class MainActivity : ComponentActivity() {
         sElevation = sElevation.coerceAtLeast(0.0) //GeoLocation.setElevation rejects negative values
     }
 
-    private fun setDateFormats() {
-        var secondFormatPattern = "H:mm:ss"
-        if (!Utils.isLocaleHebrew(baseContext)) {
-            secondFormatPattern = "h:mm:ss aa"
-        }
-        yesSecondsDFormat = SimpleDateFormat(secondFormatPattern, Locale.getDefault())
-        yesSecondsDFormat.timeZone = mROZmanimCalendar.geoLocation.timeZone
-
-        showSeconds = sharedPref.getBoolean("ShowSeconds", false)
-
-        var noSecondFormatPattern = "H:mm"
-        if (!Utils.isLocaleHebrew(baseContext)) {
-            noSecondFormatPattern = "h:mm aa"
-        }
-        noSecondsDFormat = SimpleDateFormat(noSecondFormatPattern, Locale.getDefault())
-        noSecondsDFormat.timeZone = mROZmanimCalendar.geoLocation.timeZone
-    }
-
     private fun updateZmanimList() {
         zmanim = CopyOnWriteArrayList()
 
@@ -594,27 +577,24 @@ class MainActivity : ComponentActivity() {
 
         val sb = StringBuilder()
 
-        sb.append(mROZmanimCalendar.calendar.get(Calendar.DATE))
+        sb.append(mROZmanimCalendar.localDate.dayOfMonth)
         sb.append(" ")
         sb.append(
-            mROZmanimCalendar.calendar.getDisplayName(
-                Calendar.MONTH,
-                Calendar.SHORT,
+            mROZmanimCalendar.localDate.month.getDisplayName(
+                TextStyle.SHORT,
                 Locale.getDefault()
             )
         )
         sb.append(", ")
-        sb.append(mROZmanimCalendar.calendar.get(Calendar.YEAR))
+        sb.append(mROZmanimCalendar.localDate.year)
 
-        if (DateUtils.isToday(mROZmanimCalendar.calendar.time.time)) {
+        if (mROZmanimCalendar.localDate.equals(LocalDate.now())) {
             sb.append("\n   ▼   \n") //add a down arrow to indicate that this is the current day
         } else {
             sb.append("\n")
         }
 
-        sb.append(
-            mJewishDateInfo.jewishCalendar.toString()
-        )
+        sb.append(mJewishDateInfo.jewishCalendar.toString())
 
         zmanim.add(ZmanListEntry(sb.toString()))
 
@@ -634,23 +614,18 @@ class MainActivity : ComponentActivity() {
         if (Utils.isLocaleHebrew(baseContext)) {
             zmanim.add(
                 ZmanListEntry(
-                    mROZmanimCalendar.calendar
-                        .getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault())
+                    mROZmanimCalendar.localDate.dayOfWeek
+                        .getDisplayName(TextStyle.FULL, Locale.getDefault())
                 )
             )
         } else {
             zmanim.add(
                 ZmanListEntry(
-                    (mROZmanimCalendar.calendar.getDisplayName(
-                        Calendar.DAY_OF_WEEK,
-                        Calendar.LONG,
-                        Locale.getDefault()
-                    )
+                    (mROZmanimCalendar.localDate.dayOfWeek
+                        .getDisplayName(TextStyle.FULL, Locale.getDefault())
                         ?.plus(" / ") ?: "") +
-                            mROZmanimCalendar.calendar.getDisplayName(
-                                Calendar.DAY_OF_WEEK,
-                                Calendar.LONG,
-                                Locale.Builder().setLanguage("he").setRegion("IL").build()
+                            mROZmanimCalendar.localDate.dayOfWeek
+                                .getDisplayName(TextStyle.FULL, Locale.Builder().setLanguage("he").setRegion("IL").build()
                             )
                 )
             )
@@ -705,7 +680,7 @@ class MainActivity : ComponentActivity() {
             zmanim.add(ZmanListEntry(getString(R.string.no_tachanun_in_yerushalayim_or_a_safek_mukaf_choma)))
         }
 
-        val birchatLevana: String = mJewishDateInfo.birchatLevana
+        val birchatLevana: String = mJewishDateInfo.getBirchatLevana(mROZmanimCalendar.geoLocation.zoneId)
         if (birchatLevana.isNotEmpty()) {
             zmanim.add(ZmanListEntry(birchatLevana))
         }
@@ -721,23 +696,26 @@ class MainActivity : ComponentActivity() {
 
         val tekufaOpinions: String? = sharedPref.getString("tekufaOpinions", "1")
         when (tekufaOpinions) {
-            "1" -> if (sharedPref.getBoolean("LuachAmudeiHoraah", false)) {
-                addAmudeiHoraahTekufaTime()
-            } else {
-                addTekufaTime()
-            }
-            "2" -> addTekufaTime()
-            "3" -> addAmudeiHoraahTekufaTime()
+            "1" -> addTekufaTime(
+                zmanim,
+                sharedPref.getBoolean("LuachAmudeiHoraah", false)
+            )
+            "2" -> addTekufaTime(zmanim, false)
+            "3" -> addTekufaTime(zmanim, true)
             else -> {
-                addAmudeiHoraahTekufaTime()
-                addTekufaTime()
+                addTekufaTime(zmanim, true)
+                addTekufaTime(zmanim, false)
             }
         }
-        addTekufaLength(zmanim, tekufaOpinions)
+        addTekufaLength(
+            zmanim,
+            tekufaOpinions!!,
+            sharedPref.getBoolean("LuachAmudeiHoraah", false)
+        )
 
-        addZmanim(zmanim, false, sharedPref, mROZmanimCalendar, mJewishDateInfo, sharedPref.getBoolean("isZmanimInHebrew", false), sharedPref.getBoolean("isZmanimEnglishTranslated", false), sharedPref.getBoolean("isZmanimAmericanized", false), true)
+        addZmanim(zmanim, false, sharedPref, mROZmanimCalendar, mJewishDateInfo, true)
 
-        if (!mCurrentDateShown.before(dafYomiStartDate)) {
+        if (!mCurrentDateShown.isBefore(dafYomiStartDate)) {
             zmanim.add(
                 ZmanListEntry(
                     getString(R.string.daf_yomi) + " " + YomiCalculator.getDafYomiBavli(
@@ -752,7 +730,7 @@ class MainActivity : ComponentActivity() {
                 )
             )
         }
-        if (!mCurrentDateShown.before(dafYomiYerushalmiStartDate)) {
+        if (!mCurrentDateShown.isBefore(dafYomiYerushalmiStartDate)) {
             val dafYomiYerushalmi: Daf? =
                 YerushalmiYomiCalculator.getDafYomiYerushalmi(mJewishDateInfo.jewishCalendar)
             if (dafYomiYerushalmi != null) {
@@ -764,45 +742,39 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        zmanim.add(
-            ZmanListEntry(
-                mJewishDateInfo.isMashivHaruchOrMoridHatalSaid
-                        + " / "
-                        + mJewishDateInfo.isBarcheinuOrBarechAleinuSaid
-            )
-        )
+        zmanim.add(ZmanListEntry(getSeasonalPrayerChanges()))
 
         if (!sharedPref.getBoolean("LuachAmudeiHoraah", false)) {
             zmanim.add(
                 ZmanListEntry(
                     getString(R.string.shaah_zmanit_gr_a) + " " + mZmanimFormatter.format(
-                        mROZmanimCalendar.shaahZmanisGra.toDouble()
+                        mROZmanimCalendar.shaahZmanisGRA
                     )
                 )
             )
             zmanim.add(
                 ZmanListEntry(
                     getString(R.string.mg_a) + " (" + getString(R.string.ohr_hachaim) + ") " + mZmanimFormatter.format(
-                       mROZmanimCalendar.shaahZmanis72MinutesZmanis.toDouble()
+                       mROZmanimCalendar.shaahZmanis72MinutesZmanis
                     )
                 )
             )
         } else {
-            val shaahZmanitMGA: Long = mROZmanimCalendar.getTemporalHour(
-                mROZmanimCalendar.getAlotAmudeiHoraah(),
-                mROZmanimCalendar.getTzais72ZmanisAmudeiHoraah()
+            val shaahZmanitMGA: Duration = mROZmanimCalendar.getTemporalHour(
+                mROZmanimCalendar.alotHashachar,
+                mROZmanimCalendar.tzais72Zmanis
             )
             zmanim.add(
                 ZmanListEntry(
                     getString(R.string.shaah_zmanit_gr_a) + " " + mZmanimFormatter.format(
-                       mROZmanimCalendar.shaahZmanisGra.toDouble()
+                       mROZmanimCalendar.shaahZmanisGRA
                     )
                 )
             )
             zmanim.add(
                 ZmanListEntry(
                     getString(R.string.mg_a) + " (" + getString(R.string.amudei_horaah) + ") " + mZmanimFormatter.format(
-                        shaahZmanitMGA.toDouble()
+                        shaahZmanitMGA
                     )
                 )
             )
@@ -813,13 +785,7 @@ class MainActivity : ComponentActivity() {
         }
 
         if (sharedPref.getBoolean("ShowDST", false)) {
-            if (mROZmanimCalendar.getGeoLocation().getTimeZone()
-                    .inDaylightTime(mROZmanimCalendar.getSeaLevelSunrise())
-            ) {
-                zmanim.add(ZmanListEntry(getString(R.string.daylight_savings_time_is_on)))
-            } else {
-                zmanim.add(ZmanListEntry(getString(R.string.daylight_savings_time_is_off)))
-            }
+            zmanim.add(ZmanListEntry(getDSTStatus()))
         }
 
         if (sharedPref.getBoolean("ShowShmitaYear", false)) {
@@ -845,282 +811,251 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun addTekufaTime() {
-        val zmanimFormat: DateFormat =
-            if (Utils.isLocaleHebrew(baseContext)) {
-                SimpleDateFormat("H:mm", Locale.getDefault())
-            } else {
-                SimpleDateFormat("h:mm aa", Locale.getDefault())
-            }
-        zmanimFormat.timeZone = mROZmanimCalendar.geoLocation.timeZone
-        mROZmanimCalendar.calendar.add(
-            Calendar.DATE,
-            1
-        ) //check next day for tekufa, because the tekufa time can go back a day
-        mJewishDateInfo.setCalendar(mROZmanimCalendar.calendar)
-        mROZmanimCalendar.calendar.add(Calendar.DATE, -1) //reset the calendar
-        if (mJewishDateInfo.jewishCalendar.tekufa != null) {
-            val cal1 = mROZmanimCalendar.calendar.clone() as Calendar
-            val cal2 = mROZmanimCalendar.calendar.clone() as Calendar
-            cal2.time =
-                mJewishDateInfo.jewishCalendar.tekufaAsDate // should not be null in this if block
-            if (cal1[Calendar.ERA] == cal2[Calendar.ERA] && cal1[Calendar.YEAR] == cal2[Calendar.YEAR] && cal1[Calendar.DAY_OF_YEAR] == cal2[Calendar.DAY_OF_YEAR]) {
-                if (Utils.isLocaleHebrew(baseContext)) {
-                    zmanim.add(
-                        ZmanListEntry(
-                            "תקופת " + mJewishDateInfo.jewishCalendar.getTekufaName(Utils.isLocaleHebrew(baseContext)) +
-                                    " היום בשעה " + zmanimFormat.format(mJewishDateInfo.jewishCalendar.tekufaAsDate)
-                        )
-                    )
-                } else {
-                    zmanim.add(
-                        ZmanListEntry(
-                            "Tekufa " + mJewishDateInfo.jewishCalendar.getTekufaName(Utils.isLocaleHebrew(baseContext)) + " is today at " +
-                                    zmanimFormat.format(mJewishDateInfo.jewishCalendar.tekufaAsDate)
-                        )
-                    )
-                }
-            }
+    private fun getSeasonalPrayerChanges(): String {
+        val rules = TefilaRules()
+        if (rules.isMashivHaruachEndDate(mJewishDateInfo.jewishCalendar)) {
+            return "במוסף מוריד הטל / ברכנו"
         }
-        mJewishDateInfo.setCalendar(mROZmanimCalendar.calendar) //reset
+        if (rules.isMashivHaruachStartDate(mJewishDateInfo.jewishCalendar)) {
+            return "במוסף משיב הרוח / ברכנו"
+        }
+        if (rules.isVeseinTalUmatarStartDate(
+                mJewishDateInfo.tomorrow().jewishCalendar
+            )
+        ) {
+            return "בערבית משיב הרוח / ברך עלינו"
+        }
+        return (mJewishDateInfo.isMashivHaruchOrMoridHatalSaid
+                + " / " +
+                mJewishDateInfo.isBarcheinuOrBarechAleinuSaid)
+    }
 
-        //else the tekufa time is on the same day as the current date, so we can add it normally
-        if (mJewishDateInfo.jewishCalendar.tekufa != null) {
-            val cal1 = mROZmanimCalendar.calendar.clone() as Calendar
-            val cal2 = mROZmanimCalendar.calendar.clone() as Calendar
-            cal2.time =
-                mJewishDateInfo.jewishCalendar.tekufaAsDate // should not be null in this if block
-            if (cal1[Calendar.ERA] == cal2[Calendar.ERA] && cal1[Calendar.YEAR] == cal2[Calendar.YEAR] && cal1[Calendar.DAY_OF_YEAR] == cal2[Calendar.DAY_OF_YEAR]) {
-                if (Utils.isLocaleHebrew(baseContext)) {
-                    zmanim.add(
-                        ZmanListEntry(
-                            "תקופת " + mJewishDateInfo.jewishCalendar.getTekufaName(Utils.isLocaleHebrew(baseContext)) +
-                                    " היום בשעה " + zmanimFormat.format(mJewishDateInfo.jewishCalendar.tekufaAsDate)
+    private fun getDSTStatus(): String {
+        val zoneId: ZoneId = mROZmanimCalendar.geoLocation.zoneId
+        val currentDate: LocalDate = mROZmanimCalendar.localDate
+
+        // atStartOfDay() safely handles edge cases where 00:00 is skipped due to a DST gap
+        val startOfDay = currentDate.atStartOfDay(zoneId)
+        val endOfDay = startOfDay.plusDays(1)
+
+        val isDSTAtStartOfDay = zoneId.rules.isDaylightSavings(startOfDay.toInstant())
+
+        var dstStatus: String = if (isDSTAtStartOfDay)
+            getString(R.string.daylight_savings_time_is_on)
+        else
+            getString(R.string.daylight_savings_time_is_off)
+
+        // Find the next transition starting from just before the start of the day
+        val transition = zoneId.rules.nextTransition(startOfDay.toInstant().minusNanos(1))
+
+        // If a transition exists and occurs before the next day begins, it happens today
+        if (transition != null && transition.instant.isBefore(endOfDay.toInstant())) {
+            val transitionTime = DateTimeFormatter
+                .ofPattern(
+                    Utils.dateFormatPattern(
+                        applicationContext,
+                        sharedPref.getBoolean(
+                            "ShowSeconds",
+                            false
                         )
                     )
-                } else {
-                    zmanim.add(
-                        ZmanListEntry(
-                            "Tekufa " + mJewishDateInfo.jewishCalendar.getTekufaName(Utils.isLocaleHebrew(baseContext)) + " is today at " +
-                                    zmanimFormat.format(mJewishDateInfo.jewishCalendar.tekufaAsDate)
+                )
+                .withZone(zoneId)
+                .format(transition.instant)
+
+            val transitionText =
+                if (Utils.isLocaleHebrew(applicationContext)) " ב " else " at "
+
+            // Update the base string to reflect the transition
+            dstStatus = ((if (isDSTAtStartOfDay)
+                getString(R.string.daylight_savings_time_is_off)
+            else
+                getString(R.string.daylight_savings_time_is_on))
+                    + transitionText + transitionTime)
+        }
+
+        return dstStatus
+    }
+
+    /**
+     * True if the tekufa (checked via the given accessor) falls on the same calendar day as
+     * zmanimCalendarCopy's current date. Tekufa can land a day earlier than expected, so callers
+     * should have already advanced the copy by one day before checking, per the existing pattern.
+     */
+    private fun isTekufaToday(
+        zmanimCalendarCopy: ROZmanimCalendar,
+        tekufaDate: java.time.Instant?
+    ): Boolean {
+        if (tekufaDate == null) return false
+        val localDate: LocalDate = zmanimCalendarCopy.localDate
+        val localDate2 = tekufaDate.atZone(ZoneId.of(sCurrentTimeZoneID)).toLocalDate()
+        return localDate == localDate2
+    }
+
+    /**
+     * Adds the time for the Tekufa/Season Change to the list passed in as a string.
+     * @param list the list of ZmanListEntry to add to
+     * @param amudeiHoraah method JewishCalendar::getTekufaAsDate or JewishCalendar::getAmudeiHoraahTekufaAsDate
+     */
+    private fun addTekufaTime(
+        list: MutableList<ZmanListEntry>,
+        amudeiHoraah: Boolean
+    ) {
+        val noSecondDateFormat = DateTimeFormatter.ofPattern(
+            Utils.dateFormatPattern(
+                applicationContext,
+                false
+            )
+        )
+            .withLocale(
+                applicationContext
+                    .resources
+                    .configuration
+                    .locales
+                    .get(0)
+            )
+            .withZone(
+                ZoneId.of(sCurrentTimeZoneID)
+            )
+        val zmanimCalendarCopy: ROZmanimCalendar =
+            mROZmanimCalendar.getCopy()
+        val jewishDateInfoCopy: JewishDateInfo =
+            mJewishDateInfo.getCopy()
+
+        // Check tomorrow first (tekufa can land a day earlier than expected), then today.
+        for (dayOffset in intArrayOf(1, 0)) {
+            zmanimCalendarCopy.setLocalDate(
+                zmanimCalendarCopy.localDate.plusDays(dayOffset.toLong())
+            )
+            jewishDateInfoCopy.setLocalDate(zmanimCalendarCopy.localDate)
+            zmanimCalendarCopy.setLocalDate(
+                zmanimCalendarCopy.localDate.plusDays(-dayOffset.toLong())
+            )
+
+            val jc: JewishCalendarWithExtraMethods =
+                jewishDateInfoCopy.jewishCalendar
+            if (jc.getTekufaAsInstant(amudeiHoraah) == null) continue
+
+            val tekufaDate: java.time.Instant? = jc.getTekufaAsInstant(amudeiHoraah)
+            if (!isTekufaToday(zmanimCalendarCopy, tekufaDate)) continue
+
+            val hebrewDateFormatter = HebrewDateFormatter()
+            hebrewDateFormatter.isHebrewFormat = Utils.isLocaleHebrew(applicationContext)
+
+            val label =
+                hebrewDateFormatter.formatTekufaName(jc) + " היום בשעה " + noSecondDateFormat.format(
+                    tekufaDate
+                )
+            val labelEn = (hebrewDateFormatter.formatTekufaName(jc)
+                .replace("Tekufas", "Tekufa")
+                .replace("Tishrei", "Tishri")
+                .replace("Teves", "Tevet")
+                    + " is today at " + noSecondDateFormat.format(
+                tekufaDate
+            ))
+            list.add(
+                ZmanListEntry(
+                    if (Utils.isLocaleHebrew(
+                            applicationContext
                         )
-                    )
-                }
-            }
+                    ) label else labelEn
+                )
+            )
         }
     }
 
-    private fun addAmudeiHoraahTekufaTime() {
-        val zmanimFormat: DateFormat =
-            if (Utils.isLocaleHebrew(baseContext)) {
-                SimpleDateFormat("H:mm", Locale.getDefault())
-            } else {
-                SimpleDateFormat("h:mm aa", Locale.getDefault())
-            }
-        zmanimFormat.timeZone = mROZmanimCalendar.geoLocation.timeZone
-        mROZmanimCalendar.calendar.add(
-            Calendar.DATE,
-            1
-        ) //check next day for tekufa, because the tekufa time can go back a day
-        mJewishDateInfo.setCalendar(mROZmanimCalendar.calendar)
-        mROZmanimCalendar.calendar.add(Calendar.DATE, -1) //reset the calendar
-        if (mJewishDateInfo.jewishCalendar.amudeiHoraahTekufaAsDate != null) {
-            val cal1 = mROZmanimCalendar.calendar.clone() as Calendar
-            val cal2 = mROZmanimCalendar.calendar.clone() as Calendar
-            cal2.time =
-                mJewishDateInfo.jewishCalendar.amudeiHoraahTekufaAsDate // should not be null in this if block
-            if (cal1[Calendar.ERA] == cal2[Calendar.ERA] && cal1[Calendar.YEAR] == cal2[Calendar.YEAR] && cal1[Calendar.DAY_OF_YEAR] == cal2[Calendar.DAY_OF_YEAR]) {
-                if (Utils.isLocaleHebrew(baseContext)) {
-                    zmanim.add(
-                        ZmanListEntry(
-                            "תקופת " + mJewishDateInfo.jewishCalendar.getTekufaName(Utils.isLocaleHebrew(baseContext)) +
-                                    " היום בשעה " + zmanimFormat.format(mJewishDateInfo.jewishCalendar.amudeiHoraahTekufaAsDate)
-                        )
-                    )
-                } else {
-                    zmanim.add(
-                        ZmanListEntry(
-                            "Tekufa " + mJewishDateInfo.jewishCalendar.getTekufaName(Utils.isLocaleHebrew(baseContext)) + " is today at " +
-                                    zmanimFormat.format(mJewishDateInfo.jewishCalendar.amudeiHoraahTekufaAsDate)
-                        )
-                    )
-                }
-            }
-        }
-        mJewishDateInfo.setCalendar(mROZmanimCalendar.calendar) //reset
+    fun addTekufaLength(
+        zmanim: MutableList<ZmanListEntry>,
+        opinion: String,
+        amudeiHoraah: Boolean
+    ) {
+        val noSecondDateFormat = DateTimeFormatter.ofPattern(
+            Utils.dateFormatPattern(
+                applicationContext,
+                false
+            )
+        )
+            .withLocale(
+                applicationContext
+                    .resources
+                    .configuration
+                    .locales
+                    .get(0)
+            )
+            .withZone(
+                ZoneId.of(sCurrentTimeZoneID)
+            )
 
-        //else the tekufa time is on the same day as the current date, so we can add it normally
-        if (mJewishDateInfo.jewishCalendar.amudeiHoraahTekufaAsDate != null) {
-            val cal1 = mROZmanimCalendar.calendar.clone() as Calendar
-            val cal2 = mROZmanimCalendar.calendar.clone() as Calendar
-            cal2.time =
-                mJewishDateInfo.jewishCalendar.amudeiHoraahTekufaAsDate // should not be null in this if block
-            if (cal1[Calendar.ERA] == cal2[Calendar.ERA] && cal1[Calendar.YEAR] == cal2[Calendar.YEAR] && cal1[Calendar.DAY_OF_YEAR] == cal2[Calendar.DAY_OF_YEAR]) {
-                if (Utils.isLocaleHebrew(baseContext)) {
-                    zmanim.add(
-                        ZmanListEntry(
-                            "תקופת " + mJewishDateInfo.jewishCalendar.getTekufaName(Utils.isLocaleHebrew(baseContext)) +
-                                    " היום בשעה " + zmanimFormat.format(mJewishDateInfo.jewishCalendar.amudeiHoraahTekufaAsDate)
-                        )
-                    )
-                } else {
-                    zmanim.add(
-                        ZmanListEntry(
-                            "Tekufa " + mJewishDateInfo.jewishCalendar.getTekufaName(Utils.isLocaleHebrew(baseContext)) + " is today at " +
-                                    zmanimFormat.format(mJewishDateInfo.jewishCalendar.amudeiHoraahTekufaAsDate)
-                        )
-                    )
-                }
+        val tekufa = findTodayTekufaDate(false)
+        val aHTekufa = findTodayTekufaDate(true)
+
+        if (tekufa == null || aHTekufa == null) return
+
+        val half_hour = Duration.ofMinutes(30)
+        val start: java.time.Instant
+        val end: java.time.Instant
+        when (opinion) {
+            "1" -> {
+                val base = if (amudeiHoraah) aHTekufa else tekufa
+                start = base.minus(half_hour)
+                end = base.plus(half_hour)
+            }
+
+            "2" -> {
+                start = tekufa.minus(half_hour)
+                end = tekufa.plus(half_hour)
+            }
+
+            "3" -> {
+                start = aHTekufa.minus(half_hour)
+                end = aHTekufa.plus(half_hour)
+            }
+
+            else -> {
+                start = aHTekufa.minus(half_hour)
+                end = tekufa.plus(half_hour)
             }
         }
+
+        val startText = noSecondDateFormat.format(start)
+        val endText = noSecondDateFormat.format(end)
+        val range =
+            if (Utils.isLocaleHebrew(applicationContext)) "$endText - $startText" else "$startText - $endText"
+        zmanim.add(ZmanListEntry(getString(R.string.tekufa_length) + range))
     }
 
-    private fun addTekufaLength(zmanim: MutableList<ZmanListEntry>, opinion: String?) {
-        val millisPerHour = 3_600_000
-        val zmanimFormat: DateFormat = if (Utils.isLocaleHebrew(baseContext)) {
-            SimpleDateFormat("H:mm", Locale.getDefault())
-        } else {
-            SimpleDateFormat("h:mm aa", Locale.getDefault())
+    /** Same tomorrow-then-today walk as addTekufaTimeUnified, but returns the Date instead of appending a ZmanListEntry.  */
+    private fun findTodayTekufaDate(amudeiHoraah: Boolean): java.time.Instant? {
+        val zmanimCalendarCopy: ROZmanimCalendar =
+            mROZmanimCalendar.getCopy()
+        val jewishDateInfoCopy: JewishDateInfo =
+            mJewishDateInfo.getCopy()
+
+        for (dayOffset in intArrayOf(1, 0)) {
+            zmanimCalendarCopy.setLocalDate(
+                zmanimCalendarCopy.localDate.plusDays(dayOffset.toLong())
+            )
+            jewishDateInfoCopy.setLocalDate(zmanimCalendarCopy.localDate)
+            zmanimCalendarCopy.setLocalDate(
+                zmanimCalendarCopy.localDate.plusDays(-dayOffset.toLong())
+            )
+
+            val jc: JewishCalendarWithExtraMethods =
+                jewishDateInfoCopy.getJewishCalendar()
+            if (jc.getTekufaAsInstant(amudeiHoraah) == null) continue
+
+            val tekufaDate: java.time.Instant? = jc.getTekufaAsInstant(amudeiHoraah)
+            if (isTekufaToday(zmanimCalendarCopy, tekufaDate)) return tekufaDate
         }
-        zmanimFormat.timeZone = TimeZone.getTimeZone(sCurrentTimeZoneID)
-
-        var tekufa: Date? = null
-        var aHTekufa: Date? = null
-
-        mROZmanimCalendar.calendar.add(Calendar.DATE, 1) //check next day for tekufa, because the tekufa time can go back a day
-        mJewishDateInfo.setCalendar(mROZmanimCalendar.calendar)
-        mROZmanimCalendar.calendar.add(Calendar.DATE, -1) //reset the calendar to check for the current date
-
-        if (mJewishDateInfo.jewishCalendar.tekufa != null) {
-            val cal1 = mROZmanimCalendar.calendar.clone() as Calendar
-            val cal2 = mROZmanimCalendar.calendar.clone() as Calendar
-            cal2.time = mJewishDateInfo.jewishCalendar.tekufaAsDate // should not be null in this if block
-
-            if (cal1[Calendar.ERA] == cal2[Calendar.ERA] && cal1[Calendar.YEAR] == cal2[Calendar.YEAR] && cal1[Calendar.DAY_OF_YEAR] == cal2[Calendar.DAY_OF_YEAR]) {
-                tekufa = mJewishDateInfo.jewishCalendar.tekufaAsDate
-                aHTekufa = mJewishDateInfo.jewishCalendar.amudeiHoraahTekufaAsDate
-            }
-        }
-        mJewishDateInfo.setCalendar(mROZmanimCalendar.calendar) //reset
-
-        //else the tekufa time is on the same day as the current date, so we can add it normally
-        if (mJewishDateInfo.jewishCalendar.tekufa != null) {
-            val cal1 = mROZmanimCalendar.calendar.clone() as Calendar
-            val cal2 = mROZmanimCalendar.calendar.clone() as Calendar
-            cal2.time = mJewishDateInfo.jewishCalendar.tekufaAsDate // should not be null in this if block
-
-            if (cal1[Calendar.ERA] == cal2[Calendar.ERA] && cal1[Calendar.YEAR] == cal2[Calendar.YEAR] && cal1[Calendar.DAY_OF_YEAR] == cal2[Calendar.DAY_OF_YEAR]) {
-                tekufa = mJewishDateInfo.jewishCalendar.tekufaAsDate
-                aHTekufa = mJewishDateInfo.jewishCalendar.amudeiHoraahTekufaAsDate
-            }
-        }
-
-        if (tekufa != null && aHTekufa != null) {
-            val halfHourBefore: Date?
-            val halfHourAfter: Date?
-            when (opinion) {
-                "1" -> {
-                    if (sharedPref.getBoolean("LuachAmudeiHoraah", false)) {
-                        halfHourBefore = Date(aHTekufa.time - (millisPerHour / 2))
-                        halfHourAfter = Date(aHTekufa.time + (millisPerHour / 2))
-                    } else {
-                        halfHourBefore = Date(tekufa.time - (millisPerHour / 2))
-                        halfHourAfter = Date(tekufa.time + (millisPerHour / 2))
-                    }
-                    if (Utils.isLocaleHebrew(baseContext)) {
-                        zmanim.add(
-                            ZmanListEntry(
-                                getString(R.string.tekufa_length) + zmanimFormat.format(
-                                    halfHourAfter
-                                ) + " - " + zmanimFormat.format(halfHourBefore)
-                            )
-                        )
-                    } else {
-                        zmanim.add(
-                            ZmanListEntry(
-                                getString(R.string.tekufa_length) + zmanimFormat.format(
-                                    halfHourBefore
-                                ) + " - " + zmanimFormat.format(halfHourAfter)
-                            )
-                        )
-                    }
-                }
-
-                "2" -> {
-                    halfHourBefore = Date(tekufa.time - (millisPerHour / 2))
-                    halfHourAfter = Date(tekufa.time + (millisPerHour / 2))
-                    if (Utils.isLocaleHebrew(baseContext)) {
-                        zmanim.add(
-                            ZmanListEntry(
-                                getString(R.string.tekufa_length) + zmanimFormat.format(
-                                    halfHourAfter
-                                ) + " - " + zmanimFormat.format(halfHourBefore)
-                            )
-                        )
-                    } else {
-                        zmanim.add(
-                            ZmanListEntry(
-                                getString(R.string.tekufa_length) + zmanimFormat.format(
-                                    halfHourBefore
-                                ) + " - " + zmanimFormat.format(halfHourAfter)
-                            )
-                        )
-                    }
-                }
-
-                "3" -> {
-                    halfHourBefore = Date(aHTekufa.time - (millisPerHour / 2))
-                    halfHourAfter = Date(aHTekufa.time + (millisPerHour / 2))
-                    if (Utils.isLocaleHebrew(baseContext)) {
-                        zmanim.add(
-                            ZmanListEntry(
-                                getString(R.string.tekufa_length) + zmanimFormat.format(
-                                    halfHourAfter
-                                ) + " - " + zmanimFormat.format(halfHourBefore)
-                            )
-                        )
-                    } else {
-                        zmanim.add(
-                            ZmanListEntry(
-                                getString(R.string.tekufa_length) + zmanimFormat.format(
-                                    halfHourBefore
-                                ) + " - " + zmanimFormat.format(halfHourAfter)
-                            )
-                        )
-                    }
-                }
-
-                else -> {
-                    halfHourBefore = Date(aHTekufa.time - (millisPerHour / 2))
-                    halfHourAfter = Date(tekufa.time + (millisPerHour / 2))
-                    if (Utils.isLocaleHebrew(baseContext)) {
-                        zmanim.add(
-                            ZmanListEntry(
-                                getString(R.string.tekufa_length) + zmanimFormat.format(
-                                    halfHourAfter
-                                ) + " - " + zmanimFormat.format(halfHourBefore)
-                            )
-                        )
-                    } else {
-                        zmanim.add(
-                            ZmanListEntry(
-                                getString(R.string.tekufa_length) + zmanimFormat.format(
-                                    halfHourBefore
-                                ) + " - " + zmanimFormat.format(halfHourAfter)
-                            )
-                        )
-                    }
-                }
-            }
-        }
+        return null
     }
 
     private fun setNextUpcomingZman() {
         val nextZman = ZmanimFactory.getNextUpcomingZman(mCurrentDateShown, mROZmanimCalendar, mJewishDateInfo, sharedPref)
-        if (nextZman == null || nextZman.zman == null) {
-            sNextUpcomingZman = Date(System.currentTimeMillis() + 30000) // try again in 30 seconds
+        sNextUpcomingZman = if (nextZman == null || nextZman.zman == null) {
+            Instant.fromEpochSeconds(Clock.System.now().epochSeconds + 30) // try again in 30 seconds
         } else {
-            sNextUpcomingZman = nextZman.zman
+            Instant.fromEpochSeconds(nextZman.zman.epochSecond)
         }
         setNextUpcomingZmanIndex()
     }
@@ -1152,14 +1087,14 @@ class MainActivity : ComponentActivity() {
         if (sNextUpcomingZman != null) {
             mHandler.postDelayed(
                 nextZmanUpdater,
-                sNextUpcomingZman!!.time - Date().time + 1000
+                sNextUpcomingZman!!.toEpochMilliseconds() - Clock.System.now().toEpochMilliseconds() + 1000
             ) //add 1 second to make sure we don't get the same zman again
         }
     }
 
     private fun syncCalendars() {
-        mROZmanimCalendar.calendar = mCurrentDateShown
-        mJewishDateInfo.jewishCalendar.setDate(mCurrentDateShown)
+        mROZmanimCalendar.localDate = mCurrentDateShown
+        mJewishDateInfo.jewishCalendar.setGregorianDate(mCurrentDateShown)
     }
 
     private suspend fun isPhoneConnected(context: Context): Boolean {
@@ -1196,9 +1131,8 @@ class MainActivity : ComponentActivity() {
             }
             // Resume on main — all Compose / UI calls must stay here.
             initZmanimCalendar()
-            mCurrentDateShown = Calendar.getInstance()
+            mCurrentDateShown = LocalDate.now()
             syncCalendars()
-            setDateFormats() // should happen after we get the geolocation object because of the timezone
             updateZmanimList()
             setNextUpcomingZman()
             createBackgroundThreadForNextUpcomingZman()
@@ -1255,10 +1189,10 @@ class MainActivity : ComponentActivity() {
                     .pullRefresh(pullRefreshState)
                     .pointerInput(Unit) {
                         detectHorizontalDragGestures(onDragEnd = {
-                            if (swipedRight) {
-                                mCurrentDateShown.add(Calendar.DATE, 1)
+                            mCurrentDateShown = if (swipedRight) {
+                                mCurrentDateShown.plusDays(1)
                             } else {
-                                mCurrentDateShown.add(Calendar.DATE, -1)
+                                mCurrentDateShown.minusDays(1)
                             }
                             syncCalendars()
                             updateZmanimList()
@@ -1293,21 +1227,7 @@ class MainActivity : ComponentActivity() {
                         items(zmanimList.size) { index ->
                             if (refreshing.not()) {
                                 if (zmanimList[index].isZman) {
-                                    val zmanTime: String
-                                    if (showSeconds || zmanimList[index].secondTreatment == SecondTreatment.ALWAYS_DISPLAY)
-                                        zmanTime = yesSecondsDFormat.format(zmanimList[index].zman)
-                                    else {
-                                        val calendar = Calendar.getInstance()
-                                        calendar.time = zmanimList[index].zman
-
-                                        var zmanDate = zmanimList[index].zman
-                                        if (calendar[Calendar.SECOND] > 40 || calendar[Calendar.SECOND] > 20 && zmanimList[index].secondTreatment === SecondTreatment.ROUND_LATER) {
-                                            zmanDate = Utils.addMinuteToZman(zmanimList[index].zman)
-                                        }
-
-                                        zmanTime = noSecondsDFormat.format(zmanDate)
-                                    }
-
+                                    val zmanTime = Utils.formatZmanTime(context, zmanimList[index])
                                     val zmanTitleAndTime: String =
                                         if (sharedPref.getBoolean("isZmanimInHebrew", false)) {
                                             zmanTime + " :" + zmanimList[index].title

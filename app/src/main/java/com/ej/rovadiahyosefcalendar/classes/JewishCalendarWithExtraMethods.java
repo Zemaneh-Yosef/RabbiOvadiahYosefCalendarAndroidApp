@@ -40,27 +40,6 @@ public class JewishCalendarWithExtraMethods extends JewishCalendar {
                 || holidayIndex == FAST_OF_GEDALYAH || holidayIndex == TENTH_OF_TEVES || holidayIndex == FAST_OF_ESTHER;
     }
 
-    public String getTekufaName(boolean isLocaleHebrew) {
-        String[] tekufaNames;
-        if (isLocaleHebrew) {
-            tekufaNames = new String[]{"תשרי", "טבת", "ניסן", "תמוז"};
-        } else {
-            tekufaNames = new String[]{"Tishri", "Tevet", "Nissan", "Tammuz"};
-        }
-
-        double INITIAL_TEKUFA_OFFSET = 12.625;  // the number of days Tekufas Tishrei occurs before JEWISH_EPOCH
-        double days = getJewishCalendarElapsedDays(getJewishYear()) + getDaysSinceStartOfJewishYear() + INITIAL_TEKUFA_OFFSET - 1;  // total days since first Tekufas Tishrei event
-
-        double solarDaysElapsed = days % 365.25;  // total days elapsed since start of solar year
-        int currentTekufaNumber = (int) (solarDaysElapsed / 91.3125);  // the current quarter of the solar year
-        double tekufaDaysElapsed = solarDaysElapsed % 91.3125;  // the number of days that have passed since a tekufa event
-        if (tekufaDaysElapsed > 0 && tekufaDaysElapsed <= 1) {  // if the tekufa happens in the upcoming 24 hours
-            return tekufaNames[currentTekufaNumber];//0 for Tishrei, 1 for Tevet, 2, for Nissan, 3 for Tammuz
-        } else {
-            return "";
-        }
-    }
-
     /**
      * This method is used to get the current date of the jewish calendar based on sunset. The start of the hebrew date is based on the night time.
      * Therefore, the date changes after sunset. However, the Gregorian date is based on Midnight. Internally, the JewishCalendar uses the Gregorian

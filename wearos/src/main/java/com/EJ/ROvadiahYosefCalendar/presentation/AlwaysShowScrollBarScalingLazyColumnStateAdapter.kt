@@ -14,41 +14,25 @@ class AlwaysShowScrollBarScalingLazyColumnStateAdapter(
 ) : PositionIndicatorState {
     override val positionFraction: Float
         get() {
-            return if (state.layoutInfo.visibleItemsInfo.isEmpty()) {
-                0.0f
-            } else {
-                val decimalFirstItemIndex = decimalFirstItemIndex()
-                val decimalLastItemIndex = decimalLastItemIndex()
-                val decimalLastItemIndexDistanceFromEnd = state.layoutInfo.totalItemsCount -
-                        decimalLastItemIndex
-
-                if (decimalFirstItemIndex + decimalLastItemIndexDistanceFromEnd == 0.0f) {
-                    0.0f
-                } else {
-                    decimalFirstItemIndex /
-                            (decimalFirstItemIndex + decimalLastItemIndexDistanceFromEnd)
-                }
-            }
+            if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0.0f
+            val decimalFirstItemIndex = decimalFirstItemIndex()
+            val decimalLastItemIndex = decimalLastItemIndex()
+            val decimalLastItemIndexDistanceFromEnd = state.layoutInfo.totalItemsCount - decimalLastItemIndex
+            val denominator = decimalFirstItemIndex + decimalLastItemIndexDistanceFromEnd
+            return if (denominator == 0.0f) 0.0f else (decimalFirstItemIndex / denominator).safeFraction()
         }
 
-    override fun sizeFraction(scrollableContainerSizePx: Float) =
+    override fun sizeFraction(scrollableContainerSizePx: Float): Float =
         if (state.layoutInfo.totalItemsCount == 0) {
             1.0f
         } else {
-            val decimalFirstItemIndex = decimalFirstItemIndex()
-            val decimalLastItemIndex = decimalLastItemIndex()
-
-            (decimalLastItemIndex - decimalFirstItemIndex) /
-                    state.layoutInfo.totalItemsCount.toFloat()
+            ((decimalLastItemIndex() - decimalFirstItemIndex()) /
+                    state.layoutInfo.totalItemsCount.toFloat()).safeFraction()
         }
 
-    override fun visibility(scrollableContainerSizePx: Float): PositionIndicatorVisibility {
-        val canScroll = state.layoutInfo.visibleItemsInfo.isNotEmpty() &&
-                (decimalFirstItemIndex() > 0 ||
-                        decimalLastItemIndex() < state.layoutInfo.totalItemsCount)
-
-        return if (canScroll) PositionIndicatorVisibility.Show else PositionIndicatorVisibility.Show
-    }
+    // always shown, which is the point of this adapter
+    override fun visibility(scrollableContainerSizePx: Float): PositionIndicatorVisibility =
+        PositionIndicatorVisibility.Show
 
     override fun hashCode(): Int {
         return state.hashCode()
@@ -70,19 +54,13 @@ class AlwaysShowScrollBarScalingLazyColumnStateAdapter(
     private fun decimalLastItemIndex(): Float {
         if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0f
         val lastItem = state.layoutInfo.visibleItemsInfo.last()
-        // This is the offset of the last item w.r.t. the ScalingLazyColumn coordinate system where
-        // 0 in the center of the visible viewport and +/-(state.viewportHeightPx / 2f) are the
-        // start and end of the viewport.
-        //
-        // Note that [ScalingLazyListAnchorType] determines how the list items are anchored to the
-        // center of the viewport, it does not change viewport coordinates. As a result this
-        // calculation needs to take the anchorType into account to calculate the correct end
-        // of list item offset.
         val lastItemEndOffset = lastItem.startOffset(anchorType) + lastItem.size
-        val viewportEndOffset = viewportHeightPx.value!! / 2f
-        val lastItemVisibleFraction =
-            (1f - ((lastItemEndOffset - viewportEndOffset) / lastItem.size)).coerceAtMost(1f)
-
+        val viewportEndOffset = (viewportHeightPx.value ?: 0) / 2f
+        val lastItemVisibleFraction = if (lastItem.size <= 0) {
+            1f// a zero-height item has nothing to hide, count it as fully visible
+        } else {
+            (1f - ((lastItemEndOffset - viewportEndOffset) / lastItem.size)).coerceIn(0f, 1f)
+        }
         return lastItem.index.toFloat() + lastItemVisibleFraction
     }
 
@@ -100,13 +78,19 @@ class AlwaysShowScrollBarScalingLazyColumnStateAdapter(
         if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0f
         val firstItem = state.layoutInfo.visibleItemsInfo.first()
         val firstItemStartOffset = firstItem.startOffset(anchorType)
-        val viewportStartOffset = -(viewportHeightPx.value!! / 2f)
-        val firstItemInvisibleFraction =
-            ((viewportStartOffset - firstItemStartOffset) / firstItem.size).coerceAtLeast(0f)
-
+        val viewportStartOffset = -((viewportHeightPx.value ?: 0) / 2f)
+        val firstItemInvisibleFraction = if (firstItem.size <= 0) {
+            0f
+        } else {
+            ((viewportStartOffset - firstItemStartOffset) / firstItem.size).coerceIn(0f, 1f)
+        }
         return firstItem.index.toFloat() + firstItemInvisibleFraction
     }
 }
+
+/** NaN or infinity crashes PositionIndicator's animation, so clamp to a valid fraction. */
+private fun Float.safeFraction(): Float =
+    if (isNaN() || isInfinite()) 0f else coerceIn(0f, 1f)
 
 internal fun ScalingLazyListItemInfo.startOffset(anchorType: ScalingLazyListAnchorType) =
     offset - if (anchorType == ItemCenter) {

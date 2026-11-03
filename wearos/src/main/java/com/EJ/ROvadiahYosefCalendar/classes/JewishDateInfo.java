@@ -8,10 +8,14 @@ import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
 import com.kosherjava.zmanim.hebrewcalendar.TefilaRules;
 
-import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Locale;
 
 /**
@@ -41,7 +45,7 @@ public class JewishDateInfo {
     /**
      * The internal gregorian calendar to manipulate and keep track of the date
      */
-    private Calendar currentDate = Calendar.getInstance();
+    private LocalDate currentDate = LocalDate.now();
     /**
      * A boolean that in instantiated by the constructor that checks if the user's device is using Hebrew as it's main language
      */
@@ -84,56 +88,49 @@ public class JewishDateInfo {
      * @return the current jewish calendar object plus one day ahead
      */
     public JewishDateInfo tomorrow() {
-        Calendar clonedDate = (Calendar) this.currentDate.clone(); // Clone the current date to avoid modifying it directly
-        clonedDate.add(Calendar.DATE, 1); // Move to tomorrow
-
         JewishDateInfo tomorrow = new JewishDateInfo(this.jewishCalendar.getInIsrael());
         tomorrow.jewishCalendar.mContext = this.jewishCalendar.mContext;
         tomorrow.isLocaleHebrew = this.isLocaleHebrew;
         tomorrow.hebrewDateFormatter.setHebrewFormat(this.isLocaleHebrew);
-        tomorrow.setCalendar(clonedDate);
+        tomorrow.setLocalDate(currentDate.plusDays(1));
         return tomorrow;
     }
 
     public JewishDateInfo yesterday() {
-        Calendar clonedDate = (Calendar) this.currentDate.clone(); // Clone the current date to avoid modifying it directly
-        clonedDate.add(Calendar.DATE, -1); // Move to yesterday
-
         JewishDateInfo yesterday = new JewishDateInfo(this.jewishCalendar.getInIsrael());
         yesterday.jewishCalendar.mContext = this.jewishCalendar.mContext;
         yesterday.isLocaleHebrew = this.isLocaleHebrew;
         yesterday.hebrewDateFormatter.setHebrewFormat(this.isLocaleHebrew);
-        yesterday.setCalendar(clonedDate);
+        yesterday.setLocalDate(currentDate.minusDays(1));
         return yesterday;
     }
 
     public JewishDateInfo getCopy() {
-        Calendar clonedDate = (Calendar) this.currentDate.clone(); // Clone the current date to avoid modifying it directly
         JewishDateInfo copy = new JewishDateInfo(this.jewishCalendar.getInIsrael());
         copy.jewishCalendar.mContext = this.jewishCalendar.mContext;
         copy.isLocaleHebrew = this.isLocaleHebrew;
         copy.hebrewDateFormatter.setHebrewFormat(this.isLocaleHebrew);
-        copy.setCalendar(clonedDate);
+        copy.setLocalDate(currentDate);
         return copy;
     }
 
     /**
      * This method is used to set the current date.
-     * @param calendar the calendar to change the current date
+     * @param localDate the localDate to change the current date
      */
-    public void setCalendar(Calendar calendar) {
-        this.currentDate = calendar;
-        this.jewishCalendar.setDate(this.currentDate);
+    public void setLocalDate(LocalDate localDate) {
+        this.currentDate = localDate;
+        this.jewishCalendar.setGregorianDate(this.currentDate);
     }
 
     public void forward() {
-        this.currentDate.add(Calendar.DATE, 1);
-        this.jewishCalendar.setDate(this.currentDate);
+        this.currentDate = currentDate.plusDays(1);
+        this.jewishCalendar.setGregorianDate(this.currentDate);
     }
 
     public void back() {
-        this.currentDate.add(Calendar.DATE, -1);
-        this.jewishCalendar.setDate(this.currentDate);
+        this.currentDate = currentDate.minusDays(1);
+        this.jewishCalendar.setGregorianDate(this.currentDate);
     }
 
     /**
@@ -385,26 +382,26 @@ public class JewishDateInfo {
 
     /**
      * This method will return a string containing when to say tachanun for the current date.
-     * Here are a list of days that affect tachanun:
-     * Every Rosh Chodesh
-     * Every Shabbat
-     * Every Yom Tov
-     * Chol HaMoed
-     * Isru Chag (day after chag)
-     * The entire month of Nissan
-     * Pesach Sheni (14th of Iyar)
-     * Lag Ba\'Omer
-     * Rosh Chodesh Sivan until the 12th of Sivan (7 days after Shavuot and the 12th is included)
-     * 9th of Av
-     * 15th of Av
-     * Erev Rosh Hashanah and Rosh Hashanah
-     * Erev Yom Kippur and Yom Kippur
-     * From the 11th of Tishri (day after Yom Kippur) until the end of Tishri
-     * Every day of Chanukah
-     * 15th of Shevat
-     * 14th and 15th of Adar I and Adar II
-     * Purim Meshulash for walled cities (safek included)
-     * Tu Be\'Shvat
+     * Here are a list of days that affect tachanun:<br>
+     * Every Rosh Chodesh<br>
+     * Every Shabbat<br>
+     * Every Yom Tov<br>
+     * Chol HaMoed<br>
+     * Isru Chag (day after chag)<br>
+     * The entire month of Nissan<br>
+     * Pesach Sheni (14th of Iyar)<br>
+     * Lag Ba\'Omer<br>
+     * Rosh Chodesh Sivan until the 12th of Sivan (7 days after Shavuot and the 12th is included)<br>
+     * 9th of Av<br>
+     * 15th of Av<br>
+     * Erev Rosh Hashanah and Rosh Hashanah<br>
+     * Erev Yom Kippur and Yom Kippur<br>
+     * From the 11th of Tishri (day after Yom Kippur) until the end of Tishri<br>
+     * Every day of Chanukah<br>
+     * 15th of Shevat<br>
+     * 14th and 15th of Adar I and Adar II<br>
+     * Purim Meshulash for walled cities (safek included)<br>
+     * Tu Be'Shvat<br>
      *
      * @return a String containing whether one of these possible results:
      * "There is Tachanun today",<br>
@@ -442,7 +439,7 @@ public class JewishDateInfo {
                 || this.jewishCalendar.getJewishMonth() == JewishDate.NISSAN
                 || (this.jewishCalendar.getJewishMonth() == JewishDate.SIVAN && this.jewishCalendar.getJewishDayOfMonth() <= 12)
                 || (this.jewishCalendar.getJewishMonth() == JewishDate.TISHREI && this.jewishCalendar.getJewishDayOfMonth() >= 11)) {
-            if (yomTovIndex == JewishCalendar.ROSH_HASHANA && this.jewishCalendar.getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {//Edge case for rosh hashana that falls on shabbat (Shulchan Aruch, Chapter 598 and Chazon Ovadia page 185)
+            if (yomTovIndex == JewishCalendar.ROSH_HASHANA && this.jewishCalendar.getLocalDate().getDayOfWeek() == DayOfWeek.SATURDAY) {//Edge case for rosh hashana that falls on shabbat (Shulchan Aruch, Chapter 598 and Chazon Ovadia page 185)
                 return "צדקתך";
             }
             if (isLocaleHebrew) {
@@ -451,7 +448,7 @@ public class JewishDateInfo {
             return "No Tachanun today";
         }
         int yomTovIndexForNextDay = getYomTovIndexForNextDay();
-        if (this.jewishCalendar.getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY
+        if (this.jewishCalendar.getLocalDate().getDayOfWeek() == DayOfWeek.FRIDAY
                 || yomTovIndexForNextDay == JewishCalendar.PURIM
                 || yomTovIndexForNextDay == JewishCalendar.TISHA_BEAV
                 || yomTovIndexForNextDay == JewishCalendar.CHANUKAH
@@ -461,7 +458,7 @@ public class JewishDateInfo {
                 || yomTovIndexForNextDay == JewishCalendar.PESACH_SHENI
                 || yomTovIndexForNextDay == JewishCalendar.PURIM_KATAN
                 || this.jewishCalendar.isErevRoshChodesh()) {
-            if (this.jewishCalendar.getGregorianCalendar().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
+            if (this.jewishCalendar.getLocalDate().getDayOfWeek() == DayOfWeek.SATURDAY) {
                 if (isLocaleHebrew) {
                     return "לא אומרים תחנון";
                 }
@@ -493,7 +490,7 @@ public class JewishDateInfo {
             return "Some skip Tachanun by mincha";
         }
 
-        if (this.currentDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
+        if (this.jewishCalendar.getLocalDate().getDayOfWeek() == DayOfWeek.SATURDAY) {
             return "צדקתך";
         }
         if (isLocaleHebrew) {
@@ -526,23 +523,15 @@ public class JewishDateInfo {
      * @return a string containing the parsha of the current week or "No Weekly Parsha"
      */
     public String getThisWeeksParsha() {
-
-        this.currentDate = this.jewishCalendar.getGregorianCalendar();
-        Calendar parshaCalendar = this.jewishCalendar.getGregorianCalendar();
-
-        while (parshaCalendar.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY) {
-            parshaCalendar.add(Calendar.DATE, 1);
-        }
-
-        this.jewishCalendar.setDate(parshaCalendar);
-
+        LocalDate nextSaturday = currentDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY));
+        this.jewishCalendar.setGregorianDate(nextSaturday);
         hebrewDateFormatter.setHebrewFormat(true);
-        String parsha = hebrewDateFormatter.formatParsha(this.jewishCalendar);
-        String specialParsha = hebrewDateFormatter.formatSpecialParsha(this.jewishCalendar);
+        String parsha = hebrewDateFormatter.formatParshah(this.jewishCalendar);
+        String specialParsha = hebrewDateFormatter.formatSpecialParshah(this.jewishCalendar);
         if (!isLocaleHebrew) {
             hebrewDateFormatter.setHebrewFormat(false);//return to default setting
         }
-        this.jewishCalendar.setDate(this.currentDate);
+        this.jewishCalendar.setGregorianDate(currentDate);
 
         if (parsha.isEmpty() && specialParsha.isEmpty()) {
             if (isLocaleHebrew) {
@@ -563,21 +552,15 @@ public class JewishDateInfo {
      * @return a string containing the haftarah or haftorah of the current week
      */
     public CharSequence getThisWeeksHaftarah() {
-        this.currentDate = this.jewishCalendar.getGregorianCalendar();
-        Calendar parshaCalendar = this.jewishCalendar.getGregorianCalendar();
-
-        while (parshaCalendar.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY) {
-            parshaCalendar.add(Calendar.DATE, 1);
-        }
-
-        this.jewishCalendar.setDate(parshaCalendar);
+        LocalDate nextSaturday = currentDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY));
+        this.jewishCalendar.setGregorianDate(nextSaturday);
 
         CharSequence thisWeekHaftara = WeeklySephardicHaftarot.Companion.formatWeeklyHaftara(this.jewishCalendar);
         SpannableStringBuilder haftarah = new SpannableStringBuilder();
         haftarah.append(isLocaleHebrew ? "מפטירין: " : "Haftara: \u202B");
         haftarah.append(thisWeekHaftara);
 
-        this.jewishCalendar.setDate(this.currentDate);
+        this.jewishCalendar.setGregorianDate(this.currentDate);
         return haftarah;
     }
 
@@ -611,18 +594,14 @@ public class JewishDateInfo {
      * for Birchat HaLevana or an empty string on neither of those days
      * @return a string containing the status of birchat halevana this month
      */
-    public String getBirchatLevana() {
-        Calendar sevenDays = Calendar.getInstance();
-        sevenDays.setTime(this.jewishCalendar.getTchilasZmanKidushLevana7Days());
-        SimpleDateFormat sdf = new SimpleDateFormat("MMM d", Locale.getDefault());
+    public String getBirchatLevana(ZoneId zoneId) {
+        Instant sevenDays = this.jewishCalendar.getTchilasZmanKidushLevana7Days();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d", Locale.getDefault());
         JewishCalendar latest = (JewishCalendar) this.jewishCalendar.clone();
         latest.setJewishDayOfMonth(14);
 
         if (this.jewishCalendar.getJewishMonth() != JewishDate.AV) {
-            Calendar displayedDate = this.jewishCalendar.getGregorianCalendar();
-            if (displayedDate.get(Calendar.ERA) == sevenDays.get(Calendar.ERA)
-                    && displayedDate.get(Calendar.YEAR) == sevenDays.get(Calendar.YEAR)
-                    && displayedDate.get(Calendar.DAY_OF_YEAR) == sevenDays.get(Calendar.DAY_OF_YEAR)) {
+            if (this.jewishCalendar.getLocalDate().equals(sevenDays.atZone(zoneId).toLocalDate())) {
                 if (isLocaleHebrew) {
                     return "ברכת הלבנה מתחילה הלילה";
                 }
@@ -649,12 +628,12 @@ public class JewishDateInfo {
             return "Last night for Birkat Halevana";
         }
 
-        if (this.jewishCalendar.getGregorianCalendar().getTime().after(sevenDays.getTime())
-                && this.jewishCalendar.getGregorianCalendar().getTime().before(latest.getGregorianCalendar().getTime())) {
+        if (this.jewishCalendar.getLocalDate().isAfter(sevenDays.atZone(zoneId).toLocalDate())
+                && this.jewishCalendar.getLocalDate().isBefore(latest.getLocalDate())) {
             if (isLocaleHebrew) {
                 return "ברכת הלבנה עד ליל טו'";
             }
-            return "Birkat Halevana until " + sdf.format(latest.getGregorianCalendar().getTime());
+            return "Birkat Halevana until " + formatter.format(latest.getLocalDate());
         }
         return "";
     }
@@ -817,10 +796,10 @@ public class JewishDateInfo {
 
         this.jewishCalendar.setJewishDayOfMonth(9);
         if (this.jewishCalendar.getDayOfWeek() == Calendar.SUNDAY || this.jewishCalendar.getDayOfWeek() == Calendar.SATURDAY) {
-            this.jewishCalendar.setDate(this.currentDate);//reset
+            this.jewishCalendar.setGregorianDate(this.currentDate);//reset
             return false;//there is no shevua shechal bo if tisha beav falls out on a sunday or shabbat
         }
-        this.jewishCalendar.setDate(this.currentDate);//reset
+        this.jewishCalendar.setGregorianDate(this.currentDate);//reset
 
         JewishDate tishaBeav = new JewishDate(
                 this.jewishCalendar.getJewishYear(),
@@ -931,18 +910,12 @@ public class JewishDateInfo {
      * @return if the CURRENT SYSTEM TIME is after the molad and before Rosh Chodesh
      */
     public boolean isAfterTheMoladAndBeforeRoshChodesh() {
-        int currentHebrewMonth = this.jewishCalendar.getJewishMonth();
-        while (currentHebrewMonth == this.jewishCalendar.getJewishMonth()) {
-            this.jewishCalendar.forward(Calendar.DATE, 1); // go forward until the next month
+        JewishCalendar calendar = new JewishCalendar(currentDate);// fresh instance, so nothing shared is mutated
+        if (calendar.isRoshChodesh()) {
+            return false;
         }
-        Date molad = this.jewishCalendar.getMoladAsDate(); // now we can get the molad for the next month
-        this.jewishCalendar.setDate(this.currentDate); // reset
-        while (!this.jewishCalendar.isRoshChodesh()) {
-            this.jewishCalendar.forward(Calendar.DATE, 1); // go forward until the next rosh chodesh
-        }
-        Date roshChodesh = this.jewishCalendar.getGregorianCalendar().getTime();
-        this.jewishCalendar.setDate(this.currentDate); // reset
-        return molad.before(new Date()) && roshChodesh.after(new Date()) && !this.jewishCalendar.isRoshChodesh(); // Tikkun Leia (only) is said if it is after the molad but before Rosh Chodesh, this condition is time based even though all the other methods are date based
+        calendar.plusMonths(1);
+        return Instant.now().isAfter(calendar.getMoladAsInstant());
     }
 
     /**
@@ -950,10 +923,8 @@ public class JewishDateInfo {
      * @return if today is Purim Meshulash
      */
     public boolean isPurimMeshulash() {
-        Calendar clonedDate = (Calendar) this.currentDate.clone();// Clone the current date to avoid modifying it directly
         JewishCalendar yesterday = new JewishCalendar();
-        yesterday.setDate(clonedDate);
-        yesterday.back(); // Move to yesterday
+        yesterday.setGregorianDate(currentDate.minusDays(1));
         return yesterday.getYomTovIndex() == JewishCalendar.SHUSHAN_PURIM && yesterday.getDayOfWeek() == Calendar.SATURDAY;
     }
 

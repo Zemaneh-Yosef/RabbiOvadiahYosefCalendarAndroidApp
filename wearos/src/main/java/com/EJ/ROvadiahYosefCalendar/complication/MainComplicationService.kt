@@ -15,6 +15,7 @@ import androidx.wear.watchface.complications.datasource.TimelineEntry
 import com.EJ.ROvadiahYosefCalendar.classes.JewishDateInfo
 import com.EJ.ROvadiahYosefCalendar.presentation.MainActivity
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter
+import java.time.LocalDate
 import java.util.Calendar
 
 /**
@@ -49,7 +50,7 @@ class MainComplicationService : SuspendingTimelineComplicationDataSourceService(
         midnight.set(Calendar.MILLISECOND, 0)
         val dayAfter = midnight.clone() as Calendar
         dayAfter.add(Calendar.DATE, 1)
-        jewishDateInfo.setCalendar(midnight)
+        jewishDateInfo.setLocalDate(LocalDate.of(midnight[Calendar.YEAR], midnight[Calendar.MONTH] + 1, midnight[Calendar.DATE]))
         val tomorrow = createComplicationData(request.complicationType, jewishDateInfo, hebrewDateFormatter) ?: return null
         return ComplicationDataTimeline(today, listOf(TimelineEntry(TimeInterval(midnight.toInstant(), dayAfter.toInstant()), tomorrow)))
     }

@@ -1,61 +1,73 @@
 package com.EJ.ROvadiahYosefCalendar.classes;
 
-import java.util.Date;
+import android.content.SharedPreferences;
+
+import java.time.Instant;
 
 public class ZmanListEntry {
 
     private String title;
-    private Date zman;
-    private final boolean isZman;
+    private Instant zman;
+    private final ZmanListEntryType zmanListEntryType;
     private boolean isNoteworthyZman;
     private boolean shouldBeDimmed;
     private SecondTreatment secondTreatment;
-    private boolean isBirchatHachamahZman;
-    private boolean is66MisheyakirZman;
+    private String notificationKey;
 
     public ZmanListEntry(String title) {
         this.title = title;
         this.zman = null;
-        this.isZman = false;
+        this.zmanListEntryType = ZmanListEntryType.UNSPECIFIED;
     }
 
-    public ZmanListEntry(String title, Date zman, SecondTreatment secondTreatment) {
+    public ZmanListEntry(String title, ZmanListEntryType zmanListEntryType) {
+        this.title = title;
+        this.zman = null;
+        this.zmanListEntryType = zmanListEntryType;
+    }
+
+    public ZmanListEntry(String title, Instant zman, SecondTreatment secondTreatment, ZmanListEntryType zmanListEntryType, String notificationKey) {
         this.title = title;
         this.zman = zman;
-        this.isZman = true;
+        this.zmanListEntryType = zmanListEntryType;
         this.secondTreatment = secondTreatment;
+        this.notificationKey = notificationKey;
     }
 
     public String getTitle() {
-        return title;
+        return this.title;
     }
 
     public void setTitle(String title) {
         this.title = title;
     }
 
-    public Date getZman() {
-        return zman;
+    public Instant getZman() {
+        return this.zman;
     }
 
-    public void setZman(Date zman) {
+    public void setZman(Instant zman) {
         this.zman = zman;
     }
 
     public boolean isZman() {
-        return isZman;
+        return this.zmanListEntryType.name().toLowerCase().endsWith("zman");
+    }
+
+    public ZmanListEntryType getZmanListEntryType() {
+        return this.zmanListEntryType;
     }
 
     public boolean isNoteworthyZman() {
-        return isNoteworthyZman;
+        return this.isNoteworthyZman;
     }
 
     public void setNoteworthyZman(boolean b) {
-        isNoteworthyZman = b;
+        this.isNoteworthyZman = b;
     }
 
     public boolean isShouldBeDimmed() {
-        return shouldBeDimmed;
+        return this.shouldBeDimmed;
     }
 
     public void setShouldBeDimmed(boolean shouldBeDimmed) {
@@ -63,22 +75,18 @@ public class ZmanListEntry {
     }
 
     public SecondTreatment getSecondTreatment() {
-        return secondTreatment;
+        return this.secondTreatment;
     }
 
-    public void setBirchatHachamahZman(boolean birchatHachamahZman) {
-        isBirchatHachamahZman = birchatHachamahZman;
+    public int getNotificationDelay(SharedPreferences mSettingsPreferences) {
+        return mSettingsPreferences.getInt(this.notificationKey, -1);
     }
 
-    public boolean isBirchatHachamahZman() {
-        return isBirchatHachamahZman;
+    public String getNotificationKey() {
+        return this.notificationKey;
     }
 
-    public boolean is66MisheyakirZman() {
-        return is66MisheyakirZman;
-    }
-
-    public void setIs66MisheyakirZman(boolean is66MisheyakirZman) {
-        this.is66MisheyakirZman = is66MisheyakirZman;
+    public void setNotificationKey(String s) {
+        this.notificationKey = s;
     }
 }

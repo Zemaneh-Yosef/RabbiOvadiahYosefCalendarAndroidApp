@@ -24,6 +24,7 @@ import com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.SecondTreatment;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
+import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -87,10 +88,14 @@ public class CombinedTekufaNotifications extends BroadcastReceiver {
                     Utils.formatZmanTime(context, halfHourBefore, SecondTreatment.ROUND_LATER) + " - " + Utils.formatZmanTime(context, halfHourAfterPlus21Minutes, SecondTreatment.ROUND_LATER);
             title = "Tekufa/Season Change";
         }
-
+        HebrewDateFormatter hebrewDateFormatter = new HebrewDateFormatter();
+        hebrewDateFormatter.setHebrewFormat(Utils.isLocaleHebrew(context));
         mNotifyBuilder = new NotificationCompat.Builder(context, "Tekufa Notifications")
                 .setLargeIcon(Icon.createWithResource(context, R.mipmap.ic_launcher))
-                .setSmallIcon(getSeasonalIcon(jewishDateInfo.getJewishCalendar().getTekufaName(Utils.isLocaleHebrew(context))))
+                .setSmallIcon(getSeasonalIcon(hebrewDateFormatter.formatTekufaName(jewishDateInfo.getJewishCalendar())
+                        .replace("Tekufas ", "")
+                        .replace("Teves", "Tevet")
+                        .replace("תקופת ", "")))
                 .setContentTitle(title)
                 .setContentText(contentText)
                 .setStyle(new NotificationCompat.BigTextStyle()
@@ -111,9 +116,9 @@ public class CombinedTekufaNotifications extends BroadcastReceiver {
 
     private int getSeasonalIcon(String tekufaName) {
         return switch (tekufaName) {
-            case "Tevet" -> R.drawable.winter;
-            case "Nissan" -> R.drawable.spring;
-            case "Tammuz" -> R.drawable.summer;
+            case "Tevet", "טבת" -> R.drawable.winter;
+            case "Nissan", "ניסן" -> R.drawable.spring;
+            case "Tammuz", "תמוז" -> R.drawable.summer;
             default -> R.drawable.autumn;
         };
     }
