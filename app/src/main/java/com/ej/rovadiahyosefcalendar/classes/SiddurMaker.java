@@ -615,7 +615,7 @@ public class SiddurMaker {
 
 		addToSiddur(
 			"בָּרוּךְ אַתָּה יְהוָֹה, אֱלֹהֵֽינוּ מֶֽלֶךְ הָעוֹלָם, אֲשֶׁר יָצַר אֶת הָאָדָם בְּחָכְמָה, וּבָרָא בוֹ נְקָבִים נְקָבִים, חֲלוּלִים חֲלוּלִים, גָּלוּי וְיָדוּעַ לִפְנֵי כִסֵּא כְבוֹדֶךָ, שֶׁאִם יִסָּתֵם אֶחָד מֵהֶם, אוֹ אִם יִפָּתֵח אֶחָד מֵהֶם, אֵי אֶפְשָׁר לְהִתְקַיֵּם אַפִלּוּ שָׁעָה אֶחָת. בָּרוּךְ אַתָּה יְהֹוָה, רוֹפֵא כָל־בָּשָׂר וּמַפְלִיא לַעֲשׂוֹת:");
-		addInstructionToSiddur((isHebrew ? "טוב לסמוך \"אלהי נשמה\" לברכת \"אשר יצר\"" : "It is preferable to juxtapose \"אלהי נשמה\" with \"אשר יצר\"") + " (הליכות עולם א, נא)");
+		addInstructionToSiddur((isHebrew ? "טוב לסמוך \"אלהי נשמה\" לברכת \"אשר יצר\"" : "It is preferable to juxtapose \"אלהי נשמה\" with \"אשר יצר\"") + "\n" + " (הליכות עולם א, נא)");
 		addToSiddur("אֱלֹהַי (יפסיק מעט) נְשָׁמָה שֶׁנָּתַתָּ בִּי טְהוֹרָה, אַתָּה בְרָאתָהּ, אַתָּה יְצַרְתָּהּ, אַתָּה נְפַחְתָּהּ בִּי, וְאַתָּה מְשַׁמְּרָהּ בְּקִרְבִּי, וְאַתָּה עָתִיד לִטְּלָהּ מִמֶּנִּי, וּלְהַחֲזִירָהּ בִּי לֶעָתִיד לָבוֹא, כָּל־זְמַן שֶׁהַנְּשָׁמָה בְקִרְבִּי, מוֹדֶה (האשה אומרת: מוֹדָה) אֲנִי לְפָנֶיךָ יְהֹוָה אֱלֹהַי וֵאלֹהֵי אֲבוֹתַי, רִבּוֹן כָּל־הַמַּעֲשִׂים אֲדוֹן כָּל־הַנְּשָׁמוֹת. בָּרוּךְ אַתָּה יְהֹוָה, הַמַּחֲזִיר נְשָׁמוֹת לִפְגָרִים מֵתִים:".replace(isHebrew ? "@" : "יפסיק מעט", "pause").replace(isHebrew ? "@" : "האשה אומרת", "women say"));
 		addInstructionToSiddur((isHebrew ? "קודם שיברך איזה ברכה, צריך הוא לדעת איזה ברכה שהוא צריך לברך, כדי שבשעה שהוא מזכיר את השם יתברך שהוא עיקר הברכה, ידע מה שיסיים." : "Before a person recites a blessing, they must know which blessing they are reciting when they mention God's name as God's name is the main part of the blessing.") + " (קיצור שלחן ערוך ו:א)");
 		addToSiddur(
@@ -678,11 +678,11 @@ public class SiddurMaker {
 			addInstructionToSiddur(isHebrew ? "יש לשים את תפילין של היד על החלק הקדמי של שריר הזרוע השמאלית, במרחק של 2 אצבעות ספורות מהמרפק. יש להטות מעט את התפילין שפניהם יהיו פונות אל הגוף." : "Bring the hand Tefilin to the front half of the left hand's bicep, with two finger's worth of space away from the elbow. Tilt the Tefilin slightly to face the body.");
 			addToSiddur("בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵֽינוּ מֶֽלֶךְ הָעוֹלָם, אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו, וְצִוָּנוּ לְהָנִיחַ תְּפִלִּין:");
 
-			addInfoToSiddur(isHebrew ? "אם הפסיק בדיבור שלא לצורך התפילין" : "If one interrupted [in speech] not for the purposes of Tefilin, say this before wearing the head Tefilin.", "\n\nבָּרוּךְ אַתָּה יְהֹוָה אֱלֹהֵֽינוּ מֶֽלֶךְ הָעוֹלָם אֲשֶׁר קִדְּשָֽׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ עַל מִצְוַת תְּפִלִּין:");
+			addInfoToSiddur(isHebrew ? "אם הפסיק בדיבור שלא לצורך התפילין" : "If one interrupted [in speech] not for the purposes of Tefilin, say this before wearing the head Tefilin:", "\n\nבָּרוּךְ אַתָּה יְהֹוָה אֱלֹהֵֽינוּ מֶֽלֶךְ הָעוֹלָם אֲשֶׁר קִדְּשָֽׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ עַל מִצְוַת תְּפִלִּין:");
 
 			addInstructionToSiddur(isHebrew ? "אמר את הפסוקים הבאים בזמן שאתה עוטף את רצועות היד סביב האצבע האמצעית. כל סיבוב של הרצועה צריך להתאים לחלק נוסף מהפסוקים." : "Say the following verses as you wrap the hand straps on your middle finger. Each wrap should correspond to another part of the verses.");
 
-			addToSiddur("וְאֵרַשְׂתִּ֥יךְ לִ֖י לְעוֹלָ֑ם וְאֵרַשְׂתִּ֥יךְ לִי֙ בְּצֶ֣דֶק וּבְמִשְׁפָּ֔ט וּבְחֶ֖סֶד וּֽבְרַחֲמִֽים׃ וְאֵרַשְׂתִּ֥יךְ לִ֖י בֶּאֱמוּנָ֑ה וְיָדַ֖עַתְּ אֶת־יְהֹוָֽה׃");
+			addToSiddur("וְאֵרַשְׂתִּ֥יךְ לִ֖י לְעוֹלָ֑ם, וְאֵרַשְׂתִּ֥יךְ לִי֙ בְּצֶ֣דֶק וּבְמִשְׁפָּ֔ט וּבְחֶ֖סֶד וּֽבְרַחֲמִֽים׃ וְאֵרַשְׂתִּ֥יךְ לִ֖י בֶּאֱמוּנָ֑ה, וְיָדַ֖עַתְּ אֶת־יְהֹוָֽה׃");
 
 			addToSiddur(
 				WeeklyParashaReadings.tefilinParashatBo[0] + " " +

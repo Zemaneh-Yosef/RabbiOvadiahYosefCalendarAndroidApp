@@ -308,7 +308,7 @@ public class ZmanimFactory {
                 rtZman,
                 ROUND_LATER,
                 RABBENU_TAM_ZMAN,
-                "RT");
+                (isForTomorrow ? "" : "RT"));
 
         rt.setNoteworthyZman(true);
         zmanim.add(rt);
@@ -330,6 +330,7 @@ public class ZmanimFactory {
         }
         if (isForTomorrow) {
             endShabbat.setTitle(endShabbat.getTitle() + zmanimNames.getMacharString());
+            endShabbat.setNotificationKey("");
         }
         if (isForCandleLigthting) {
             endShabbat.setTitle(zmanimNames.getCandleLightingString());

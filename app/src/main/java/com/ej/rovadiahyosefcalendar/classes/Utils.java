@@ -33,9 +33,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.Wearable;
+import com.kosherjava.zmanim.util.GeoLocation;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.shredzone.commons.suncalc.MoonTimes;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,9 +45,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.HashMap;
@@ -56,7 +60,8 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 /**
- * This class contains static methods that are used multiple times
+ * This class contains static methods that are used throughout the project. Methods that could
+ * be turned into a single class with a single method are put here in order to avoid creating too many classes.
  */
 public class Utils {
 
@@ -199,6 +204,53 @@ public class Utils {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
             notificationManager.notify(notificationId, builder.build());
         }
+    }
+
+    /**
+     * Describes the moon between nightfall and dawn: up until moonset, rising later, up all night, or not up.
+     *
+     * @param start nightfall, the start of the window
+     * @param dawn  the end of the window
+     * @return the description, or an empty string if it can't be computed
+     */
+    public static String getMoonSummary(Context context, GeoLocation geo, Instant start, Instant dawn) {
+        try {
+            if (!dawn.isAfter(start)) {
+                return "";
+            }
+            boolean hebrew = Utils.isLocaleHebrew(context);
+            String label = hebrew ? "נראות הירח: " : "Moon Visibility: ";
+            MoonTimes moon = MoonTimes.compute()
+                    .on(start.atZone(geo.getZoneId()))
+                    .at(geo.getLatitude(), geo.getLongitude())
+                    .limit(Duration.between(start, dawn))// the window is one night only, the default window is a full year
+                    .execute();
+            if (moon.isAlwaysUp()) {
+                return label + (hebrew ? "כל הלילה" : "all night");
+            }
+            if (moon.isAlwaysDown()) {
+                return label + (hebrew ? "לא נראה הלילה" : "none tonight");
+            }
+            DateTimeFormatter format = DateTimeFormatter.ofPattern(hebrew ? "H:mm" : "h:mm a");
+            String from = hebrew ? "מ-" : "from ";
+            String until = hebrew ? "עד " : "until ";
+            ZonedDateTime rise = moon.getRise();
+            ZonedDateTime set = moon.getSet();
+            if (rise != null && set != null) {
+                return rise.isBefore(set)
+                        ? label + from + rise.format(format) + " " + until + set.format(format)
+                        : label + until + set.format(format) + ", " + from + rise.format(format);
+            }
+            if (set != null) {
+                return label + until + set.format(format);// up at nightfall, sets during the night
+            }
+            if (rise != null) {
+                return label + from + rise.format(format);// rises during the night, up until dawn
+            }
+        } catch (Exception e) {
+            e.printStackTrace();// the moon line is a bonus, callers should still show everything else
+        }
+        return "";
     }
 
     public static String removeNikudAndTaamim(String text) {

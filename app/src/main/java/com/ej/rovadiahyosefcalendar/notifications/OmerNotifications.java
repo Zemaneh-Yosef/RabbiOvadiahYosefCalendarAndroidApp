@@ -32,6 +32,7 @@ import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
+import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.TefilaRules;
 import com.kosherjava.zmanim.util.GeoLocation;
 
@@ -48,9 +49,20 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
     private PendingResult mPendingResult;
     private final AtomicBoolean mFinished = new AtomicBoolean();
     private final AtomicBoolean mGotLocation = new AtomicBoolean();
+    private static volatile boolean channelCreated = false;
+    private static final String PREF_HALEVANA_DONE_MONTH = "birkatHalevanaDoneMonth";
+    private static final String PREF_HALEVANA_LAST_NIGHT = "birkatHalevanaLastNotified";
+    private static final String ACTION_HALEVANA_SAID = "com.ej.rovadiahyosefcalendar.HALEVANA_SAID";
+    private static final String ACTION_HALEVANA_SKIP = "com.ej.rovadiahyosefcalendar.HALEVANA_SKIP";
+    private static final String EXTRA_HALEVANA_MONTH = "halevanaMonth";
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        String action = intent.getAction();
+        if (ACTION_HALEVANA_SAID.equals(action) || ACTION_HALEVANA_SKIP.equals(action)) {
+            handleBirkatHalevanaAction(context, intent);
+            return;// a button press, not the nightly alarm
+        }
         mPendingResult = goAsync();
         this.context = context;
         mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
@@ -125,7 +137,7 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
             NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(context, "Omer")
                     .setLargeIcon(Icon.createWithResource(context, R.mipmap.ic_launcher))
                     .setSmallIcon(R.drawable.omer_wheat)
-                    .setContentTitle(Utils.isLocaleHebrew(context) ? "יום בעומר" : "Day of Omer")
+                    .setContentTitle(Utils.isLocaleHebrew(context) ? "יום לעומר" : "Day of Omer")
                     .setContentText(omerList.get(night - 1))
                     .setStyle(new NotificationCompat
                             .BigTextStyle()
@@ -148,6 +160,11 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
             notifyBarechAleinu();
         }
         updateAlarm(c);
+        try {
+            notifyBirkatHalevana(jewishDateInfo, c);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void notifyBarechAleinu() {
@@ -196,6 +213,111 @@ public class OmerNotifications extends BroadcastReceiver implements Consumer<Loc
         if (BuildConfig.DEBUG) {
             mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "barech aleinu notification was sent" + "\n\n").apply();
         }
+    }
+
+    private void notifyBirkatHalevana(JewishDateInfo jewishDateInfo, ROZmanimCalendar c) {
+        if (!PreferenceManager.getDefaultSharedPreferences(context).getBoolean("birkat_halevana_notifications", false)) {
+            return;// disabled by default
+        }
+        JewishCalendar today = jewishDateInfo.getJewishCalendar();
+        String monthKey = today.getJewishYear() + "-" + today.getJewishMonth();
+        if (monthKey.equals(mSharedPreferences.getString(PREF_HALEVANA_DONE_MONTH, ""))) {
+            return;// the user already said it or doesn't want a reminder this month
+        }
+        String tonight = today.getLocalDate().toString();
+        if (tonight.equals(mSharedPreferences.getString(PREF_HALEVANA_LAST_NIGHT, ""))) {
+            return;// already notified tonight, init can run twice
+        }
+        String status = jewishDateInfo.getBirchatLevana(c.getGeoLocation().getZoneId());
+        if (status.isEmpty()) {
+            return;// outside the 7 - 14-day window
+        }
+        Instant now = Instant.now();
+        Instant sunset = c.getSunset();
+        if (sunset != null && now.isBefore(sunset)) {
+            return;// only remind at night, not if the receiver ran during the day
+        }
+
+        ROZmanimCalendar tomorrow = c.getCopy();
+        tomorrow.setLocalDate(tomorrow.getLocalDate().plusDays(1));
+        Instant dawn = tomorrow.getAlotHashachar();
+        if (dawn == null || dawn.isBefore(now)) {
+            dawn = now.plus(12, ChronoUnit.HOURS);
+        }
+        Instant tzeit = c.getTzeit();
+        if (tzeit == null || tzeit.isAfter(now)) {
+            tzeit = now;
+        }
+
+        boolean hebrew = Utils.isLocaleHebrew(context);
+        String moonSummary = Utils.getMoonSummary(context, c.getGeoLocation(), tzeit, dawn);
+
+        ensureChannel(context);
+
+        Intent openApp = new Intent(context, MainFragmentManagerActivity.class);
+        openApp.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+        PendingIntent contentIntent = PendingIntent.getActivity(context, 0, openApp,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent saidIntent = PendingIntent.getBroadcast(context, 5301,
+                new Intent(context, OmerNotifications.class).setAction(ACTION_HALEVANA_SAID).putExtra(EXTRA_HALEVANA_MONTH, monthKey),
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent skipIntent = PendingIntent.getBroadcast(context, 5302,
+                new Intent(context, OmerNotifications.class).setAction(ACTION_HALEVANA_SKIP).putExtra(EXTRA_HALEVANA_MONTH, monthKey),
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
+
+        String title = hebrew ? "ברכת הלבנה הלילה" : "Birkat Halevana tonight";
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "BirkatHalevana")
+                .setSmallIcon(R.drawable.moon)
+                .setContentTitle(title)
+                .setContentText(status)
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .setBigContentTitle(title)
+                        .bigText(moonSummary.isEmpty() ? status : status + "\n\n" + moonSummary))
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setCategory(NotificationCompat.CATEGORY_REMINDER)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+                .setColor(context.getColor(R.color.dark_gold))
+                .setAutoCancel(true)
+                .setWhen(System.currentTimeMillis())
+                .setTimeoutAfter(Math.max(60_000L, dawn.toEpochMilli() - now.toEpochMilli()))// tomorrow night's reminder replaces it if not answered
+                .setContentIntent(contentIntent)
+                .addAction(new NotificationCompat.Action(0, hebrew ? "אמרתי" : "I said it", saidIntent))
+                .addAction(new NotificationCompat.Action(0, hebrew ? "אין צורך בתזכורת החודש" : "No reminder this month", skipIntent));
+        notificationManager.notify(53, builder.build());
+        mSharedPreferences.edit().putString(PREF_HALEVANA_LAST_NIGHT, tonight).apply();
+        if (BuildConfig.DEBUG) {
+            mSharedPreferences.edit().putString("debugNotifs", mSharedPreferences.getString("debugNotifs", "") + "birkat halevana notification was sent" + "\n\n").apply();
+        }
+    }
+
+    /**
+     * This method makes sure to only create the channel once per process to avoid unneeded computation.
+     * @param context the context
+     */
+    static void ensureChannel(Context context) {
+        if (channelCreated) return;
+        NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
+        NotificationChannel channel = new NotificationChannel(
+                "BirkatHalevana", "Birkat Halevana Notifications", NotificationManager.IMPORTANCE_HIGH);
+        channel.setDescription("This notification will remind you at night while Birkat Halevana can be said.");
+        channel.enableLights(true);
+        channel.enableVibration(true);
+        channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+        channel.setLightColor(Color.BLUE);
+        notificationManager.createNotificationChannel(channel);
+        channelCreated = true;
+    }
+
+    private static void handleBirkatHalevanaAction(Context context, Intent intent) {
+        String monthKey = intent.getStringExtra(EXTRA_HALEVANA_MONTH);
+        if (monthKey != null) {// both buttons mean "stop reminding me until next month"
+            context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE).edit().putString(PREF_HALEVANA_DONE_MONTH, monthKey).apply();
+        }
+        context.getSystemService(NotificationManager.class).cancel(53);
     }
 
     private ROZmanimCalendar getROZmanimCalendar() {
