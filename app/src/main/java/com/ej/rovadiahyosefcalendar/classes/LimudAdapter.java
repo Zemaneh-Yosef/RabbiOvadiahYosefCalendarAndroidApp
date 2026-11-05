@@ -76,6 +76,7 @@ public class LimudAdapter extends RecyclerView.Adapter<LimudAdapter.ZmanViewHold
                 view.setBackgroundColor(0);
             }
         });
+        holder.itemView.setOnKeyListener(Utils::moveFocusToNeighbourRow);// D-pad up/down go row by row
 
         holder.setIsRecyclable(false);
         if (limudim.get(position).getLimudTitle().contains(context.getString(R.string.rambam_yomi_3_chapters))) {// special case because the string gets too long

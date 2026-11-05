@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- True on screens wide and tall enough (tablets, unfolded foldables) to show the day summary as a sidebar
+         next to the tabs. Overridden in values-w600dp-h480dp. -->
+    <bool name="is_two_pane">false</bool>
+</resources>

@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The summary of the current day: location, date, parsha and chanuka cards. Shown at the top of the zmanim
+     tab on phones, and as the sidebar next to every tab on wide screens (layout-w600dp-h480dp). -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/daily_location_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:fontFamily="sans-serif-light"
+        android:autoSizeTextType="uniform"
+        android:autoSizeMaxTextSize="22sp"
+        android:autoSizeMinTextSize="8sp"
+        android:maxLines="1"
+        android:padding="4dp"
+        tools:ignore="UnusedAttribute" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/daily_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginVertical="10dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/weekday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:maxLines="1"
+                android:autoSizeTextType="uniform"
+                android:autoSizeMaxTextSize="20sp"
+                android:autoSizeMinTextSize="8sp"
+                tools:text="Friday / יום שישי"/>
+
+            <TextView
+                android:id="@+id/top_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:textSize="26sp"
+                android:maxLines="1"
+                android:autoSizeTextType="uniform"
+                android:autoSizeMaxTextSize="26sp"
+                android:autoSizeMinTextSize="8sp"
+                tools:text="Today - July 10th, 2025"/>
+
+            <TextView
+                android:id="@+id/bottom_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:textSize="20sp"
+                android:maxLines="1"
+                android:autoSizeTextType="uniform"
+                android:autoSizeMaxTextSize="20sp"
+                android:autoSizeMinTextSize="8sp"
+                tools:text="Pre-sunset: 14 Ḥeshvan 5785"/>
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/parsha_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginVertical="10dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/parsha"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:textSize="24sp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:maxLines="1"
+                android:autoSizeTextType="uniform"
+                android:autoSizeMaxTextSize="24sp"
+                android:autoSizeMinTextSize="8sp"
+                tools:text="דברים / חזון"
+                android:fontFamily="@font/vilna"/>
+
+            <LinearLayout
+                android:id="@+id/haftara_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/haftara"
+                    android:textSize="20sp"
+                    android:src="@drawable/megila_icon"
+                    android:text="@string/haftara"/>
+
+                <TextView
+                    android:id="@+id/haftara"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:paddingStart="5dp"
+                    android:layout_gravity="center"
+                    android:maxLines="1"
+                    android:autoSizeTextType="uniform"
+                    android:autoSizeMaxTextSize="20sp"
+                    android:autoSizeMinTextSize="8sp"
+                    tools:text="Haftarah: חזון (ישעיה א)"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/makam_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:baselineAligned="true">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/u1f3bc__1_"
+                    android:text="@string/haftara"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/makam"
+                    android:paddingStart="5dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:layout_gravity="center"
+                    android:autoSizeTextType="uniform"
+                    android:autoSizeMaxTextSize="20sp"
+                    android:autoSizeMinTextSize="8sp"
+                    tools:text="Makam: Rast"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/chanuka_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginVertical="10dp"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/night_of_chanuka"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:maxLines="1"
+                android:autoSizeTextType="uniform"
+                android:autoSizeMaxTextSize="20sp"
+                android:autoSizeMinTextSize="8sp"
+                app:drawableEndCompat="@drawable/baseline_local_fire_department_24"
+                tools:text="Chanuka - Night 1" />
+
+            <TextView
+                android:id="@+id/lchatchila_lighting_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="28sp"
+                android:gravity="center"
+                android:maxLines="1"
+                android:autoSizeTextType="uniform"
+                android:autoSizeMaxTextSize="20sp"
+                android:autoSizeMinTextSize="8sp"
+                tools:text="Ideal: 4:41 PM - 5:11 PM"/>
+
+            <TextView
+                android:id="@+id/full_window_lighting_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="18sp"
+                android:maxLines="1"
+                android:autoSizeTextType="uniform"
+                android:autoSizeMaxTextSize="26sp"
+                android:autoSizeMinTextSize="8sp"
+                tools:text="Earliest: 3:38 PM - Latest: 6:32 AM"/>
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Info rows (Tahanun, prayer changes, Birkat Halevana, etc.). Only shown in the wide-screen sidebar;
+         on phones these rows stay inside the zmanim list. -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/info_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginVertical="10dp"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/infoRV"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
+            android:overScrollMode="never" />
+
+    </com.google.android.material.card.MaterialCardView>
+
+</LinearLayout>

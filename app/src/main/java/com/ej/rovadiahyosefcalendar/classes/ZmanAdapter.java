@@ -94,6 +94,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         holder.itemView.setOnFocusChangeListener((view, b) -> {// support for TV
             view.setBackgroundColor(b ? context.getColor(R.color.dark_gold) : 0);
         });
+        holder.itemView.setOnKeyListener(Utils::moveFocusToNeighbourRow);// D-pad up/down go row by row
         holder.setIsRecyclable(false);
         holder.mLeftTextViewSmall.setVisibility(View.GONE);
         holder.mRightTextViewSmall.setVisibility(View.GONE);

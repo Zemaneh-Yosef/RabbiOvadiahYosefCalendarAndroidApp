@@ -6,6 +6,7 @@ import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivit
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sJewishDateInfo;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sROZmanimCalendar;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sSettingsPreferences;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sSharedPreferences;
 
 import android.app.DatePickerDialog;
 import android.content.Context;
@@ -24,17 +25,22 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ej.rovadiahyosefcalendar.R;
+import com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity;
 import com.ej.rovadiahyosefcalendar.classes.ChafetzChayimYomiCalculator;
 import com.ej.rovadiahyosefcalendar.classes.DailyMishnehTorah;
 import com.ej.rovadiahyosefcalendar.classes.HalachaSegment;
 import com.ej.rovadiahyosefcalendar.classes.HalachaYomi;
 import com.ej.rovadiahyosefcalendar.classes.HebrewDayMonthYearPickerDialog;
+import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.LimudAdapter;
 import com.ej.rovadiahyosefcalendar.classes.LimudListEntry;
 import com.ej.rovadiahyosefcalendar.classes.MishnaYomi;
 import com.ej.rovadiahyosefcalendar.classes.NisanLimudYomi;
 import com.ej.rovadiahyosefcalendar.classes.RambamReading;
+import com.ej.rovadiahyosefcalendar.classes.TehilimYomi;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
+import com.ej.rovadiahyosefcalendar.classes.WeeklyHillulotAdapter;
+import com.ej.rovadiahyosefcalendar.classes.WeeklyLimudRanges;
 import com.ej.rovadiahyosefcalendar.databinding.FragmentLimudBinding;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.kosherjava.zmanim.hebrewcalendar.Daf;
@@ -49,14 +55,17 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 public class LimudFragment extends Fragment {
 
@@ -68,6 +77,7 @@ public class LimudFragment extends Fragment {
     private Button mCalendarButton;
     private boolean mSeeMore = true;
     private boolean mAdjustDate = true;
+    private boolean mIsTwoPane;
     /**
      * These calendars are used to know when daf/yerushalmi yomi started
      */
@@ -84,6 +94,7 @@ public class LimudFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentLimudBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
+        mIsTwoPane = getResources().getBoolean(R.bool.is_two_pane);
         if (sCurrentDateShown == null) {
             sCurrentDateShown = LocalDate.now();
         }
@@ -98,11 +109,32 @@ public class LimudFragment extends Fragment {
         return sCurrentDateShown.equals(LocalDate.now());
     }
 
+    /**
+     * Weekly mode only changes this tab on wide screens, where it shows the week's learning and hillulot.
+     */
+    private boolean isWeekly() {
+        return mIsTwoPane && sSharedPreferences.getBoolean("weeklyMode", false);
+    }
+
+    /**
+     * @return the Sunday of the week shown in weekly mode, the same week as the weekly zmanim
+     */
+    private LocalDate getWeekStart() {
+        return sCurrentDateShown.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+    }
+
     private boolean isAfterSunset() {
         return sROZmanimCalendar.getSunset() != null && Instant.now().isAfter(sROZmanimCalendar.getSunset());
     }
 
     private void setDate() {
+        if (isWeekly()) {
+            setWeekDate();
+            return;
+        }
+        if (binding != null && binding.hillulotDate != null) {
+            binding.hillulotDate.setText("");// only used for the week in weekly mode
+        }
         boolean today = isToday();
         boolean afterSunset = today && mAdjustDate && isAfterSunset();
 
@@ -155,6 +187,38 @@ public class LimudFragment extends Fragment {
 		}
     }
 
+    /**
+     * Shows the week instead of the day at the top, e.g. "25 Oct – 31 Oct, 2026" and "14 Ḥesh – 20 Ḥesh, 5787".
+     */
+    private void setWeekDate() {
+        if (binding == null) {
+            return;
+        }
+        LocalDate firstDay = getWeekStart();
+        LocalDate lastDay = firstDay.plusDays(6);
+        JewishDateInfo firstDayInfo = sJewishDateInfo.getCopy();
+        firstDayInfo.setLocalDate(firstDay);
+        JewishDateInfo lastDayInfo = sJewishDateInfo.getCopy();
+        lastDayInfo.setLocalDate(lastDay);
+        DateTimeFormatter dayAndMonth = DateTimeFormatter.ofPattern("d MMM", mContext.getResources().getConfiguration().getLocales().get(0));
+        String englishWeek = firstDay.format(dayAndMonth) + " – " + lastDay.format(dayAndMonth) + ", " + lastDay.getYear();
+        String hebrewWeek = firstDayInfo.getJewishCalendar().toShortString() + " – " + lastDayInfo.getJewishCalendar().toShortString();
+        boolean hebrew = Utils.isLocaleHebrew(mContext);
+        if (binding.englishDateTextView != null) {
+            binding.englishDateTextView.setVisibility(hebrew ? View.GONE : View.VISIBLE);
+            binding.englishDateTextView.setText(englishWeek);
+        }
+        if (binding.currentDateArrow != null) {
+            binding.currentDateArrow.setVisibility(View.GONE);
+        }
+        if (binding.hebrewDateTextView != null) {
+            binding.hebrewDateTextView.setText(hebrewWeek);
+        }
+        if (binding.hillulotDate != null) {
+            binding.hillulotDate.setText(hebrew ? hebrewWeek : englishWeek + "         " + hebrewWeek);
+        }
+    }
+
     private void initMenu() {
         if (materialToolbar == null) {
             return;
@@ -182,10 +246,28 @@ public class LimudFragment extends Fragment {
             hillulotRV.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
             hillulotRV.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));// add 2 to make it look bold
             hillulotRV.setHasFixedSize(false); // apparently not needed as it is false by default, but chatGPT says to keep it in
+            RecyclerView weeklyLimudRV = binding.weeklyLimud.weeklyLimudRV;
+            weeklyLimudRV.setLayoutManager(new LinearLayoutManager(mContext));
+            weeklyLimudRV.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
+            weeklyLimudRV.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));// add 2 to make it look bold
+            binding.weeklyLimud.weeklyHillulotRV.setLayoutManager(new LinearLayoutManager(mContext));
         }
     }
 
     private void updateLists() {
+        if (binding == null) {
+            return;
+        }
+        boolean weekly = isWeekly();
+        View dailyLimudim = binding.dailyLimudim != null ? binding.dailyLimudim : binding.dailyLimudimSplit;// the portrait and landscape layouts
+        if (dailyLimudim != null) {
+            dailyLimudim.setVisibility(weekly ? View.GONE : View.VISIBLE);
+        }
+        binding.weeklyLimud.getRoot().setVisibility(weekly ? View.VISIBLE : View.GONE);
+        if (weekly) {
+            updateWeeklyLists();
+            return;
+        }
         boolean isNowAdjustable = isToday() && mAdjustDate && isAfterSunset();
         if (isNowAdjustable && mAdjustDate) {
             sCurrentDateShown = sCurrentDateShown.plusDays(1);
@@ -206,6 +288,32 @@ public class LimudFragment extends Fragment {
             sCurrentDateShown = sCurrentDateShown.minusDays(1);
             sJewishDateInfo.setLocalDate(sCurrentDateShown);
         }
+    }
+
+    /**
+     * Fills the weekly view: the week's learning as ranges, and the hillulot of each day of the week that has any.
+     */
+    private void updateWeeklyLists() {
+        LocalDate firstDay = getWeekStart();
+        LocalDate lastDay = firstDay.plusDays(6);
+        JewishDateInfo firstDayInfo = sJewishDateInfo.getCopy();
+        firstDayInfo.setLocalDate(firstDay);
+        binding.weeklyLimud.weeklyLimudRV.setAdapter(new LimudAdapter(mContext, WeeklyLimudRanges.getRanges(mContext, firstDay, lastDay), firstDayInfo));
+
+        List<WeeklyHillulotAdapter.Day> days = new ArrayList<>();
+        Locale locale = mContext.getResources().getConfiguration().getLocales().get(0);
+        for (int i = 0; i < 7; i++) {
+            LocalDate day = firstDay.plusDays(i);
+            sJewishDateInfo.setLocalDate(day);// getHillulotList() reads the shared date
+            List<LimudListEntry> hillulot = getHillulotList();
+            if (!hillulot.isEmpty()) {
+                String label = day.getDayOfWeek().getDisplayName(TextStyle.SHORT, locale) + " " + day.getDayOfMonth()
+                        + "\n" + sJewishDateInfo.getJewishCalendar().toShortString();
+                days.add(new WeeklyHillulotAdapter.Day(label, day.equals(LocalDate.now()), sJewishDateInfo.getCopy(), hillulot));
+            }
+        }
+        sJewishDateInfo.setLocalDate(sCurrentDateShown);// reset
+        binding.weeklyLimud.weeklyHillulotRV.setAdapter(new WeeklyHillulotAdapter(mContext, days));
     }
 
     private List<LimudListEntry> getLimudList() {
@@ -250,98 +358,9 @@ public class LimudFragment extends Fragment {
 
         limudim.add(new LimudListEntry(mContext.getString(R.string.daily_chafetz_chaim) + ChafetzChayimYomiCalculator.getChafetzChayimYomi(sJewishDateInfo.getJewishCalendar())));
 
-        ArrayList<String> dailyMonthlyTehilim;
-        if (Utils.isLocaleHebrew(mContext)) {
-            dailyMonthlyTehilim = new ArrayList<>(Arrays.asList(
-                    "א - ט",       // 1 - 9
-                    "י - יז",      // 10 - 17
-                    "יח - כב",     // 18 - 22
-                    "כג - כח",     // 23 - 28
-                    "כט - לד",     // 29 - 34
-                    "לה - לח",     // 35 - 38
-                    "לט - מג",     // 39 - 43
-                    "מד - מח",     // 44 - 48
-                    "מט - נד",     // 49 - 54
-                    "נה - נט",     // 55 - 59
-                    "ס - סה",      // 60 - 65
-                    "סו - סח",     // 66 - 68
-                    "סט - עא",     // 69 - 71
-                    "עב - עו",     // 72 - 76
-                    "עז - עח",     // 77 - 78
-                    "עט - פב",     // 79 - 82
-                    "פג - פז",     // 83 - 87
-                    "פח - פט",     // 88 - 89
-                    "צ - צו",      // 90 - 96
-                    "צז - קג",     // 97 - 103
-                    "קד - קה",     // 104 - 105
-                    "קו - קז",     // 106 - 107
-                    "קח - קיב",    // 108 - 112
-                    "קיג - קיח",   // 113 - 118
-                    "קיט:א - קיט:צו", // 119:1 - 119:96
-                    "קיט:צז - קיט:קעו", // 119:97 - 119:176
-                    "קכ - קלד",     // 120 - 134
-                    "קל - קלט",     // 135 - 139
-                    "קמ - " + (sJewishDateInfo.getJewishCalendar().getDaysInJewishMonth() == 29 ? "קנ" : "קמה"), // 140 - 150 or 145
-                    "קמה - קנ"       // 145 - 150
-            ));
-        } else {
-            dailyMonthlyTehilim = new ArrayList<>(Arrays.asList(
-                    "1 - 9",
-                    "10 - 17",
-                    "18 - 22",
-                    "23 - 28",
-                    "29 - 34",
-                    "35 - 38",
-                    "39 - 43",
-                    "44 - 48",
-                    "49 - 54",
-                    "55 - 59",
-                    "60 - 65",
-                    "66 - 68",
-                    "69 - 71",
-                    "72 - 76",
-                    "77 - 78",
-                    "79 - 82",
-                    "83 - 87",
-                    "88 - 89",
-                    "90 - 96",
-                    "97 - 103",
-                    "104 - 105",
-                    "106 - 107",
-                    "108 - 112",
-                    "113 - 118",
-                    "119:1 - 119:96",
-                    "119:97 - 119:176",
-                    "120 - 134",
-                    "135 - 139",
-                    "140 - " + (sJewishDateInfo.getJewishCalendar().getDaysInJewishMonth() == 29 ? 150 : 145),
-                    "145 - 150"));
-        }
-        limudim.add(new LimudListEntry(mContext.getString(R.string.daily_tehilim) + mContext.getString(R.string.monthly) + ": " + dailyMonthlyTehilim.get(sJewishDateInfo.getJewishCalendar().getJewishDayOfMonth() - 1)));
+        limudim.add(new LimudListEntry(mContext.getString(R.string.daily_tehilim) + mContext.getString(R.string.monthly) + ": " + TehilimYomi.byDayOfMonth(mContext, sJewishDateInfo.getJewishCalendar())));
 
-        ArrayList<String> dailyWeeklyTehilim;
-        if (Utils.isLocaleHebrew(mContext)) {
-            dailyWeeklyTehilim = new ArrayList<>(Arrays.asList(
-                    "א - כט",      // 1 - 29
-                    "ל - נ",       // 30 - 50
-                    "נא - עב",     // 51 - 72
-                    "עג - פט",     // 73 - 89
-                    "צ - קו",      // 90 - 106
-                    "קז - קיט",    // 107 - 119
-                    "קכ - קנ"      // 120 - 150
-            ));
-        } else {
-            dailyWeeklyTehilim = new ArrayList<>(Arrays.asList(
-                    "1 - 29",
-                    "30 - 50",
-                    "51 - 72",
-                    "73 - 89",
-                    "90 - 106",
-                    "107 - 119",
-                    "120 - 150"
-            ));
-        }
-        limudim.add(new LimudListEntry(mContext.getString(R.string.daily_tehilim) + mContext.getString(R.string.weekly) + ": " + dailyWeeklyTehilim.get(sJewishDateInfo.getJewishCalendar().getDayOfWeek() - 1)));
+        limudim.add(new LimudListEntry(mContext.getString(R.string.daily_tehilim) + mContext.getString(R.string.weekly) + ": " + TehilimYomi.byDayOfWeek(mContext, sJewishDateInfo.getJewishCalendar())));
 
         DailyMishnehTorah dailyMishnehTorah = DailyMishnehTorah.INSTANCE;
 
@@ -443,7 +462,9 @@ public class LimudFragment extends Fragment {
     private void setupPreviousDayButton() {
         if (binding != null) {
             binding.prevDay.setOnClickListener(v -> {
-                if (isToday() && isAfterSunset() && mAdjustDate) {
+                if (isWeekly()) {
+                    sCurrentDateShown = sCurrentDateShown.minusDays(7);
+                } else if (isToday() && isAfterSunset() && mAdjustDate) {
                     mAdjustDate = false; // disable adjust date logic on today if after sunset
                 } else {
                     sCurrentDateShown = sCurrentDateShown.minusDays(1);
@@ -452,6 +473,7 @@ public class LimudFragment extends Fragment {
                 sJewishDateInfo.setLocalDate(sCurrentDateShown);
                 setDate();
                 updateLists();
+                MainFragmentManagerActivity.refreshSidebar();
                 mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
             });
         }
@@ -463,11 +485,12 @@ public class LimudFragment extends Fragment {
     private void setupNextDayButton() {
         if (binding != null) {
             binding.nextDay.setOnClickListener(v -> {
-                sCurrentDateShown = sCurrentDateShown.plusDays(1);
+                sCurrentDateShown = sCurrentDateShown.plusDays(isWeekly() ? 7 : 1);
                 sROZmanimCalendar.setLocalDate(sCurrentDateShown);
                 sJewishDateInfo.setLocalDate(sCurrentDateShown);
                 setDate();
                 updateLists();
+                MainFragmentManagerActivity.refreshSidebar();
                 mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
                 if (isToday()) {
                     mAdjustDate = true;
@@ -499,6 +522,7 @@ public class LimudFragment extends Fragment {
                     sJewishDateInfo.setLocalDate(sCurrentDateShown);
                     setDate();
                     updateLists();
+                    MainFragmentManagerActivity.refreshSidebar();
                     mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown)
                     );
                 });
@@ -509,6 +533,7 @@ public class LimudFragment extends Fragment {
                     sCurrentDateShown = userChosenDate;
                     setDate();
                     updateLists();
+                    MainFragmentManagerActivity.refreshSidebar();
                     mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
                 };
                 materialDatePicker.addOnNegativeButtonClickListener(selection -> {
