@@ -68,10 +68,10 @@ dependencies {
     implementation "com.google.android.horologist:horologist-tiles:$horologist_version"
     implementation 'androidx.wear.watchface:watchface-complications-data-source-ktx:1.3.0'
     implementation "androidx.compose.foundation:foundation:1.12.1"
-    implementation "com.kosherjava:zmanim:3.0.0"
+    implementation "com.kosherjava:zmanim:3.1.0"
     implementation 'com.google.code.gson:gson:2.15.0'
     implementation 'androidx.slice:slice-builders:1.0.0'
-    implementation 'com.google.guava:guava:33.7.2-jre'
+    implementation 'com.google.guava:guava:33.8.0-jre'
     // Use to utilize standard components and layouts in your tiles
     implementation("androidx.wear.protolayout:protolayout:$protolayout_version")
     // Use to utilize components and layouts with Material Design in your tiles
