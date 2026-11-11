@@ -110,15 +110,6 @@ public class SiddurFragment extends Fragment {
         setupButtons();
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        if (mActivity == null) return;
-        if (mActivity.findViewById(R.id.siddur_preferences_container) != null) {
-            updateView();
-        }
-    }
-
     public void updateView() {
         getChildFragmentManager()
                 .beginTransaction()
@@ -205,12 +196,6 @@ public class SiddurFragment extends Fragment {
         @Override
         public void onResume() {
             super.onResume();
-            initView();
-        }
-
-        @Override
-        public void onStart() {
-            super.onStart();
             initView();
         }
 

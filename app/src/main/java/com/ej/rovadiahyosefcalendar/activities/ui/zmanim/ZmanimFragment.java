@@ -1923,7 +1923,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
 
         boolean awayTooLong = Duration.between(sLastTimeUserWasInApp, now).compareTo(AWAY_THRESHOLD) > 0;
-// a new day only moves the user along if they were looking at "today"; someone browsing another date keeps it
+        // a new day only moves the user along if they were looking at "today"; someone browsing another date keeps it
         boolean followToday = !today.equals(sLastTodayDate) && sLastTodayDate.equals(sCurrentDateShown);
 
         if (awayTooLong || followToday || sCurrentDateShown == null) {

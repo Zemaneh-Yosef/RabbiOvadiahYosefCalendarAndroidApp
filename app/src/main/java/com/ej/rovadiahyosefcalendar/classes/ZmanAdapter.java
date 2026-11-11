@@ -2,6 +2,7 @@ package com.ej.rovadiahyosefcalendar.classes;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.SHARED_PREF;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentTimeZoneID;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sJewishDateInfo;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sROZmanimCalendar;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sSetupLauncher;
@@ -197,11 +198,29 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                         case PURIM_MESHULASH:
                             showTachanunDialog();
                             break;
+                        case HALLEL_OR_CHATZI_HALLEL:
+                            showHallelDialog();
+                            break;
+                        case ERUV_TAVSHILIN:
+                            showEruvTavshilinDialog();
+                            break;
+                        case SEASONAL_PRAYER_CHANGES:
+                            showSeasonalPrayerChangesDialog(title);
+                            break;
+                        case SHAAH_ZMANIT_GRA:
+                            showShaahZmanitGRADialog();
+                            break;
+                        case SHAAH_ZMANIT_MGA:
+                            showShaahZmanitMGADialog();
+                            break;
                         case SHMITA_YEAR:
                             showShmitaDialog();
                             break;
                         case ELEVATION_VALUE:
                             showElevationDialog();
+                            break;
+                        case DST:
+                            showDSTDialog();
                             break;
                             //Zmanim start here
                         case ALOT_HASHACHAR_ZMAN:
@@ -648,6 +667,41 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         resetDialogBuilder();
     }
 
+    private void showEruvTavshilinDialog() {
+        AlertDialog alertDialog = dialogBuilder.setTitle("Eruv Tavshilin - עירוב תבשילין")
+                .setMessage(R.string.eruv_tavshilin_dialog)
+                .create();
+        alertDialog.show();
+    }
+
+    private void showHallelDialog() {
+        AlertDialog alertDialog = dialogBuilder.setTitle("Hallel - הלל")
+                .setMessage(R.string.hallel_dialog)
+                .create();
+        alertDialog.show();
+    }
+
+    private void showSeasonalPrayerChangesDialog(String title) {
+        AlertDialog alertDialog = dialogBuilder.setTitle(title)
+                .setMessage(R.string.seasonal_prayers_dialog)
+                .create();
+        alertDialog.show();
+    }
+
+    private void showShaahZmanitGRADialog() {
+        AlertDialog alertDialog = dialogBuilder.setTitle("Shaah Zemanit GR\"A - שעה זמנית גר\"א")
+                .setMessage(R.string.shaah_zemanit_gra_dialog)
+                .create();
+        alertDialog.show();
+    }
+
+    private void showShaahZmanitMGADialog() {
+        AlertDialog alertDialog = dialogBuilder.setTitle("Shaah Zemanit MG\"A - שעה זמנית מג\"א")
+                .setMessage(context.getString(R.string.shaah_zemanit_mga_dialog).replace("%r", (sROZmanimCalendar != null && sROZmanimCalendar.isUseAmudehHoraah() ? context.getString(R.string.yes_adjusting) : context.getString(R.string.not_adjusting))))
+                .create();
+        alertDialog.show();
+    }
+
     private void showElevationDialog() {
         AlertDialog alertDialog = dialogBuilder.setTitle(context.getString(R.string.elevation).replace(":", ""))
                 .setMessage(R.string.elevation_dialog)
@@ -656,6 +710,13 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
                 .create();
         alertDialog.show();
         resetDialogBuilder();
+    }
+
+    private void showDSTDialog() {
+        AlertDialog alertDialog = dialogBuilder.setTitle("Daylight Savings Time - שעון קיץ")
+                .setMessage(TimeZoneDescriber.describe(sCurrentTimeZoneID, Utils.isLocaleHebrew(context)))
+                .create();
+        alertDialog.show();
     }
 
     private void showTekufaDialog() {

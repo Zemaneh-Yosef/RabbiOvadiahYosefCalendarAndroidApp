@@ -4,6 +4,7 @@ import com.kosherjava.zmanim.AstronomicalCalendar;
 import com.kosherjava.zmanim.ZmanimCalendar;
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.util.GeoLocation;
+import com.kosherjava.zmanim.util.SPACalculator;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,6 +20,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class extends the ZmanimCalendar class to add a few methods that are specific to the opinion of the Rabbi Ovadiah Yosef ZT"L.
@@ -148,8 +151,22 @@ public class ROZmanimCalendar extends ZmanimCalendar {
      */
     private double ateretTorahSunsetOffset = 40;
 
+    /**
+     * One calculator shared by every instance. The SPA calculator is very expensive on Android (its Math.fma calls fall back to BigDecimal),
+     * but it caches its results per instance, keyed by date and location. Sharing it lets copies, fragments and tab switches reuse those results
+     * instead of starting with an empty cache every time. Its settings are never changed, so sharing it is safe.
+     */
+    private static final SPACalculator SHARED_CALCULATOR = new SPACalculator();
+
+    /**
+     * Cache for {@link #getEquinoxPercentOfShaahZmanis(double, boolean)}. The result only depends on the location, the year, the degrees and
+     * whether it is for sunrise or sunset, yet it was being recalculated for every Amudei Horaah zman.
+     */
+    private static final Map<String, Double> EQUINOX_PERCENT_CACHE = new ConcurrentHashMap<>();
+
     public ROZmanimCalendar(GeoLocation location) {
         super(location);
+        super.setAstronomicalCalculator(SHARED_CALCULATOR);
         jewishCalendar = new JewishCalendar(getLocalDate());
         setUseElevation(true);
     }
@@ -683,10 +700,18 @@ public class ROZmanimCalendar extends ZmanimCalendar {
      * @return the percentage, or null if it can't be computed
      */
     private Double getEquinoxPercentOfShaahZmanis(double degrees, boolean sunset) {
-        ROZmanimCalendar equinox = getCopy();
-        equinox.setLocalDate(LocalDate.of(getLocalDate().getYear(), Month.MARCH, 17));
-        double percentage = equinox.getPercentOfShaahZmanisFromDegrees(degrees, sunset);
-        return percentage == Double.MIN_VALUE ? null : percentage;
+        GeoLocation geoLocation = getGeoLocation();
+        int year = getLocalDate().getYear();
+        String key = geoLocation.getLatitude() + "," + geoLocation.getLongitude() + "," + geoLocation.getZoneId().getId()
+                + "," + year + "," + degrees + "," + sunset;// sea level based, so elevation does not matter
+        Double cached = EQUINOX_PERCENT_CACHE.get(key);
+        if (cached == null) {
+            ROZmanimCalendar equinox = getCopy();
+            equinox.setLocalDate(LocalDate.of(year, Month.MARCH, 17));
+            cached = equinox.getPercentOfShaahZmanisFromDegrees(degrees, sunset);
+            EQUINOX_PERCENT_CACHE.put(key, cached);
+        }
+        return cached == Double.MIN_VALUE ? null : cached;
     }
 
     /**
