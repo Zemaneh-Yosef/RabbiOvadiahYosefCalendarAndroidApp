@@ -14,6 +14,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.widget.Toast;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
@@ -687,5 +688,25 @@ public class Utils {
             }
         }
         return false;
+    }
+
+    /**
+     * Starts the activity, or tells the user that no app can open it instead of crashing. TVs often have no browser, PDF viewer, email
+     * app or some of the settings screens.
+     *
+     * @return true if the activity was started
+     */
+    public static boolean startActivitySafely(Context context, Intent intent) {
+        try {
+            context.startActivity(intent);
+            return true;
+        } catch (android.content.ActivityNotFoundException | SecurityException e) {
+            String link = intent.getDataString();
+            String message = link != null && link.startsWith("http")
+                    ? context.getString(R.string.no_app_can_open_this_link, link)
+                    : context.getString(R.string.no_app_can_open_this);
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+            return false;
+        }
     }
 }

@@ -823,7 +823,7 @@ public class SiddurFragment extends Fragment {
                         summary = "It is good to say this prayer on Tu'Beshvat";
                     }
                     miscPrayer.setOnPreferenceClickListener(v -> {
-                        startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://elyahu41.github.io/Prayer%20for%20an%20Etrog.pdf")));
+                        Utils.startActivitySafely(mContext, new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://elyahu41.github.io/Prayer%20for%20an%20Etrog.pdf")));
                         return true;
                     });
                 }
@@ -837,7 +837,7 @@ public class SiddurFragment extends Fragment {
                         summary = "It is good to say this prayer today";
                     }
                     miscPrayer.setOnPreferenceClickListener(v -> {
-                        startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://elyahu41.github.io/Parshat-Haman-3.pdf")));
+                        Utils.startActivitySafely(mContext, new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://elyahu41.github.io/Parshat-Haman-3.pdf")));
                         return true;
                     });
                 }
@@ -851,7 +851,7 @@ public class SiddurFragment extends Fragment {
                         summary = "It is good to say this prayer today";
                     }
                     miscPrayer.setOnPreferenceClickListener(v -> {
-                        startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://elyahu41.github.io/tefillas_hasheloh.pdf")));
+                        Utils.startActivitySafely(mContext, new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://elyahu41.github.io/tefillas_hasheloh.pdf")));
                         return true;
                     });
                 }

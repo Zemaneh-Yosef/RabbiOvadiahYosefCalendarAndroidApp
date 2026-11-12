@@ -69,13 +69,6 @@ public class LimudAdapter extends RecyclerView.Adapter<LimudAdapter.ZmanViewHold
 
     @Override
     public void onBindViewHolder(@NonNull @NotNull ZmanViewHolder holder, int position) {
-        holder.itemView.setOnFocusChangeListener((view, b) -> {// support for tv
-            if (b) {
-                view.setBackgroundColor(context.getColor(R.color.dark_gold));
-            } else {
-                view.setBackgroundColor(0);
-            }
-        });
         holder.itemView.setOnKeyListener(Utils::moveFocusToNeighbourRow);// D-pad up/down go row by row
 
         holder.setIsRecyclable(false);
@@ -124,7 +117,7 @@ public class LimudAdapter extends RecyclerView.Adapter<LimudAdapter.ZmanViewHold
                     }
                     dialogBuilder.setTitle(context.getString(R.string.open_sefaria_link_for) + limudim.get(position).getLimudTitle().replace(context.getString(R.string.daf_yomi) + " ", "") + "?")
                             .setMessage(R.string.this_will_open_the_sefaria_website_or_app_in_a_new_window_with_the_page)
-                            .setPositiveButton(context.getString(R.string.open), (dialog, which) -> context.startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse(dafYomiLink))))
+                            .setPositiveButton(context.getString(R.string.open), (dialog, which) -> Utils.startActivitySafely(context, new Intent(Intent.ACTION_VIEW).setData(Uri.parse(dafYomiLink))))
                             .setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss())
                             .show();
                 } else if (limudim.get(position).getLimudTitle().contains(context.getString(R.string.yerushalmi_yomi))) {
@@ -133,7 +126,7 @@ public class LimudAdapter extends RecyclerView.Adapter<LimudAdapter.ZmanViewHold
                     String yerushalmiYomiLink = "https://www.sefaria.org/" + "Jerusalem_Talmud_" + dafYomiYerushalmi.getYerushalmiMasechtaTransliterated();
                     dialogBuilder.setTitle(context.getString(R.string.open_sefaria_link_for) + limudim.get(position).getLimudTitle().replace(context.getString(R.string.yerushalmi_yomi) + " ", "") + "?")
                             .setMessage(R.string.this_will_open_the_sefaria_website_or_app_in_a_new_window_with_the_page)
-                            .setPositiveButton(context.getString(R.string.open), (dialog, which) -> context.startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse(yerushalmiYomiLink))))
+                            .setPositiveButton(context.getString(R.string.open), (dialog, which) -> Utils.startActivitySafely(context, new Intent(Intent.ACTION_VIEW).setData(Uri.parse(yerushalmiYomiLink))))
                             .setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss())
                             .show();
                 } else if (limudim.get(position).getLimudTitle().contains(context.getString(R.string.mishna_yomi))) {
@@ -142,7 +135,7 @@ public class LimudAdapter extends RecyclerView.Adapter<LimudAdapter.ZmanViewHold
                             + replaceWithSefariaNames(mishnaYomi.getFirstMasechta()) + "." + mishnaYomi.getFirstPerek() + "." + mishnaYomi.getFirstMishna();
                     dialogBuilder.setTitle(context.getString(R.string.open_sefaria_link_for) + limudim.get(position).getLimudTitle().replace(context.getString(R.string.mishna_yomi) + " ", "") + "?")
                             .setMessage(R.string.this_will_open_the_sefaria_website_or_app_in_a_new_window_with_the_page)
-                            .setPositiveButton(context.getString(R.string.open), (dialog, which) -> context.startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse(mishnaYomiLink))))
+                            .setPositiveButton(context.getString(R.string.open), (dialog, which) -> Utils.startActivitySafely(context, new Intent(Intent.ACTION_VIEW).setData(Uri.parse(mishnaYomiLink))))
                             .setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss())
                             .show();
                 } else if (limudim.get(position).getLimudTitle().contains(context.getString(R.string.daily_halacha))) {
@@ -157,7 +150,7 @@ public class LimudAdapter extends RecyclerView.Adapter<LimudAdapter.ZmanViewHold
                                 + halachaYomi.get(0).getFirstSeif();
                         dialogBuilder.setTitle(context.getString(R.string.open_sefaria_link_for) + limudim.get(position).getLimudTitle().replace(context.getString(R.string.daily_halacha) + " ", "") + "?")
                                 .setMessage(R.string.this_will_open_the_sefaria_website_or_app_in_a_new_window_with_the_page)
-                                .setPositiveButton(context.getString(R.string.open), (dialog, which) -> context.startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse(halachaYomiLink))))
+                                .setPositiveButton(context.getString(R.string.open), (dialog, which) -> Utils.startActivitySafely(context, new Intent(Intent.ACTION_VIEW).setData(Uri.parse(halachaYomiLink))))
                                 .setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss())
                                 .show();
                     }

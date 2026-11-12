@@ -34,6 +34,7 @@ import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.app.PendingIntent;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -921,7 +922,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                                     // Fallback to the main App Info page if the specific battery page fails
                                     Intent fallback = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
                                     fallback.setData(Uri.parse("package:" + mContext.getPackageName()));
-                                    mContext.startActivity(fallback);
+                                    Utils.startActivitySafely(mContext, fallback);
                                 }
                             })
                             .setNegativeButton(mContext.getString(R.string.no), (dialog, which) -> dialog.dismiss())
@@ -940,7 +941,13 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         .setTitle(R.string.zmanim_notifications_will_not_work)
                         .setMessage(R.string.if_you_would_like_to_receive_zmanim_notifications)
                         .setCancelable(false)
-                        .setPositiveButton(mContext.getString(R.string.yes), (dialog, which) -> mNotificationLauncher.launch(new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:" + mContext.getPackageName()))))
+                        .setPositiveButton(mContext.getString(R.string.yes), (dialog, which) -> {
+                            try {
+                                mNotificationLauncher.launch(new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:" + mContext.getPackageName())));
+                            } catch (ActivityNotFoundException e) {// e.g. on some TVs
+                                Utils.startActivitySafely(mContext, new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + mContext.getPackageName())));
+                            }
+                        })
                         .setNegativeButton(mContext.getString(R.string.no), (dialog, which) -> dialog.dismiss());
                 if (!mActivity.isFinishing()) {
                     builder.show();
@@ -958,7 +965,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext)
                 .setTitle(R.string.zmanim_notifications_will_not_work)
                 .setMessage(R.string.if_you_would_like_to_receive_zmanim_notifications)
-                .setPositiveButton(mContext.getString(R.string.yes), (dialog, which) -> mContext.startActivity(new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                .setPositiveButton(mContext.getString(R.string.yes), (dialog, which) -> Utils.startActivitySafely(mContext, new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
                         .putExtra(Settings.EXTRA_APP_PACKAGE, mContext.getPackageName())))
                 .setNegativeButton(mContext.getString(R.string.no), (dialog, which) -> dialog.dismiss());
         if (!mActivity.isFinishing()) {
@@ -1141,7 +1148,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 return true;
             } else if (itemId == R.id.website) {
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.royzmanim.com"));
-                startActivity(browserIntent);
+                Utils.startActivitySafely(mContext, browserIntent);
                 return true;
             }
             return false;

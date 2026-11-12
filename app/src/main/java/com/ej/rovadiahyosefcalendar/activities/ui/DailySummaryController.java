@@ -274,7 +274,7 @@ public class DailySummaryController {
                 Intent sendIntent = new Intent(Intent.ACTION_SEND);
                 sendIntent.setType("text/plain");
                 sendIntent.putExtra(Intent.EXTRA_TEXT, "https://royzmanim.com/calendar?locationName=" + sCurrentLocationName.replace(" ", "+").replace(",", "%2C") + "&lat=" + sLatitude + "&long=" + sLongitude + "&elevation=" + sElevation + "&timeZone=" + sCurrentTimeZoneID);
-                mContext.startActivity(Intent.createChooser(sendIntent, mContext.getString(R.string.share)));
+                Utils.startActivitySafely(mContext, Intent.createChooser(sendIntent, mContext.getString(R.string.share)));
             }))
             .setNeutralButton(R.string.change_location, (dialog, which) -> mContext.startActivity(new Intent(mContext, GetUserLocationWithMapActivity.class).putExtra("loneActivity", true)))
             .setNegativeButton(mContext.getString(R.string.setup_elevation), (dialog, which) -> mContext.startActivity(new Intent(mContext, SetupElevationActivity.class).putExtra("loneActivity", true)))
@@ -306,7 +306,7 @@ public class DailySummaryController {
                 dialogBuilder.setPositiveButton(mContext.getString(R.string.ok), (dialog, which) -> {
                     Intent intent = new Intent(Intent.ACTION_VIEW);
                     intent.setData(Uri.parse(parshaLink));
-                    mContext.startActivity(intent);
+                    Utils.startActivitySafely(mContext, intent);
                 });
                 dialogBuilder.setNegativeButton(mContext.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
                 dialogBuilder.show();
