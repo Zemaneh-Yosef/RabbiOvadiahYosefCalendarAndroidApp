@@ -32,7 +32,6 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
-import com.ej.rovadiahyosefcalendar.classes.ChaiTablesWebJava;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -165,51 +164,13 @@ public class SetupElevationActivity extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (!SetupElevationActivity.this.getIntent().getBooleanExtra("loneActivity", false)) {
-                    startActivity(new Intent(SetupElevationActivity.this, AdvancedSetupActivity.class)
-                            .putExtra("fromSetup", SetupElevationActivity.this.getIntent().getBooleanExtra("fromSetup", false)));
-                }
                 finish();
             }
         });
     }
 
     private void downloadTablesAndFinish(SharedPreferences sharedPreferences) {
-        ProgressBar progressBar = findViewById(R.id.progressBarElevation);
-        progressBar.setVisibility(View.VISIBLE);
-
-        if (sharedPreferences.getBoolean("UseTable" + sCurrentLocationName, true)) {
-            String link = sharedPreferences.getString("chaitablesLink" + sCurrentLocationName, "");
-            JewishDate jDate = new JewishDate();
-            GeoLocation geoLocation = new GeoLocation("", sLatitude, sLongitude, ZoneId.of(sCurrentTimeZoneID));
-            ChaiTablesWebJava scraper = new ChaiTablesWebJava(geoLocation, jDate);
-
-            Thread thread = new Thread(() -> {
-                try {
-                    ChaiTablesWebJava.ChaiTablesResult[] results = scraper.formatInterfacer(link);
-                    if (results == null || results[0] == null) {
-                        throw new IOException("ChaiTables did not return any data for " + link);// reaches the catch below, which shows the error toast instead of "Success!"
-                    }
-                    int jewishYear = jDate.getJewishYear();
-                    for (ChaiTablesWebJava.ChaiTablesResult r : results) {
-                        ChaiTablesWebJava.saveResultsToFile(r, getExternalFilesDir(null), sCurrentLocationName, jewishYear);
-                        jewishYear++;
-                    }
-
-                    runOnUiThread(() -> Toast.makeText(getApplicationContext(), getString(R.string.success), Toast.LENGTH_SHORT).show());
-                    sharedPreferences.edit().putString("chaitablesLink" + sCurrentLocationName, results[0].url()).apply(); //save the link for this location to automatically download again next time
-
-                } catch (Exception e) {
-                    runOnUiThread(() -> Toast.makeText(getApplicationContext(), R.string.something_went_wrong_is_the_link_correct, Toast.LENGTH_SHORT).show());
-                    new RuntimeException(e).printStackTrace();
-                } finally {
-                    finish();
-                }
-            });
-            thread.start();
-        } else {
-            finish();
-        }
+        finish();// the visible sunrise comes from the refraction server's terrain horizon: nothing to download here
     }
 }
 

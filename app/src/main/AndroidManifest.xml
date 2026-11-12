@@ -145,12 +145,6 @@
         <activity
             android:name=".activities.ZmanimLanguageActivity"
             android:exported="true" />
-        <activity
-            android:name=".activities.AdvancedSetupActivity"
-            android:exported="true" />
-        <activity
-            android:name=".activities.SetupChaiTablesActivity"
-            android:exported="true" />
         <activity android:name=".activities.InIsraelActivity" />
         <activity
             android:name=".activities.SettingsActivity"

@@ -93,7 +93,6 @@ import com.ej.rovadiahyosefcalendar.activities.NetzActivity;
 import com.ej.rovadiahyosefcalendar.activities.SettingsActivity;
 import com.ej.rovadiahyosefcalendar.activities.WelcomeScreenActivity;
 import com.ej.rovadiahyosefcalendar.activities.ui.DailySummaryController;
-import com.ej.rovadiahyosefcalendar.classes.ChaiTablesWebJava;
 import com.ej.rovadiahyosefcalendar.classes.DailyEntriesBuilder;
 import com.ej.rovadiahyosefcalendar.classes.DummyZmanAdapter;
 import com.ej.rovadiahyosefcalendar.classes.HebrewDayMonthYearPickerDialog;
@@ -141,11 +140,15 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.ej.rovadiahyosefcalendar.classes.royzmanim.RefractionRepository;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function2;
+
 public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
     public static boolean sShabbatMode;
     private int mCurrentPosition;//current position in the list of zmanim to return to
-    private boolean mUpdateTablesDialogShown;
 
     //android classes
     private FragmentZmanimBinding binding;
@@ -154,6 +157,25 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private Context mContext;
     private FragmentActivity mActivity;
     private Handler mHandler = null;
+    /** Better weather / terrain / haze data (or a visible sunrise) for the place shown arrived: rebuild and redraw. */
+    private final Function2<Double, Double, Unit> mRefractionListener = (lat, lon) -> {
+        Handler handler = mHandler;
+        if (handler != null) {
+            handler.post(() -> {
+                if (binding == null || Math.abs(lat - sLatitude) > 1e-5 || Math.abs(lon - sLongitude) > 1e-5) {
+                    return;
+                }
+                instantiateZmanimCalendar();
+                setNextUpcomingZman();
+                if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                    updateWeeklyZmanim();
+                } else {
+                    updateDailyZmanim();
+                }
+            });
+        }
+        return Unit.INSTANCE;
+    };
     private Runnable mZmanimUpdater;
     private Runnable mNextZmanUpdater;
 
@@ -230,6 +252,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         mLayout = binding.mainLayout;
         mIsTwoPane = getResources().getBoolean(R.bool.is_two_pane);
         mHandler = new Handler(mContext.getMainLooper());
+        RefractionRepository.addListener(mRefractionListener);
         initMenu();
         setupShabbatModeBanner();
 
@@ -389,25 +412,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      * @param codeToRunAfterwards the code to run after the chaitable times are updated. This should be done on the main UI thread if it the code will affect the UI.
      */
     private void updateChaitableTimesFromLatLong(Runnable codeToRunAfterwards) {//TODO
-//        new Thread(() -> {
-//            if (sROZmanimCalendar.getHaNetz() == null) {// if visible sunrise for this location is null, try to update it
-//                JewishDate jDate = new JewishDate();
-//                ChaiTablesWebJava scraper = new ChaiTablesWebJava(new GeoLocation("", sLatitude, sLongitude, TimeZone.getTimeZone(sCurrentTimeZoneID)), jDate);
-//
-//                try {
-//                    ChaiTablesWebJava.ChaiTablesResult[] result = scraper.getChaitableTimesWithLatLong();
-//                    int jewishYear = jDate.getJewishYear();
-//                    for (ChaiTablesWebJava.ChaiTablesResult r : result) {
-//                        ChaiTablesWebJava.saveResultsToFile(r, mContext.getExternalFilesDir(null), sCurrentLocationName, jewishYear);
-//                        jewishYear++;
-//                    }
-//                    sSharedPreferences.edit().putString("chaitablesLink" + sCurrentLocationName, result[0].url()).apply(); // save the link for this location to automatically download again next time
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
             mActivity.runOnUiThread(codeToRunAfterwards);
-//        }).start();
     }
 
     private void setupButtons() {
@@ -440,7 +445,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     updateDailyZmanim();
                 }
                 mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
-                seeIfTablesNeedToBeUpdated(true);
             }
         });
 
@@ -478,7 +482,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                             updateDailyZmanim();
                         }
                         mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
-                        seeIfTablesNeedToBeUpdated(true);
                     });
                     DatePickerDialog.OnDateSetListener onDateSetListener = (view, year, month, day) -> {
                         LocalDate userChosenDate = LocalDate.of(year, month, day);
@@ -491,7 +494,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                             updateDailyZmanim();
                         }
                         mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
-                        seeIfTablesNeedToBeUpdated(true);
                     };
                     materialDatePicker.addOnNegativeButtonClickListener(selection -> {
                         HebrewDayMonthYearPickerDialog hdmypd = new HebrewDayMonthYearPickerDialog(materialDatePicker, mActivity.getSupportFragmentManager(), sJewishDateInfo.getJewishCalendar());
@@ -509,65 +511,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
             mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
         }
-    }
-
-    /**
-     * This method will automatically update the tables if the user has set up the app before for the current location.
-     *
-     * @param fromButton if the method is called from the buttons, it will not ask more than once if the user wants to update the tables.
-     */
-    private void seeIfTablesNeedToBeUpdated(boolean fromButton) {
-        if (!(sSharedPreferences.getBoolean("isSetup", false) //only check after the app has been set up before
-                && sSharedPreferences.getBoolean("UseTable" + sCurrentLocationName, false))) //and only if the tables are being used
-			return;
-
-        if (!ChaiTablesWebJava.checkIfFileDoesNotExist(mActivity.getExternalFilesDir(null), sCurrentLocationName, sJewishDateInfo.getJewishCalendar().getJewishYear()))
-			return;
-
-        if (mUpdateTablesDialogShown)
-			return;
-
-		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext);
-		builder.setTitle(R.string.update_tables);
-		builder.setMessage(R.string.the_visible_sunrise_tables_for_the_current_location_and_year_need_to_be_updated_do_you_want_to_update_the_tables_now);
-		builder.setPositiveButton(R.string.yes, (dialog, which) -> {
-			String chaitablesURL = sSharedPreferences.getString("chaitablesLink" + sCurrentLocationName, "");
-			if (!chaitablesURL.isEmpty()) {//it should not be empty if the user has set up the app, but it is good to check
-				String hebrewYear = String.valueOf(sJewishDateInfo.getJewishCalendar().getJewishYear());
-				Pattern pattern = Pattern.compile("&cgi_yrheb=\\d{4}");
-				Matcher matcher = pattern.matcher(chaitablesURL);
-				if (matcher.find()) {
-					chaitablesURL = chaitablesURL.replace(matcher.group(), "&cgi_yrheb=" + hebrewYear);//replace the year in the URL with the current year
-				}
-				ChaiTablesWebJava scraper = new ChaiTablesWebJava(sROZmanimCalendar.getGeoLocation(), sJewishDateInfo.getJewishCalendar());
-				String finalChaitablesURL = chaitablesURL;
-				Thread thread = new Thread(() -> {
-					try {
-						ChaiTablesWebJava.ChaiTablesResult[] results = scraper.formatInterfacer(finalChaitablesURL); // will download 2 more years
-						int jewishYear = sJewishDateInfo.getJewishCalendar().getJewishYear();
-						for (ChaiTablesWebJava.ChaiTablesResult r : results) {
-							ChaiTablesWebJava.saveResultsToFile(r, mContext.getExternalFilesDir(null), sCurrentLocationName, jewishYear);
-							jewishYear++;
-						}
-						mActivity.runOnUiThread(() -> {
-							if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-								updateWeeklyZmanim();
-							} else {
-								updateDailyZmanim();
-							}
-						});
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				});
-				thread.start();
-			}
-		});
-		builder.setNegativeButton(R.string.no, (dialog, which) -> dialog.dismiss());
-		builder.show();
-		if (fromButton) {
-			mUpdateTablesDialogShown = true;
-		}
     }
 
     private void setupDailyViews() {
@@ -859,7 +802,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 sLongitude,
                 sElevation,
                 ZoneId.of(sCurrentTimeZoneID)));
-        sROZmanimCalendar.setExternalFilesDir(mActivity.getExternalFilesDir(null));
         String candles = sSettingsPreferences.getString("CandleLightingOffset", "20");
         sROZmanimCalendar.setCandleLightingOffset(Utils.parseDoubleOrDefault(candles, 20));
         String shabbat = sSettingsPreferences.getString("EndOfShabbatOffset", sSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40");
@@ -868,6 +810,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             sROZmanimCalendar.setAteretTorahSunsetOffset(30);
         }
         sROZmanimCalendar.setAmudehHoraah(sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false));
+        // the place's weather, terrain horizon and haze, fetched in the background when stale (the list redraws when they land)
+        RefractionRepository.ensureFresh(sLatitude, sLongitude);
     }
 
     private void askForRealTimeNotificationPermissions() {
@@ -909,10 +853,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     mPostNotificationsLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
                     waitingForNotificationPermission = true;
                 } else {
-                    if (!sSharedPreferences.getBoolean("hasShownVSNotification", false)) {
-                        Utils.showVisibleSunriseNotification(mContext);
-                        sSharedPreferences.edit().putBoolean("hasShownVSNotification", true).apply();
-                    }
                 }
             }
 
@@ -1564,7 +1504,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         () -> sElevation = Utils.parseDoubleOrDefault(sSharedPreferences.getString("elevation" + sCurrentLocationName, "0"), 0),
                         codeToRunOnMainThread));
                 thread.start();
-                seeIfTablesNeedToBeUpdated(false);
             } else {// use elevation that was set before
                 sElevation = Utils.parseDoubleOrDefault(sSharedPreferences.getString("elevation" + sCurrentLocationName, "0"), 0);
                 mActivity.runOnUiThread(codeToRunOnMainThread);
@@ -2050,6 +1989,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             binding.getRoot().getViewTreeObserver().removeOnGlobalFocusChangeListener(mFocusFirstZmanOnEntry);
         }
         binding = null;
+        RefractionRepository.removeListener(mRefractionListener);
         mDailySummary = null;
         sSharedPreferences.unregisterOnSharedPreferenceChangeListener(sSharedPrefListener);
         if (mLocationTimeoutRunnable != null) {
