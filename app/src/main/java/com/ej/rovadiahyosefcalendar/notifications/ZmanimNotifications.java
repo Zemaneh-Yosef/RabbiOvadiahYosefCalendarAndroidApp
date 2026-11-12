@@ -58,7 +58,6 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
                     if (!zmanimCalendar.getGeoLocation().equals(new GeoLocation())) {// if equal, we will get the user's location in the accept method
                         JewishDateInfo jDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false));
 
-                        zmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
 
                         String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
 
@@ -181,7 +180,6 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
                         location.getLongitude(),
                         mLocationResolver.getElevation(),
                         mLocationResolver.getZoneID()));
-                zmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
                 String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
                 zmanimCalendar.setCandleLightingOffset(Utils.parseDoubleOrDefault(candles, 20));
                 String shabbat = mSettingsPreferences.getString("EndOfShabbatOffset", mSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40");
@@ -195,7 +193,6 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
             }));
         } else {
             ROZmanimCalendar zmanimCalendar = new ROZmanimCalendar(mLocationResolver.getLastKnownGeoLocation());
-            zmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
             String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
             zmanimCalendar.setCandleLightingOffset(Utils.parseDoubleOrDefault(candles, 20));
             String shabbat = mSettingsPreferences.getString("EndOfShabbatOffset", mSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40");

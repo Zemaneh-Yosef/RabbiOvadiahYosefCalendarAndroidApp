@@ -92,7 +92,6 @@ public class NextZmanCountdownNotification extends Service {
         mSettingsPreferences.registerOnSharedPreferenceChangeListener(settingsPrefListener);
         mLocationResolver = new LocationResolver(this, null);
         mROZmanimCalendar = getROZmanimCalendar(this);
-        mROZmanimCalendar.setExternalFilesDir(getExternalFilesDir(null));
         String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
         mROZmanimCalendar.setCandleLightingOffset(Utils.parseDoubleOrDefault(candles, 20));
         String shabbat = mSettingsPreferences.getString("EndOfShabbatOffset", mSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40");
@@ -150,7 +149,6 @@ public class NextZmanCountdownNotification extends Service {
                                 location.getLongitude(),
                                 mLocationResolver.getElevation(),
                                 mLocationResolver.getZoneID()));
-                        mROZmanimCalendar.setExternalFilesDir(getExternalFilesDir(null));
                         String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
                         mROZmanimCalendar.setCandleLightingOffset(Utils.parseDoubleOrDefault(candles, 20));
                         String shabbat = mSettingsPreferences.getString("EndOfShabbatOffset", mSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40");

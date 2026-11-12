@@ -42,7 +42,6 @@ import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ej.rovadiahyosefcalendar.R;
-import com.ej.rovadiahyosefcalendar.activities.SetupChaiTablesActivity;
 import com.ej.rovadiahyosefcalendar.activities.SetupElevationActivity;
 import com.ej.rovadiahyosefcalendar.activities.SiddurViewActivity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -480,21 +479,8 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     private void showSunriseDialog() {
         dialogBuilder.setTitle("Sunrise - הנץ - HaNetz")
                 .setMessage(Utils.isLocaleHebrew(context) ? loadContentFromFile("hanetzHB.md") : loadContentFromFile("hanetz.md"))
-                .setPositiveButton(R.string.setup_visible_sunrise, (dialog, which) -> {
-                    if (sSetupLauncher != null) {
-                        sSetupLauncher.launch(new Intent(context, SetupChaiTablesActivity.class));
-                    }
-                })
                 .setNegativeButton(context.getString(R.string.dismiss), (dialog, which) -> dialog.dismiss());
-        AlertDialog dialog = dialogBuilder.create();
-        dialog.setOnShowListener(dialogInterface -> {//Make the button stick out for people to see it
-            Button visibleSunrise = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            visibleSunrise.setBackgroundTintMode(null);
-            visibleSunrise.setBackground(ContextCompat.getDrawable(context, R.drawable.colorful_gradient_square));
-            visibleSunrise.setTextColor(context.getColor(R.color.black));
-            visibleSunrise.setTypeface(Typeface.DEFAULT_BOLD);
-        });
-        dialog.show();
+        dialogBuilder.create().show();
         resetDialogBuilder();
     }
 

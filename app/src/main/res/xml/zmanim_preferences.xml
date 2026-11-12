@@ -11,6 +11,19 @@
             android:summary="@string/make_the_zmanim_like_the_luach_amudei_horaah_only_outside_israel"
             android:title="@string/luach_amudei_horaah" />
 
+        <com.github.tttt55.materialyoupreferences.preferences.MaterialSwitchPreference
+            android:defaultValue="true"
+            android:key="useRefractionData"
+            android:summary="@string/use_refraction_data_summary"
+            android:title="@string/use_refraction_data" />
+
+        <com.github.tttt55.materialyoupreferences.preferences.MaterialSwitchPreference
+            android:defaultValue="true"
+            android:dependency="useRefractionData"
+            android:key="useHazeTzet"
+            android:summary="@string/use_haze_tzet_summary"
+            android:title="@string/use_haze_tzet" />
+
         <com.github.tttt55.materialyoupreferences.preferences.MaterialListPreference
             app:defaultValue="1"
             app:entries="@array/tekufa_opinion_entries"

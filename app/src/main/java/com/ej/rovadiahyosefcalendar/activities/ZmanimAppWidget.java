@@ -55,7 +55,6 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         mSettingsPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         mROZmanimCalendar = getROZmanimCalendar();
         if (!mROZmanimCalendar.getGeoLocation().equals(new GeoLocation())) {// if using location, default GeoLocation will be returned. Avoid that
-            mROZmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
             applyOffsets(mROZmanimCalendar);
             mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false));
             mJewishDateInfo.resetLocale(context);
@@ -139,7 +138,6 @@ public class ZmanimAppWidget extends AppWidgetProvider {
             mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
             mSettingsPreferences = PreferenceManager.getDefaultSharedPreferences(context);
             mROZmanimCalendar = getROZmanimCalendar();
-            mROZmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
             applyOffsets(mROZmanimCalendar);
             mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false));
         }

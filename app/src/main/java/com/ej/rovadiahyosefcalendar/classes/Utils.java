@@ -29,7 +29,6 @@ import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ej.rovadiahyosefcalendar.R;
-import com.ej.rovadiahyosefcalendar.activities.SetupChaiTablesActivity;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.gms.wearable.Node;
@@ -38,7 +37,7 @@ import com.kosherjava.zmanim.util.GeoLocation;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.shredzone.commons.suncalc.MoonTimes;
+import com.ej.rovadiahyosefcalendar.classes.royzmanim.MoonCalc;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -186,28 +185,6 @@ public class Utils {
         return instant.plusSeconds(60);
     }
 
-    public static void showVisibleSunriseNotification(Context context) {
-        NotificationChannel channel = new NotificationChannel("visible_sunrise", "Visible Sunrise Notification", NotificationManager.IMPORTANCE_HIGH);
-        channel.setDescription("This notification will only be sent after the setup process is complete. Otherwise, please use the sunrise dialog.");
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-        notificationManager.createNotificationChannel(channel);
-        int notificationId = Integer.MAX_VALUE; // Unique ID for this notification
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "visible_sunrise")
-                .setSmallIcon(R.drawable.common_full_open_on_phone)
-                .setContentTitle(context.getString(R.string.setup_visible_sunrise))
-                .setContentText(context.getString(R.string.setup_visible_sunrise_now_wanna_try_later_visit_the_sunrise_description))
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setContentIntent(PendingIntent.getActivity(context, 0,
-                        new Intent(context, SetupChaiTablesActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP),
-                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE))
-                .setAutoCancel(true);
-
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
-            notificationManager.notify(notificationId, builder.build());
-        }
-    }
-
     /**
      * Describes the moon between nightfall and dawn: up until moonset, rising later, up all night, or not up.
      *
@@ -222,22 +199,18 @@ public class Utils {
             }
             boolean hebrew = Utils.isLocaleHebrew(context);
             String label = hebrew ? "נראות הירח: " : "Moon Visibility: ";
-            MoonTimes moon = MoonTimes.compute()
-                    .on(start.atZone(geo.getZoneId()))
-                    .at(geo.getLatitude(), geo.getLongitude())
-                    .limit(Duration.between(start, dawn))// the window is one night only, the default window is a full year
-                    .execute();
-            if (moon.isAlwaysUp()) {
+            MoonCalc.Window moon = MoonCalc.DEFAULT.riseSetWithin(geo, start, dawn);// the lit part of the Moon, one night only
+            if (moon.alwaysUp) {
                 return label + (hebrew ? "כל הלילה" : "all night");
             }
-            if (moon.isAlwaysDown()) {
+            if (moon.alwaysDown) {
                 return label + (hebrew ? "לא נראה הלילה" : "none tonight");
             }
             DateTimeFormatter format = DateTimeFormatter.ofPattern(hebrew ? "H:mm" : "h:mm a");
             String from = hebrew ? "מ-" : "from ";
             String until = hebrew ? "עד " : "until ";
-            ZonedDateTime rise = moon.getRise();
-            ZonedDateTime set = moon.getSet();
+            ZonedDateTime rise = moon.rise == null ? null : moon.rise.atZone(geo.getZoneId());
+            ZonedDateTime set = moon.set == null ? null : moon.set.atZone(geo.getZoneId());
             if (rise != null && set != null) {
                 return rise.isBefore(set)
                         ? label + from + rise.format(format) + " " + until + set.format(format)
@@ -409,41 +382,6 @@ public class Utils {
                                     }
                                 });
 
-                                StringBuilder chaiTableForThisYear = new StringBuilder();
-                                if (sCurrentLocationName != null && sCurrentLocationName.isEmpty()) {
-                                    continue;
-                                }
-
-                                File vsFile = ChaiTablesWebJava.getVisibleSunriseFile(context.getExternalFilesDir(null), sCurrentLocationName, sJewishDateInfo.getJewishCalendar().getJewishYear());
-                                List<Long> vSunriseTimes = Collections.emptyList();
-                                if (vsFile.isFile() && !sSharedPreferences.getBoolean("showMishorSunrise" + sCurrentLocationName, true)) {
-                                    try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(vsFile))) {
-                                        //noinspection unchecked
-                                        vSunriseTimes = (List<Long>) ois.readObject();
-                                    } catch (IOException | ClassNotFoundException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-
-                                for (Long seconds : vSunriseTimes) {
-                                    chaiTableForThisYear.append(seconds).append(":");
-                                }
-
-                                byte[] chaiTablePayload = chaiTableForThisYear.toString().getBytes(StandardCharsets.UTF_8); // use UTF-8 since each ASCII character will be 1 byte
-
-                                Task<Integer> sendChaiTablesTask =
-                                        Wearable.getMessageClient(context)
-                                                .sendMessage(node.getId(), "chaiTable/", chaiTablePayload);
-
-                                sendChaiTablesTask.addOnCompleteListener(task -> {
-                                    if (task.isSuccessful()) {
-                                        int result = task.getResult();
-                                        Log.d("From main app", "chaiTable sent to " + node.getDisplayName() + ". Result: " + result + ". message: " + message);
-                                    } else {
-                                        Exception exception = task.getException();
-                                        Log.e("From main app", "Failed to send chaiTable to watch: " + exception);
-                                    }
-                                });
                             }
                         } catch (ExecutionException | InterruptedException | JSONException exception) {
                             Log.e("From main app", "Failed to send message to watch: " + exception);
