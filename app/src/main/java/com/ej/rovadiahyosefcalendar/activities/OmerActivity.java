@@ -122,12 +122,12 @@ public class OmerActivity extends AppCompatActivity {
 
         switch (PreferenceManager.getDefaultSharedPreferences(this).getString("font", "Guttman Keren")) {
             case "Guttman Keren":
-                initialOmerText.setTypeface(Typeface.createFromAsset(getAssets(), "Guttman Keren.ttf"), Typeface.NORMAL);
-                finalOmerText.setTypeface(Typeface.createFromAsset(getAssets(), "Guttman Keren.ttf"), Typeface.NORMAL);
+                initialOmerText.setTypeface(Typeface.createFromAsset(getAssets(), "guttman_keren.ttf"), Typeface.NORMAL);
+                finalOmerText.setTypeface(Typeface.createFromAsset(getAssets(), "guttman_keren.ttf"), Typeface.NORMAL);
                 break;
             case "Taamey Frank":
-                initialOmerText.setTypeface(Typeface.createFromAsset(getAssets(), "Taamey_D.ttf"), Typeface.NORMAL);
-                finalOmerText.setTypeface(Typeface.createFromAsset(getAssets(), "Taamey_D.ttf"), Typeface.NORMAL);
+                initialOmerText.setTypeface(Typeface.createFromAsset(getAssets(), "taamey_d.ttf"), Typeface.NORMAL);
+                finalOmerText.setTypeface(Typeface.createFromAsset(getAssets(), "taamey_d.ttf"), Typeface.NORMAL);
                 break;
             default:
                 break;
