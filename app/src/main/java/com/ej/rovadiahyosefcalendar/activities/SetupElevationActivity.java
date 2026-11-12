@@ -17,6 +17,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -98,6 +99,7 @@ public class SetupElevationActivity extends AppCompatActivity {
             input.setGravity(Gravity.CENTER_HORIZONTAL);
             input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
             input.setHint(R.string.enter_elevation_in_meters);
+            input.setImeOptions(EditorInfo.IME_ACTION_DONE);
 
             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
             builder.setTitle(R.string.enter_elevation_in_meters);

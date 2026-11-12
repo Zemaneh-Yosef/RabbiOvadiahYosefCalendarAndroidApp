@@ -33,6 +33,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -48,6 +49,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.ej.rovadiahyosefcalendar.classes.DpadSupport;
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
@@ -233,6 +235,13 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
             }
         });
 
+        // SearchView handles the OK button on its text field itself, so Android never opens the keyboard for it. On TV that left no way
+        // to type a location. DpadSupport opens the keyboard when the field gets the focus, and this opens it again on OK.
+        EditText searchField = findFirstEditText(binding.searchView);
+        if (searchField != null) {
+            searchField.setOnClickListener(v -> DpadSupport.showKeyboard(v));
+        }
+
         binding.confirmLocation.setOnClickListener(v -> {
             if (chosenLocation != null) {
                 binding.progressBar.setVisibility(View.VISIBLE);
@@ -300,6 +309,22 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                 }
             }
         });
+    }
+
+    @Nullable
+    private static EditText findFirstEditText(View view) {
+        if (view instanceof EditText editText) {
+            return editText;
+        }
+        if (view instanceof ViewGroup group) {
+            for (int i = 0; i < group.getChildCount(); i++) {
+                EditText found = findFirstEditText(group.getChildAt(i));
+                if (found != null) {
+                    return found;
+                }
+            }
+        }
+        return null;
     }
 
     @Override
@@ -673,6 +698,8 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
         locationInput.setText(sCurrentLocationName);
         locationInput.setHint(R.string.location_hint);
         locationInput.setGravity(Gravity.CENTER);
+        locationInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+        locationInput.setImeOptions(EditorInfo.IME_ACTION_NEXT);// the keyboard's button moves on to the next field (on TV, without closing it)
 
         TextView latitude = new TextView(this);
         latitude.setText(R.string.enter_latitude);
@@ -683,6 +710,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
         latInput.setHint("ex: 73.09876543");
         latInput.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED);
         latInput.setGravity(Gravity.CENTER);
+        latInput.setImeOptions(EditorInfo.IME_ACTION_NEXT);
 
         TextView longitude = new TextView(this);
         longitude.setText(R.string.enter_longitude);
@@ -693,6 +721,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
         longInput.setHint("ex: -103.098765");
         longInput.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED);
         longInput.setGravity(Gravity.CENTER);
+        longInput.setImeOptions(EditorInfo.IME_ACTION_NEXT);
 
         TextView elevation = new TextView(this);
         elevation.setText(R.string.enter_elevation_in_meters);
@@ -703,6 +732,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
         elevationInput.setHint("ex: 805");
         elevationInput.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
         elevationInput.setGravity(Gravity.CENTER);
+        elevationInput.setImeOptions(EditorInfo.IME_ACTION_DONE);
 
         TextView timezone = new TextView(this);
         timezone.setText(R.string.choose_timezone);

@@ -14,15 +14,19 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.widget.Toast;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.view.View;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.preference.PreferenceManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.SetupChaiTablesActivity;
@@ -652,6 +656,57 @@ public class Utils {
             }
 
             return hebrewSentence.toString();
+        }
+    }
+
+    /**
+     * Moves the D-pad focus to the row right above or below, for the rows of the zmanim and limudim lists. Those lists sit inside
+     * a NestedScrollView, which otherwise handles the up/down keys itself and can skip rows or leave the list (e.g. on a TV).
+     * Use it as the rows' OnKeyListener.
+     *
+     * @return true if the focus moved, false (letting Android handle the key as usual) for other keys or past the first/last row
+     */
+    public static boolean moveFocusToNeighbourRow(View row, int keyCode, KeyEvent event) {
+        if (event.getAction() != KeyEvent.ACTION_DOWN
+                || (keyCode != KeyEvent.KEYCODE_DPAD_DOWN && keyCode != KeyEvent.KEYCODE_DPAD_UP)
+                || !(row.getParent() instanceof RecyclerView list)
+                || list.getLayoutManager() == null) {
+            return false;
+        }
+        int step = keyCode == KeyEvent.KEYCODE_DPAD_DOWN ? 1 : -1;
+        int position = list.getChildAdapterPosition(row);
+        if (position == RecyclerView.NO_POSITION || list.getAdapter() == null) {
+            return false;
+        }
+        for (int next = position + step; next >= 0 && next < list.getAdapter().getItemCount(); next += step) {
+            View nextRow = list.getLayoutManager().findViewByPosition(next);
+            if (nextRow == null) {// not laid out, let Android handle it
+                return false;
+            }
+            if (nextRow.getVisibility() == View.VISIBLE && nextRow.isFocusable()) {// hidden rows (e.g. merged fast times) are skipped
+                return nextRow.requestFocus();
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Starts the activity, or tells the user that no app can open it instead of crashing. TVs often have no browser, PDF viewer, email
+     * app or some of the settings screens.
+     *
+     * @return true if the activity was started
+     */
+    public static boolean startActivitySafely(Context context, Intent intent) {
+        try {
+            context.startActivity(intent);
+            return true;
+        } catch (android.content.ActivityNotFoundException | SecurityException e) {
+            String link = intent.getDataString();
+            String message = link != null && link.startsWith("http")
+                    ? context.getString(R.string.no_app_can_open_this_link, link)
+                    : context.getString(R.string.no_app_can_open_this);
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+            return false;
         }
     }
 }

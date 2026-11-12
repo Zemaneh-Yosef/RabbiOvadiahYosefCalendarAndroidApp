@@ -47,6 +47,7 @@
         android:autofillHints="creditCardExpirationYear"
         android:hint="@string/min"
         android:inputType="number"
+        android:imeOptions="actionDone"
         android:maxLength="2"
         android:maxLines="1" />
   </LinearLayout>

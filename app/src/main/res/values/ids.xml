@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- DpadSupport: marks a window that already follows the focus -->
+    <item name="dpad_support_attached" type="id" />
+    <!-- DpadSupport: set to true on a view to not draw the D-pad focus ring on it -->
+    <item name="dpad_no_focus_ring" type="id" />
+</resources>

@@ -30,6 +30,7 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
+import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.ej.rovadiahyosefcalendar.BuildConfig;
 import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.classes.MaterialButtonToggleGroupPreference;
@@ -415,7 +416,7 @@ public class SettingsActivity extends AppCompatActivity {
                                 };
                                 if (url != null) {
                                     Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                                    startActivity(browserIntent);
+                                    Utils.startActivitySafely(requireContext(), browserIntent);
                                 }
                             })
                             .setNegativeButton(android.R.string.cancel, null)

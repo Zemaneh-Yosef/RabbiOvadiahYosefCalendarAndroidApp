@@ -211,7 +211,7 @@ public class MishnaYomi {
         return ChronoUnit.DAYS.between(start, end);
     }
 
-    private String replaceEnglishWithHebrew(String input) {
+    String replaceEnglishWithHebrew(String input) {
         return switch (input) {
             case "Berachot" -> "ברכות";
             case "Peah" -> "פאה";
@@ -290,5 +290,17 @@ public class MishnaYomi {
 
     public int getFirstMishna() {
         return sFirstMishna;
+    }
+
+    public String getSecondMasechta() {
+        return sSecondMasechta;
+    }
+
+    public int getSecondPerek() {
+        return sSecondPerek;
+    }
+
+    public int getSecondMishna() {
+        return sSecondMishna;
     }
 }

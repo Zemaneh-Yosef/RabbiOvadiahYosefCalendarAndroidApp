@@ -17,6 +17,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.ej.rovadiahyosefcalendar.R;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.royrodriguez.transitionbutton.TransitionButton;
@@ -55,7 +56,7 @@ public class WelcomeScreenActivity extends AppCompatActivity {
                         };
                         if (url != null) {
                             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                            startActivity(browserIntent);
+                            Utils.startActivitySafely(this, browserIntent);
                         }
                     })
                     .setNegativeButton(android.R.string.cancel, null)

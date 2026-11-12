@@ -16,6 +16,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
@@ -81,6 +82,28 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MenuItemColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.foundation.gestures.animateScrollBy
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.LocalInputModeManager
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 
 // 1. Define a type for our scroll event lambda
 typealias ScrollToPosition = (Int) -> Unit
@@ -117,6 +140,45 @@ fun getThemeColor(colorAttr: Int): Color {
         ContextCompat.getColor(context, typedValue.resourceId)
     }
     return Color(colorInt)
+}
+
+/**
+ * The Material 3 focus ring that the rest of the app gets from DpadSupport (which can't see inside Compose): a 3dp ring in colorSecondary
+ * with a thin colorSurface ring inside it. It shows when this element or something inside it has the focus, and only while the user is
+ * using a D-pad or a keyboard (on TV), never on touch.
+ *
+ * @param cornerRadius the ring's corners, or null for a round ring (icon buttons)
+ */
+@Composable
+private fun Modifier.dpadFocusRing(cornerRadius: Dp? = 12.dp, onFocusChange: (Boolean) -> Unit = {}): Modifier {
+	val inputModeManager = LocalInputModeManager.current
+	var hasFocus by remember { mutableStateOf(false) }
+	val ringColor = getThemeColor(com.google.android.material.R.attr.colorSecondary)
+	val innerColor = getThemeColor(com.google.android.material.R.attr.colorSurface)
+	return this
+		.onFocusChanged {
+			if (hasFocus != it.hasFocus) {
+				hasFocus = it.hasFocus
+				onFocusChange(it.hasFocus)
+			}
+		}
+		.drawWithContent {
+			drawContent()
+			if (hasFocus && inputModeManager.inputMode == InputMode.Keyboard) {
+				val outer = 3.dp.toPx()
+				val inner = 1.5.dp.toPx()
+				val radius = cornerRadius?.toPx() ?: (size.minDimension / 2)
+				for ((inset, width, color) in listOf(Triple(outer / 2, outer, ringColor), Triple(outer + inner / 2, inner, innerColor))) {
+					drawRoundRect(
+						color = color,
+						topLeft = Offset(inset, inset),
+						size = Size(size.width - 2 * inset, size.height - 2 * inset),
+						cornerRadius = CornerRadius((radius - inset).coerceAtLeast(0f)),
+						style = Stroke(width)
+					)
+				}
+			}
+		}
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -170,7 +232,7 @@ private fun SiddurScreen(
 					}
 				},
 				navigationIcon = {
-					IconButton(onClick = onNavigateBack) {
+					IconButton(onClick = onNavigateBack, modifier = Modifier.dpadFocusRing(cornerRadius = null)) {
 						Icon(
 							painter = painterResource(id = AppR.drawable.baseline_arrow_back_24),
 							contentDescription = null
@@ -179,7 +241,7 @@ private fun SiddurScreen(
 				},
 				actions = {
 					if (categoryNames.isNotEmpty()) {
-						IconButton(onClick = { showCategoryMenu = true }) {
+						IconButton(onClick = { showCategoryMenu = true }, modifier = Modifier.dpadFocusRing(cornerRadius = null)) {
 							Icon(
 								painter = painterResource(id = AppR.drawable.baseline_menu_24),
 								contentDescription = null
@@ -239,19 +301,45 @@ private fun SiddurScreen(
 			)
 		}
 	) { innerPadding ->
+		var focusedRow by remember { mutableIntStateOf(-1) }
 		LazyColumn(
 			modifier = Modifier
 				.fillMaxWidth()
-				.verticalScrollbar(
-					state = listState,
-					topPadding = innerPadding.calculateTopPadding(),
-					bottomPadding = innerPadding.calculateBottomPadding()
-				),
-			state = listState,
-			contentPadding = innerPadding
+				// Padding, not contentPadding: a list that reaches up behind the top bar isn't "below" its buttons, so the D-pad's down
+				// key would skip the whole prayer and land on the text size slider. The bars are opaque, so it looks the same.
+				.padding(innerPadding)
+				// D-pad: a row can be taller than the screen (a long paragraph). Up/down first scroll through the rest of the focused
+				// row, half a screen at a time, and only then move the focus to the next row, so no text is skipped.
+				.onPreviewKeyEvent { event ->
+					val down = event.key == Key.DirectionDown
+					if (event.type != KeyEventType.KeyDown || (!down && event.key != Key.DirectionUp)) {
+						return@onPreviewKeyEvent false
+					}
+					val info = listState.layoutInfo
+					val row = info.visibleItemsInfo.firstOrNull { it.index == focusedRow } ?: return@onPreviewKeyEvent false
+					val visibleEnd = info.viewportSize.height - info.beforeContentPadding - info.afterContentPadding// below the top bar, above the bottom bar
+					val step = visibleEnd * 0.5f
+					val hidden = if (down) row.offset + row.size - visibleEnd else -row.offset
+					if (hidden <= 0) {
+						return@onPreviewKeyEvent false// the whole row is on screen, let the focus move on
+					}
+					coroutineScope.launch {
+						listState.animateScrollBy(if (down) minOf(step, hidden.toFloat()) else -minOf(step, hidden.toFloat()))
+					}
+					true
+				}
+				.verticalScrollbar(state = listState),
+			state = listState
 		) {
-			items(siddurContent) { currentText ->
+			itemsIndexed(siddurContent) { index, currentText ->
 				SiddurRow(
+					onFocusChange = { focused ->
+						if (focused) {
+							focusedRow = index
+						} else if (focusedRow == index) {
+							focusedRow = -1
+						}
+					},
 					currentText = currentText,
 					textSize = textSize,
 					isJustified = isJustified,
@@ -288,13 +376,34 @@ private fun SiddurBottomBar(
         containerColor = getThemeColor(android.R.attr.windowBackground),
         contentColor = getThemeColor(android.R.attr.textColorPrimary) // M3 uses contentColor
     ) {
+        val focusManager = LocalFocusManager.current
+        val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+        val valueRange = 18f..45f
         Slider(
             value = currentTextSize,
             onValueChange = onTextSizeChange,
-            valueRange = 18f..45f,
-            modifier = Modifier.weight(1f)
+            valueRange = valueRange,
+            modifier = Modifier
+                .weight(1f)
+                .dpadFocusRing()
+                // D-pad: the slider would use every arrow key to change its value, so the focus could never leave it. Up and down
+                // move the focus instead, and left/right move on once the slider is at that end.
+                .onPreviewKeyEvent { event ->
+                    if (event.type != KeyEventType.KeyDown) {
+                        return@onPreviewKeyEvent false
+                    }
+                    val atStart = currentTextSize <= valueRange.start
+                    val atEnd = currentTextSize >= valueRange.endInclusive
+                    when (event.key) {
+                        Key.DirectionUp -> focusManager.moveFocus(FocusDirection.Up).let { true }
+                        Key.DirectionDown -> focusManager.moveFocus(FocusDirection.Down).let { true }
+                        Key.DirectionRight -> if ((!isRtl && atEnd) || (isRtl && atStart)) focusManager.moveFocus(FocusDirection.Right) else false
+                        Key.DirectionLeft -> if ((!isRtl && atStart) || (isRtl && atEnd)) focusManager.moveFocus(FocusDirection.Left) else false
+                        else -> false
+                    }
+                }
         )
-        IconButton(onClick = onJustifyClick) {
+        IconButton(onClick = onJustifyClick, modifier = Modifier.dpadFocusRing(cornerRadius = null)) {
             Icon(
                 painter = painterResource(id = if (isJustified) AppR.drawable.baseline_format_align_justify_24 else AppR.drawable.baseline_format_align_right_24),
                 contentDescription = stringResource(AppR.string.justify_text),
@@ -433,6 +542,7 @@ private fun Compass(instructionalText: String) {
 
 @Composable
 private fun SiddurRow(
+	onFocusChange: (Boolean) -> Unit,
 	currentText: HighlightString,
 	textSize: Float,
 	isJustified: Boolean,
@@ -471,12 +581,48 @@ private fun SiddurRow(
 		else -> Color.Transparent
 	}
 
-	Column(modifier = Modifier.background(rowBackgroundColor)) {
+	val isInfo = currentTextType == HighlightString.StringType.INFO
+	val isInverseInfo = currentTextType == HighlightString.StringType.INVERSE_INFO
+	var isInfoExpanded by remember { mutableStateOf(false) }
+	val onRowClick: () -> Unit = {
+		if (isInfo || isInverseInfo) {
+			isInfoExpanded = !isInfoExpanded
+		} else if (text.text == "Open Sefaria Siddur" || text.text == "פתח את סידור ספריה") {
+			val browserIntent = Intent(
+				Intent.ACTION_VIEW,
+				"https://www.sefaria.org/Siddur_Edot_HaMizrach?tab=contents".toUri()
+			)
+			Utils.startActivitySafely(context, browserIntent)
+		} else if (text.text == "Mussaf is said here, press here to go to Mussaf" || text.text == "מוסף אומרים כאן, לחץ כאן כדי להמשיך למוסף") {
+			val intent = Intent(context, SiddurViewActivity::class.java).apply {
+				putExtra("prayer", "מוסף")
+				putExtra("JewishDay", jewishDateInfo.jewishCalendar.jewishDayOfMonth)
+				putExtra("JewishMonth", jewishDateInfo.jewishCalendar.jewishMonth)
+				putExtra("JewishYear", jewishDateInfo.jewishCalendar.jewishYear)
+			}
+			context.startActivity(intent)
+		}
+	}
+
+	Column(modifier = Modifier
+		.background(rowBackgroundColor)
+		.dpadFocusRing(cornerRadius = 0.dp, onFocusChange = onFocusChange)
+		// D-pad (TV): every row takes the focus, so up/down read through the prayer row by row (the list scrolls along, see
+		// SiddurScreen), and OK does what tapping the row does
+		.onKeyEvent { event ->
+			val isOk = event.key == Key.DirectionCenter || event.key == Key.Enter || event.key == Key.NumPadEnter
+			if (isOk && event.type == KeyEventType.KeyUp) {
+				onRowClick()
+				true
+			} else {
+				false
+			}
+		}
+		.focusable()
+	) {
 		val isParagraph = currentText.bigWordsStart > 0
 		val isCategory = currentTextType == HighlightString.StringType.CATEGORY
 		val isInstruction = currentTextType == HighlightString.StringType.INSTRUCTION
-		val isInfo = currentTextType == HighlightString.StringType.INFO
-		val isInverseInfo = currentTextType == HighlightString.StringType.INVERSE_INFO
 
 		val textColor = when {
 			currentText.isHighlighted -> Color.Black
@@ -559,7 +705,6 @@ private fun SiddurRow(
 				}
 			}
 		} else {
-			var isInfoExpanded by remember { mutableStateOf(false) }
 			val textToDisplay = when {
 				isInfo -> if (isInfoExpanded) AnnotatedString("▼ ${currentText.summary}${text}") else AnnotatedString("▲ ${currentText.summary}")
 				isInverseInfo -> if (isInfoExpanded) AnnotatedString("▲ ${currentText.summary}") else AnnotatedString("▼ ${currentText.summary}${text}")
@@ -574,25 +719,7 @@ private fun SiddurRow(
 						.clickable(
 							interactionSource = remember { MutableInteractionSource() },
 							indication = null,
-							onClick = {
-								if (isInfo || isInverseInfo) {
-									isInfoExpanded = !isInfoExpanded
-								} else if (text.text == "Open Sefaria Siddur" || text.text == "פתח את סידור ספריה") {
-									val browserIntent = Intent(
-										Intent.ACTION_VIEW,
-										"https://www.sefaria.org/Siddur_Edot_HaMizrach?tab=contents".toUri()
-									)
-									context.startActivity(browserIntent)
-								} else if (text.text == "Mussaf is said here, press here to go to Mussaf" || text.text == "מוסף אומרים כאן, לחץ כאן כדי להמשיך למוסף") {
-									val intent = Intent(context, SiddurViewActivity::class.java).apply {
-										putExtra("prayer", "מוסף")
-										putExtra("JewishDay", jewishDateInfo.jewishCalendar.jewishDayOfMonth)
-										putExtra("JewishMonth", jewishDateInfo.jewishCalendar.jewishMonth)
-										putExtra("JewishYear", jewishDateInfo.jewishCalendar.jewishYear)
-									}
-									context.startActivity(intent)
-								}
-							}
+							onClick = onRowClick
 						)
 						.fillMaxWidth()
 						.padding(16.dp)
