@@ -273,6 +273,15 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             e.printStackTrace();
         }
 
+        if (sLastTimeUserWasInApp == null) {// first time the user sees this page in this process
+            // The process may have been started earlier by a notification, the widget or a reboot, which set sCurrentDateShown to the date at
+            // that time (possibly yesterday). Always start on today, before anything (like the location callbacks) uses the stale date.
+            ZoneId zone = sCurrentTimeZoneID == null ? ZoneId.systemDefault() : ZoneId.of(sCurrentTimeZoneID);
+            sCurrentDateShown = LocalDate.now(zone);
+            sROZmanimCalendar.setLocalDate(sCurrentDateShown);
+            sJewishDateInfo.setLocalDate(sCurrentDateShown);
+        }
+
         if (sSharedPreferences.getBoolean("isSetup", false)) {
             initMainView();
         }
