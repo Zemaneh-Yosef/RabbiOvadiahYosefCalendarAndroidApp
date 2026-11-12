@@ -324,8 +324,15 @@ public final class DpadSupport implements Application.ActivityLifecycleCallbacks
         private float cornerRadiusOf(View view) {
             float density = view.getResources().getDisplayMetrics().density;
             if (view instanceof Shapeable shapeable) {// buttons, cards, chips: follow their shape
-                RectF bounds = new RectF(0, 0, view.getWidth(), view.getHeight());
-                return shapeable.getShapeAppearanceModel().getTopLeftCornerSize().getCornerSize(bounds);
+                try {
+                    RectF bounds = new RectF(0, 0, view.getWidth(), view.getHeight());
+                    return shapeable.getShapeAppearanceModel().getTopLeftCornerSize().getCornerSize(bounds);
+                } catch (RuntimeException e) {
+                    // MaterialButton throws when the app replaced its background (e.g. setBackgroundColor for the custom theme
+                    // colors, or android:background in the setup screens), and it has no public way to check that first. Those
+                    // backgrounds are usually square, so they get the default corners below.
+                    return 12 * density;
+                }
             }
             if (view instanceof ImageButton || view.getParent() instanceof ActionMenuView) {// icon buttons and toolbar actions are round
                 return Math.min(view.getWidth(), view.getHeight()) / 2f;
