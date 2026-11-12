@@ -203,6 +203,16 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private static final Duration AWAY_THRESHOLD = Duration.ofHours(2);
     private static LocalDate sLastTodayDate;// what "today" was the last time the user was in the app
 
+    public ZmanimFragment() {}
+
+    public static ZmanimFragment newInstance(String data) {
+        ZmanimFragment fragment = new ZmanimFragment();
+        Bundle args = new Bundle();
+        args.putString("key", data);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
