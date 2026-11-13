@@ -152,9 +152,10 @@ public class ROZmanimCalendar extends ZmanimCalendar {
     private double ateretTorahSunsetOffset = 40;
 
     /**
-     * One calculator shared by every instance. The SPA calculator is very expensive on Android (its Math.fma calls fall back to BigDecimal),
-     * but it caches its results per instance, keyed by date and location. Sharing it lets copies, fragments and tab switches reuse those results
-     * instead of starting with an empty cache every time. Its settings are never changed, so sharing it is safe.
+     * The SPA calculator, shared by every instance (KosherJava's default is the NOAA calculator). It is much more expensive than NOAA on
+     * Android (its Math.fma calls fall back to BigDecimal), and in KosherJava 3.0.0 it does not cache anything: every sunrise or sunset is
+     * calculated again. So keep big batches of zmanim off the main thread (see ZmanimFragment#setNextUpcomingZman). It only holds its settings,
+     * which are never changed, so sharing it between instances and threads is safe.
      */
     private static final SPACalculator SHARED_CALCULATOR = new SPACalculator();
 

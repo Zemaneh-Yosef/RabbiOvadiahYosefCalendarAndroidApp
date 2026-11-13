@@ -26,7 +26,6 @@ import static com.ej.rovadiahyosefcalendar.classes.Utils.calculateInSampleSize;
 import static com.ej.rovadiahyosefcalendar.classes.Utils.getCurrentCalendarDrawableDark;
 import static com.ej.rovadiahyosefcalendar.classes.Utils.getCurrentCalendarDrawableLight;
 import static com.ej.rovadiahyosefcalendar.classes.Utils.inputStreamToString;
-import static com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType.UNSPECIFIED;
 import static com.ej.rovadiahyosefcalendar.classes.ZmanimFactory.addZmanim;
 
 import android.Manifest;
@@ -96,11 +95,11 @@ import com.ej.rovadiahyosefcalendar.activities.ui.DailySummaryController;
 import com.ej.rovadiahyosefcalendar.classes.ChaiTablesWebJava;
 import com.ej.rovadiahyosefcalendar.classes.DailyEntriesBuilder;
 import com.ej.rovadiahyosefcalendar.classes.DummyZmanAdapter;
+import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
 import com.ej.rovadiahyosefcalendar.classes.HebrewDayMonthYearPickerDialog;
 import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.MakamJCal;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
-import com.ej.rovadiahyosefcalendar.classes.SecondTreatment;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.ej.rovadiahyosefcalendar.classes.ZmanAdapter;
 import com.ej.rovadiahyosefcalendar.classes.ZmanListEntry;
@@ -136,6 +135,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.TimeZone;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
@@ -156,6 +157,13 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private Handler mHandler = null;
     private Runnable mZmanimUpdater;
     private Runnable mNextZmanUpdater;
+    /**
+     * Calculates zmanim off the main thread (the zmanim list and the next upcoming zman), one job at a time, so they don't compete
+     * with each other or with the screen. See {@link #showDailyZmanimWhenReady(Runnable)} and {@link #setNextUpcomingZman(boolean)}.
+     */
+    private static final ExecutorService BACKGROUND_EXECUTOR = Executors.newSingleThreadExecutor();
+    private int mNextZmanRequest;// only the latest request's result is used
+    private int mDailyListRequest;// same for the zmanim list
 
     //android views:
     private View mLayout;
@@ -360,19 +368,23 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 });
                 resolveElevationAndVisibleSunrise(() -> {
                     instantiateZmanimCalendar();
-                    setNextUpcomingZman();
                     if (binding != null) {
                         updateChaitableTimesFromLatLong(() -> {
-                            binding.shimmerLayout.setVisibility(View.GONE);
                             if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                                binding.shimmerLayout.setVisibility(View.GONE);
                                 setWeeklyViewVisibility(true);
                                 updateWeeklyZmanim();
-                            } else {
-                                setWeeklyViewVisibility(false);
-                                updateDailyZmanim();
+                            } else {// the shimmer keeps animating while the zmanim are calculated in the background
+                                showDailyZmanimWhenReady(() -> {
+                                    if (binding != null) {
+                                        binding.shimmerLayout.setVisibility(View.GONE);
+                                        setWeeklyViewVisibility(false);
+                                    }
+                                });
                             }
                         });
                     }
+                    setNextUpcomingZman();// after the list, on the same background thread
                     createBackgroundThreadForNextUpcomingZman();
                 });
             });
@@ -1044,13 +1056,51 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
     @SuppressLint("NotifyDataSetChanged")
     private void updateDailyZmanim() {
+        mDailyListRequest++;// a list still being calculated in the background (see showDailyZmanimWhenReady) is now out of date
+        updateDailyZmanim(null);
+    }
+
+    /**
+     * Calculates the zmanim list on a background thread, then shows it. Calculating it takes a few hundred milliseconds with the SPA
+     * calculator; on the main thread that froze the app, and the loading shimmer with it. The list is only used if nothing changed in
+     * the meantime (another date, location or settings): otherwise, or if the calculation failed, it is calculated here as before.
+     *
+     * @param onShown runs on the main thread once the list is shown (e.g. to hide the shimmer)
+     */
+    private void showDailyZmanimWhenReady(Runnable onShown) {
+        int request = ++mDailyListRequest;
+        LocalDate dateShown = sCurrentDateShown;
+        ROZmanimCalendar calendar = sROZmanimCalendar;
+        Context context = mContext;
+        BACKGROUND_EXECUTOR.execute(() -> {
+            List<ZmanListEntry> zmanim;
+            try {
+                zmanim = DailyEntriesBuilder.build(context, false);
+            } catch (RuntimeException e) {// e.g. the shared calendar changed while it was being read
+                zmanim = null;
+            }
+            List<ZmanListEntry> result = zmanim;
+            mHandler.post(() -> {
+                if (binding == null) {
+                    return;
+                }
+                if (request == mDailyListRequest) {
+                    boolean stillValid = result != null && calendar == sROZmanimCalendar && Objects.equals(dateShown, sCurrentDateShown);
+                    updateDailyZmanim(stillValid ? result : null);
+                }// otherwise a newer list was already shown
+                onShown.run();
+            });
+        });
+    }
+
+    private void updateDailyZmanim(@Nullable List<ZmanListEntry> prebuiltZmanim) {
         if (mMainRecyclerView == null) {
             if (binding != null) {
                 mMainRecyclerView = binding.mainRV;
-                updateDailyZmanim();// try again
+                updateDailyZmanim(prebuiltZmanim);// try again
             }
         } else {
-            mMainRecyclerView.setAdapter(new ZmanAdapter(mContext, getZmanimList(false),
+            mMainRecyclerView.setAdapter(new ZmanAdapter(mContext, prebuiltZmanim != null ? finishZmanimList(prebuiltZmanim) : getZmanimList(false),
                     () -> {
                         ZmanAdapter zmanAdapter = (ZmanAdapter) mMainRecyclerView.getAdapter();
                         if (zmanAdapter != null) {
@@ -1073,7 +1123,13 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      * @see ZmanListEntry
      */
     private List<ZmanListEntry> getZmanimList(boolean add66MisheyakirZman) {
-        List<ZmanListEntry> zmanim = DailyEntriesBuilder.build(mContext, add66MisheyakirZman);
+        return finishZmanimList(DailyEntriesBuilder.build(mContext, add66MisheyakirZman));
+    }
+
+    /**
+     * The part of {@link #getZmanimList(boolean)} that touches the screen, so it runs on the main thread.
+     */
+    private List<ZmanListEntry> finishZmanimList(List<ZmanListEntry> zmanim) {
         if (mIsTwoPane) {
             return DailyEntriesBuilder.timesOnly(zmanim);
         }
@@ -1171,32 +1227,71 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         menu.findItem(R.id.use_elevation).setChecked(sSharedPreferences.getBoolean("useElevation", true));
     }
 
+    /**
+     * Schedules the update for when the next upcoming zman passes: the next one is found again (in the background, see
+     * {@link #setNextUpcomingZman()}), the list is refreshed, and the update after that is scheduled once the new time is known.
+     */
     private void createBackgroundThreadForNextUpcomingZman() {
         if (mNextZmanUpdater != null) {
             mHandler.removeCallbacks(mNextZmanUpdater);
         }
-        mNextZmanUpdater = () -> {
-            setNextUpcomingZman();
-            if (mNestedScrollView != null && !sSharedPreferences.getBoolean("weeklyMode", false)) {
-                mCurrentPosition = mNestedScrollView.getScrollY();
-                updateDailyZmanim();
-                mNestedScrollView.scrollTo(0, mCurrentPosition);
-            } else if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                updateWeeklyZmanim();
-            }
-            createBackgroundThreadForNextUpcomingZman();//start a new thread to update the next upcoming zman
-        };
-        if (sNextUpcomingZman != null) {
+        mNextZmanUpdater = () -> setNextUpcomingZman(true);
+        if (sNextUpcomingZman != null && sNextUpcomingZman.isAfter(Instant.now())) {// a time that already passed is still being replaced
             mHandler.postDelayed(mNextZmanUpdater, sNextUpcomingZman.toEpochMilli() - Instant.now().toEpochMilli() + 1_000);//add 1 second to make sure we don't get the same zman again
         }
     }
 
     public void setNextUpcomingZman() {
-        ZmanListEntry nextZman = ZmanimFactory.getNextUpcomingZman(sCurrentDateShown, sROZmanimCalendar, sJewishDateInfo, sSettingsPreferences, sSharedPreferences);
-        if (nextZman == null || nextZman.getZman() == null) {
-            nextZman = new ZmanListEntry("", Instant.now().plusSeconds(30), SecondTreatment.ROUND_EARLIER, UNSPECIFIED,"");// try again in 30 seconds
+        setNextUpcomingZman(false);
+    }
+
+    /**
+     * Finds the next upcoming zman (the one marked with an arrow in the list) on a background thread. It calculates every zman of
+     * yesterday, today and tomorrow, which takes about half a second with the SPA calculator: on the main thread, that froze the app
+     * (and the loading shimmer) every time the zmanim were loaded. The calculation works on copies, so it never touches the calendar
+     * and the date info that the screen is using. When it is done, the arrow is updated and the next update is scheduled.
+     *
+     * @param refreshList true to rebuild the whole list afterwards (when a zman passed), false to only move the arrow (the list was
+     *                    just built by the caller)
+     */
+    private void setNextUpcomingZman(boolean refreshList) {
+        if (sROZmanimCalendar == null || sJewishDateInfo == null || sCurrentDateShown == null) {
+            return;
         }
-        sNextUpcomingZman = nextZman.getZman();
+        ROZmanimCalendar calendar = sROZmanimCalendar.getCopy();
+        JewishDateInfo jewishDateInfo = sJewishDateInfo.getCopy();
+        LocalDate dateShown = sCurrentDateShown;
+        int request = ++mNextZmanRequest;
+        BACKGROUND_EXECUTOR.execute(() -> {
+            ZmanListEntry nextZman = ZmanimFactory.getNextUpcomingZman(dateShown, calendar, jewishDateInfo, sSettingsPreferences, sSharedPreferences);
+            Instant next = nextZman == null || nextZman.getZman() == null
+                    ? Instant.now().plusSeconds(30)// try again in 30 seconds
+                    : nextZman.getZman();
+            mHandler.post(() -> {
+                if (request != mNextZmanRequest || binding == null) {
+                    return;// a newer request replaced this one, or the screen is gone
+                }
+                boolean arrowMoved = !next.equals(sNextUpcomingZman);
+                sNextUpcomingZman = next;
+                boolean weeklyMode = sSharedPreferences.getBoolean("weeklyMode", false);
+                if (refreshList) {
+                    if (mNestedScrollView != null && !weeklyMode) {
+                        mCurrentPosition = mNestedScrollView.getScrollY();
+                        updateDailyZmanim();
+                        mNestedScrollView.scrollTo(0, mCurrentPosition);
+                    } else if (weeklyMode) {
+                        updateWeeklyZmanim();
+                    }
+                } else if (arrowMoved) {
+                    if (weeklyMode) {
+                        updateWeeklyZmanim();
+                    } else if (mMainRecyclerView != null && mMainRecyclerView.getAdapter() != null) {
+                        mMainRecyclerView.getAdapter().notifyDataSetChanged();// the rows draw the arrow next to sNextUpcomingZman
+                    }
+                }
+                createBackgroundThreadForNextUpcomingZman();
+            });
+        });
     }
 
     private String getAnnouncements() {
@@ -2217,28 +2312,33 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                             if (sCurrentDateShown != null) {
                                 instantiateZmanimCalendar();
                                 sROZmanimCalendar.setLocalDate(sCurrentDateShown);
-                                setNextUpcomingZman();
                                 createBackgroundThreadForNextUpcomingZman();
                                 sJewishDateInfo.setLocalDate(sCurrentDateShown);
                                 updateChaitableTimesFromLatLong(() -> {
                                     if (sSharedPreferences.getBoolean("weeklyMode", false)) {
                                         updateWeeklyTextViewTextColor();
                                         updateWeeklyZmanim();
-                                    } else {
-                                        updateDailyZmanim();
-                                        if (mNestedScrollView != null) {
-                                            mNestedScrollView.scrollTo(0, mCurrentPosition);
+                                        if (binding != null) {
+                                            binding.shimmerLayout.setVisibility(View.GONE);
+                                            setWeeklyViewVisibility(true);
                                         }
-                                    }
-                                    if (binding != null) {
-                                        binding.shimmerLayout.setVisibility(View.GONE);
-                                        setWeeklyViewVisibility(sSharedPreferences.getBoolean("weeklyMode", false));
+                                    } else {// the shimmer keeps animating while the zmanim are calculated in the background
+                                        showDailyZmanimWhenReady(() -> {
+                                            if (mNestedScrollView != null) {
+                                                mNestedScrollView.scrollTo(0, mCurrentPosition);
+                                            }
+                                            if (binding != null) {
+                                                binding.shimmerLayout.setVisibility(View.GONE);
+                                                setWeeklyViewVisibility(false);
+                                            }
+                                        });
                                     }
                                     if (mCalendarButton != null) {
                                         mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
                                     }
                                     setAllNotifications();
                                 });
+                                setNextUpcomingZman();// after the list, on the same background thread
                             }
                         });
                     });
