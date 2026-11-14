@@ -164,6 +164,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private static final ExecutorService BACKGROUND_EXECUTOR = Executors.newSingleThreadExecutor();
     private int mNextZmanRequest;// only the latest request's result is used
     private int mDailyListRequest;// same for the zmanim list
+    private int mLatestBackgroundDailyListRequest;// the newest request calculated in the background, see showDailyZmanimWhenReady
 
     //android views:
     private View mLayout;
@@ -1065,10 +1066,13 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      * calculator; on the main thread that froze the app, and the loading shimmer with it. The list is only used if nothing changed in
      * the meantime (another date, location or settings): otherwise, or if the calculation failed, it is calculated here as before.
      *
-     * @param onShown runs on the main thread once the list is shown (e.g. to hide the shimmer)
+     * @param onShown runs on the main thread once the list is shown (e.g. to hide the shimmer). If a newer background calculation
+     *                replaced this one, it is left to that one's onShown, so the screen isn't revealed before the list and the day
+     *                summary are filled in.
      */
     private void showDailyZmanimWhenReady(Runnable onShown) {
         int request = ++mDailyListRequest;
+        mLatestBackgroundDailyListRequest = request;
         LocalDate dateShown = sCurrentDateShown;
         ROZmanimCalendar calendar = sROZmanimCalendar;
         Context context = mContext;
@@ -1087,8 +1091,10 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 if (request == mDailyListRequest) {
                     boolean stillValid = result != null && calendar == sROZmanimCalendar && Objects.equals(dateShown, sCurrentDateShown);
                     updateDailyZmanim(stillValid ? result : null);
-                }// otherwise a newer list was already shown
-                onShown.run();
+                    onShown.run();
+                } else if (mLatestBackgroundDailyListRequest != mDailyListRequest) {
+                    onShown.run();// a newer list was already shown (calculated on the main thread by updateDailyZmanim())
+                }// otherwise a newer background calculation is still running, and its onShown runs once its list is shown
             });
         });
     }
