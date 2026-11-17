@@ -29,7 +29,7 @@ public class DriftingCloudsView extends View {
     private static final int BACKGROUND_WIDTH = 720;
     private static final int BACKGROUND_HEIGHT = 1280;
     /** One full cycle of the animation. Each layer finishes a whole number of loops in a cycle, so everything wraps together. */
-    private static final long CYCLE_DURATION_MILLIS = 240_000;
+    private static final long CYCLE_DURATION_MILLIS = 150_000;
     /** Where (in background pixels) the top left of the moon picture belongs. */
     private static final int MOON_LEFT = 405;
     private static final int MOON_TOP = 295;
