@@ -164,6 +164,10 @@ public class ROZmanimCalendar extends ZmanimCalendar {
     /**
      * The weather, terrain and haze data this calendar computes with (null = none: the calculator's default model), as stored
      * by {@link RefractionRepository} for the place.
+     * The SPA calculator, shared by every instance (KosherJava's default is the NOAA calculator). It is much more expensive than NOAA on
+     * Android (its Math.fma calls fall back to BigDecimal), and in KosherJava 3.0.0 it does not cache anything: every sunrise or sunset is
+     * calculated again. So keep big batches of zmanim off the main thread (see ZmanimFragment#setNextUpcomingZman). It only holds its settings,
+     * which are never changed, so sharing it between instances and threads is safe.
      */
     private RefractionRepository.RefractionData refractionData;
 

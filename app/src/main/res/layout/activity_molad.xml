@@ -10,9 +10,14 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/molad_background_720"
+        android:src="@drawable/molad_sky_720"
         android:scaleType="centerCrop"
         android:contentDescription="@string/molad_calculator" />
+
+    <!-- the clouds drift across the sky above, and the moon is drawn over the wisps -->
+    <com.ej.rovadiahyosefcalendar.classes.DriftingCloudsView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
     <ScrollView
         android:layout_width="match_parent"
