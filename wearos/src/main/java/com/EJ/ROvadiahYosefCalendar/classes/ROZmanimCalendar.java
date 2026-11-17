@@ -239,6 +239,10 @@ public class ROZmanimCalendar extends ZmanimCalendar {
      * @return the time for Visible Sunrise calculated by the Chai Tables website, otherwise null.
      */
     public Instant getHaNetz() {
+        SyncedZmanim.Day synced = getSyncedDay();
+        if (synced != null) {
+            return synced.haNetz;
+        }
         if (jewishCalendar.getJewishYear() != loadedJewishYear) {
             loadVSunriseFile();
         }
@@ -342,6 +346,39 @@ public class ROZmanimCalendar extends ZmanimCalendar {
         }
         Duration dakahZmanit = shaahZmanit.dividedBy(MINUTES_PER_HOUR);
         return getTimeOffset(getTzeit(), dakahZmanit.multipliedBy(15).plus(shaahZmanit).negated());
+    }
+
+    /**
+     * The current date's times as the phone computed them from its weather, terrain and haze data ({@link SyncedZmanim}), so
+     * that the watch shows the same times; null when the phone sent none for this place and date (then computed here).
+     */
+    private SyncedZmanim.Day getSyncedDay() {
+        SyncedZmanim synced = SyncedZmanim.from(sharedPreferences);
+        return synced != null && synced.matches(getGeoLocation()) ? synced.day(getLocalDate()) : null;
+    }
+
+    @Override
+    public Instant getSunrise() {
+        SyncedZmanim.Day synced = getSyncedDay();
+        return synced != null ? synced.sunrise : super.getSunrise();
+    }
+
+    @Override
+    public Instant getSeaLevelSunrise() {
+        SyncedZmanim.Day synced = getSyncedDay();
+        return synced != null ? synced.seaLevelSunrise : super.getSeaLevelSunrise();
+    }
+
+    @Override
+    public Instant getSunset() {
+        SyncedZmanim.Day synced = getSyncedDay();
+        return synced != null ? synced.sunset : super.getSunset();
+    }
+
+    @Override
+    public Instant getSeaLevelSunset() {
+        SyncedZmanim.Day synced = getSyncedDay();
+        return synced != null ? synced.seaLevelSunset : super.getSeaLevelSunset();
     }
 
     @Override
@@ -577,7 +614,8 @@ public class ROZmanimCalendar extends ZmanimCalendar {
      * explanation on top of the {@link AstronomicalCalendar} documentation.
      */
     public Instant getTzeitShabbatAmudeiHoraah() {
-        Instant tzait = getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 7.165);
+        SyncedZmanim.Day synced = getSyncedDay();// the phone's, moved by the evening's haze
+        Instant tzait = synced != null ? synced.tzet7165 : getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 7.165);
         if (tzait != null) {
             Instant tzait20 = getTimeOffset(getSunsetBasedOnElevationSetting(), Duration.of(20, ChronoUnit.MINUTES));
             if (tzait20 != null && tzait20.isAfter(tzait)) { // if shabbat ends before 20 minutes after sunset, use 20 minutes
@@ -677,6 +715,13 @@ public class ROZmanimCalendar extends ZmanimCalendar {
      * @return the percentage, or null if it can't be computed
      */
     private Double getEquinoxPercentOfShaahZmanis(double degrees, boolean sunset) {
+        SyncedZmanim synced = SyncedZmanim.from(sharedPreferences);
+        if (synced != null && synced.matches(getGeoLocation())) {
+            Double percent = synced.equinox(getLocalDate().getYear(), degrees, sunset);
+            if (percent != null) {
+                return percent;
+            }
+        }
         ROZmanimCalendar equinox = getCopy();
         equinox.setLocalDate(LocalDate.of(getLocalDate().getYear(), Month.MARCH, 17));
         double percentage = equinox.getPercentOfShaahZmanisFromDegrees(degrees, sunset);

@@ -7,6 +7,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.preference.PreferenceManager
 import com.ej.rovadiahyosefcalendar.classes.DpadSupport
+import com.ej.rovadiahyosefcalendar.classes.WatchZmanimSync
 import com.ej.rovadiahyosefcalendar.classes.royzmanim.RefractionRepository
 import com.ej.rovadiahyosefcalendar.classes.royzmanim.RefractionSupport
 
@@ -19,6 +20,9 @@ class ZemanehYosefApplication : Application() {
         super.onCreate()
         DpadSupport.install(this)// D-pad focus ring and TV keyboard, in every screen
         RefractionRepository.init(this)
+        WatchZmanimSync.init(this)
+        // new data (or a visible sunrise computed) for a place: the watch gets the times it changes, or the phone holds them
+        RefractionRepository.addListener { _, _ -> WatchZmanimSync.requestSync(this, false) }
         val settings = PreferenceManager.getDefaultSharedPreferences(this)
         RefractionSupport.enabled = settings.getBoolean(PREF_REFRACTION, true)
         RefractionSupport.hazeTzet = settings.getBoolean(PREF_HAZE_TZET, true)
@@ -55,6 +59,7 @@ class ZemanehYosefApplication : Application() {
             PREF_REFRACTION -> RefractionSupport.enabled = prefs.getBoolean(PREF_REFRACTION, true)
             PREF_HAZE_TZET -> RefractionSupport.hazeTzet = prefs.getBoolean(PREF_HAZE_TZET, true)
         }
+        if (key == PREF_REFRACTION || key == PREF_HAZE_TZET) WatchZmanimSync.requestSync(this, false)
     }
 
     companion object {
