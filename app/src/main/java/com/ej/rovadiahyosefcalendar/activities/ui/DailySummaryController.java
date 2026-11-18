@@ -8,6 +8,7 @@ import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivit
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sLatitude;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sLongitude;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sROZmanimCalendar;
+import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sSettingsPreferences;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sSharedPreferences;
 import static com.ej.rovadiahyosefcalendar.classes.Utils.inputStreamToString;
 import static com.kosherjava.zmanim.AstronomicalCalendar.getTimeOffset;
@@ -47,6 +48,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -204,25 +206,58 @@ public class DailySummaryController {
             if (night == 0) {// edge case for erev chanukah
                 night = 1;
             }
-            mBinding.nightOfChanuka.setText(new StringBuilder(mContext.getString(R.string.chanukah_night))
-                    .append(" ")
-                    .append(Utils.isLocaleHebrew(mContext) ? sHebrewDateFormatter.formatHebrewNumber(night) : night));
-            mBinding.lchatchilaLightingTime.setPaintFlags(mBinding.nightOfChanuka.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);// underline
-            mBinding.lchatchilaLightingTime.setText(new StringBuilder(mContext.getString(R.string.ideal))
-                    .append(" ")
-                    .append(Utils.formatZmanTime(mContext, sROZmanimCalendar.getTzeit(), SecondTreatment.ROUND_LATER))
-                    .append(" - ")
-                    .append(Utils.formatZmanTime(mContext, getTimeOffset(sROZmanimCalendar.getTzeit(), Duration.of(30, ChronoUnit.MINUTES)), SecondTreatment.ROUND_EARLIER)));
+
             ROZmanimCalendar tomorrow = sROZmanimCalendar.getCopy();
             tomorrow.setLocalDate(tomorrow.getLocalDate().plusDays(1));
             String alotHashacharForTomorrow = Utils.formatZmanTime(mContext, tomorrow.getAlotHashachar(), SecondTreatment.ROUND_EARLIER);
-            mBinding.fullWindowLightingTime.setText(new StringBuilder(mContext.getString(R.string.earliest))
+
+            mBinding.nightOfChanuka.setText(new StringBuilder(mContext.getString(R.string.chanukah_night))
                     .append(" ")
-                    .append(Utils.formatZmanTime(mContext, sROZmanimCalendar.getPlagHaminchaYalkutYosef(), SecondTreatment.ROUND_LATER))
-                    .append(" - ")
-                    .append(mContext.getString(R.string.latest))
-                    .append(" ")
-                    .append(alotHashacharForTomorrow));
+                    .append(Utils.isLocaleHebrew(mContext) ? sHebrewDateFormatter.formatHebrewNumber(night) : night));
+
+            if (sJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.FRIDAY) {
+                mBinding.lchatchilaLightingTime.setMaxLines(2);
+                mBinding.lchatchilaLightingTime.setPaintFlags(mBinding.fullWindowLightingTime.getPaintFlags());
+                mBinding.lchatchilaLightingTime.setText(new StringBuilder(mContext.getString(R.string.light_menorah_before_shabbat_candles))
+                        .append(" (")
+                        .append(mContext.getString(R.string.earliest).toLowerCase())
+                        .append(" ")
+                        .append(Utils.formatZmanTime(mContext, sROZmanimCalendar.getPlagHaminchaYalkutYosef(), SecondTreatment.ROUND_LATER))
+                        .append(")\n")
+                        .append(mContext.getString(R.string.leave_enough_oil_to_burn_until))
+                        .append(" ")
+                        .append(Utils.formatZmanTime(mContext, getTimeOffset(sROZmanimCalendar.getTzeit(), Duration.of(30, ChronoUnit.MINUTES)), SecondTreatment.ROUND_EARLIER)));
+                mBinding.fullWindowLightingTime.setVisibility(View.GONE);
+            } else if (sJewishDateInfo.getJewishCalendar().getDayOfWeek() == Calendar.SATURDAY) {
+                mBinding.lchatchilaLightingTime.setMaxLines(2);
+                mBinding.lchatchilaLightingTime.setPaintFlags(mBinding.fullWindowLightingTime.getPaintFlags());
+                mBinding.lchatchilaLightingTime.setText(new StringBuilder(mContext.getString(R.string.light_after_havdala))
+                        .append(" (")
+                        .append(Utils.formatZmanTime(mContext, getShabbatEndsZman(), SecondTreatment.ROUND_LATER))
+                        .append(")")
+                        .append(mContext.getString(R.string.before_dawn))
+                        .append(" (")
+                        .append(alotHashacharForTomorrow)
+                        .append(")"));
+                mBinding.fullWindowLightingTime.setVisibility(View.GONE);
+            } else {
+                mBinding.lchatchilaLightingTime.setMaxLines(1);
+                mBinding.lchatchilaLightingTime.setPaintFlags(mBinding.nightOfChanuka.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);// underline
+                mBinding.lchatchilaLightingTime.setText(new StringBuilder(mContext.getString(R.string.ideal))
+                        .append(" ")
+                        .append(Utils.formatZmanTime(mContext, sROZmanimCalendar.getTzeit(), SecondTreatment.ROUND_LATER))
+                        .append(" - ")
+                        .append(Utils.formatZmanTime(mContext, getTimeOffset(sROZmanimCalendar.getTzeit(), Duration.of(30, ChronoUnit.MINUTES)), SecondTreatment.ROUND_EARLIER)));
+
+                mBinding.fullWindowLightingTime.setText(new StringBuilder(mContext.getString(R.string.earliest))
+                        .append(" ")
+                        .append(Utils.formatZmanTime(mContext, sROZmanimCalendar.getPlagHaminchaYalkutYosef(), SecondTreatment.ROUND_LATER))
+                        .append(" • ")
+                        .append(mContext.getString(R.string.latest))
+                        .append(" ")
+                        .append(alotHashacharForTomorrow));
+                mBinding.fullWindowLightingTime.setVisibility(View.VISIBLE);
+            }
             mBinding.chanukaCard.setVisibility(View.VISIBLE);
             mBinding.chanukaCard.setCardElevation(12f);
         } else {
@@ -232,6 +267,19 @@ public class DailySummaryController {
             mBinding.infoRV.setAdapter(new ZmanAdapter(mContext, infoEntries, () -> {}));
             mBinding.infoCard.setVisibility(infoEntries.isEmpty() ? View.GONE : View.VISIBLE);
         }
+    }
+
+    private Instant getShabbatEndsZman() {
+        Instant endShabbat = sROZmanimCalendar.isUseAmudehHoraah() ? sROZmanimCalendar.getTzeitShabbatAmudeiHoraah() : sROZmanimCalendar.getTzaisAteretTorah();
+        if (sSettingsPreferences.getBoolean("overrideAHEndShabbatTime", false)) {
+            String setting = sSettingsPreferences.getString("EndOfShabbatOpinion", "1");
+            switch (setting) {
+                case "1" -> endShabbat = sROZmanimCalendar.getTzaisAteretTorah();
+                case "2" -> endShabbat = sROZmanimCalendar.getTzeitShabbatAmudeiHoraah();
+                case "3" -> endShabbat = sROZmanimCalendar.getTzeitShabbatAmudeiHoraahLesserThan40();
+            }
+        }
+        return endShabbat;
     }
 
     /**
