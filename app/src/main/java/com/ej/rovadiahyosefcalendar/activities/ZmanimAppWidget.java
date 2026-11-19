@@ -30,24 +30,19 @@ import com.ej.rovadiahyosefcalendar.classes.ZmanListEntry;
 import com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType;
 import com.ej.rovadiahyosefcalendar.classes.ZmanimFactory;
 import com.ej.rovadiahyosefcalendar.classes.ZmanimNames;
-import com.ej.rovadiahyosefcalendar.classes.royzmanim.RefractionRepository;
 import com.ej.rovadiahyosefcalendar.notifications.NotificationUtils;
+import com.ej.rovadiahyosefcalendar.notifications.RefractionRefreshJob;
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
 import com.kosherjava.zmanim.util.GeoLocation;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Implementation of App Widget functionality.
  */
 public class ZmanimAppWidget extends AppWidgetProvider {
-
-    /** How long a widget update waits for new weather data (a background broadcast may run for up to a minute). */
-    private static final long REFRESH_WAIT_SECONDS = 25;
 
     private static SharedPreferences mSharedPreferences;
     private static SharedPreferences mSettingsPreferences;
@@ -168,7 +163,7 @@ public class ZmanimAppWidget extends AppWidgetProvider {
                     updateAppWidget(context, appWidgetManager, appWidgetId);
                 }
                 scheduleUpdates(context);
-                refreshRefractionData();
+                refreshRefractionData(context);
             } finally {
                 pendingResult.finish(); // REQUIRED TO AVOID ANR
             }
@@ -177,25 +172,16 @@ public class ZmanimAppWidget extends AppWidgetProvider {
 
     /**
      * The weather, terrain and haze data are otherwise only downloaded while a screen of the app is open, so a widget on the home
-     * screen would keep showing times from old data. When they are stale, download them now (at most every 10 minutes, see
-     * {@link RefractionRepository#refreshIfStale}); the widget is redrawn when they land (see {@link #updateAllWidgets}).
-     * Waits for the download, up to a limit, so the process isn't stopped in the middle of it.
+     * screen would keep showing times from old data. When they are stale, download them in a job (waiting for them here could
+     * cause an ANR); the widget is redrawn when they arrive (see {@link #updateAllWidgets}).
      */
-    private static void refreshRefractionData() {
+    private static void refreshRefractionData(Context context) {
         if (mROZmanimCalendar == null) {
             return;
         }
         GeoLocation geo = mROZmanimCalendar.getGeoLocation();
-        if (geo.equals(new GeoLocation())) {
-            return;// no location yet
-        }
-        CountDownLatch done = new CountDownLatch(1);
-        if (RefractionRepository.refreshIfStale(geo.getLatitude(), geo.getLongitude(), done::countDown)) {
-            try {
-                done.await(REFRESH_WAIT_SECONDS, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
+        if (!geo.equals(new GeoLocation())) {// a location is set
+            RefractionRefreshJob.schedule(context, geo.getLatitude(), geo.getLongitude());
         }
     }
 

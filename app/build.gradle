@@ -87,7 +87,6 @@ dependencies {
     implementation "com.kosherjava:zmanim:3.1.0"
     // the Moon's place and phase (Astronomy Engine, as the ROYZmanim website's mooncalc)
     implementation 'io.github.cosinekitty:astronomy:2.1.19'
-    implementation "org.shredzone.commons:commons-suncalc:3.11"
     implementation('net.iakovlev:timeshape:2025b.28') {
         exclude group: 'com.github.luben', module: 'zstd-jni'
     }

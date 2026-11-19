@@ -625,13 +625,15 @@ object RefractionRepository {
     }
 
     /**
-     * Like [ensureFresh], for when no screen is showing (the widget): doesn't change the place the screens keep fresh.
+     * Like [ensureFresh], for when no screen is showing (RefractionRefreshJob, for the notifications and the widget): doesn't
+     * change the place the screens keep fresh.
      * @param onDone runs on the loading thread once the load finished (also when it failed), only if one was started
      * @return whether a load was started
      */
     @JvmStatic
     fun refreshIfStale(rawLat: Double, rawLon: Double, onDone: Runnable?): Boolean {
         if (dir == null || !RefractionSupport.enabled) return false
+        if (rawLat == 0.0 && rawLon == 0.0) return false// no location yet (the app starts with 0, 0 until it has one)
         val key = places(rawLat, rawLon).key
         if (memory[key]?.fromCache == false && forecastStaleIn(rawLat, rawLon) > 0) return false
         if (cached(rawLat, rawLon) != null && forecastStaleIn(rawLat, rawLon) > 0 && memory[key]?.horizon != null) return false
