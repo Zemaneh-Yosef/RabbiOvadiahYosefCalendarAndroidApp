@@ -129,9 +129,13 @@ object RefractionSupport {
         if (!defer) return Pair(compute(), false)
         val first: Boolean
         synchronized(pending) { first = pending.add(key + date) }
-        if (first) visibleExecutor.execute {
-            try { compute() } finally { synchronized(pending) { pending.remove(key + date) } }
-            RefractionRepository.notifyListeners(geo.latitude, geo.longitude)
+        if (first) {
+            RefractionStatus.visibleSunriseStarted(geo.latitude, geo.longitude, date)
+            visibleExecutor.execute {
+                try { compute() } finally { synchronized(pending) { pending.remove(key + date) } }
+                RefractionRepository.notifyListeners(geo.latitude, geo.longitude)
+                RefractionStatus.visibleSunriseEnded(geo.latitude, geo.longitude, date)
+            }
         }
         // the visible-minus-sea-level gap of the nearest day known (within 3 days), applied to this day's sea level
         for (k in 1L..3L) for (d in listOf(date.minusDays(k), date.plusDays(k))) {

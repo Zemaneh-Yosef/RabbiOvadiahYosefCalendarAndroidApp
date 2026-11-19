@@ -131,6 +131,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ej.rovadiahyosefcalendar.classes.royzmanim.RefractionRepository;
+import com.ej.rovadiahyosefcalendar.classes.royzmanim.RefractionStatus;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function2;
@@ -166,6 +167,18 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
         return Unit.INSTANCE;
     };
+    /** The weather / terrain / visible sunrise for the place started or finished loading: show or hide the banner. */
+    private final Runnable mRefractionStatusListener = () -> {
+        Handler handler = mHandler;
+        if (handler != null) {
+            handler.post(this::updateRefractionStatusBanner);
+        }
+    };
+    /** Shows the "adjusting the times" banner; posted with a short delay so loads from the saved data never flash it. */
+    private final Runnable mShowRefractionUpdating = () -> showRefractionStatusBanner(R.string.refraction_updating, true);
+    private final Runnable mHideRefractionStatus = this::hideRefractionStatusBanner;
+    private static final long REFRACTION_BANNER_DELAY_MS = 500;
+    private static final long REFRACTION_FAILED_SHOWN_MS = 4000;
     private Runnable mZmanimUpdater;
     private Runnable mNextZmanUpdater;
     /**
@@ -248,6 +261,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         mIsTwoPane = getResources().getBoolean(R.bool.is_two_pane);
         mHandler = new Handler(mContext.getMainLooper());
         RefractionRepository.addListener(mRefractionListener);
+        RefractionStatus.addListener(mRefractionStatusListener);
         initMenu();
         setupShabbatModeBanner();
 
@@ -1538,6 +1552,57 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      * @see #startScrollingThread() to start the thread that will scroll through the list of zmanim
      * @see #setShabbatBannerColors(boolean) to set the text of the shabbat banners
      */
+    /**
+     * The times first appear from the saved data (or an estimate of the visible sunrise) and are redrawn when newer weather,
+     * terrain or visible sunrise data land, a few seconds later. Meanwhile a banner tells the user the times are about to be
+     * adjusted, and if the download failed, that the saved data are shown. Only with the weather, terrain and haze setting on.
+     */
+    private void updateRefractionStatusBanner() {
+        if (binding == null || mHandler == null) {
+            return;
+        }
+        mHandler.removeCallbacks(mShowRefractionUpdating);
+        if (sShabbatMode) {
+            hideRefractionStatusBanner();
+        } else if (RefractionStatus.isUpdating(sLatitude, sLongitude, sCurrentDateShown)) {
+            mHandler.removeCallbacks(mHideRefractionStatus);
+            if (binding.refractionStatus.getVisibility() == View.VISIBLE
+                    && binding.refractionStatusProgress.getVisibility() == View.VISIBLE) {
+                return;// already showing
+            }
+            mHandler.postDelayed(mShowRefractionUpdating, REFRACTION_BANNER_DELAY_MS);
+        } else if (RefractionStatus.recentlyFailed(sLatitude, sLongitude)) {
+            showRefractionStatusBanner(R.string.refraction_update_failed, false);
+            mHandler.removeCallbacks(mHideRefractionStatus);
+            mHandler.postDelayed(mHideRefractionStatus, REFRACTION_FAILED_SHOWN_MS);
+        } else if (binding.refractionStatusProgress.getVisibility() == View.VISIBLE) {
+            hideRefractionStatusBanner();// done: the list was redrawn with the new times
+        }
+    }
+
+    private void showRefractionStatusBanner(int text, boolean loading) {
+        if (binding == null) {
+            return;
+        }
+        binding.refractionStatusText.setText(text);
+        binding.refractionStatusProgress.setVisibility(loading ? View.VISIBLE : View.GONE);
+        View banner = binding.refractionStatus;
+        banner.animate().cancel();// it may be fading out
+        if (banner.getVisibility() != View.VISIBLE) {
+            banner.setAlpha(0f);
+            banner.setVisibility(View.VISIBLE);
+        }
+        banner.animate().alpha(1f).setDuration(200).start();
+    }
+
+    private void hideRefractionStatusBanner() {
+        if (binding == null || binding.refractionStatus.getVisibility() != View.VISIBLE) {
+            return;
+        }
+        View banner = binding.refractionStatus;
+        banner.animate().alpha(0f).setDuration(200).withEndAction(() -> banner.setVisibility(View.GONE)).start();
+    }
+
     private void startShabbatMode() {
         if (!sShabbatMode) {
             sShabbatMode = true;
@@ -1810,6 +1875,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             super.onResume();
             return;
         }
+        updateRefractionStatusBanner();// e.g. the weather setting was turned off meanwhile
         if (NotificationSetupActivity.sSettingsChanged) {// the user fixed a setting the notifications need, so schedule them again
             NotificationSetupActivity.sSettingsChanged = false;
             setNotifications();
@@ -1982,6 +2048,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
         binding = null;
         RefractionRepository.removeListener(mRefractionListener);
+        RefractionStatus.removeListener(mRefractionStatusListener);
+        if (mHandler != null) {
+            mHandler.removeCallbacks(mShowRefractionUpdating);
+            mHandler.removeCallbacks(mHideRefractionStatus);
+        }
         mDailySummary = null;
         sSharedPreferences.unregisterOnSharedPreferenceChangeListener(sSharedPrefListener);
         if (mLocationTimeoutRunnable != null) {

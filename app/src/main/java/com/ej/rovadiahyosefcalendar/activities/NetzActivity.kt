@@ -2,11 +2,15 @@ package com.ej.rovadiahyosefcalendar.activities
 
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -20,9 +24,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -70,6 +76,7 @@ import com.ej.rovadiahyosefcalendar.classes.netz.TerrainTiles
 import com.ej.rovadiahyosefcalendar.classes.royzmanim.HorizonSet
 import com.ej.rovadiahyosefcalendar.classes.royzmanim.HorizonSetPoint
 import com.ej.rovadiahyosefcalendar.classes.royzmanim.RefractionRepository
+import com.ej.rovadiahyosefcalendar.classes.royzmanim.RefractionStatus
 import com.ej.rovadiahyosefcalendar.classes.royzmanim.SolarEvent
 import com.ej.rovadiahyosefcalendar.classes.royzmanim.StarNightfall
 import com.kosherjava.zmanim.util.GeoLocation
@@ -108,6 +115,26 @@ class NetzActivity : AppCompatActivity() {
         runOnUiThread { if (!isFinishing && !isDestroyed) calendar = newCalendar() }
     }
 
+    /** Whether the weather, terrain or visible sunrise is still loading: the counted sunrise may still move (a banner says so). */
+    private var refractionUpdating by mutableStateOf(false)
+    private val statusHandler = Handler(Looper.getMainLooper())
+    private val showUpdating = Runnable { refractionUpdating = true }
+    private val statusListener = Runnable { runOnUiThread { updateRefractionStatus() } }
+
+    /** Shows the banner after a short delay (loads from the saved data never flash it), hides it when done. */
+    private fun updateRefractionStatus() {
+        val lat = MainFragmentManagerActivity.sLatitude
+        val lon = MainFragmentManagerActivity.sLongitude
+        val today = LocalDate.now(ZoneId.of(MainFragmentManagerActivity.sCurrentTimeZoneID))
+        val updating = RefractionStatus.isUpdating(lat, lon, today) || RefractionStatus.isUpdating(lat, lon, today.plusDays(1))
+        statusHandler.removeCallbacks(showUpdating)
+        if (updating) {
+            if (!refractionUpdating) statusHandler.postDelayed(showUpdating, 500)
+        } else {
+            refractionUpdating = false
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -125,11 +152,14 @@ class NetzActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         RefractionRepository.addListener(refractionListener)
+        RefractionStatus.addListener(statusListener)
         RefractionRepository.ensureFresh(MainFragmentManagerActivity.sLatitude, MainFragmentManagerActivity.sLongitude)
     }
 
     override fun onStop() {
         RefractionRepository.removeListener(refractionListener)
+        RefractionStatus.removeListener(statusListener)
+        statusHandler.removeCallbacks(showUpdating)
         super.onStop()
     }
 
@@ -331,6 +361,19 @@ class NetzActivity : AppCompatActivity() {
                     .clickable(role = Role.Button, onClickLabel = stringResource(R.string.quit)) { finish() }
                     .padding(16.dp),
             )
+
+            if (refractionUpdating) Row(
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .windowInsetsPadding(WindowInsets.safeDrawing)
+                    .padding(bottom = 28.dp)
+                    .background(Color.Black.copy(alpha = 0.55f), RoundedCornerShape(50))
+                    .padding(horizontal = 14.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                CircularProgressIndicator(Modifier.size(16.dp), color = Color.White, strokeWidth = 2.dp)
+                Text(stringResource(R.string.refraction_updating), color = Color.White, fontSize = 14.sp, modifier = Modifier.padding(start = 10.dp))
+            }
 
             if (pano != null) Text(
                 stringResource(R.string.netz_imagery_credit),

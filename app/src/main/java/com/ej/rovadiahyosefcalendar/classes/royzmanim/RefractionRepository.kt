@@ -477,14 +477,43 @@ object RefractionRepository {
     @JvmStatic
     @JvmOverloads
     fun loadAsync(lat: Double, lon: Double, force: Boolean = false, onDone: ((RefractionData) -> Unit)? = null) {
+        loadInBackground(lat, lon, force) { data -> if (data != null) onDone?.invoke(data) }
+    }
+
+    /** How many times a place asks the server again for a horizon it is still building. */
+    private const val HORIZON_RETRIES = 4
+    private val horizonRetries = ConcurrentHashMap<String, Int>()
+    private val retryScheduler by lazy {
+        Executors.newSingleThreadScheduledExecutor { r -> Thread(r, "refraction-retry").apply { isDaemon = true } }
+    }
+
+    /**
+     * Loads on the loader thread, telling [RefractionStatus] (the screens' "adjusting the times" banner) when it starts and ends, and
+     * asks the server again when it is still building the place's horizon (it says how long that takes).
+     * @param onDone runs on the loader thread with the data, or null when the load failed
+     */
+    private fun loadInBackground(lat: Double, lon: Double, force: Boolean, onDone: ((RefractionData?) -> Unit)?) {
+        RefractionStatus.downloadStarted(lat, lon)
         executor.execute {
+            var data: RefractionData? = null
             try {
                 val before = if (dir == null) null else memory[places(lat, lon).key]
-                val data = load(lat, lon, force)
-                onDone?.invoke(data)
+                data = load(lat, lon, force)
                 if (data !== before) listeners.forEach { try { it(lat, lon) } catch (e: Exception) { Log.e(TAG, "listener failed", e) } }
             } catch (e: Exception) {
                 Log.e(TAG, "refraction data failed", e)
+            } finally {
+                val failed = data == null || data.forecastFetchedAt == null || data.notes.any { it.startsWith("forecast download failed") }
+                val retryS = data?.takeIf { it.horizon == null }?.horizonRetryS
+                val key = String.format(Locale.ROOT, "%.5f,%.5f", lat, lon)
+                val retries = if (retryS == null) 0 else horizonRetries.merge(key, 1, Int::plus) ?: 1
+                val retry = retryS != null && retries <= HORIZON_RETRIES
+                if (retryS == null) horizonRetries.remove(key)
+                RefractionStatus.downloadEnded(lat, lon, failed, retry)
+                if (retry) {
+                    retryScheduler.schedule({ loadInBackground(lat, lon, false, null) }, retryS!!.toLong() + 1, java.util.concurrent.TimeUnit.SECONDS)
+                }
+                try { onDone?.invoke(data) } catch (e: Exception) { Log.e(TAG, "onDone failed", e) }
             }
         }
     }
@@ -641,21 +670,7 @@ object RefractionRepository {
         val last = lastAttempt[key]
         if (last != null && now - last < RETRY_MS) return false
         lastAttempt[key] = now
-        if (onDone == null) {
-            loadAsync(rawLat, rawLon)// listeners are told with the caller's coordinates
-        } else {
-            executor.execute {
-                try {
-                    val before = memory[places(rawLat, rawLon).key]
-                    val data = load(rawLat, rawLon)
-                    if (data !== before) listeners.forEach { try { it(rawLat, rawLon) } catch (e: Exception) { Log.e(TAG, "listener failed", e) } }
-                } catch (e: Exception) {
-                    Log.e(TAG, "refraction data failed", e)
-                } finally {
-                    onDone.run()
-                }
-            }
-        }
+        loadInBackground(rawLat, rawLon, false) { onDone?.run() }// listeners are told with the caller's coordinates
         return true
     }
 
