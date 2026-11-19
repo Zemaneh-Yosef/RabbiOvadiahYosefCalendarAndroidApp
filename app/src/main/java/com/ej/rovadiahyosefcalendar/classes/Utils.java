@@ -349,8 +349,7 @@ public class Utils {
 
         public static void send(Context context) {
             sendPreferencesToWatch(context);
-            // the weather-dependent times (and the year of visible sunrises), after the preferences; holds them on the phone too
-            // when a watch that has them is out of reach
+            // the weather-dependent times (and the year of visible sunrises), after the preferences
             WatchZmanimSync.requestSync(context, true);
         }
 

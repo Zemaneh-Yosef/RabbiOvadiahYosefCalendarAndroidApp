@@ -21,7 +21,7 @@ class ZemanehYosefApplication : Application() {
         DpadSupport.install(this)// D-pad focus ring and TV keyboard, in every screen
         RefractionRepository.init(this)
         WatchZmanimSync.init(this)
-        // new data (or a visible sunrise computed) for a place: the watch gets the times it changes, or the phone holds them
+        // new data (or a visible sunrise computed) for a place: the watch gets the times it changes
         RefractionRepository.addListener { _, _ -> WatchZmanimSync.requestSync(this, false) }
         val settings = PreferenceManager.getDefaultSharedPreferences(this)
         RefractionSupport.enabled = settings.getBoolean(PREF_REFRACTION, true)

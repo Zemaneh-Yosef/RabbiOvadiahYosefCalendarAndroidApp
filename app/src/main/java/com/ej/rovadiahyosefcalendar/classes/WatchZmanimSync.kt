@@ -27,9 +27,8 @@ import java.util.concurrent.TimeUnit
  * them ([SyncedZmanim], path "zmanim/") for the next [DAYS_AFTER] days, plus a year of visible sunrises in the ChaiTables format
  * (path "chaiTable/") for the days after that.
  *
- * When new data would change the times while a watch that has the previous table is out of reach, the phone keeps showing that
- * table ([held]) until the watch is back and has the new one. With no watch, or with the watch in reach, nothing is held and the
- * newest data are used right away.
+ * The phone always shows the times from its newest data. A watch that is out of reach keeps its last table until it is back in
+ * reach and gets the new one.
  */
 object WatchZmanimSync {
     private const val TAG = "WatchZmanimSync"
@@ -38,10 +37,8 @@ object WatchZmanimSync {
     /** Advertised by watch apps that show the "zmanim/" table (wearos res/values/wear.xml); older ones only take "chaiTable/". */
     private const val CAPABILITY = "synced_zmanim"
     private const val PREFS = "watchZmanimSync"
-    /** The last table every watch in reach received. */
+    /** The last table every watch in reach received, so an unchanged table isn't sent again. */
     private const val KEY_DELIVERED = "delivered"
-    /** Whether the phone shows that table because a watch that has it is out of reach. */
-    private const val KEY_HOLDING = "holding"
     private const val DAYS_BEFORE = 1L
     private const val DAYS_AFTER = 30L
     private const val DEBOUNCE_MS = 3000L
@@ -49,7 +46,6 @@ object WatchZmanimSync {
     private val EQUINOX_DIPS = listOf(16.04 to false, 3.7 to true, 5.075 to true, 16.04 to true)
 
     private var prefs: SharedPreferences? = null
-    @Volatile private var held: SyncedZmanim? = null
     private val executor by lazy { Executors.newSingleThreadExecutor { r -> Thread(r, "watch-sync").apply { isDaemon = true } } }
     private val main by lazy { Handler(Looper.getMainLooper()) }
     private var force = false
@@ -58,14 +54,8 @@ object WatchZmanimSync {
 
     @JvmStatic
     fun init(context: Context) {
-        val p = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-        prefs = p
-        if (p.getBoolean(KEY_HOLDING, false)) held = SyncedZmanim.parse(p.getString(KEY_DELIVERED, null))
+        prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
     }
-
-    /** The table the phone shows while a watch that has it is out of reach; null = compute from the current data. */
-    @JvmStatic
-    fun held(): SyncedZmanim? = held
 
     /**
      * Send the watch the current times soon (several requests in a row make one sync).
@@ -109,18 +99,14 @@ object WatchZmanimSync {
         }
         val delivered = p.getString(KEY_DELIVERED, null)
         if (capable.isEmpty()) {
-            // no watch in reach: hold what a watch has, if one ever got a table (a watch that never did is no reason to)
-            setHolding(p, delivered != null, geo)
-            return
+            return// no watch in reach: it gets the newest table when it's back (the next sync)
         }
         val table = try { buildTable(geo).toString() } catch (e: Exception) { Log.e(TAG, "Building the table failed", e); return }
         if (table == delivered && !forceSend) {
-            setHolding(p, false, geo)
             return
         }
         val allReceived = capable.all { send(context, it, PATH_ZMANIM, table) }
         if (allReceived) p.edit().putString(KEY_DELIVERED, table).apply()
-        setHolding(p, !allReceived && delivered != null, geo)
     }
 
     private fun send(context: Context, node: Node, path: String, text: String): Boolean = try {
@@ -131,19 +117,10 @@ object WatchZmanimSync {
         false
     }
 
-    private fun setHolding(p: SharedPreferences, holding: Boolean, geo: GeoLocation) {
-        if (holding == (held != null)) return
-        held = if (holding) SyncedZmanim.parse(p.getString(KEY_DELIVERED, null)) else null
-        p.edit().putBoolean(KEY_HOLDING, held != null).apply()
-        // the screens listening for better data redraw with (or without) the held times
-        main.post { RefractionRepository.notifyListeners(geo.latitude, geo.longitude) }
-    }
-
-    /** The table for the place from the current data (never the held one). */
+    /** The table for the place from the current data. */
     @JvmStatic
     fun buildTable(geo: GeoLocation): JSONObject {
         val cal = ROZmanimCalendar(geo, RefractionSupport.dataFor(geo))
-        cal.setUseWatchHold(false)
         val today = LocalDate.now(geo.zoneId)
         val days = JSONObject()
         for (i in -DAYS_BEFORE..DAYS_AFTER) {
@@ -186,7 +163,6 @@ object WatchZmanimSync {
         val out = StringBuilder()
         if (data?.horizon != null) {
             val cal = ROZmanimCalendar(geo, data)
-            cal.setUseWatchHold(false)
             var date = JewishCalendar(year, JewishCalendar.TISHREI, 1).localDate
             val end = JewishCalendar(year + 1, JewishCalendar.TISHREI, 1).localDate
             while (date.isBefore(end)) {

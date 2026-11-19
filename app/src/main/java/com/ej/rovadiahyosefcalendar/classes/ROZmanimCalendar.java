@@ -355,10 +355,6 @@ public class ROZmanimCalendar extends ZmanimCalendar {
      * result is more than an hour from sunrise (a bad profile).
      */
     public Instant getTerrainHaNetz() {
-        SyncedZmanim.Day held = getWatchHeldDay();
-        if (held != null) {
-            return held.haNetz;
-        }
         return getTerrainSunrise(new VisibleOptions(), "");
     }
 
@@ -381,49 +377,6 @@ public class ROZmanimCalendar extends ZmanimCalendar {
         }
         kotlin.Pair<Double, Boolean> r = RefractionSupport.visibleSunrise(refractionData, getGeoLocation(), getLocalDate(), options, defer, tag);
         return RefractionSupport.checkedInstant(r.getFirst(), getSunriseBasedOnElevationSetting());
-    }
-
-    /**
-     * Whether this calendar shows the times the watch has while that watch is out of reach ({@link WatchZmanimSync#held()}).
-     * Off for the calendars that compute what is sent to the watch.
-     */
-    private boolean useWatchHold = true;
-
-    public void setUseWatchHold(boolean useWatchHold) {
-        this.useWatchHold = useWatchHold;
-    }
-
-    /** The current date's times as the watch has them, while they are held for it; null = compute as usual. */
-    private SyncedZmanim.Day getWatchHeldDay() {
-        if (!useWatchHold) {
-            return null;
-        }
-        SyncedZmanim held = WatchZmanimSync.held();
-        return held != null && held.matches(getGeoLocation()) ? held.day(getLocalDate()) : null;
-    }
-
-    @Override
-    public Instant getSunrise() {
-        SyncedZmanim.Day held = getWatchHeldDay();
-        return held != null ? held.sunrise : super.getSunrise();
-    }
-
-    @Override
-    public Instant getSeaLevelSunrise() {
-        SyncedZmanim.Day held = getWatchHeldDay();
-        return held != null ? held.seaLevelSunrise : super.getSeaLevelSunrise();
-    }
-
-    @Override
-    public Instant getSunset() {
-        SyncedZmanim.Day held = getWatchHeldDay();
-        return held != null ? held.sunset : super.getSunset();
-    }
-
-    @Override
-    public Instant getSeaLevelSunset() {
-        SyncedZmanim.Day held = getWatchHeldDay();
-        return held != null ? held.seaLevelSunset : super.getSeaLevelSunset();
     }
 
     /** Whether {@link #getSunriseFullDisk()} is the whole disk over the terrain horizon (not moved by the solar diameter). */
@@ -785,12 +738,6 @@ public class ROZmanimCalendar extends ZmanimCalendar {
      * doesn't get that low before solar midnight: 5.2 degrees (from a higher degree), else solar midnight.
      */
     public Instant getDegreeTzetWithHaze(double degree) {
-        if (degree == 7.165) {
-            SyncedZmanim.Day held = getWatchHeldDay();
-            if (held != null) {
-                return held.tzet7165;
-            }
-        }
         Instant tzait = getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + degree);
         Instant midnight = getSolarMidnight();
         if (tzait == null || (midnight != null && tzait.isAfter(midnight))) {
@@ -898,18 +845,10 @@ public class ROZmanimCalendar extends ZmanimCalendar {
      */
     public Double getEquinoxPercentOfShaahZmanis(double degrees, boolean sunset) {
         int year = getLocalDate().getYear();
-        if (useWatchHold) {
-            SyncedZmanim held = WatchZmanimSync.held();
-            Double percent = held != null && held.matches(getGeoLocation()) ? held.equinox(year, degrees, sunset) : null;
-            if (percent != null) {
-                return percent;
-            }
-        }
         // the same for every date of a year, but asked for by every calendar of the place: cached per data, place and year
         double percentage = RefractionSupport.cachedNumber(refractionData, getGeoLocation(),
                 "equinox|" + year + "|" + degrees + "|" + sunset + "|" + isUseElevation(), () -> {
                     ROZmanimCalendar equinox = getCopy();
-                    equinox.setUseWatchHold(false);// the cached number is the computed one, held or not
                     equinox.setLocalDate(LocalDate.of(year, Month.MARCH, 17));
                     return equinox.getPercentOfShaahZmanisFromDegrees(degrees, sunset);
                 });
@@ -926,7 +865,6 @@ public class ROZmanimCalendar extends ZmanimCalendar {
         copy.setCandleLightingOffset(getCandleLightingOffset());
         copy.setAteretTorahSunsetOffset(getAteretTorahSunsetOffset());
         copy.setAmudehHoraah(isUseAmudehHoraah());
-        copy.setUseWatchHold(useWatchHold);
         copy.setLocalDate(getLocalDate());
         return copy;
     }
