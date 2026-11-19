@@ -118,6 +118,31 @@ public class DailySummaryController {
     }
 
     /**
+     * Shows the banner under the location name that tells the user the times are about to be adjusted for the weather (or that
+     * the download failed). See ZmanimFragment#updateRefractionStatusBanner.
+     * @param loading whether to show the spinner
+     */
+    public void showRefractionStatus(int text, boolean loading) {
+        mBinding.refractionStatusText.setText(text);
+        mBinding.refractionStatusProgress.setVisibility(loading ? View.VISIBLE : View.GONE);
+        View banner = mBinding.refractionStatus;
+        banner.animate().cancel();// it may be fading out
+        if (banner.getVisibility() != View.VISIBLE) {
+            banner.setAlpha(0f);
+            banner.setVisibility(View.VISIBLE);
+        }
+        banner.animate().alpha(1f).setDuration(200).start();
+    }
+
+    public void hideRefractionStatus() {
+        View banner = mBinding.refractionStatus;
+        if (banner.getVisibility() == View.VISIBLE) {
+            banner.animate().cancel();
+            banner.animate().alpha(0f).setDuration(200).withEndAction(() -> banner.setVisibility(View.GONE)).start();
+        }
+    }
+
+    /**
      * Redraws the summary for the date currently in sROZmanimCalendar / sJewishDateInfo.
      * @param infoEntries the info rows to show in the info card, or null to leave them as they are. Only used when showInfoRows is true.
      */

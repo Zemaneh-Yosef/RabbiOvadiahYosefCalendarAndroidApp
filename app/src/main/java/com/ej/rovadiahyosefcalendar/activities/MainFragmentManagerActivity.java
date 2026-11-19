@@ -587,6 +587,12 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
      * Redraws the day summary sidebar (wide screens only) for the date currently shown. Every tab calls this after it changes
      * the shared date (sCurrentDateShown), so that the sidebar always matches the tab next to it.
      */
+    /** The day summary sidebar on wide screens, or null. */
+    @Nullable
+    public static DailySummaryController getSidebar() {
+        return sSidebar;
+    }
+
     public static void refreshSidebar() {
         if (sSidebar == null || (sLatitude == 0 && sLongitude == 0)) {// no sidebar, or the location is not known yet
             return;

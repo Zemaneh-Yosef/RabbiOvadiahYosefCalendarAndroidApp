@@ -178,6 +178,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private final Runnable mShowRefractionUpdating = () -> showRefractionStatusBanner(R.string.refraction_updating, true);
     private final Runnable mHideRefractionStatus = this::hideRefractionStatusBanner;
     private static final long REFRACTION_BANNER_DELAY_MS = 500;
+    /** What the banner under the location name shows: 0 = hidden, 1 = updating, 2 = the download failed. */
+    private int mRefractionBannerState;
     private static final long REFRACTION_FAILED_SHOWN_MS = 4000;
     private Runnable mZmanimUpdater;
     private Runnable mNextZmanUpdater;
@@ -545,6 +547,15 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }).start());
         mNestedScrollView = binding.nestedScrollView;
         mDailySummary = new DailySummaryController(mContext, binding.dailySummary, false);
+        if (mRefractionBannerState != 0) {// a new summary starts without the banner: show it there too
+            int state = mRefractionBannerState;
+            mRefractionBannerState = 0;
+            if (state == 1) {
+                showRefractionStatusBanner(R.string.refraction_updating, true);
+            } else {
+                updateRefractionStatusBanner();
+            }
+        }
         if (mIsTwoPane) {// the day summary is shown in the activity's sidebar instead
             binding.dailySummary.getRoot().setVisibility(View.GONE);
         }
@@ -1566,8 +1577,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             hideRefractionStatusBanner();
         } else if (RefractionStatus.isUpdating(sLatitude, sLongitude, sCurrentDateShown)) {
             mHandler.removeCallbacks(mHideRefractionStatus);
-            if (binding.refractionStatus.getVisibility() == View.VISIBLE
-                    && binding.refractionStatusProgress.getVisibility() == View.VISIBLE) {
+            if (mRefractionBannerState == 1) {
                 return;// already showing
             }
             mHandler.postDelayed(mShowRefractionUpdating, REFRACTION_BANNER_DELAY_MS);
@@ -1575,32 +1585,31 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             showRefractionStatusBanner(R.string.refraction_update_failed, false);
             mHandler.removeCallbacks(mHideRefractionStatus);
             mHandler.postDelayed(mHideRefractionStatus, REFRACTION_FAILED_SHOWN_MS);
-        } else if (binding.refractionStatusProgress.getVisibility() == View.VISIBLE) {
+        } else if (mRefractionBannerState == 1) {
             hideRefractionStatusBanner();// done: the list was redrawn with the new times
         }
     }
 
     private void showRefractionStatusBanner(int text, boolean loading) {
-        if (binding == null) {
-            return;
+        mRefractionBannerState = loading ? 1 : 2;
+        if (mDailySummary != null) {
+            mDailySummary.showRefractionStatus(text, loading);
         }
-        binding.refractionStatusText.setText(text);
-        binding.refractionStatusProgress.setVisibility(loading ? View.VISIBLE : View.GONE);
-        View banner = binding.refractionStatus;
-        banner.animate().cancel();// it may be fading out
-        if (banner.getVisibility() != View.VISIBLE) {
-            banner.setAlpha(0f);
-            banner.setVisibility(View.VISIBLE);
+        DailySummaryController sidebar = MainFragmentManagerActivity.getSidebar();
+        if (sidebar != null) {
+            sidebar.showRefractionStatus(text, loading);
         }
-        banner.animate().alpha(1f).setDuration(200).start();
     }
 
     private void hideRefractionStatusBanner() {
-        if (binding == null || binding.refractionStatus.getVisibility() != View.VISIBLE) {
-            return;
+        mRefractionBannerState = 0;
+        if (mDailySummary != null) {
+            mDailySummary.hideRefractionStatus();
         }
-        View banner = binding.refractionStatus;
-        banner.animate().alpha(0f).setDuration(200).withEndAction(() -> banner.setVisibility(View.GONE)).start();
+        DailySummaryController sidebar = MainFragmentManagerActivity.getSidebar();
+        if (sidebar != null) {
+            sidebar.hideRefractionStatus();
+        }
     }
 
     private void startShabbatMode() {
