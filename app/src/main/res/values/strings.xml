@@ -433,8 +433,6 @@
     <string name="havdalah_is_only_said_on_a_flame_tonight">Havdalah is only said on a flame tonight.</string>
     <string name="havdalah_will_be_completed_after_the_fast">Havdalah will be completed after the fast.</string>
     <string name="about_us_text">We are the platform to use whenever and wherever you\'d need Halachic Times (Zemanim) according to Hakham Ovadia Yosef zt\'l, following his practices represented in his Ohr Hachaim calendar from Eretz Yisrael. Outside Israel, our algorithm follow\'s the rules outlined by the Minḥat Kohen (as quoted by R David Yosef, approved by R Yitzḥak Yosef) to comply with the astronomical differences while sticking to seasonal minutes.</string>
-    <string name="tip_you_can_press_on_the_times_to_find_out_more_information_on_them">Tip: You can press on the times to find out more information on them!</string>
-    <string name="try_pressing_on_listings_in_the_app_and_you_might_be_suprised_at_what_you_will_find">Try pressing on listings in the app and you might be surprised at what you will find!</string>
     <string name="setup_visible_sunrise_now_wanna_try_later_visit_the_sunrise_description">Setup visible sunrise now! (Want to try later? Visit the Sunrise description)</string>
     <string name="today">Today</string>
     <string name="time_zone">"Time Zone: "</string>
@@ -523,4 +521,24 @@
  <string name="eruv_tavshilin_dialog">When Yom Tov falls on a Friday (or on Thursday and Friday outside of Israel), it is generally prohibited to cook, bake, or perform other food preparations on Yom Tov for the upcoming Shabbat. However, the Sages instituted the mechanism of an Eruv Tavshilin, a symbolic preparation initiated before Yom Tov, to permit cooking and baking from Yom Tov for Shabbat. The underlying reason is that by beginning the preparation of Shabbat meals before Yom Tov starts, any subsequent cooking on Yom Tov is viewed as a continuation of the cooking from before Yom Tov started, preserving the honor of both Yom Tov and Shabbat. In order to make an Eruv Tavshilin, hold the designated foods (usually a kezayit [27/18 grams] of matzah/bread and a boiled egg) in one\'s right hand and recite:\n\nבָּרוּךְ אַתָּה ה\' אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם, אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ עַל מִצְוַת עֵרוּב.\n\nבְּדֵין עֵרוּבָא יְהֵא שָׁרֵא לָנָא לַאֲפוּיֵי, וּלְבַשּׁוּלֵי, וּלְאַדְלוּקֵי שְׁרָגָא, וּלְמֶעֱבַד כָּל צָרְכָנָא, מִיּוֹם טוֹב לְשַׁבַּת.\n\n(With this Eruv it should be permitted for us to bake, cook, light a candle, and do any need from Yom Tov for Shabbat.)\n\nSome have the minhag to eat the Eruv Tavshilin for Seudat Shelishit.\n\n(Chazon Ovadia (Yom Tov, pp. 274–294); Yalkut Yosef (Siman 527)</string>
     <string name="no_app_can_open_this_link">No app on this device can open this link:\n%1$s</string>
     <string name="no_app_can_open_this">No app on this device can open this.</string>
+    <string name="light_menorah_before_shabbat_candles">Light Menorah before Shabbat candles</string>
+ <string name="leave_enough_oil_to_burn_until">Leave enough oil to burn until</string>
+ <string name="light_after_havdala">Light after Havdala</string>
+ <string name="before_dawn">, before Dawn</string>
+    <string name="notification_setup_title">Notifications</string>
+    <string name="notification_setup_intro">The app can remind you before each zeman. For the reminders to arrive on time, Android needs the settings below. You can come back to this page anytime from the notification settings.</string>
+    <string name="setup_allow_notifications">Allow notifications</string>
+    <string name="setup_allow_notifications_description">Needed to show any reminder.</string>
+    <string name="setup_exact_alarms">Alarms &amp; reminders</string>
+    <string name="setup_exact_alarms_description">Lets the reminders arrive at the exact minute.</string>
+    <string name="setup_battery">Unrestricted battery use</string>
+    <string name="setup_battery_description">Stops Android from delaying the reminders to save battery.</string>
+    <string name="setup_background_location">Location all the time (optional)</string>
+    <string name="setup_background_location_description">Only needed if you want the zemanim in the reminders to follow your location when you travel.</string>
+    <string name="turn_on">Turn on</string>
+    <string name="done">Done</string>
+    <string name="continue_text">Continue</string>
+    <string name="notification_setup_summary">Check that the notifications can arrive on time</string>
+    <string name="showcase_tap_talit">Some zemanim have more than one opinion. Tap on this time to see the other one.</string>
+    <string name="showcase_tap_either">Now tap on either time to learn more about it. Most times and listings in the app show an explanation when you tap on them.</string>
 </resources>

@@ -636,8 +636,6 @@
     <string name="havdalah_is_only_said_on_a_flame_tonight">הבדלה נאמרת הלילה רק על האש.</string>
     <string name="havdalah_will_be_completed_after_the_fast">הבדלה תושלם לאחר הצום.</string>
     <string name="about_us_text">אנחנו הפלטפורמה לשימוש בכל זמן ובכל מקום שצריך זמנים הלכתיים על פי הרב עובדיה יוסף זצ\"ל, בהתאם למנהגיו כפי שהם מופיעים בלוח אור החיים מארץ ישראל. מחוץ לארץ ישראל, האלגוריתם שלנו פועל לפי הכללים שנקבעו על ידי ה\"מנחת כהן\" (כפי שמצוטט על ידי הרב דוד יוסף, באישור הרב יצחק יוסף) כדי להתאים להבדלים האסטרונומיים תוך שמירה על דקות זמניות.</string>
-    <string name="tip_you_can_press_on_the_times_to_find_out_more_information_on_them">טיפ: ניתן ללחוץ על הזמנים כדי לקבל מידע נוסף עליהם!</string>
-    <string name="try_pressing_on_listings_in_the_app_and_you_might_be_suprised_at_what_you_will_find">נסו ללחוץ על הרשומות באפליקציה, ואולי תופתעו ממה שתגלו!</string>
     <string name="setup_visible_sunrise_now_wanna_try_later_visit_the_sunrise_description">הגדירו עכשיו את זמן זריחת החמה הנראית! (רוצים לנסות מאוחר יותר? בקרו בתיאור הזריחה)</string>
     <string name="today">היום</string>
     <string name="time_zone">"אזור זמן: "</string>
@@ -732,4 +730,24 @@
     <string name="eruv_tavshilin_dialog">כאשר יום טוב חל ביום שישי (או בימי חמישי ושישי בחוץ לארץ), בדרך כלל אסור לבשל, לאפות או לבצע הכנות אחרות של מאכלים ביום טוב לצורך השבת הקרובה. אולם חכמים תיקנו עירוב תבשילין, שהוא הכנה סמלית הנעשית לפני יום טוב, כדי להתיר בישול ואפייה מיום טוב לשבת. הטעם לכך הוא שכאשר מתחילים להכין את סעודות השבת לפני כניסת יום טוב, כל בישול נוסף ביום טוב נחשב כהמשך להכנות שהחלו לפני יום טוב, ובכך נשמר כבודם של יום טוב ושבת כאחד. כדי לעשות עירוב תבשילין, יש להחזיק את המאכלים המיועדים לעירוב (בדרך כלל כזית [27/18 גרם] מצה או לחם וביצה מבושלת) ביד ימין ולברך:\n\nבָּרוּךְ אַתָּה ה\' אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם, אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ עַל מִצְוַת עֵרוּב.\n\nבְּדֵין עֵרוּבָא יְהֵא שָׁרֵא לָנָא לַאֲפוּיֵי, וּלְבַשּׁוּלֵי, וּלְאַדְלוּקֵי שְׁרָגָא, וּלְמֶעֱבַד כָּל צָרְכָנָא, מִיּוֹם טוֹב לְשַׁבַּת.\n\n(בעירוב זה יהיה מותר לנו לאפות, לבשל, להדליק נר ולעשות את כל צרכינו מיום טוב לשבת.)\n\nיש הנוהגים לאכול את עירוב התבשילין בסעודה שלישית.\n\n(חזון עובדיה, יום טוב, עמ׳ רעד–רצד; ילקוט יוסף, סימן תקכז)</string>
     <string name="no_app_can_open_this_link">אין במכשיר הזה אפליקציה שיכולה לפתוח את הקישור:\n%1$s</string>
     <string name="no_app_can_open_this">אין במכשיר הזה אפליקציה שיכולה לפתוח את זה.</string>
+    <string name="light_menorah_before_shabbat_candles">מדליקים את החנוכייה לפני נרות שבת</string>
+    <string name="leave_enough_oil_to_burn_until">יש לתת מספיק שמן כדי שידלוק עד</string>
+    <string name="light_after_havdala">מדליקים לאחר הבדלה</string>
+    <string name="before_dawn">, לפני עלות השחר</string>
+    <string name="notification_setup_title">התראות</string>
+    <string name="notification_setup_intro">האפליקציה יכולה להזכיר לכם לפני כל זמן. כדי שהתזכורות יגיעו בזמן, אנדרואיד צריך את ההגדרות שלמטה. אפשר לחזור לדף הזה בכל עת דרך הגדרות ההתראות.</string>
+    <string name="setup_allow_notifications">אישור התראות</string>
+    <string name="setup_allow_notifications_description">נדרש כדי להציג תזכורות.</string>
+    <string name="setup_exact_alarms">התראות ותזכורות</string>
+    <string name="setup_exact_alarms_description">מאפשר לתזכורות להגיע בדקה המדויקת.</string>
+    <string name="setup_battery">שימוש בסוללה ללא הגבלה</string>
+    <string name="setup_battery_description">מונע מאנדרואיד לעכב את התזכורות כדי לחסוך בסוללה.</string>
+    <string name="setup_background_location">מיקום כל הזמן (לא חובה)</string>
+    <string name="setup_background_location_description">נדרש רק אם רוצים שהזמנים בתזכורות יתעדכנו לפי המיקום שלכם כשאתם בדרכים.</string>
+    <string name="turn_on">הפעלה</string>
+    <string name="done">בוצע</string>
+    <string name="continue_text">המשך</string>
+    <string name="notification_setup_summary">בדיקה שההתראות יכולות להגיע בזמן</string>
+    <string name="showcase_tap_talit">לחלק מהזמנים יש יותר משיטה אחת. לחצו על הזמן הזה כדי לראות את השיטה השנייה.</string>
+    <string name="showcase_tap_either">עכשיו לחצו על אחד מהזמנים כדי לקרוא עליו עוד. רוב הזמנים והרשומות באפליקציה מציגים הסבר כשלוחצים עליהם.</string>
 </resources>

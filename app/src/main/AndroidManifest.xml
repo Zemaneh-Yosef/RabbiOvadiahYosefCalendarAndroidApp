@@ -82,7 +82,7 @@
             android:name=".activities.AllTehillimActivity"
             android:exported="false" />
         <activity
-            android:name=".activities.TipScreenActivity"
+            android:name=".activities.NotificationSetupActivity"
             android:exported="false" />
         <activity
             android:name=".activities.WelcomeScreenActivity"

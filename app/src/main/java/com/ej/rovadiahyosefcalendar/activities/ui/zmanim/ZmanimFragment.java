@@ -1,11 +1,6 @@
 package com.ej.rovadiahyosefcalendar.activities.ui.zmanim;
 
-import static android.Manifest.permission.ACCESS_BACKGROUND_LOCATION;
-import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
-import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.Context.ALARM_SERVICE;
-import static android.content.Context.POWER_SERVICE;
-import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.materialToolbar;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentDateShown;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentLocationName;
@@ -28,12 +23,10 @@ import static com.ej.rovadiahyosefcalendar.classes.Utils.getCurrentCalendarDrawa
 import static com.ej.rovadiahyosefcalendar.classes.Utils.inputStreamToString;
 import static com.ej.rovadiahyosefcalendar.classes.ZmanimFactory.addZmanim;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.app.PendingIntent;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -50,8 +43,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.PowerManager;
-import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -64,14 +55,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.core.app.ActivityCompat;
-import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuCompat;
 import androidx.core.widget.NestedScrollView;
@@ -87,6 +74,7 @@ import com.ej.rovadiahyosefcalendar.R;
 import com.ej.rovadiahyosefcalendar.activities.GetUserLocationWithMapActivity;
 import com.ej.rovadiahyosefcalendar.activities.JerusalemDirectionMapsActivity;
 import com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity;
+import com.ej.rovadiahyosefcalendar.activities.NotificationSetupActivity;
 import com.ej.rovadiahyosefcalendar.activities.MoladActivity;
 import com.ej.rovadiahyosefcalendar.activities.NetzActivity;
 import com.ej.rovadiahyosefcalendar.activities.SettingsActivity;
@@ -101,6 +89,7 @@ import com.ej.rovadiahyosefcalendar.classes.MakamJCal;
 import com.ej.rovadiahyosefcalendar.classes.ROZmanimCalendar;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.ej.rovadiahyosefcalendar.classes.ZmanAdapter;
+import com.ej.rovadiahyosefcalendar.classes.ZmanimShowcase;
 import com.ej.rovadiahyosefcalendar.classes.ZmanListEntry;
 import com.ej.rovadiahyosefcalendar.classes.ZmanimFactory;
 import com.ej.rovadiahyosefcalendar.databinding.FragmentZmanimBinding;
@@ -226,9 +215,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private Runnable mLocationTimeoutRunnable;
     private static final long LOCATION_UPDATE_TIMEOUT_MS = 5000L;
     private LocationResolver mLocationResolver;
-    private ActivityResultLauncher<Intent> mNotificationLauncher;
-    private ActivityResultLauncher<String> mBackgroundLocationLauncher;
-    private ActivityResultLauncher<String> mPostNotificationsLauncher;
+    private ZmanimShowcase mShowcase;// the walkthrough of the list after the first setup
     private SharedPreferences.OnSharedPreferenceChangeListener sSharedPrefListener;
     private static JSONArray makamNames;
     private static final Duration AWAY_THRESHOLD = Duration.ofHours(2);
@@ -249,7 +236,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         super.onAttach(context);
         mContext = context;
         mActivity = requireActivity();
-        initNotifResult();
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -341,29 +327,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         setupButtons();
     }
 
-    private void initNotifResult() {
-        mNotificationLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> setNotifications()
-        );
-        mBackgroundLocationLauncher = registerForActivityResult(
-                new ActivityResultContracts.RequestPermission(),
-                granted -> {
-                    if (granted) {
-                        sSharedPreferences.edit().putBoolean("askedForRealtimeNotifications", true).apply();
-                    }
-                }
-        );
-        mPostNotificationsLauncher = registerForActivityResult(
-                new ActivityResultContracts.RequestPermission(),
-                granted -> {
-                    if (!granted) {
-                        showNotificationsAreOffDialog();
-                    }
-                }
-        );
-    }
-
     /**
      * This method initializes the main view.
      */
@@ -415,7 +378,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
         setupButtons();
         setNotifications();
-        askForRealTimeNotificationPermissions();
         checkIfUserIsInIsraelOrNot();
     }
 
@@ -827,113 +789,14 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         RefractionRepository.ensureFresh(sLatitude, sLongitude);
     }
 
-    private void askForRealTimeNotificationPermissions() {
-        if (ActivityCompat.checkSelfPermission(mContext, ACCESS_FINE_LOCATION) == PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(mContext, ACCESS_COARSE_LOCATION) == PERMISSION_GRANTED) {
-            if (!sSharedPreferences.getBoolean("askedForRealtimeNotifications", false)
-                    && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext);
-                builder.setTitle(R.string.would_you_like_to_receive_real_time_notifications_for_zmanim);
-                builder.setMessage(R.string.if_you_would_like_to_receive_real_time_zmanim_notifications);
-                builder.setCancelable(false);
-                builder.setPositiveButton(R.string.yes, (dialog, which) -> {
-                    if (ActivityCompat.checkSelfPermission(mContext, ACCESS_BACKGROUND_LOCATION) != PERMISSION_GRANTED) {
-                        mBackgroundLocationLauncher.launch(ACCESS_BACKGROUND_LOCATION);
-                    } else {
-                        sSharedPreferences.edit().putBoolean("askedForRealtimeNotifications", true).apply();
-                    }
-                });
-                builder.setNegativeButton(R.string.no, (dialog, which) -> {
-                    sSharedPreferences.edit().putBoolean("askedForRealtimeNotifications", true).apply();
-                    dialog.dismiss();
-                });
-                if (!mActivity.isFinishing()) {
-                    builder.show();
-                }
-            }
-        }
-    }
-
     /**
      * This method will be called every time the user opens the app. It will reset the notifications every time the app is opened since the user might
      * have changed his location or settings.
      */
     private void setNotifications() {
-        if (sSettingsPreferences.getBoolean("zmanim_notifications", true)) {//if the user wants notifications
-            boolean waitingForNotificationPermission = false;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {// ask for permission to send notifications for newer versions of android ughhhh...
-                if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.POST_NOTIFICATIONS) != PERMISSION_GRANTED) {
-                    mPostNotificationsLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
-                    waitingForNotificationPermission = true;
-                } else {
-                }
-            }
-
-            if (!sSharedPreferences.getBoolean("neverAskBatteryOptimization", false)) {
-                PowerManager powerManager = (PowerManager) mContext.getSystemService(POWER_SERVICE);
-                if (!powerManager.isIgnoringBatteryOptimizations(mContext.getPackageName())) {
-                    MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext)
-                            .setTitle(R.string.battery_optimization_is_enabled)
-                            .setMessage(R.string.the_current_battery_settings_for_the_app_is_trying_to_save_battery_this_may_cause_notifications_to_be_sent_at_a_later_time_would_you_like_to_change_this_setting)
-                            .setCancelable(false)
-                            .setPositiveButton(mContext.getString(R.string.yes), (dialog, which) -> {
-                                try {
-                                    mContext.startActivity(new Intent("android.settings.APP_BATTERY_USAGE")
-                                            .putExtra("android.intent.extra.PACKAGE_NAME", mContext.getPackageName())
-                                            .setData(Uri.parse("package:" + mContext.getPackageName())));
-                                } catch (Exception e) {
-                                    // Fallback to the main App Info page if the specific battery page fails
-                                    Intent fallback = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                                    fallback.setData(Uri.parse("package:" + mContext.getPackageName()));
-                                    Utils.startActivitySafely(mContext, fallback);
-                                }
-                            })
-                            .setNegativeButton(mContext.getString(R.string.no), (dialog, which) -> dialog.dismiss())
-                            .setNeutralButton(mContext.getString(R.string.do_not_ask_me_again), (dialog, which) -> {
-                                sSharedPreferences.edit().putBoolean("neverAskBatteryOptimization", true).apply();
-                                dialog.dismiss();
-                            });
-                    if (!mActivity.isFinishing()) {
-                        builder.show();
-                    }
-                }
-            }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !((AlarmManager) mContext.getSystemService(ALARM_SERVICE)).canScheduleExactAlarms()) {// more annoying android permission garbage
-                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext)
-                        .setTitle(R.string.zmanim_notifications_will_not_work)
-                        .setMessage(R.string.if_you_would_like_to_receive_zmanim_notifications)
-                        .setCancelable(false)
-                        .setPositiveButton(mContext.getString(R.string.yes), (dialog, which) -> {
-                            try {
-                                mNotificationLauncher.launch(new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:" + mContext.getPackageName())));
-                            } catch (ActivityNotFoundException e) {// e.g. on some TVs
-                                Utils.startActivitySafely(mContext, new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + mContext.getPackageName())));
-                            }
-                        })
-                        .setNegativeButton(mContext.getString(R.string.no), (dialog, which) -> dialog.dismiss());
-                if (!mActivity.isFinishing()) {
-                    builder.show();
-                }
-            }
-
-            if (!waitingForNotificationPermission && !NotificationManagerCompat.from(mContext).areNotificationsEnabled()) {
-                showNotificationsAreOffDialog();
-            }
-        }
+        // The permissions the notifications need are asked for on their own page (NotificationSetupActivity), not here, so the user isn't
+        // asked again every time the app is opened.
         setAllNotifications();
-    }
-
-    private void showNotificationsAreOffDialog() {
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext)
-                .setTitle(R.string.zmanim_notifications_will_not_work)
-                .setMessage(R.string.if_you_would_like_to_receive_zmanim_notifications)
-                .setPositiveButton(mContext.getString(R.string.yes), (dialog, which) -> Utils.startActivitySafely(mContext, new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
-                        .putExtra(Settings.EXTRA_APP_PACKAGE, mContext.getPackageName())))
-                .setNegativeButton(mContext.getString(R.string.no), (dialog, which) -> dialog.dismiss());
-        if (!mActivity.isFinishing()) {
-            builder.show();
-        }
     }
 
     private void setAllNotifications() {
@@ -1052,13 +915,32 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         if (zmanAdapter != null) {
                             zmanAdapter.setZmanim(getZmanimList(true));
                             mMainRecyclerView.getAdapter().notifyDataSetChanged();
+                            if (mShowcase != null) {
+                                mShowcase.onTalitTefilinExpanded(mMainRecyclerView);
+                            }
                         }
                     }));
             if (mNestedScrollView != null) {
                 mNestedScrollView.scrollTo(0, 0);
             }
             MainFragmentManagerActivity.refreshSidebar();
+            startShowcaseIfNeeded();
         }
+    }
+
+    /**
+     * Shows the walkthrough of the zmanim list if it wasn't done yet after the first setup. It needs the zman dialogs, which are off in
+     * Shabbat mode or when the user turned them off, and the daily list.
+     */
+    private void startShowcaseIfNeeded() {
+        if (mMainRecyclerView == null || sShabbatMode || sSharedPreferences.getBoolean("weeklyMode", false)
+                || !sSettingsPreferences.getBoolean("showZmanDialogs", true)) {
+            return;
+        }
+        if (mShowcase == null) {
+            mShowcase = new ZmanimShowcase(mActivity, sSharedPreferences);
+        }
+        mShowcase.startIfNeeded(mMainRecyclerView);
     }
 
     /**
@@ -1928,6 +1810,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             super.onResume();
             return;
         }
+        if (NotificationSetupActivity.sSettingsChanged) {// the user fixed a setting the notifications need, so schedule them again
+            NotificationSetupActivity.sSettingsChanged = false;
+            setNotifications();
+        }
+        startShowcaseIfNeeded();// e.g. when the notifications page that is shown after the setup is closed
         sJewishDateInfo.getJewishCalendar().setInIsrael(sSharedPreferences.getBoolean("inIsrael", false));// check if the user changed the inIsrael setting
         sJewishDateInfo.resetLocale(mContext);
         try {
@@ -2086,6 +1973,10 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        if (mShowcase != null) {
+            mShowcase.cancel();// shown again the next time the list is
+            mShowcase = null;
+        }
         if (binding != null && binding.getRoot().getViewTreeObserver().isAlive()) {
             binding.getRoot().getViewTreeObserver().removeOnGlobalFocusChangeListener(mFocusFirstZmanOnEntry);
         }

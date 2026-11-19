@@ -11,6 +11,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -163,7 +164,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
 
                 mLocationResolver = new LocationResolver(this, this);
                 acquireDeviceLocation(mLocationResolver, () -> {
-                    chosenLocation = new LatLng(sLatitude, sLongitude);
+                    setChosenLocation(new LatLng(sLatitude, sLongitude));
                     mLocationResolver.getFullLocationName(true, locationName -> {
                         if (locationName != null) {
                             runOnUiThread(() -> currentLocation = mMap.addMarker(new MarkerOptions().position(chosenLocation).draggable(true).title(locationName)));
@@ -209,7 +210,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                 mLocationResolver.getLatitudeAndLongitudeFromSearchQuery();
                 showProgressDialogIfTimeshapeNull();
                 mLocationResolver.setTimeZoneID();
-                chosenLocation = new LatLng(sLatitude, sLongitude);
+                setChosenLocation(new LatLng(sLatitude, sLongitude));
                 if (mMap != null) {
                     mLocationResolver.getFullLocationName(true, locationName -> {
                         if (locationName != null) {
@@ -239,9 +240,10 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
         // to type a location. DpadSupport opens the keyboard when the field gets the focus, and this opens it again on OK.
         EditText searchField = findFirstEditText(binding.searchView);
         if (searchField != null) {
-            searchField.setOnClickListener(v -> DpadSupport.showKeyboard(v));
+            searchField.setOnClickListener(DpadSupport::showKeyboard);
         }
 
+        updateConfirmButton();
         binding.confirmLocation.setOnClickListener(v -> {
             if (chosenLocation != null) {
                 binding.progressBar.setVisibility(View.VISIBLE);
@@ -331,8 +333,23 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
     protected void onStart() {
         if (binding != null) {
             binding.progressBar.setVisibility(View.GONE);
+            updateConfirmButton();// it is disabled while confirming, so re-enable it if the user comes back to this screen
         }
         super.onStart();
+    }
+
+    private void setChosenLocation(LatLng location) {
+        chosenLocation = location;
+        updateConfirmButton();
+    }
+
+    /**
+     * The confirm button is greyed out and can't be pressed until a location has been chosen.
+     */
+    private void updateConfirmButton() {
+        boolean hasLocation = chosenLocation != null;
+        binding.confirmLocation.setEnabled(hasLocation);
+        binding.confirmLocation.setBackgroundTintList(ColorStateList.valueOf(hasLocation ? getColor(R.color.light_blue) : Color.GRAY));
     }
 
     private void configureSettingsBasedOnLocation() {
@@ -361,10 +378,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                     .putBoolean("isZmanimEnglishTranslated", false)
                     .putBoolean("isZmanimAmericanized", false)
                     .putBoolean("isSetup", true).apply();
-            if (mSharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
-                startActivity(new Intent(getBaseContext(), TipScreenActivity.class));
-                mSharedPreferences.edit().putBoolean("hasNotShownTipScreen", false).apply();
-            }
+            NotificationSetupActivity.showAfterFirstSetup(this, mSharedPreferences);
         }
     }
 
@@ -438,7 +452,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                 currentLocation.remove();
                 currentLocation = null;
             }
-            chosenLocation = latLng;
+            setChosenLocation(latLng);
 
             setUseLocations(false, false, false, false, false);
             mSharedPreferences.edit()
@@ -882,7 +896,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
                 mLocationResolver.acquireLatitudeAndLongitude(location -> {});
                 mLocationResolver.setTimeZoneID();
                 Runnable finish = () -> {
-                    chosenLocation = new LatLng(sLatitude, sLongitude);
+                    setChosenLocation(new LatLng(sLatitude, sLongitude));
                     mMap.addMarker(new MarkerOptions().position(chosenLocation).title(sCurrentLocationName));
                     LatLng northEastCorner = SphericalUtil.computeOffset(chosenLocation, 950000.0 / 100, 45.0);
                     LatLng southWestCorner = SphericalUtil.computeOffset(chosenLocation, 950000.0 / 100, 225.0);
@@ -935,7 +949,7 @@ public class GetUserLocationWithMapActivity extends FragmentActivity implements 
             }
             LocationResolver locationResolver = new LocationResolver(this, this);
             acquireDeviceLocation(locationResolver, () -> {
-                chosenLocation = new LatLng(sLatitude, sLongitude);
+                setChosenLocation(new LatLng(sLatitude, sLongitude));
                 locationResolver.getFullLocationName(true, locationName -> {
                     if (locationName != null) {
                         runOnUiThread(() -> currentLocation = mMap.addMarker(new MarkerOptions().position(chosenLocation).draggable(true).title(locationName)));
