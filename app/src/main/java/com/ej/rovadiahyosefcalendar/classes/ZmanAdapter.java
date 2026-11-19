@@ -83,6 +83,10 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
         this.zmanim = zmanim;
     }
 
+    public List<ZmanListEntry> getZmanim() {
+        return zmanim;
+    }
+
     @NotNull
     @Override
     public ZmanViewHolder onCreateViewHolder(@NonNull @NotNull ViewGroup parent, int viewType) {

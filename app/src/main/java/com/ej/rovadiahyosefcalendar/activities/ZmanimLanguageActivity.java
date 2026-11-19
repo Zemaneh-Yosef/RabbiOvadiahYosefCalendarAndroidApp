@@ -182,10 +182,7 @@ public class ZmanimLanguageActivity extends AppCompatActivity {
         mSharedPreferences.edit().putBoolean("isZmanimEnglishTranslated", isTranslated).apply();
         mSharedPreferences.edit().putBoolean("isZmanimAmericanized", isAmericanized).apply();
         mSharedPreferences.edit().putBoolean("isSetup", true).apply();
-        if (mSharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
-            startActivity(new Intent(getBaseContext(), TipScreenActivity.class));
-            mSharedPreferences.edit().putBoolean("hasNotShownTipScreen", false).apply();
-        }
+        NotificationSetupActivity.showAfterFirstSetup(this, mSharedPreferences);
         finish();
     }
 

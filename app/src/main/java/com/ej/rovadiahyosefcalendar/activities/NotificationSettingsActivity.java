@@ -1,5 +1,6 @@
 package com.ej.rovadiahyosefcalendar.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.ViewGroup;
 
@@ -10,6 +11,7 @@ import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
 import com.ej.rovadiahyosefcalendar.R;
@@ -56,6 +58,13 @@ public class NotificationSettingsActivity extends AppCompatActivity {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.zmanim_notifications_preferences, rootKey);
+            Preference setupPreference = findPreference("notification_setup");
+            if (setupPreference != null) {
+                setupPreference.setOnPreferenceClickListener(preference -> {
+                    startActivity(new Intent(requireContext(), NotificationSetupActivity.class).putExtra("fromSettings", true));
+                    return true;
+                });
+            }
         }
     }
 }

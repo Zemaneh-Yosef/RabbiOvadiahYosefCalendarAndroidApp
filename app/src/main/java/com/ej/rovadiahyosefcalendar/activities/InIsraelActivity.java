@@ -100,10 +100,7 @@ public class InIsraelActivity extends AppCompatActivity {
                     .putBoolean("isZmanimInHebrew", true)
                     .putBoolean("isZmanimEnglishTranslated", false)
                     .putBoolean("isSetup", true).apply();
-            if (mSharedPreferences.getBoolean("hasNotShownTipScreen", true)) {
-                startActivity(new Intent(getBaseContext(), TipScreenActivity.class));
-                mSharedPreferences.edit().putBoolean("hasNotShownTipScreen", false).apply();
-            }
+            NotificationSetupActivity.showAfterFirstSetup(this, mSharedPreferences);
         } else {
             startActivity(new Intent(this, ZmanimLanguageActivity.class));
         }
