@@ -75,7 +75,7 @@ import java.util.List;
  * <br>
  * {@link #getMisheyakir66ZmaniyotMinutes()} not in KosherJava, but implemented by this class.
  * <br>
- * {@link #getHaNetz()} gets the sunrise times from chaitables, otherwise we should default to {@link #getSeaLevelSunrise()} since it is similar to visible sunrise.
+ * {@link #getHaNetz()} is the visible sunrise over the terrain horizon, otherwise we should default to {@link #getSeaLevelSunrise()} since it is similar to visible sunrise.
  * <br>
  * {@link #getSofZmanShmaMGA72MinutesZmanis()}
  * <br>
@@ -328,12 +328,28 @@ public class ROZmanimCalendar extends ZmanimCalendar {
         return getMisheyakir(5.0 / 6.0);// 5 / 6 == 60 / 72
     }
 
+    /** Options for the first glimpse of the Sun over the terrain horizon (any part of the disk). */
+    private static final VisibleOptions FIRST_GLIMPSE = new VisibleOptions();
+    /** Options for the whole disk over the terrain horizon (Halacha Berura). */
+    private static final VisibleOptions FULL_DISK = new VisibleOptions(24, 10.0, null, false, Limb.FULL, null);
+
     /**
-     * The visible sunrise over the terrain horizon (see {@link #getTerrainHaNetz()}), or null where there is none.
-     * @return the visible sunrise, otherwise null.
+     * The visible sunrise: the first glimpse of the Sun over the refraction server's terrain horizon, traced through the day's air.
+     * On a cache miss it is computed in the background (see {@link #getHaNetz(boolean)}).
+     * @return the visible sunrise, or null without a terrain horizon for the place, while it is still being computed with no
+     * neighbouring day to estimate from, or when the result is more than an hour from sunrise (a bad profile).
      */
     public Instant getHaNetz() {
-        return getTerrainHaNetz();
+        return getHaNetz(false);
+    }
+
+    /**
+     * The visible sunrise (see {@link #getHaNetz()}).
+     * @param computeNow compute it on this thread when it isn't cached yet, instead of in the background (which returns an estimate
+     *                   from a neighbouring day, or null, in the meantime). Used for the times sent to the watch.
+     */
+    public Instant getHaNetz(boolean computeNow) {
+        return getTerrainSunrise(FIRST_GLIMPSE, !computeNow);
     }
 
     /**
@@ -344,52 +360,12 @@ public class ROZmanimCalendar extends ZmanimCalendar {
         return getAtmosphereSpec(com.ej.rovadiahyosefcalendar.classes.royzmanim.SolarEvent.SUNRISE) != null;
     }
 
-    /** Whether {@link #getHaNetz()} is the visible sunrise over the terrain horizon (a horizon set stored). */
-    public boolean isHaNetzFromTerrain() {
-        return getTerrainHaNetz() != null;
-    }
-
-    /**
-     * The visible sunrise over the refraction server's terrain horizon (any part of the disk), traced through the day's air;
-     * null without a horizon set, while it is still being computed with no neighbouring day to estimate from, or when the
-     * result is more than an hour from sunrise (a bad profile).
-     */
-    public Instant getTerrainHaNetz() {
-        return getTerrainSunrise(new VisibleOptions(), "");
-    }
-
-    /** {@link #getTerrainHaNetz()} computed now on this thread (never an estimate from a neighbouring day): for the watch. */
-    public Instant getTerrainHaNetzNow() {
-        return getTerrainSunrise(new VisibleOptions(), "", false);
-    }
-
-    /**
-     * The visible sunrise over the terrain horizon for a part of the disk, computed in the background on a cache miss.
-     * @param tag keeps a subclass's cache entries apart
-     */
-    protected Instant getTerrainSunrise(VisibleOptions options, String tag) {
-        return getTerrainSunrise(options, tag, true);
-    }
-
-    private Instant getTerrainSunrise(VisibleOptions options, String tag, boolean defer) {
-        if (refractionData == null || refractionData.getHorizon() == null) {
-            return null;
-        }
-        kotlin.Pair<Double, Boolean> r = RefractionSupport.visibleSunrise(refractionData, getGeoLocation(), getLocalDate(), options, defer, tag);
-        return RefractionSupport.checkedInstant(r.getFirst(), getSunriseBasedOnElevationSetting());
-    }
-
-    /** Whether {@link #getSunriseFullDisk()} is the whole disk over the terrain horizon (not moved by the solar diameter). */
-    public boolean isSunriseFullDiskFromTerrain() {
-        return getTerrainSunrise(new VisibleOptions(24, 10.0, null, false, Limb.FULL, null), "") != null;
-    }
-
     /**
      * Sunrise with the whole disk above the horizon (Halacha Berura): over the terrain horizon when there is one, else the
      * {@link #getHaNetz() visible} (or sea-level) sunrise moved by the solar diameter.
      */
     public Instant getSunriseFullDisk() {
-        Instant full = getTerrainSunrise(new VisibleOptions(24, 10.0, null, false, Limb.FULL, null), "");
+        Instant full = getTerrainSunrise(FULL_DISK, true);
         if (full != null) {
             return full;
         }
@@ -403,6 +379,18 @@ public class ROZmanimCalendar extends ZmanimCalendar {
             return null;
         }
         return netz.plus(Duration.between(seaLevel, diameter));
+    }
+
+    /**
+     * Sunrise over the terrain horizon for a part of the disk, or null without a terrain horizon.
+     * @param defer on a cache miss, compute it in the background (returning an estimate from a neighbouring day, or null)
+     */
+    private Instant getTerrainSunrise(VisibleOptions options, boolean defer) {
+        if (refractionData == null || refractionData.getHorizon() == null) {
+            return null;
+        }
+        kotlin.Pair<Double, Boolean> r = RefractionSupport.visibleSunrise(refractionData, getGeoLocation(), getLocalDate(), options, defer, "");
+        return RefractionSupport.checkedInstant(r.getFirst(), getSunriseBasedOnElevationSetting());
     }
 
     /**

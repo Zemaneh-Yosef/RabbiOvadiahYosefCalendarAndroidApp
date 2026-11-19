@@ -621,15 +621,40 @@ object RefractionRepository {
     @JvmStatic
     fun ensureFresh(rawLat: Double, rawLon: Double) {
         lastAsked = doubleArrayOf(rawLat, rawLon)
-        if (dir == null || !RefractionSupport.enabled) return
+        refreshIfStale(rawLat, rawLon, null)
+    }
+
+    /**
+     * Like [ensureFresh], for when no screen is showing (the widget): doesn't change the place the screens keep fresh.
+     * @param onDone runs on the loading thread once the load finished (also when it failed), only if one was started
+     * @return whether a load was started
+     */
+    @JvmStatic
+    fun refreshIfStale(rawLat: Double, rawLon: Double, onDone: Runnable?): Boolean {
+        if (dir == null || !RefractionSupport.enabled) return false
         val key = places(rawLat, rawLon).key
-        if (memory[key]?.fromCache == false && forecastStaleIn(rawLat, rawLon) > 0) return
-        if (cached(rawLat, rawLon) != null && forecastStaleIn(rawLat, rawLon) > 0 && memory[key]?.horizon != null) return
+        if (memory[key]?.fromCache == false && forecastStaleIn(rawLat, rawLon) > 0) return false
+        if (cached(rawLat, rawLon) != null && forecastStaleIn(rawLat, rawLon) > 0 && memory[key]?.horizon != null) return false
         val now = System.currentTimeMillis()
         val last = lastAttempt[key]
-        if (last != null && now - last < RETRY_MS) return
+        if (last != null && now - last < RETRY_MS) return false
         lastAttempt[key] = now
-        loadAsync(rawLat, rawLon)// listeners are told with the caller's coordinates
+        if (onDone == null) {
+            loadAsync(rawLat, rawLon)// listeners are told with the caller's coordinates
+        } else {
+            executor.execute {
+                try {
+                    val before = memory[places(rawLat, rawLon).key]
+                    val data = load(rawLat, rawLon)
+                    if (data !== before) listeners.forEach { try { it(rawLat, rawLon) } catch (e: Exception) { Log.e(TAG, "listener failed", e) } }
+                } catch (e: Exception) {
+                    Log.e(TAG, "refraction data failed", e)
+                } finally {
+                    onDone.run()
+                }
+            }
+        }
+        return true
     }
 
     /** The place a screen last asked to keep fresh. */

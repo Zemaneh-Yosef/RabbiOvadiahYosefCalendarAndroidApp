@@ -76,6 +76,16 @@ public class ZmanimSettingsActivity extends AppCompatActivity {
                     return false;
                 });
             }
+            // the haze only moves the times computed with the refraction data, so it is hidden while that is off
+            Preference useRefractionData = findPreference("useRefractionData");
+            Preference useHazeTzet = findPreference("useHazeTzet");
+            if (useRefractionData != null && useHazeTzet != null) {
+                useHazeTzet.setVisible(PreferenceManager.getDefaultSharedPreferences(requireContext()).getBoolean("useRefractionData", true));
+                useRefractionData.setOnPreferenceClickListener(preference -> {
+                    useHazeTzet.setVisible(Objects.requireNonNull(preference.getSharedPreferences()).getBoolean("useRefractionData", true));
+                    return false;
+                });
+            }
         }
     }
 }

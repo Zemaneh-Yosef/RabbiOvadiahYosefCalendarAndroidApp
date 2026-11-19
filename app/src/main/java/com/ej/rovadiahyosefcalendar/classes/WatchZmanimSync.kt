@@ -131,7 +131,7 @@ object WatchZmanimSync {
                 .put("sr", iso(cal.sunrise))
                 .put("ssS", iso(cal.seaLevelSunset))
                 .put("ss", iso(cal.sunset))
-                .put("netz", iso(cal.terrainHaNetzNow))
+                .put("netz", iso(cal.getHaNetz(true)))
                 .put("tz7165", iso(cal.getDegreeTzetWithHaze(7.165))))
         }
         val equinox = JSONObject()
@@ -167,7 +167,7 @@ object WatchZmanimSync {
             val end = JewishCalendar(year + 1, JewishCalendar.TISHREI, 1).localDate
             while (date.isBefore(end)) {
                 cal.localDate = date
-                cal.terrainHaNetzNow?.let { out.append(it.epochSecond).append(':') }
+                cal.getHaNetz(true)?.let { out.append(it.epochSecond).append(':') }
                 date = date.plusDays(1)
             }
         }

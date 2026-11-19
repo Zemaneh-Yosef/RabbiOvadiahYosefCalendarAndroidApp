@@ -7,6 +7,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.preference.PreferenceManager
 import com.ej.rovadiahyosefcalendar.classes.DpadSupport
+import com.ej.rovadiahyosefcalendar.activities.ZmanimAppWidget
 import com.ej.rovadiahyosefcalendar.classes.WatchZmanimSync
 import com.ej.rovadiahyosefcalendar.classes.royzmanim.RefractionRepository
 import com.ej.rovadiahyosefcalendar.classes.royzmanim.RefractionSupport
@@ -23,6 +24,8 @@ class ZemanehYosefApplication : Application() {
         WatchZmanimSync.init(this)
         // new data (or a visible sunrise computed) for a place: the watch gets the times it changes
         RefractionRepository.addListener { _, _ -> WatchZmanimSync.requestSync(this, false) }
+        // and the widget is redrawn with them (they move the times it shows)
+        RefractionRepository.addListener { _, _ -> ZmanimAppWidget.updateAllWidgets(this) }
         val settings = PreferenceManager.getDefaultSharedPreferences(this)
         RefractionSupport.enabled = settings.getBoolean(PREF_REFRACTION, true)
         RefractionSupport.hazeTzet = settings.getBoolean(PREF_HAZE_TZET, true)
@@ -59,7 +62,10 @@ class ZemanehYosefApplication : Application() {
             PREF_REFRACTION -> RefractionSupport.enabled = prefs.getBoolean(PREF_REFRACTION, true)
             PREF_HAZE_TZET -> RefractionSupport.hazeTzet = prefs.getBoolean(PREF_HAZE_TZET, true)
         }
-        if (key == PREF_REFRACTION || key == PREF_HAZE_TZET) WatchZmanimSync.requestSync(this, false)
+        if (key == PREF_REFRACTION || key == PREF_HAZE_TZET) {
+            WatchZmanimSync.requestSync(this, false)
+            ZmanimAppWidget.updateAllWidgets(this)// the switches change the times the widget shows
+        }
     }
 
     companion object {

@@ -160,16 +160,9 @@ class NetzActivity : AppCompatActivity() {
 
     private fun dayOf(cal: ROZmanimCalendar, date: LocalDate, kind: SunriseKind): Day {
         cal.localDate = date
-        val sunrise: Instant?
-        val terrain: Boolean
-        if (kind == SunriseKind.FULL_REVEAL) {
-            sunrise = cal.sunriseFullDisk
-            terrain = cal.isSunriseFullDiskFromTerrain
-        } else {
-            sunrise = cal.haNetz ?: cal.seaLevelSunrise
-            terrain = cal.isHaNetzFromTerrain
-        }
-        return Day(date, sunrise, terrain, cal.chatzot, cal.previousSolarMidnight)
+        val visibleSunrise = cal.haNetz// null without a terrain horizon: then both kinds are from sea level (mishor)
+        val sunrise = if (kind == SunriseKind.FULL_REVEAL) cal.sunriseFullDisk else visibleSunrise ?: cal.seaLevelSunrise
+        return Day(date, sunrise, visibleSunrise != null, cal.chatzot, cal.previousSolarMidnight)
     }
 
     private fun phaseAt(today: Day, tomorrow: Day, now: Instant): Phase {

@@ -750,4 +750,16 @@
     <string name="notification_setup_summary">בדיקה שההתראות יכולות להגיע בזמן</string>
     <string name="showcase_tap_talit">לחלק מהזמנים יש יותר משיטה אחת. לחצו על הזמן הזה כדי לראות את השיטה השנייה.</string>
     <string name="showcase_tap_either">עכשיו לחצו על אחד מהזמנים כדי לקרוא עליו עוד. רוב הזמנים והרשומות באפליקציה מציגים הסבר כשלוחצים עליהם.</string>
+    <string name="netz_sunrise_countdown">ספירה לאחור לנץ:</string>
+    <string name="netz_since_sunrise">מאז הנץ:</string>
+    <string name="netz_any_peak">נץ – הופעת קצה השמש (הגר״ע יוסף, ילקוט יוסף)</string>
+    <string name="netz_full_reveal">נץ – הופעת כל גוף השמש (הלכה ברורה)</string>
+    <string name="netz_pick_sunrise">ספירה לאחור עד</string>
+    <string name="netz_unit_hours">ש׳</string>
+    <string name="netz_unit_minutes">ד׳</string>
+    <string name="netz_unit_seconds">שנ׳</string>
+    <string name="use_refraction_data">מזג אוויר, פני השטח ואובך</string>
+    <string name="use_refraction_data_summary">חישוב הזריחה והשקיעה לפי האוויר בפועל של אותו יום (Open-Meteo ושרת השבירה של ROYZmanim), הנץ הנראה מעל פני השטח, והאובך. נתוני מזג האוויר מ-Open-Meteo.com.</string>
+    <string name="use_haze_tzet">אובך לזמן צאת השבת</string>
+    <string name="use_haze_tzet_summary">הזזת זמן צאת השבת לפי מעלות (לוח עמודי הוראה) לפי האובך של הערב: מאוחר יותר בערבים עם אובך, מוקדם יותר בערבים צלולים, עד 15 דקות לכל היותר</string>
 </resources>
