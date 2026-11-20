@@ -328,7 +328,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     editor.putString("Zipcode", sharedText).apply();
                     mLocationResolver.getLatitudeAndLongitudeFromSearchQuery();// even though the location name is updated here, it will be updated later as well and then the UI will be updated
                     mLocationResolver.setTimeZoneID();
-                    resolveElevationAndVisibleSunrise(() -> {
+                    resolveElevation(() -> {
                         instantiateZmanimCalendar();
                         setNextUpcomingZman();
                         if (sSharedPreferences.getBoolean("weeklyMode", false)) {
@@ -378,7 +378,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         binding.dailySummary.dailyLocationName.setText(sCurrentLocationName);
                     }
                 });
-                resolveElevationAndVisibleSunrise(() -> {
+                resolveElevation(() -> {
                     instantiateZmanimCalendar();
                     if (binding != null) {
                         if (sSharedPreferences.getBoolean("weeklyMode", false)) {
@@ -532,7 +532,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                             binding.dailySummary.dailyLocationName.setText(sCurrentLocationName);
                         }
                     });
-                    resolveElevationAndVisibleSunrise(() -> {
+                    resolveElevation(() -> {
                         instantiateZmanimCalendar();
                         setNextUpcomingZman();
                         updateDailyZmanim();
@@ -632,7 +632,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                                         binding.dailySummary.dailyLocationName.setText(sCurrentLocationName);
                                     }
                                 });
-                                resolveElevationAndVisibleSunrise(() -> {
+                                resolveElevation(() -> {
                                     instantiateZmanimCalendar();
                                     setNextUpcomingZman();
                                     if (sSharedPreferences.getBoolean("weeklyMode", false)) {
@@ -1038,7 +1038,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             } else if (itemId == R.id.use_elevation) {
                 sSharedPreferences.edit().putBoolean("useElevation", !sSharedPreferences.getBoolean("useElevation", false)).apply();
                 item.setChecked(sSharedPreferences.getBoolean("useElevation", false));
-                resolveElevationAndVisibleSunrise(() -> {
+                resolveElevation(() -> {
                     instantiateZmanimCalendar();
                     setNextUpcomingZman();
                     if (sSharedPreferences.getBoolean("weeklyMode", false)) {
@@ -1492,7 +1492,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      * for the current location. If the user is offline, it will not do anything. The only time it will not set the elevation is if the user has
      * disabled the elevation setting in the settings menu. This method should be called after the location name has been set.
      */
-    private void resolveElevationAndVisibleSunrise(Runnable codeToRunOnMainThread) {
+    private void resolveElevation(Runnable codeToRunOnMainThread) {
         boolean sUserIsOffline = false;
         if (sCurrentLocationName != null && !sCurrentLocationName.isEmpty()) {// Somehow it is null and crashing in some places
             if (sCurrentLocationName.contains("Lat:") && sCurrentLocationName.contains("Long:")
@@ -1932,7 +1932,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         binding.dailySummary.dailyLocationName.setText(sCurrentLocationName);
                     }
                 });
-                resolveElevationAndVisibleSunrise(() -> {// recreate the zmanim calendar object because it might have changed. Lat, Long, Elevation, or settings might have changed
+                resolveElevation(() -> {// recreate the zmanim calendar object because it might have changed. Lat, Long, Elevation, or settings might have changed
                     instantiateZmanimCalendar();
                     sROZmanimCalendar.setLocalDate(sCurrentDateShown);// make sure date doesn't change
                     setNextUpcomingZman();
@@ -2246,7 +2246,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                                 binding.dailySummary.dailyLocationName.setText(sCurrentLocationName);
                             }
                         });
-                        resolveElevationAndVisibleSunrise(() -> {
+                        resolveElevation(() -> {
                             if (sCurrentDateShown != null) {
                                 instantiateZmanimCalendar();
                                 sROZmanimCalendar.setLocalDate(sCurrentDateShown);
