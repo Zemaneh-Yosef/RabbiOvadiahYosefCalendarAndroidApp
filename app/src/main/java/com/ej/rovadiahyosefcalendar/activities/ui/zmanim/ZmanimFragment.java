@@ -376,20 +376,18 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 resolveElevationAndVisibleSunrise(() -> {
                     instantiateZmanimCalendar();
                     if (binding != null) {
-                        updateChaitableTimesFromLatLong(() -> {
-                            if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                                binding.shimmerLayout.setVisibility(View.GONE);
-                                setWeeklyViewVisibility(true);
-                                updateWeeklyZmanim();
-                            } else {// the shimmer keeps animating while the zmanim are calculated in the background
-                                showDailyZmanimWhenReady(() -> {
-                                    if (binding != null) {
-                                        binding.shimmerLayout.setVisibility(View.GONE);
-                                        setWeeklyViewVisibility(false);
-                                    }
-                                });
-                            }
-                        });
+                        if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                            binding.shimmerLayout.setVisibility(View.GONE);
+                            setWeeklyViewVisibility(true);
+                            updateWeeklyZmanim();
+                        } else {// the shimmer keeps animating while the zmanim are calculated in the background
+                            showDailyZmanimWhenReady(() -> {
+                                if (binding != null) {
+                                    binding.shimmerLayout.setVisibility(View.GONE);
+                                    setWeeklyViewVisibility(false);
+                                }
+                            });
+                        }
                     }
                     setNextUpcomingZman();// after the list, on the same background thread
                     createBackgroundThreadForNextUpcomingZman();
@@ -399,15 +397,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         setupButtons();
         setNotifications();
         checkIfUserIsInIsraelOrNot();
-    }
-
-    /**
-     * This method updates the chaitable times for the current location using the Latitude and Longitude. This method should be called before the zmanim
-     * list is updated.
-     * @param codeToRunAfterwards the code to run after the chaitable times are updated. This should be done on the main UI thread if it the code will affect the UI.
-     */
-    private void updateChaitableTimesFromLatLong(Runnable codeToRunAfterwards) {//TODO
-            mActivity.runOnUiThread(codeToRunAfterwards);
     }
 
     private void setupButtons() {
@@ -2258,30 +2247,28 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                                 sROZmanimCalendar.setLocalDate(sCurrentDateShown);
                                 createBackgroundThreadForNextUpcomingZman();
                                 sJewishDateInfo.setLocalDate(sCurrentDateShown);
-                                updateChaitableTimesFromLatLong(() -> {
-                                    if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                                        updateWeeklyTextViewTextColor();
-                                        updateWeeklyZmanim();
+                                if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                                    updateWeeklyTextViewTextColor();
+                                    updateWeeklyZmanim();
+                                    if (binding != null) {
+                                        binding.shimmerLayout.setVisibility(View.GONE);
+                                        setWeeklyViewVisibility(true);
+                                    }
+                                } else {// the shimmer keeps animating while the zmanim are calculated in the background
+                                    showDailyZmanimWhenReady(() -> {
+                                        if (mNestedScrollView != null) {
+                                            mNestedScrollView.scrollTo(0, mCurrentPosition);
+                                        }
                                         if (binding != null) {
                                             binding.shimmerLayout.setVisibility(View.GONE);
-                                            setWeeklyViewVisibility(true);
+                                            setWeeklyViewVisibility(false);
                                         }
-                                    } else {// the shimmer keeps animating while the zmanim are calculated in the background
-                                        showDailyZmanimWhenReady(() -> {
-                                            if (mNestedScrollView != null) {
-                                                mNestedScrollView.scrollTo(0, mCurrentPosition);
-                                            }
-                                            if (binding != null) {
-                                                binding.shimmerLayout.setVisibility(View.GONE);
-                                                setWeeklyViewVisibility(false);
-                                            }
-                                        });
-                                    }
-                                    if (mCalendarButton != null) {
-                                        mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
-                                    }
-                                    setAllNotifications();
-                                });
+                                    });
+                                }
+                                if (mCalendarButton != null) {
+                                    mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
+                                }
+                                setAllNotifications();
                                 setNextUpcomingZman();// after the list, on the same background thread
                             }
                         });
