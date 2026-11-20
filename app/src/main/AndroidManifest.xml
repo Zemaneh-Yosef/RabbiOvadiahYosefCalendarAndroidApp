@@ -145,12 +145,6 @@
         <activity
             android:name=".activities.ZmanimLanguageActivity"
             android:exported="true" />
-        <activity
-            android:name=".activities.AdvancedSetupActivity"
-            android:exported="true" />
-        <activity
-            android:name=".activities.SetupChaiTablesActivity"
-            android:exported="true" />
         <activity android:name=".activities.InIsraelActivity" />
         <activity
             android:name=".activities.SettingsActivity"
@@ -180,6 +174,16 @@
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="location" />
+
+        <service
+            android:name=".notifications.RefractionRefreshJob"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
+        <service
+            android:name=".notifications.VisibleSunriseJob"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <receiver
             android:name=".notifications.DailyNotifications"

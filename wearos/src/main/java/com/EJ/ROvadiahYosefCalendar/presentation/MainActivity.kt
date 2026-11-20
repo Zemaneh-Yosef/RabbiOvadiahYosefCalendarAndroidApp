@@ -101,6 +101,7 @@ import com.EJ.ROvadiahYosefCalendar.classes.JewishCalendarWithExtraMethods
 import com.EJ.ROvadiahYosefCalendar.classes.JewishDateInfo
 import com.EJ.ROvadiahYosefCalendar.classes.LocationResolver
 import com.EJ.ROvadiahYosefCalendar.classes.ROZmanimCalendar
+import com.EJ.ROvadiahYosefCalendar.classes.SyncedZmanim
 import com.EJ.ROvadiahYosefCalendar.classes.Utils
 import com.EJ.ROvadiahYosefCalendar.classes.ZmanListEntry
 import com.EJ.ROvadiahYosefCalendar.classes.ZmanimFactory
@@ -204,6 +205,9 @@ class MainActivity : ComponentActivity() {
                 if (savePreferencesToLocalDevice(jsonPreferences)) {
                     sharedPref.edit { putBoolean("hasGottenDataFromApp", true) }
                 }
+            }
+            if (messageEvent.path == "zmanim/") { // the phone's weather-dependent times (SyncedZmanim)
+                sharedPref.edit { putString(SyncedZmanim.PREF, String(messageEvent.data, StandardCharsets.UTF_8)) }
             }
             if (messageEvent.path == "chaiTable/") {
                 val message = String(messageEvent.data, StandardCharsets.UTF_8) // convert bytes to String

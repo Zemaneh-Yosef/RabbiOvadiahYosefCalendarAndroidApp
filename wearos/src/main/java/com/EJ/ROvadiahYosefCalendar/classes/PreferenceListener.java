@@ -30,6 +30,10 @@ public class PreferenceListener extends WearableListenerService {
             prefs.edit()
                     .putString("pendingPrefsJson", message)
                     .apply();
+        } else if ("zmanim/".equals(messageEvent.getPath())) {
+            prefs.edit()
+                    .putString(SyncedZmanim.PREF, message)
+                    .apply();
         } else if ("chaiTable/".equals(messageEvent.getPath())) {
             String locationName = prefs.getString("locationName", "");
             try {

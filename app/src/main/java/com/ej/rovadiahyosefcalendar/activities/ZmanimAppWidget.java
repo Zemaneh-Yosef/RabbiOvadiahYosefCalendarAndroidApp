@@ -31,6 +31,7 @@ import com.ej.rovadiahyosefcalendar.classes.ZmanListEntryType;
 import com.ej.rovadiahyosefcalendar.classes.ZmanimFactory;
 import com.ej.rovadiahyosefcalendar.classes.ZmanimNames;
 import com.ej.rovadiahyosefcalendar.notifications.NotificationUtils;
+import com.ej.rovadiahyosefcalendar.notifications.RefractionRefreshJob;
 import com.kosherjava.zmanim.hebrewcalendar.HebrewDateFormatter;
 import com.kosherjava.zmanim.util.GeoLocation;
 
@@ -55,7 +56,6 @@ public class ZmanimAppWidget extends AppWidgetProvider {
         mSettingsPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         mROZmanimCalendar = getROZmanimCalendar();
         if (!mROZmanimCalendar.getGeoLocation().equals(new GeoLocation())) {// if using location, default GeoLocation will be returned. Avoid that
-            mROZmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
             applyOffsets(mROZmanimCalendar);
             mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false));
             mJewishDateInfo.resetLocale(context);
@@ -139,7 +139,6 @@ public class ZmanimAppWidget extends AppWidgetProvider {
             mSharedPreferences = context.getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
             mSettingsPreferences = PreferenceManager.getDefaultSharedPreferences(context);
             mROZmanimCalendar = getROZmanimCalendar();
-            mROZmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
             applyOffsets(mROZmanimCalendar);
             mJewishDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false));
         }
@@ -164,10 +163,38 @@ public class ZmanimAppWidget extends AppWidgetProvider {
                     updateAppWidget(context, appWidgetManager, appWidgetId);
                 }
                 scheduleUpdates(context);
+                refreshRefractionData(context);
             } finally {
                 pendingResult.finish(); // REQUIRED TO AVOID ANR
             }
         }).start();
+    }
+
+    /**
+     * The weather, terrain and haze data are otherwise only downloaded while a screen of the app is open, so a widget on the home
+     * screen would keep showing times from old data. When they are stale, download them in a job (waiting for them here could
+     * cause an ANR); the widget is redrawn when they arrive (see {@link #updateAllWidgets}).
+     */
+    private static void refreshRefractionData(Context context) {
+        if (mROZmanimCalendar == null) {
+            return;
+        }
+        GeoLocation geo = mROZmanimCalendar.getGeoLocation();
+        if (!geo.equals(new GeoLocation())) {// a location is set
+            RefractionRefreshJob.schedule(context, geo.getLatitude(), geo.getLongitude());
+        }
+    }
+
+    /**
+     * Redraws every widget, e.g. when new weather, terrain or haze data arrived for the place (they move the times).
+     */
+    public static void updateAllWidgets(Context context) {
+        int[] ids = AppWidgetManager.getInstance(context).getAppWidgetIds(new ComponentName(context, ZmanimAppWidget.class));
+        if (ids.length > 0) {
+            context.sendBroadcast(new Intent(context, ZmanimAppWidget.class)
+                    .setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
+                    .putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids));
+        }
     }
 
     @Override

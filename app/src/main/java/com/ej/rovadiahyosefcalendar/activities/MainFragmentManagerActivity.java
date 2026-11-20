@@ -48,7 +48,6 @@ import com.ej.rovadiahyosefcalendar.activities.ui.DailySummaryController;
 import com.ej.rovadiahyosefcalendar.activities.ui.limudiim.LimudFragment;
 import com.ej.rovadiahyosefcalendar.activities.ui.siddur.SiddurFragment;
 import com.ej.rovadiahyosefcalendar.activities.ui.zmanim.ZmanimFragment;
-import com.ej.rovadiahyosefcalendar.classes.ChaiTablesWebJava;
 import com.ej.rovadiahyosefcalendar.classes.DailyEntriesBuilder;
 import com.ej.rovadiahyosefcalendar.classes.ExceptionHandler;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
@@ -206,9 +205,7 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
         sJewishDateInfo.resetLocale(this);
         sJewishDateInfo.getJewishCalendar().setInIsrael(sSharedPreferences.getBoolean("inIsrael", false));
         initSetupResult();
-        if (ChaiTablesWebJava.checkIfFileDoesNotExist(getExternalFilesDir(null), sCurrentLocationName, sJewishDateInfo.getJewishCalendar().getJewishYear())
-                && sSharedPreferences.getBoolean("UseTable" + sCurrentLocationName, true)
-                && !sSharedPreferences.getBoolean("isSetup", false)
+        if (!sSharedPreferences.getBoolean("isSetup", false)
                 && savedInstanceState == null) {// it should only run if the user has not set up the app
             sSetupLauncher.launch(new Intent(this, WelcomeScreenActivity.class));
             initZmanimNotificationDefaults();
@@ -590,6 +587,12 @@ public class MainFragmentManagerActivity extends AppCompatActivity {
      * Redraws the day summary sidebar (wide screens only) for the date currently shown. Every tab calls this after it changes
      * the shared date (sCurrentDateShown), so that the sidebar always matches the tab next to it.
      */
+    /** The day summary sidebar on wide screens, or null. */
+    @Nullable
+    public static DailySummaryController getSidebar() {
+        return sSidebar;
+    }
+
     public static void refreshSidebar() {
         if (sSidebar == null || (sLatitude == 0 && sLongitude == 0)) {// no sidebar, or the location is not known yet
             return;

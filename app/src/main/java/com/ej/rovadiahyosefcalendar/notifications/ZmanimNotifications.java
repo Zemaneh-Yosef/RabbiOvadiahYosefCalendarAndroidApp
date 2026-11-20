@@ -58,7 +58,6 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
                     if (!zmanimCalendar.getGeoLocation().equals(new GeoLocation())) {// if equal, we will get the user's location in the accept method
                         JewishDateInfo jDateInfo = new JewishDateInfo(mSharedPreferences.getBoolean("inIsrael", false));
 
-                        zmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
 
                         String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
 
@@ -165,6 +164,20 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
                 PendingIntent.FLAG_IMMUTABLE);
 
         setExactAndAllowWhileIdle(am, new Date().getTime() + 1_800_000, schedulePendingIntent);//every half hour
+
+        // The alarms above use the weather data already downloaded. When they are stale, download new ones in a job (waiting for
+        // them here could cause an ANR); the alarms are set again with them when they arrive (see ZemanehYosefApplication).
+        RefractionRefreshJob.schedule(context, c.getGeoLocation().getLatitude(), c.getGeoLocation().getLongitude());
+
+        // HaNetz was set at the sea-level time (or an estimate) for a day whose visible sunrise isn't computed yet: compute it in a job
+        // (waiting for it here could cause an ANR), which sets the notifications again with it. c is on tomorrow now.
+        boolean haNetzMissing = !c.isHaNetzKnown();
+        c.setLocalDate(c.getLocalDate().minusDays(1));
+        haNetzMissing |= !c.isHaNetzKnown();
+        c.setLocalDate(c.getLocalDate().plusDays(1));
+        if (haNetzMissing) {
+            VisibleSunriseJob.schedule(context, c.getGeoLocation());
+        }
     }
 
     @Override
@@ -181,7 +194,6 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
                         location.getLongitude(),
                         mLocationResolver.getElevation(),
                         mLocationResolver.getZoneID()));
-                zmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
                 String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
                 zmanimCalendar.setCandleLightingOffset(Utils.parseDoubleOrDefault(candles, 20));
                 String shabbat = mSettingsPreferences.getString("EndOfShabbatOffset", mSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40");
@@ -195,7 +207,6 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
             }));
         } else {
             ROZmanimCalendar zmanimCalendar = new ROZmanimCalendar(mLocationResolver.getLastKnownGeoLocation());
-            zmanimCalendar.setExternalFilesDir(context.getExternalFilesDir(null));
             String candles = mSettingsPreferences.getString("CandleLightingOffset", "20");
             zmanimCalendar.setCandleLightingOffset(Utils.parseDoubleOrDefault(candles, 20));
             String shabbat = mSettingsPreferences.getString("EndOfShabbatOffset", mSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40");

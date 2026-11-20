@@ -33,19 +33,12 @@
         android:layout_height="wrap_content">
 
     <LinearLayout
+        android:id="@+id/setup_elevation_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:gravity="center">
-
-    <ProgressBar
-        android:id="@+id/progressBarElevation"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:layout_margin="10dp"
-        android:visibility="gone"
-        />
+        android:gravity="center"
+        android:paddingBottom="16dp">
 
     <TextView
         android:id="@+id/setup_header"
@@ -56,6 +49,17 @@
         android:text="@string/setup_elevation"
         android:textStyle="bold"
         android:textSize="20sp"
+        />
+
+    <!-- the location and the elevation set for it now -->
+    <TextView
+        android:id="@+id/current_elevation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="4dp"
+        android:textStyle="bold"
+        tools:text="Great Neck, New York&#10;Elevation: 23 meters"
         />
 
     <TextView
@@ -129,6 +133,15 @@
         app:backgroundTint="@null"
         android:textColor="@color/black"
         android:layout_marginTop="8dp"
+        />
+
+    <!-- while GeoNames is asked for the elevation -->
+    <ProgressBar
+        android:id="@+id/progressBarElevation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:visibility="gone"
         />
 
     </LinearLayout>

@@ -1,7 +1,6 @@
 package com.ej.rovadiahyosefcalendar.activities.ui.zmanim;
 
 import static android.content.Context.ALARM_SERVICE;
-import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.materialToolbar;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentDateShown;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentLocationName;
@@ -24,7 +23,6 @@ import static com.ej.rovadiahyosefcalendar.classes.Utils.getCurrentCalendarDrawa
 import static com.ej.rovadiahyosefcalendar.classes.Utils.inputStreamToString;
 import static com.ej.rovadiahyosefcalendar.classes.ZmanimFactory.addZmanim;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
@@ -45,6 +43,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -82,7 +81,6 @@ import com.ej.rovadiahyosefcalendar.activities.NetzActivity;
 import com.ej.rovadiahyosefcalendar.activities.SettingsActivity;
 import com.ej.rovadiahyosefcalendar.activities.WelcomeScreenActivity;
 import com.ej.rovadiahyosefcalendar.activities.ui.DailySummaryController;
-import com.ej.rovadiahyosefcalendar.classes.ChaiTablesWebJava;
 import com.ej.rovadiahyosefcalendar.classes.DailyEntriesBuilder;
 import com.ej.rovadiahyosefcalendar.classes.DummyZmanAdapter;
 import com.ej.rovadiahyosefcalendar.classes.JewishDateInfo;
@@ -133,11 +131,16 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.ej.rovadiahyosefcalendar.classes.royzmanim.RefractionRepository;
+import com.ej.rovadiahyosefcalendar.classes.royzmanim.RefractionStatus;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function2;
+
 public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
     public static boolean sShabbatMode;
     private int mCurrentPosition;//current position in the list of zmanim to return to
-    private boolean mUpdateTablesDialogShown;
 
     //android classes
     private FragmentZmanimBinding binding;
@@ -146,6 +149,86 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private Context mContext;
     private FragmentActivity mActivity;
     private Handler mHandler = null;
+    /** Better weather / terrain / haze data (or a visible sunrise) for the place shown arrived: rebuild and redraw. */
+    private final Function2<Double, Double, Unit> mRefractionListener = (lat, lon) -> {
+        Handler handler = mHandler;
+        if (handler != null) {
+            handler.post(() -> {
+                if (binding == null || Math.abs(lat - sLatitude) > 1e-5 || Math.abs(lon - sLongitude) > 1e-5) {
+                    return;
+                }
+                instantiateZmanimCalendar();
+                if (sCurrentDateShown != null) {
+                    // the new calendar starts on today: stay on the date the user is looking at (a visible sunrise computed for a
+                    // day the user went back or forward to lands here too)
+                    sROZmanimCalendar.setLocalDate(sCurrentDateShown);
+                }
+                setNextUpcomingZman();
+                // New data mean a new calculator with empty caches, and the first sunrise / sunset of each day is then traced through
+                // the air: calculate on the background thread, not here on the main thread
+                if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                    ROZmanimCalendar calendar = sROZmanimCalendar;
+                    LocalDate dateShown = sCurrentDateShown;
+                    BACKGROUND_EXECUTOR.execute(() -> {
+                        warmUpWeek(calendar.getCopy(), dateShown);
+                        Handler h = mHandler;
+                        if (h != null) {
+                            h.post(() -> {
+                                if (binding != null && calendar == sROZmanimCalendar && Objects.equals(dateShown, sCurrentDateShown)
+                                        && sSharedPreferences.getBoolean("weeklyMode", false)) {
+                                    updateWeeklyZmanim();// from the warmed caches: quick
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    showDailyZmanimWhenReady(() -> {});
+                }
+            });
+        }
+        return Unit.INSTANCE;
+    };
+
+    /**
+     * Calculates the sunrises and sunsets of the week shown (and a day on each side), so that the weekly view, drawn on the main
+     * thread, finds them in the calculator's caches. A copy of the calendar shares the calculator and its caches.
+     */
+    private static void warmUpWeek(ROZmanimCalendar calendar, @Nullable LocalDate dateShown) {
+        if (dateShown == null) {
+            return;
+        }
+        try {
+            LocalDate sunday = dateShown.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+            for (int i = -1; i <= 7; i++) {
+                calendar.setLocalDate(sunday.plusDays(i));
+                calendar.getSeaLevelSunrise();
+                calendar.getSunrise();
+                calendar.getSeaLevelSunset();
+                calendar.getSunset();
+                calendar.getHaNetz();
+            }
+        } catch (RuntimeException e) {
+            Log.w("ZmanimFragment", "Warming up the week failed", e);
+        }
+    }
+    /** The weather / terrain / visible sunrise for the place started or finished loading: show or hide the banner. */
+    private final Runnable mRefractionStatusListener = () -> {
+        Handler handler = mHandler;
+        if (handler != null) {
+            handler.post(this::updateRefractionStatusBanner);
+        }
+    };
+    /** Shows the "adjusting the times" banner; posted with a short delay so loads from the saved data never flash it. */
+    private final Runnable mShowRefractionUpdating = () -> showRefractionStatusBanner(R.string.refraction_updating, true);
+    private final Runnable mHideRefractionStatus = this::hideRefractionStatusBanner;
+    private static final long REFRACTION_BANNER_DELAY_MS = 500;
+    /** What the banner under the location name shows: 0 = hidden, 1 = updating, 2 = the download failed. */
+    private int mRefractionBannerState;
+    /** The place (lat,lon) whose banner the user closed: it stays closed for that place while this screen is open. */
+    private String mRefractionDismissedPlace;
+    /** The failed download (its time) the banner already told the user about. */
+    private Long mRefractionFailureShown;
+    private static final long REFRACTION_FAILED_SHOWN_MS = 4000;
     private Runnable mZmanimUpdater;
     private Runnable mNextZmanUpdater;
     /**
@@ -227,6 +310,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         mLayout = binding.mainLayout;
         mIsTwoPane = getResources().getBoolean(R.bool.is_two_pane);
         mHandler = new Handler(mContext.getMainLooper());
+        RefractionRepository.addListener(mRefractionListener);
+        RefractionStatus.addListener(mRefractionStatusListener);
         initMenu();
         setupShabbatModeBanner();
 
@@ -282,7 +367,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     editor.putString("Zipcode", sharedText).apply();
                     mLocationResolver.getLatitudeAndLongitudeFromSearchQuery();// even though the location name is updated here, it will be updated later as well and then the UI will be updated
                     mLocationResolver.setTimeZoneID();
-                    resolveElevationAndVisibleSunrise(() -> {
+                    resolveElevation(() -> {
                         instantiateZmanimCalendar();
                         setNextUpcomingZman();
                         if (sSharedPreferences.getBoolean("weeklyMode", false)) {
@@ -332,23 +417,21 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         binding.dailySummary.dailyLocationName.setText(sCurrentLocationName);
                     }
                 });
-                resolveElevationAndVisibleSunrise(() -> {
+                resolveElevation(() -> {
                     instantiateZmanimCalendar();
                     if (binding != null) {
-                        updateChaitableTimesFromLatLong(() -> {
-                            if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                                binding.shimmerLayout.setVisibility(View.GONE);
-                                setWeeklyViewVisibility(true);
-                                updateWeeklyZmanim();
-                            } else {// the shimmer keeps animating while the zmanim are calculated in the background
-                                showDailyZmanimWhenReady(() -> {
-                                    if (binding != null) {
-                                        binding.shimmerLayout.setVisibility(View.GONE);
-                                        setWeeklyViewVisibility(false);
-                                    }
-                                });
-                            }
-                        });
+                        if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                            binding.shimmerLayout.setVisibility(View.GONE);
+                            setWeeklyViewVisibility(true);
+                            updateWeeklyZmanim();
+                        } else {// the shimmer keeps animating while the zmanim are calculated in the background
+                            showDailyZmanimWhenReady(() -> {
+                                if (binding != null) {
+                                    binding.shimmerLayout.setVisibility(View.GONE);
+                                    setWeeklyViewVisibility(false);
+                                }
+                            });
+                        }
                     }
                     setNextUpcomingZman();// after the list, on the same background thread
                     createBackgroundThreadForNextUpcomingZman();
@@ -358,33 +441,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         setupButtons();
         setNotifications();
         checkIfUserIsInIsraelOrNot();
-    }
-
-    /**
-     * This method updates the chaitable times for the current location using the Latitude and Longitude. This method should be called before the zmanim
-     * list is updated.
-     * @param codeToRunAfterwards the code to run after the chaitable times are updated. This should be done on the main UI thread if it the code will affect the UI.
-     */
-    private void updateChaitableTimesFromLatLong(Runnable codeToRunAfterwards) {//TODO
-//        new Thread(() -> {
-//            if (sROZmanimCalendar.getHaNetz() == null) {// if visible sunrise for this location is null, try to update it
-//                JewishDate jDate = new JewishDate();
-//                ChaiTablesWebJava scraper = new ChaiTablesWebJava(new GeoLocation("", sLatitude, sLongitude, TimeZone.getTimeZone(sCurrentTimeZoneID)), jDate);
-//
-//                try {
-//                    ChaiTablesWebJava.ChaiTablesResult[] result = scraper.getChaitableTimesWithLatLong();
-//                    int jewishYear = jDate.getJewishYear();
-//                    for (ChaiTablesWebJava.ChaiTablesResult r : result) {
-//                        ChaiTablesWebJava.saveResultsToFile(r, mContext.getExternalFilesDir(null), sCurrentLocationName, jewishYear);
-//                        jewishYear++;
-//                    }
-//                    sSharedPreferences.edit().putString("chaitablesLink" + sCurrentLocationName, result[0].url()).apply(); // save the link for this location to automatically download again next time
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-            mActivity.runOnUiThread(codeToRunAfterwards);
-//        }).start();
     }
 
     private void setupButtons() {
@@ -417,7 +473,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     updateDailyZmanim();
                 }
                 mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
-                seeIfTablesNeedToBeUpdated(true);
             }
         });
 
@@ -455,7 +510,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                             updateDailyZmanim();
                         }
                         mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
-                        seeIfTablesNeedToBeUpdated(true);
                     });
                     DatePickerDialog.OnDateSetListener onDateSetListener = (view, year, month, day) -> {
                         LocalDate userChosenDate = LocalDate.of(year, month, day);
@@ -468,7 +522,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                             updateDailyZmanim();
                         }
                         mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
-                        seeIfTablesNeedToBeUpdated(true);
                     };
                     materialDatePicker.addOnNegativeButtonClickListener(selection -> {
                         HebrewDayMonthYearPickerDialog hdmypd = new HebrewDayMonthYearPickerDialog(materialDatePicker, mActivity.getSupportFragmentManager(), sJewishDateInfo.getJewishCalendar());
@@ -486,65 +539,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
 
             mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
         }
-    }
-
-    /**
-     * This method will automatically update the tables if the user has set up the app before for the current location.
-     *
-     * @param fromButton if the method is called from the buttons, it will not ask more than once if the user wants to update the tables.
-     */
-    private void seeIfTablesNeedToBeUpdated(boolean fromButton) {
-        if (!(sSharedPreferences.getBoolean("isSetup", false) //only check after the app has been set up before
-                && sSharedPreferences.getBoolean("UseTable" + sCurrentLocationName, false))) //and only if the tables are being used
-			return;
-
-        if (!ChaiTablesWebJava.checkIfFileDoesNotExist(mActivity.getExternalFilesDir(null), sCurrentLocationName, sJewishDateInfo.getJewishCalendar().getJewishYear()))
-			return;
-
-        if (mUpdateTablesDialogShown)
-			return;
-
-		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext);
-		builder.setTitle(R.string.update_tables);
-		builder.setMessage(R.string.the_visible_sunrise_tables_for_the_current_location_and_year_need_to_be_updated_do_you_want_to_update_the_tables_now);
-		builder.setPositiveButton(R.string.yes, (dialog, which) -> {
-			String chaitablesURL = sSharedPreferences.getString("chaitablesLink" + sCurrentLocationName, "");
-			if (!chaitablesURL.isEmpty()) {//it should not be empty if the user has set up the app, but it is good to check
-				String hebrewYear = String.valueOf(sJewishDateInfo.getJewishCalendar().getJewishYear());
-				Pattern pattern = Pattern.compile("&cgi_yrheb=\\d{4}");
-				Matcher matcher = pattern.matcher(chaitablesURL);
-				if (matcher.find()) {
-					chaitablesURL = chaitablesURL.replace(matcher.group(), "&cgi_yrheb=" + hebrewYear);//replace the year in the URL with the current year
-				}
-				ChaiTablesWebJava scraper = new ChaiTablesWebJava(sROZmanimCalendar.getGeoLocation(), sJewishDateInfo.getJewishCalendar());
-				String finalChaitablesURL = chaitablesURL;
-				Thread thread = new Thread(() -> {
-					try {
-						ChaiTablesWebJava.ChaiTablesResult[] results = scraper.formatInterfacer(finalChaitablesURL); // will download 2 more years
-						int jewishYear = sJewishDateInfo.getJewishCalendar().getJewishYear();
-						for (ChaiTablesWebJava.ChaiTablesResult r : results) {
-							ChaiTablesWebJava.saveResultsToFile(r, mContext.getExternalFilesDir(null), sCurrentLocationName, jewishYear);
-							jewishYear++;
-						}
-						mActivity.runOnUiThread(() -> {
-							if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-								updateWeeklyZmanim();
-							} else {
-								updateDailyZmanim();
-							}
-						});
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				});
-				thread.start();
-			}
-		});
-		builder.setNegativeButton(R.string.no, (dialog, which) -> dialog.dismiss());
-		builder.show();
-		if (fromButton) {
-			mUpdateTablesDialogShown = true;
-		}
     }
 
     private void setupDailyViews() {
@@ -577,7 +571,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                             binding.dailySummary.dailyLocationName.setText(sCurrentLocationName);
                         }
                     });
-                    resolveElevationAndVisibleSunrise(() -> {
+                    resolveElevation(() -> {
                         instantiateZmanimCalendar();
                         setNextUpcomingZman();
                         updateDailyZmanim();
@@ -590,6 +584,15 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }).start());
         mNestedScrollView = binding.nestedScrollView;
         mDailySummary = new DailySummaryController(mContext, binding.dailySummary, false);
+        if (mRefractionBannerState != 0) {// a new summary starts without the banner: show it there too
+            int state = mRefractionBannerState;
+            mRefractionBannerState = 0;
+            if (state == 1) {
+                showRefractionStatusBanner(R.string.refraction_updating, true);
+            } else {
+                updateRefractionStatusBanner();
+            }
+        }
         if (mIsTwoPane) {// the day summary is shown in the activity's sidebar instead
             binding.dailySummary.getRoot().setVisibility(View.GONE);
         }
@@ -668,7 +671,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                                         binding.dailySummary.dailyLocationName.setText(sCurrentLocationName);
                                     }
                                 });
-                                resolveElevationAndVisibleSunrise(() -> {
+                                resolveElevation(() -> {
                                     instantiateZmanimCalendar();
                                     setNextUpcomingZman();
                                     if (sSharedPreferences.getBoolean("weeklyMode", false)) {
@@ -836,7 +839,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 sLongitude,
                 sElevation,
                 ZoneId.of(sCurrentTimeZoneID)));
-        sROZmanimCalendar.setExternalFilesDir(mActivity.getExternalFilesDir(null));
         String candles = sSettingsPreferences.getString("CandleLightingOffset", "20");
         sROZmanimCalendar.setCandleLightingOffset(Utils.parseDoubleOrDefault(candles, 20));
         String shabbat = sSettingsPreferences.getString("EndOfShabbatOffset", sSharedPreferences.getBoolean("inIsrael", false) ? "30" : "40");
@@ -845,6 +847,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             sROZmanimCalendar.setAteretTorahSunsetOffset(30);
         }
         sROZmanimCalendar.setAmudehHoraah(sSettingsPreferences.getBoolean("LuachAmudeiHoraah", false));
+        // the place's weather, terrain horizon and haze, fetched in the background when stale (the list redraws when they land)
+        RefractionRepository.ensureFresh(sLatitude, sLongitude);
     }
 
     /**
@@ -854,13 +858,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private void setNotifications() {
         // The permissions the notifications need are asked for on their own page (NotificationSetupActivity), not here, so the user isn't
         // asked again every time the app is opened.
-        if (sSettingsPreferences.getBoolean("zmanim_notifications", true)
-                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
-                && ContextCompat.checkSelfPermission(mContext, Manifest.permission.POST_NOTIFICATIONS) == PERMISSION_GRANTED
-                && !sSharedPreferences.getBoolean("hasShownVSNotification", false)) {
-            Utils.showVisibleSunriseNotification(mContext);
-            sSharedPreferences.edit().putBoolean("hasShownVSNotification", true).apply();
-        }
         setAllNotifications();
     }
 
@@ -1080,7 +1077,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             } else if (itemId == R.id.use_elevation) {
                 sSharedPreferences.edit().putBoolean("useElevation", !sSharedPreferences.getBoolean("useElevation", false)).apply();
                 item.setChecked(sSharedPreferences.getBoolean("useElevation", false));
-                resolveElevationAndVisibleSunrise(() -> {
+                resolveElevation(() -> {
                     instantiateZmanimCalendar();
                     setNextUpcomingZman();
                     if (sSharedPreferences.getBoolean("weeklyMode", false)) {
@@ -1534,7 +1531,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      * for the current location. If the user is offline, it will not do anything. The only time it will not set the elevation is if the user has
      * disabled the elevation setting in the settings menu. This method should be called after the location name has been set.
      */
-    private void resolveElevationAndVisibleSunrise(Runnable codeToRunOnMainThread) {
+    private void resolveElevation(Runnable codeToRunOnMainThread) {
         boolean sUserIsOffline = false;
         if (sCurrentLocationName != null && !sCurrentLocationName.isEmpty()) {// Somehow it is null and crashing in some places
             if (sCurrentLocationName.contains("Lat:") && sCurrentLocationName.contains("Long:")
@@ -1552,7 +1549,6 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         () -> sElevation = Utils.parseDoubleOrDefault(sSharedPreferences.getString("elevation" + sCurrentLocationName, "0"), 0),
                         codeToRunOnMainThread));
                 thread.start();
-                seeIfTablesNeedToBeUpdated(false);
             } else {// use elevation that was set before
                 sElevation = Utils.parseDoubleOrDefault(sSharedPreferences.getString("elevation" + sCurrentLocationName, "0"), 0);
                 mActivity.runOnUiThread(codeToRunOnMainThread);
@@ -1604,6 +1600,78 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
      * @see #startScrollingThread() to start the thread that will scroll through the list of zmanim
      * @see #setShabbatBannerColors(boolean) to set the text of the shabbat banners
      */
+    /**
+     * The times first appear from the saved data (or an estimate of the visible sunrise) and are redrawn when newer weather,
+     * terrain or visible sunrise data land, a few seconds later. Meanwhile a banner tells the user the times are about to be
+     * adjusted, and if the download failed, that the saved data are shown. Only with the weather, terrain and haze setting on.
+     */
+    private void updateRefractionStatusBanner() {
+        if (binding == null || mHandler == null) {
+            return;
+        }
+        mHandler.removeCallbacks(mShowRefractionUpdating);
+        if (sShabbatMode || refractionPlace().equals(mRefractionDismissedPlace)) {
+            if (mRefractionBannerState != 0) {
+                hideRefractionStatusBanner();
+            }
+        } else if (RefractionStatus.isUpdating(sLatitude, sLongitude, sCurrentDateShown)) {
+            mHandler.removeCallbacks(mHideRefractionStatus);
+            if (mRefractionBannerState == 1) {
+                return;// already showing
+            }
+            mHandler.postDelayed(mShowRefractionUpdating, REFRACTION_BANNER_DELAY_MS);
+        } else if (isNewRefractionFailure(RefractionStatus.lastFailure(sLatitude, sLongitude))) {
+            // once, when the place is done updating: the times shown are from the saved data
+            mRefractionFailureShown = RefractionStatus.lastFailure(sLatitude, sLongitude);
+            showRefractionStatusBanner(R.string.refraction_update_failed, false);
+            mHandler.removeCallbacks(mHideRefractionStatus);
+            mHandler.postDelayed(mHideRefractionStatus, REFRACTION_FAILED_SHOWN_MS);
+        } else if (mRefractionBannerState == 1) {
+            hideRefractionStatusBanner();// done: the list was redrawn with the new times
+        }
+    }
+
+    private void showRefractionStatusBanner(int text, boolean loading) {
+        mRefractionBannerState = loading ? 1 : 2;
+        if (mDailySummary != null) {
+            mDailySummary.showRefractionStatus(text, loading, this::dismissRefractionStatusBanner);
+        }
+        DailySummaryController sidebar = MainFragmentManagerActivity.getSidebar();
+        if (sidebar != null) {
+            sidebar.showRefractionStatus(text, loading, this::dismissRefractionStatusBanner);
+        }
+    }
+
+    /** A failed download not told about yet, from the last minute (an older one, e.g. from before the screen opened, is not). */
+    private boolean isNewRefractionFailure(Long failedAt) {
+        return failedAt != null && !failedAt.equals(mRefractionFailureShown) && System.currentTimeMillis() - failedAt < 60_000;
+    }
+
+    private String refractionPlace() {
+        return sLatitude + "," + sLongitude;
+    }
+
+    /** The user tapped the banner: keep it closed for this place while this screen is open. */
+    private void dismissRefractionStatusBanner() {
+        mRefractionDismissedPlace = refractionPlace();
+        if (mHandler != null) {
+            mHandler.removeCallbacks(mShowRefractionUpdating);
+            mHandler.removeCallbacks(mHideRefractionStatus);
+        }
+        hideRefractionStatusBanner();
+    }
+
+    private void hideRefractionStatusBanner() {
+        mRefractionBannerState = 0;
+        if (mDailySummary != null) {
+            mDailySummary.hideRefractionStatus();
+        }
+        DailySummaryController sidebar = MainFragmentManagerActivity.getSidebar();
+        if (sidebar != null) {
+            sidebar.hideRefractionStatus();
+        }
+    }
+
     private void startShabbatMode() {
         if (!sShabbatMode) {
             sShabbatMode = true;
@@ -1876,6 +1944,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             super.onResume();
             return;
         }
+        updateRefractionStatusBanner();// e.g. the weather setting was turned off meanwhile
         if (NotificationSetupActivity.sSettingsChanged) {// the user fixed a setting the notifications need, so schedule them again
             NotificationSetupActivity.sSettingsChanged = false;
             setNotifications();
@@ -1902,7 +1971,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         binding.dailySummary.dailyLocationName.setText(sCurrentLocationName);
                     }
                 });
-                resolveElevationAndVisibleSunrise(() -> {// recreate the zmanim calendar object because it might have changed. Lat, Long, Elevation, or settings might have changed
+                resolveElevation(() -> {// recreate the zmanim calendar object because it might have changed. Lat, Long, Elevation, or settings might have changed
                     instantiateZmanimCalendar();
                     sROZmanimCalendar.setLocalDate(sCurrentDateShown);// make sure date doesn't change
                     setNextUpcomingZman();
@@ -2047,6 +2116,12 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             binding.getRoot().getViewTreeObserver().removeOnGlobalFocusChangeListener(mFocusFirstZmanOnEntry);
         }
         binding = null;
+        RefractionRepository.removeListener(mRefractionListener);
+        RefractionStatus.removeListener(mRefractionStatusListener);
+        if (mHandler != null) {
+            mHandler.removeCallbacks(mShowRefractionUpdating);
+            mHandler.removeCallbacks(mHideRefractionStatus);
+        }
         mDailySummary = null;
         sSharedPreferences.unregisterOnSharedPreferenceChangeListener(sSharedPrefListener);
         if (mLocationTimeoutRunnable != null) {
@@ -2210,36 +2285,34 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                                 binding.dailySummary.dailyLocationName.setText(sCurrentLocationName);
                             }
                         });
-                        resolveElevationAndVisibleSunrise(() -> {
+                        resolveElevation(() -> {
                             if (sCurrentDateShown != null) {
                                 instantiateZmanimCalendar();
                                 sROZmanimCalendar.setLocalDate(sCurrentDateShown);
                                 createBackgroundThreadForNextUpcomingZman();
                                 sJewishDateInfo.setLocalDate(sCurrentDateShown);
-                                updateChaitableTimesFromLatLong(() -> {
-                                    if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                                        updateWeeklyTextViewTextColor();
-                                        updateWeeklyZmanim();
+                                if (sSharedPreferences.getBoolean("weeklyMode", false)) {
+                                    updateWeeklyTextViewTextColor();
+                                    updateWeeklyZmanim();
+                                    if (binding != null) {
+                                        binding.shimmerLayout.setVisibility(View.GONE);
+                                        setWeeklyViewVisibility(true);
+                                    }
+                                } else {// the shimmer keeps animating while the zmanim are calculated in the background
+                                    showDailyZmanimWhenReady(() -> {
+                                        if (mNestedScrollView != null) {
+                                            mNestedScrollView.scrollTo(0, mCurrentPosition);
+                                        }
                                         if (binding != null) {
                                             binding.shimmerLayout.setVisibility(View.GONE);
-                                            setWeeklyViewVisibility(true);
+                                            setWeeklyViewVisibility(false);
                                         }
-                                    } else {// the shimmer keeps animating while the zmanim are calculated in the background
-                                        showDailyZmanimWhenReady(() -> {
-                                            if (mNestedScrollView != null) {
-                                                mNestedScrollView.scrollTo(0, mCurrentPosition);
-                                            }
-                                            if (binding != null) {
-                                                binding.shimmerLayout.setVisibility(View.GONE);
-                                                setWeeklyViewVisibility(false);
-                                            }
-                                        });
-                                    }
-                                    if (mCalendarButton != null) {
-                                        mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
-                                    }
-                                    setAllNotifications();
-                                });
+                                    });
+                                }
+                                if (mCalendarButton != null) {
+                                    mCalendarButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, Utils.getCurrentCalendarDrawable(sSettingsPreferences, sCurrentDateShown));
+                                }
+                                setAllNotifications();
                                 setNextUpcomingZman();// after the list, on the same background thread
                             }
                         });
