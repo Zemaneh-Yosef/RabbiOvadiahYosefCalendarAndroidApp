@@ -29,6 +29,8 @@ public class VisibleSunriseJob extends JobService {
 
     private static final String TAG = "VisibleSunriseJob";
     private static final int JOB_ID = 4802;
+    /** How long to wait for a visible sunrise already being computed before computing it here. */
+    private static final long MAX_WAIT_MS = 120_000;
 
     /** Schedules the computation for a place, unless it is already waiting or running. */
     public static void schedule(Context context, GeoLocation geo) {
@@ -64,11 +66,21 @@ public class VisibleSunriseJob extends JobService {
                 LocalDate today = LocalDate.now(geo.getZoneId());
                 for (int i = -1; i <= 1; i++) {
                     calendar.setLocalDate(today.plusDays(i));
+                    // Already being computed in the background (e.g. the notifications just asked for it): wait for that rather than
+                    // compute it a second time, which would also slow both down (they share the air's ray tracer). Waiting keeps the
+                    // process alive until it is done; the app sets the notifications again when it lands.
+                    long waitedMs = 0;
+                    while (calendar.isHaNetzPending() && waitedMs < MAX_WAIT_MS) {
+                        Thread.sleep(500);
+                        waitedMs += 500;
+                    }
                     if (!calendar.isHaNetzKnown()) {
                         calendar.getHaNetz(true);// computed here and stored
                         computed = true;
                     }
                 }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             } catch (RuntimeException e) {
                 Log.e(TAG, "Computing the visible sunrise failed", e);
             } finally {

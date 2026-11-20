@@ -353,6 +353,11 @@ public class ROZmanimCalendar extends ZmanimCalendar {
         return RefractionSupport.isVisibleSunriseKnown(refractionData, getGeoLocation(), getLocalDate(), FIRST_GLIMPSE, "");
     }
 
+    /** Whether {@link #getHaNetz()} for the current date is being computed in the background right now. */
+    public boolean isHaNetzPending() {
+        return RefractionSupport.isVisibleSunrisePending(refractionData, getGeoLocation(), getLocalDate(), FIRST_GLIMPSE, "");
+    }
+
     /**
      * Whether the current date's sunrise is traced through weather data (a forecast, the refraction server's profiles or the
      * monthly normals) rather than the default 34.48' refraction.

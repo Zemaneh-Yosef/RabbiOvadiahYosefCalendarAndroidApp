@@ -134,6 +134,14 @@ object RefractionSupport {
         return stored != null && stored.first == fingerprint(data)
     }
 
+    /** Whether the visible sunrise for a date is being computed in the background right now (see [visibleSunrise] with defer). */
+    @JvmStatic
+    fun isVisibleSunrisePending(data: RefractionData?, geo: GeoLocation, date: LocalDate, options: VisibleOptions, tag: String = ""): Boolean {
+        if (data?.horizon == null) return false
+        val key = dataKey(data) + "|" + placeKey(geo) + "|" + options + "|" + tag + "|"
+        return synchronized(pending) { pending.contains(key + date) }
+    }
+
     @JvmStatic
     fun visibleSunrise(data: RefractionData?, geo: GeoLocation, date: LocalDate, options: VisibleOptions, defer: Boolean, tag: String = ""): Pair<Double, Boolean> {
         val horizon = data?.horizon ?: return Pair(Double.NaN, false)

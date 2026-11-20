@@ -182,7 +182,15 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                         }
                     });
                 } else {
-                    showDailyZmanimWhenReady(() -> {});
+                    // This calculation replaces any still running, including the first one when the screen opens (the stored data
+                    // are read in the background, so they can land while it runs). The replaced one leaves revealing the list to
+                    // this one, so this has to hide the loading shimmer too.
+                    showDailyZmanimWhenReady(() -> {
+                        if (binding != null && binding.shimmerLayout.getVisibility() == View.VISIBLE) {
+                            binding.shimmerLayout.setVisibility(View.GONE);
+                            setWeeklyViewVisibility(false);
+                        }
+                    });
                 }
             });
         }
