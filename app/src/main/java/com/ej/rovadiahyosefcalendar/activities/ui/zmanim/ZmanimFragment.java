@@ -157,6 +157,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     return;
                 }
                 instantiateZmanimCalendar();
+                if (sCurrentDateShown != null) {
+                    // the new calendar starts on today: stay on the date the user is looking at (a visible sunrise computed for a
+                    // day the user went back or forward to lands here too)
+                    sROZmanimCalendar.setLocalDate(sCurrentDateShown);
+                }
                 setNextUpcomingZman();
                 if (sSharedPreferences.getBoolean("weeklyMode", false)) {
                     updateWeeklyZmanim();
