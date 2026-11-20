@@ -346,6 +346,14 @@ public class ROZmanimCalendar extends ZmanimCalendar {
     }
 
     /**
+     * Whether {@link #getHaNetz()} for the current date gives the final time right away (it is in memory or stored), rather than an
+     * estimate or null while it is computed in the background. Also true when there is no terrain horizon (nothing to compute).
+     */
+    public boolean isHaNetzKnown() {
+        return RefractionSupport.isVisibleSunriseKnown(refractionData, getGeoLocation(), getLocalDate(), FIRST_GLIMPSE, "");
+    }
+
+    /**
      * Whether the current date's sunrise is traced through weather data (a forecast, the refraction server's profiles or the
      * monthly normals) rather than the default 34.48' refraction.
      */

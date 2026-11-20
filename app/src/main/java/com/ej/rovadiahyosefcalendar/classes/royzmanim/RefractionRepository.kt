@@ -73,6 +73,46 @@ object RefractionRepository {
         dir = File(files, "refraction-v$CACHE_VERSION").apply { mkdirs() }
     }
 
+    /** Reads stored data off the main thread (see [cached]); its own thread, so a download in progress doesn't hold it up. */
+    private val diskReader = Executors.newSingleThreadExecutor { r -> Thread(r, "refraction-disk").apply { isDaemon = true } }
+    private val readsPending = ConcurrentHashMap.newKeySet<String>()
+
+    private fun isMainThread(): Boolean = try {
+        android.os.Looper.getMainLooper()?.isCurrentThread == true
+    } catch (e: Throwable) {
+        false// a plain JVM (unit tests): no main thread
+    }
+
+    private fun readInBackground(rawLat: Double, rawLon: Double, key: String) {
+        if (!readsPending.add(key)) return
+        diskReader.execute {
+            val data = try { cached(rawLat, rawLon) } catch (e: Exception) { Log.e(TAG, "Reading the stored data failed", e); null }
+            readsPending.remove(key)
+            if (data != null) notifyListeners(rawLat, rawLon)
+        }
+    }
+
+    /**
+     * Reads the stored data of the place used most recently, in the background, so that it is in memory when the first screen
+     * asks for it (it may then be drawn with it right away). Call when the app starts.
+     */
+    @JvmStatic
+    fun preloadLastUsed() {
+        val d = dir ?: return
+        diskReader.execute {
+            try {
+                loadKnown()
+                val newest = d.listFiles { f -> !f.name.startsWith("reference_") && (f.name.endsWith(".${Kind.FORECAST.file}.json") || f.name.endsWith(".${Kind.HORIZON.file}.json")) }
+                    ?.maxByOrNull { it.lastModified() } ?: return@execute
+                val suffix = newest.name.substring(newest.name.indexOf('.'))
+                val s = spotOf(newest.name, suffix) ?: return@execute
+                cached(s.lat, s.lon)
+            } catch (e: Exception) {
+                Log.e(TAG, "Preloading the stored data failed", e)
+            }
+        }
+    }
+
     /** The folder the data are stored in (null before [init]). */
     @JvmStatic
     internal fun storageDir(): File? = dir
@@ -87,6 +127,16 @@ object RefractionRepository {
     /** Tell the listeners that something for a place (data, a visible sunrise) is now better. */
     @JvmStatic
     fun notifyListeners(lat: Double, lon: Double) = listeners.forEach { try { it(lat, lon) } catch (e: Exception) { Log.e(TAG, "listener failed", e) } }
+
+    private val dataListeners = java.util.concurrent.CopyOnWriteArrayList<(Double, Double) -> Unit>()
+
+    /**
+     * Called (on the loader thread) only when new data for a place were loaded - not for a visible sunrise computed for some date
+     * (see [RefractionSupport.addVisibleSunriseListener]). For what doesn't depend on the date the user looks at: the notifications,
+     * the widget, the watch.
+     */
+    @JvmStatic
+    fun addDataListener(l: (Double, Double) -> Unit) { dataListeners.add(l) }
 
     private fun placeId(lat: Double, lon: Double) = String.format(Locale.ROOT, "%.5f,%.5f", lat, lon)
 
@@ -463,6 +513,12 @@ object RefractionRepository {
         if (dir == null) return null
         val p = places(rawLat, rawLon)
         memory[p.key]?.let { return it }
+        if (isMainThread()) {
+            // Reading and parsing the stored files (around 1.5 MB for a place) would hold up the screen: read them in the background
+            // and tell the listeners, who redraw with them. Until then: no data (the calculator's default model).
+            readInBackground(rawLat, rawLon, p.key)
+            return null
+        }
         val stat = readJson(fileFor(p.horizon.id, Kind.HORIZON.file))
         val fc = readJson(fileFor(p.forecast.id, Kind.FORECAST.file))?.takeIf { System.currentTimeMillis() - it.optLong("fetchedAt") <= FORECAST_MAX_AGE_MS }
         val haze = hazeFromStored(readJson(fileFor(p.haze.id, Kind.HAZE.file)), readSky(p.sky.id))
@@ -503,7 +559,10 @@ object RefractionRepository {
             try {
                 val before = if (dir == null) null else memory[places(lat, lon).key]
                 data = load(lat, lon, force)
-                if (data !== before) listeners.forEach { try { it(lat, lon) } catch (e: Exception) { Log.e(TAG, "listener failed", e) } }
+                if (data !== before) {
+                    notifyListeners(lat, lon)
+                    dataListeners.forEach { try { it(lat, lon) } catch (e: Exception) { Log.e(TAG, "data listener failed", e) } }
+                }
             } catch (e: Exception) {
                 Log.e(TAG, "refraction data failed", e)
             } finally {
@@ -654,7 +713,8 @@ object RefractionRepository {
     @JvmStatic
     fun ensureFresh(rawLat: Double, rawLon: Double) {
         lastAsked = doubleArrayOf(rawLat, rawLon)
-        refreshIfStale(rawLat, rawLon, null)
+        // checking whether the data are stale reads them from storage: never on the main thread (the screens call this)
+        if (isMainThread()) diskReader.execute { refreshIfStale(rawLat, rawLon, null) } else refreshIfStale(rawLat, rawLon, null)
     }
 
     /**

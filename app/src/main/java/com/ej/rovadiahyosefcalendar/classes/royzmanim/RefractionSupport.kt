@@ -104,6 +104,12 @@ object RefractionSupport {
 
     // ------------------------------------------------------------------------------------------- visible sunrise
 
+    private val visibleSunriseListeners = java.util.concurrent.CopyOnWriteArrayList<(Double, Double, LocalDate) -> Unit>()
+
+    /** Called (on the visible sunrise thread) with the place and date of each visible sunrise computed in the background. */
+    @JvmStatic
+    fun addVisibleSunriseListener(l: (Double, Double, LocalDate) -> Unit) { visibleSunriseListeners.add(l) }
+
     private val visibleCache = ROYSPACalculator.lru<String, Double>(512)
     private val pending = HashSet<String>()
     private val visibleExecutor = Executors.newSingleThreadExecutor { r -> Thread(r, "visible-sunrise").apply { isDaemon = true; priority = Thread.MIN_PRIORITY } }
@@ -115,6 +121,19 @@ object RefractionSupport {
      * (the caller then shows sea level) - as the website computes it in a worker.
      * @return the value and whether it is an estimate
      */
+    /**
+     * Whether the visible sunrise for a date is already known without computing it: in memory, or stored from these same data
+     * (true too when there is nothing to compute: no horizon).
+     */
+    @JvmStatic
+    fun isVisibleSunriseKnown(data: RefractionData?, geo: GeoLocation, date: LocalDate, options: VisibleOptions, tag: String = ""): Boolean {
+        if (data?.horizon == null) return true
+        val key = dataKey(data) + "|" + placeKey(geo) + "|" + options + "|" + tag + "|"
+        if (synchronized(visibleCache) { visibleCache[key + date] } != null) return true
+        val stored = VisibleSunriseStore.get(placeKey(geo) + "|" + options + "|" + tag + "|" + date)
+        return stored != null && stored.first == fingerprint(data)
+    }
+
     @JvmStatic
     fun visibleSunrise(data: RefractionData?, geo: GeoLocation, date: LocalDate, options: VisibleOptions, defer: Boolean, tag: String = ""): Pair<Double, Boolean> {
         val horizon = data?.horizon ?: return Pair(Double.NaN, false)
@@ -143,6 +162,7 @@ object RefractionSupport {
             visibleExecutor.execute {
                 try { compute() } finally { synchronized(pending) { pending.remove(key + date) } }
                 RefractionRepository.notifyListeners(geo.latitude, geo.longitude)
+                visibleSunriseListeners.forEach { try { it(geo.latitude, geo.longitude, date) } catch (e: Exception) { Log.e(TAG, "listener failed", e) } }
                 RefractionStatus.visibleSunriseEnded(geo.latitude, geo.longitude, date)
             }
         }

@@ -180,6 +180,11 @@
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
+        <service
+            android:name=".notifications.VisibleSunriseJob"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
         <receiver
             android:name=".notifications.DailyNotifications"
             android:exported="true" />

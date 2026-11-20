@@ -287,6 +287,7 @@
     <string name="netz_countdown">Netz Countdown</string>
     <string name="quit">Quit</string>
     <string name="netz_sunrise_countdown">Sunrise Countdown:</string>
+    <string name="netz_calculating">Calculating sunrise…</string>
     <string name="netz_since_sunrise">Since Sunrise:</string>
     <string name="netz_any_peak">Any-Peak Sunrise (ROY, YY)</string>
     <string name="netz_full_reveal">Full Solar-Reveal Sunrise (HB)</string>

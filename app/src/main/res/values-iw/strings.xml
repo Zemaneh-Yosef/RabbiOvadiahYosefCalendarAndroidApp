@@ -751,6 +751,7 @@
     <string name="showcase_tap_talit">לחלק מהזמנים יש יותר משיטה אחת. לחצו על הזמן הזה כדי לראות את השיטה השנייה.</string>
     <string name="showcase_tap_either">עכשיו לחצו על אחד מהזמנים כדי לקרוא עליו עוד. רוב הזמנים והרשומות באפליקציה מציגים הסבר כשלוחצים עליהם.</string>
     <string name="netz_sunrise_countdown">ספירה לאחור לנץ:</string>
+    <string name="netz_calculating">מחשב את זמן הנץ…</string>
     <string name="netz_since_sunrise">מאז הנץ:</string>
     <string name="netz_any_peak">נץ – הופעת קצה השמש (הגר״ע יוסף, ילקוט יוסף)</string>
     <string name="netz_full_reveal">נץ – הופעת כל גוף השמש (הלכה ברורה)</string>

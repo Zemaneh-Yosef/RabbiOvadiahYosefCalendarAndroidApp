@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.preference.PreferenceManager
+import java.time.LocalDate
 import com.ej.rovadiahyosefcalendar.classes.DpadSupport
 import com.ej.rovadiahyosefcalendar.activities.ZmanimAppWidget
 import com.ej.rovadiahyosefcalendar.classes.WatchZmanimSync
@@ -23,11 +24,20 @@ class ZemanehYosefApplication : Application() {
         super.onCreate()
         DpadSupport.install(this)// D-pad focus ring and TV keyboard, in every screen
         RefractionRepository.init(this)
+        RefractionRepository.preloadLastUsed()// in the background: the first screen then finds the data in memory
         WatchZmanimSync.init(this)
-        // new data (or a visible sunrise computed) for a place: the watch gets the times it changes
-        RefractionRepository.addListener { _, _ -> WatchZmanimSync.requestSync(this, false) }
-        // and the zman notifications are set again and the widget is redrawn with them (they move the times both show)
-        RefractionRepository.addListener { _, _ -> handler.post { handler.removeCallbacks(updateNotificationsAndWidget); handler.postDelayed(updateNotificationsAndWidget, 3000) } }
+        // New data for a place: the watch gets the times they change (building its table computes its visible sunrises itself),
+        // the zman notifications are set again and the widget is redrawn with them (they move the times both show)
+        RefractionRepository.addDataListener { _, _ ->
+            WatchZmanimSync.requestSync(this, false)
+            scheduleNotificationsAndWidgetUpdate()
+        }
+        // A visible sunrise finished computing: only one the notifications or the widget use (yesterday to tomorrow) sets them
+        // again. One for another date, e.g. a day the user went to in the app, changes nothing there.
+        RefractionSupport.addVisibleSunriseListener { _, _, date ->
+            val today = LocalDate.now()
+            if (!date.isBefore(today.minusDays(1)) && !date.isAfter(today.plusDays(1))) scheduleNotificationsAndWidgetUpdate()
+        }
         val settings = PreferenceManager.getDefaultSharedPreferences(this)
         RefractionSupport.enabled = settings.getBoolean(PREF_REFRACTION, true)
         RefractionSupport.hazeTzet = settings.getBoolean(PREF_HAZE_TZET, true)
@@ -44,6 +54,13 @@ class ZemanehYosefApplication : Application() {
         sendBroadcast(Intent(this, ZmanimNotifications::class.java))
         ZmanimAppWidget.updateAllWidgets(this)
     }
+    private fun scheduleNotificationsAndWidgetUpdate() {
+        handler.post {
+            handler.removeCallbacks(updateNotificationsAndWidget)
+            handler.postDelayed(updateNotificationsAndWidget, 3000)
+        }
+    }
+
     private var startedActivities = 0
     private val refreshTick = object : Runnable {
         override fun run() {

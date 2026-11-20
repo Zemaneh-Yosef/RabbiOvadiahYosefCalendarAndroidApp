@@ -168,6 +168,16 @@ public class ZmanimNotifications extends BroadcastReceiver implements Consumer<L
         // The alarms above use the weather data already downloaded. When they are stale, download new ones in a job (waiting for
         // them here could cause an ANR); the alarms are set again with them when they arrive (see ZemanehYosefApplication).
         RefractionRefreshJob.schedule(context, c.getGeoLocation().getLatitude(), c.getGeoLocation().getLongitude());
+
+        // HaNetz was set at the sea-level time (or an estimate) for a day whose visible sunrise isn't computed yet: compute it in a job
+        // (waiting for it here could cause an ANR), which sets the notifications again with it. c is on tomorrow now.
+        boolean haNetzMissing = !c.isHaNetzKnown();
+        c.setLocalDate(c.getLocalDate().minusDays(1));
+        haNetzMissing |= !c.isHaNetzKnown();
+        c.setLocalDate(c.getLocalDate().plusDays(1));
+        if (haNetzMissing) {
+            VisibleSunriseJob.schedule(context, c.getGeoLocation());
+        }
     }
 
     @Override

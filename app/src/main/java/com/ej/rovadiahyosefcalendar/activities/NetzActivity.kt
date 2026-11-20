@@ -245,13 +245,22 @@ class NetzActivity : AppCompatActivity() {
         }
 
         val today = now.atZone(zone).toLocalDate()
-        val days = remember(cal, kind, today) { Pair(dayOf(cal, today, kind), dayOf(cal, today.plusDays(1), kind)) }
-        val phase = phaseAt(days.first, days.second, now)
-        val target = phase.day.sunrise
+        // Today's and tomorrow's moments, calculated on a background thread: with new weather data the calculator's caches are
+        // empty and each sunrise is traced through the air. Kept with the kind and date they are for: new data for the same ones
+        // leave the old times up until the new ones are ready, while another kind or date shows "calculating" until then.
+        var computed by remember { mutableStateOf<Pair<Pair<SunriseKind, LocalDate>, Pair<Day, Day>>?>(null) }
+        LaunchedEffect(cal, kind, today) {
+            val copy = cal.copy// a copy of its own (the date is set on it), sharing the calculator and its caches
+            val d = withContext(Dispatchers.Default) { Pair(dayOf(copy, today, kind), dayOf(copy, today.plusDays(1), kind)) }
+            computed = Pair(Pair(kind, today), d)
+        }
+        val days = computed?.takeIf { it.first == Pair(kind, today) }?.second
+        val phase = days?.let { phaseAt(it.first, it.second, now) }
+        val target = phase?.day?.sunrise
 
         // The sky follows the Sun's depression, but never from earlier than the hatzot halayla before the counted sunrise:
         // before it, the sky is hatzot halayla's.
-        val hatzot = phase.day.hatzotHalayla
+        val hatzot = phase?.day?.hatzotHalayla
         val skyTime = if (hatzot != null && now.isBefore(hatzot)) hatzot else now
         val sky = SkyColors.at(-StarNightfall.sunAltAz(skyTime.toEpochMilli().toDouble(), lat, lon)[0])
 
@@ -354,11 +363,25 @@ class NetzActivity : AppCompatActivity() {
                 }
             }
 
-            Countdown(
+            if (phase != null) Countdown(
                 phase = phase, now = now, kind = kind,
                 heightPx = horizonY.coerceIn(hPx * 0.35f, hPx.toFloat()),
                 widthPx = wPx.toFloat(),
-            )
+            ) else Column(
+                // the sunrise is still being calculated
+                Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = with(density) { (horizonY.coerceIn(hPx * 0.35f, hPx.toFloat()) * 0.4f).toDp() }),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                CircularProgressIndicator(Modifier.size(36.dp), color = Color.White, strokeWidth = 3.dp)
+                Text(
+                    stringResource(R.string.netz_calculating),
+                    color = Color.White,
+                    fontSize = 18.sp,
+                    modifier = Modifier.padding(top = 14.dp),
+                )
+            }
 
             Text(
                 "✕",

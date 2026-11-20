@@ -43,6 +43,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -163,15 +164,53 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                     sROZmanimCalendar.setLocalDate(sCurrentDateShown);
                 }
                 setNextUpcomingZman();
+                // New data mean a new calculator with empty caches, and the first sunrise / sunset of each day is then traced through
+                // the air: calculate on the background thread, not here on the main thread
                 if (sSharedPreferences.getBoolean("weeklyMode", false)) {
-                    updateWeeklyZmanim();
+                    ROZmanimCalendar calendar = sROZmanimCalendar;
+                    LocalDate dateShown = sCurrentDateShown;
+                    BACKGROUND_EXECUTOR.execute(() -> {
+                        warmUpWeek(calendar.getCopy(), dateShown);
+                        Handler h = mHandler;
+                        if (h != null) {
+                            h.post(() -> {
+                                if (binding != null && calendar == sROZmanimCalendar && Objects.equals(dateShown, sCurrentDateShown)
+                                        && sSharedPreferences.getBoolean("weeklyMode", false)) {
+                                    updateWeeklyZmanim();// from the warmed caches: quick
+                                }
+                            });
+                        }
+                    });
                 } else {
-                    updateDailyZmanim();
+                    showDailyZmanimWhenReady(() -> {});
                 }
             });
         }
         return Unit.INSTANCE;
     };
+
+    /**
+     * Calculates the sunrises and sunsets of the week shown (and a day on each side), so that the weekly view, drawn on the main
+     * thread, finds them in the calculator's caches. A copy of the calendar shares the calculator and its caches.
+     */
+    private static void warmUpWeek(ROZmanimCalendar calendar, @Nullable LocalDate dateShown) {
+        if (dateShown == null) {
+            return;
+        }
+        try {
+            LocalDate sunday = dateShown.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+            for (int i = -1; i <= 7; i++) {
+                calendar.setLocalDate(sunday.plusDays(i));
+                calendar.getSeaLevelSunrise();
+                calendar.getSunrise();
+                calendar.getSeaLevelSunset();
+                calendar.getSunset();
+                calendar.getHaNetz();
+            }
+        } catch (RuntimeException e) {
+            Log.w("ZmanimFragment", "Warming up the week failed", e);
+        }
+    }
     /** The weather / terrain / visible sunrise for the place started or finished loading: show or hide the banner. */
     private final Runnable mRefractionStatusListener = () -> {
         Handler handler = mHandler;
