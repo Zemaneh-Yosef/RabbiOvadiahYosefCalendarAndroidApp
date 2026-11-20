@@ -543,5 +543,6 @@
     <string name="showcase_tap_talit">Some zemanim have more than one opinion. Tap on this time to see the other one.</string>
     <string name="showcase_tap_either">Now tap on either time to learn more about it. Most times and listings in the app show an explanation when you tap on them.</string>
     <string name="refraction_updating">Updating the times with the latest weather…</string>
+    <string name="refraction_calculating_sunrise">Calculating Visible Sunrise…</string>
     <string name="refraction_update_failed">Couldn\'t finish updating the times. Showing them from the saved data.</string>
 </resources>

@@ -141,10 +141,10 @@ public class LocationResolver {
                     // As of now, we make two requests and the GPS, which is usually more accurate, takes longer to respond. For now, this results in the UI being updated twice with the more accurate GPS location. Maybe only update the UI if the GPS is more accurate?
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                         if (locationManager.getAllProviders().contains(LocationManager.NETWORK_PROVIDER)) {
-                            locationManager.getCurrentLocation(LocationManager.NETWORK_PROVIDER, null, Runnable::run, consumer);
+                            locationManager.getCurrentLocation(LocationManager.NETWORK_PROVIDER, null, Runnable::run, location -> consumer.accept(steady(location)));
                         }
                         if (locationManager.getAllProviders().contains(LocationManager.GPS_PROVIDER)) {
-                            locationManager.getCurrentLocation(LocationManager.GPS_PROVIDER, null, Runnable::run, consumer);
+                            locationManager.getCurrentLocation(LocationManager.GPS_PROVIDER, null, Runnable::run, location -> consumer.accept(steady(location)));
                         }
                     } else {
                         if (locationManager.getAllProviders().contains(LocationManager.GPS_PROVIDER)) {
@@ -154,6 +154,7 @@ public class LocationResolver {
                                     location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                                 }
                             }
+                            location = steady(location);
                             if (location != null) {
                                 sLatitude = location.getLatitude();
                                 sLongitude = location.getLongitude();
@@ -764,7 +765,7 @@ public class LocationResolver {
                         AtomicBoolean forwarded = new AtomicBoolean();
                         Consumer<Location> firstFix = location -> {
                             if ((location != null || pendingRequests.decrementAndGet() == 0) && forwarded.compareAndSet(false, true)) {
-                                consumer.accept(location);// a null only once every provider has answered
+                                consumer.accept(steady(location));// a null only once every provider has answered
                             }
                         };
                         if (providers.contains(LocationManager.NETWORK_PROVIDER)) {
@@ -783,6 +784,7 @@ public class LocationResolver {
                                     location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                                 }
                             }
+                            location = steady(location);
                             if (location != null) {
                                 mLatitude = location.getLatitude();
                                 mLongitude = location.getLongitude();
@@ -798,6 +800,40 @@ public class LocationResolver {
                 }
             }
             return new GeoLocation();// the consumer should update with the actual location
+        }
+    }
+
+    /** A new position this close to the last one is the same place: GPS wanders by a few to tens of meters between fixes. */
+    private static final float SAME_PLACE_METERS = 50;
+
+    /**
+     * The position to use for a new GPS / network fix: the last one when the new one is within {@link #SAME_PLACE_METERS} of it,
+     * otherwise the new one (which becomes the last). So reopening the app in the same place gives the same coordinates: the zemanim
+     * don't move by fractions of a second each time, and what was computed and stored for the exact place (the visible sunrise) is
+     * found again instead of computed again.
+     */
+    private Location steady(Location location) {
+        if (location == null) {
+            return null;
+        }
+        synchronized (LocationResolver.class) {
+            if (mSharedPreferences.contains("steadyFixLat") && mSharedPreferences.contains("steadyFixLong")) {
+                double lat = Double.longBitsToDouble(mSharedPreferences.getLong("steadyFixLat", 0));
+                double lon = Double.longBitsToDouble(mSharedPreferences.getLong("steadyFixLong", 0));
+                float[] meters = new float[1];
+                Location.distanceBetween(lat, lon, location.getLatitude(), location.getLongitude(), meters);
+                if (meters[0] < SAME_PLACE_METERS) {
+                    Location same = new Location(location);
+                    same.setLatitude(lat);
+                    same.setLongitude(lon);
+                    return same;
+                }
+            }
+            mSharedPreferences.edit()
+                    .putLong("steadyFixLat", Double.doubleToRawLongBits(location.getLatitude()))
+                    .putLong("steadyFixLong", Double.doubleToRawLongBits(location.getLongitude()))
+                    .apply();
+            return location;
         }
     }
 

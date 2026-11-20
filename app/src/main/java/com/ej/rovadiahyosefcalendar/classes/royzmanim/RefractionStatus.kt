@@ -36,6 +36,14 @@ object RefractionStatus {
         return (downloads[p] ?: 0) > 0 || horizonWaits.containsKey(p) || (date != null && (visibleSunrises["$p|$date"] ?: 0) > 0)
     }
 
+    /** Whether the place's data are downloading (or the server is still building its terrain horizon), as opposed to being computed. */
+    @JvmStatic
+    fun isDownloading(lat: Double, lon: Double): Boolean {
+        if (!RefractionSupport.enabled) return false
+        val p = place(lat, lon)
+        return (downloads[p] ?: 0) > 0 || horizonWaits.containsKey(p)
+    }
+
     /**
      * When the last download for the place failed (the saved data are shown instead), or null when it didn't or a new one has
      * started since. The screens tell the user once, when the place has stopped updating.

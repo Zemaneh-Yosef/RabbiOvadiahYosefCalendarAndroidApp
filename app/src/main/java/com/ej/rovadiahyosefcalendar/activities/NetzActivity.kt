@@ -128,6 +128,8 @@ class NetzActivity : AppCompatActivity() {
 
     /** Whether the weather, terrain or visible sunrise is still loading: the counted sunrise may still move (a banner says so). */
     private var refractionUpdating by mutableStateOf(false)
+    /** The update is downloading (else it is calculating the visible sunrise): what the banner says. */
+    private var refractionDownloading by mutableStateOf(false)
     private val statusHandler = Handler(Looper.getMainLooper())
     private val showUpdating = Runnable { refractionUpdating = true }
     /** The user tapped the banner closed: it stays closed while this screen is open. */
@@ -161,6 +163,7 @@ class NetzActivity : AppCompatActivity() {
         when {
             refractionDismissed -> refractionUpdating = false
             updating && !gaveUp -> {
+                refractionDownloading = RefractionStatus.isDownloading(geo.latitude, geo.longitude)
                 statusHandler.removeCallbacks(hideFailed)
                 refractionFailed = false
                 if (!watchdogPosted) {// so the banner always goes away, whatever gets stuck
@@ -475,7 +478,10 @@ class NetzActivity : AppCompatActivity() {
                 ) {
                     if (refractionUpdating) {
                         CircularProgressIndicator(Modifier.size(16.dp), color = Color.White, strokeWidth = 2.dp)
-                        Text(stringResource(R.string.refraction_updating), color = Color.White, fontSize = 14.sp, modifier = Modifier.padding(start = 10.dp))
+                        Text(
+                            stringResource(if (refractionDownloading) R.string.refraction_updating else R.string.refraction_calculating_sunrise),
+                            color = Color.White, fontSize = 14.sp, modifier = Modifier.padding(start = 10.dp),
+                        )
                     } else {
                         Text(stringResource(R.string.refraction_update_failed), color = Color.White, fontSize = 14.sp)
                     }

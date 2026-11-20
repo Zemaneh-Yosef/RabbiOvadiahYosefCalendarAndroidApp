@@ -227,7 +227,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         }
     };
     /** Shows the "adjusting the times" banner; posted with a short delay so loads from the saved data never flash it. */
-    private final Runnable mShowRefractionUpdating = () -> showRefractionStatusBanner(R.string.refraction_updating, true);
+    /** What the updating banner says: the weather is downloading, or the visible sunrise is being calculated. */
+    private int mRefractionUpdatingText = R.string.refraction_updating;
+    private final Runnable mShowRefractionUpdating = () -> showRefractionStatusBanner(this.mRefractionUpdatingText, true);
     private final Runnable mHideRefractionStatus = this::hideRefractionStatusBanner;
     private static final long REFRACTION_BANNER_DELAY_MS = 500;
     /**
@@ -1639,6 +1641,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             }
         } else if (updating && !mRefractionGaveUp) {
             mHandler.removeCallbacks(mHideRefractionStatus);
+            int text = RefractionStatus.isDownloading(sLatitude, sLongitude) ? R.string.refraction_updating : R.string.refraction_calculating_sunrise;
+            if (mRefractionBannerState == 1 && text != mRefractionUpdatingText) {
+                showRefractionStatusBanner(text, true);// the update moved on to its next step: say what it is doing now
+            }
+            mRefractionUpdatingText = text;
             if (!mRefractionWatchdogPosted) {// so the banner always goes away, whatever gets stuck
                 mRefractionWatchdogPosted = true;
                 mHandler.postDelayed(mRefractionWatchdog, REFRACTION_MAX_UPDATING_MS);
