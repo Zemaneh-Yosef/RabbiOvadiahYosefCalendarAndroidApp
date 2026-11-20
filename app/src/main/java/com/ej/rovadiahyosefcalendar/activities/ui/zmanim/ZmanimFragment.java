@@ -180,6 +180,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private static final long REFRACTION_BANNER_DELAY_MS = 500;
     /** What the banner under the location name shows: 0 = hidden, 1 = updating, 2 = the download failed. */
     private int mRefractionBannerState;
+    /** The place (lat,lon) whose banner the user closed: it stays closed for that place while this screen is open. */
+    private String mRefractionDismissedPlace;
     private static final long REFRACTION_FAILED_SHOWN_MS = 4000;
     private Runnable mZmanimUpdater;
     private Runnable mNextZmanUpdater;
@@ -1573,8 +1575,10 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             return;
         }
         mHandler.removeCallbacks(mShowRefractionUpdating);
-        if (sShabbatMode) {
-            hideRefractionStatusBanner();
+        if (sShabbatMode || refractionPlace().equals(mRefractionDismissedPlace)) {
+            if (mRefractionBannerState != 0) {
+                hideRefractionStatusBanner();
+            }
         } else if (RefractionStatus.isUpdating(sLatitude, sLongitude, sCurrentDateShown)) {
             mHandler.removeCallbacks(mHideRefractionStatus);
             if (mRefractionBannerState == 1) {
@@ -1593,12 +1597,26 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private void showRefractionStatusBanner(int text, boolean loading) {
         mRefractionBannerState = loading ? 1 : 2;
         if (mDailySummary != null) {
-            mDailySummary.showRefractionStatus(text, loading);
+            mDailySummary.showRefractionStatus(text, loading, this::dismissRefractionStatusBanner);
         }
         DailySummaryController sidebar = MainFragmentManagerActivity.getSidebar();
         if (sidebar != null) {
-            sidebar.showRefractionStatus(text, loading);
+            sidebar.showRefractionStatus(text, loading, this::dismissRefractionStatusBanner);
         }
+    }
+
+    private String refractionPlace() {
+        return sLatitude + "," + sLongitude;
+    }
+
+    /** The user tapped the banner: keep it closed for this place while this screen is open. */
+    private void dismissRefractionStatusBanner() {
+        mRefractionDismissedPlace = refractionPlace();
+        if (mHandler != null) {
+            mHandler.removeCallbacks(mShowRefractionUpdating);
+            mHandler.removeCallbacks(mHideRefractionStatus);
+        }
+        hideRefractionStatusBanner();
     }
 
     private void hideRefractionStatusBanner() {

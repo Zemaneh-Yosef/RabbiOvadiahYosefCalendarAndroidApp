@@ -34,6 +34,9 @@
         android:layout_marginHorizontal="12dp"
         android:layout_marginBottom="6dp"
         android:background="@drawable/refraction_status_background"
+        android:foreground="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
         android:gravity="center"
         android:orientation="horizontal"
         android:paddingHorizontal="12dp"
@@ -53,11 +56,21 @@
         <TextView
             android:id="@+id/refraction_status_text"
             android:layout_width="wrap_content"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:textColor="@color/white"
             android:textSize="15sp"
             tools:text="@string/refraction_updating" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:importantForAccessibility="no"
+            android:text="✕"
+            android:textColor="#B3FFFFFF"
+            android:textSize="14sp" />
     </LinearLayout>
 
     <com.google.android.material.card.MaterialCardView

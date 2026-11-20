@@ -124,11 +124,14 @@ public class DailySummaryController {
      * Shows the banner under the location name that tells the user the times are about to be adjusted for the weather (or that
      * the download failed). See ZmanimFragment#updateRefractionStatusBanner.
      * @param loading whether to show the spinner
+     * @param onDismiss runs when the user taps the banner to close it
      */
-    public void showRefractionStatus(int text, boolean loading) {
+    public void showRefractionStatus(int text, boolean loading, Runnable onDismiss) {
         mBinding.refractionStatusText.setText(text);
         mBinding.refractionStatusProgress.setVisibility(loading ? View.VISIBLE : View.GONE);
         View banner = mBinding.refractionStatus;
+        banner.setOnClickListener(v -> onDismiss.run());
+        banner.setContentDescription(mContext.getString(text) + ". " + mContext.getString(R.string.dismiss));
         banner.animate().cancel();// it may be fading out
         if (banner.getVisibility() != View.VISIBLE) {
             banner.setAlpha(0f);

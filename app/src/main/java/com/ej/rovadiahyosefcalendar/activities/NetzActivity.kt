@@ -16,6 +16,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -125,6 +126,8 @@ class NetzActivity : AppCompatActivity() {
     private var refractionUpdating by mutableStateOf(false)
     private val statusHandler = Handler(Looper.getMainLooper())
     private val showUpdating = Runnable { refractionUpdating = true }
+    /** The user tapped the banner closed: it stays closed while this screen is open. */
+    private var refractionDismissed = false
     private val statusListener = Runnable { runOnUiThread { updateRefractionStatus() } }
 
     /** Shows the banner after a short delay (loads from the saved data never flash it), hides it when done. */
@@ -134,7 +137,7 @@ class NetzActivity : AppCompatActivity() {
         val today = LocalDate.now(ZoneId.of(MainFragmentManagerActivity.sCurrentTimeZoneID))
         val updating = RefractionStatus.isUpdating(lat, lon, today) || RefractionStatus.isUpdating(lat, lon, today.plusDays(1))
         statusHandler.removeCallbacks(showUpdating)
-        if (updating) {
+        if (updating && !refractionDismissed) {
             if (!refractionUpdating) statusHandler.postDelayed(showUpdating, 500)
         } else {
             refractionUpdating = false
@@ -380,11 +383,18 @@ class NetzActivity : AppCompatActivity() {
                         .windowInsetsPadding(WindowInsets.safeDrawing)
                         .padding(bottom = 28.dp)
                         .background(pulse, RoundedCornerShape(50))
+                        .clip(RoundedCornerShape(50))
+                        .clickable(role = Role.Button, onClickLabel = stringResource(R.string.dismiss)) {
+                            refractionDismissed = true
+                            statusHandler.removeCallbacks(showUpdating)
+                            refractionUpdating = false
+                        }
                         .padding(horizontal = 14.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     CircularProgressIndicator(Modifier.size(16.dp), color = Color.White, strokeWidth = 2.dp)
                     Text(stringResource(R.string.refraction_updating), color = Color.White, fontSize = 14.sp, modifier = Modifier.padding(start = 10.dp))
+                    Text("✕", color = Color.White.copy(alpha = 0.7f), fontSize = 13.sp, modifier = Modifier.padding(start = 10.dp))
                 }
             }
 

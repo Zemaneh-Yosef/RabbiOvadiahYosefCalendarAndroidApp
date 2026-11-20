@@ -120,10 +120,19 @@ object RefractionSupport {
         val horizon = data?.horizon ?: return Pair(Double.NaN, false)
         val key = dataKey(data) + "|" + placeKey(geo) + "|" + options + "|" + tag + "|"
         synchronized(visibleCache) { visibleCache[key + date] }?.let { return Pair(it, false) }
+        // computed in an earlier run of the app: the same data -> the same time; older data -> a close estimate meanwhile
+        val storeKey = placeKey(geo) + "|" + options + "|" + tag + "|" + date
+        val fingerprint = fingerprint(data)
+        val stored = VisibleSunriseStore.get(storeKey)
+        if (stored != null && stored.first == fingerprint) {
+            synchronized(visibleCache) { visibleCache[key + date] = stored.second }
+            return Pair(stored.second, false)
+        }
         val calc = calculatorFor(data, geo)
         val compute = {
             val ms = try { calc.getVisibleSunrise(date, geo, horizon, options) } catch (e: Exception) { Log.e(TAG, "Visible sunrise failed", e); Double.NaN }
             synchronized(visibleCache) { visibleCache[key + date] = ms }
+            VisibleSunriseStore.put(storeKey, fingerprint, ms)
             ms
         }
         if (!defer) return Pair(compute(), false)
@@ -137,6 +146,7 @@ object RefractionSupport {
                 RefractionStatus.visibleSunriseEnded(geo.latitude, geo.longitude, date)
             }
         }
+        if (stored != null && stored.second.isFinite()) return Pair(stored.second, true)
         // the visible-minus-sea-level gap of the nearest day known (within 3 days), applied to this day's sea level
         for (k in 1L..3L) for (d in listOf(date.minusDays(k), date.plusDays(k))) {
             val known = synchronized(visibleCache) { visibleCache[key + d] } ?: continue
@@ -146,6 +156,107 @@ object RefractionSupport {
             if (est.isFinite()) return Pair(est, true)
         }
         return Pair(Double.NaN, false)
+    }
+
+    private val fingerprints = ROYSPACalculator.lru<String, String>(16)
+
+    /**
+     * What a visible sunrise depends on, in a form that survives a restart of the app (unlike [dataKey]): the forecast's download
+     * time, whether there are monthly normals, and the terrain horizon's contents.
+     */
+    private fun fingerprint(data: RefractionData): String {
+        val k = dataKey(data)
+        synchronized(fingerprints) { fingerprints[k] }?.let { return it }
+        var h = 17L
+        fun mix(v: Double) { h = h * 31 + v.toBits() }
+        fun mixProfile(p: HorizonProfile?) {
+            if (p == null) { mix(-1.0); return }
+            mix(p.points.size.toDouble())
+            for (pt in p.points) {
+                mix(pt.azimuthDeg)
+                when (pt) {
+                    is DemHorizonPoint -> { mix(pt.distanceKm); mix(pt.heightM) }
+                    is ObservedHorizonPoint -> mix(pt.elevationDeg)
+                }
+            }
+        }
+        data.horizon?.let { set ->
+            for (p in set.points) { mix(p.lat); mix(p.lon); mix(p.height); mixProfile(p.sunrise); mixProfile(p.sunset) }
+        }
+        val f = "${data.forecastFetchedAt ?: "none"}|${data.normals != null}|${java.lang.Long.toHexString(h)}"
+        synchronized(fingerprints) { fingerprints[k] = f }
+        return f
+    }
+
+    /**
+     * The visible sunrises computed, kept in a file so that the next run of the app shows them at once instead of the sea-level
+     * sunrise while they are computed again. Only today and later are kept.
+     */
+    private object VisibleSunriseStore {
+        private const val FILE = "visible-sunrises.json"
+        private const val MAX_ENTRIES = 400
+        private var entries: LinkedHashMap<String, Pair<String, Double>>? = null
+        private val writer = Executors.newSingleThreadExecutor { r -> Thread(r, "visible-sunrise-store").apply { isDaemon = true } }
+        @Volatile private var writeQueued = false
+
+        private fun file() = RefractionRepository.storageDir()?.let { java.io.File(it, FILE) }
+
+        @Synchronized
+        private fun load(): LinkedHashMap<String, Pair<String, Double>> {
+            entries?.let { return it }
+            val map = LinkedHashMap<String, Pair<String, Double>>()
+            try {
+                val f = file()
+                if (f != null && f.exists()) {
+                    val json = org.json.JSONObject(f.readText())
+                    for (k in json.keys()) {
+                        val e = json.getJSONObject(k)
+                        map[k] = Pair(e.getString("f"), if (e.isNull("ms")) Double.NaN else e.getDouble("ms"))
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Could not read the stored visible sunrises", e)
+            }
+            entries = map
+            return map
+        }
+
+        @Synchronized
+        fun get(key: String): Pair<String, Double>? = load()[key]
+
+        @Synchronized
+        fun put(key: String, fingerprint: String, ms: Double) {
+            val map = load()
+            map.remove(key)
+            map[key] = Pair(fingerprint, ms)
+            if (!writeQueued) {
+                writeQueued = true
+                writer.execute { save() }// one write for the several days computed in a row
+            }
+        }
+
+        private fun save() {
+            val json = org.json.JSONObject()
+            synchronized(this) {
+                writeQueued = false
+                val map = load()
+                val today = LocalDate.now().minusDays(1)// the time zone of the place may be a day behind
+                map.entries.removeAll { e ->
+                    val date = try { LocalDate.parse(e.key.substringAfterLast('|')) } catch (ex: Exception) { null }
+                    date == null || date.isBefore(today)
+                }
+                while (map.size > MAX_ENTRIES) map.remove(map.keys.first())
+                for ((k, v) in map) json.put(k, org.json.JSONObject().put("f", v.first).put("ms", if (v.second.isFinite()) v.second else org.json.JSONObject.NULL))
+            }
+            try {
+                val f = file() ?: return
+                val tmp = java.io.File(f.parentFile, "$FILE.tmp")
+                tmp.writeText(json.toString())
+                if (!tmp.renameTo(f)) { f.delete(); tmp.renameTo(f) }
+            } catch (e: Exception) {
+                Log.e(TAG, "Could not store the visible sunrises", e)
+            }
+        }
     }
 
     /** epoch ms -> Instant, null for NaN; and the website's sanity check (more than an hour from `sunrise` is a bad profile). */

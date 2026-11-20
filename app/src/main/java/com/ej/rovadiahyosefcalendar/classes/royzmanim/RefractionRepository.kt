@@ -73,6 +73,10 @@ object RefractionRepository {
         dir = File(files, "refraction-v$CACHE_VERSION").apply { mkdirs() }
     }
 
+    /** The folder the data are stored in (null before [init]). */
+    @JvmStatic
+    internal fun storageDir(): File? = dir
+
     /** Called (on the loader thread) when better data for a place arrives: recompute and redraw there. */
     @JvmStatic
     fun addListener(l: (Double, Double) -> Unit) { listeners.add(l) }
