@@ -9,7 +9,13 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Canvas
+import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.ui.res.colorResource
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -362,17 +368,24 @@ class NetzActivity : AppCompatActivity() {
                     .padding(16.dp),
             )
 
-            if (refractionUpdating) Row(
-                Modifier
-                    .align(Alignment.BottomCenter)
-                    .windowInsetsPadding(WindowInsets.safeDrawing)
-                    .padding(bottom = 28.dp)
-                    .background(Color.Black.copy(alpha = 0.55f), RoundedCornerShape(50))
-                    .padding(horizontal = 14.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                CircularProgressIndicator(Modifier.size(16.dp), color = Color.White, strokeWidth = 2.dp)
-                Text(stringResource(R.string.refraction_updating), color = Color.White, fontSize = 14.sp, modifier = Modifier.padding(start = 10.dp))
+            if (refractionUpdating) {
+                // the same slowly pulsing green as the banner on the zemanim screen
+                val pulse by rememberInfiniteTransition(label = "refractionPulse").animateColor(
+                    colorResource(R.color.refraction_banner), colorResource(R.color.refraction_banner_pulse),
+                    infiniteRepeatable(tween(900), RepeatMode.Reverse), label = "refractionPulseColor",
+                )
+                Row(
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        .windowInsetsPadding(WindowInsets.safeDrawing)
+                        .padding(bottom = 28.dp)
+                        .background(pulse, RoundedCornerShape(50))
+                        .padding(horizontal = 14.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    CircularProgressIndicator(Modifier.size(16.dp), color = Color.White, strokeWidth = 2.dp)
+                    Text(stringResource(R.string.refraction_updating), color = Color.White, fontSize = 14.sp, modifier = Modifier.padding(start = 10.dp))
+                }
             }
 
             if (pano != null) Text(

@@ -13,9 +13,11 @@ import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivit
 import static com.ej.rovadiahyosefcalendar.classes.Utils.inputStreamToString;
 import static com.kosherjava.zmanim.AstronomicalCalendar.getTimeOffset;
 
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Paint;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.view.View;
@@ -65,6 +67,7 @@ public class DailySummaryController {
     private final boolean mShowInfoRows;
     private JSONArray mMakamNames;
     private Runnable mOnChangeDate;
+    private ValueAnimator mRefractionPulse;
 
     /**
      * @param context an activity context, since the summary opens dialogs
@@ -132,14 +135,45 @@ public class DailySummaryController {
             banner.setVisibility(View.VISIBLE);
         }
         banner.animate().alpha(1f).setDuration(200).start();
+        if (loading) {
+            startRefractionPulse();
+        } else {
+            stopRefractionPulse();
+        }
     }
 
     public void hideRefractionStatus() {
         View banner = mBinding.refractionStatus;
         if (banner.getVisibility() == View.VISIBLE) {
             banner.animate().cancel();
-            banner.animate().alpha(0f).setDuration(200).withEndAction(() -> banner.setVisibility(View.GONE)).start();
+            banner.animate().alpha(0f).setDuration(200).withEndAction(() -> {
+                banner.setVisibility(View.GONE);
+                stopRefractionPulse();
+            }).start();
         }
+    }
+
+    /** While the times are updating, the banner's green slowly brightens and darkens. */
+    private void startRefractionPulse() {
+        if (mRefractionPulse != null) {
+            return;
+        }
+        GradientDrawable background = (GradientDrawable) mBinding.refractionStatus.getBackground().mutate();
+        mRefractionPulse = ValueAnimator.ofArgb(ContextCompat.getColor(mContext, R.color.refraction_banner),
+                ContextCompat.getColor(mContext, R.color.refraction_banner_pulse));
+        mRefractionPulse.setDuration(900);
+        mRefractionPulse.setRepeatMode(ValueAnimator.REVERSE);
+        mRefractionPulse.setRepeatCount(ValueAnimator.INFINITE);
+        mRefractionPulse.addUpdateListener(a -> background.setColor((int) a.getAnimatedValue()));
+        mRefractionPulse.start();
+    }
+
+    private void stopRefractionPulse() {
+        if (mRefractionPulse != null) {
+            mRefractionPulse.cancel();
+            mRefractionPulse = null;
+        }
+        ((GradientDrawable) mBinding.refractionStatus.getBackground().mutate()).setColor(ContextCompat.getColor(mContext, R.color.refraction_banner));
     }
 
     /**
