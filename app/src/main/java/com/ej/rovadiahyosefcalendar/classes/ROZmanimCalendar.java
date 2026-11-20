@@ -10,7 +10,6 @@ import com.ej.rovadiahyosefcalendar.classes.royzmanim.StarNightfall;
 import com.ej.rovadiahyosefcalendar.classes.royzmanim.VisibleOptions;
 import com.kosherjava.zmanim.AstronomicalCalendar;
 import com.kosherjava.zmanim.ZmanimCalendar;
-import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar;
 import com.kosherjava.zmanim.util.GeoLocation;
 
 import java.time.Duration;
@@ -144,7 +143,6 @@ import java.util.List;
  */
 public class ROZmanimCalendar extends ZmanimCalendar {
 
-    private final JewishCalendar jewishCalendar;
     private static final long MINUTES_PER_HOUR = 60L;
 
     /**
@@ -164,10 +162,6 @@ public class ROZmanimCalendar extends ZmanimCalendar {
     /**
      * The weather, terrain and haze data this calendar computes with (null = none: the calculator's default model), as stored
      * by {@link RefractionRepository} for the place.
-     * The SPA calculator, shared by every instance (KosherJava's default is the NOAA calculator). It is much more expensive than NOAA on
-     * Android (its Math.fma calls fall back to BigDecimal), and in KosherJava 3.0.0 it does not cache anything: every sunrise or sunset is
-     * calculated again. So keep big batches of zmanim off the main thread (see ZmanimFragment#setNextUpcomingZman). It only holds its settings,
-     * which are never changed, so sharing it between instances and threads is safe.
      */
     private RefractionRepository.RefractionData refractionData;
 
@@ -182,7 +176,6 @@ public class ROZmanimCalendar extends ZmanimCalendar {
     /** A calendar with the given refraction data (null = the calculator's default model). */
     public ROZmanimCalendar(GeoLocation location, RefractionRepository.RefractionData refractionData) {
         super(location);
-        jewishCalendar = new JewishCalendar(getLocalDate());
         setUseElevation(true);
         constructed = true;
         setRefractionData(refractionData);
@@ -686,14 +679,6 @@ public class ROZmanimCalendar extends ZmanimCalendar {
             return super.getSolarMidnight();
         }
         return getTimeOffset(chatzotToday, Duration.between(chatzotToday, chatzotTomorrow).dividedBy(2));
-    }
-
-    @Override
-    public void setLocalDate(LocalDate localDate) {
-        super.setLocalDate(localDate);
-        if (getLocalDate() != null && jewishCalendar != null) {
-            jewishCalendar.setGregorianDate(getLocalDate());
-        }
     }
 
     /**
