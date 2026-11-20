@@ -33,6 +33,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.navigationBarsIgnoringVisibility
+import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
@@ -223,6 +227,7 @@ class NetzActivity : AppCompatActivity() {
 
     // ------------------------------------------------------------------------------------------------ the screen
 
+    @OptIn(ExperimentalLayoutApi::class)// navigationBarsIgnoringVisibility
     @Composable
     private fun NetzScreen() {
         val cal = calendar ?: return
@@ -316,6 +321,9 @@ class NetzActivity : AppCompatActivity() {
                 ColorFilter.colorMatrix(ColorMatrix().apply { setToScale(b, b, b, 1f) })
             }
             val sunPx = with(density) { 8.dp.toPx() }
+            // The system bars are hidden here, so safeDrawing has nothing at the bottom: keep clear of where the navigation bar
+            // (or the gesture handle) would be, and of a display cutout
+            val bottomEdge = WindowInsets.navigationBarsIgnoringVisibility.union(WindowInsets.displayCutout)
 
             Canvas(
                 Modifier
@@ -403,8 +411,8 @@ class NetzActivity : AppCompatActivity() {
                 Row(
                     Modifier
                         .align(Alignment.BottomCenter)
-                        .windowInsetsPadding(WindowInsets.safeDrawing)
-                        .padding(bottom = 28.dp)
+                        .windowInsetsPadding(bottomEdge)
+                        .padding(bottom = if (pano != null) 56.dp else 24.dp)// above the imagery credit when it shows
                         .background(pulse, RoundedCornerShape(50))
                         .clip(RoundedCornerShape(50))
                         .clickable(role = Role.Button, onClickLabel = stringResource(R.string.dismiss)) {
@@ -425,11 +433,13 @@ class NetzActivity : AppCompatActivity() {
                 stringResource(R.string.netz_imagery_credit),
                 color = Color.White.copy(alpha = 0.55f),
                 fontSize = 9.sp,
-                textAlign = TextAlign.End,
+                textAlign = TextAlign.Center,
                 modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .windowInsetsPadding(WindowInsets.safeDrawing)
-                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .windowInsetsPadding(bottomEdge)
+                    // centred, away from the screen's rounded corners
+                    .padding(start = 24.dp, end = 24.dp, bottom = 8.dp),
             )
         }
 
