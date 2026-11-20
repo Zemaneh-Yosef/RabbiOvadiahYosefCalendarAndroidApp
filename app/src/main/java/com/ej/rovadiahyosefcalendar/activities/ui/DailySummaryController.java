@@ -20,7 +20,9 @@ import android.graphics.Paint;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Build;
+import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -68,6 +70,7 @@ public class DailySummaryController {
     private JSONArray mMakamNames;
     private Runnable mOnChangeDate;
     private ValueAnimator mRefractionPulse;
+    private float mBannerTextSize;
 
     /**
      * @param context an activity context, since the summary opens dialogs
@@ -91,6 +94,35 @@ public class DailySummaryController {
         }
         setupClickListeners();
         setSafeSettingsForSpecificManufacturers();
+        // the banner's text stays on one line: when it is wider than the screen allows, it is made smaller to fit
+        mBannerTextSize = mBinding.refractionStatusText.getTextSize();
+        mBinding.refractionStatusText.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> fitRefractionText());
+    }
+
+    /** Makes the banner's text smaller when it doesn't fit on one line in the width the banner can take (the screen's). */
+    private void fitRefractionText() {
+        TextView text = mBinding.refractionStatusText;
+        // the widest the text can be: the banner as wide as its parent allows, less the spinner, the close mark and the margins
+        // (not the text's own width, which shrinks with the text)
+        ViewGroup banner = mBinding.refractionStatus;
+        View parent = (View) banner.getParent();
+        ViewGroup.MarginLayoutParams bannerParams = (ViewGroup.MarginLayoutParams) banner.getLayoutParams();
+        int available = parent.getWidth() - parent.getPaddingLeft() - parent.getPaddingRight()
+                - bannerParams.leftMargin - bannerParams.rightMargin - banner.getPaddingLeft() - banner.getPaddingRight();
+        for (int i = 0; i < banner.getChildCount(); i++) {
+            View child = banner.getChildAt(i);
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) child.getLayoutParams();
+            available -= params.leftMargin + params.rightMargin + (child == text ? 0 : child.getVisibility() == View.GONE ? 0 : child.getWidth());
+        }
+        available -= text.getPaddingLeft() + text.getPaddingRight();
+        if (available <= 0 || text.getText().length() == 0) {
+            return;
+        }
+        float widthAtFullSize = text.getPaint().measureText(text.getText().toString()) * mBannerTextSize / text.getTextSize();
+        float size = widthAtFullSize > available ? mBannerTextSize * available / widthAtFullSize * 0.98f : mBannerTextSize;
+        if (Math.abs(size - text.getTextSize()) > 0.5f) {
+            text.post(() -> text.setTextSize(TypedValue.COMPLEX_UNIT_PX, size));
+        }
     }
 
     /**
@@ -127,7 +159,9 @@ public class DailySummaryController {
      * @param onDismiss runs when the user taps the banner to close it
      */
     public void showRefractionStatus(int text, boolean loading, Runnable onDismiss) {
+        mBinding.refractionStatusText.setTextSize(TypedValue.COMPLEX_UNIT_PX, mBannerTextSize);// full size, then shrunk to fit
         mBinding.refractionStatusText.setText(text);
+        mBinding.refractionStatusText.post(this::fitRefractionText);// also when the new text keeps the same width
         mBinding.refractionStatusProgress.setVisibility(loading ? View.VISIBLE : View.GONE);
         View banner = mBinding.refractionStatus;
         banner.setOnClickListener(v -> onDismiss.run());
@@ -387,7 +421,7 @@ public class DailySummaryController {
                 Utils.startActivitySafely(mContext, Intent.createChooser(sendIntent, mContext.getString(R.string.share)));
             }))
             .setNeutralButton(R.string.change_location, (dialog, which) -> mContext.startActivity(new Intent(mContext, GetUserLocationWithMapActivity.class).putExtra("loneActivity", true)))
-            .setNegativeButton(mContext.getString(R.string.setup_elevation), (dialog, which) -> mContext.startActivity(new Intent(mContext, SetupElevationActivity.class).putExtra("loneActivity", true)))
+            .setNegativeButton(mContext.getString(R.string.setup_elevation), (dialog, which) -> mContext.startActivity(new Intent(mContext, SetupElevationActivity.class)))
             .show());
         mBinding.parsha.setOnClickListener(l -> {
             String title = mBinding.parsha.getText().toString();

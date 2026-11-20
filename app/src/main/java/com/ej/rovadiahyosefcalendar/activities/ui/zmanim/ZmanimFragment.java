@@ -182,6 +182,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private int mRefractionBannerState;
     /** The place (lat,lon) whose banner the user closed: it stays closed for that place while this screen is open. */
     private String mRefractionDismissedPlace;
+    /** The failed download (its time) the banner already told the user about. */
+    private Long mRefractionFailureShown;
     private static final long REFRACTION_FAILED_SHOWN_MS = 4000;
     private Runnable mZmanimUpdater;
     private Runnable mNextZmanUpdater;
@@ -1585,7 +1587,9 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
                 return;// already showing
             }
             mHandler.postDelayed(mShowRefractionUpdating, REFRACTION_BANNER_DELAY_MS);
-        } else if (RefractionStatus.recentlyFailed(sLatitude, sLongitude)) {
+        } else if (isNewRefractionFailure(RefractionStatus.lastFailure(sLatitude, sLongitude))) {
+            // once, when the place is done updating: the times shown are from the saved data
+            mRefractionFailureShown = RefractionStatus.lastFailure(sLatitude, sLongitude);
             showRefractionStatusBanner(R.string.refraction_update_failed, false);
             mHandler.removeCallbacks(mHideRefractionStatus);
             mHandler.postDelayed(mHideRefractionStatus, REFRACTION_FAILED_SHOWN_MS);
@@ -1603,6 +1607,11 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (sidebar != null) {
             sidebar.showRefractionStatus(text, loading, this::dismissRefractionStatusBanner);
         }
+    }
+
+    /** A failed download not told about yet, from the last minute (an older one, e.g. from before the screen opened, is not). */
+    private boolean isNewRefractionFailure(Long failedAt) {
+        return failedAt != null && !failedAt.equals(mRefractionFailureShown) && System.currentTimeMillis() - failedAt < 60_000;
     }
 
     private String refractionPlace() {

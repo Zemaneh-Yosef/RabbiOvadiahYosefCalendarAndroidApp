@@ -13,9 +13,6 @@ import java.util.concurrent.CopyOnWriteArrayList
  */
 object RefractionStatus {
 
-    /** How long a failed download stays reported, for the screens to tell the user once. */
-    private const val FAILED_SHOWN_MS = 6_000L
-
     private val downloads = ConcurrentHashMap<String, Int>()
     private val visibleSunrises = ConcurrentHashMap<String, Int>()
     private val horizonWaits = ConcurrentHashMap<String, Boolean>()
@@ -39,12 +36,12 @@ object RefractionStatus {
         return (downloads[p] ?: 0) > 0 || horizonWaits.containsKey(p) || (date != null && (visibleSunrises["$p|$date"] ?: 0) > 0)
     }
 
-    /** Whether the last download for the place failed, within the last few seconds (the saved data are shown instead). */
+    /**
+     * When the last download for the place failed (the saved data are shown instead), or null when it didn't or a new one has
+     * started since. The screens tell the user once, when the place has stopped updating.
+     */
     @JvmStatic
-    fun recentlyFailed(lat: Double, lon: Double): Boolean {
-        val at = failedAt[place(lat, lon)] ?: return false
-        return System.currentTimeMillis() - at < FAILED_SHOWN_MS
-    }
+    fun lastFailure(lat: Double, lon: Double): Long? = failedAt[place(lat, lon)]
 
     internal fun downloadStarted(lat: Double, lon: Double) {
         val p = place(lat, lon)
@@ -63,7 +60,8 @@ object RefractionStatus {
 
     /** The server's horizon didn't arrive in time (offline, or still not built after the retries): stop waiting for it. */
     internal fun horizonWaitEnded(lat: Double, lon: Double) {
-        if (horizonWaits.remove(place(lat, lon)) != null) changed()
+        val p = place(lat, lon)
+        if (horizonWaits.remove(p) != null) changed()
     }
 
     internal fun visibleSunriseStarted(lat: Double, lon: Double, date: LocalDate) {

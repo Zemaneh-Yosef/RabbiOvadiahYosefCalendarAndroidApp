@@ -2,12 +2,7 @@ package com.ej.rovadiahyosefcalendar.activities;
 
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.SHARED_PREF;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentLocationName;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentTimeZoneID;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sLatitude;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sLongitude;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Paint;
 import android.os.Bundle;
@@ -15,16 +10,14 @@ import android.os.Handler;
 import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
 import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.graphics.Insets;
@@ -36,31 +29,35 @@ import com.ej.rovadiahyosefcalendar.classes.LocationResolver;
 import com.ej.rovadiahyosefcalendar.classes.Utils;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.kosherjava.zmanim.hebrewcalendar.JewishDate;
-import com.kosherjava.zmanim.util.GeoLocation;
 
-import java.io.IOException;
-import java.time.ZoneId;
-
+/**
+ * Lets the user choose the elevation used for the current location: none (Mishor, sea level), typed in, or looked up on GeoNames.
+ * Opened from the location dialog and the elevation zeman's dialog. The zemanim screen reads the new value when it comes back
+ * to the front. (The visible sunrise doesn't depend on this: it comes from the refraction server's terrain horizon.)
+ */
 public class SetupElevationActivity extends AppCompatActivity {
 
-    private String mElevation = "0";
+    private SharedPreferences mSharedPreferences;
+    private Button mMishorButton;
+    private Button mManualButton;
+    private Button mGeoNamesButton;
+    private ProgressBar mProgressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_setup_elevation);
+        mSharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
 
         MaterialToolbar materialToolbar = findViewById(R.id.topAppBar);
         materialToolbar.setNavigationIcon(AppCompatResources.getDrawable(this, R.drawable.baseline_arrow_back_24));
-        materialToolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
+        materialToolbar.setNavigationOnClickListener(v -> finish());
         if (Utils.isLocaleHebrew(this)) {
             materialToolbar.setSubtitle("");
         }
         materialToolbar.setOnMenuItemClickListener(item -> {
-            int id = item.getItemId();
-            if (id == R.id.help) {
+            if (item.getItemId() == R.id.help) {
                 new MaterialAlertDialogBuilder(this)
                         .setTitle(R.string.help_using_this_app)
                         .setPositiveButton(R.string.ok, null)
@@ -71,120 +68,82 @@ public class SetupElevationActivity extends AppCompatActivity {
             return false;
         });
 
-        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
         TextView setupHeader = findViewById(R.id.setup_header);
         setupHeader.setPaintFlags(setupHeader.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        showCurrentElevation();
 
-        Button mishorButton = findViewById(R.id.mishor);
-        mishorButton.setOnClickListener(v -> {
-            mishorButton.setEnabled(false);
-            editor.putString("elevation" + sCurrentLocationName, mElevation)
+        mProgressBar = findViewById(R.id.progressBarElevation);
+        mMishorButton = findViewById(R.id.mishor);
+        mManualButton = findViewById(R.id.manual);
+        mGeoNamesButton = findViewById(R.id.geonamesButton);
+
+        mMishorButton.setOnClickListener(v -> {
+            mSharedPreferences.edit()
+                    .putString("elevation" + sCurrentLocationName, "0")// some readers (the widget, the watch) don't check useElevation
                     .putBoolean("useElevation", false)
                     .putBoolean("isSetup", true).apply();
-            Intent returnIntent = new Intent();
-            setResult(Activity.RESULT_CANCELED, returnIntent);
-            if (getIntent().getBooleanExtra("downloadTable",false)) {
-                downloadTablesAndFinish(sharedPreferences);
-            } else {
-                finish();
-            }
+            finish();
         });
 
-        Button manualButton = findViewById(R.id.manual);
-        manualButton.setOnClickListener(v -> {
-            manualButton.setEnabled(false);
-            final EditText input = new EditText(this);
-            input.setGravity(Gravity.CENTER_HORIZONTAL);
-            input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-            input.setHint(R.string.enter_elevation_in_meters);
-            input.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        mManualButton.setOnClickListener(v -> showManualElevationDialog());
 
-            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
-            builder.setTitle(R.string.enter_elevation_in_meters);
-            builder.setView(input);
-            builder.setPositiveButton(R.string.ok, (dialog, which) -> {
-                if (input.getText().toString().isEmpty() ||
-                        !input.getText().toString().matches("[0-9]+(\\.[0-9]+)?")) {//regex to check for a proper number input, the dot has to be escaped
-                    Toast.makeText(this, R.string.please_enter_a_valid_value_for_example_30_or_30_0, Toast.LENGTH_SHORT)
-                            .show();
-                } else {
-                    mElevation = input.getText().toString();
-                    editor.putString("elevation" + sCurrentLocationName, mElevation)
-                            .putBoolean("isSetup", true)
-                            .putBoolean("useElevation", true).apply();
-                    Intent returnIntent = new Intent();
-                    returnIntent.putExtra("elevation" + sCurrentLocationName, mElevation);
-                    setResult(Activity.RESULT_OK, returnIntent);
-                    if (getIntent().getBooleanExtra("downloadTable",false)) {
-                        downloadTablesAndFinish(sharedPreferences);
-                    } else {
-                        finish();
-                    }
-                }
-            });
-            builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel());
-            builder.create();
-            builder.show();
-        });
-
-        Button geoNamesButton = findViewById(R.id.geonamesButton);
-        geoNamesButton.setOnClickListener(view -> {
-            geoNamesButton.setEnabled(false);
-            editor.putBoolean("useElevation", true)
+        mGeoNamesButton.setOnClickListener(v -> {
+            setButtonsEnabled(false);
+            mProgressBar.setVisibility(View.VISIBLE);
+            mSharedPreferences.edit()
+                    .putBoolean("useElevation", true)
                     .putBoolean("isSetup", true).apply();
-            Thread thread = new Thread(() -> {
-                LocationResolver locationResolver = new LocationResolver(this, this);
-                locationResolver.getElevationFromWebService(new Handler(getMainLooper()), null, () -> {
-                    Intent returnIntent = new Intent();
-                    returnIntent.putExtra("elevation" + sCurrentLocationName, sharedPreferences.getString("elevation" + sCurrentLocationName, "0"));
-                    setResult(Activity.RESULT_OK, returnIntent);
-                    if (getIntent().getBooleanExtra("downloadTable", false)) {
-                        downloadTablesAndFinish(sharedPreferences);
-                    } else {
-                        finish();
-                    }
-                });
-            });
-            thread.start();
+            LocationResolver locationResolver = new LocationResolver(this, this);
+            new Thread(() -> locationResolver.getElevationFromWebService(new Handler(getMainLooper()), null, this::finish)).start();
         });
 
-        ViewCompat.setOnApplyWindowInsetsListener(geoNamesButton, (v, windowInsets) -> {
+        // keep the last button above the navigation bar
+        View content = findViewById(R.id.setup_elevation_content);
+        ViewCompat.setOnApplyWindowInsetsListener(content, (v, windowInsets) -> {
             Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
-            ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
-            mlp.leftMargin = insets.left;
-            mlp.bottomMargin = insets.bottom;
-            mlp.rightMargin = insets.right;
-            v.setLayoutParams(mlp);
-            // Return CONSUMED if you don't want want the window insets to keep passing
-            // down to descendant views.
+            v.setPadding(insets.left, v.getPaddingTop(), insets.right, insets.bottom);
             return WindowInsetsCompat.CONSUMED;
         });
-
-        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                finish();
-            }
-        });
     }
 
-    private void downloadTablesAndFinish(SharedPreferences sharedPreferences) {
-        finish();// the visible sunrise comes from the refraction server's terrain horizon: nothing to download here
+    /** "Elevation: 23 meters" (or Mishor) for the current location, so the user knows what is set before changing it. */
+    private void showCurrentElevation() {
+        TextView current = findViewById(R.id.current_elevation);
+        String value = mSharedPreferences.getBoolean("useElevation", true)
+                ? mSharedPreferences.getString("elevation" + sCurrentLocationName, "0") + " " + getString(R.string.meters)
+                : getString(R.string.mishor_sea_level);
+        current.setText(sCurrentLocationName + "\n" + getString(R.string.elevation) + " " + value);
+    }
+
+    private void showManualElevationDialog() {
+        final EditText input = new EditText(this);
+        input.setGravity(Gravity.CENTER_HORIZONTAL);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        input.setHint(R.string.enter_elevation_in_meters);
+        input.setImeOptions(EditorInfo.IME_ACTION_DONE);
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.enter_elevation_in_meters)
+                .setView(input)
+                .setPositiveButton(R.string.ok, (dialog, which) -> {
+                    String elevation = input.getText().toString();
+                    if (!elevation.matches("[0-9]+(\\.[0-9]+)?")) {// a whole or decimal number of meters, e.g. 30 or 30.5
+                        Toast.makeText(this, R.string.please_enter_a_valid_value_for_example_30_or_30_0, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    mSharedPreferences.edit()
+                            .putString("elevation" + sCurrentLocationName, elevation)
+                            .putBoolean("useElevation", true)
+                            .putBoolean("isSetup", true).apply();
+                    finish();
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private void setButtonsEnabled(boolean enabled) {
+        mMishorButton.setEnabled(enabled);
+        mManualButton.setEnabled(enabled);
+        mGeoNamesButton.setEnabled(enabled);
     }
 }
-
-        /*This code is from https://stackoverflow.com/questions/7477003/calculating-new-longitude-latitude-from-old-n-meters
-        It may be useful in the future if we want to find the highest point in the area.
-        double meters = 50;
-
-        // number of km per degree = ~111km (111.32 in google maps, but range varies between 110.567km at the equator and 111.699km at the poles)
-        // 1km in degree = 1 / 111.32km = 0.0089
-        // 1m in degree = 0.0089 / 1000 = 0.0000089
-        double coef = meters * 0.0000089;
-
-        double new_lat = my_lat + coef;
-
-        // pi / 180 = 0.018
-        double new_long = my_long + coef / Math.cos(my_lat * 0.018);
-        */

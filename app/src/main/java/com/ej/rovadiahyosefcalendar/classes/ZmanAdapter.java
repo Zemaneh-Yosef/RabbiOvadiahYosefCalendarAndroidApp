@@ -692,8 +692,7 @@ public class ZmanAdapter extends RecyclerView.Adapter<ZmanAdapter.ZmanViewHolder
     private void showElevationDialog() {
         AlertDialog alertDialog = dialogBuilder.setTitle(context.getString(R.string.elevation).replace(":", ""))
                 .setMessage(R.string.elevation_dialog)
-                .setPositiveButton(context.getString(R.string.setup_elevation), (dialog, which) -> context.startActivity(new Intent(context, SetupElevationActivity.class)
-                        .putExtra("loneActivity", true)))
+                .setPositiveButton(context.getString(R.string.setup_elevation), (dialog, which) -> context.startActivity(new Intent(context, SetupElevationActivity.class)))
                 .create();
         alertDialog.show();
         resetDialogBuilder();
