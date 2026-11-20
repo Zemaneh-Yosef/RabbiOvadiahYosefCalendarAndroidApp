@@ -157,7 +157,11 @@ object RefractionSupport {
         }
         val calc = calculatorFor(data, geo)
         val compute = {
-            val ms = try { calc.getVisibleSunrise(date, geo, horizon, options) } catch (e: Exception) { Log.e(TAG, "Visible sunrise failed", e); Double.NaN }
+            val ms = try { calc.getVisibleSunrise(date, geo, horizon, options) } catch (e: Exception) {
+                Log.e(TAG, "Visible sunrise failed", e)
+                RefractionStatus.computeFailed(geo.latitude, geo.longitude)// the screens tell the user (the sea-level sunrise is shown)
+                Double.NaN
+            }
             synchronized(visibleCache) { visibleCache[key + date] = ms }
             VisibleSunriseStore.put(storeKey, fingerprint, ms)
             ms

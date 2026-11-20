@@ -230,6 +230,19 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
     private final Runnable mShowRefractionUpdating = () -> showRefractionStatusBanner(R.string.refraction_updating, true);
     private final Runnable mHideRefractionStatus = this::hideRefractionStatusBanner;
     private static final long REFRACTION_BANNER_DELAY_MS = 500;
+    /**
+     * The longest the "updating" banner stays up. Downloads time out well before this, so reaching it means something got stuck:
+     * the banner then says the update failed and goes away.
+     */
+    private static final long REFRACTION_MAX_UPDATING_MS = 120_000;
+    private boolean mRefractionWatchdogPosted;
+    /** The update took too long: the banner said so and stays down until the update ends. */
+    private boolean mRefractionGaveUp;
+    private final Runnable mRefractionWatchdog = () -> {
+        mRefractionWatchdogPosted = false;
+        mRefractionGaveUp = true;
+        updateRefractionStatusBanner();
+    };
     /** What the banner under the location name shows: 0 = hidden, 1 = updating, 2 = the download failed. */
     private int mRefractionBannerState;
     /** The place (lat,lon) whose banner the user closed: it stays closed for that place while this screen is open. */
@@ -1618,24 +1631,46 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             return;
         }
         mHandler.removeCallbacks(mShowRefractionUpdating);
+        // still downloading, or the day's visible sunrise not computed yet with the newest data (no gap between the two)
+        boolean updating = sROZmanimCalendar != null && ROZmanimCalendar.isUpdating(sROZmanimCalendar.getGeoLocation(), sCurrentDateShown, false);
         if (sShabbatMode || refractionPlace().equals(mRefractionDismissedPlace)) {
             if (mRefractionBannerState != 0) {
                 hideRefractionStatusBanner();
             }
-        } else if (RefractionStatus.isUpdating(sLatitude, sLongitude, sCurrentDateShown)) {
+        } else if (updating && !mRefractionGaveUp) {
             mHandler.removeCallbacks(mHideRefractionStatus);
+            if (!mRefractionWatchdogPosted) {// so the banner always goes away, whatever gets stuck
+                mRefractionWatchdogPosted = true;
+                mHandler.postDelayed(mRefractionWatchdog, REFRACTION_MAX_UPDATING_MS);
+            }
             if (mRefractionBannerState == 1) {
                 return;// already showing
             }
             mHandler.postDelayed(mShowRefractionUpdating, REFRACTION_BANNER_DELAY_MS);
-        } else if (isNewRefractionFailure(RefractionStatus.lastFailure(sLatitude, sLongitude))) {
-            // once, when the place is done updating: the times shown are from the saved data
-            mRefractionFailureShown = RefractionStatus.lastFailure(sLatitude, sLongitude);
-            showRefractionStatusBanner(R.string.refraction_update_failed, false);
-            mHandler.removeCallbacks(mHideRefractionStatus);
-            mHandler.postDelayed(mHideRefractionStatus, REFRACTION_FAILED_SHOWN_MS);
-        } else if (mRefractionBannerState == 1) {
-            hideRefractionStatusBanner();// done: the list was redrawn with the new times
+        } else if (updating) {
+            // It has taken too long: say so once, then take the banner down. It stays down until this update ends.
+            if (mRefractionBannerState == 1) {
+                showRefractionStatusBanner(R.string.refraction_update_failed, false);
+                mHandler.removeCallbacks(mHideRefractionStatus);
+                mHandler.postDelayed(mHideRefractionStatus, REFRACTION_FAILED_SHOWN_MS);
+            }
+        } else {
+            // done (the list was redrawn with the new times)
+            mHandler.removeCallbacks(mRefractionWatchdog);
+            mRefractionWatchdogPosted = false;
+            boolean gaveUp = mRefractionGaveUp;
+            mRefractionGaveUp = false;
+            if (isNewRefractionFailure(RefractionStatus.lastFailure(sLatitude, sLongitude))) {
+                // once: the download or the computation failed, and the times shown are from the saved data
+                mRefractionFailureShown = RefractionStatus.lastFailure(sLatitude, sLongitude);
+                if (!gaveUp) {// already said
+                    showRefractionStatusBanner(R.string.refraction_update_failed, false);
+                    mHandler.removeCallbacks(mHideRefractionStatus);
+                    mHandler.postDelayed(mHideRefractionStatus, REFRACTION_FAILED_SHOWN_MS);
+                }
+            } else if (mRefractionBannerState == 1) {
+                hideRefractionStatusBanner();
+            }
         }
     }
 
@@ -1665,6 +1700,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (mHandler != null) {
             mHandler.removeCallbacks(mShowRefractionUpdating);
             mHandler.removeCallbacks(mHideRefractionStatus);
+            mHandler.removeCallbacks(mRefractionWatchdog);
+            mRefractionWatchdogPosted = false;
         }
         hideRefractionStatusBanner();
     }
@@ -2129,6 +2166,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
         if (mHandler != null) {
             mHandler.removeCallbacks(mShowRefractionUpdating);
             mHandler.removeCallbacks(mHideRefractionStatus);
+            mHandler.removeCallbacks(mRefractionWatchdog);
+            mRefractionWatchdogPosted = false;
         }
         mDailySummary = null;
         sSharedPreferences.unregisterOnSharedPreferenceChangeListener(sSharedPrefListener);

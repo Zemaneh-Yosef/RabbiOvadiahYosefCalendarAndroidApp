@@ -764,5 +764,5 @@
     <string name="use_haze_tzet">אובך לזמן צאת השבת</string>
     <string name="use_haze_tzet_summary">הזזת זמן צאת השבת לפי מעלות (לוח עמודי הוראה) לפי האובך של הערב: מאוחר יותר בערבים עם אובך, מוקדם יותר בערבים צלולים, עד 15 דקות לכל היותר</string>
     <string name="refraction_updating">מעדכן את הזמנים לפי מזג האוויר העדכני…</string>
-    <string name="refraction_update_failed">לא ניתן לעדכן את מזג האוויר. מוצגים זמנים לפי הנתונים השמורים.</string>
+    <string name="refraction_update_failed">לא ניתן היה לסיים לעדכן את הזמנים. מוצגים זמנים לפי הנתונים השמורים.</string>
 </resources>

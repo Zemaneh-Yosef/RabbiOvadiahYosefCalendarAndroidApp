@@ -4,6 +4,7 @@ import com.ej.rovadiahyosefcalendar.classes.royzmanim.AtmosphereSpec;
 import com.ej.rovadiahyosefcalendar.classes.royzmanim.Limb;
 import com.ej.rovadiahyosefcalendar.classes.royzmanim.ROYSPACalculator;
 import com.ej.rovadiahyosefcalendar.classes.royzmanim.RefractionRepository;
+import com.ej.rovadiahyosefcalendar.classes.royzmanim.RefractionStatus;
 import com.ej.rovadiahyosefcalendar.classes.royzmanim.RefractionSupport;
 
 import com.ej.rovadiahyosefcalendar.classes.royzmanim.StarNightfall;
@@ -351,6 +352,26 @@ public class ROZmanimCalendar extends ZmanimCalendar {
      */
     public boolean isHaNetzKnown() {
         return RefractionSupport.isVisibleSunriseKnown(refractionData, getGeoLocation(), getLocalDate(), FIRST_GLIMPSE, "");
+    }
+
+    /**
+     * Whether the times shown for a place and date are still going to change: the place's data are downloading (or the server is
+     * still building its terrain horizon), or the newest data are in but the date's visible sunrise isn't computed with them yet.
+     * The second part has no gap after the first: the moment a download lands, its visible sunrise is not computed yet. It ends
+     * when that is done (or failed: the failure is stored as a result too), without any timer.
+     *
+     * @param geo the place as the calendar shown has it (its elevation and time zone are part of what is computed)
+     * @param fullDisk the full-disk visible sunrise rather than the first glimpse (the Netz countdown's "full reveal")
+     */
+    public static boolean isUpdating(GeoLocation geo, LocalDate date, boolean fullDisk) {
+        if (!RefractionSupport.getEnabled() || geo == null || date == null) {
+            return false;
+        }
+        if (RefractionStatus.isUpdating(geo.getLatitude(), geo.getLongitude(), date)) {
+            return true;
+        }
+        RefractionRepository.RefractionData data = RefractionSupport.dataFor(geo);// in memory (not read from storage on the main thread)
+        return data != null && !RefractionSupport.isVisibleSunriseKnown(data, geo, date, fullDisk ? FULL_DISK : FIRST_GLIMPSE, "");
     }
 
     /** Whether {@link #getHaNetz()} for the current date is being computed in the background right now. */

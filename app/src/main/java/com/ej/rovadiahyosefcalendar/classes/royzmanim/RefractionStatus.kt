@@ -64,6 +64,12 @@ object RefractionStatus {
         if (horizonWaits.remove(p) != null) changed()
     }
 
+    /** Computing with the place's data failed (e.g. a visible sunrise): reported like a failed download. */
+    internal fun computeFailed(lat: Double, lon: Double) {
+        failedAt[place(lat, lon)] = System.currentTimeMillis()
+        changed()
+    }
+
     internal fun visibleSunriseStarted(lat: Double, lon: Double, date: LocalDate) {
         visibleSunrises.merge("${place(lat, lon)}|$date", 1, Int::plus)
         changed()

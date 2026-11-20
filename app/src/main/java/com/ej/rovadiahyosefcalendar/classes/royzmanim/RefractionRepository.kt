@@ -104,8 +104,8 @@ object RefractionRepository {
                 loadKnown()
                 val newest = d.listFiles { f -> !f.name.startsWith("reference_") && (f.name.endsWith(".${Kind.FORECAST.file}.json") || f.name.endsWith(".${Kind.HORIZON.file}.json")) }
                     ?.maxByOrNull { it.lastModified() } ?: return@execute
-                val suffix = newest.name.substring(newest.name.indexOf('.'))
-                val s = spotOf(newest.name, suffix) ?: return@execute
+                val id = placeFileId(newest.name) ?: return@execute
+                val s = spotOf(newest.name, newest.name.substring(id.length)) ?: return@execute
                 cached(s.lat, s.lon)
             } catch (e: Exception) {
                 Log.e(TAG, "Preloading the stored data failed", e)
@@ -199,6 +199,17 @@ object RefractionRepository {
      */
     private val cells = ConcurrentHashMap<String, JSONObject>()
     @Volatile private var knownLoaded = false
+
+    /**
+     * The place part of a place's file name ("40.80855_-73.74143" of "40.80855_-73.74143.forecast.json"), or null for any other
+     * file. The coordinates have dots of their own: the kind is what follows the last dot before ".json".
+     */
+    private fun placeFileId(fileName: String): String? {
+        if (!fileName.endsWith(".json") || fileName.startsWith("reference_")) return null
+        val id = fileName.removeSuffix(".json").substringBeforeLast('.', "")
+        if (id.isEmpty()) return null
+        return if (spotOf(fileName, fileName.substring(id.length)) != null) id else null
+    }
 
     private fun spotOf(fileName: String, suffix: String): Spot? {
         // "<lat>_<lon>.<kind>.json"
@@ -350,8 +361,9 @@ object RefractionRepository {
     /** Keep the files of the last MAX_LOCATIONS places (by last write). */
     private fun prune(keepId: String) {
         val d = dir ?: return
-        val files = d.listFiles { f -> f.name.endsWith(".json") && !f.name.startsWith("reference_") } ?: return
-        val byPlace = files.groupBy { it.name.substringBefore('.') }
+        // only the places' own files ("<lat>_<lon>.<kind>.json"): not the reference haze, nor RefractionSupport's visible-sunrises.json
+        val files = d.listFiles { f -> placeFileId(f.name) != null } ?: return
+        val byPlace = files.groupBy { placeFileId(it.name)!! }
         if (byPlace.size <= MAX_LOCATIONS) return
         val keep = (inUse + keepId).map { it.replace(',', '_') }.toSet()
         byPlace.entries.filter { it.key !in keep }.sortedBy { e -> e.value.maxOf { it.lastModified() } }

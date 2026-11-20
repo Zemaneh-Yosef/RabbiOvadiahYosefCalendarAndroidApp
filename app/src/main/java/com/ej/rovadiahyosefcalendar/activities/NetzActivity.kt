@@ -134,18 +134,64 @@ class NetzActivity : AppCompatActivity() {
     private var refractionDismissed = false
     private val statusListener = Runnable { runOnUiThread { updateRefractionStatus() } }
 
-    /** Shows the banner after a short delay (loads from the saved data never flash it), hides it when done. */
+    /** The failure message is showing instead (the download or the computation failed, or it took too long). */
+    private var refractionFailed by mutableStateOf(false)
+    private val hideFailed = Runnable { refractionFailed = false }
+    /** The failed download or computation (its time) already told about. */
+    private var failureShown: Long? = null
+    /** The update took too long: the banner said so and stays down until the update ends. */
+    private var gaveUp = false
+    private var watchdogPosted = false
+    private val watchdog = Runnable {
+        watchdogPosted = false
+        gaveUp = true
+        updateRefractionStatus()
+    }
+
+    /**
+     * Shows the banner after a short delay (loads from the saved data never flash it) while today's or tomorrow's counted sunrise is
+     * still going to change, hides it when it won't, and says so when the update failed or took too long.
+     */
     private fun updateRefractionStatus() {
-        val lat = MainFragmentManagerActivity.sLatitude
-        val lon = MainFragmentManagerActivity.sLongitude
-        val today = LocalDate.now(ZoneId.of(MainFragmentManagerActivity.sCurrentTimeZoneID))
-        val updating = RefractionStatus.isUpdating(lat, lon, today) || RefractionStatus.isUpdating(lat, lon, today.plusDays(1))
+        val geo = calendar?.geoLocation ?: return
+        val today = LocalDate.now(geo.zoneId)
+        val fullDisk = prefs.getString(PREF_KIND, null) == SunriseKind.FULL_REVEAL.pref// the kind counted down to
+        val updating = ROZmanimCalendar.isUpdating(geo, today, fullDisk) || ROZmanimCalendar.isUpdating(geo, today.plusDays(1), fullDisk)
         statusHandler.removeCallbacks(showUpdating)
-        if (updating && !refractionDismissed) {
-            if (!refractionUpdating) statusHandler.postDelayed(showUpdating, 500)
-        } else {
-            refractionUpdating = false
+        when {
+            refractionDismissed -> refractionUpdating = false
+            updating && !gaveUp -> {
+                statusHandler.removeCallbacks(hideFailed)
+                refractionFailed = false
+                if (!watchdogPosted) {// so the banner always goes away, whatever gets stuck
+                    watchdogPosted = true
+                    statusHandler.postDelayed(watchdog, MAX_UPDATING_MS)
+                }
+                if (!refractionUpdating) statusHandler.postDelayed(showUpdating, 500)
+            }
+            updating -> if (refractionUpdating) {// it has taken too long: say so once, then the banner goes away
+                refractionUpdating = false
+                showFailed()
+            }
+            else -> {// done
+                statusHandler.removeCallbacks(watchdog)
+                watchdogPosted = false
+                val said = gaveUp
+                gaveUp = false
+                val failure = RefractionStatus.lastFailure(geo.latitude, geo.longitude)
+                val newFailure = failure != null && failure != failureShown && System.currentTimeMillis() - failure < 60_000
+                if (newFailure) failureShown = failure
+                val wasShowing = refractionUpdating
+                refractionUpdating = false
+                if (newFailure && !said && (wasShowing || !refractionFailed)) showFailed()
+            }
         }
+    }
+
+    private fun showFailed() {
+        refractionFailed = true
+        statusHandler.removeCallbacks(hideFailed)
+        statusHandler.postDelayed(hideFailed, 4000)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -167,12 +213,15 @@ class NetzActivity : AppCompatActivity() {
         RefractionRepository.addListener(refractionListener)
         RefractionStatus.addListener(statusListener)
         RefractionRepository.ensureFresh(MainFragmentManagerActivity.sLatitude, MainFragmentManagerActivity.sLongitude)
+        updateRefractionStatus()
     }
 
     override fun onStop() {
         RefractionRepository.removeListener(refractionListener)
         RefractionStatus.removeListener(statusListener)
         statusHandler.removeCallbacks(showUpdating)
+        statusHandler.removeCallbacks(watchdog)
+        watchdogPosted = false
         super.onStop()
     }
 
@@ -402,8 +451,8 @@ class NetzActivity : AppCompatActivity() {
                     .padding(16.dp),
             )
 
-            if (refractionUpdating) {
-                // the same slowly pulsing green as the banner on the zemanim screen
+            if (refractionUpdating || refractionFailed) {
+                // the same slowly pulsing green as the banner on the zemanim screen (still while it shows the failure)
                 val pulse by rememberInfiniteTransition(label = "refractionPulse").animateColor(
                     colorResource(R.color.refraction_banner), colorResource(R.color.refraction_banner_pulse),
                     infiniteRepeatable(tween(900), RepeatMode.Reverse), label = "refractionPulseColor",
@@ -419,12 +468,17 @@ class NetzActivity : AppCompatActivity() {
                             refractionDismissed = true
                             statusHandler.removeCallbacks(showUpdating)
                             refractionUpdating = false
+                            refractionFailed = false
                         }
                         .padding(horizontal = 14.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    CircularProgressIndicator(Modifier.size(16.dp), color = Color.White, strokeWidth = 2.dp)
-                    Text(stringResource(R.string.refraction_updating), color = Color.White, fontSize = 14.sp, modifier = Modifier.padding(start = 10.dp))
+                    if (refractionUpdating) {
+                        CircularProgressIndicator(Modifier.size(16.dp), color = Color.White, strokeWidth = 2.dp)
+                        Text(stringResource(R.string.refraction_updating), color = Color.White, fontSize = 14.sp, modifier = Modifier.padding(start = 10.dp))
+                    } else {
+                        Text(stringResource(R.string.refraction_update_failed), color = Color.White, fontSize = 14.sp)
+                    }
                     Text("✕", color = Color.White.copy(alpha = 0.7f), fontSize = 13.sp, modifier = Modifier.padding(start = 10.dp))
                 }
             }
@@ -449,6 +503,7 @@ class NetzActivity : AppCompatActivity() {
                 kind = it
                 prefs.edit().putString(PREF_KIND, it.pref).apply()
                 showPicker = false
+                updateRefractionStatus()// another kind of sunrise may still be computing
             },
             onDismiss = { showPicker = false },
         )
@@ -554,5 +609,7 @@ class NetzActivity : AppCompatActivity() {
         private const val MAX_FOV_DEG = 60.0
         private const val SUN_RADIUS_DEG = 0.2666
         private const val OFFLINE_RETRY_MS = 60_000L
+        /** The longest the "updating" banner stays up: downloads time out well before this, so reaching it means something got stuck. */
+        private const val MAX_UPDATING_MS = 120_000L
     }
 }
