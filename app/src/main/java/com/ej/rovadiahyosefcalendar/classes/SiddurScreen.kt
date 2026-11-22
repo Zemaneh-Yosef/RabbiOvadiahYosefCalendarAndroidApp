@@ -37,6 +37,8 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -111,19 +113,17 @@ typealias ScrollToPosition = (Int) -> Unit
 @Composable
 fun SiddurScreenEntry(
 	siddurContent: List<HighlightString>,
+	reloadContent: () -> List<HighlightString>,
 	jewishDateInfo: JewishDateInfo,
 	siddurTitle: String,
-	categoryNames: List<String>,
-	categoryPositions: List<Int>,
 	onNavigateBack: () -> Unit,
 	onScrollRequested: (ScrollToPosition) -> Unit,
 ) {
 	SiddurScreen(
 		siddurContent = siddurContent,
+		reloadContent = reloadContent,
 		jewishDateInfo = jewishDateInfo,
 		siddurTitle = siddurTitle,
-		categoryNames = categoryNames,
-		categoryPositions = categoryPositions,
 		onNavigateBack = onNavigateBack,
 		onScrollRequested = onScrollRequested,
 	)
@@ -185,10 +185,9 @@ private fun Modifier.dpadFocusRing(cornerRadius: Dp? = 12.dp, onFocusChange: (Bo
 @Composable
 private fun SiddurScreen(
 	siddurContent: List<HighlightString>,
+	reloadContent: () -> List<HighlightString>,
 	jewishDateInfo: JewishDateInfo,
 	siddurTitle: String,
-	categoryNames: List<String>,
-	categoryPositions: List<Int>,
 	onNavigateBack: () -> Unit,
 	onScrollRequested: (ScrollToPosition) -> Unit,
 ) {
@@ -199,8 +198,24 @@ private fun SiddurScreen(
 	var isJustified by remember { mutableStateOf(sharedPreferences.getBoolean("isJustified", false)) }
 	val fontPreference = remember { sharedPreferences.getString("font", "Guttman Keren") ?: "Guttman Keren" }
 
+	// The prayer, built again when the man / woman or the minyan switch changes; the section menu follows it.
+	var content by remember { mutableStateOf(siddurContent) }
+	var isWoman by remember { mutableStateOf(sharedPreferences.getBoolean(SiddurMaker.PREF_IS_WOMAN, false)) }
+	var withMinyan by remember { mutableStateOf(sharedPreferences.getBoolean(SiddurMaker.PREF_WITH_MINYAN, true)) }
+	val categories = remember(content) {
+		content.withIndex().filter { it.value.type == HighlightString.StringType.CATEGORY }.map { it.value.toString() to it.index }
+	}
+	val categoryNames = categories.map { it.first }
+	val categoryPositions = categories.map { it.second }
+
 	val listState = rememberLazyListState()
 	val coroutineScope = rememberCoroutineScope()
+	val snackbarHostState = remember { SnackbarHostState() }
+	// tells which way the siddur's man / woman or minyan switch now is (a new one replaces the last)
+	fun showSwitchSnackbar(message: Int) {
+		snackbarHostState.currentSnackbarData?.dismiss()
+		coroutineScope.launch { snackbarHostState.showSnackbar(context.getString(message)) }
+	}
 
 	val scrollToPosition: ScrollToPosition = { position ->
 		coroutineScope.launch {
@@ -220,6 +235,7 @@ private fun SiddurScreen(
 
 	Scaffold(
 		containerColor = defaultBackgroundColor,
+		snackbarHost = { SnackbarHost(snackbarHostState) },
 		topBar = {
 			CenterAlignedTopAppBar(
 				title = {
@@ -240,6 +256,36 @@ private fun SiddurScreen(
 					}
 				},
 				actions = {
+					// man / woman: the woman's forms, and no tallit, tefillin or blessings women don't say
+					IconButton(
+						onClick = {
+							isWoman = !isWoman
+							sharedPreferences.edit { putBoolean(SiddurMaker.PREF_IS_WOMAN, isWoman) }
+							content = reloadContent()
+							showSwitchSnackbar(if (isWoman) AppR.string.siddur_for_woman else AppR.string.siddur_for_man)
+						},
+						modifier = Modifier.dpadFocusRing(cornerRadius = null)
+					) {
+						Icon(
+							painter = painterResource(id = if (isWoman) AppR.drawable.baseline_woman_24 else AppR.drawable.baseline_man_24),
+							contentDescription = stringResource(if (isWoman) AppR.string.siddur_for_woman else AppR.string.siddur_for_man)
+						)
+					}
+					// with a minyan (10+) or alone: alone hides the parts said only with a minyan
+					IconButton(
+						onClick = {
+							withMinyan = !withMinyan
+							sharedPreferences.edit { putBoolean(SiddurMaker.PREF_WITH_MINYAN, withMinyan) }
+							content = reloadContent()
+							showSwitchSnackbar(if (withMinyan) AppR.string.siddur_with_minyan else AppR.string.siddur_alone)
+						},
+						modifier = Modifier.dpadFocusRing(cornerRadius = null)
+					) {
+						Icon(
+							painter = painterResource(id = if (withMinyan) AppR.drawable.baseline_groups_24 else AppR.drawable.baseline_person_24),
+							contentDescription = stringResource(if (withMinyan) AppR.string.siddur_with_minyan else AppR.string.siddur_alone)
+						)
+					}
 					if (categoryNames.isNotEmpty()) {
 						IconButton(onClick = { showCategoryMenu = true }, modifier = Modifier.dpadFocusRing(cornerRadius = null)) {
 							Icon(
@@ -331,7 +377,7 @@ private fun SiddurScreen(
 				.verticalScrollbar(state = listState),
 			state = listState
 		) {
-			itemsIndexed(siddurContent) { index, currentText ->
+			itemsIndexed(content) { index, currentText ->
 				SiddurRow(
 					onFocusChange = { focused ->
 						if (focused) {

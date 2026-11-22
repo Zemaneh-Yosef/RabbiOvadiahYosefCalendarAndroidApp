@@ -46,37 +46,44 @@ class SiddurViewActivity : AppCompatActivity() {
 		val textColor = ContextCompat.getColor(this, typedValue.resourceId)
 
 		// --- 3. LOAD PRAYERS ---
-		val siddurMaker = SiddurMaker(mJewishDateInfo, textColor, this)
-		val prayers: ArrayList<HighlightString> = when (siddurTitle) {
-			"סליחות" -> siddurMaker.getSelichotPrayers(
-				intent.getBooleanExtra("isAfterChatzot", false),
-				intent.getBooleanExtra("isAfterSunrise", false)
-			)
-			"שחרית" -> siddurMaker.shacharitPrayers
-			"מוסף" -> siddurMaker.musafPrayers
-			"מנחה" -> siddurMaker.minchaPrayers
-			"ערבית" -> siddurMaker.arvitPrayers
-			"ספירת העומר" -> siddurMaker.sefiratHaOmerPrayers
-			"הדלקת נרות חנוכה" -> siddurMaker.hadlakatNeirotChanukaPrayers
-			"הבדלה" -> siddurMaker.havdalahPrayers
-			"סדר סיום מסכת" -> siddurMaker.getSiyumMasechetPrayer(
-				requireNotNull(intent.getStringArrayExtra("masechtas"))
-			)
-			"ברכת המזון" -> siddurMaker.birchatHamazonPrayers
-			"תפלת הדרך" -> siddurMaker.tefilatHaderechPrayer
-			"ברכת הלבנה" -> siddurMaker.birchatHalevanaPrayers
-			"תיקון חצות" -> siddurMaker.getTikkunChatzotPrayers(
-				intent.getBooleanExtra("isNightTikkunChatzot", true)
-			)
-			"ק״ש שעל המיטה" -> siddurMaker.getKriatShemaShealHamitaPrayers(
-				!intent.getBooleanExtra("isAfterChatzot", false)
-			)
-			"ברכת מעין שלוש" -> siddurMaker.getBirchatMeeyinShaloshPrayers(
-				requireNotNull(intent.getStringArrayExtra("itemsForMeyinShalosh"))
-			)
-			"תהילים" -> siddurMaker.tehilimPrayers
-			else -> ArrayList()
+		// Built again when the user changes the siddur's man / woman or minyan switch (in the toolbar).
+		fun loadPrayers(): List<HighlightString> {
+			val siddurMaker = SiddurMaker(mJewishDateInfo, textColor, this)// reads the man / woman choice
+			val all: ArrayList<HighlightString> = when (siddurTitle) {
+				"סליחות" -> siddurMaker.getSelichotPrayers(
+					intent.getBooleanExtra("isAfterChatzot", false),
+					intent.getBooleanExtra("isAfterSunrise", false)
+				)
+				"שחרית" -> siddurMaker.shacharitPrayers
+				"מוסף" -> siddurMaker.musafPrayers
+				"מנחה" -> siddurMaker.minchaPrayers
+				"ערבית" -> siddurMaker.arvitPrayers
+				"ספירת העומר" -> siddurMaker.sefiratHaOmerPrayers
+				"הדלקת נרות חנוכה" -> siddurMaker.hadlakatNeirotChanukaPrayers
+				"הבדלה" -> siddurMaker.havdalahPrayers
+				"סדר סיום מסכת" -> siddurMaker.getSiyumMasechetPrayer(
+					requireNotNull(intent.getStringArrayExtra("masechtas"))
+				)
+				"ברכת המזון" -> siddurMaker.birchatHamazonPrayers
+				"תפלת הדרך" -> siddurMaker.tefilatHaderechPrayer
+				"ברכת הלבנה" -> siddurMaker.birchatHalevanaPrayers
+				"תיקון חצות" -> siddurMaker.getTikkunChatzotPrayers(
+					intent.getBooleanExtra("isNightTikkunChatzot", true)
+				)
+				"ק״ש שעל המיטה" -> siddurMaker.getKriatShemaShealHamitaPrayers(
+					!intent.getBooleanExtra("isAfterChatzot", false)
+				)
+				"ברכת מעין שלוש" -> siddurMaker.getBirchatMeeyinShaloshPrayers(
+					requireNotNull(intent.getStringArrayExtra("itemsForMeyinShalosh"))
+				)
+				"תהילים" -> siddurMaker.tehilimPrayers
+				else -> ArrayList()
+			}
+			// praying alone: the parts said only with a minyan are left out
+			val withMinyan = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(SiddurMaker.PREF_WITH_MINYAN, true)
+			return if (withMinyan) all.filterNot { it.isOnlyAlone } else all.filterNot { it.isNeedsMinyan }
 		}
+		val prayers = loadPrayers()
 
 		// --- 4. BUILD CATEGORY JUMP LIST ---
 		val categoryNames = mutableListOf<String>()
@@ -104,10 +111,9 @@ class SiddurViewActivity : AppCompatActivity() {
 		setContent {
 			SiddurScreenEntry(
 				siddurContent = prayers,
+				reloadContent = { loadPrayers() },
 				jewishDateInfo = mJewishDateInfo,
 				siddurTitle = siddurTitle.ifEmpty { getString(R.string.show_siddur) },
-				categoryNames = categoryNames,
-				categoryPositions = categoryPositions,
 				onNavigateBack = { finish() },
 				onScrollRequested = { scrollFn ->
 					scrollToPosition = scrollFn

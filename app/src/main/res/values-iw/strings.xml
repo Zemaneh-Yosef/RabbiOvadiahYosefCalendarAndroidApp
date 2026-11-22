@@ -766,4 +766,8 @@
     <string name="refraction_updating">מעדכן את הזמנים לפי מזג האוויר העדכני…</string>
     <string name="refraction_calculating_sunrise">מחשב זריחה נראית…</string>
     <string name="refraction_update_failed">לא ניתן היה לסיים לעדכן את הזמנים. מוצגים זמנים לפי הנתונים השמורים.</string>
+    <string name="siddur_for_man">סידור לגבר</string>
+    <string name="siddur_for_woman">סידור לאשה</string>
+    <string name="siddur_with_minyan">תפילה במניין</string>
+    <string name="siddur_alone">תפילה ביחיד: החלקים שנאמרים רק במניין מוסתרים</string>
 </resources>

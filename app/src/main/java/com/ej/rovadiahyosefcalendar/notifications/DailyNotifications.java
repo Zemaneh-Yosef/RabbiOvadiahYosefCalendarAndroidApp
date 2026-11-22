@@ -136,7 +136,6 @@ public class DailyNotifications extends BroadcastReceiver implements Consumer<Lo
             // ID 51 is designated to tekufa notifications (the ID will not iterate anymore as it only occurs 4 times a year, and it's unlikely to ever overwrite the last tekufa notification)
             // ID 52 is designated to the Barech Aleinu notification
             // ID 53 is designated to the Birkat Halevana notification
-            // ID Integer.MAX_VALUE is designated to the Visible sunrise notification due to ChatGPT recommendation, we could make it 53... but what's done is done
             // The zemanim notifications are based on the timestamp of the zeman (which is bigger than Integer.MAX_VALUE so we remainder it, either way they should never overwrite each other)
         }
         setTekufaNotification(context, jewishDateInfo);

@@ -545,4 +545,8 @@
     <string name="refraction_updating">Updating the times with the latest weather…</string>
     <string name="refraction_calculating_sunrise">Calculating Visible Sunrise…</string>
     <string name="refraction_update_failed">Couldn\'t finish updating the times. Showing them from the saved data.</string>
+    <string name="siddur_for_man">Siddur for a man</string>
+    <string name="siddur_for_woman">Siddur for a woman</string>
+    <string name="siddur_with_minyan">Praying with a minyan</string>
+    <string name="siddur_alone">Praying alone: the parts said only with a minyan are hidden</string>
 </resources>

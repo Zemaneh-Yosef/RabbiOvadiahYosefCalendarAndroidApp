@@ -10,6 +10,7 @@ public class HighlightString {
     private String summary;
     private StringType type;
     private boolean needsMinyan = false;
+    private boolean onlyAlone = false;
     /**
      * This isHighlighted used to be a type - however, I would like instructions to also be highlightable
      * */
@@ -99,6 +100,15 @@ public class HighlightString {
 
     public boolean isNeedsMinyan() {
         return needsMinyan;
+    }
+
+    /** Said only when praying alone (e.g. the passage said instead of Barchu): hidden with a minyan. */
+    public void setOnlyAlone(boolean onlyAlone) {
+        this.onlyAlone = onlyAlone;
+    }
+
+    public boolean isOnlyAlone() {
+        return onlyAlone;
     }
     public String getSummary() {
         return summary;
