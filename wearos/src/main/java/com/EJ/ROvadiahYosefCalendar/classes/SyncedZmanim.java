@@ -16,7 +16,7 @@ import java.util.Map;
  * data of its own, so it shows these instead of computing them; the phone shows the same table while a watch that has it is out
  * of reach (the phone app's WatchZmanimSync), so both always show the same times. The same class is in the phone app.
  * <p>
- * Format: {"v":1, "lat", "lon", "elev", "tz", "days": {"yyyy-MM-dd": {"srS", "sr", "ssS", "ss", "netz", "tz7165"}},
+ * Format: {"v":1, "lat", "lon", "elev", "tz", "days": {"yyyy-MM-dd": {"srS", "sr", "ssS", "ss", "netz", "tz7165", "r85", "s85"}},
  * "equinox": {"year|degrees|sunset": percent}}. Times are ISO-8601 instants (exact, as computed), null where there is none.
  */
 public final class SyncedZmanim {
@@ -25,6 +25,12 @@ public final class SyncedZmanim {
     /** One date's times; any of them may be null (no such time that day). */
     public static final class Day {
         public final Instant seaLevelSunrise, sunrise, seaLevelSunset, sunset, haNetz, tzet7165;
+        /**
+         * When the Sun is 8.5 degrees below the horizon in the morning and in the evening (null: it doesn't get that low), the
+         * limits of the Amudei Horaah dawn and nightfall. Only when {@link #has85} (tables sent before they were added lack them).
+         */
+        public final Instant sunriseAt85, sunsetAt85;
+        public final boolean has85;
 
         Day(JSONObject j) {
             seaLevelSunrise = instant(j, "srS");
@@ -33,6 +39,9 @@ public final class SyncedZmanim {
             sunset = instant(j, "ss");
             haNetz = instant(j, "netz");
             tzet7165 = instant(j, "tz7165");
+            has85 = j.has("r85") && j.has("s85");
+            sunriseAt85 = instant(j, "r85");
+            sunsetAt85 = instant(j, "s85");
         }
 
         private static Instant instant(JSONObject j, String key) {

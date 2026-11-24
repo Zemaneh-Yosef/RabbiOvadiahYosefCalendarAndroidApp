@@ -331,7 +331,7 @@ public class ROZmanimCalendar extends ZmanimCalendar {
      * The visible sunrise: the first glimpse of the Sun over the refraction server's terrain horizon, traced through the day's air.
      * On a cache miss it is computed in the background (see {@link #getHaNetz(boolean)}).
      * @return the visible sunrise, or null without a terrain horizon for the place, while it is still being computed with no
-     * neighbouring day to estimate from, or when the result is more than an hour from sunrise (a bad profile).
+     * neighbouring day to estimate from (a horizon that can't be the place's terrain is refused when it is loaded).
      */
     public Instant getHaNetz() {
         return getHaNetz(false);

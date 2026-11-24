@@ -12,6 +12,7 @@ import com.google.android.gms.tasks.Tasks
 import com.google.android.gms.wearable.CapabilityClient
 import com.google.android.gms.wearable.Node
 import com.google.android.gms.wearable.Wearable
+import com.kosherjava.zmanim.ZmanimCalendar
 import com.kosherjava.zmanim.hebrewcalendar.JewishCalendar
 import com.kosherjava.zmanim.util.GeoLocation
 import org.json.JSONObject
@@ -132,7 +133,10 @@ object WatchZmanimSync {
                 .put("ssS", iso(cal.seaLevelSunset))
                 .put("ss", iso(cal.sunset))
                 .put("netz", iso(cal.getHaNetz(true)))
-                .put("tz7165", iso(cal.getDegreeTzetWithHaze(7.165))))
+                .put("tz7165", iso(cal.getDegreeTzetWithHaze(7.165)))
+                // the 8.5 degree limits of the Amudei Horaah dawn and nightfall, from the phone's calculator
+                .put("r85", iso(cal.getSunriseOffsetByDegrees(ZmanimCalendar.GEOMETRIC_ZENITH + 8.5)))
+                .put("s85", iso(cal.getSunsetOffsetByDegrees(ZmanimCalendar.GEOMETRIC_ZENITH + 8.5))))
         }
         val equinox = JSONObject()
         for (year in setOf(today.minusDays(DAYS_BEFORE).year, today.plusDays(DAYS_AFTER).year)) {

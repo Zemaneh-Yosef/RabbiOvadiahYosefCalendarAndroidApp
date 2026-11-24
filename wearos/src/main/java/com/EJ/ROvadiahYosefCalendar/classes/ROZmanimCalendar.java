@@ -201,7 +201,50 @@ public class ROZmanimCalendar extends ZmanimCalendar {
         if (!amudehHoraah) {
             return getZmanisBasedOffset(-1.2);
         }
-        return getAmudeiHoraahBeforeSunrise(1);
+        // as on the phone: the equinox offset in seasonal time before sunrise, never later than the Sun at 8.5 degrees below
+        // the horizon (the earlier of the two); where the Sun never gets that low, the previous solar midnight
+        Instant floor = getSunAt85(true);
+        if (floor == null) {
+            return getPreviousSolarMidnight();
+        }
+        Instant seasonal = getAmudeiHoraahBeforeSunrise(1);
+        if (seasonal == null) {
+            return floor;
+        }
+        return seasonal.isAfter(floor) ? floor : seasonal;
+    }
+
+    /** Solar midnight of the night before the current date. */
+    public Instant getPreviousSolarMidnight() {
+        ROZmanimCalendar yesterday = getCopy();
+        yesterday.setLocalDate(getLocalDate().minusDays(1));
+        return yesterday.getSolarMidnight();
+    }
+
+    /**
+     * When the Sun is 8.5 degrees below the horizon in the morning (or the evening): the phone's time when it sent one for this
+     * date (its calculator, so both show the same), else computed here. Null where the Sun doesn't get that low.
+     */
+    private Instant getSunAt85(boolean morning) {
+        SyncedZmanim.Day synced = getSyncedDay();
+        if (synced != null && synced.has85) {
+            return morning ? synced.sunriseAt85 : synced.sunsetAt85;
+        }
+        return morning ? getSunriseOffsetByDegrees(GEOMETRIC_ZENITH + 8.5) : getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 8.5);
+    }
+
+    /**
+     * Misheyakir as a fraction of the time from {@link #getAlotHashachar() dawn} to sunrise before sunrise (5/6 = 60 of 72
+     * minutes), as on the phone: with degrees it follows dawn's 8.5 degree limit.
+     */
+    public Instant getMisheyakir(double fraction) {
+        Instant alot = getAlotHashachar();
+        Instant sunrise = getSunriseBasedOnElevationSetting();
+        if (alot == null || sunrise == null) {
+            return null;
+        }
+        long nanos = (long) (Duration.between(alot, sunrise).toNanos() * fraction);
+        return sunrise.minusNanos(nanos);
     }
 
     /**
@@ -216,7 +259,7 @@ public class ROZmanimCalendar extends ZmanimCalendar {
         if (!amudehHoraah) {
             return getZmanisBasedOffset(-1.1);
         }
-        return getAmudeiHoraahBeforeSunrise(11.0 / 12.0);// 11 / 12 == 66 / 72
+        return getMisheyakir(11.0 / 12.0);// 11 / 12 == 66 / 72
     }
 
     /**
@@ -230,7 +273,7 @@ public class ROZmanimCalendar extends ZmanimCalendar {
         if (!amudehHoraah) {
             return getZmanisBasedOffset(-1);
         }
-        return getAmudeiHoraahBeforeSunrise(5.0 / 6.0);// 5 / 6 == 60 / 72
+        return getMisheyakir(5.0 / 6.0);// 5 / 6 == 60 / 72
     }
 
     /**
@@ -503,7 +546,17 @@ public class ROZmanimCalendar extends ZmanimCalendar {
         if (!amudehHoraah) {
             return getTzais72ForceRegZmanis();
         }
-        return getAmudeiHoraahAfterSunset(16.04);
+        // as on the phone: the equinox offset in seasonal time after sunset, never before the Sun is 8.5 degrees below the
+        // horizon (the later of the two), dawn's mirror image; where the Sun never gets that low, solar midnight
+        Instant floor = getSunAt85(false);
+        if (floor == null) {
+            return getSolarMidnight();
+        }
+        Instant seasonal = getAmudeiHoraahAfterSunset(16.04);
+        if (seasonal == null) {
+            return floor;
+        }
+        return seasonal.isBefore(floor) ? floor : seasonal;
     }
 
     public Instant getTzais72ForceRegZmanis() {
