@@ -7,6 +7,7 @@ import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
+import android.view.ViewTreeObserver;
 
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
@@ -38,6 +39,17 @@ public class ZmanimShowcase {
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     private int mStep;// 0 = not showing, 1 = waiting for the talit/tefilin row to be tapped, 2 = waiting for either row to be tapped
     @Nullable private MaterialShowcaseView mShowing;
+    @Nullable private Target mTarget;
+    @Nullable private RecyclerView mList;
+    // The list can be rebuilt while the walkthrough is showing (e.g. when the visible sunrise is calculated). The library moves the
+    // highlight on every layout, but doesn't redraw it, so the old place would stay cut out.
+    private final ViewTreeObserver.OnGlobalLayoutListener mRedrawOnLayout = () -> {
+        MaterialShowcaseView showing = mShowing;
+        if (showing != null && mTarget != null) {
+            showing.setTarget(mTarget);
+            showing.invalidate();
+        }
+    };
 
     public ZmanimShowcase(Activity activity, SharedPreferences sharedPreferences) {
         mActivity = activity;
@@ -61,7 +73,8 @@ public class ZmanimShowcase {
                 return;// not on the screen yet (or another page is on top of it), this is called again when the list is shown or the page comes back
             }
             mStep = 1;
-            mShowing = buildShowcase(talitRow, viewTarget(talitRow), R.string.showcase_tap_talit);
+            mShowing = buildShowcase(zmanimList, talitRow, rowsTarget(zmanimList, talitRow, ZmanListEntryType.MISHEYAKIR_60_ZMAN),
+                    R.string.showcase_tap_talit);
             mShowing.addShowcaseListener(new IShowcaseListener() {
                 @Override
                 public void onShowcaseDisplayed(MaterialShowcaseView showcaseView) {}
@@ -99,7 +112,8 @@ public class ZmanimShowcase {
                 finish();
                 return;
             }
-            mShowing = buildShowcase(talitRow, bothRowsTarget(talitRow, talit66Row), R.string.showcase_tap_either);
+            mShowing = buildShowcase(zmanimList, talitRow, rowsTarget(zmanimList, talitRow, ZmanListEntryType.MISHEYAKIR_60_ZMAN, ZmanListEntryType.MISHEYAKIR_66_ZMAN),
+                    R.string.showcase_tap_either);
             mShowing.addShowcaseListener(new IShowcaseListener() {
                 @Override
                 public void onShowcaseDisplayed(MaterialShowcaseView showcaseView) {}
@@ -124,6 +138,7 @@ public class ZmanimShowcase {
         MaterialShowcaseView showing = mShowing;
         mShowing = null;
         mStep = 0;
+        stopRedrawing();
         if (showing != null) {
             showing.removeFromWindow();
         }
@@ -132,10 +147,19 @@ public class ZmanimShowcase {
     private void finish() {
         mStep = 0;
         mShowing = null;
+        stopRedrawing();
         mSharedPreferences.edit().putBoolean(PREF_SHOW_SHOWCASE, false).apply();
     }
 
-    private MaterialShowcaseView buildShowcase(View anchor, Target target, int text) {
+    private void stopRedrawing() {
+        if (mList != null) {
+            mList.getViewTreeObserver().removeOnGlobalLayoutListener(mRedrawOnLayout);
+            mList = null;
+        }
+        mTarget = null;
+    }
+
+    private MaterialShowcaseView buildShowcase(RecyclerView zmanimList, View anchor, Target target, int text) {
         MaterialShowcaseView showcaseView = new MaterialShowcaseView.Builder(mActivity)
                 .setTarget(anchor)
                 .withRectangleShape(true)
@@ -148,6 +172,11 @@ public class ZmanimShowcase {
                 .setDelay(200)
                 .build();
         showcaseView.setTarget(target);
+        mTarget = target;
+        if (mList == null) {
+            mList = zmanimList;
+            zmanimList.getViewTreeObserver().addOnGlobalLayoutListener(mRedrawOnLayout);
+        }
         return showcaseView;
     }
 
@@ -171,8 +200,15 @@ public class ZmanimShowcase {
         return new Rect(location[0], location[1], location[0] + view.getWidth(), location[1] + view.getHeight());
     }
 
-    private static Target viewTarget(View view) {
+    /**
+     * Highlights the rows of the given types. The rows are looked up again every time, because the list can be rebuilt while the
+     * walkthrough is showing (e.g. when the visible sunrise is calculated), which replaces the row views; the old ones are then off the
+     * screen, and nothing would be highlighted.
+     */
+    private static Target rowsTarget(RecyclerView zmanimList, View firstRow, ZmanListEntryType... types) {
         return new Target() {
+            private Rect mLastBounds = boundsInWindow(firstRow);
+
             @Override
             public Point getPoint() {
                 Rect bounds = getBounds();
@@ -181,24 +217,22 @@ public class ZmanimShowcase {
 
             @Override
             public Rect getBounds() {
-                return boundsInWindow(view);
-            }
-        };
-    }
-
-    private static Target bothRowsTarget(View first, View second) {
-        return new Target() {
-            @Override
-            public Point getPoint() {
-                Rect bounds = getBounds();
-                return new Point(bounds.centerX(), bounds.centerY());
-            }
-
-            @Override
-            public Rect getBounds() {
-                Rect bounds = boundsInWindow(first);
-                bounds.union(boundsInWindow(second));
-                return bounds;
+                Rect bounds = null;
+                for (ZmanListEntryType type : types) {
+                    View row = findRow(zmanimList, type);
+                    if (row == null || !row.isAttachedToWindow()) {
+                        return new Rect(mLastBounds);// e.g. while the new list is laid out
+                    }
+                    if (bounds == null) {
+                        bounds = boundsInWindow(row);
+                    } else {
+                        bounds.union(boundsInWindow(row));
+                    }
+                }
+                if (bounds != null && !bounds.isEmpty()) {
+                    mLastBounds = bounds;
+                }
+                return new Rect(mLastBounds);
             }
         };
     }
