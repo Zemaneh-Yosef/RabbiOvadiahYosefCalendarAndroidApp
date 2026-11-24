@@ -75,6 +75,25 @@ class TerrainTiles(cacheDir: File, private val server: String = RefractionReposi
 
     private fun <T> await(f: Future<T?>): T? = try { f.get() } catch (e: Exception) { null }
 
+    /**
+     * The ground height (m above sea level, the sea at 0) at a point, from the refraction server's terrain tiles (the heights its
+     * horizons are computed from), else the AWS Terrain Tiles: one zoom-14 tile (~10 m pixels at 30 deg), kept on disk. Null when
+     * neither answers. Blocking (port of the website's ground-height.js).
+     */
+    fun groundHeight(lat: Double, lon: Double): Double? {
+        val z = GROUND_ZOOM
+        val n = 1 shl z
+        val l = Math.toRadians(lat.coerceIn(-85.05, 85.05))
+        val px = (lon + 180) / 360 * n * TILE
+        val py = (1 - kotlin.math.asinh(kotlin.math.tan(l)) / Math.PI) / 2 * n * TILE
+        val tx = Math.floorMod(kotlin.math.floor(px / TILE).toInt(), n)
+        val ty = kotlin.math.floor(py / TILE).toInt().coerceIn(0, n - 1)
+        val i = kotlin.math.floor(py - ty * TILE).toInt().coerceIn(0, TILE - 1) * TILE +
+            kotlin.math.floor(px - kotlin.math.floor(px / TILE) * TILE).toInt().coerceIn(0, TILE - 1)
+        val tile = heights(z, tx, ty) ?: return null
+        return heightAt(tile, i).toDouble()
+    }
+
     // ---- DEM ----
 
     private fun loadDem(z: Int, x: Int, y: Int): ShortArray? {
@@ -230,6 +249,8 @@ class TerrainTiles(cacheDir: File, private val server: String = RefractionReposi
             return (0xFF shl 24) or (((r shl 3) or (r shr 2)) shl 16) or (((g shl 2) or (g shr 4)) shl 8) or ((b shl 3) or (b shr 2))
         }
         const val MAX_IMAGERY_ZOOM = 13
+        /** Zoom of the tile [groundHeight] reads. */
+        private const val GROUND_ZOOM = 14
         private const val POOL = 6
         private const val MAX_FAILS = 3
         private const val CACHE_CAP_BYTES = 150L * 1024 * 1024

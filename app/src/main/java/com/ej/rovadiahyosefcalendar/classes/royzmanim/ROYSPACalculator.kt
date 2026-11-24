@@ -41,6 +41,16 @@ import kotlin.math.tan
  *     precession and sidereal time, Delta-T from IERS measurements and the Earth's rotation from UT1. Computed once per day
  *     and interpolated between the five nearest days (Meeus 3.8).
  * 12. A result cache, keyed also by the air the provider gives for the date and event; every setter clears it.
+ * 13. Elevated sunrise and sunset over a raised base (OFF by default until it is confirmed - the website has it on;
+ *     [setRefractionAtRealHeights]). The GeoLocation's horizon
+ *     elevations (setHorizonElevationAtSunrise / AtSunset) give the height of the land the horizon lies on, and KosherJava passes
+ *     only the observer's height above it. Treating that land as if it were at sea level, in sea-level air, bends the Sun's light
+ *     by its sea-level amount however high the land is (on a plain at 1600 m the elevated sunset came ~25 s after the visible
+ *     sunset over the same plain). Now the horizon depression is traced from the eye at its real height down to the base at its
+ *     own, in the same air: the provider's, or without one the ISA trace scaled so the sea-level horizon refraction is the 34.48',
+ *     added to the Sweer model as a correction (the trace at the real heights minus the trace with the base at sea level), so a
+ *     base at sea level (or no horizon elevation set) gives exactly the result of before. Sea-level times are unchanged.
+ *     A provider's air without a heightM is taken at the observer's real height, not at the height above the base.
  *
  * Depression-angle zmanim (16.04 degrees, 7.165 degrees) are untouched by 1-10, as in KosherJava.
  */
@@ -62,6 +72,8 @@ class ROYSPACalculator @JvmOverloads constructor(
     private var deltaTOverride: Double? = null
     private var pressure = 1013.25
     private var temperature = 10.0
+    /** Trace the elevated sunrise at the real heights of the eye and the base (header, item 13); off until it is confirmed. */
+    private var realHeights = false
 
     private val horizonCache = lru<String, DoubleArray>(256)
     private val refrTableCache = lru<String, RefractionTable>(64)
@@ -91,6 +103,12 @@ class ROYSPACalculator @JvmOverloads constructor(
     fun isApplyDeltaT() = applyDeltaT
     fun setDeltaTOverride(seconds: Double?) { deltaTOverride = seconds; clearResultCache() }
     fun getDeltaTOverride() = deltaTOverride
+    /**
+     * Trace the elevated sunrise and sunset at the real heights of the eye and of the horizon elevation set on the GeoLocation
+     * (header, item 13; default false here until it is confirmed, true on the website). false: as if that land were at sea level, in sea-level air.
+     */
+    fun setRefractionAtRealHeights(on: Boolean) { realHeights = on; clearResultCache() }
+    fun isRefractionAtRealHeights() = realHeights
     /** SPA's own refraction for getSolarElevation (not used for sunrise / sunset). */
     fun setPressure(mb: Double) { pressure = mb }
     fun setTemperature(c: Double) { temperature = c }
@@ -137,11 +155,12 @@ class ROYSPACalculator @JvmOverloads constructor(
 
     private fun cachedRiseSet(date: LocalDate, geo: GeoLocation, zenith: Double, adjust: Boolean, event: SolarEvent, useProvider: Boolean): Double {
         val provider = if (useProvider) atmosphereProvider else null
-        var key = "$date|${geo.latitude}|${geo.longitude}|${geo.elevation}|$zenith|$adjust|$event|${earthRadius}|${refraction}|$solarRadiusScale|$applyDeltaT|$deltaTOverride|$humidity|$seaSurfaceLayer"
+        // the observer's height above this event's horizon (KosherJava: the elevation less the horizon elevation set for it)
+        val elevation = if (!adjust) 0.0 else if (event == SolarEvent.SUNRISE) geo.sunriseElevation else geo.sunsetElevation
+        var key = "$date|${geo.latitude}|${geo.longitude}|${geo.elevation}|$elevation|$zenith|$adjust|$event|${earthRadius}|${refraction}|$solarRadiusScale|$applyDeltaT|$deltaTOverride|$humidity|$seaSurfaceLayer|$realHeights"
         if (zenith == GEOMETRIC_ZENITH && elevationModel == ElevationModel.PHYSICAL && provider != null) key += "|" + airKey(safeAir(provider, date, event, geo))
         synchronized(resultCache) { resultCache[key] }?.let { return it }
-        val elevation = if (adjust) geo.elevation else 0.0
-        val adjusted = adjustZenith(zenith, elevation, date, event, geo, provider)
+        val adjusted = adjustZenith(zenith, elevation, date, event, geo, provider, adjust)
         var riseSet = solveRiseSet(date, geo, adjusted, event)
         if (!riseSet.isNaN()) {
             riseSet /= 60
@@ -162,18 +181,20 @@ class ROYSPACalculator @JvmOverloads constructor(
     private fun atmosphereFor(date: LocalDate?, event: SolarEvent?, geo: GeoLocation?, heightM: Double, provider: AtmosphereProvider? = atmosphereProvider): Medium? {
         if (provider == null || date == null || event == null || geo == null) return null
         val spec = safeAir(provider, date, event, geo) ?: return null
-        val problem = AtmosphereGuard.specProblem(spec)
+        // a provider set without chainProviders gets the climate check too (never tighter than the normal's)
+        val problem = AtmosphereGuard.specProblem(spec) ?: AtmosphereGuard.anomalyProblem(spec, date, geo)
         if (problem != null) { AtmosphereGuard.report("$date $event: $problem"); return null }
         return Refraction.atmosphereFromSpec(heightM, spec, seaSurfaceLayer, humidity, geo.latitude)
     }
 
-    private fun rayTracedHorizon(atm: Medium, heightM: Double): DoubleArray {
+    /** Dip and refraction of the ray grazing a level surface floorM metres above sea level, seen from heightM. */
+    private fun rayTracedHorizon(atm: Medium, heightM: Double, floorM: Double = 0.0): DoubleArray {
         val R = earthRadius * 1000
-        val key = atm.key + "|" + heightM + "|" + R
+        val key = atm.key + "|" + heightM + "|" + floorM + "|" + R
         synchronized(horizonCache) { horizonCache[key] }?.let { return it }
-        val dip = -atm.seaHorizon(heightM, R)
-        // nudge just above the grazing ray so the tracer does not register it as reaching the sea
-        val v = doubleArrayOf(dip, atm.refraction(heightM, -dip + (if (heightM > 0) 1e-7 else 0.0), R))
+        val dip = -atm.seaHorizon(heightM, R, floorM)
+        // nudge just above the grazing ray so the tracer does not register it as reaching the surface
+        val v = doubleArrayOf(dip, atm.refraction(heightM, -dip + (if (heightM > floorM) 1e-7 else 0.0), R, floorM))
         synchronized(horizonCache) { horizonCache[key] = v }
         return v
     }
@@ -198,7 +219,7 @@ class ROYSPACalculator @JvmOverloads constructor(
         return h[0] + refraction * h[1]
     }
 
-    private fun adjustZenith(zenith: Double, elevation: Double, date: LocalDate?, event: SolarEvent?, geo: GeoLocation?, provider: AtmosphereProvider?): Double {
+    private fun adjustZenith(zenith: Double, elevation: Double, date: LocalDate?, event: SolarEvent?, geo: GeoLocation?, provider: AtmosphereProvider?, adjusting: Boolean = false): Double {
         if (zenith != GEOMETRIC_ZENITH) return zenith
         val radius = if (isUseApparentSolarRadius && date != null) getApparentSolarRadius(date) else solarRadius
         if (elevationModel == ElevationModel.KOSHERJAVA) {
@@ -206,8 +227,34 @@ class ROYSPACalculator @JvmOverloads constructor(
         }
         // Negative elevations (e.g. Dead Sea) are treated as sea level: the horizon model needs height >= 0.
         val heightM = if (elevation.isFinite()) max(0.0, elevation) else 0.0
-        val atm = atmosphereFor(date, event, geo, heightM, provider)
-        return zenith + radius + getHorizonDepression(heightM, atm)
+        // the eye's real height (header, item 13); without a GeoLocation, the height above the base
+        val eyeElevation = geo?.elevation ?: Double.NaN
+        val eyeM = if (eyeElevation.isFinite()) max(max(0.0, eyeElevation), heightM) else heightM
+        val atm = atmosphereFor(date, event, geo, eyeM, provider)
+        var depression = Double.NaN
+        if (realHeights && adjusting && eyeM > heightM) {
+            // the base, eyeM - heightM above sea level: trace from the eye down to it
+            val baseM = eyeM - heightM
+            if (atm != null) {
+                val r = rayTracedHorizon(atm, eyeM, baseM)
+                depression = r[0] + r[1]
+            }
+            if (!depression.isFinite()) {
+                // standard air: the Sweer model, corrected by the ISA trace at the real heights against the same trace with the
+                // base at sea level, the refraction scaled as the visible sunrise scales it
+                val isa = Refraction.atmosphereFromSpec(0.0, null)
+                val R = earthRadius * 1000
+                val k = "isa0|$R"
+                val isa0 = synchronized(horizonCache) { horizonCache[k] } ?: doubleArrayOf(0.0, isa.refraction(0.0, 0.0, R)).also { synchronized(horizonCache) { horizonCache[k] = it } }
+                val scale = refraction / isa0[1]
+                val real = rayTracedHorizon(isa, eyeM, baseM)
+                val sea = rayTracedHorizon(isa, heightM, 0.0)
+                depression = getHorizonDepression(heightM, null) + (real[0] - sea[0]) + scale * (real[1] - sea[1])
+            }
+        } else {
+            depression = getHorizonDepression(heightM, atm)
+        }
+        return zenith + radius + depression
     }
 
     // KosherJava 3.0's SPACalculator solver, with 3.1's bracketing fallback where the closed-form guess fails
@@ -482,11 +529,33 @@ class ROYSPACalculator @JvmOverloads constructor(
             val d = solarDate(date, geo)
             val t = utcToEpochMs(d, geo, cachedRiseSet(d, geo, GEOMETRIC_ZENITH, true, event, false), event)
             if (t.isFinite()) {
-                val az0 = sunTrue(t / 86400000 + JD_UNIX_EPOCH, geo)[1]
+                // Over a high horizon the Sun is first (last) seen well past that direction, along its slanted path: the
+                // directions it passes until it stands above the highest of the set's horizons (geometric)
+                val R = earthRadius * 1000
+                var top = Double.NEGATIVE_INFINITY
+                for (p in pts) for (e in p.profile(event)!!.points)
+                    if (e is DemHorizonPoint) top = max(top, Refraction.geometricElevation(p.height, e.heightM, e.distanceKm * 1000, R))
+                val dir = if (event == SolarEvent.SUNRISE) 1 else -1
+                val jd0 = t / 86400000 + JD_UNIX_EPOCH
+                var spanLo = Double.POSITIVE_INFINITY
+                var spanHi = Double.NEGATIVE_INFINITY
+                for (k in 0..90) {// 2-minute steps, up to 3 hours
+                    val s = sunTrue(jd0 + dir * k * 2 / 1440.0, geo)
+                    val az = s[1]
+                    // unwrapped around the first direction, so a span across north stays one span
+                    val a = if (spanLo == Double.POSITIVE_INFINITY) az else az + 360 * Math.round((spanLo - az) / 360).toDouble()
+                    spanLo = min(spanLo, a)
+                    spanHi = max(spanHi, a)
+                    if (s[0] > top + 1) break
+                }
                 val near = pts.filter { p ->
-                    (p.wins[event] ?: emptyList()).any { w ->
-                        val lo = w[0]; val hi = w[1]
-                        ((az0 - (lo - 3)) % 360 + 360) % 360 <= ((hi + 3 - (lo - 3)) % 360 + 360) % 360
+                    (p.wins[event] ?: emptyList()).any { win ->
+                        val lo = win[0]; val hi = win[1]
+                        val w = ((hi - lo) % 360 + 360) % 360 + 6// the window, 3 deg spare each side
+                        val from = lo - 3
+                        // the window meets the span when either end of one lies inside the other
+                        fun inside(a: Double) = ((a - from) % 360 + 360) % 360 <= w
+                        inside(spanLo) || inside(spanHi) || ((from - spanLo) % 360 + 360) % 360 <= spanHi - spanLo
                     }
                 }
                 if (near.isNotEmpty()) pts = near

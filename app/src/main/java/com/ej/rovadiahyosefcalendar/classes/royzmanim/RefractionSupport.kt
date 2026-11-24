@@ -318,12 +318,12 @@ object RefractionSupport {
         }
     }
 
-    /** epoch ms -> Instant, null for NaN; and the website's sanity check (more than an hour from `sunrise` is a bad profile). */
+    /**
+     * epoch ms -> Instant, null for NaN. No cap on how far it may be from sunrise (the website dropped its one-hour check): below a
+     * high horizon it is legitimately later (Gibraltar's town, under the Rock, by up to two hours). A horizon that can't be the
+     * place's terrain is refused when it is loaded ([AtmosphereGuard.horizonProblem]), and then there is no visible sunrise.
+     */
     @JvmStatic
-    fun checkedInstant(ms: Double, sunrise: Instant?): Instant? {
-        if (!ms.isFinite()) return null
-        val t = Instant.ofEpochMilli(Math.round(ms))
-        if (sunrise != null && abs(t.toEpochMilli() - sunrise.toEpochMilli()) > 3600000) return null
-        return t
-    }
+    @Suppress("UNUSED_PARAMETER")
+    fun checkedInstant(ms: Double, sunrise: Instant?): Instant? = if (ms.isFinite()) Instant.ofEpochMilli(Math.round(ms)) else null
 }

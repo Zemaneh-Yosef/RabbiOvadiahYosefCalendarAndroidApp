@@ -952,7 +952,8 @@ object Refraction {
 
     /**
      * Combine providers: each is asked in turn and the first answer that can be real air is used. An answer the guardrails
-     * refuse, or air more than 45 C from the place's normal when a climatology provider is in the chain, passes on.
+     * refuse, or air more than 45 C from the place's normal (when a climatology provider is in the chain; else from the
+     * refraction server's climate envelope for the place, [ClimateEnvelope]), passes on.
      */
     @JvmStatic
     fun chainProviders(vararg providers: AtmosphereProvider?): AtmosphereProvider {
@@ -964,13 +965,11 @@ object Refraction {
                 val source = (spec as? SurfaceAir)?.source ?: (spec as? PathAir)?.source ?: "provider"
                 val problem = AtmosphereGuard.specProblem(spec)
                 if (problem != null) { AtmosphereGuard.report("$source for $date $event: $problem"); continue }
-                if (climate != null && p !== climate) {
-                    val normal = AtmosphereGuard.groundTemperature(climate.airFor(date, event, geo))
-                    val here = AtmosphereGuard.groundTemperature(spec)
-                    if (normal.isFinite() && here.isFinite() && kotlin.math.abs(here - normal) > AtmosphereGuard.MAX_ANOMALY_C) {
-                        AtmosphereGuard.report("$source for $date $event: $here C against a normal of $normal C")
-                        continue
-                    }
+                if (p !== climate) {
+                    // the place's normal when the chain has one, else the server's climate envelope for the place
+                    val normal = if (climate != null) AtmosphereGuard.groundTemperature(climate.airFor(date, event, geo)) else Double.NaN
+                    val anomaly = AtmosphereGuard.anomalyProblem(spec, date, geo, normal)
+                    if (anomaly != null) { AtmosphereGuard.report("$source for $date $event: $anomaly"); continue }
                 }
                 return@AtmosphereProvider spec
             }

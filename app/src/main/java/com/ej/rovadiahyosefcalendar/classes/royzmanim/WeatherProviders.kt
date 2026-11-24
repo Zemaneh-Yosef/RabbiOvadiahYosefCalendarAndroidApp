@@ -52,9 +52,11 @@ object SunsetAir {
         "gfs" to arrayOf(doubleArrayOf(-0.0912, 0.2659), doubleArrayOf(-0.2151, 0.2745), doubleArrayOf(-0.4609, 0.2952), doubleArrayOf(-0.7808, 0.4320)),
         "hrrr" to arrayOf(doubleArrayOf(-0.0852, 0.1820), doubleArrayOf(-0.1953, 0.2460), doubleArrayOf(-0.4746, 0.2834), doubleArrayOf(-0.9834, 0.3164)),
         "gem" to arrayOf(doubleArrayOf(0.1108, 0.2327), doubleArrayOf(0.0916, 0.3088), doubleArrayOf(0.0216, 0.3605), doubleArrayOf(0.0511, 0.5056)),
-        "europe" to arrayOf(doubleArrayOf(-0.0254, 0.4030), doubleArrayOf(-0.0859, 0.4995), doubleArrayOf(-0.2510, 0.5751), doubleArrayOf(-0.3897, 0.7766)),
+        // the 'europe' coefficients (best_match in Europe) were removed on 20 November 2026: fitted on best_match columns, which mix models
         "icon" to arrayOf(doubleArrayOf(0.0029, 0.4891), doubleArrayOf(-0.0435, 0.6260), doubleArrayOf(-0.1806, 0.7552), doubleArrayOf(0.0, 1.0)),
     )
+    /** Model levels closer than this (m) above the highest corrected level are left out (they add nothing there). */
+    private const val NEAR_LEVEL_GAP_M = 15.0
     private const val G0 = 9.80665
     private const val R_DRY = 287.05
 
@@ -87,7 +89,10 @@ object SunsetAir {
             val p = prev.p * exp(-G0 * (z - prev.h) / (R_DRY * ((t + prev.t) / 2 + 273.15)))
             out.add(ProfileLevel(z, t, p))
         }
-        for (l in levels) if (l.h - ground > top + 3) out.add(l)
+        // the model's levels above: not one within NEAR_LEVEL_GAP_M of the 200 m level just set, whose pressure is worked out from
+        // the 2 m air and could otherwise come out lower than that of a level a few metres above it (seen: 899.98 hPa at 1006 m
+        // under 900 hPa at 1008 m, and the calculator refused the sunset)
+        for (l in levels) if (l.h - (ground + 2 + top) > NEAR_LEVEL_GAP_M) out.add(l)
         return prof.copy(levels = out)
     }
 
@@ -355,6 +360,20 @@ object OpenMeteoPath {
     val DEFAULT_LEVELS_MB = intArrayOf(1000, 975, 950, 925, 900, 850, 800, 700)
     val GEM_LEVELS_MB = intArrayOf(1015, 1000, 985, 970, 950, 925, 900, 875, 850, 800, 700)
     const val FALLBACK_MODEL = "gfs_seamless"
+    /** Added where the ground along the paths is high ([HIGH_GROUND_M]): ~4.2 and ~5.6 km. */
+    val HIGH_LEVELS_MB = intArrayOf(600, 500)
+    /**
+     * Ground (m, any point of a place's paths) above which the columns also get [HIGH_LEVELS_MB]. The 700 mb layer is at ~2.8-3.2 km,
+     * so a column on ground near or above it had only its 2 m air, and the calculator refused the whole event (Bogota, Quito, La Paz,
+     * Sana'a's sunsets, Denver's sunsets over the Rockies). Asked for once a place shows such ground, and at every refresh after.
+     */
+    const val HIGH_GROUND_M = 2000.0
+    /**
+     * How far ahead of now each chosen model reaches at the least (its run length, less its update interval and the hours until a
+     * run is out): the fallback model is asked only for the days from a day before this on. A model not listed gets the
+     * fallback's whole range.
+     */
+    private val REACH_HOURS = mapOf("icon_seamless" to 160, "gem_seamless" to 216)
     private const val DEG = PI / 180
     private const val R_EARTH = 6371008.8
 
@@ -381,12 +400,16 @@ object OpenMeteoPath {
         return inside
     }
 
-    /** The Open-Meteo model to use for an observer: ICON near Israel, GEM in Canada, best_match in Europe, else GFS. */
+    /**
+     * The Open-Meteo model to use for an observer: ICON near Israel and in Europe, GEM in Canada, else GFS. Europe had used
+     * best_match, but only as a leftover default: checked live (20 November 2026, 26 places), best_match mixed models between the
+     * 2 m air and the levels from day 0 in places and from ~day 5 across most of the continent.
+     */
     @JvmStatic
     fun chooseModel(lat: Double, lon: Double): String = when {
         lat in 29.0..34.8 && lon in 33.0..36.8 -> "icon_seamless"
         inPolygon(lat, lon, CANADA) -> "gem_seamless"
-        lat in 29.5..70.5 && lon in -23.5..62.5 -> "best_match"
+        lat in 29.5..70.5 && lon in -23.5..62.5 -> "icon_seamless"
         else -> FALLBACK_MODEL
     }
 
@@ -398,7 +421,6 @@ object OpenMeteoPath {
             "gfs_global", "gfs025" -> "gfs"
             "icon_seamless" -> "icon"
             "gem_seamless" -> "gem"
-            "best_match" -> if (chooseModel(lat, lon) == "best_match") "europe" else null
             "gfs_seamless" -> if (lat in 21.0..53.0 && lon in -135.0..-60.0 && t < fetchedAt + 48 * 3600000.0) "hrrr" else "gfs"
             else -> null
         }
@@ -468,12 +490,18 @@ object OpenMeteoPath {
     class PathAtmosphere internal constructor(
         private val latitude: Double, private val longitude: Double, private val days: Int, private val humidity: Boolean,
         val model: String, val fallbackModel: String?, private val sunsetAirCorrection: Boolean, private val timeoutMs: Int,
+        /** Also fetch the sea-surface temperature of the points on open water (for the calculator's sea surface layer). */
+        private val seaSurfaceTemperature: Boolean = false,
     ) : FetchedProvider {
         private class Fan(val event: SolarEvent, val az: Double, val idx: IntArray)
         @Volatile private var fans: List<Fan> = emptyList()
         @Volatile private var fc: List<Series> = emptyList()
         @Volatile private var fb: List<Series> = emptyList()
         @Volatile private var marine: Map<Int, Series> = emptyMap()
+        /** Indices of the points on open water. */
+        @Volatile private var water: Set<Int> = emptySet()
+        /** The paths cross ground above HIGH_GROUND_M: HIGH_LEVELS_MB are asked for too. */
+        @Volatile private var high = false
         private val built = HashMap<String, PathAir?>()
         private var stamp = ""
         private var fetchedAt = 0L
@@ -483,7 +511,7 @@ object OpenMeteoPath {
         @Volatile var cell: DoubleArray? = null
         private val dists = DEFAULT_DISTANCES_KM
 
-        private fun levelsFor(m: String) = if (Regex("^(cmc_)?gem").containsMatchIn(m)) GEM_LEVELS_MB else DEFAULT_LEVELS_MB
+        private fun levelsFor(m: String) = (if (Regex("^(cmc_)?gem").containsMatchIn(m)) GEM_LEVELS_MB else DEFAULT_LEVELS_MB) + (if (high) HIGH_LEVELS_MB else IntArray(0))
 
         override fun refresh() {
             val now = System.currentTimeMillis()
@@ -501,45 +529,73 @@ object OpenMeteoPath {
             }
             val lats = pts.joinToString(",") { f4(it[0]) }
             val lons = pts.joinToString(",") { f4(it[1]) }
-            fun fetchModel(m: String): List<Series> {
+            /** range: dates (epoch ms) to ask for; null = the whole window */
+            fun fetchModel(m: String, range: LongArray? = null): List<Series> {
                 val lv = levelsFor(m)
                 val hourly = listOf("temperature_2m", "surface_pressure") + lv.map { "temperature_${it}hPa" } + lv.map { "geopotential_height_${it}hPa" } +
                     (if (humidity) listOf("dew_point_2m") + lv.map { "relative_humidity_${it}hPa" } else emptyList())
-                val url = "${OpenMeteo.FORECAST_URL}?latitude=$lats&longitude=$lons&hourly=${hourly.joinToString(",")}&past_days=1&forecast_days=$days" +
+                val `when` = if (range != null) "&start_date=${utcDate(range[0])}&end_date=${utcDate(range[1])}" else "&past_days=1&forecast_days=$days"
+                val url = "${OpenMeteo.FORECAST_URL}?latitude=$lats&longitude=$lons&hourly=${hourly.joinToString(",")}${`when`}" +
                     "&timeformat=unixtime&timezone=GMT&cell_selection=nearest" + (if (m == "best_match") "" else "&models=$m")
                 val s = toSeries(WeatherHttp.getOpenMeteo(url, timeoutMs = timeoutMs), lv)
                 if (s.size != pts.size) throw WeatherHttpException("Open-Meteo returned ${s.size} locations, expected ${pts.size}")
                 if (s[0].times.isEmpty()) throw WeatherHttpException("Open-Meteo returned no hourly data for $m")
                 return s
             }
-            var errA: Exception? = null
-            var errB: Exception? = null
-            // both at once; either alone is still usable
-            val fbThread = fallbackModel?.let { fbm ->
-                val holder = arrayOfNulls<List<Series>>(1)
-                val th = Thread { try { holder[0] = fetchModel(fbm) } catch (e: Exception) { errB = e } }
-                th.start()
-                Pair(th, holder)
+            // the fallback only where the chosen model may have ended: from a day before its least reach on
+            val reach = REACH_HOURS[model]
+            val fbRange = if (fallbackModel != null && reach != null) longArrayOf(now + (reach - 24) * 3600000L, (t0 + span - 86400000).toLong()) else null
+            /** both at once; either alone is still usable */
+            fun fetchBoth(): Triple<List<Series>, List<Series>, Exception?> {
+                var errA: Exception? = null
+                var errB: Exception? = null
+                val fbThread = fallbackModel?.let { fbm ->
+                    val holder = arrayOfNulls<List<Series>>(1)
+                    val th = Thread { try { holder[0] = fetchModel(fbm, fbRange) } catch (e: Exception) { errB = e } }
+                    th.start()
+                    Pair(th, holder)
+                }
+                val a = try { fetchModel(model) } catch (e: Exception) { errA = e; emptyList() }
+                fbThread?.first?.join()
+                val b = fbThread?.second?.get(0) ?: emptyList()
+                if (errA != null && (errB != null || fallbackModel == null)) throw errA!!
+                return Triple(a, b, errA ?: errB)
             }
-            val newFc = try { fetchModel(model) } catch (e: Exception) { errA = e; emptyList() }
-            fbThread?.first?.join()
-            val newFb = fbThread?.second?.get(0) ?: emptyList()
-            if (errA != null && (errB != null || fallbackModel == null)) throw errA!!
-            var err: Exception? = errA ?: errB
+            var (newFc, newFb, err) = fetchBoth()
+            var fbWhole = false
+            // the chosen model failed, or ended before the fallback's days begin: the fallback's whole range after all
+            if (fallbackModel != null && fbRange != null && (newFc.isEmpty() || newFc[0].times.last() * 1000 < fbRange[0])) {
+                try {
+                    newFb = fetchModel(fallbackModel)
+                    fbWhole = true
+                } catch (e: Exception) {
+                    err = e
+                    if (newFc.isEmpty()) throw e
+                }
+            }
+            // high ground: the same requests again with the levels above 700 mb (once; later refreshes ask for them at once).
+            // Should that fail, the columns without them stay: the events on that ground are refused as before.
+            if (!high && (newFc + newFb).any { it.elevation > HIGH_GROUND_M }) {
+                high = true
+                if (newFc.isNotEmpty()) try { newFc = fetchModel(model) } catch (e: Exception) { err = e }
+                if (newFb.isNotEmpty() && fallbackModel != null) try { newFb = fetchModel(fallbackModel, if (fbWhole) null else fbRange) } catch (e: Exception) { err = e }
+            }
             val any = newFc.ifEmpty { newFb }
-            val sea = pts.indices.filter { any[it].elevation == 0.0 }
+            // open water: where the 90 m terrain model puts the point at sea level
+            val newWater = pts.indices.filter { any[it].elevation == 0.0 }.toSet()
             val newMarine = HashMap<Int, Series>()
-            if (sea.isNotEmpty()) {
+            if (seaSurfaceTemperature && newWater.isNotEmpty()) {
+                val sea = newWater.toList()
                 try {
                     val murl = "${OpenMeteo.MARINE_URL}?latitude=${sea.joinToString(",") { f4(pts[it][0]) }}&longitude=${sea.joinToString(",") { f4(pts[it][1]) }}" +
                         "&hourly=sea_surface_temperature&past_days=1&forecast_days=${min(days, 8)}&timeformat=unixtime&timezone=GMT"
                     val ms = toSeries(WeatherHttp.getOpenMeteo(murl, timeoutMs = timeoutMs))
                     sea.forEachIndexed { k, i -> if (k < ms.size && ms[k].times.isNotEmpty()) newMarine[i] = ms[k] }
-                } catch (e: Exception) { err = e }
+                } catch (e: Exception) { err = e }// keep going without water temperatures
             }
             val ends = listOf(newFc, newFb).filter { it.isNotEmpty() }.map { it[0].times }
             synchronized(built) {
-                fans = newFans; fc = newFc; fb = newFb; marine = newMarine; built.clear()
+                fans = newFans; fc = newFc; fb = newFb; marine = newMarine; water = newWater; built.clear()
                 cell = any[0].cell
                 fetchedAt = now
                 coverage = longArrayOf(ends.minOf { it[0] } * 1000, ends.maxOf { it[it.size - 1] } * 1000)
@@ -571,10 +627,9 @@ object OpenMeteoPath {
                 if (!z.isFinite() || !tp.isFinite()) return null
                 if (z > h0 + 1) lv.add(ProfileLevel(z, tp, p.toDouble(), rh = if (humidity) s.at("relative_humidity_${p}hPa", t).takeIf { it.isFinite() } else null))
             }
-            val m = marine[i]
-            if (m != null) {
-                val sst = sstAt(m, t)
-                if (sst.isFinite()) return PathProfile(distanceKm, true, sst, lv)
+            if (i in water) {
+                val sst = marine[i]?.let { sstAt(it, t) } ?: Double.NaN
+                return PathProfile(distanceKm, true, if (sst.isFinite()) sst else null, lv)
             }
             return PathProfile(distanceKm, levels = lv)
         }
@@ -588,14 +643,16 @@ object OpenMeteoPath {
             if (cov != null && t.isFinite() && t >= cov[0] && t <= cov[1]) {
                 val az = eventAzimuth(latitude, t, event)
                 val fan = fans.filter { it.event == event }.minByOrNull { abs(it.az - az) }!!
+                // the whole path from one model: the chosen one if it is complete and real air (AtmosphereGuard), else the fallback's
                 for ((series, name) in listOf(Pair(fc, model), Pair(fb, fallbackModel ?: ""))) {
                     if (series.isEmpty()) continue
                     val path = fan.idx.mapIndexed { n, i -> profileFrom(series[i], i, t, dists[n]) }
                     if (path.all { it != null }) {
                         val air = if (sunsetAirCorrection) sunsetAirModel(name, event, latitude, longitude, t, fetchedAt) else null
                         @Suppress("UNCHECKED_CAST") val p = path as List<PathProfile>
-                        res = PathAir(if (air != null) SunsetAir.correctPath(p, air) else p,
-                            "om|$name|$stamp|$k${if (humidity) "|h" else ""}${if (air != null) "|air-${air}1" else ""}", "forecast")
+                        val final = if (air != null) SunsetAir.correctPath(p, air) else p
+                        if (AtmosphereGuard.checkPath(final) != null) continue// as the calculator would refuse it: the next model's
+                        res = PathAir(final, "om|$name|$stamp|$k${if (humidity) "|h" else ""}${if (air != null) "|air-${air}1" else ""}", "forecast")
                         break
                     }
                 }
@@ -609,12 +666,15 @@ object OpenMeteoPath {
     @JvmStatic
     @JvmOverloads
     fun create(latitude: Double, longitude: Double, days: Int = 16, models: String = "auto", humidity: Boolean = false,
-               sunsetAirCorrection: Boolean = true, timeoutMs: Int = 60000): PathAtmosphere {
+               sunsetAirCorrection: Boolean = true, timeoutMs: Int = 60000, seaSurfaceTemperature: Boolean = false): PathAtmosphere {
         val d = max(1, min(days, 16))
+        // 'best_match' still goes through when asked for, but mixes models between the 2 m air and the levels: not recommended
         val model = if (models == "auto") chooseModel(latitude, longitude) else models
-        val fb = if (FALLBACK_MODEL != model && model != "best_match") FALLBACK_MODEL else null
-        return PathAtmosphere(latitude, longitude, d, humidity, model, fb, sunsetAirCorrection, timeoutMs).also { it.refresh() }
+        val fb = if (FALLBACK_MODEL != model) FALLBACK_MODEL else null
+        return PathAtmosphere(latitude, longitude, d, humidity, model, fb, sunsetAirCorrection, timeoutMs, seaSurfaceTemperature).also { it.refresh() }
     }
+
+    private fun utcDate(ms: Long) = java.time.Instant.ofEpochMilli(ms).atZone(ZoneOffset.UTC).toLocalDate().toString()
 }
 
 // =============================================================================================== the refraction server's profiles

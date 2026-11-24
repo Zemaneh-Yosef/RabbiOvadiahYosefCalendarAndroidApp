@@ -16,7 +16,10 @@ import kotlin.math.min
 import kotlin.math.sin
 
 /** A request that failed in a way worth reporting (HTTP status, a non-JSON body). */
-class WeatherHttpException(message: String, val status: Int = 0, val body: JSONObject? = null) : IOException(message)
+open class WeatherHttpException(message: String, val status: Int = 0, val body: JSONObject? = null) : IOException(message)
+
+/** Open-Meteo answered 429 (over a limit): ask again after [retryAfterS] seconds. */
+class OpenMeteoRateLimitException(message: String, val retryAfterS: Int) : WeatherHttpException(message, 429)
 
 /** Blocking JSON GETs for the weather and refraction-server clients (call off the main thread). */
 object WeatherHttp {
@@ -25,7 +28,12 @@ object WeatherHttp {
 
     /** GET a URL; returns the status and the body text. */
     @JvmStatic
-    fun get(url: String, timeoutMs: Int = 20000, accept: String = "application/json"): Pair<Int, String> {
+    fun get(url: String, timeoutMs: Int = 20000, accept: String = "application/json"): Pair<Int, String> =
+        getWithHeaders(url, timeoutMs, accept).let { Pair(it.first, it.second) }
+
+    /** GET a URL; returns the status, the body text and the response headers (names in lower case). */
+    @JvmStatic
+    fun getWithHeaders(url: String, timeoutMs: Int = 20000, accept: String = "application/json"): Triple<Int, String, Map<String, String>> {
         val c = URL(url).openConnection() as HttpURLConnection
         try {
             c.connectTimeout = min(timeoutMs, 15000)
@@ -34,13 +42,25 @@ object WeatherHttp {
             c.setRequestProperty("Accept", accept)
             c.setRequestProperty("Accept-Encoding", "gzip")
             val status = c.responseCode
-            val stream = (if (status in 200..299) c.inputStream else c.errorStream) ?: return Pair(status, "")
+            val headers = HashMap<String, String>()
+            for ((k, v) in c.headerFields) if (k != null && !v.isNullOrEmpty()) headers[k.lowercase()] = v[0]
+            val stream = (if (status in 200..299) c.inputStream else c.errorStream) ?: return Triple(status, "", headers)
             val input = if ("gzip".equals(c.contentEncoding, true)) java.util.zip.GZIPInputStream(stream) else stream
-            return Pair(status, input.bufferedReader().use { it.readText() })
+            return Triple(status, input.bufferedReader().use { it.readText() }, headers)
         } finally {
             c.disconnect()
         }
     }
+
+    /** When Open-Meteo's last 429 said to ask again (epoch ms); 0 = no wait. */
+    @Volatile private var openMeteoBlockedAt = 0L
+
+    /** When Open-Meteo's last 429 said to ask again (epoch ms), or 0 once that has passed. */
+    @JvmStatic
+    fun openMeteoBlockedUntil(): Long = openMeteoBlockedAt.takeIf { it > System.currentTimeMillis() } ?: 0L
+
+    /** A Retry-After at most this long is waited out within the request; a longer one fails it. */
+    private const val MAX_INLINE_WAIT_S = 30
 
     /** A JSON object from a server, with its error message on failure (no retries). */
     @JvmStatic
@@ -53,34 +73,50 @@ object WeatherHttp {
 
     /**
      * GET a JSON response from Open-Meteo, with retries for passing trouble: a 200 with a plain-text body ("timeoutReached"),
-     * a timeout or network error, HTTP 429 and 5xx are retried `retries` times; HTTP 4xx is not. The body may be one object
+     * a timeout or network error and HTTP 5xx are retried `retries` times; HTTP 4xx is not. HTTP 429 (a limit reached) is
+     * retried after its Retry-After when that is short; a longer one throws [OpenMeteoRateLimitException], and until it has
+     * passed every request fails at once with the same error instead of spending more of the quota. The body may be one object
      * or an array (several locations).
      */
     @JvmStatic
     fun getOpenMeteo(url: String, retries: Int = 1, timeoutMs: Int = 20000, retryDelayMs: Long = 2000): Any {
         var attempt = 0
         while (true) {
+            val blocked = openMeteoBlockedUntil()
+            if (blocked > 0) throw OpenMeteoRateLimitException("Open-Meteo limit reached (waiting for its Retry-After)",
+                ((blocked - System.currentTimeMillis() + 999) / 1000).toInt())
             var retryable = true
+            var wait = retryDelayMs * (attempt + 1)
             try {
-                val (status, text) = get(url, timeoutMs)
+                val (status, text, headers) = getWithHeaders(url, timeoutMs)
+                if (status == 429) {
+                    val after = headers["retry-after"]?.trim()?.toIntOrNull()
+                    val s = if (after != null && after > 0) after else 60
+                    if (s > MAX_INLINE_WAIT_S || attempt >= retries) {
+                        openMeteoBlockedAt = System.currentTimeMillis() + s * 1000L
+                        throw OpenMeteoRateLimitException("Open-Meteo limit reached (HTTP 429; ask again in $s s)", s)
+                    }
+                    wait = s * 1000L
+                    throw WeatherHttpException("Open-Meteo limit reached (HTTP 429)", 429)
+                }
                 val ok = status in 200..299
                 val j: Any = try {
                     val t = text.trimStart()
                     if (t.startsWith("[")) JSONArray(t) else JSONObject(t)
                 } catch (e: Exception) {
-                    retryable = ok || status == 429 || status >= 500
+                    retryable = ok || status >= 500
                     throw WeatherHttpException("Open-Meteo request failed (HTTP $status: ${text.trim().take(120).ifEmpty { "empty response" }})", status)
                 }
                 val error = (j as? JSONObject)?.optBoolean("error", false) ?: false
                 if (!ok || error) {
-                    retryable = status == 429 || status >= 500
+                    retryable = status >= 500
                     val reason = (j as? JSONObject)?.optString("reason")?.takeIf { it.isNotEmpty() }
                     throw WeatherHttpException("Open-Meteo request failed (HTTP $status${if (reason != null) ": $reason" else ""})", status)
                 }
                 return j
             } catch (e: IOException) {
-                if (!retryable || attempt >= retries) throw e
-                Thread.sleep(retryDelayMs * (attempt + 1))
+                if (e is OpenMeteoRateLimitException || !retryable || attempt >= retries) throw e
+                Thread.sleep(wait)
                 attempt++
             }
         }
