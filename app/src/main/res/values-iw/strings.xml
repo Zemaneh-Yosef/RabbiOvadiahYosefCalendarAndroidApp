@@ -759,10 +759,12 @@
     <string name="netz_unit_hours">ש׳</string>
     <string name="netz_unit_minutes">ד׳</string>
     <string name="netz_unit_seconds">שנ׳</string>
-    <string name="use_refraction_data">מזג אוויר, פני השטח ואובך</string>
-    <string name="use_refraction_data_summary">חישוב הזריחה והשקיעה לפי האוויר בפועל של אותו יום (Open-Meteo ושרת השבירה של ROYZmanim), הנץ הנראה מעל פני השטח, והאובך. נתוני מזג האוויר מ-Open-Meteo.com.</string>
+    <string name="use_refraction_data">מזג אוויר</string>
+    <string name="use_refraction_data_summary">חישוב הזריחה והשקיעה לפי האוויר בפועל של אותו יום (Open-Meteo ושרת השבירה של ROYZmanim). נתוני מזג האוויר מ-Open-Meteo.com.</string>
+    <string name="use_terrain_data">פני השטח (הנץ הנראה)</string>
+    <string name="use_terrain_data_summary">חישוב הנץ הנראה מעל פני השטח שמסביב (שרת השבירה של ROYZmanim). כבוי: הנץ במישור.</string>
     <string name="use_haze_tzet">אובך לזמן צאת השבת</string>
-    <string name="use_haze_tzet_summary">הזזת זמן צאת השבת לפי מעלות (לוח עמודי הוראה) לפי האובך של הערב: מאוחר יותר בערבים עם אובך, מוקדם יותר בערבים צלולים, עד 15 דקות לכל היותר</string>
+    <string name="use_haze_tzet_summary">הזזת זמן צאת השבת לפי מעלות (לוח עמודי הוראה) לפי האובך של הערב: מאוחר יותר בערבים עם אובך, מוקדם יותר בערבים צלולים, עד 15 דקות לכל היותר. נתוני האובך מ-Open-Meteo.com.</string>
     <string name="refraction_updating">מעדכן את הזמנים לפי מזג האוויר העדכני…</string>
     <string name="refraction_calculating_sunrise">מחשב זריחה נראית…</string>
     <string name="refraction_update_failed">לא ניתן היה לסיים לעדכן את הזמנים. מוצגים זמנים לפי הנתונים השמורים.</string>

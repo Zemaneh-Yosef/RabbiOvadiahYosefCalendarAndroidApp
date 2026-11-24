@@ -39,7 +39,8 @@ class ZemanehYosefApplication : Application() {
             if (!date.isBefore(today.minusDays(1)) && !date.isAfter(today.plusDays(1))) scheduleNotificationsAndWidgetUpdate()
         }
         val settings = PreferenceManager.getDefaultSharedPreferences(this)
-        RefractionSupport.enabled = settings.getBoolean(PREF_REFRACTION, true)
+        RefractionSupport.weather = settings.getBoolean(PREF_REFRACTION, true)
+        RefractionSupport.terrain = settings.getBoolean(PREF_TERRAIN, true)
         RefractionSupport.hazeTzet = settings.getBoolean(PREF_HAZE_TZET, true)
         settings.registerOnSharedPreferenceChangeListener(settingsListener)
         registerActivityLifecycleCallbacks(foreground)
@@ -84,10 +85,12 @@ class ZemanehYosefApplication : Application() {
     /** Kept as a field: SharedPreferences holds its listeners weakly. */
     private val settingsListener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
         when (key) {
-            PREF_REFRACTION -> RefractionSupport.enabled = prefs.getBoolean(PREF_REFRACTION, true)
+            PREF_REFRACTION -> RefractionSupport.weather = prefs.getBoolean(PREF_REFRACTION, true)
+            PREF_TERRAIN -> RefractionSupport.terrain = prefs.getBoolean(PREF_TERRAIN, true)
             PREF_HAZE_TZET -> RefractionSupport.hazeTzet = prefs.getBoolean(PREF_HAZE_TZET, true)
         }
-        if (key == PREF_REFRACTION || key == PREF_HAZE_TZET) {
+        if (key == PREF_REFRACTION || key == PREF_TERRAIN || key == PREF_HAZE_TZET) RefractionRepository.settingsChanged()
+        if (key == PREF_REFRACTION || key == PREF_TERRAIN || key == PREF_HAZE_TZET) {
             WatchZmanimSync.requestSync(this, false)
             handler.removeCallbacks(updateNotificationsAndWidget)
             updateNotificationsAndWidget.run()// the switches change the times the notifications and the widget show
@@ -95,9 +98,11 @@ class ZemanehYosefApplication : Application() {
     }
 
     companion object {
-        /** Settings: use weather, terrain and haze data for the zmanim (the website's refraction data). */
+        /** Settings: use the weather for the zmanim (the website's refraction data). */
         const val PREF_REFRACTION = "useRefractionData"
-        /** Settings: move Tzet by degrees by the evening's haze. */
+        /** Settings: use the terrain horizon for the visible sunrise. */
+        const val PREF_TERRAIN = "useTerrainData"
+        /** Settings: move Tzet by degrees by the evening's haze (its haze data are downloaded only while on). */
         const val PREF_HAZE_TZET = "useHazeTzet"
     }
 }

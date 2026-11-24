@@ -88,6 +88,7 @@ import com.ej.rovadiahyosefcalendar.classes.royzmanim.HorizonSet
 import com.ej.rovadiahyosefcalendar.classes.royzmanim.HorizonSetPoint
 import com.ej.rovadiahyosefcalendar.classes.royzmanim.RefractionRepository
 import com.ej.rovadiahyosefcalendar.classes.royzmanim.RefractionStatus
+import com.ej.rovadiahyosefcalendar.classes.royzmanim.RefractionSupport
 import com.ej.rovadiahyosefcalendar.classes.royzmanim.SolarEvent
 import com.ej.rovadiahyosefcalendar.classes.royzmanim.StarNightfall
 import com.kosherjava.zmanim.util.GeoLocation
@@ -163,7 +164,7 @@ class NetzActivity : AppCompatActivity() {
         when {
             refractionDismissed -> refractionUpdating = false
             updating && !gaveUp -> {
-                refractionDownloading = RefractionStatus.isDownloading(geo.latitude, geo.longitude)
+                refractionDownloading = RefractionStatus.isDownloading(geo.latitude, geo.longitude) && RefractionSupport.weather// the terrain only: the visible sunrise
                 statusHandler.removeCallbacks(hideFailed)
                 refractionFailed = false
                 if (!watchdogPosted) {// so the banner always goes away, whatever gets stuck

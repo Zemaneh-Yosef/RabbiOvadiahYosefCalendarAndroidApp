@@ -18,19 +18,46 @@ import kotlin.math.min
 object RefractionSupport {
     private const val TAG = "RefractionSupport"
 
-    /** Whether the weather / terrain / haze data are used at all (settings); off = the calculator's default model. */
-    @JvmStatic @Volatile var enabled = true
-    /** Apply the haze delay to Tzet by degrees (the website's hazeTzet; default true where there is haze data). */
+    /** Whether the weather is used (settings); off = the calculator's default refraction (34.48'). */
+    @JvmStatic @Volatile var weather = true
+    /** Whether the terrain horizon is used (settings): the visible sunrise; off = the sea-level (mishor) sunrise. */
+    @JvmStatic @Volatile var terrain = true
+    /** Apply the haze delay to Tzet by degrees (settings; the website's hazeTzet): its haze data are downloaded only while on. */
     @JvmStatic @Volatile var hazeTzet = true
+    /** Whether any of the data are used. */
+    @JvmStatic val enabled: Boolean get() = weather || terrain || hazeTzet
     /** Largest haze delay either way, minutes (null = none). */
     @JvmStatic @Volatile var hazeMaxDelayMinutes: Double? = 15.0
 
     private fun dataKey(data: RefractionData?) = if (data == null) "none" else "d" + System.identityHashCode(data)
     private fun placeKey(geo: GeoLocation) = "${geo.latitude}|${geo.longitude}|${geo.elevation}|${geo.zoneId}"
 
-    /** The data for a place as stored (null when off or when nothing is stored yet). */
+    /** The data for a place as stored, less what the settings turn off (null when all is off or nothing is stored yet). */
     @JvmStatic
-    fun dataFor(geo: GeoLocation): RefractionData? = if (!enabled) null else try { RefractionRepository.cached(geo.latitude, geo.longitude) } catch (e: Exception) { null }
+    fun dataFor(geo: GeoLocation): RefractionData? {
+        if (!enabled) return null
+        val data = try { RefractionRepository.cached(geo.latitude, geo.longitude) } catch (e: Exception) { null } ?: return null
+        return withSettings(data)
+    }
+
+    /** The views of the data with the weather, the terrain or the haze left out, one per data (the caches here are keyed by the data). */
+    private val views = java.util.WeakHashMap<RefractionData, Pair<Int, RefractionData>>()
+
+    private fun withSettings(data: RefractionData): RefractionData {
+        val w = weather
+        val t = terrain
+        val h = hazeTzet
+        if (w && t && h) return data
+        val flags = (if (w) 1 else 0) or (if (t) 2 else 0) or (if (h) 4 else 0)
+        synchronized(views) { views[data]?.takeIf { it.first == flags }?.let { return it.second } }
+        val view = RefractionData(
+            if (w) data.provider else null, if (t) data.horizon else null, if (t) data.horizonAreaName else null,
+            if (w) data.normals else null, if (h) data.haze else null, if (w) data.forecastFetchedAt else null,
+            data.fromCache, data.notes, data.horizonRetryS,
+        )
+        synchronized(views) { views[data] = flags to view }
+        return view
+    }
 
     private val calculators = ROYSPACalculator.lru<String, ROYSPACalculator>(16)
 

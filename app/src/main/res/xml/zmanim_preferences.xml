@@ -19,6 +19,12 @@
 
         <com.github.tttt55.materialyoupreferences.preferences.MaterialSwitchPreference
             android:defaultValue="true"
+            android:key="useTerrainData"
+            android:summary="@string/use_terrain_data_summary"
+            android:title="@string/use_terrain_data" />
+
+        <com.github.tttt55.materialyoupreferences.preferences.MaterialSwitchPreference
+            android:defaultValue="true"
             android:key="useHazeTzet"
             android:summary="@string/use_haze_tzet_summary"
             android:title="@string/use_haze_tzet" />

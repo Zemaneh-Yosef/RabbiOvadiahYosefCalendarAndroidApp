@@ -5211,7 +5211,8 @@ public class SiddurMaker {
 
     /** Hashiveinu, before its closing: an optional prayer for the return of those who strayed (Yalkut Yosef 116, 2). */
     private void addTeshuvaPrayer() {
-        addInfoToSiddur((isHebrew ? "טוב לומר כאן תפילה זו (בפרט בחודש אלול ועשי״ת), ולהזכיר את שמותם של אלה שנטו מדרכי ה׳ ותורתו, וביחוד אם הם קרוביו. ויכול להתפלל גם על עצמו" : "It is good to add this prayer here (especially in Elul and the Ten Days of Repentance), naming those who strayed from the path of Hashem, especially relatives. You may also pray for yourself"),
+        addInfoToSiddur(isHebrew ? "הרוצה להתפלל על מי שנטה מדרכי ה׳, יאמר כאן תפילה זו" : "To pray for those who strayed from the path of Hashem, say this prayer here",
+            "\n\n" + (isHebrew ? "טוב לומר תפילה זו, בפרט בחודש אלול ועשי״ת, ולהזכיר את שמותם של אלה שנטו מדרכי ה׳ ותורתו, וביחוד אם הם קרוביו. ויכול להתפלל גם על עצמו" : "It is good to say this prayer, especially in Elul and the Ten Days of Repentance, naming those who strayed, especially relatives. You may also pray for yourself") +
             "\n\nיְהִי רָצוֹן מִלְּפָנֶיךָ יְהֹוָה אֱלֹהֵינוּ וֵאלֹהֵי אֲבוֹתֵינוּ, שֶׁתַּחְתֹּר חֲתִירָה מִתַּחַת כִּסֵּא כְבוֹדֶךָ, לְהַחֲזִיר בִּתְשׁוּבָה שְׁלֵמָה אֶת כָּל־פּוֹשְׁעֵי יִשְׂרָאֵל, וּבִכְלָלָם (פלוני בן פלונית), כִּי יְמִינְךָ פְּשׁוּטָה לְקַבֵּל שָׁבִים:\n\n(חזו״ע ימים נוראים, כה. ילקו״י קטז, ב)");
     }
 

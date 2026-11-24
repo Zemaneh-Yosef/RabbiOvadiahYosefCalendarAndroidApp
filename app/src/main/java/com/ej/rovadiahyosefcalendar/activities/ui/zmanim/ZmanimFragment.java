@@ -133,6 +133,7 @@ import java.util.regex.Pattern;
 
 import com.ej.rovadiahyosefcalendar.classes.royzmanim.RefractionRepository;
 import com.ej.rovadiahyosefcalendar.classes.royzmanim.RefractionStatus;
+import com.ej.rovadiahyosefcalendar.classes.royzmanim.RefractionSupport;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function2;
@@ -611,7 +612,7 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             int state = mRefractionBannerState;
             mRefractionBannerState = 0;
             if (state == 1) {
-                showRefractionStatusBanner(R.string.refraction_updating, true);
+                showRefractionStatusBanner(mRefractionUpdatingText, true);
             } else {
                 updateRefractionStatusBanner();
             }
@@ -1641,7 +1642,8 @@ public class ZmanimFragment extends Fragment implements Consumer<Location> {
             }
         } else if (updating && !mRefractionGaveUp) {
             mHandler.removeCallbacks(mHideRefractionStatus);
-            int text = RefractionStatus.isDownloading(sLatitude, sLongitude) ? R.string.refraction_updating : R.string.refraction_calculating_sunrise;
+            // the weather when it is used; the terrain only (weather off) is all for the visible sunrise
+            int text = RefractionStatus.isDownloading(sLatitude, sLongitude) && RefractionSupport.getWeather() ? R.string.refraction_updating : R.string.refraction_calculating_sunrise;
             if (mRefractionBannerState == 1 && text != mRefractionUpdatingText) {
                 showRefractionStatusBanner(text, true);// the update moved on to its next step: say what it is doing now
             }
