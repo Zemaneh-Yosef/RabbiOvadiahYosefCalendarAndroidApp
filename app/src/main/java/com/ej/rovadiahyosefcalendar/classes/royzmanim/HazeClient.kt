@@ -140,6 +140,12 @@ object HazeClient {
     fun seriesFromJson(j: JSONObject?): HazeSeries? {
         if (j == null) return null
         val a = j.optJSONArray("aod") ?: return null
-        return HazeSeries(j.getDouble("lat"), j.getDouble("lon"), j.getDouble("t0"), j.getDouble("step"), DoubleArray(a.length()) { WeatherHttp.num(a, it) })
+        // a damaged or older stored series is not used (read again) rather than thrown
+        val lat = j.optDouble("lat", Double.NaN)
+        val lon = j.optDouble("lon", Double.NaN)
+        val t0 = j.optDouble("t0", Double.NaN)
+        val step = j.optDouble("step", Double.NaN)
+        if (!lat.isFinite() || !lon.isFinite() || !t0.isFinite() || !step.isFinite() || step <= 0) return null
+        return HazeSeries(lat, lon, t0, step, DoubleArray(a.length()) { WeatherHttp.num(a, it) })
     }
 }
