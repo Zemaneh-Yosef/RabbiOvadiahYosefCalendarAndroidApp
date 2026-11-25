@@ -119,6 +119,15 @@ object HorizonClient {
             }
             HorizonSetPoint(p.getDouble("lat"), p.getDouble("lon"), p.optDouble("ground", 0.0), p.optDouble("height", 0.0),
                 parseProfile(p.optJSONArray("sunrise")), parseProfile(p.optJSONArray("sunset")), wins)
-        }, j.optJSONObject("terrain")?.optInt("algo", 1))
+        }, j.optJSONObject("terrain")?.optInt("algo", 1), terrainKeyOf(j))
+    }
+
+    /** The fine and layer versions a horizon was built from, as one file-name-safe key; null when the answer carries neither. */
+    @JvmStatic
+    fun terrainKeyOf(j: JSONObject): String? {
+        if (j.optJSONObject("terrain") == null) return null
+        val t = terrainOf(j)
+        if (t.fine == null && t.layers == null) return null
+        return "${t.fine ?: "-"}_${t.layers ?: "-"}".replace(Regex("[^A-Za-z0-9_-]"), "").take(64).ifEmpty { null }
     }
 }

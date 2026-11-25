@@ -41,8 +41,12 @@ class HorizonSetPoint(
     fun profile(event: SolarEvent) = if (event == SolarEvent.SUNRISE) sunrise else sunset
 }
 
-/** What the refraction server's /v1/horizon returns: the exact point ("point"), or vantage points within a radius ("vantage"). */
-class HorizonSet(val mode: String, val points: List<HorizonSetPoint>, val algorithm: Int? = null) : Horizon
+/**
+ * What the refraction server's /v1/horizon returns: the exact point ("point"), or vantage points within a radius ("vantage").
+ * terrainKey: the terrain it was built from (fine and layer versions, safe in a file name), so the terrain tiles drawn with it
+ * can be the same ones; null when the server didn't say.
+ */
+class HorizonSet(val mode: String, val points: List<HorizonSetPoint>, val algorithm: Int? = null, val terrainKey: String? = null) : Horizon
 
 /** Which part of the Sun's disk decides a visible sunrise / sunset. */
 enum class Limb {

@@ -19,20 +19,38 @@ import java.util.concurrent.atomic.AtomicInteger
  * a float / ARGB tile): a render holds a few hundred of them at once. See [heightAt] and [colourAt].
  * Every method returns null instead of throwing when a tile cannot be had.
  */
-class TerrainTiles(cacheDir: File, private val server: String = RefractionRepository.REFRACTION_SERVER) {
+class TerrainTiles @JvmOverloads constructor(
+    cacheDir: File,
+    private val server: String = RefractionRepository.REFRACTION_SERVER,
+    /**
+     * The terrain the horizon being drawn was built from ([com.ej.rovadiahyosefcalendar.classes.royzmanim.HorizonSet.terrainKey]).
+     * The server's tiles are then asked for and kept under that version, so the ridge drawn is the one the sunrise was computed
+     * over, and a new terrain release replaces them; null (no horizon): the latest tiles, unversioned.
+     */
+    private val terrainKey: String? = null,
+) {
 
-    /** Tiles fetched by [prefetch], keyed by (z, x, y). Missing tiles are simply absent. */
+    /**
+     * Tiles fetched by [prefetch], keyed by (z, x, y). Missing tiles are simply absent. [complete]: every height in the server's
+     * zooms came from the server's terrain (none from AWS because the server was slow or unreachable).
+     */
     class Fetched(
         val heights: Map<Triple<Int, Int, Int>, ShortArray>,
         val imagery: Map<Triple<Int, Int, Int>, ShortArray>,
+        val complete: Boolean = true,
     )
 
     private val root = File(cacheDir, "netz-tiles")
     private val trimmed = AtomicBoolean(false)
+    private val pruned = AtomicBoolean(false)
+    private val demServer = DEM_SERVER + "/" + (terrainKey?.let { "v-$it" } ?: LATEST)
 
     /** Consecutive network (not HTTP-status) failures; after a few we stop waiting on that host. */
     private val serverFails = AtomicInteger()
     private val imageryFails = AtomicInteger()
+
+    /** Set once a height tile the server should have had came from AWS instead. */
+    private val substituted = AtomicBoolean(false)
 
     /** 256x256 heights, row-major, rows north to south, packed (see [heightAt]). */
     fun heights(z: Int, x: Int, y: Int): ShortArray? = loadDem(z, x, y)
@@ -67,7 +85,7 @@ class TerrainTiles(cacheDir: File, private val server: String = RefractionReposi
                 if (isCancelled()) return null
                 await(fut)?.let { p[k] = it }
             }
-            return if (isCancelled()) null else Fetched(h, p)
+            return if (isCancelled()) null else Fetched(h, p, !substituted.get())
         } finally {
             pool.shutdownNow()
         }
@@ -96,26 +114,54 @@ class TerrainTiles(cacheDir: File, private val server: String = RefractionReposi
 
     // ---- DEM ----
 
+    /**
+     * The server's tile of this terrain version (cached, else downloaded); a tile the server will never have (a 404 without
+     * "pending", remembered on disk for [NONE_KEEP_MS]) or any zoom it doesn't serve comes from AWS. A "pending" 404 (its data
+     * is not on the server yet) is used from AWS this time and asked for again next time. When the server is slow or unreachable, AWS stands in for this render
+     * only: its copy isn't preferred next time, and [Fetched.complete] says the picture should be redrawn.
+     */
     private fun loadDem(z: Int, x: Int, y: Int): ShortArray? {
-        for (dir in arrayOf(DEM_SERVER, DEM_AWS)) {
-            val f = file(dir, z, x, y, "png")
-            if (!f.isFile) continue
-            val h = try { decodeDem(f.readBytes(), dir == DEM_AWS) } catch (e: Exception) { null }
-            if (h != null) return h
-            f.delete()
+        pruneOldVersions()
+        val serves = z in SERVER_ZOOMS
+        if (serves) {
+            readDem(file(demServer, z, x, y, "png"), false)?.let { return it }
+            val none = file(demServer, z, x, y, "none")
+            val never = none.isFile && System.currentTimeMillis() - none.lastModified() < NONE_KEEP_MS
+            if (!never && serverFails.get() < MAX_FAILS) {
+                val v = terrainKey?.let { "?v=$it" } ?: ""
+                val r = fetch("$server/v1/terrain-tiles/$z/$x/$y.png$v", 5000, SERVER_READ_TIMEOUT_MS, serverFails)
+                val h = r.bytes?.let { decodeDem(it, false) }
+                if (h != null) {
+                    write(file(demServer, z, x, y, "png"), r.bytes)
+                    return h
+                }
+                if (r.status == 404 && !r.pending) write(none, ByteArray(0))
+                else substituted.set(true)
+            } else if (!never) substituted.set(true)
         }
-        if (z in 8..14 && serverFails.get() < MAX_FAILS) {
-            val bytes = download("$server/v1/terrain-tiles/$z/$x/$y.png", 5000, serverFails)
-            val h = bytes?.let { decodeDem(it, false) }
-            if (h != null) {
-                write(file(DEM_SERVER, z, x, y, "png"), bytes)
-                return h
-            }
-        }
-        val bytes = download("https://s3.amazonaws.com/elevation-tiles-prod/terrarium/$z/$x/$y.png", 5000, null)
+        readDem(file(DEM_AWS, z, x, y, "png"), true)?.let { return it }
+        val bytes = fetch("https://s3.amazonaws.com/elevation-tiles-prod/terrarium/$z/$x/$y.png", 5000, 5000, null).bytes
         val h = bytes?.let { decodeDem(it, true) } ?: return null
         write(file(DEM_AWS, z, x, y, "png"), bytes)
         return h
+    }
+
+    private fun readDem(f: File, aws: Boolean): ShortArray? {
+        if (!f.isFile) return null
+        val h = try { decodeDem(f.readBytes(), aws) } catch (e: Exception) { null }
+        if (h == null) f.delete()
+        return h
+    }
+
+    /** Once per instance, when the version is known: drop the server tiles of other terrain versions (and the unversioned ones). */
+    private fun pruneOldVersions() {
+        if (terrainKey == null || !pruned.compareAndSet(false, true)) return
+        try {
+            val keep = File(root, demServer).name
+            File(root, DEM_SERVER).listFiles()?.forEach { if (it.name != keep) it.deleteRecursively() }
+        } catch (e: Exception) {
+            // best-effort
+        }
     }
 
     /** Terrarium: h = R*256 + G + B/256 - 32768. [clampSea] flattens AWS's bathymetry to sea level. */
@@ -140,9 +186,9 @@ class TerrainTiles(cacheDir: File, private val server: String = RefractionReposi
             f.delete()
         }
         if (imageryFails.get() >= MAX_FAILS) return null
-        val bytes = download(
-            "https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/$z/$y/$x.jpg", 8000, imageryFails
-        ) ?: return null
+        val bytes = fetch(
+            "https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/$z/$y/$x.jpg", 8000, 8000, imageryFails
+        ).bytes ?: return null
         val p = decodePixels(bytes, premultiplied = true)?.let(::packColours) ?: return null
         write(f, bytes)
         return p
@@ -166,26 +212,42 @@ class TerrainTiles(cacheDir: File, private val server: String = RefractionReposi
         }
     }
 
-    /** [fails] counts consecutive network errors (not HTTP statuses) so a dead host is skipped quickly. */
-    private fun download(url: String, timeoutMs: Int, fails: AtomicInteger?): ByteArray? {
+    /** A download's body (on a 200), HTTP status (0 when none came back), and an error answer's "pending" (will be there later). */
+    private class Got(val bytes: ByteArray?, val status: Int, val pending: Boolean = false)
+
+    /**
+     * [fails] counts consecutive failures to reach the host (not HTTP statuses, nor a reached host that was slow to answer, as
+     * the server is while it first builds a tile), so a dead host is skipped quickly. The connection is left to the pool
+     * (no disconnect) so the next tile from the same host skips the TLS handshake.
+     */
+    private fun fetch(url: String, connectMs: Int, readMs: Int, fails: AtomicInteger?): Got {
         var conn: HttpURLConnection? = null
+        var reached = false
         return try {
             conn = (URL(url).openConnection() as HttpURLConnection).apply {
-                connectTimeout = timeoutMs
-                readTimeout = timeoutMs
+                connectTimeout = connectMs
+                readTimeout = readMs
                 setRequestProperty("User-Agent", "ZemanehYosef-Android")
             }
-            if (conn.responseCode != 200) return null
+            conn.connect()
+            reached = true
+            val status = conn.responseCode
+            if (status != 200) {
+                val err = try { conn.errorStream?.use { it.readBytes() } } catch (e: IOException) { conn.disconnect(); null } // drained: reusable
+                val pending = err != null && try { org.json.JSONObject(String(err)).optBoolean("pending", false) } catch (e: Exception) { false }
+                fails?.set(0)
+                return Got(null, status, pending)
+            }
             val bytes = conn.inputStream.use { it.readBytes() }
             fails?.set(0)
-            bytes
+            Got(bytes, status)
         } catch (e: IOException) {
-            fails?.incrementAndGet()
-            null
-        } catch (e: Exception) {
-            null
-        } finally {
+            if (!reached) fails?.incrementAndGet()
             conn?.disconnect()
+            Got(null, 0)
+        } catch (e: Exception) {
+            conn?.disconnect()
+            Got(null, 0)
         }
     }
 
@@ -256,5 +318,12 @@ class TerrainTiles(cacheDir: File, private val server: String = RefractionReposi
         private const val CACHE_CAP_BYTES = 150L * 1024 * 1024
         private const val DEM_SERVER = "dem-server"
         private const val DEM_AWS = "dem-aws"
+        private const val LATEST = "latest"
+        /** How long a tile the server said it will never have is taken from AWS without asking it again. */
+        private const val NONE_KEEP_MS = 7L * 24 * 3600 * 1000
+        /** The zooms the server's /v1/terrain-tiles serves. */
+        private val SERVER_ZOOMS = 8..14
+        /** A tile the server hasn't built yet can take it well over the connect timeout to answer. */
+        private const val SERVER_READ_TIMEOUT_MS = 20_000
     }
 }

@@ -2,6 +2,8 @@ package com.ej.rovadiahyosefcalendar.classes.netz
 
 import android.graphics.Bitmap
 import android.graphics.PointF
+import com.ej.rovadiahyosefcalendar.classes.royzmanim.DemHorizonPoint
+import com.ej.rovadiahyosefcalendar.classes.royzmanim.HorizonProfile
 import kotlin.math.abs
 import kotlin.math.atan
 import kotlin.math.atan2
@@ -16,7 +18,11 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 import kotlin.math.tan
 
-/** What to look at. eyeM: eye height above sea level, or null = ground height under (lat, lon) + 1.7 m. */
+/**
+ * What to look at. eyeM: eye height above sea level, or null = ground height under (lat, lon) + 1.7 m. horizon: the server's
+ * horizon from this point (its DEM points say how far the ridge is in each direction, so rays stop just past it and the tiles
+ * behind it aren't downloaded); terrainKey: the terrain version that horizon was built from (see [TerrainTiles]).
+ */
 data class PanoramaView(
     val lat: Double, val lon: Double, val eyeM: Double?,
     val headingDeg: Double,     // azimuth at the image's horizontal centre (deg east of north)
@@ -24,6 +30,8 @@ data class PanoramaView(
     val horizonFraction: Float, // e.g. 0.70f
     val hFovDeg: Double,
     val width: Int, val height: Int,
+    val horizon: HorizonProfile? = null,
+    val terrainKey: String? = null,
 )
 
 /**
@@ -35,8 +43,24 @@ class Panorama(
     val bitmap: Bitmap,          // width x height, ARGB_8888, sky pixels fully transparent
     val skylineY: FloatArray,    // per column: y (px) of the top of the terrain; `height` where no terrain was hit
     val eyeM: Double,            // the eye height actually used
+    /** All heights came from the server's terrain; false: some from AWS (the server slow or unreachable), worth redrawing. */
+    val complete: Boolean = true,
+    /** A quick rough picture (see [PanoramaRenderer.render]), shown until the real one is ready. */
+    val preview: Boolean = false,
 ) {
     private val f = (view.width / 2.0) / tan(Math.toRadians(view.hFovDeg) / 2)
+
+    /** The apparent altitude (degrees) of the drawn ridge toward [azDeg]; null outside the image or where no terrain was hit. */
+    fun skylineAltAt(azDeg: Double): Double? {
+        val p = project(azDeg, 0.0) ?: return null
+        if (p.x < 0f || p.x > view.width) return null
+        val y = skylineAt(p.x)
+        if (y >= view.height - 0.5f) return null
+        var daz = (azDeg - view.headingDeg) % 360.0
+        if (daz > 180) daz -= 360 else if (daz <= -180) daz += 360
+        val cy = view.horizonFraction * view.height + f * tan(Math.toRadians(view.centreAltDeg))
+        return Math.toDegrees(atan((cy - y) * cos(Math.toRadians(daz)) / f))
+    }
 
     /** Apparent az/alt (degrees) to pixel; null if behind the camera. */
     fun project(azDeg: Double, altDeg: Double): PointF? {
@@ -85,9 +109,18 @@ object PanoramaRenderer {
     private const val HAZE_B = 0xd6
     private const val LN2 = 0.6931471805599453
     private const val TWO_PI = 2 * Math.PI
+    /** The finest height zoom of a preview render. */
+    private const val PREVIEW_ZOOM = 10
+    /** The coarsest height zoom at the deciding ridge (z12: ~30 m pixels at 30 deg, the 1-arc-second data's spacing). */
+    private const val RIDGE_ZOOM = 12
+    /** The ridge band starts this fraction of the nearest ridge point's distance out. */
+    private const val RIDGE_BAND = 0.85
 
-    /** Null when no terrain could be had (offline, nothing cached) or when cancelled. */
-    fun render(tiles: TerrainTiles, view: PanoramaView, isCancelled: () -> Boolean = { false }): Panorama? {
+    /**
+     * Null when no terrain could be had (offline, nothing cached) or when cancelled. [preview]: a quick rough picture to show
+     * while the real one downloads: heights no finer than [PREVIEW_ZOOM] (a few dozen tiles), no satellite imagery.
+     */
+    fun render(tiles: TerrainTiles, view: PanoramaView, preview: Boolean = false, isCancelled: () -> Boolean = { false }): Panorama? {
         val w = view.width
         val h = view.height
         if (w <= 0 || h <= 0) return null
@@ -110,6 +143,7 @@ object PanoramaRenderer {
         val curv = DoubleArray(n)
         val hazeI = IntArray(n)
         val zH = IntArray(n)
+        val zRidge = IntArray(n) // the zoom at the server's ridge (see ridgeFrom)
         val zI = IntArray(n)
         run {
             var d = MIN_D
@@ -122,13 +156,28 @@ object PanoramaRenderer {
                 hazeI[i] = (min(HAZE_MAX, 1 - exp(-d / HAZE_SCALE_M)) * 256).toInt()
                 val footprint = d * hFovRad / w
                 val z = floor(ln(EQ * cosLat / (256 * footprint)) / LN2 + 0.5).toInt()
-                zH[i] = z.coerceIn(8, 14)
+                zH[i] = z.coerceIn(8, if (preview) PREVIEW_ZOOM else 14)
+                zRidge[i] = if (preview) zH[i] else max(z + 1, RIDGE_ZOOM).coerceIn(8, 14)
                 zI[i] = z.coerceIn(8, TerrainTiles.MAX_IMAGERY_ZOOM)
                 d = d * 1.006 + 2.0
             }
         }
 
         val ray = Ray(sinLat, cosLat, lon0)
+
+        // How many samples each column marches: past the server's ridge in that direction nothing shows above it, so the ray
+        // (and the tiles under it) can stop there; elsewhere it goes the whole way.
+        // From ridgeFrom on, the ray is near the ridge that decides the sunrise: there the heights are read a zoom finer than
+        // the pixels need (at least RIDGE_ZOOM, about the 1-arc-second data the server traces its far horizon over), so a peak
+        // isn't smoothed away and the drawn ridge is the one the sunrise was computed over. The band is narrow: few more tiles.
+        val reach = Reach.of(view.horizon)
+        val samples = IntArray(w)
+        val ridgeFrom = IntArray(w) { n }
+        for (x in 0 until w) {
+            val azDeg = Math.toDegrees(headingR + atan((x + 0.5 - w / 2.0) / f))
+            samples[x] = min(n, sampleAt(dist, reach?.limitM(azDeg) ?: MAX_D) + 1)
+            reach?.nearM(azDeg)?.let { ridgeFrom[x] = sampleAt(dist, it * RIDGE_BAND) }
+        }
 
         // Pass 1: geometry only, to learn which tiles the rays touch.
         val demSet = HashSet<Long>()
@@ -146,9 +195,10 @@ object PanoramaRenderer {
             val ca = cos(az)
             var lastH = Long.MIN_VALUE
             var lastI = Long.MIN_VALUE
-            for (i in 0 until n) {
+            for (i in 0 until samples[x]) {
                 ray.step(sa, ca, sinD[i], cosD[i])
-                val mh = 1 shl zH[i]
+                val zh = if (i >= ridgeFrom[x]) zRidge[i] else zH[i]
+                val mh = 1 shl zh
                 val pxh = ray.xf * mh * 256.0
                 val pyh = ray.yf * mh * 256.0
                 val txLo = (pxh - 1).toInt() shr 8
@@ -156,14 +206,15 @@ object PanoramaRenderer {
                 val tyLo = (pyh - 1).toInt() shr 8
                 val tyHi = (pyh + 1).toInt() shr 8
                 val edge = txLo != txHi || tyLo != tyHi
-                val sigH = tk(zH[i], txLo, tyLo)
+                val sigH = tk(zh, txLo, tyLo)
                 if (edge || sigH != lastH) {
                     lastH = sigH
                     demSet.add(sigH)
                     if (edge) {
-                        demSet.add(tk(zH[i], txHi, tyLo)); demSet.add(tk(zH[i], txLo, tyHi)); demSet.add(tk(zH[i], txHi, tyHi))
+                        demSet.add(tk(zh, txHi, tyLo)); demSet.add(tk(zh, txLo, tyHi)); demSet.add(tk(zh, txHi, tyHi))
                     }
                 }
+                if (preview) continue
                 val mi = 1 shl zI[i]
                 val sigI = tk(zI[i], (ray.xf * mi).toInt(), (ray.yf * mi).toInt())
                 if (sigI != lastI) {
@@ -198,14 +249,15 @@ object PanoramaRenderer {
             var yTopF = h.toFloat()
             var yTopI = h
             var below = 0 // colour of the last sample drawn (the bottom of the next span); 0 = none yet
-            for (i in 0 until n) {
+            for (i in 0 until samples[x]) {
                 ray.step(sa, ca, sinD[i], cosD[i])
-                val hgt = field.height(zH[i], ray.xf, ray.yf)
+                val zh = if (i >= ridgeFrom[x]) zRidge[i] else zH[i]
+                val hgt = field.height(zh, ray.xf, ray.yf)
                 val y = cy - fs * ((hgt - eye - curv[i]) / dist[i])
                 if (y < yTopF) {
                     val top = if (y <= 0.0) 0 else ceil(y).toInt()
                     if (top < yTopI) {
-                        val c = colour(field, ray.xf, ray.yf, zH[i], zI[i], hazeI[i], cosLat)
+                        val c = colour(field, ray.xf, ray.yf, zh, zI[i], hazeI[i], cosLat)
                         // blend from this sample at the top to the one below, so near ground isn't flat bands
                         val span = yTopI - top
                         if (below == 0 || span < 3) for (r in top until yTopI) pix[r * w + x] = c
@@ -222,7 +274,13 @@ object PanoramaRenderer {
 
         val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
         bmp.setPixels(pix, 0, w, 0, 0, w, h)
-        return Panorama(view, bmp, skyline, eye)
+        return Panorama(view, bmp, skyline, eye, fetched.complete && !preview, preview)
+    }
+
+    /** The index of the first sample at or beyond [m] metres ([dist] ascending). */
+    private fun sampleAt(dist: DoubleArray, m: Double): Int {
+        val k = java.util.Arrays.binarySearch(dist, m)
+        return if (k < 0) -k - 1 else k
     }
 
     /** Satellite pixel (or a hillshaded earth tone when the imagery tile is missing) with haze mixed in. */
@@ -269,6 +327,48 @@ object PanoramaRenderer {
     }
 
     private fun untk(k: Long) = Triple((k ushr 48).toInt(), ((k ushr 24) and 0xFFFFFF).toInt(), (k and 0xFFFFFF).toInt())
+
+    /**
+     * The server horizon's ridge distance by azimuth (degrees), from its DEM points: the farther of the two points around a
+     * direction (and of their alternates, the ridges other air would make the highest), with a margin for this renderer's own
+     * refraction. Null (march the whole way) where the points are further apart than [MAX_GAP_DEG] or there are none.
+     */
+    private class Reach(private val az: DoubleArray, private val nearM: DoubleArray, private val farM: DoubleArray) {
+        fun limitM(azDeg: Double): Double? = around(azDeg)?.let { (lo, hi) -> grow(max(farM[lo], farM[hi])) }
+
+        /** The nearest of the ridge points (and alternates) around this direction, metres; null where [limitM] is. */
+        fun nearM(azDeg: Double): Double? = around(azDeg)?.let { (lo, hi) -> min(nearM[lo], nearM[hi]) }
+
+        /** The indices of the points on either side of a direction (the same twice on an exact hit), or null over a gap. */
+        private fun around(azDeg: Double): Pair<Int, Int>? {
+            val a = ((azDeg % 360.0) + 360.0) % 360.0
+            var hi = java.util.Arrays.binarySearch(az, a)
+            if (hi >= 0) return Pair(hi, hi)
+            hi = -hi - 1
+            val lo = hi - 1
+            val loI = if (lo < 0) az.size - 1 else lo
+            val hiI = if (hi >= az.size) 0 else hi
+            val gap = ((az[hiI] - az[loI]) % 360.0 + 360.0) % 360.0
+            if (az.size < 2 || gap > MAX_GAP_DEG) return null
+            return Pair(loI, hiI)
+        }
+
+        private fun grow(m: Double) = min(MAX_D, m * 1.15 + 3000.0)
+
+        companion object {
+            private const val MAX_GAP_DEG = 1.0
+
+            fun of(p: HorizonProfile?): Reach? {
+                val pts = p?.points?.filterIsInstance<DemHorizonPoint>()?.sortedBy { ((it.azimuthDeg % 360.0) + 360.0) % 360.0 }
+                if (pts.isNullOrEmpty()) return null
+                return Reach(
+                    DoubleArray(pts.size) { ((pts[it].azimuthDeg % 360.0) + 360.0) % 360.0 },
+                    DoubleArray(pts.size) { i -> pts[i].alternates.fold(pts[i].distanceKm) { m, a -> min(m, a[0]) } * 1000.0 },
+                    DoubleArray(pts.size) { i -> pts[i].alternates.fold(pts[i].distanceKm) { m, a -> max(m, a[0]) } * 1000.0 },
+                )
+            }
+        }
+    }
 
     /** Walks a great circle from the observer, yielding normalized Mercator coordinates (0..1) of each sample. */
     private class Ray(val sinLat: Double, val cosLat: Double, val lon0: Double) {

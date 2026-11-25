@@ -95,6 +95,9 @@ import com.ej.rovadiahyosefcalendar.classes.royzmanim.StarNightfall
 import com.kosherjava.zmanim.util.GeoLocation
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
@@ -334,7 +337,8 @@ class NetzActivity : AppCompatActivity() {
             val hPx = constraints.maxHeight
 
             // the panorama, rendered smaller than the screen and stretched (the terrain is soft at this scale anyway)
-            val vantage = vantageFor(cal.refractionData?.horizon, riseAltAz?.get(1) ?: 90.0)
+            val horizonSet = cal.refractionData?.horizon
+            val vantage = vantageFor(horizonSet, riseAltAz?.get(1) ?: 90.0)
             val renderW = min(wPx, MAX_RENDER_WIDTH).coerceAtLeast(1)
             val renderH = (hPx.toLong() * renderW / max(1, wPx)).toInt().coerceAtLeast(1)
             val aspect = renderW.toDouble() / renderH
@@ -348,30 +352,51 @@ class NetzActivity : AppCompatActivity() {
                 hFovDeg = (BASE_FOV_DEG * aspect).coerceIn(MIN_FOV_DEG, MAX_FOV_DEG),
                 width = renderW,
                 height = renderH,
+                horizon = vantage?.sunrise,
+                terrainKey = horizonSet?.terrainKey,
             )
             var panorama by remember { mutableStateOf<Panorama?>(null) }
             var image by remember { mutableStateOf<ImageBitmap?>(null) }
             LaunchedEffect(view) {
                 if (view == null) { panorama = null; image = null; return@LaunchedEffect }
                 if (panorama?.view != view) { panorama = null; image = null }
-                // offline with nothing cached: no terrain or Sun, and try again now and then
-                while (isActive) {
-                    // a fresh TerrainTiles per attempt: it gives up on a host for its lifetime once it looks unreachable
-                    val p = try {
-                        withContext(Dispatchers.IO) { PanoramaRenderer.render(TerrainTiles(cacheDir), view) { !isActive } }
-                    } catch (e: CancellationException) {
-                        throw e// the screen was left: not a failure
-                    } catch (e: Exception) {
-                        Log.e("NetzActivity", "Rendering the panorama failed", e)
-                        null// the countdown is shown without the terrain, and the render is tried again
-                    } catch (e: OutOfMemoryError) {
-                        Log.e("NetzActivity", "Not enough memory for the panorama", e)
-                        null
+                // offline with nothing cached: no terrain or Sun, and try again now and then. A picture drawn partly from AWS
+                // heights (the server slow or unreachable) is shown, then redrawn a few times so it becomes the server's terrain.
+                // a fresh TerrainTiles per attempt: it gives up on a host for its lifetime once it looks unreachable
+                suspend fun renderOnce(preview: Boolean): Panorama? = try {
+                    withContext(Dispatchers.IO) {
+                        PanoramaRenderer.render(TerrainTiles(cacheDir, terrainKey = view.terrainKey), view, preview) { !isActive }
                     }
+                } catch (e: CancellationException) {
+                    throw e// the screen was left: not a failure
+                } catch (e: Exception) {
+                    Log.e("NetzActivity", "Rendering the panorama failed", e)
+                    null// the countdown is shown without the terrain, and the render is tried again
+                } catch (e: OutOfMemoryError) {
+                    Log.e("NetzActivity", "Not enough memory for the panorama", e)
+                    null
+                }
+                var redraws = 0
+                var first = panorama == null
+                while (isActive) {
+                    // the first time, when the picture isn't ready within PREVIEW_AFTER_MS (tiles to download), a rough one
+                    // (a few coarse tiles, no imagery) is shown meanwhile
+                    val p = if (!first) renderOnce(false) else coroutineScope {
+                        val full = async { renderOnce(false) }
+                        if (withTimeoutOrNull(PREVIEW_AFTER_MS) { full.join() } == null) {
+                            val rough = renderOnce(true)
+                            if (rough != null && !full.isCompleted) {
+                                image = rough.bitmap.asImageBitmap()
+                                panorama = rough
+                            }
+                        }
+                        full.await()
+                    }
+                    first = false
                     if (p != null) {
                         image = p.bitmap.asImageBitmap()
                         panorama = p
-                        break
+                        if (p.complete || ++redraws > MAX_REDRAWS) break
                     }
                     delay(OFFLINE_RETRY_MS)
                 }
@@ -379,6 +404,16 @@ class NetzActivity : AppCompatActivity() {
 
             val pano = panorama
             val scale = wPx.toFloat() / renderW
+            // The countdown's sunrise comes from the server's horizon and the traced air, the picture from the tiles and a
+            // standard refraction, so they can disagree by a little: shift the drawn Sun by the difference, so that at the
+            // counted moment its top (Any Peak) or bottom (Full Reveal) is exactly on the drawn ridge.
+            val sunOffset = remember(pano, riseAltAz, kind, phase?.day?.fromTerrain) {
+                val ridge = if (phase?.day?.fromTerrain == true && riseAltAz != null) pano?.skylineAltAt(riseAltAz[1]) else null
+                if (ridge == null || riseAltAz == null) 0.0 else {
+                    val centre = if (kind == SunriseKind.FULL_REVEAL) ridge + SUN_RADIUS_DEG else ridge - SUN_RADIUS_DEG
+                    (centre - SkyColors.apparentAltitude(riseAltAz[0])).coerceIn(-MAX_SUN_OFFSET_DEG, MAX_SUN_OFFSET_DEG)
+                }
+            }
             val horizonY = pano?.project(pano.view.headingDeg, 0.0)?.y?.times(scale) ?: (hPx * HORIZON_FRACTION)
             val groundTopAt = { x: Float -> pano?.skylineAt(x / scale)?.times(scale) ?: (hPx * HORIZON_FRACTION) }
             val darken = remember(sky.dark) {
@@ -408,8 +443,9 @@ class NetzActivity : AppCompatActivity() {
                 if (pano != null) {
                     val img = image
                     val f = (pano.view.width / 2.0) / tan(Math.toRadians(pano.view.hFovDeg / 2))
-                    // the Sun now, behind the terrain (drawn first, so the ridge hides what is below it)
-                    val app = SkyColors.apparentAltitude(sunNow[0])
+                    // the Sun now, behind the terrain (drawn first, so the ridge hides what is below it), raised or lowered by
+                    // sunOffset so it clears the drawn ridge when the countdown ends
+                    val app = SkyColors.apparentAltitude(sunNow[0]) + sunOffset
                     if (app > -1.5) pano.project(sunNow[1], app)?.let { c ->
                         val r = max(5.0, f * tan(Math.toRadians(SUN_RADIUS_DEG))).toFloat() * scale
                         val centre = Offset(c.x * scale, c.y * scale)
@@ -628,6 +664,12 @@ class NetzActivity : AppCompatActivity() {
         private const val MAX_FOV_DEG = 60.0
         private const val SUN_RADIUS_DEG = 0.2666
         private const val OFFLINE_RETRY_MS = 60_000L
+        /** How many times a picture drawn partly from AWS heights is redrawn, OFFLINE_RETRY_MS apart. */
+        private const val MAX_REDRAWS = 3
+        /** How long the picture may take before a rough preview is drawn in the meantime. */
+        private const val PREVIEW_AFTER_MS = 1500L
+        /** The most the drawn Sun is moved to meet the drawn ridge; more means the picture is not of that horizon. */
+        private const val MAX_SUN_OFFSET_DEG = 1.0
         /** The longest the "updating" banner stays up: downloads time out well before this, so reaching it means something got stuck. */
         private const val MAX_UPDATING_MS = 120_000L
     }
