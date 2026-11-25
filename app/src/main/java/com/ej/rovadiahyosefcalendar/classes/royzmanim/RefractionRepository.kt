@@ -173,9 +173,9 @@ object RefractionRepository {
     private fun forecastCellRadiusM(lat: Double, lon: Double): Double {
         val lonM = 111320.0 * kotlin.math.cos(Math.toRadians(lat))
         return when (OpenMeteoPath.chooseModel(lat, lon)) {
-            "best_match" -> 650.0                     // Europe: AROME 1.3 km
             "gem_seamless" -> 1_250.0                 // Canada: HRDPS 2.5 km
-            "icon_seamless" -> 0.03125 * lonM         // Israel: ICON-EU 0.0625 degrees
+            // Europe and Israel: ICON-D2 0.02 degrees in central Europe, else ICON-EU 0.0625 degrees
+            "icon_seamless" -> if (lat in 43.18..58.08 && lon in -3.94..20.34) 0.01 * lonM else 0.03125 * lonM
             else -> if (lat in 24.0..50.0 && lon in -125.0..-66.0) 1_500.0 // contiguous US: HRRR 3 km
                     else 0.055 * lonM                 // elsewhere: GFS 0.11 degrees
         }
@@ -465,7 +465,9 @@ object RefractionRepository {
         val st = readJson(file)
         val now = System.currentTimeMillis()
         val normalsOk = st != null && st.optJSONObject("normals") != null && now - st.optLong("normalsFetchedAt", 0) < HAZE_NORMALS_MAX_AGE_MS
-        val forecastOk = reference || (!force && st != null && !st.isNull("forecastFetchedAt") && st.has("forecastFetchedAt") && now - st.optLong("forecastFetchedAt", 0) < HAZE_TTL_MS)
+        // CAMS's forecast: again once CAMS has a newer run (NOAA's stand-in: after HAZE_TTL_MS)
+        val fetchedAt = if (st != null && st.has("forecastFetchedAt") && !st.isNull("forecastFetchedAt")) st.optLong("forecastFetchedAt", 0) else null
+        val forecastOk = reference || (!force && fetchedAt != null && hazeForecastState(st?.optString("forecastSource"), fetchedAt, lat, lon, network = true).current)
         val calibrationOk = st != null && st.has("calibratedAt") && now - st.optLong("calibratedAt", 0) < HAZE_CALIBRATION_MAX_AGE_MS
         val normals = if (normalsOk) null else try { HazeClient.fetchHazeNormals(lat, lon) } catch (e: Exception) { notes.add("haze normals: ${e.message}"); null }
         var fcSrc: String? = null
@@ -517,6 +519,65 @@ object RefractionRepository {
         return hazeFromStored(readJson(dir?.let { File(it, "reference_${id.replace(',', '_')}.haze.json") }))?.also { referenceHaze[id] = it }
     }
 
+    /** Whether a haze forecast fetched then is still the newest (see [ModelRuns]; NOAA's stand-in: after HAZE_TTL_MS). */
+    private fun hazeForecastState(source: String?, fetchedAt: Long, lat: Double, lon: Double, network: Boolean): ModelRuns.State =
+        if (source == "gefs") ModelRuns.State(System.currentTimeMillis() - fetchedAt < HAZE_TTL_MS, fetchedAt + HAZE_TTL_MS)
+        else ModelRuns.runState(ModelRuns.hazeDomains(lat, lon), fetchedAt, HAZE_TTL_MS, network)
+
+    /** Whether a forecast fetched then is still the newest the place's models have (see [ModelRuns]). */
+    private fun forecastState(fcLat: Double, fcLon: Double, fetchedAt: Long, network: Boolean): ModelRuns.State =
+        ModelRuns.runState(ModelRuns.forecastDomains(fcLat, fcLon), fetchedAt, FORECAST_TTL_MS, network)
+
+    /** The horizon if it can be this location's terrain ([AtmosphereGuard.horizonProblem]), else null, reported once. */
+    private fun guardHorizon(horizon: JSONObject?, lat: Double, lon: Double, source: String): JSONObject? {
+        if (horizon == null) return null
+        val why = AtmosphereGuard.horizonProblem(horizon, lat, lon) ?: return horizon
+        AtmosphereGuard.report("$source: $why", "terrain horizon")
+        return null
+    }
+
+    // ------------------------------------------------------------------------------------- the climate envelope
+
+    /** The envelope comes from 30-year means: fetched again after this. */
+    private const val CLIMATE_MAX_AGE_MS = 90L * 24 * 60 * 60 * 1000
+
+    /** Stored outside the place index, as the reference haze is (the pruning keeps "reference_" files). */
+    private fun climateFile(lat: Double, lon: Double) = dir?.let { File(it, "reference_climate_${ClimateEnvelope.cellId(lat, lon).replace(',', '_')}.json") }
+
+    /** The stored envelope for a place's cell into [ClimateEnvelope] (no network), and whether it is fresh. */
+    private fun readClimateEnvelope(lat: Double, lon: Double): Boolean {
+        val st = readJson(climateFile(lat, lon)) ?: return false
+        val e = ClimateEnvelope.parse(st.optJSONObject("envelope")) ?: return false
+        ClimateEnvelope.set(e)
+        return System.currentTimeMillis() - st.optLong("fetchedAt") < CLIMATE_MAX_AGE_MS
+    }
+
+    /**
+     * Load the refraction server's climate envelope for a place into [ClimateEnvelope], where the guardrails' anomaly check reads it
+     * when the place's monthly normals didn't download: the stored one, fetched (and stored) when missing or old. Never throws.
+     * @return a note when the download failed
+     */
+    private fun loadClimateEnvelope(lat: Double, lon: Double): String? = try {
+        if (readClimateEnvelope(lat, lon)) null else {
+            val (status, text) = WeatherHttp.get("$REFRACTION_SERVER/v1/climate-envelope?lat=${String.format(Locale.ROOT, "%.4f", lat)}&lon=${String.format(Locale.ROOT, "%.4f", lon)}", 8000)
+            when {
+                status == 404 -> null// the server has no data for this place
+                status !in 200..299 -> "climate envelope: HTTP $status"
+                else -> {
+                    val j = JSONObject(text)
+                    val e = ClimateEnvelope.parse(j)
+                    if (e == null) "climate envelope: unusable answer" else {
+                        ClimateEnvelope.set(e)
+                        climateFile(lat, lon)?.let { f -> writeJson(null, f, JSONObject().put("fetchedAt", System.currentTimeMillis()).put("envelope", j)) }
+                        null
+                    }
+                }
+            }
+        }
+    } catch (e: Exception) {
+        "climate envelope: ${e.message}"
+    }
+
     // ------------------------------------------------------------------------------------- reading what is stored
 
     /** What earlier runs stored for this spot (memory first), for the first render; null when nothing is. Synchronous. */
@@ -536,7 +597,9 @@ object RefractionRepository {
         val haze = hazeFromStored(readJson(fileFor(p.haze.id, Kind.HAZE.file)), readSky(p.sky.id))
         val normals = readNormals(p.normals.id)
         if (stat == null && fc == null && haze == null && normals == null) return null
-        val horizon = stat?.optJSONObject("horizon")?.let { try { HorizonClient.ServerHorizon(it) } catch (e: Exception) { null } }
+        readClimateEnvelope(rawLat, rawLon)// for the guardrails, before the provider is used
+        // a damaged stored horizon, or another place's (AtmosphereGuard), is not used: downloaded again
+        val horizon = guardHorizon(stat?.optJSONObject("horizon"), rawLat, rawLon, "stored horizon")?.let { try { HorizonClient.ServerHorizon(it) } catch (e: Exception) { null } }
         val provider = Refraction.chainProviders(fc?.optJSONObject("table")?.let { providerFromSnapshot(it) }, normals?.provider())
         val data = RefractionData(provider, horizon?.set, horizon?.areaName, normals, haze, fc?.optLong("fetchedAt"), true, emptyList())
         memory[p.key] = data
@@ -616,9 +679,12 @@ object RefractionRepository {
         val useHaze = RefractionSupport.hazeTzet
         val stat = readJson(fileFor(p.horizon.id, Kind.HORIZON.file))
         val storedForecast = readJson(fileFor(p.forecast.id, Kind.FORECAST.file))
-        val fresh = !force && storedForecast != null && now - storedForecast.optLong("fetchedAt") < FORECAST_TTL_MS
         val fcLat = p.forecast.lat
         val fcLon = p.forecast.lon
+        // current: no model behind it has published a newer run since it was fetched (ModelRuns)
+        val fresh = !force && storedForecast != null && forecastState(fcLat, fcLon, storedForecast.optLong("fetchedAt"), network = true).current
+        // in place before the provider is used (the guardrails read it then)
+        if (useWeather) loadClimateEnvelope(rawLat, rawLon)?.let { notes.add(it) }
         val geo = GeoLocation(p.forecast.id, fcLat, fcLon, 0.0, java.time.ZoneOffset.UTC)
 
         val haze = if (useHaze) loadHaze(p.haze.lat, p.haze.lon, p.sky, notes, force, reference = false) else null
@@ -626,19 +692,23 @@ object RefractionRepository {
         // the stored horizon, checked about once a day against the server's terrain, downloaded again only where that changed
         val hLat = p.horizon.lat
         val hLon = p.horizon.lon
-        val storedHorizon = stat?.optJSONObject("horizon")
+        // a damaged stored horizon, or another place's (AtmosphereGuard), is not used: downloaded again
+        val storedHorizon = guardHorizon(stat?.optJSONObject("horizon"), rawLat, rawLon, "stored horizon")
+        /** a horizon that can't be this place's terrain: refused (the stored one is kept, else none) */
+        fun guarded(h: JSONObject): JSONObject = guardHorizon(h, rawLat, rawLon, "server horizon") ?: throw java.io.IOException("refused (not this place's terrain)")
         var terrainCheckedAt = stat?.optLong("terrainCheckedAt", 0)?.takeIf { it > 0 }
         var horizonRetryS: Int? = null
         val horizonJson: JSONObject? = if (!useTerrain) storedHorizon else try {
             when {
-                storedHorizon == null -> HorizonClient.fetchHorizonForArea(REFRACTION_SERVER, hLat, hLon, version = TERRAIN_VERSION).json.also { terrainCheckedAt = now }
+                storedHorizon == null -> guarded(HorizonClient.fetchHorizonForArea(REFRACTION_SERVER, hLat, hLon, version = TERRAIN_VERSION).json).also { terrainCheckedAt = now }
                 !force && terrainCheckedAt != null && now - terrainCheckedAt!! < TERRAIN_CHECK_MS -> storedHorizon
                 else -> {
                     val current = HorizonClient.fetchTerrainVersion(REFRACTION_SERVER, hLat, hLon)
                     if (HorizonClient.sameTerrain(current, HorizonClient.terrainOf(storedHorizon))) { terrainCheckedAt = now; storedHorizon }
                     else {
                         notes.add("terrain changed here: horizon downloaded again")
-                        HorizonClient.fetchHorizonForArea(REFRACTION_SERVER, hLat, hLon, version = "$TERRAIN_VERSION.${current.layers ?: "-"}.${current.fine ?: "-"}").json.also { terrainCheckedAt = now }
+                        // a new URL, so a cached copy of the old one isn't used
+                        guarded(HorizonClient.fetchHorizonForArea(REFRACTION_SERVER, hLat, hLon, version = "$TERRAIN_VERSION.${current.layers ?: "-"}.${current.fine ?: "-"}.${current.algo}").json).also { terrainCheckedAt = now }
                     }
                 }
             }
@@ -742,10 +812,18 @@ object RefractionRepository {
      * Like [ensureFresh], for when no screen is showing (RefractionRefreshJob, for the notifications and the widget): doesn't
      * change the place the screens keep fresh.
      * @param onDone runs on the loading thread once the load finished (also when it failed), only if one was started
-     * @return whether a load was started
+     * @return whether a load was started (false too when reading what is stored failed: it is logged, never thrown, because this runs
+     * on the disk reader's thread, where an uncaught exception would close the app)
      */
     @JvmStatic
-    fun refreshIfStale(rawLat: Double, rawLon: Double, onDone: Runnable?): Boolean {
+    fun refreshIfStale(rawLat: Double, rawLon: Double, onDone: Runnable?): Boolean = try {
+        refreshIfStaleOrThrow(rawLat, rawLon, onDone)
+    } catch (e: Exception) {
+        Log.e(TAG, "Checking whether the refraction data are stale failed", e)
+        false
+    }
+
+    private fun refreshIfStaleOrThrow(rawLat: Double, rawLon: Double, onDone: Runnable?): Boolean {
         if (dir == null || !RefractionSupport.enabled) return false
         if (rawLat == 0.0 && rawLon == 0.0) return false// no location yet (the app starts with 0, 0 until it has one)
         val key = places(rawLat, rawLon).key
@@ -758,7 +836,7 @@ object RefractionRepository {
             // no weather: the stored horizon is enough, and the haze forecast while fresh
             val stored = cached(rawLat, rawLon)
             val terrainOk = !RefractionSupport.terrain || stored?.horizon != null
-            val hazeOk = !RefractionSupport.hazeTzet || hazeStaleIn(stored) > 0
+            val hazeOk = !RefractionSupport.hazeTzet || hazeStaleIn(stored, rawLat, rawLon) > 0
             if (stored != null && terrainOk && hazeOk) return false
         }
         val now = System.currentTimeMillis()
@@ -783,10 +861,13 @@ object RefractionRepository {
     /** The place a screen last asked to keep fresh. */
     @Volatile private var lastAsked: DoubleArray? = null
 
+    /** Floor for the next refraction check (e.g. when offline), so a failure doesn't loop. */
+    private const val MIN_RECHECK_MS = 60 * 1000L
+
     /**
-     * For while the app is on screen: refresh the place last shown when its forecast has gone stale (so a screen left open
-     * gets the new forecast every [FORECAST_TTL_MS], as on opening it), and say how long until it is worth checking again.
-     * Listeners are told when new data land.
+     * For while the app is on screen: refresh the place last shown when a newer model run is out behind its forecast or haze (so a
+     * screen left open gets it, as on opening it), and say how long until it is worth checking again: when the next run is due,
+     * or when Open-Meteo said to wait (Retry-After). Listeners are told when new data land.
      */
     @JvmStatic
     fun refreshLastPlace(): Long {
@@ -794,23 +875,32 @@ object RefractionRepository {
         ensureFresh(p[0], p[1])
         val staleIn = when {
             RefractionSupport.weather -> forecastStaleIn(p[0], p[1])
-            RefractionSupport.hazeTzet -> hazeStaleIn(cached(p[0], p[1]))
+            RefractionSupport.hazeTzet -> hazeStaleIn(cached(p[0], p[1]), p[0], p[1])
             else -> 0
         }
+        val blocked = WeatherHttp.openMeteoBlockedUntil()
+        if (blocked > 0) return maxOf(MIN_RECHECK_MS, blocked - System.currentTimeMillis() + 1_000)
         // stale now (a load is under way, or failed offline): look again after the retry interval
-        return if (staleIn > 0) staleIn + 1_000 else RETRY_MS
+        return if (staleIn > 0) maxOf(MIN_RECHECK_MS, staleIn + 1_000) else RETRY_MS
     }
 
     /** Milliseconds until the stored haze forecast should be fetched again (0 = now / none). */
-    private fun hazeStaleIn(data: RefractionData?): Long {
-        val at = data?.haze?.forecastFetchedAt ?: return 0
-        return maxOf(0, at + HAZE_TTL_MS - System.currentTimeMillis())
+    private fun hazeStaleIn(data: RefractionData?, lat: Double, lon: Double): Long {
+        val haze = data?.haze ?: return 0
+        val at = haze.forecastFetchedAt ?: return 0
+        val s = hazeForecastState(haze.forecastSource, at, lat, lon, network = !isMainThread())
+        return if (s.current) maxOf(0, s.nextCheckAt - System.currentTimeMillis()) else 0
     }
 
-    /** Milliseconds until a place's stored forecast should be fetched again (0 = now / none). */
+    /**
+     * Milliseconds until a place's stored forecast should be fetched again (0 = now / none): when the next run of its models is due
+     * (see [ModelRuns]; on the main thread from the run records already read, else [FORECAST_TTL_MS] after it was fetched).
+     */
     @JvmStatic
     fun forecastStaleIn(rawLat: Double, rawLon: Double): Long {
         val at = cached(rawLat, rawLon)?.forecastFetchedAt ?: return 0
-        return maxOf(0, at + FORECAST_TTL_MS - System.currentTimeMillis())
+        val fc = places(rawLat, rawLon).forecast
+        val s = forecastState(fc.lat, fc.lon, at, network = !isMainThread())
+        return if (s.current) maxOf(0, s.nextCheckAt - System.currentTimeMillis()) else 0
     }
 }

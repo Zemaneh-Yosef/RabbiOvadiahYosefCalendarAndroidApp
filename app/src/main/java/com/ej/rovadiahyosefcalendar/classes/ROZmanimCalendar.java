@@ -331,7 +331,7 @@ public class ROZmanimCalendar extends ZmanimCalendar {
      * The visible sunrise: the first glimpse of the Sun over the refraction server's terrain horizon, traced through the day's air.
      * On a cache miss it is computed in the background (see {@link #getHaNetz(boolean)}).
      * @return the visible sunrise, or null without a terrain horizon for the place, while it is still being computed with no
-     * neighbouring day to estimate from, or when the result is more than an hour from sunrise (a bad profile).
+     * neighbouring day to estimate from (a horizon that can't be the place's terrain is refused when it is loaded).
      */
     public Instant getHaNetz() {
         return getHaNetz(false);
@@ -634,11 +634,19 @@ public class ROZmanimCalendar extends ZmanimCalendar {
         if (!amudehHoraah) {
             return getTzais72ForceRegZmanis();
         }
-        // where the Sun never gets 8.5 degrees down, solar midnight
-        if (getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 8.5) == null) {
+        // the equinox offset (72 minutes at the equinox) in seasonal time after sunset, and never before the Sun is 8.5 degrees
+        // below the horizon (the later of the two): dawn's mirror image (getAlotHashachar). Where the Sun never gets that low,
+        // solar midnight. (The website's port had always used the seasonal time, which its own note called a mistake: fixed there
+        // on 16 November 2026.)
+        Instant floor = getSunsetOffsetByDegrees(GEOMETRIC_ZENITH + 8.5);
+        if (floor == null) {
             return getSolarMidnight();
         }
-        return getAmudeiHoraahAfterSunset(16.04);
+        Instant seasonal = getAmudeiHoraahAfterSunset(16.04);
+        if (seasonal == null) {
+            return floor;
+        }
+        return seasonal.isBefore(floor) ? floor : seasonal;
     }
 
     public Instant getTzais72ForceRegZmanis() {

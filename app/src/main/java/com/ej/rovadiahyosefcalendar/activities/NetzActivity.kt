@@ -1,5 +1,6 @@
 package com.ej.rovadiahyosefcalendar.activities
 
+import android.util.Log
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
@@ -92,6 +93,7 @@ import com.ej.rovadiahyosefcalendar.classes.royzmanim.RefractionSupport
 import com.ej.rovadiahyosefcalendar.classes.royzmanim.SolarEvent
 import com.ej.rovadiahyosefcalendar.classes.royzmanim.StarNightfall
 import com.kosherjava.zmanim.util.GeoLocation
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -355,7 +357,17 @@ class NetzActivity : AppCompatActivity() {
                 // offline with nothing cached: no terrain or Sun, and try again now and then
                 while (isActive) {
                     // a fresh TerrainTiles per attempt: it gives up on a host for its lifetime once it looks unreachable
-                    val p = withContext(Dispatchers.IO) { PanoramaRenderer.render(TerrainTiles(cacheDir), view) { !isActive } }
+                    val p = try {
+                        withContext(Dispatchers.IO) { PanoramaRenderer.render(TerrainTiles(cacheDir), view) { !isActive } }
+                    } catch (e: CancellationException) {
+                        throw e// the screen was left: not a failure
+                    } catch (e: Exception) {
+                        Log.e("NetzActivity", "Rendering the panorama failed", e)
+                        null// the countdown is shown without the terrain, and the render is tried again
+                    } catch (e: OutOfMemoryError) {
+                        Log.e("NetzActivity", "Not enough memory for the panorama", e)
+                        null
+                    }
                     if (p != null) {
                         image = p.bitmap.asImageBitmap()
                         panorama = p

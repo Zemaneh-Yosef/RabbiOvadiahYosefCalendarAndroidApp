@@ -1,8 +1,17 @@
 package com.ej.rovadiahyosefcalendar.classes.royzmanim
 
 import android.util.Log
+import com.kosherjava.zmanim.util.GeoLocation
+import org.json.JSONArray
+import org.json.JSONObject
+import java.time.LocalDate
 import java.util.Collections
 import kotlin.math.abs
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.hypot
+import kotlin.math.max
+import kotlin.math.sin
 import kotlin.math.exp
 import kotlin.math.ln
 import kotlin.math.sign
@@ -13,6 +22,13 @@ import kotlin.math.sign
  * none is left, the calculator's standard model. The limits are the extremes the Earth has recorded (WMO), with a
  * margin, so real weather - however rare - is never refused; they catch values no air can have, not unusual ones.
  * See the website file for the sources of each limit.
+ *
+ * The terrain horizon the visible sunrise is computed over ([horizonProblem]) gets the same treatment, stored or downloaded: a
+ * refused horizon is not used (a stored one is downloaded again; without one the zmanim use the sea-level sunrise). It must be
+ * this location's - its area contains it, or its points lie within 5 km of it - and real ground: observer and terrain heights
+ * within the ground limits (an observer up to 1,000 m higher: a tower), terrain distances more than 0 and at most 500 km, and
+ * terrain angles at most 60 deg above the observer's eye level by geometry alone (the highest skylines the server finds are
+ * ~20 deg; a cliff 1,000 m high a kilometre away is 45 deg).
  */
 object AtmosphereGuard {
     val SURFACE_C = doubleArrayOf(-95.0, 60.0)
@@ -33,6 +49,12 @@ object AtmosphereGuard {
     const val SPIKE_C = 15.0
     const val SPIKE_MB = 10.0
     const val PROFILE_MAX_KM = 1000.0
+    const val OBSERVER_ABOVE_GROUND_M = 1000.0
+    const val HORIZON_MAX_KM = 500.0
+    const val HORIZON_MAX_DEG = 60.0
+    const val HORIZON_PLACE_KM = 5.0
+    private const val EARTH_M = 6371000.0
+    private const val KM_PER_DEG = 111.195
 
     private const val RD = 287.05
     private const val G = 9.80665
@@ -42,10 +64,11 @@ object AtmosphereGuard {
 
     /** Each refusal is reported once, so a bad source shows up in the log without flooding it. */
     @JvmStatic
-    fun report(what: String) {
+    @JvmOverloads
+    fun report(what: String, kind: String = "weather data") {
         if (!reported.add(what)) return
         if (reported.size > 200) reported.clear()
-        Log.w(TAG, "weather data refused: $what")
+        try { Log.w(TAG, "$kind refused: $what") } catch (e: RuntimeException) { /* unit tests: no Android log */ }
     }
 
     private fun within(v: Double?, range: DoubleArray) = v != null && v.isFinite() && v >= range[0] && v <= range[1]
@@ -129,6 +152,143 @@ object AtmosphereGuard {
         null -> Double.NaN
         is SurfaceAir -> spec.temperatureC
         is PathAir -> spec.path.minByOrNull { it.distanceKm }?.levels?.firstOrNull()?.t ?: Double.NaN
+    }
+
+    /**
+     * The height (m) of the temperature [groundTemperature] reads: the surface spec's heightM, or the lowest level of the path's
+     * column nearest the observer; else the observer's. 0 if none.
+     */
+    @JvmStatic
+    fun groundHeight(spec: AtmosphereSpec?, geo: GeoLocation?): Double {
+        var h = when (spec) {
+            is PathAir -> spec.path.minByOrNull { it.distanceKm }?.levels?.firstOrNull()?.h
+            is SurfaceAir -> spec.heightM
+            null -> null
+        }
+        if (h == null || !h.isFinite()) h = geo?.elevation
+        return if (h != null && h.isFinite()) h else 0.0
+    }
+
+    /**
+     * Why a spec's ground temperature is too far from the place's climate to be real air, or null. The reference is the place's
+     * normal for the date when there is one (normalC: within [MAX_ANOMALY_C] of it), else the refraction server's climate envelope
+     * for the place ([ClimateEnvelope]) at the spec's height: more than [MAX_ANOMALY_C] outside the month's whole range. With
+     * neither, nothing is checked.
+     */
+    @JvmStatic
+    @JvmOverloads
+    fun anomalyProblem(spec: AtmosphereSpec?, date: LocalDate?, geo: GeoLocation?, normalC: Double = Double.NaN): String? {
+        val here = groundTemperature(spec)
+        if (!here.isFinite()) return null
+        if (normalC.isFinite())
+            return if (abs(here - normalC) > MAX_ANOMALY_C) "$here C against a normal of ${String.format(java.util.Locale.ROOT, "%.1f", normalC)} C" else null
+        if (geo == null || date == null) return null
+        val h = groundHeight(spec, geo)
+        val range = ClimateEnvelope.at(geo.latitude, geo.longitude, date.monthValue, h) ?: return null
+        return if (here < range[0] - MAX_ANOMALY_C || here > range[1] + MAX_ANOMALY_C)
+            "$here C at ${h.toInt()} m, outside this place's climate (${range[0].toInt()}..${range[1].toInt()} C)" else null
+    }
+
+    private val checkedHorizons = java.util.WeakHashMap<JSONObject, MutableMap<String, String?>>()
+
+    /**
+     * Why a horizon set from the server (its JSON, as [HorizonClient] downloads and [RefractionRepository] stores it) cannot be
+     * this location's terrain, or null if it can (see the header). Checked once per set and location.
+     */
+    @JvmStatic
+    fun horizonProblem(set: JSONObject?, lat: Double, lon: Double): String? {
+        if (set == null) return "not a horizon"
+        val key = "$lat,$lon"
+        synchronized(checkedHorizons) { checkedHorizons[set]?.let { if (it.containsKey(key)) return it[key] } }
+        val r = checkHorizon(set, lat, lon)
+        synchronized(checkedHorizons) { checkedHorizons.getOrPut(set) { HashMap() }[key] = r }
+        return r
+    }
+
+    private fun num(o: JSONObject?, k: String): Double? = if (o == null || !o.has(k) || o.isNull(k)) null else o.optDouble(k, Double.NaN)
+
+    private fun num2(a: JSONArray, i: Int): Double? = if (i >= a.length() || a.isNull(i)) null else a.optDouble(i, Double.NaN)
+
+    private fun checkHorizon(set: JSONObject, lat: Double, lon: Double): String? {
+        val points = set.optJSONArray("points")
+        if (points == null || points.length() == 0) return "no points"
+        val placeDeg = HORIZON_PLACE_KM / KM_PER_DEG
+        // in an area: the location inside its box, the points too (the vantage grid, 100 m, may reach a little past it);
+        // elsewhere the points around the location
+        val area = set.optJSONObject("area")
+        val b = area?.optJSONArray("bbox")
+        val box = if (b != null && b.length() == 4 && (0 until 4).all { b.optDouble(it, Double.NaN).isFinite() }) DoubleArray(4) { b.getDouble(it) } else null
+        fun inBox(la: Double, lo: Double): Boolean {
+            val m = 1 / KM_PER_DEG
+            val c = max(0.01, cos(Math.toRadians(la)))
+            return la >= box!![0] - m && la <= box[2] + m && lo >= box[1] - m / c && lo <= box[3] + m / c
+        }
+        if (box != null && !inBox(lat, lon))
+            return "area ${area?.optString("name", area.optString("id", ""))} [${box.joinToString(",")}] does not contain $lat, $lon"
+        val eyeRange = doubleArrayOf(GROUND_M[0], GROUND_M[1] + OBSERVER_ABOVE_GROUND_M)
+        for (i in 0 until points.length()) {
+            val p = points.optJSONObject(i) ?: return "observer $i"
+            val pLat = num(p, "lat")
+            val pLon = num(p, "lon")
+            if (!within(pLat, doubleArrayOf(-90.0, 90.0)) || !within(pLon, doubleArrayOf(-180.0, 180.0))) return "observer at $pLat, $pLon"
+            if (box != null) {
+                if (!inBox(pLat!!, pLon!!)) return "observer at $pLat, $pLon, outside its area"
+            } else {
+                val dy = pLat!! - lat
+                val dx = (((pLon!! - lon) % 360 + 540) % 360 - 180) * cos(Math.toRadians(lat))
+                if (hypot(dx, dy) > placeDeg) return "observer at $pLat, $pLon, more than $HORIZON_PLACE_KM km from $lat, $lon"
+            }
+            val height = num(p, "height")
+            val ground = num(p, "ground") ?: height
+            if (!within(ground, GROUND_M)) return "ground $ground m at $pLat, $pLon"
+            if (!within(height, eyeRange)) return "observer $height m at $pLat, $pLon"
+            for (event in arrayOf("sunrise", "sunset")) {
+                if (!p.has(event) || p.isNull(event)) continue
+                val entries = p.optJSONArray(event) ?: return "$event horizon at $pLat, $pLon"
+                for (k in 0 until entries.length()) {
+                    val e = entries.optJSONObject(k) ?: return "$event horizon entry $k"
+                    val az = num(e, "azimuthDeg")
+                    if (!within(az, doubleArrayOf(-360.0, 720.0))) return "$event azimuth $az"
+                    // a measured horizon (an apparent angle) instead of terrain
+                    if (!e.has("distanceKm") && e.has("elevationDeg")) {
+                        val el = num(e, "elevationDeg")
+                        if (!within(el, doubleArrayOf(-90.0, HORIZON_MAX_DEG))) return "$event horizon $el deg at $az"
+                        continue
+                    }
+                    val alts = e.optJSONArray("alternates")
+                    val floor = num(e, "floorM")
+                    val why = terrainPointProblem(height!!, num(e, "distanceKm"), num(e, "heightM"))
+                        ?: alts?.let { a -> (0 until a.length()).firstNotNullOfOrNull { j -> a.optJSONArray(j)?.let { terrainPointProblem(height, num2(it, 0), num2(it, 1)) } } }
+                        ?: (if (e.has("floorM") && !e.isNull("floorM") && !within(floor, GROUND_M)) "floor $floor m" else null)
+                    if (why != null) return "$event horizon at $az deg from $pLat, $pLon: $why"
+                }
+            }
+        }
+        // the composite moon horizon: each direction seen from its own spot's eye (observerM)
+        val moon = set.optJSONObject("moon")
+        for (event in arrayOf("moonrise", "moonset")) {
+            val entries = moon?.optJSONArray(event) ?: continue
+            for (k in 0 until entries.length()) {
+                val e = entries.optJSONObject(k) ?: return "$event horizon entry $k"
+                val eye = num(e, "observerM")
+                if (!within(eye, eyeRange)) return "$event observer $eye m"
+                val why = terrainPointProblem(eye!!, num(e, "distanceKm"), num(e, "heightM"))
+                if (why != null) return "$event horizon at ${num(e, "azimuthDeg")} deg: $why"
+            }
+        }
+        return null
+    }
+
+    /** Why a terrain point (km, m) seen from an eye at eyeM cannot be real ground, or null. */
+    private fun terrainPointProblem(eyeM: Double, km: Double?, hM: Double?): String? {
+        if (!within(km, doubleArrayOf(0.0, HORIZON_MAX_KM)) || km == 0.0) return "distance $km km"
+        if (!within(hM, GROUND_M)) return "terrain $hM m"
+        // geometric angle above the eye's level, the Earth's curvature included
+        val th = km!! * 1000 / EARTH_M
+        val r1 = EARTH_M + eyeM
+        val r2 = EARTH_M + hM!!
+        val deg = Math.toDegrees(atan2(r2 * cos(th) - r1, r2 * sin(th)))
+        return if (deg > HORIZON_MAX_DEG) "$hM m at $km km is ${String.format(java.util.Locale.ROOT, "%.1f", deg)} deg up" else null
     }
 
     /** One value of an hourly series. */

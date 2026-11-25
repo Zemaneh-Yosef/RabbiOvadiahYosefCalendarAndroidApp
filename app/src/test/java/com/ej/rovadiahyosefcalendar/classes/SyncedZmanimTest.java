@@ -35,6 +35,9 @@ public class SyncedZmanimTest {
         assertEquals(cal.getSeaLevelSunset(), day.seaLevelSunset);
         assertEquals(cal.getDegreeTzetWithHaze(7.165), day.tzet7165);
         assertNull(day.haNetz); // no terrain horizon without data
+        assertTrue(day.has85);
+        assertEquals(cal.getSunriseOffsetByDegrees(98.5), day.sunriseAt85);
+        assertEquals(cal.getSunsetOffsetByDegrees(98.5), day.sunsetAt85);
         assertEquals(cal.getEquinoxPercentOfShaahZmanis(16.04, false), table.equinox(date.getYear(), 16.04, false));
 
         assertNull(table.day(date.plusDays(60)));

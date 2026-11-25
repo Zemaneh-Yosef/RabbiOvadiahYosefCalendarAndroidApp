@@ -613,6 +613,21 @@ public class LocationResolver {
         double latitude = useResolvedLocation ? mLatitude : sLatitude;
         double longitude = useResolvedLocation ? mLongitude : sLongitude;
         String locationName = mLocationName != null && !mLocationName.isEmpty() ? mLocationName : sCurrentLocationName;
+        // The ground height from our refraction server's terrain tiles (the heights its horizons use), else the AWS Terrain Tiles,
+        // as the website now does. GeoNames' average of three elevation sets only when neither answers.
+        Double ground = null;
+        try {
+            ground = new com.ej.rovadiahyosefcalendar.classes.netz.TerrainTiles(mContext.getCacheDir(),
+                    com.ej.rovadiahyosefcalendar.classes.royzmanim.RefractionRepository.REFRACTION_SERVER).groundHeight(latitude, longitude);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (ground != null && Double.isFinite(ground)) {
+            double meters = Math.max(0, Math.round(ground * 100) / 100.0);
+            mSharedPreferences.edit().putString("elevation" + locationName, String.valueOf(meters)).apply();
+            runAfterElevation(handler, codeToRunInBackground, codeToRunOnMainThread);
+            return;
+        }
         ArrayList<Integer> elevations = new ArrayList<>();
         int sum = 0;
         try {
@@ -661,7 +676,11 @@ public class LocationResolver {
             size = 1;//edge case if no elevation data is available
         }
         mSharedPreferences.edit().putString("elevation" + locationName, String.valueOf(sum / size)).apply();
+        runAfterElevation(handler, codeToRunInBackground, codeToRunOnMainThread);
+    }
 
+    /** What getElevationFromWebService runs once the elevation is stored. */
+    private static void runAfterElevation(Handler handler, Runnable codeToRunInBackground, Runnable codeToRunOnMainThread) {
         if (codeToRunInBackground != null) {
             try (ExecutorService executor = Executors.newSingleThreadExecutor()) {
                 Future<?> future = executor.submit(codeToRunInBackground);  // Submit codeToRunInBackground and get a Future
