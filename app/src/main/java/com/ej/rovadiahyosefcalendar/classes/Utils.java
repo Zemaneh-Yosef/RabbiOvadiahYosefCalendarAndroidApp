@@ -2,33 +2,25 @@ package com.ej.rovadiahyosefcalendar.classes;
 
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentLocationName;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sCurrentTimeZoneID;
-import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sJewishDateInfo;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sLatitude;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sLongitude;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sSettingsPreferences;
 import static com.ej.rovadiahyosefcalendar.activities.MainFragmentManagerActivity.sSharedPreferences;
 
-import android.Manifest;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.widget.Toast;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.Toast;
 
-import androidx.core.app.ActivityCompat;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ej.rovadiahyosefcalendar.R;
+import com.ej.rovadiahyosefcalendar.classes.royzmanim.MoonCalc;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.gms.wearable.Node;
@@ -37,15 +29,10 @@ import com.kosherjava.zmanim.util.GeoLocation;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import com.ej.rovadiahyosefcalendar.classes.royzmanim.MoonCalc;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -161,7 +148,7 @@ public class Utils {
             zmanTime = yesSecondDateFormat.format(zman);
         } else {
             Instant zmanInstant = zman;
-            if ((zman.getEpochSecond() > 40) || (zman.getEpochSecond() > 20 && secondTreatment == SecondTreatment.ROUND_LATER)) {
+            if ((zman.atZone(timezone).getSecond() > 40) || (zman.atZone(timezone).getSecond() > 20 && secondTreatment == SecondTreatment.ROUND_LATER)) {
                 zmanInstant = Utils.addMinuteToZman(zman);
             }
 
